@@ -52,6 +52,13 @@ public class ResourceConfigReader {
         return factory;
     }
 
+    public ResourceConfigReader(ClassLoader cl) {
+        digester = new Digester();
+        // digester.setLogger(LOG);  // Too many log messages.
+        digester.setClassLoader(cl);
+        init();
+    }
+
     private Digester digester;
 
     private ResourceConfigReader() {

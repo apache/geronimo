@@ -73,6 +73,11 @@
             <artifactId>console-core</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>console-filter</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>

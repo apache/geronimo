@@ -26,10 +26,10 @@ limitations under the License.
 
   <display-name>Geronimo Administration Console Portal Driver</display-name>
 
-  <context-param>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>/WEB-INF/pluto-portal-driver-services-config.xml</param-value>
-  </context-param>
+  <!--<context-param>-->
+    <!--<param-name>contextConfigLocation</param-name>-->
+    <!--<param-value>/WEB-INF/pluto-portal-driver-services-config.xml</param-value>-->
+  <!--</context-param>-->
 
   <!-- XSS/XSRF filter -->
   <filter>
@@ -49,7 +49,7 @@ limitations under the License.
   <!--</listener>-->
 
   <listener>
-    <listener-class>org.apache.pluto.driver.PortalStartupListener</listener-class>
+    <listener-class>org.apache.geronimo.pluto.PortalStartupListener</listener-class>
   </listener>
   
   <filter>

@@ -16,18 +16,10 @@
  */
 package org.apache.geronimo.jetty8;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.UnavailableException;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -38,7 +30,6 @@ import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 
@@ -65,7 +56,7 @@ public class POJOWebServiceHolderWrapper implements ServletNameSource, GBeanLife
                                      @ParamAttribute(name = "runAsRole") String runAsRole,
                                      @ParamReference(name = "WebServiceContainerFactory") WebServiceContainerFactory webServiceContainerFactory,
                                      @ParamReference(name = "JettyServletRegistration", namingType = NameFactory.WEB_MODULE) JettyServletRegistration context) throws Exception {
-        servletHolder = new GeronimoServletHolder(context == null ? null : context.getIntegrationContext(), context);
+        servletHolder = new GeronimoServletHolder(context == null ? null : context.getIntegrationContext(), context, POJOWebServiceServlet.class.getName());
         //context will be null only for use as "default servlet info holder" in deployer.
 
         this.pojoClassName = pojoClassName;
@@ -74,7 +65,6 @@ public class POJOWebServiceHolderWrapper implements ServletNameSource, GBeanLife
         this.servletMappings = servletMappings;
         if (context != null) {
             servletHolder.setName(servletName);
-            servletHolder.setClassName(POJOWebServiceServlet.class.getName());
             servletHolder.getRegistration().setRunAsRole(runAsRole);
             servletHolder.setInitParameters(initParams);
             if (loadOnStartup != null) {
@@ -92,7 +82,7 @@ public class POJOWebServiceHolderWrapper implements ServletNameSource, GBeanLife
 
     public void doStart() throws Exception {
         if (context != null) {
-            Class pojoClass = context.getWebClassLoader().loadClass(pojoClassName);
+            Class<? extends Object> pojoClass = context.loadClass(pojoClassName, Object.class);
 
             /* DMB: Hack! I really just want to override initServlet and give a reference of the WebServiceContainer to the servlet before we call init on it.
              * But this will have to do instead....

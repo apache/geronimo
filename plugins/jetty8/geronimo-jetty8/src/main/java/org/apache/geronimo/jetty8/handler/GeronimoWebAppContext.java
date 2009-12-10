@@ -47,14 +47,15 @@ import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnector
  */
 public class GeronimoWebAppContext extends WebAppContext {
 
-    protected final IntegrationContext integrationContext;
+    private final IntegrationContext integrationContext;
+    private final String modulePath;
 
-
-    public GeronimoWebAppContext(SecurityHandler securityHandler, SessionHandler sessionHandler, ServletHandler servletHandler, ErrorHandler errorHandler, IntegrationContext integrationContext, ClassLoader classLoader) {
+    public GeronimoWebAppContext(SecurityHandler securityHandler, SessionHandler sessionHandler, ServletHandler servletHandler, ErrorHandler errorHandler, IntegrationContext integrationContext, ClassLoader classLoader, String modulePath) {
         super(sessionHandler, securityHandler, servletHandler, errorHandler);
         this.integrationContext = integrationContext;
         setClassLoader(classLoader);
         setAttribute("osgi-bundlecontext", integrationContext.getBundle().getBundleContext());
+        this.modulePath = modulePath;
     }
 
     @Override
@@ -113,6 +114,9 @@ public class GeronimoWebAppContext extends WebAppContext {
 
     @Override
     public Resource getResource(String uriInContext) throws MalformedURLException {
+        if (modulePath != null) {
+            uriInContext = modulePath + uriInContext;
+        }
         URL url = integrationContext.getBundle().getEntry(uriInContext);
         if (url == null) {
             return null;

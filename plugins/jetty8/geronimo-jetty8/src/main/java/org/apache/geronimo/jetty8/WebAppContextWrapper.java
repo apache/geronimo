@@ -78,6 +78,9 @@ import org.osgi.framework.Bundle;
 j2eeType=NameFactory.WEB_MODULE)
 public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistration, WebModule {
     private static final Logger log = LoggerFactory.getLogger(WebAppContextWrapper.class);
+    public static final String GBEAN_ATTR_SESSION_TIMEOUT = "sessionTimeoutSeconds";
+    public static final String GBEAN_REF_SESSION_HANDLER_FACTORY = "SessionHandlerFactory";
+    public static final String GBEAN_REF_PRE_HANDLER_FACTORY = "PreHandlerFactory";
 
     private final String originalSpecDD;
     private final J2EEServer server;
@@ -96,53 +99,50 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
     private final Set<String> servletNames = new HashSet<String>();
 
-    public static final String GBEAN_ATTR_SESSION_TIMEOUT = "sessionTimeoutSeconds";
-
-    public static final String GBEAN_REF_SESSION_HANDLER_FACTORY = "SessionHandlerFactory";
-    public static final String GBEAN_REF_PRE_HANDLER_FACTORY = "PreHandlerFactory";
-    private IntegrationContext integrationContext;
+    private final IntegrationContext integrationContext;
 
 
     public WebAppContextWrapper(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
-                              @ParamAttribute(name = "contextPath") String contextPath,
-                              @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
-                              @ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
-                              @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
-                              @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
-                              @ParamAttribute(name = "configurationBaseUrl") URL configurationBaseUrl,
-                              @ParamAttribute(name = "workDir") String workDir,
-                              @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
-                              @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
-                              @ParamAttribute(name = "displayName") String displayName,
-                              @ParamAttribute(name = "contextParamMap") Map<String, String> contextParamMap,
-                              @ParamAttribute(name = "listenerClassNames") Collection<String> listenerClassNames,
-                              @ParamAttribute(name = "distributable") boolean distributable,
-                              @ParamAttribute(name = "mimeMap") Map mimeMap,
-                              @ParamAttribute(name = "welcomeFiles") String[] welcomeFiles,
-                              @ParamAttribute(name = "localeEncodingMapping") Map<String, String> localeEncodingMapping,
-                              @ParamAttribute(name = "errorPages") Map errorPages,
-                              @ParamAttribute(name = "tagLibMap") Map<String, String> tagLibMap,
-                              @ParamAttribute(name = "compactPath") boolean compactPath,
+                                @ParamAttribute(name = "contextPath") String contextPath,
+                                @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
+                                @ParamAttribute(name = "modulePath")String modulePath,
+                                @ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
+                                @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                                @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
+                                @ParamAttribute(name = "configurationBaseUrl") URL configurationBaseUrl,
+                                @ParamAttribute(name = "workDir") String workDir,
+                                @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
+                                @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
+                                @ParamAttribute(name = "displayName") String displayName,
+                                @ParamAttribute(name = "contextParamMap") Map<String, String> contextParamMap,
+                                @ParamAttribute(name = "listenerClassNames") Collection<String> listenerClassNames,
+                                @ParamAttribute(name = "distributable") boolean distributable,
+                                @ParamAttribute(name = "mimeMap") Map mimeMap,
+                                @ParamAttribute(name = "welcomeFiles") String[] welcomeFiles,
+                                @ParamAttribute(name = "localeEncodingMapping") Map<String, String> localeEncodingMapping,
+                                @ParamAttribute(name = "errorPages") Map errorPages,
+                                @ParamAttribute(name = "tagLibMap") Map<String, String> tagLibMap,
+                                @ParamAttribute(name = "compactPath") boolean compactPath,
 
-                              @ParamAttribute(name = GBEAN_ATTR_SESSION_TIMEOUT) int sessionTimeoutSeconds,
-                              @ParamReference(name = GBEAN_REF_SESSION_HANDLER_FACTORY) SessionHandlerFactory handlerFactory,
-                              @ParamReference(name = GBEAN_REF_PRE_HANDLER_FACTORY) PreHandlerFactory preHandlerFactory,
+                                @ParamAttribute(name = GBEAN_ATTR_SESSION_TIMEOUT) int sessionTimeoutSeconds,
+                                @ParamReference(name = GBEAN_REF_SESSION_HANDLER_FACTORY) SessionHandlerFactory handlerFactory,
+                                @ParamReference(name = GBEAN_REF_PRE_HANDLER_FACTORY) PreHandlerFactory preHandlerFactory,
 
-                              @ParamAttribute(name = "policyContextID") String policyContextID,
-                              @ParamReference(name = "SecurityHandlerFactory") SecurityHandlerFactory securityHandlerFactory,
-                              @ParamReference(name = "RunAsSource") RunAsSource runAsSource,
+                                @ParamAttribute(name = "policyContextID") String policyContextID,
+                                @ParamReference(name = "SecurityHandlerFactory") SecurityHandlerFactory securityHandlerFactory,
+                                @ParamReference(name = "RunAsSource") RunAsSource runAsSource,
 
-                              @ParamAttribute(name = "holder") Holder holder,
+                                @ParamAttribute(name = "holder") Holder holder,
 
-                              @ParamReference(name = "Host") Host host,
-                              @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
-                              @ParamReference(name = "TrackedConnectionAssociator") TrackedConnectionAssociator trackedConnectionAssociator,
-                              @ParamReference(name = "JettyContainer") JettyContainer jettyContainer,
-                              @ParamReference(name = "ContextCustomizer") RuntimeCustomizer contextCustomizer,
+                                @ParamReference(name = "Host") Host host,
+                                @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
+                                @ParamReference(name = "TrackedConnectionAssociator") TrackedConnectionAssociator trackedConnectionAssociator,
+                                @ParamReference(name = "JettyContainer") JettyContainer jettyContainer,
+                                @ParamReference(name = "ContextCustomizer") RuntimeCustomizer contextCustomizer,
 
-                              @ParamReference(name = "J2EEServer") J2EEServer server,
-                              @ParamReference(name = "J2EEApplication") J2EEApplication application,
-                              @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws Exception {
+                                @ParamReference(name = "J2EEServer") J2EEServer server,
+                                @ParamReference(name = "J2EEApplication") J2EEApplication application,
+                                @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws Exception {
 
         assert componentContext != null;
         assert classLoader != null;
@@ -187,7 +187,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
         integrationContext = new IntegrationContext(this.componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle);
-        webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader);
+        webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
         webAppContext.setCompactPath(compactPath);
@@ -296,8 +296,8 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         return this.webAppContext.getContextPath();
     }
 
-    public ClassLoader getWebClassLoader() {
-        return webClassLoader;
+    public <T>Class<? extends T> loadClass(String className, Class<T> clazz) throws ClassNotFoundException {
+        return integrationContext.getBundle().loadClass(className).asSubclass(clazz);
     }
 
     public IntegrationContext getIntegrationContext() {

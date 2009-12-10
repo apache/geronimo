@@ -36,7 +36,7 @@ public interface JettyServletRegistration {
 
     ServletHandler getServletHandler();
 
-    ClassLoader getWebClassLoader();
+    <T>Class<? extends T> loadClass(String className, Class<T> clazz) throws ClassNotFoundException;
 
     Object newInstance(String className) throws InstantiationException, IllegalAccessException;
 

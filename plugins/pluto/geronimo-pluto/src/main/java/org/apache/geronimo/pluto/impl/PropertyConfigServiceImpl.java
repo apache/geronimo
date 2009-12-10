@@ -19,11 +19,8 @@ package org.apache.geronimo.pluto.impl;
 import java.io.InputStream;
 import java.util.Set;
 
-import javax.servlet.ServletContext;
-
-//import org.apache.commons.logging.Log;
-//import org.apache.commons.logging.LogFactory;
 import org.apache.pluto.driver.config.DriverConfigurationException;
+import org.apache.pluto.driver.container.ResourceSource;
 import org.apache.pluto.driver.services.portal.PropertyConfigService;
 import org.apache.pluto.driver.services.impl.resource.ResourceConfig;
 
@@ -48,11 +45,15 @@ public class PropertyConfigServiceImpl implements
 
     }
 
+    public PropertyConfigServiceImpl(ResourceConfig config) {
+        this.config = config;
+    }
+
     /**
      * Initialization Lifecycle Method
      * @param ctx ServletContext for finding resources
      */
-    public void init(ServletContext ctx) {
+    public void init(ResourceSource ctx) {
         try {
             InputStream in = ctx.getResourceAsStream(ResourceConfigReader.CONFIG_FILE);
             config = ResourceConfigReader.getFactory().parse(in);

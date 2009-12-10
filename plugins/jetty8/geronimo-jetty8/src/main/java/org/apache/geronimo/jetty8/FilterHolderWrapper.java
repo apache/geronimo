@@ -18,10 +18,9 @@ package org.apache.geronimo.jetty8;
 
 import java.util.Map;
 
+import javax.servlet.Filter;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -42,10 +41,9 @@ public class FilterHolderWrapper implements GBeanLifecycle {
                              @ParamAttribute(name = "filterClass") String filterClass,
                              @ParamAttribute(name = "initParams") Map initParams,
                              @ParamReference(name = "JettyServletRegistration", namingType = NameFactory.WEB_MODULE) JettyServletRegistration jettyServletRegistration) throws Exception {
-        filterHolder = new InternalFilterHolder(jettyServletRegistration);
+        filterHolder = new InternalFilterHolder(jettyServletRegistration, filterClass);
         if (jettyServletRegistration != null) {
             filterHolder.setName(filterName);
-            filterHolder.setClassName(filterClass);
             filterHolder.setInitParameters(initParams);
             (jettyServletRegistration.getServletHandler()).addFilter(filterHolder);
         }
@@ -75,8 +73,12 @@ public class FilterHolderWrapper implements GBeanLifecycle {
         private final JettyServletRegistration servletRegistration;
         private boolean destroyed;
 
-        public InternalFilterHolder(JettyServletRegistration servletRegistration) {
+        public InternalFilterHolder(JettyServletRegistration servletRegistration, String filterClass) throws ClassNotFoundException {
             this.servletRegistration = servletRegistration;
+            if (servletRegistration != null) {
+                setClassName(filterClass);
+                _class = servletRegistration.loadClass(filterClass, Filter.class);
+            }
         }
 
 
@@ -130,26 +132,6 @@ public class FilterHolderWrapper implements GBeanLifecycle {
             }
         }
 
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(FilterHolderWrapper.class, NameFactory.WEB_FILTER);
-        infoBuilder.addAttribute("filterName", String.class, true);
-        infoBuilder.addAttribute("filterClass", String.class, true);
-        infoBuilder.addAttribute("initParams", Map.class, true);
-
-        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
-
-        infoBuilder.setConstructor(new String[]{"filterName", "filterClass", "initParams", "JettyServletRegistration"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

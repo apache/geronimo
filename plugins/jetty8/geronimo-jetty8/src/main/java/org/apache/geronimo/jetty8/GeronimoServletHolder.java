@@ -24,6 +24,7 @@ import javax.security.auth.Subject;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.Servlet;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
@@ -41,9 +42,13 @@ public class GeronimoServletHolder extends ServletHolder {
     private final IntegrationContext integrationContext;
     private final JettyServletRegistration servletRegistration;
 
-    public GeronimoServletHolder(IntegrationContext integrationContext, JettyServletRegistration servletRegistration) {
+    public GeronimoServletHolder(IntegrationContext integrationContext, JettyServletRegistration servletRegistration, String servletClassName) throws ClassNotFoundException {
         this.integrationContext = integrationContext;
         this.servletRegistration = servletRegistration;
+        if (integrationContext != null) {
+            setClassName(servletClassName);
+            _class = servletRegistration.loadClass(servletClassName, Servlet.class);
+        }
     }
 
     public synchronized Object newInstance() throws InstantiationException, IllegalAccessException {

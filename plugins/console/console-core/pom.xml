@@ -81,5 +81,19 @@
             <artifactId>geronimo-jsp_2.1_spec</artifactId>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>maven-bundle-plugin</artifactId>
+              <configuration>
+                <instructions>
+                    <Import-Package>org.apache.pluto.driver.services.portal,*</Import-Package>
+                    <Bundle-Activator>org.apache.geronimo.pluto.ConfigServiceActivator</Bundle-Activator>
+                </instructions>
+              </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

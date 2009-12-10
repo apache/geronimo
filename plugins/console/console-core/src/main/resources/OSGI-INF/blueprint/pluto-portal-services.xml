@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at 
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed  under the  License is distributed on an "AS IS" BASIS,
+WITHOUT  WARRANTIES OR CONDITIONS  OF ANY KIND, either  express  or
+implied.
+
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<!--
+
+  ************************************************************
+
+  NOTE:
+
+  The following configuration file contains the spring bean
+  configuration needed to run the pluto-portal in memory
+  mode.  Optional services are available which allow
+  persistence to an rdbms, xml files, etc. . . however,
+  we strongly recomend that if you are looking at these
+  advanced features that you consider an enterprise portal
+  such as Apache Jetspeed.
+
+  Service Functions Include:
+   - Preference Persistence
+   - User Attribute Persistence
+   - Portlet Registry
+   - Page Registry
+  ************************************************************
+
+  -->
+
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <bean id="PlutoServices"
+          class="org.apache.pluto.container.driver.PlutoServices">
+        <argument>
+            <ref component-id="PortalDriverServices"/>
+        </argument>
+    </bean>
+
+    <service id="PortalDriverServicesService" interface="org.apache.pluto.container.driver.PortalDriverServices"
+             ref="PortalDriverServices"/>
+    <bean id="PortalDriverServices"
+          class="org.apache.pluto.driver.container.PortalDriverServicesImpl">
+        <argument>
+            <ref component-id="PortalContext"/>
+        </argument>
+        <argument>
+            <ref component-id="PortletRequestContextService"/>
+        </argument>
+        <argument>
+            <ref component-id="EventCoordinationService"/>
+        </argument>
+        <argument>
+            <ref component-id="FilterManagerService"/>
+        </argument>
+        <argument>
+            <ref component-id="PortletURLListenerService"/>
+        </argument>
+    </bean>
+
+    <bean id="PortalContext"
+          class="org.apache.pluto.driver.services.container.PortalContextImpl">
+        <argument>
+            <ref component-id="DriverConfiguration"/>
+        </argument>
+    </bean>
+
+
+    <!-- ================================================ -->
+    <!-- The single top element of the configuration tree -->
+    <!-- ================================================ -->
+    <service id="DriverConfigurationService" interface="org.apache.pluto.driver.config.DriverConfiguration"
+             ref="DriverConfiguration"/>
+    <bean id="DriverConfiguration"
+          class="org.apache.pluto.driver.config.impl.DriverConfigurationImpl">
+
+        <!-- ===== Portal Services ===== -->
+        <argument>
+            <ref component-id="PortalURLParser"/>
+        </argument>
+        <argument>
+            <ref component-id="PropertyConfigService"/>
+        </argument>
+        <argument>
+            <ref component-id="RenderConfigService"/>
+        </argument>
+        <argument>
+            <ref component-id="SupportedModesService"/>
+        </argument>
+        <argument>
+            <ref component-id="SupportedWindowStatesService"/>
+        </argument>
+
+        <!--
+        <property name="portletPreferencesService"><ref component-id="PortletPreferencesService"/></property>
+        -->
+    </bean>
+
+    <!-- ================================================ -->
+    <!-- The single top element of the administration tree -->
+    <!-- ================================================ -->
+    <service id="AdminConfigurationService" interface="org.apache.pluto.driver.config.AdminConfiguration"
+             ref="AdminConfiguration"/>
+    <bean id="AdminConfiguration" class="org.apache.pluto.driver.config.impl.AdminConfigurationImpl">
+        <property name="renderConfigAdminService">
+            <ref component-id="RenderConfigService"/>
+        </property>
+    </bean>
+
+
+    <!-- ================================================ -->
+    <!-- Portal Services injected into the Configuration  -->
+    <!-- ================================================ -->
+
+    <bean id="ResourceConfigFactory" class="org.apache.geronimo.pluto.ResourceConfigFactory"
+          factory-method="getResourceConfig">
+        <argument>
+            <reference interface="org.apache.geronimo.pluto.ConfigService"/>
+        </argument>
+    </bean>
+    <bean id="PortalURLParser"
+          class="org.apache.pluto.driver.url.impl.PortalURLParserImpl"
+          factory-method="getParser">
+    </bean>
+
+    <bean id="PropertyConfigService"
+          class="org.apache.pluto.driver.services.impl.resource.PropertyConfigServiceImpl">
+        <argument>
+            <ref component-id="ResourceConfigFactory"/>
+        </argument>
+    </bean>
+
+    <bean id="RenderConfigService"
+          class="org.apache.pluto.driver.services.impl.resource.RenderConfigServiceImpl">
+        <argument>
+            <ref component-id="ResourceConfigFactory"/>
+        </argument>
+    </bean>
+
+    <bean id="SupportedModesService"
+          class="org.apache.pluto.driver.services.impl.resource.SupportedModesServiceImpl">
+        <argument>
+            <ref component-id="PropertyConfigService"/>
+        </argument>
+        <argument>
+            <ref component-id="PortletContextService"/>
+        </argument>
+    </bean>
+
+    <bean id="SupportedWindowStatesService"
+          class="org.apache.pluto.driver.services.impl.resource.SupportedWindowStateServiceImpl">
+        <argument>
+            <ref component-id="PropertyConfigService"/>
+        </argument>
+    </bean>
+
+    <!-- ================================================ -->
+    <!-- Container Services injected into  Configuration  -->
+    <!-- ================================================ -->
+    <bean id="PortletRequestContextService"
+          class="org.apache.pluto.driver.services.container.PortletRequestContextServiceImpl">
+    </bean>
+    <bean id="EventCoordinationService"
+          class="org.apache.pluto.driver.services.container.EventCoordinationServiceImpl">
+    </bean>
+    <bean id="FilterManagerService"
+          class="org.apache.pluto.driver.services.container.FilterManagerServiceImpl">
+    </bean>
+    <bean id="PortletURLListenerService"
+          class="org.apache.pluto.driver.services.container.PortletURLListenerServiceImpl">
+    </bean>
+    <bean id="PortletContextService"
+          class="org.apache.pluto.driver.container.PortletContextManager">
+        <argument>
+            <ref component-id="RequestDispatcherService"/>
+        </argument>
+    </bean>
+    <bean id="RequestDispatcherService"
+          class="org.apache.pluto.container.impl.RequestDispatcherServiceImpl">
+    </bean>
+
+    <!-- ================================================ -->
+    <!-- PortalServices for Geronimo                      -->
+    <!-- ================================================ -->
+    <bean id="GeronimoPortalServices"
+          class="org.apache.geronimo.pluto.PortalContainerServicesGBean"
+          factory-method="getSingleton"
+          activation="eager">
+        <property name="renderConfigService">
+            <ref component-id="RenderConfigService"/>
+        </property>
+        <!--<property name="portalCallbackService"><ref component-id="PortalCallbackService"/></property>-->
+        <property name="propertyConfigService">
+            <ref component-id="PropertyConfigService"/>
+        </property>
+        <property name="driverConfiguration">
+            <ref component-id="DriverConfiguration"/>
+        </property>
+        <property name="adminConfiguration">
+            <ref component-id="AdminConfiguration"/>
+        </property>
+    </bean>
+
+</blueprint>

@@ -18,7 +18,6 @@ package org.apache.geronimo.jetty8;
 
 import java.io.File;
 import java.net.URL;
-import java.net.URI;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Principal;
@@ -142,6 +141,7 @@ public class AbstractWebModuleTest extends TestSupport {
         String contextPath = "/test";
         WebAppContextWrapper app = new WebAppContextWrapper(null,
                 contextPath,
+                null,
                 null,
                 Collections.<String, Object>emptyMap(),
                 cl,

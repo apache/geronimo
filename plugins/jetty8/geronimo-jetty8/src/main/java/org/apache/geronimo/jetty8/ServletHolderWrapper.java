@@ -65,9 +65,8 @@ public class ServletHolderWrapper implements ServletNameSource, Servlet, GBeanLi
                               @ParamAttribute(name = "runAsRole") String runAsRole,
                               @ParamReference(name = "JettyServletRegistration", namingType = NameFactory.WEB_MODULE) JettyServletRegistration context) throws Exception {
         servletRegistration = context;
-        servletHolder = new GeronimoServletHolder(context == null ? null : context.getIntegrationContext(), servletRegistration);
+        servletHolder = new GeronimoServletHolder(context == null ? null : context.getIntegrationContext(), servletRegistration, servletClassName);
         servletHolder.setName(servletName);
-        servletHolder.setClassName(servletClassName);
         servletHolder.getRegistration().setRunAsRole(runAsRole);
         //context will be null only for use as "default servlet info holder" in deployer.
 
