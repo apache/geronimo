@@ -102,7 +102,7 @@
         <module>activemq</module>
         <module>aspectj</module>
         <!--<module>axis</module>-->
-        <!--<module>axis2</module>-->
+        <module>axis2</module>
         <module>client</module>
         <module>clustering</module>
         <module>connector-1_6</module>
