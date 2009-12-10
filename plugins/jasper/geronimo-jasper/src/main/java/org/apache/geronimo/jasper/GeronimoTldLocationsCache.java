@@ -25,19 +25,16 @@ import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import org.xml.sax.InputSource;
 
 import javax.servlet.ServletContext;
 
-// import org.apache.geronimo.kernel.config.MultiParentClassLoader;
-// import org.apache.geronimo.kernel.config.ChildrenConfigurationClassLoader;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.TldLocationsCache;
@@ -45,6 +42,7 @@ import org.apache.jasper.xmlparser.ParserUtils;
 import org.apache.jasper.xmlparser.TreeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
 /**
  * A container for all tag libraries that are defined "globally"
@@ -149,7 +147,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
     }
 
     public GeronimoTldLocationsCache(ServletContext ctxt) {
-        this(ctxt, true);
+        super(ctxt);
     }
 
     /** Constructor.
@@ -162,6 +160,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
      * because of JDK bug 4211817 fixed in this release.
      * If redeployMode is false, a faster but less capable mode will be used.
      */
+    /*
     public GeronimoTldLocationsCache(ServletContext ctxt, boolean redeployMode) {
         super(ctxt,redeployMode);
         scannedJars = new ArrayList<String>();
@@ -170,6 +169,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         mappings = new Hashtable<String,String[]>();
         initialized = false;
     }
+    */
 
     /**
      * Sets the list of JARs that are known not to contain any TLDs.
@@ -270,11 +270,11 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
             if (jspConfig != null) {
                 webtld = jspConfig;
             }
-            Iterator taglibs = webtld.findChildren("taglib");
+            Iterator<TreeNode> taglibs = webtld.findChildren("taglib");
             while (taglibs.hasNext()) {
 
                 // Parse the next <taglib> element
-                TreeNode taglib = (TreeNode) taglibs.next();
+                TreeNode taglib = taglibs.next();
                 String tagUri = null;
                 String tagLoc = null;
                 TreeNode child = taglib.findChild("taglib-uri");
@@ -324,9 +324,9 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
                 conn.setUseCaches(false);
             }
             jarFile = conn.getJarFile();
-            Enumeration entries = jarFile.entries();
+            Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
-                JarEntry entry = (JarEntry) entries.nextElement();
+                JarEntry entry = entries.nextElement();
                 String name = entry.getName();
                 if (!name.startsWith("META-INF/")) continue;
                 if (!name.endsWith(".tld")) continue;
@@ -384,11 +384,11 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
     private void processTldsInFileSystem(String startPath)
             throws Exception {
 
-        Set dirList = ctxt.getResourcePaths(startPath);
+        Set<String> dirList = ctxt.getResourcePaths(startPath);
         if (dirList != null) {
-            Iterator it = dirList.iterator();
+            Iterator<String> it = dirList.iterator();
             while (it.hasNext()) {
-                String path = (String) it.next();
+                String path = it.next();
                 if (path.endsWith("/")) {
                     processTldsInFileSystem(path);
                 }

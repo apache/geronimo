@@ -30,8 +30,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.InstanceManager;
+import org.apache.tomcat.InstanceManager;
 
 /**
  * @version $Rev$ $Date$

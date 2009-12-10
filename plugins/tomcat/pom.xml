@@ -38,15 +38,15 @@
     </description>
 
     <modules>
-        <module>geronimo-tomcat6</module>
-        <module>geronimo-tomcat6-builder</module>
-        <module>tomcat6</module>
-        <module>tomcat6-no-ha</module>
-        <module>tomcat6-deployer</module>
-        <module>geronimo-tomcat6-clustering-wadi</module>
-        <module>geronimo-tomcat6-clustering-builder-wadi</module>
-        <module>tomcat6-clustering-wadi</module>
-        <module>tomcat6-clustering-builder-wadi</module>
+        <module>geronimo-tomcat7</module>
+        <module>geronimo-tomcat7-builder</module>
+        <module>tomcat7</module>
+        <module>tomcat7-no-ha</module>
+        <module>tomcat7-deployer</module>
+        <module>geronimo-tomcat7-clustering-wadi</module>
+        <module>geronimo-tomcat7-clustering-builder-wadi</module>
+        <module>tomcat7-clustering-wadi</module>
+        <module>tomcat7-clustering-builder-wadi</module>
     </modules>
 
     <dependencyManagement>
@@ -57,30 +57,30 @@
                 <artifactId>jasper</artifactId>
                 <version>${tomcatVersion}</version>
                 <exclusions>
-                    <exclusion>
+                    <!--exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>servlet-api</artifactId>
-                    </exclusion>
+                    </exclusion-->
                     <exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>juli</artifactId>
                     </exclusion>
-                    <exclusion>
+                    <!--exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>jsp-api</artifactId>
-                    </exclusion>
-                    <exclusion>
+                    </exclusion-->
+                    <!--exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>el-api</artifactId>
-                    </exclusion>
+                    </exclusion-->
                     <exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>catalina</artifactId>
                     </exclusion>
-                    <exclusion>
+                    <!--exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>annotations-api</artifactId>
-                    </exclusion>
+                    </exclusion-->
                 </exclusions>
             </dependency>
             <dependency>
@@ -88,30 +88,30 @@
                 <artifactId>jasper-el</artifactId>
                 <version>${tomcatVersion}</version>
                 <exclusions>
-                    <exclusion>
+                    <!--exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>servlet-api</artifactId>
-                    </exclusion>
+                    </exclusion-->
                     <exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>juli</artifactId>
                     </exclusion>
-                    <exclusion>
+                    <!--exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>jsp-api</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>el-api</artifactId>
-                    </exclusion>
+                    </exclusion-->
                     <exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>catalina</artifactId>
                     </exclusion>
-                    <exclusion>
+                    <!--exclusion>
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>annotations-api</artifactId>
-                    </exclusion>
+                    </exclusion-->
                 </exclusions>
             </dependency>
 
@@ -133,15 +133,19 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-ejb_3.0_spec</artifactId>
+                        <artifactId>geronimo-ejb_3.1_spec</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-servlet_2.5_spec</artifactId>
+                        <artifactId>geronimo-servlet_3.0_spec</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jpa_1.0_spec</artifactId>
+                        <artifactId>geronimo-jpa_2.0_spec</artifactId>
+                    </exclusion>
+                    <exclusion>        
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-javamail_1.4_spec</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -156,11 +160,11 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-ejb_3.0_spec</artifactId>
+                        <artifactId>geronimo-ejb_3.1_spec</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-servlet_2.5_spec</artifactId>
+                        <artifactId>geronimo-servlet_3.0_spec</artifactId>
                     </exclusion>
                  </exclusions>
             </dependency>
@@ -175,11 +179,11 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-ejb_3.0_spec</artifactId>
+                        <artifactId>geronimo-ejb_3.1_spec</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-servlet_2.5_spec</artifactId>
+                        <artifactId>geronimo-servlet_3.0_spec</artifactId>
                     </exclusion>
                  </exclusions>
             </dependency>

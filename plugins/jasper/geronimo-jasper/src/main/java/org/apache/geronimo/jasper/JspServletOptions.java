@@ -21,6 +21,7 @@ import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.jsp.tagext.TagLibraryInfo;
 
 import org.apache.jasper.EmbeddedServletOptions;
 import org.apache.jasper.Options;
@@ -29,7 +30,9 @@ import org.apache.jasper.compiler.TagPluginManager;
 import org.apache.jasper.compiler.TldLocationsCache;
 
 public class JspServletOptions implements Options {
+
     EmbeddedServletOptions delegate;
+
     TldLocationsCache tldLocationsCache;
 
     /**
@@ -45,7 +48,7 @@ public class JspServletOptions implements Options {
         return delegate.genStringAsCharArray();
     }
 
-    public Map getCache() {
+    public Map<String, TagLibraryInfo> getCache() {
         return delegate.getCache();
     }
 
@@ -119,10 +122,6 @@ public class JspServletOptions implements Options {
 
     public File getScratchDir() {
         return delegate.getScratchDir();
-    }
-
-    public boolean getSendErrorToClient() {
-        return delegate.getSendErrorToClient();
     }
 
     public TagPluginManager getTagPluginManager() {

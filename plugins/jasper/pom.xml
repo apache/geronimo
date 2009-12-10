@@ -76,10 +76,6 @@
                     <!--</exclusion>-->
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-servlet_2.5_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-servlet_3.0_spec</artifactId>
                     </exclusion>
                     <exclusion>
@@ -92,6 +88,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
             <dependency>
                 <groupId>${tomcatGroupId}</groupId>
                 <artifactId>jasper-el</artifactId>
@@ -108,14 +105,7 @@
             <!--<groupId>${tomcatGroupId}</groupId>-->
             <!--<artifactId>jasper-jdt</artifactId>-->
             <!--<version>${tomcatVersion}</version>-->
-            <!--</dependency>-->
-
-
-            <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.jdt-core</artifactId>
-                <version>3.2.3_3-SNAPSHOT</version>
-            </dependency>
+            <!--</dependency>-->            
         </dependencies>
     </dependencyManagement>
 
