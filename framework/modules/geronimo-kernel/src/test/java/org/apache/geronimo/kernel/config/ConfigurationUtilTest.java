@@ -52,6 +52,12 @@ public class ConfigurationUtilTest extends TestCase {
         configurationData = createConfigurationData(xstreamConfigurationMarshaler);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         xstreamConfigurationMarshaler.writeConfigurationData(configurationData, out);
+        // Test whether the attribute "value" is encrypted
+        assertFalse(out.toString().contains("1234"));
+        assertFalse(out.toString().contains("5678"));
+        // Test whether other attributes are not encrypted
+        assertTrue(out.toString().contains("Parent"));
+        assertTrue(out.toString().contains("child"));
         data = copy(configurationData, xstreamConfigurationMarshaler, xstreamConfigurationMarshaler);
         assertEquals(data, configurationData);
 

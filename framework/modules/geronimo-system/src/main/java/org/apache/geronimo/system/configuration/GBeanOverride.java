@@ -69,6 +69,7 @@ public class GBeanOverride implements Serializable {
     private final Map<String, ReferencePatterns> references = new LinkedHashMap<String, ReferencePatterns>();
     private final Set<String> clearAttributes = new LinkedHashSet<String>();
     private final Set<String> nullAttributes = new LinkedHashSet<String>();
+    private final Set<String> encryptedAttributes = new LinkedHashSet<String>();
     private final Set<String> clearReferences = new LinkedHashSet<String>();
     private final String gbeanInfo;
     private final JexlExpressionParser expressionParser;
@@ -104,6 +105,7 @@ public class GBeanOverride implements Serializable {
         this.references.putAll(original.references);
         this.clearAttributes.addAll(original.clearAttributes);
         this.nullAttributes.addAll(original.nullAttributes);
+        this.encryptedAttributes.addAll(original.encryptedAttributes);
         this.clearReferences.addAll(original.clearReferences);
         this.gbeanInfo = original.gbeanInfo;
         this.expressionParser = original.expressionParser;
@@ -143,8 +145,12 @@ public class GBeanOverride implements Serializable {
             if (attributeInfo == null) {
                 throw new InvalidAttributeException("No attribute: " + attributeName + " for gbean: " + gbeanData.getAbstractName());
             }
+            // TODO: shouldn't we only save manageable attributes here?
             Object attributeValue = entry.getValue();
-            setAttribute(attributeName, attributeValue, attributeInfo.getType(), classLoader);
+            setAttribute(attributeInfo, attributeValue, classLoader);
+            if (attributeInfo.isEncrypted() && attributes.containsKey(attributeName)) {
+                encryptedAttributes.add(attributeName);
+            }
         }
 
         // references can be coppied in blind
@@ -199,6 +205,14 @@ public class GBeanOverride implements Serializable {
                     } else {
                         String truevalue = (String) EncryptionManager.decrypt(value);
                         setAttribute(attr.getName(), truevalue);
+                        /*
+                         * If the original value is encrypted, retain this 
+                         * meta-information.
+                         */
+                        if (!value.equals(truevalue)
+                                && attributes.containsKey(attr.getName())) {
+                            encryptedAttributes.add(attr.getName());
+                        }
                     }
                 }
             } else if (o instanceof ReferenceType) {
@@ -312,12 +326,43 @@ public class GBeanOverride implements Serializable {
         references.remove(referenceName);
     }
 
-    public void setAttribute(String attributeName, Object attributeValue, String attributeType, ClassLoader classLoader) throws InvalidAttributeException {
+    public void setAttribute(GAttributeInfo attrInfo, Object attributeValue,
+            ClassLoader classLoader) throws InvalidAttributeException {
+        setAttribute(attrInfo.getName(), attributeValue, attrInfo.getType(),
+                classLoader);
+        if (attrInfo.isEncrypted()
+                && attributes.containsKey(attrInfo.getName())) {
+            encryptedAttributes.add(attrInfo.getName());
+        } else {
+            encryptedAttributes.remove(attrInfo.getName());
+        }
+    }
+
+    /**
+     * This method should be discouraged for usage outside in future, as it does
+     * not pass in encryption meta-information about the attribute being set.
+     * 
+     * Use setAttribute(GAttributeInfo attrInfo, Object attributeValue,
+     * ClassLoader classLoader) instead.
+     * 
+     * @deprecated
+     */
+    void setAttribute(String attributeName, Object attributeValue, String attributeType, ClassLoader classLoader) throws InvalidAttributeException {
         String stringValue = getAsText(attributeName, attributeValue, attributeType, classLoader);
         setAttribute(attributeName, stringValue);
     }
 
-    public void setAttribute(String attributeName, String attributeValue) {
+
+    /**
+     * This method should be discouraged for usage outside in future, as it does
+     * not pass in encryption meta-information about the attribute being set.
+     * 
+     * Use setAttribute(GAttributeInfo attrInfo, Object attributeValue,
+     * ClassLoader classLoader) instead.
+     * 
+     * @deprecated
+     */
+    void setAttribute(String attributeName, String attributeValue) {
         if (attributeValue == null || attributeValue.length() == 0) {
             setClearAttribute(attributeName);
         } else {
@@ -358,6 +403,12 @@ public class GBeanOverride implements Serializable {
             String valueString = entry.getValue();
             Object value = getValue(attributeInfo, valueString, configName, gbeanName, classLoader);
             data.setAttribute(attributeName, value);
+            // Read the latest encryption meta-information on attributes
+            if (attributeInfo.isEncrypted()) {
+                encryptedAttributes.add(attributeName);
+            } else {
+                encryptedAttributes.remove(attributeName);
+            }
         }
 
         //Clear attributes
@@ -468,9 +519,8 @@ public class GBeanOverride implements Serializable {
             } else {                
                 nullAttributes.remove(name);
                 clearAttributes.remove(name);
-
-                if ((name.toLowerCase().indexOf("password") > -1) ||
-                    (name.toLowerCase().equals("keystorepass"))) {
+              
+                if (encryptedAttributes.contains(name)) {
                     value = EncryptionManager.encrypt(value);
                 }
 

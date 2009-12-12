@@ -74,6 +74,12 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -117,12 +123,12 @@
             <type>rar</type>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jsr88-rar-configurer</artifactId>
             <version>${version}</version>
             <type>car</type>
-        </dependency>
+        </dependency-->
 
         <!-- for jspc. why is this needed? -->
         <dependency>

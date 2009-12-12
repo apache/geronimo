@@ -63,6 +63,7 @@
                 <include>xpp3:xpp3</include>
                 <include>com.thoughtworks.xstream:xstream</include>
                 <include>org.apache.geronimo.framework:geronimo-cli</include>
+                <include>org.apache.geronimo.framework:geronimo-crypto</include>
                 <include>org.apache.geronimo.framework:geronimo-kernel</include>
                 <include>org.apache.geronimo.framework:geronimo-deploy-jsr88-bootstrapper</include>
                 <include>org.apache.geronimo.framework:jsr88-deploymentfactory</include>

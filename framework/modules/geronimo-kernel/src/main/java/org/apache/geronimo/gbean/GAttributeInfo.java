@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.crypto.EncryptionManager;
 
 /**
  * Describes an attibute of a GBean.
@@ -49,6 +50,11 @@ public class GAttributeInfo implements Serializable {
      * Is this attribute manageable?
      */
     private final boolean manageable;
+    
+    /**
+     * Does this attribute need to be encrypted when persisted?
+     */
+    private final boolean encrypted;
 
     /**
      * Is this attribute readable?
@@ -71,17 +77,46 @@ public class GAttributeInfo implements Serializable {
      * The default is "set" + name.  In the case of a defualt value we do a caseless search for the name.
      */
     private final String setterName;
+    
+    /**
+     * Determines whether the given attribute need to be encrypted by default.
+     * 
+     * @param name - Name of the attribute
+     * @param type - Type of the attribute
+     * @return
+     */
+    private static boolean defaultEncrypted(String name, String type) {
+        if (name != null && (name.toLowerCase().contains("password") || name.toLowerCase().contains("keystorepass")) && "java.lang.String".equals(type)) {
+            return true;
+        } else {
+           return false;
+        }
+    }
 
     public GAttributeInfo(String name, String type, boolean persistent, boolean manageable, String getterName, String setterName) {
         this(name, type, persistent, manageable, getterName != null, setterName != null, getterName, setterName);
     }
 
     public GAttributeInfo(String name, String type, boolean persistent, boolean manageable, boolean readable, boolean writable, String getterName, String setterName) {
+        this(name, type, persistent, manageable, defaultEncrypted(name, type), readable, writable, getterName,
+                setterName);       
+    }
+
+    public GAttributeInfo(String name, String type, boolean persistent, boolean manageable, boolean encrypted, String getterName, String setterName) {
+        this(name, type, persistent, manageable, encrypted, getterName != null, setterName != null, getterName,
+                setterName);
+    }
+
+    public GAttributeInfo(String name, String type, boolean persistent, boolean manageable, boolean encrypted, boolean readable, boolean writable, String getterName, String setterName) {
+        if (encrypted && !"java.lang.String".equals(type)) {
+            throw new IllegalArgumentException("Only attributes of String type can be encrypted.");
+        }
         this.name = name;
         this.type = type;
         this.persistent = persistent;
         //non persistent attributes cannot be manageable
         this.manageable = manageable & persistent;
+        this.encrypted = encrypted;
         this.readable = readable;
         this.writable = writable;
         this.getterName = getterName;
@@ -102,6 +137,10 @@ public class GAttributeInfo implements Serializable {
 
     public boolean isManageable() {
         return manageable;
+    }
+
+    public boolean isEncrypted() {
+        return encrypted;
     }
 
     public boolean isReadable() {
@@ -125,6 +164,7 @@ public class GAttributeInfo implements Serializable {
                  " type=" + type +
                  " persistent=" + persistent +
                  " manageable=" + manageable +
+                 " encrypted=" + encrypted +
                  " readable=" + readable +
                  " writable=" + writable +
                  " getterName=" + getterName +
@@ -140,6 +180,7 @@ public class GAttributeInfo implements Serializable {
         xml.append("type='" + type + "' ");
         xml.append("persistent='" + persistent + "' ");
         xml.append("manageable='" + manageable + "' ");
+        xml.append("encrypted='" + encrypted + "' ");
         xml.append("readable='" + readable + "' ");
         xml.append("writable='" + writable + "' ");
         xml.append(">");
@@ -152,9 +193,13 @@ public class GAttributeInfo implements Serializable {
                 Object value = KernelRegistry.getSingleKernel().getAttribute(abstractName, name);
                 if (value != null) {
                     if (value instanceof String[]) {
-                        for (String valueString : Arrays.asList((String[]) value))
+                        for (String valueString : Arrays.asList((String[]) value)) {
                             xml.append("<value>" + valueString + "</value>");
+                        }
                     } else {
+                        if (encrypted && value instanceof String) {
+                            value = EncryptionManager.encrypt((String) value);
+                        }
                         xml.append("<value>" + value + "</value>");
                     }
                 }

@@ -34,20 +34,26 @@
     <packaging>car</packaging>
     
     <dependencies>
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jsr88-cli</artifactId>
             <version>${version}</version>
             <scope>runtime</scope>
             <type>car</type>
-        </dependency>
+        </dependency-->
 
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>connector-deployer</artifactId>
             <version>${version}</version>
             <scope>runtime</scope>
             <type>car</type>
+        </dependency-->
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-connector-builder</artifactId>
+            <version>${version}</version>
         </dependency>
     </dependencies>
     
@@ -61,7 +67,7 @@
                         <value>false</value>
                     </useMavenDependencies>
                     <dependencies>
-                        <dependency>
+                        <!--dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>connector-deployer</artifactId>
                             <type>car</type>
@@ -71,6 +77,12 @@
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>jsr88-cli</artifactId>
                             <type>car</type>
+                            <import>classes</import>
+                        </dependency-->
+                        <dependency>
+                            <groupId>org.apache.geronimo.modules</groupId>
+                            <artifactId>geronimo-connector-builder</artifactId>
+                            <type>jar</type>
                             <import>classes</import>
                         </dependency>
                     </dependencies>

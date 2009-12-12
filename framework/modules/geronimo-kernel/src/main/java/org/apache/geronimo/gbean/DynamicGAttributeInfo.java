@@ -23,6 +23,10 @@ package org.apache.geronimo.gbean;
  * @version $Rev$ $Date$
  */
 public class DynamicGAttributeInfo extends GAttributeInfo {
+    public DynamicGAttributeInfo(String name, String type, boolean persistent, boolean manageable, boolean encrypted, boolean readable, boolean writable) {
+        super(name, type, persistent, manageable, encrypted, readable, writable, null, null);
+    }
+    
     public DynamicGAttributeInfo(String name, String type, boolean persistent, boolean manageable, boolean readable, boolean writable) {
         super(name, type, persistent, manageable, readable, writable, null, null);
     }

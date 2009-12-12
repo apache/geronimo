@@ -16,23 +16,9 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.Jsr77Naming;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-
-import javax.management.ObjectName;
-
+import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +26,25 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import javax.management.ObjectName;
+
+import junit.framework.TestCase;
+
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -51,6 +56,7 @@ public class LocalAttributeManagerTest extends TestCase {
     private Artifact configurationName;
     private AbstractName gbeanName;
     private GAttributeInfo attributeInfo;
+    private GAttributeInfo encryptedAttributeInfo;
     private GReferenceInfo referenceInfo;
 
     public void testConfigurationShouldLoad() throws Exception {
@@ -128,6 +134,22 @@ public class LocalAttributeManagerTest extends TestCase {
         gbeanDatas.add(gbeanData);
         gbeanDatas = localAttributeManager.applyOverrides(configurationName, gbeanDatas, getClass().getClassLoader());
         assertEquals(attributeValue, gbeanData.getAttribute(attributeInfo.getName()));
+        StringWriter w = new StringWriter();
+        localAttributeManager.write(w);
+        assertTrue(w.toString().contains(attributeValue));
+    }
+
+    public void testEncryptedAttribute() throws Exception {
+        String attributeValue = "attribute value";
+        localAttributeManager.setValue(configurationName, gbeanName, encryptedAttributeInfo, attributeValue, getClass().getClassLoader());
+        Collection gbeanDatas = new ArrayList();
+        GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);
+        gbeanDatas.add(gbeanData);
+        gbeanDatas = localAttributeManager.applyOverrides(configurationName, gbeanDatas, getClass().getClassLoader());
+        assertEquals(attributeValue, gbeanData.getAttribute(encryptedAttributeInfo.getName()));
+        StringWriter w = new StringWriter();
+        localAttributeManager.write(w);
+        assertFalse(w.toString().contains(attributeValue));
     }
 
     public void testSetReference() throws Exception {
@@ -227,6 +249,7 @@ public class LocalAttributeManagerTest extends TestCase {
         ObjectName objectName = ObjectName.getInstance(":name=gbean,parent="+configurationName+",foo=bar");
         gbeanName = new AbstractName(configurationName, objectName.getKeyPropertyList(), objectName);
         attributeInfo = GBEAN_INFO.getAttribute("attribute");
+        encryptedAttributeInfo = GBEAN_INFO.getAttribute("secret");
         referenceInfo = GBEAN_INFO.getReference("reference");
     }
 
@@ -241,6 +264,7 @@ public class LocalAttributeManagerTest extends TestCase {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(LocalAttributeManagerTest.class);
         infoFactory.addReference("reference", String.class);
         infoFactory.addAttribute("attribute", String.class, true);
+        infoFactory.addAttribute("secret", String.class, true, true, true);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.geronimo.crypto.EncryptionManager;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -110,8 +112,21 @@ public class GBeanData implements Externalizable {
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
+    
+    private boolean isEncrypted(String attrName) {
+        if (gbeanInfo != null) {
+            GAttributeInfo attr = gbeanInfo.getAttribute(attrName);
+            if (attr != null) {
+                return attr.isEncrypted();
+            }
+        }
+        return false;
+    }
 
     public void setAttribute(String name, Object value) {
+        if (isEncrypted(name) && value != null) {
+            value = EncryptionManager.decrypt((String) value);
+        }
         attributes.put(name, value);
     }
 
@@ -207,6 +222,9 @@ public class GBeanData implements Externalizable {
         for (Map.Entry<String, Object> entry : attributes.entrySet()) {
             String name = entry.getKey();
             Object value = entry.getValue();
+            if (isEncrypted(name) && value != null) {
+                value = EncryptionManager.encrypt((String) value);
+            }
             try {
                 out.writeObject(name);
                 out.writeObject(value);
@@ -351,4 +369,5 @@ public class GBeanData implements Externalizable {
     }
 
 }
+
 

@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
@@ -48,6 +49,15 @@ public class GBeanAttributeTest extends TestCase {
     private GAttributeInfo attributeInfo = null;
     private Kernel kernel;
 
+    public final void testGBeanAttributeEncryption() {
+        GBeanInfo ginfo = gbeanInstance.getGBeanInfo();
+        assertTrue(ginfo.getAttribute("value").isEncrypted());
+        assertTrue(ginfo.getAttribute("yourPassword").isEncrypted());
+        assertFalse(ginfo.getAttribute("myPassword").isEncrypted());
+        assertFalse(ginfo.getAttribute("nonStringPassword").isEncrypted());
+        assertFalse(ginfo.getAttribute("finalInt").isEncrypted());
+    }
+    
     public final void testGBeanAttributStringClassMethodInvokerMethodInvoker() {
         try {
             GBeanAttribute.createFrameworkAttribute(null, null, null, null);
@@ -62,18 +72,21 @@ public class GBeanAttributeTest extends TestCase {
         assertTrue(attribute.isReadable());
         assertFalse(attribute.isWritable());
         assertFalse(attribute.isPersistent());
+        assertFalse(attribute.isEncrypted());
         attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, null, setInvoker, false, null, false);
         assertEquals(String.class, attribute.getType());
         assertEquals(attributeName, attribute.getName());
         assertFalse(attribute.isReadable());
         assertTrue(attribute.isWritable());
         assertFalse(attribute.isPersistent());
+        assertFalse(attribute.isEncrypted());
         attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, getInvoker, setInvoker, false, null, false);
         assertEquals(String.class, attribute.getType());
         assertEquals(attributeName, attribute.getName());
         assertTrue(attribute.isReadable());
         assertTrue(attribute.isWritable());
         assertFalse(attribute.isPersistent());
+        assertFalse(attribute.isEncrypted());
     }
 
     public final void testGBeanAttributeInfoClass() {

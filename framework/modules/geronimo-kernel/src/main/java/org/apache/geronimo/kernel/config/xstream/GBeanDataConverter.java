@@ -30,6 +30,8 @@ import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
+
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -84,6 +86,11 @@ public class GBeanDataConverter implements Converter {
             Map.Entry entry = (Map.Entry) iterator.next();
             String attributeName = (String) entry.getKey();
             Object attributeValue = entry.getValue();
+            if (gbeanInfo.getAttribute(attributeName).isEncrypted()
+                    && attributeValue != null) {
+                attributeValue = EncryptionManager
+                        .encrypt((String) attributeValue);
+            }
             if (attributeValue != null) {
                 writer.startNode("attribute");
                 writer.addAttribute("name", attributeName);

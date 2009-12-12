@@ -19,6 +19,7 @@ package org.apache.geronimo.gbean.runtime;
 
 import java.lang.reflect.Method;
 
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -48,6 +49,8 @@ public class GBeanAttribute {
     private final boolean persistent;
 
     private final boolean manageable;
+
+    private final boolean encrypted;
 
     private Object persistentValue;
 
@@ -117,6 +120,9 @@ public class GBeanAttribute {
         // not manageable
         this.manageable = false;
 
+        // special attributes are not encrypted
+        this.encrypted = false;
+        
         // create an attribute info for this gbean
         if (attribute != null) {
             GAttributeInfo attributeInfo = attribute.getAttributeInfo();
@@ -124,6 +130,7 @@ public class GBeanAttribute {
                     this.type.getName(),
                     this.persistent,
                     this.manageable,
+                    this.encrypted,
                     this.readable,
                     this.writable,
                     attributeInfo.getGetterName(),
@@ -133,6 +140,7 @@ public class GBeanAttribute {
                     this.type.getName(),
                     this.persistent,
                     this.manageable,
+                    this.encrypted,
                     this.readable,
                     this.writable,
                     null,
@@ -172,12 +180,11 @@ public class GBeanAttribute {
 
         // persistence
         this.persistent = persistent;
-        initializePersistentValue(persistentValue);
 
         // manageable
         this.manageable = manageable;
-
-        // create an attribute info for this gbean
+        
+         // create an attribute info for this gbean
         attributeInfo = new GAttributeInfo(this.name,
                 this.type.getName(),
                 this.persistent,
@@ -186,6 +193,14 @@ public class GBeanAttribute {
                 this.writable,
                 null,
                 null);
+
+        this.encrypted = attributeInfo.isEncrypted();
+
+        if (this.encrypted && persistentValue != null) {
+            this.persistentValue = EncryptionManager.decrypt((String) persistentValue);
+        } else {
+            initializePersistentValue(persistentValue);
+        }
     }
 
     public GBeanAttribute(GBeanInstance gbeanInstance, GAttributeInfo attributeInfo, boolean isConstructorArg) throws InvalidConfigurationException {
@@ -211,6 +226,7 @@ public class GBeanAttribute {
         }
         this.persistent = attributeInfo.isPersistent();
         this.manageable = attributeInfo.isManageable();
+        this.encrypted = attributeInfo.isEncrypted();
 
         readable = attributeInfo.isReadable();
         writable = attributeInfo.isWritable();
@@ -338,6 +354,10 @@ public class GBeanAttribute {
         return manageable;
     }
 
+    public boolean isEncrypted() {
+        return encrypted;
+    }
+
     public boolean isSpecial() {
         return special;
     }
@@ -365,7 +385,9 @@ public class GBeanAttribute {
         }
 
         // @todo actually check type
-        this.persistentValue = persistentValue;
+        this.persistentValue = (encrypted && persistentValue != null) ? EncryptionManager
+                .decrypt((String) persistentValue)
+                : persistentValue;
     }
 
     public Object getValue(Object target) throws Exception {
@@ -412,6 +434,9 @@ public class GBeanAttribute {
             throw new IllegalStateException("GBean does not have a target instance to invoke. " + getDescription());
         }
 
+        if (encrypted && value != null) {
+            value = EncryptionManager.decrypt((String) value);
+        }
         // call the setter
         setInvoker.invoke(target, new Object[]{value});
     }
