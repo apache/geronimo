@@ -32,7 +32,6 @@ import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
-import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to redeploy.

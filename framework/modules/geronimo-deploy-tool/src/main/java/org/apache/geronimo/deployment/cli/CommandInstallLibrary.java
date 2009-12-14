@@ -27,7 +27,6 @@ import org.apache.geronimo.cli.deployer.InstallLibraryCommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import jline.ConsoleReader;
 
 /**
  * @version $Rev$ $Date$

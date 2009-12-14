@@ -20,14 +20,13 @@
 
 package org.apache.geronimo.shell;
 
-import org.apache.felix.karaf.shell.console.OsgiCommandSupport;
 import org.apache.geronimo.kernel.Kernel;
 import org.osgi.framework.ServiceReference;
 
 /**
  * @version $Rev$ $Date$
  */
-public abstract class KernelCommandSupport extends OsgiCommandSupport {
+public abstract class KernelCommandSupport extends BaseCommandSupport {
     protected Object doExecute() throws Exception {
 
         ServiceReference ref = getBundleContext().getServiceReference(Kernel.class.getName());

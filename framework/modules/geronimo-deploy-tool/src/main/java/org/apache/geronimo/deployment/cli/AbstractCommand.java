@@ -30,7 +30,6 @@ import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
-import jline.ConsoleReader;
 import org.apache.geronimo.common.DeploymentException;
 
 /**
@@ -83,8 +82,7 @@ public abstract class AbstractCommand implements DeployCommand {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 try {
-                    out.printString(e.getMessage());
-                    out.printNewline();
+                    out.println(e.getMessage());
                 } catch (IOException e1) {
                     //ignore
                 }

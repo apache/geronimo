@@ -25,7 +25,6 @@ import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.apache.geronimo.common.DeploymentException;
-import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to deploy (distribute plus start).

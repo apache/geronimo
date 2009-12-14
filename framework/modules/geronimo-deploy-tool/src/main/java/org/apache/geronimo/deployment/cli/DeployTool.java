@@ -57,8 +57,6 @@ import org.apache.geronimo.kernel.util.Main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jline.ConsoleReader;
-
 
 /**
  * The main class for the CLI deployer.  Handles chunking the input arguments
@@ -109,13 +107,13 @@ public class DeployTool implements Main {
         this.kernel = kernel;
         this.deploymentFactory = deploymentFactory;
     }
-    
+
     public int execute(Object opaque) {
         if (! (opaque instanceof DeployerCLParser)) {
             throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + DeployerCLParser.class + "]");
         }
         DeployerCLParser parser = (DeployerCLParser) opaque;
-        
+
         PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out), true);
         InputStream in = System.in;
 
@@ -165,12 +163,10 @@ public class DeployTool implements Main {
                         con = new ServerConnection(parser, out, in, kernel, deploymentFactory);
                     }
                     try {
-                        dc.execute(new ConsoleReader(in, out), con, commandArgs);
+                        dc.execute(new StreamConsoleReader(in, out), con, commandArgs);
                     } catch (DeploymentSyntaxException e) {
                         processException(out, e);
                     } catch (DeploymentException e) {
-                        processException(out, e);
-                    } catch (IOException e) {
                         processException(out, e);
                     } finally {
                         if(!multipleCommands) {
@@ -212,24 +208,24 @@ public class DeployTool implements Main {
     }
 
     private void processException(PrintWriter out, Exception e) {
-        failed = true;       
+        failed = true;
         log.error("Error: ", e);
     }
 
     public static final GBeanInfo GBEAN_INFO;
     public static final String GBEAN_REF_DEPLOYMENT_FACTORY = "DeploymentFactory";
-    
+
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("DeployTool", DeployTool.class, "DeployTool");
 
         infoBuilder.addReference(GBEAN_REF_DEPLOYMENT_FACTORY, DeploymentFactory.class);
         infoBuilder.addInterface(Main.class);
-        
+
         infoBuilder.setConstructor(new String[] {"kernel", GBEAN_REF_DEPLOYMENT_FACTORY});
-        
+
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
-    
+
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }

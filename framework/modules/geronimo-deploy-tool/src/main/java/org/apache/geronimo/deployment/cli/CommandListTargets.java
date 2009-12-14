@@ -23,7 +23,6 @@ import javax.enterprise.deploy.spi.Target;
 
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
-import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to list targets.

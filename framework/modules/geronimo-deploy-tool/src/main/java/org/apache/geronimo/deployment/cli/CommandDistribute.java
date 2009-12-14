@@ -28,7 +28,6 @@ import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
-import jline.ConsoleReader;
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.cli.deployer.DistributeCommandArgs;
 import org.apache.geronimo.common.DeploymentException;
@@ -183,7 +182,7 @@ public class CommandDistribute extends AbstractCommand {
         }
         return args;
     }
-    
+
     private String[] processInPlace(String[] args, BooleanHolder inPlaceHolder) {
         if(args.length >= 2 && args[0].equals("--inPlace")) {
         	inPlaceHolder.inPlace = true;
@@ -193,7 +192,7 @@ public class CommandDistribute extends AbstractCommand {
         }
         return args;
     }
-    
+
     private final class BooleanHolder {
     	public boolean inPlace;
     }

@@ -32,8 +32,6 @@ import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.security.auth.login.FailedLoginException;
 
-import jline.ConsoleReader;
-
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
@@ -97,14 +95,13 @@ public class CommandListConfigurations extends AbstractCommand {
         if (all.length == 1) {
             String repo = all[0].toString();
             consoleReader.printNewline();
-            consoleReader.printString("Selected repository: " + repo);
+            consoleReader.println("Selected repository: " + repo);
             consoleReader.printNewline();
             return repo;
         }
 
         consoleReader.printNewline();
-        consoleReader.printString("Select repository:");
-        consoleReader.printNewline();
+        consoleReader.println("Select repository:");
         for (int i = 0; i < all.length; i++) {
             URL url = all[i];
             DeployUtils.printTo("  " + (i + 1) + ". ", 8, consoleReader);
@@ -162,7 +159,7 @@ public class CommandListConfigurations extends AbstractCommand {
         List<String> appList = getApplicationModuleLists(mgr);
 
         PluginListType appPlugin = getPluginsFromIds(appList, data);
-        
+
         // let's add framework plugin group manually so that users can choose it
         for (PluginType metadata : data.getPlugin()) {
             for (PluginArtifactType testInstance : metadata.getPluginArtifact()) {
@@ -173,10 +170,10 @@ public class CommandListConfigurations extends AbstractCommand {
                 }
             }
         }
-        
+
         return appPlugin;
     }
-    
+
     public PluginListType getLocalPluginGroups(GeronimoDeploymentManager mgr, ConsoleReader consoleReader) throws DeploymentException, IOException {
         PluginListType data = getLocalPluginCategories(mgr, consoleReader);
         PluginListType appData = new PluginListType();
@@ -190,19 +187,19 @@ public class CommandListConfigurations extends AbstractCommand {
             if (metadata.getCategory() == null) {
                 metadata.setCategory("Unspecified");
             }
-       
+
             //determine if the plugin is a plugin group
             if (metadata.isPluginGroup() != null && metadata.isPluginGroup()) {
                 appData.getPlugin().add(metadata);
             }
         }
-        
+
         if (appData == null || appData.getPlugin().size() == 0) {
             return null;
         }
         return appData;
     }
-    
+
     private Map<String, Collection<PluginType>> writePluginList(PluginListType data, ConsoleReader consoleReader) throws IOException {
         if (data == null) {
             consoleReader.printNewline();
@@ -238,17 +235,17 @@ public class CommandListConfigurations extends AbstractCommand {
         for (PluginType metadata : plugins1.getPlugin()) {
             plugins.getPlugin().add(metadata);
         }
-        
+
         for (PluginType metadata : plugins2.getPlugin()) {
             plugins.getPlugin().add(metadata);
-        }        
-        
+        }
+
         return getInstallList(plugins, consoleReader, repo);
     }
     public PluginListType getInstallList(PluginListType plugins, ConsoleReader consoleReader, String repo) throws IOException {
         Map<String, Collection<PluginType>> categories = writePluginList(plugins, consoleReader);
         List<String> defaultRepoLocations = plugins.getDefaultRepository();
-        
+
         if (categories == null) {
             return null;
         }
@@ -285,11 +282,11 @@ public class CommandListConfigurations extends AbstractCommand {
             PluginType target = available.get(selection - 1);
             list.getPlugin().add(target);
         }
-        
+
         if (repo != null) {
             list.getDefaultRepository().add(repo);
         }
-        
+
         //let's add the repo's default-repository to the list
         for (String defaultRepoLocation : defaultRepoLocations) {
             list.getDefaultRepository().add(defaultRepoLocation);
@@ -338,12 +335,12 @@ public class CommandListConfigurations extends AbstractCommand {
         PluginListType selected = getPluginsFromIds(list, all);
         assembleServer(mgr, selected, repositoryPath, relativeServerPath, consoleReader);
     }
-    
+
     private List<String> getApplicationModuleLists(GeronimoDeploymentManager mgr) throws DeploymentException {
         List<String> apps = new ArrayList<String>();
-        
+
         TargetModuleID[] modules;
-        
+
         try {
             modules = mgr.getAvailableModules(null, mgr.getTargets());
         } catch (TargetException e) {
@@ -351,7 +348,7 @@ public class CommandListConfigurations extends AbstractCommand {
         } catch (IllegalStateException e) {
             throw new DeploymentSyntaxException(e.getMessage(), e);
         }
-        
+
         for (int i = 0; i < modules.length; i++) {
             ModuleType type = ((TargetModuleIDImpl)modules[i]).getType();
             if (type != null) {
@@ -360,8 +357,8 @@ public class CommandListConfigurations extends AbstractCommand {
                 }
             }
         }
-        
+
         return apps;
-        
+
     }
 }

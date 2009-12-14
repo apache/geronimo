@@ -28,8 +28,6 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Properties;
 
-import jline.ConsoleReader;
-
 import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
 
@@ -39,10 +37,10 @@ import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
  * @version $Rev$ $Date$
  */
 public class DeployUtils extends ConfigIDExtractor {
-    
+
     private final static String DEFAULT_URI = "deployer:geronimo:jmx";
     private final static String DEFAULT_SECURE_URI = "deployer:geronimo:jmxs";
-    
+
     /**
      * Split up an output line so it indents at beginning and end (to fit in a
      * typical terminal) and doesn't break in the middle of a word.
@@ -103,47 +101,14 @@ public class DeployUtils extends ConfigIDExtractor {
     private final static int DEFAULT_WIDTH = 76;
 
     public static void println(String line, int indent, ConsoleReader consoleReader) throws IOException {
-        int endCol = consoleReader.getTermwidth();
-        int start = consoleReader.getCursorBuffer().cursor;
+        // we don't have sophisticated shell information available with the karaf shell, so just write out
+        // the information as a line
 
-        // some terminals will give a terminal width of zero (e.g. emacs shell). 
-        // in that case, default to a reasonable term width value.
-        if (endCol == 0) {
-            endCol = DEFAULT_WIDTH;
+        if (indent != 0) {
+            consoleReader.printString(buildIndent(indent));
         }
-
-        if (endCol - indent < 10) {
-            throw new IllegalArgumentException("Need at least 10 spaces for " +
-                "printing, but indent=" + indent + " and endCol=" + endCol);
-        }
-        String prefix = indent == 0 ? "" : buildIndent(indent);
-        int pos;
-        while (line.length() > 0) {
-            if (start == 0) {
-                line = prefix + line;
-            }
-            if (line.length() > endCol - start) {
-                pos = line.lastIndexOf(' ', endCol - start);
-                if (pos < indent) {
-                    pos = line.indexOf(' ', endCol - start);
-                    if (pos < indent) {
-                        pos = line.length();
-                    }
-                }
-                consoleReader.printString(line.substring(0, pos));
-                consoleReader.printNewline();
-                if (pos < line.length() - 1) {
-                    line = line.substring(pos + 1);
-                } else {
-                    break;
-                }
-                start = 0;
-            } else {
-                consoleReader.printString(line);
-                consoleReader.printNewline();
-                break;
-            }
-        }
+        // just write the line
+        consoleReader.println(line);
     }
 
     public static void printTo(String string, int col, ConsoleReader consoleReader) throws IOException {
@@ -160,7 +125,7 @@ public class DeployUtils extends ConfigIDExtractor {
         }
         return buf.toString();
     }
-    
+
     public static String getConnectionURI(String host, Integer port, boolean secure) {
         if (host == null) {
             host = "localhost";
@@ -172,11 +137,11 @@ public class DeployUtils extends ConfigIDExtractor {
         uri += "://" + host + ":" + port;
         return uri;
     }
-    
+
     public static SavedAuthentication readSavedCredentials(String uri) throws IOException {
         SavedAuthentication auth = null;
         InputStream in;
-        
+
         // First check for .geronimo-deployer on class path (e.g. packaged in deployer.jar)
         in = DeployUtils.class.getResourceAsStream("/.geronimo-deployer");
         // If not there, check in home directory
@@ -190,7 +155,7 @@ public class DeployUtils extends ConfigIDExtractor {
                 }
             }
         }
-        
+
         if (in != null) {
             try {
                 Properties props = new Properties();
@@ -221,14 +186,14 @@ public class DeployUtils extends ConfigIDExtractor {
                 }
             }
         }
-        
+
         return auth;
     }
-    
+
     public final static class SavedAuthentication implements Serializable {
 
         private static final long serialVersionUID = -3127576258038677899L;
-        
+
         private String uri;
         private String user;
         private char[] password;
@@ -238,15 +203,15 @@ public class DeployUtils extends ConfigIDExtractor {
             this.user = user;
             this.password = password;
         }
-        
+
         public String getURI() {
             return this.uri;
         }
-        
+
         public String getUser() {
             return this.user;
         }
-        
+
         public char[] getPassword() {
             return this.password;
         }

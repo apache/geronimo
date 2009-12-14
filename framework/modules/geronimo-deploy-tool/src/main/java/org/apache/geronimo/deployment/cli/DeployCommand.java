@@ -24,8 +24,6 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.BufferedReader;
 
-import jline.ConsoleReader;
-
 /**
  * An abstraction of various CLI deployer commands.
  *

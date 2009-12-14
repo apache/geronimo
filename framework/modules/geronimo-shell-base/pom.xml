@@ -18,6 +18,19 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-cli</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-deploy-tool</artifactId>
+            <version>${version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.felix.karaf.shell</groupId>
             <artifactId>org.apache.felix.karaf.shell.console</artifactId>

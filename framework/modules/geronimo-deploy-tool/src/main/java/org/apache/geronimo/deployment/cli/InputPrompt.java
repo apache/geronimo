@@ -24,8 +24,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.OutputStreamWriter;
 
-import jline.ConsoleReader;
-
 /**
  * Prompts a user for input; optionally masking.
  *
@@ -39,7 +37,7 @@ public class InputPrompt
     private ConsoleReader reader;
 
     public InputPrompt(final InputStream in, final Writer out) throws IOException {
-        this.reader = new ConsoleReader(in, out);
+        this.reader = new StreamConsoleReader(in, out);
     }
 
     public InputPrompt(final InputStream in, final OutputStream out) throws IOException {
@@ -50,12 +48,8 @@ public class InputPrompt
      * Displays the prompt, grabs the input.
      */
     public String getInput(final String prompt, final Character mask) throws IOException {
-        if (mask == null) {
-            return reader.readLine(prompt);
-        }
-        else {
-            return reader.readLine(prompt, mask);
-        }
+        // since jline is not getting used any more, the character mask doesn't work.
+        return reader.readLine(prompt);
     }
 
     public String getInput(final String prompt, final char mask) throws IOException {

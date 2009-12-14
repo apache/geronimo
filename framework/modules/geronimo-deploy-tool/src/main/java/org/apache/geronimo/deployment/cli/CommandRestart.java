@@ -22,8 +22,6 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
-import jline.ConsoleReader;
-
 /**
  * The CLI deployer logic to restart.
  */

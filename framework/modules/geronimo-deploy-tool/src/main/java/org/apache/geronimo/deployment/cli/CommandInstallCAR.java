@@ -28,7 +28,6 @@ import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.plugin.DownloadResults;
-import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to start.
@@ -57,7 +56,7 @@ public class CommandInstallCAR extends AbstractCommand {
                 long start = System.currentTimeMillis();
                 DownloadResults results = showProgress(consoleReader, mgr, key);
                 int time = (int)(System.currentTimeMillis() - start) / 1000;
-                printResults(consoleReader, results, time);            
+                printResults(consoleReader, results, time);
             } catch (IOException e) {
                 throw new DeploymentException("Cannot install plugin", e);
             }
@@ -96,8 +95,8 @@ public class CommandInstallCAR extends AbstractCommand {
             }
         }
     }
-    
-    static void printResults(ConsoleReader consoleReader, DownloadResults results, int time) throws IOException, DeploymentException {
+
+    public static void printResults(ConsoleReader consoleReader, DownloadResults results, int time) throws IOException, DeploymentException {
         consoleReader.printNewline();
         if (!results.isFailed()) {
             DeployUtils.println("**** Installation Complete!", 0, consoleReader);

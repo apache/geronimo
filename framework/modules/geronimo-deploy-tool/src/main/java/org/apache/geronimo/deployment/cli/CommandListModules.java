@@ -30,7 +30,6 @@ import javax.enterprise.deploy.spi.exceptions.TargetException;
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.cli.deployer.ListModulesCommandArgs;
 import org.apache.geronimo.common.DeploymentException;
-import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to list modules.
@@ -51,7 +50,7 @@ public class CommandListModules extends AbstractCommand {
         } else if (listModulesCommandArgs.isStopped()) {
             started = Boolean.FALSE;
         }
-        
+
         List targets = Arrays.asList(listModulesCommandArgs.getArgs());
 
         final DeploymentManager mgr = connection.getDeploymentManager();
@@ -88,7 +87,7 @@ public class CommandListModules extends AbstractCommand {
                 consoleReader.printString(" deployed to " + tlist.length + " target" + (tlist.length != 1 ? "s" : ""));
             }
             consoleReader.printNewline();
-            
+
             // for each target, print the modules that were deployed to it
             for (int i = 0; (tlist != null) && (i < tlist.length); i++) {
                 Target target = tlist[i];
@@ -110,7 +109,7 @@ public class CommandListModules extends AbstractCommand {
      * Prints the names of the modules (that belong to the target) on
      * the provided PrintWriter.
      *
-     * @param out a <code>PrintWriter</code> 
+     * @param out a <code>PrintWriter</code>
      * @param target a <code>Target</code> value; only the modules
      * whose target equals this one will be listed.  Must not be null.
      * @param modules a <code>TargetModuleID[]</code> value, must not

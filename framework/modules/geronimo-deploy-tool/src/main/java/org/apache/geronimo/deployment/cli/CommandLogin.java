@@ -30,7 +30,6 @@ import java.util.Properties;
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.crypto.EncryptionManager;
-import jline.ConsoleReader;
 
 /**
  * The CLI deployer logic to start.
