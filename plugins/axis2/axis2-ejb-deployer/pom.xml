@@ -84,8 +84,8 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'tomcat6')" />
-                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'tomcat6')" />
+                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'tomcat7')" />
+                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'tomcat7')" />
                         </plugin-artifact>
                     </instance>
                 </configuration>

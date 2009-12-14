@@ -20,7 +20,7 @@
         <axisDeployer>org.apache.geronimo.configs/axis-deployer/${geronimoVersion}/car</axisDeployer>
         <cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${geronimoVersion}/car</cxfDeployer>
         <axis2Deployer>org.apache.geronimo.configs/axis2-deployer/${geronimoVersion}/car</axis2Deployer>
-        <tomcatDeployer>org.apache.geronimo.configs/tomcat6-deployer/${geronimoVersion}/car</tomcatDeployer>
+        <tomcatDeployer>org.apache.geronimo.configs/tomcat7-deployer/${geronimoVersion}/car</tomcatDeployer>
         <jettyDeployer>org.apache.geronimo.configs/${jetty}-deployer/${geronimoVersion}/car</jettyDeployer>
         <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${geronimoVersion}/car</jasperDeployer>
         <jpaDeployer>org.apache.geronimo.configs/persistence-jpa10-deployer/${geronimoVersion}/car</jpaDeployer>

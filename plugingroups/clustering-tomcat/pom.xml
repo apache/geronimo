@@ -61,7 +61,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-clustering-builder-wadi</artifactId>
+            <artifactId>tomcat7-clustering-builder-wadi</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

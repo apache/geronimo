@@ -101,7 +101,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-deployer</artifactId>
+            <artifactId>tomcat7-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

@@ -23,7 +23,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>tomcat6</artifactId>
+        <artifactId>tomcat7</artifactId>
         <type>car</type>
     </dependency>
     <dependency>

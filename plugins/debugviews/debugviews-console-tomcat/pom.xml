@@ -35,7 +35,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat6-deployer</artifactId>
+            <artifactId>tomcat7-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
             <scope>provided</scope>
@@ -114,7 +114,7 @@
                             <prerequisite>
                                 <id>
                                     <groupId>org.apache.geronimo.configs</groupId>
-                                    <artifactId>tomcat6</artifactId>
+                                    <artifactId>tomcat7</artifactId>
                                 </id>
                                 <resource-type>Web Container</resource-type>
                                 <description>
