@@ -39,7 +39,7 @@
         <commons.logging.version>1.1.1</commons.logging.version>
         <depends.maven.plugin.version>1.0</depends.maven.plugin.version>
         <easymock.version>2.4</easymock.version>
-        <equinox.version>3.5.0.v20090520</equinox.version>
+        <equinox.version>3.5.1.v20090827</equinox.version>
         <felix.bundlerepository.version>1.4.0</felix.bundlerepository.version>
         <felix.compendium.version>1.2.0</felix.compendium.version>
         <felix.configadmin.version>1.2.4</felix.configadmin.version>
@@ -71,6 +71,21 @@
         <sshd.version>0.4.0-SNAPSHOT</sshd.version>
         <osgi.jmx.version>4.2.0.200907080519</osgi.jmx.version>
     </properties>
+
+    <repositories>
+        <!-- ServiceMix repo -->
+        <repository>
+            <id>servicemix</id>
+            <name>Apache ServiceMix Repository</name>
+            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
