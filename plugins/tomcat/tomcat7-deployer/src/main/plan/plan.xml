@@ -75,7 +75,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
-                        <artifactId>tomcat6</artifactId>
+                        <artifactId>tomcat7</artifactId>
                         <version>${version}</version>
                         <type>car</type>
                     </dependency>
@@ -98,6 +98,6 @@
         </xml-attribute>
     </gbean>
 
-    <gbean name="Tomcat6WARConfigurer" class="org.apache.geronimo.web.deployment.WARConfigurer"/>
+    <gbean name="Tomcat7WARConfigurer" class="org.apache.geronimo.web.deployment.WARConfigurer"/>
 
 </module>

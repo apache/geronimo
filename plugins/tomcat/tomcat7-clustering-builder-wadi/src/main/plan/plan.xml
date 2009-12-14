@@ -26,13 +26,13 @@
         <attribute name="defaultNumPartitions">24</attribute>
         <attribute name="defaultBackingStrategyFactoryName">?name=DefaultBackingStrategyFactory</attribute>
         <attribute name="defaultClusterName">?name=DefaultCluster</attribute>
-        <attribute name="artifactToRemoveFromEnvironment">org.apache.geronimo.configs/tomcat6//car</attribute>
+        <attribute name="artifactToRemoveFromEnvironment">org.apache.geronimo.configs/tomcat7//car</attribute>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
-                        <artifactId>tomcat6-clustering-wadi</artifactId>
+                        <artifactId>tomcat7-clustering-wadi</artifactId>
                         <type>car</type>
                     </dependency>
                 </dependencies>
