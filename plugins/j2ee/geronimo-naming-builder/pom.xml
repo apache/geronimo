@@ -57,13 +57,7 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jta_1.1_spec</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>jee-specs</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
+
     </dependencies>
 
     <build>

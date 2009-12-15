@@ -50,13 +50,6 @@
             <type>car</type>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>jee-specs</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-
         <!-- thread pool has management interface -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
