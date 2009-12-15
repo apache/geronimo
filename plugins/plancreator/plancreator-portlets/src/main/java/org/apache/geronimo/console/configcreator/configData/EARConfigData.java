@@ -25,7 +25,7 @@ import java.util.LinkedHashSet;
 
 import javax.portlet.PortletRequest;
 
-import org.apache.geronimo.j2ee.ApplicationInfo;
+import org.apache.geronimo.j2ee.deployment.ApplicationInfo;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;

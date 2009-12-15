@@ -30,7 +30,7 @@ import javax.portlet.PortletRequest;
 import org.apache.geronimo.deployment.plugin.jmx.CommandContext;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
-import org.apache.geronimo.j2ee.ApplicationInfo;
+import org.apache.geronimo.j2ee.deployment.ApplicationInfo;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;

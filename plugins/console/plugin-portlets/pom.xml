@@ -35,10 +35,8 @@
     <dependencies>
         <!-- for jspc maven plugin -->
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>jee-specs</artifactId>
-            <version>${version}</version>
-            <type>car</type>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>jstl</artifactId>
             <scope>provided</scope>
         </dependency>
 

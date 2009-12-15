@@ -33,7 +33,7 @@ import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.configcreator.configData.EARConfigData;
 import org.apache.geronimo.console.configcreator.configData.EjbConfigData;
 import org.apache.geronimo.console.configcreator.configData.WARConfigData;
-import org.apache.geronimo.j2ee.ApplicationInfo;
+import org.apache.geronimo.j2ee.deployment.ApplicationInfo;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.openejb.deployment.EjbModule;

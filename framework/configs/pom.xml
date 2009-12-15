@@ -38,7 +38,6 @@
         <module>client-system</module>
         <module>j2ee-security</module>
         <module>j2ee-system</module>
-        <module>jee-specs</module>
         <module>jsr88-cli</module>
         <module>jsr88-deploymentfactory</module>
         <module>offline-deployer</module>
