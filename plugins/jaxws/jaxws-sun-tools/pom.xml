@@ -38,11 +38,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jaxws-deployer</artifactId>
             <version>${version}</version>

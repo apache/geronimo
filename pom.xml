@@ -262,12 +262,6 @@
                 <version>1.1.1</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
-                <version>1.1.2</version>
-            </dependency>
-
             <!--
             NOTE: The full source for this artifact is private due to Sun licensing issues.
                   To view the generated XmlBeans source please see the -src artifact in the repository:
