@@ -44,17 +44,17 @@ class InjectionServletHandler extends ServletHandler {
         this.injections = injections;
     }
 
-    public Servlet customizeServlet(Servlet servlet) throws Exception {
-        List<Injection> classInjections = injections.get(servlet.getClass().getName());
-        if (classInjections != null) {
-            for (Injection injection: classInjections) {
-                
-            }
-        }
-        servlet = super.customizeServlet(servlet);
-        processAnnotations(servlet);
-        return servlet;
-    }
+//    public Servlet customizeServlet(Servlet servlet) throws Exception {
+//        List<Injection> classInjections = injections.get(servlet.getClass().getName());
+//        if (classInjections != null) {
+//            for (Injection injection: classInjections) {
+//
+//            }
+//        }
+//        servlet = super.customizeServlet(servlet);
+//        processAnnotations(servlet);
+//        return servlet;
+//    }
 
     /**
      * Inject resources in specified instance.

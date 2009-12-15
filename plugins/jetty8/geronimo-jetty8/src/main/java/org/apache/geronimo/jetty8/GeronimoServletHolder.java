@@ -18,20 +18,10 @@
 
 package org.apache.geronimo.jetty8;
 
-import java.io.IOException;
-
-import javax.security.auth.Subject;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.Servlet;
-
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
 import org.apache.geronimo.jetty8.handler.IntegrationContext;
-import org.apache.geronimo.security.Callers;
-import org.apache.geronimo.security.ContextManager;
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 /**
@@ -51,8 +41,8 @@ public class GeronimoServletHolder extends ServletHolder {
         }
     }
 
-    public synchronized Object newInstance() throws InstantiationException, IllegalAccessException {
-        return servletRegistration.newInstance(_className);
+    public synchronized Servlet newInstance() throws InstantiationException, IllegalAccessException {
+        return (Servlet) servletRegistration.newInstance(_className);
     }
 
     public void destroyInstance(Object o) throws Exception {
