@@ -135,6 +135,11 @@ public class ConnectorWrapperGBeanStarter implements GBeanLifecycle {
 
                 return annotationGbeanInfoFactory.getGBeanInfo(AJP13ConnectorGBean.class);
             }
+            
+            if (className.equalsIgnoreCase("org.apache.coyote.ajp.AjpProtocol")) {
+
+                return annotationGbeanInfoFactory.getGBeanInfo(AJP13ConnectorGBean.class);
+            }
 
             if (className.equalsIgnoreCase("org.apache.jk.server.JkCoyoteHandler")) {
 
