@@ -72,6 +72,8 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
 import org.apache.naming.resources.DirContextURLStreamHandler;
 
+import org.osgi.framework.Bundle;
+
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
@@ -83,6 +85,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     protected final TomcatContainer container;
     private final ClassLoader classLoader;
+    private final Bundle bundle;
     protected Context context = null;
     private String path = null;
     private String docBase = null;
@@ -114,7 +117,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     // JSR 77
     private final String j2EEServer;
     private final String j2EEApplication;
-    
+
 //  statistics
     private ModuleStats statsProvider;
     private boolean reset = true;
@@ -123,6 +126,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     public TomcatWebAppContext(
             ClassLoader classLoader,
+            Bundle bundle,
             String objectName,
             String originalSpecDD,
             URL configurationBaseUrl,
@@ -154,6 +158,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             Kernel kernel)
             throws Exception {
         assert classLoader != null;
+        assert bundle != null;
         assert configurationBaseUrl != null;
         assert transactionManager != null;
         assert trackedConnectionAssociator != null;
@@ -176,6 +181,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
         this.setDocBase(root.getPath());
         this.container = container;
+        this.bundle = bundle;
         this.originalSpecDD = originalSpecDD;
 
         this.virtualServer = virtualServer;
@@ -210,7 +216,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
 
         this.displayName = displayName;
-        
+
         //Add the valve list
         if (tomcatValveChain != null){
             ArrayList<Valve> chain = new ArrayList<Valve>();
@@ -223,7 +229,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         } else {
             valveChain = null;
         }
-        
+
         //Add the Lifecycle Listener list
         if (lifecycleListenerChain != null){
             ArrayList<LifecycleListener> chain = new ArrayList<LifecycleListener>();
@@ -252,7 +258,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
 
         this.crossContext = crossContext;
-        
+
         this.workDir = workDir;
 
         this.disableCookies = disableCookies;
@@ -262,7 +268,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.classLoader = classLoader;
 
         this.kernel = kernel;
-        
+
         if (objectName != null) {
             ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
             verifyObjectName(myObjectName);
@@ -272,7 +278,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             // StandardContext uses default value of these as "none"
             j2EEServer = null;
             j2EEApplication = null;
-        }       
+        }
     }
 
     private Map createWebServices(Map webServiceFactoryMap, Kernel kernel) throws Exception {
@@ -407,7 +413,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public Valve getClusteredValve() {
         return clusteredValve;
     }
-    
+
     public List getValveChain() {
         return valveChain;
     }
@@ -431,7 +437,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public String getWorkDir() {
         return workDir;
     }
-    
+
     public Map getWebServices(){
         return webServices;
     }
@@ -452,13 +458,13 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         return result;
     }
-    
+
     public String getDisplayName(){
         return displayName;
     }
 
     public void setDisplayName(String displayName) {
-        this.displayName = displayName;        
+        this.displayName = displayName;
     }
 
     /**
@@ -504,8 +510,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public String getDeploymentDescriptor() {
         return originalSpecDD;
     }
-    
-//  JSR 77 statistics - The static values are initialized at the time of 
+
+//  JSR 77 statistics - The static values are initialized at the time of
     // creration, getStats return fresh value everytime
     public Stats getStats() {
         if (reset) {
@@ -514,7 +520,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
         else return statsProvider.updateStats();
     }
-        
+
     public void resetStats() {
         reset = true;
     }
@@ -523,6 +529,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         // See the note of TomcatContainer::addContext
         container.addContext(this);
+        // set the bundle context attribute in the servlet context
+        context.getServletContext().setAttribute("osgi-bundlecontext", bundle.getBundleContext());
         // Is it necessary - doesn't Tomcat Embedded take care of it?
         // super.start();
         //register the classloader <> dir context association so that tomcat's jndi based getResources works.
@@ -566,6 +574,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Tomcat WebApplication Context", TomcatWebAppContext.class, NameFactory.WEB_MODULE);
 
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
+        infoBuilder.addAttribute("bundle", Bundle.class, false);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
@@ -604,6 +613,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         infoBuilder.setConstructor(new String[] {
                 "classLoader",
+                "bundle",
                 "objectName",
                 "deploymentDescriptor",
                 "configurationBaseUrl",
@@ -632,7 +642,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "ContextCustomizer",
                 "J2EEServer",
                 "J2EEApplication",
-                "kernel"                
+                "kernel"
                 }
         );
 
