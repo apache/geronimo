@@ -39,6 +39,24 @@
         Geronimo integration testsuite.
     </description>
 
+    <!--
+    NOTE: Override the following on the cmdline to only run specific 
+          testsuite buckets.
+
+          To run all tests against the default Jetty assembly -
+            mvn clean install -Pit,all-subprojects
+
+          To only run console-testsuite/advanced -
+            cd console-testsuite/advanced
+            mvn clean install -Pit,all-subprojects
+
+          To run console-testsuite/advanced against an already running server-
+            cd console-testsuite/advanced
+            mvn clean install -Pit-manual
+              or
+            mvn integration-test -Pit-manual
+    -->
+
     <properties>
         <!--
         NOTE: The default assembly is jetty, so exclude any tomcat tests by
@@ -309,6 +327,112 @@
                             </executions>
                         </plugin>
 
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+
+        <!-- run the testsuite against an already running external server -->
+        <profile>
+            <id>it-manual</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>shitty-maven-plugin</artifactId>
+                            <inherited>false</inherited>
+                            <configuration>
+                                <projects>
+                                    <fileset>
+                                        <directory>${project.basedir}</directory>
+                                        <includes>
+                                            <include>${shittyTestIncludes}</include>
+                                        </includes>
+                                        <excludes>
+                                            <exclude>${shittyTestExcludes}</exclude>
+                                        </excludes>
+                                    </fileset>
+                                </projects>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <goals>
+                                        <goal>clean</goal>
+                                        <goal>install</goal>
+                                        <goal>test</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>selenium-maven-plugin</artifactId>
+                            <inherited>false</inherited>
+                            <executions>
+                                <execution>
+                                    <id>start</id>
+                                    <phase>pre-integration-test</phase>
+                                    <goals>
+                                        <goal>start-server</goal>
+                                    </goals>
+                                    <configuration>
+                                        <logOutput>true</logOutput>
+                                        <background>true</background>
+                                        <systemProperties>
+                                            <property>
+                                                <name>browser</name>
+                                                <value>${browser}</value>
+                                            </property>
+                                        </systemProperties>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>stop</id>
+                                    <phase>post-integration-test</phase>
+                                    <goals>
+                                        <goal>stop-server</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <!--
+                        NOTE: This horrible looking configuration sets up the surefire plugin to
+                              not run tests durring the 'test' phase, but instead during the
+                              'integration-test' phase.
+                        -->
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <configuration>
+                                <skip>true</skip>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>test</id>
+                                    <phase>test</phase>
+                                    <goals>
+                                        <goal>test</goal>
+                                    </goals>
+                                    <configuration>
+                                        <skip>true</skip>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>integration</id>
+                                    <phase>integration-test</phase>
+                                    <goals>
+                                        <goal>test</goal>
+                                    </goals>
+                                    <configuration>
+                                        <skip>false</skip>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
                     </plugins>
                 </pluginManagement>
             </build>
