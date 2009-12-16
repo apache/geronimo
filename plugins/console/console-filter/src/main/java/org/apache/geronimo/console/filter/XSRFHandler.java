@@ -21,10 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -49,7 +48,7 @@ public class XSRFHandler
     private static final String XSRF_JS_FILENAME = "/XSRF.js";
     private final static String XSRF_JS_UNIQUEID = "<%XSRF_UNIQUEID%>";
 
-    private Map<String, String> sessionMap = Collections.synchronizedMap(new HashMap<String, String>());
+    private Map<String, String> sessionMap = new ConcurrentHashMap<String, String>();
     private String xsrfJS;
 
     private Random random = new Random();

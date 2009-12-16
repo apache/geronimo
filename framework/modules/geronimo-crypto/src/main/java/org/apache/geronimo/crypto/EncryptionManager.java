@@ -16,9 +16,8 @@
  */
 package org.apache.geronimo.crypto;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.io.Serializable;
 
 /**
@@ -41,7 +40,7 @@ import java.io.Serializable;
  */
 public class EncryptionManager {
 
-    private static final Map<String, Encryption> ENCRYPTORS = Collections.synchronizedMap(new HashMap<String, Encryption>());
+    private static final Map<String, Encryption> ENCRYPTORS = new ConcurrentHashMap<String, Encryption>();
     private final static String SIMPLE_ENCRYPTION_PREFIX = "{Simple}";
 
     static {

@@ -16,10 +16,9 @@
  */
 package org.apache.geronimo.jmxremoting;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.management.Notification;
 import javax.management.NotificationListener;
@@ -39,7 +38,7 @@ public class Authenticator implements JMXAuthenticator, NotificationListener {
     private final String configName;
     private final ClassLoader cl;
     private ThreadLocal<LoginContext> threadContext = new ThreadLocal<LoginContext>();
-    private Map<String, LoginContext> contextMap = Collections.synchronizedMap(new HashMap<String, LoginContext>());
+    private Map<String, LoginContext> contextMap = new ConcurrentHashMap<String, LoginContext>();
 
     /**
      * Constructor indicating which JAAS Application Configuration Entry to use.

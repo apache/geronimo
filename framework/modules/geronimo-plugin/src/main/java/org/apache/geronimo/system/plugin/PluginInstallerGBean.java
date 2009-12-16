@@ -47,6 +47,7 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.security.auth.login.FailedLoginException;
 import javax.xml.parsers.SAXParser;
@@ -184,7 +185,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         this.configStore = configStore;
         this.serverInfo = serverInfo;
         this.threadPool = threadPool;
-        asyncKeys = Collections.synchronizedMap(new HashMap<Object, DownloadResults>());
+        asyncKeys = new ConcurrentHashMap<Object, DownloadResults>();
         this.serverInstanceDatas = serverInstanceDatas;
         if (artifactManager == null) artifactManager = new DefaultArtifactManager();
         setUpServerInstances(serverInstanceDatas, serverInfo, artifactManager, servers, writeableRepo, live);
@@ -228,7 +229,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         writeableRepo = new Maven2Repository(targetRepositoryFile);
         configStore = new RepositoryConfigurationStore(writeableRepo);
         threadPool = null;
-        asyncKeys = Collections.synchronizedMap(new HashMap<Object, DownloadResults>());
+        asyncKeys = new ConcurrentHashMap<Object, DownloadResults>();
         this.serverInstanceDatas = serverInstanceDatas;
         this.persistentConfigurationLists = Collections.emptyList();
         this.bundleContext = bundleContext;
@@ -357,7 +358,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         this.configStore = configStore;
         this.serverInfo = serverInfo;
         this.threadPool = threadPool;
-        asyncKeys = Collections.synchronizedMap(new HashMap<Object, DownloadResults>());
+        asyncKeys = new ConcurrentHashMap<Object, DownloadResults>();
         serverInstanceDatas = null;
         this.persistentConfigurationLists = Collections.emptyList();
         bundleContext = null;

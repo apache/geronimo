@@ -25,11 +25,11 @@ import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.security.ProviderException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -59,7 +59,7 @@ public class ContextManager {
         }
     };
     private static Map<Subject, Context> subjectContexts = new IdentityHashMap<Subject, Context>();
-    private static Map<SubjectId, Subject> subjectIds =  Collections.synchronizedMap(new HashMap<SubjectId, Subject>());
+    private static Map<SubjectId, Subject> subjectIds =  new ConcurrentHashMap<SubjectId, Subject>();
     private static long nextSubjectId = System.currentTimeMillis();
 
     private static SecretKey key;
