@@ -19,6 +19,7 @@
 package org.apache.geronimo.kernel.osgi;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,10 @@ import org.osgi.framework.Constants;
 public class BundleDescription  {
 
     private Map headers;
+    
+    public BundleDescription(Dictionary dictionary) {
+        this.headers = new DictionaryMap(dictionary);
+    }
     
     public BundleDescription(Map headers) {
         this.headers = headers;
@@ -100,6 +105,20 @@ public class BundleDescription  {
         return required;
     }
     
+    /**
+     * Returns a list of packages that are listed in <i>DynamicImport-Package</i> header.
+     */
+    public List<Package> getDynamicImportPackage() {
+        String headerValue = (String) headers.get(Constants.DYNAMICIMPORT_PACKAGE);
+        List<Package> imports = new ArrayList<Package>();
+        List<HeaderElement> elements = HeaderParser.parseHeader(headerValue);
+        for (HeaderElement element : elements) {
+            Package p = new Package(element.getName(), element.getAttributes(), element.getDirectives());
+            imports.add(p);
+        }
+        return imports;
+    }
+    
     public static class Package {
     
         private String name;
@@ -124,6 +143,13 @@ public class BundleDescription  {
             return directives;
         }       
         
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Name: ").append(name);
+            builder.append(", Attributes: ").append(attributes);
+            builder.append(", Directives: ").append(directives);
+            return builder.toString();
+        }
     }
-    
+        
 }
