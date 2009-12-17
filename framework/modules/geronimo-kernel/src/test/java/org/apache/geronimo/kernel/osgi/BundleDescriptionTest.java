@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 
 import junit.framework.TestCase;
 
@@ -37,23 +38,24 @@ public class BundleDescriptionTest extends TestCase {
         
         BundleDescription desc = new BundleDescription(headers);
         
-        List<BundleDescription.Package> imports = desc.getImportPackage();
+        List<BundleDescription.ImportPackage> imports = desc.getImportPackage();
         assertEquals(3, imports.size());
         assertEquals("com.thoughtworks.xstream", imports.get(0).getName());
-        assertEquals("\"1.3\"", imports.get(0).getAttributes().get("version"));
+        assertEquals("1.3", imports.get(0).getAttributes().get("version"));
+        assertEquals(Version.parseVersion("1.3"), imports.get(0).getVersionRange().getLow());
         assertEquals("com.thoughtworks.xstream.converters", imports.get(1).getName());
         assertEquals("org.apache.geronimo.kernel.proxy", imports.get(2).getName());
                 
-        List<BundleDescription.Package> exports = desc.getExportPackage();
+        List<BundleDescription.ExportPackage> exports = desc.getExportPackage();
         assertEquals(2, exports.size());
         assertEquals("org.apache.geronimo.kernel.rmi", exports.get(0).getName());
-        assertEquals("\"javax.rmi.ssl,org.apache.geronimo.gbean,org.slf4j\"", exports.get(0).getDirectives().get("uses"));
+        assertEquals("javax.rmi.ssl,org.apache.geronimo.gbean,org.slf4j", exports.get(0).getDirectives().get("uses"));
         assertEquals("org.apache.geronimo.kernel.proxy", exports.get(1).getName());
         
-        List<BundleDescription.Package> externalImports = desc.getExternalImports();
+        List<BundleDescription.ImportPackage> externalImports = desc.getExternalImports();
         assertEquals(2, externalImports.size());
         assertEquals("com.thoughtworks.xstream", externalImports.get(0).getName());
-        assertEquals("\"1.3\"", externalImports.get(0).getAttributes().get("version"));
+        assertEquals("1.3", externalImports.get(0).getAttributes().get("version"));
         assertEquals("com.thoughtworks.xstream.converters", externalImports.get(1).getName());        
     }
 }

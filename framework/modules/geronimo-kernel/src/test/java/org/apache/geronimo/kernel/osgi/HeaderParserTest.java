@@ -77,7 +77,7 @@ public class HeaderParserTest extends TestCase {
         assertEquals("org.apache.geronimo.kernel.rmi", paths.get(0).getName());
         assertEquals(0, paths.get(0).getAttributes().size());
         assertEquals(1, paths.get(0).getDirectives().size());
-        assertEquals("\"javax.rmi.ssl,org.apache.geronimo.gbean,org.slf4j\"", paths.get(0).getDirective("uses"));
+        assertEquals("javax.rmi.ssl,org.apache.geronimo.gbean,org.slf4j", paths.get(0).getDirective("uses"));
         
         assertEquals("org.apache.geronimo.kernel.proxy", paths.get(1).getName());
         assertEquals(0, paths.get(1).getAttributes().size());
@@ -90,7 +90,7 @@ public class HeaderParserTest extends TestCase {
         
         assertEquals("com.thoughtworks.xstream", paths.get(0).getName());
         assertEquals(1, paths.get(0).getAttributes().size());
-        assertEquals("\"1.3\"", paths.get(0).getAttribute("version"));
+        assertEquals("1.3", paths.get(0).getAttribute("version"));
         assertEquals(0, paths.get(0).getDirectives().size());
         
         assertEquals("com.thoughtworks.xstream.converters", paths.get(1).getName());

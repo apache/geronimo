@@ -41,7 +41,7 @@ public class HeaderParser  {
         if (header == null || header.trim().length() == 0) {
             return elements;
         }
-        List<String> clauses = parseDelimitedString(header, ",");
+        List<String> clauses = parseDelimitedString(header, ",", false);
         for (String clause : clauses) {
             String[] tokens = clause.split(";");
             if (tokens.length < 1) {
@@ -70,7 +70,7 @@ public class HeaderParser  {
         return elements;
     }
 
-    private static List<String> parseDelimitedString(String value, String delim) {   
+    private static List<String> parseDelimitedString(String value, String delim, boolean includeQuotes) {   
         if (value == null) {       
             value = "";
         }
@@ -96,11 +96,15 @@ public class HeaderParser  {
                 list.add(sb.toString().trim());
                 sb.delete(0, sb.length());
                 expecting = (CHAR | DELIMITER | STARTQUOTE);
-            } else if (isQuote && ((expecting & STARTQUOTE) > 0)) {            
-                sb.append(c);
+            } else if (isQuote && ((expecting & STARTQUOTE) > 0)) { 
+                if (includeQuotes) {
+                    sb.append(c);
+                }
                 expecting = CHAR | ENDQUOTE;
-            } else if (isQuote && ((expecting & ENDQUOTE) > 0)) {           
-                sb.append(c);
+            } else if (isQuote && ((expecting & ENDQUOTE) > 0)) {    
+                if (includeQuotes) {
+                    sb.append(c);
+                }
                 expecting = (CHAR | STARTQUOTE | DELIMITER);
             } else if ((expecting & CHAR) > 0) {            
                 sb.append(c);
