@@ -31,6 +31,7 @@ import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -83,4 +84,8 @@ public interface TomcatContext {
     Map getWebServices();
 
     InstanceManager getInstanceManager();
+
+    Bundle getBundle();
+
+    String getModulePath();
 }

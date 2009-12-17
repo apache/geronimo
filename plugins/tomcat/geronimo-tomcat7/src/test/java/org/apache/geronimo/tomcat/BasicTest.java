@@ -29,6 +29,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 public class BasicTest extends TestCase {
     
     public void testTomcatWebAppContext() throws Exception {
-        GBeanInfo gBeanInfo = TomcatWebAppContext.getGBeanInfo();
+        TomcatWebAppContext.class.getName();
     }
 }

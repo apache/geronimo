@@ -57,6 +57,7 @@ import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
+import org.osgi.framework.Bundle;
 
 
 /**
@@ -85,7 +86,11 @@ public class GeronimoStandardContext extends StandardContext {
     private ConfigurationFactory configurationFactory;
     private String policyContextId;
 
+    public GeronimoStandardContext() {
+    }
+
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
+        setResources(new BundleDirContext(ctx.getBundle(), ctx.getModulePath()));
 
         // Create ReadOnlyContext
         javax.naming.Context enc = ctx.getJndiContext();

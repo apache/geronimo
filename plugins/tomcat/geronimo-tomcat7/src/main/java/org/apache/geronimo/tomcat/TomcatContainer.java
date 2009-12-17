@@ -167,7 +167,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             Context defaultContext;
             ObjectName objName = objectName == null ? null : ObjectName.getInstance(objectName);
             for (Container host : hosts) {
-                defaultContext = createContext("", docBase, classLoader);
+                defaultContext = createContext("", classLoader);
                 if (objName != null) {
                     defaultContext.setName(objName.getKeyProperty(NameFactory.J2EE_NAME));
                 }
@@ -271,7 +271,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * @see org.apache.catalina.Host
      */
     public void addContext(TomcatContext contextInfo) throws Exception {
-        Context context = createContext(contextInfo.getContextPath(), contextInfo.getDocBase(), contextInfo.getClassLoader());
+        Context context = createContext(contextInfo.getContextPath(), contextInfo.getClassLoader());
 
         // Set the context for the Tomcat implementation
         contextInfo.setContext(context);
@@ -426,15 +426,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         webServices.remove(contextPath);
     }
 
-    public Context createContext(String path, String docBase, ClassLoader cl) {
+    public Context createContext(String path, ClassLoader cl) {
 
         if( log.isDebugEnabled() )
-            log.debug("Creating context '" + path + "' with docBase '" +
-                       docBase + "'");
+            log.debug("Creating context '" + path);
 
         GeronimoStandardContext context = new GeronimoStandardContext();
 
-        context.setDocBase(docBase);
         context.setPath(path);
 
         if (cl != null)

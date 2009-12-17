@@ -43,6 +43,7 @@ import org.apache.geronimo.tomcat.connector.ConnectorGBean;
 import org.apache.geronimo.tomcat.connector.Http11ConnectorGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.osgi.framework.Bundle;
 
 import javax.transaction.TransactionManager;
 import java.io.File;
@@ -70,14 +71,19 @@ public abstract class AbstractWebModuleTest extends TestSupport {
 
     protected static final String POLICY_CONTEXT_ID = "securetest";
     protected GenericSecurityRealm realm;
+    private Bundle bundle;
 
-    protected TomcatWebAppContext setUpInsecureAppContext(URI relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, RunAsSource runAsSource, ObjectRetriever tomcatRealm, ValveGBean valveChain) throws Exception {
-
+    protected TomcatWebAppContext setUpInsecureAppContext(String relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, RunAsSource runAsSource, ObjectRetriever tomcatRealm, ValveGBean valveChain) throws Exception {
+        configurationBaseURL = cl.getResource("deployables/");
+        URI locationURI = configurationBaseURL.toURI().resolve(relativeWebAppRoot);
+        MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), locationURI.toString(), new HashMap<Artifact, ConfigurationData>(), null);
+        bundle = bundleContext.getBundle();
         TomcatWebAppContext app = new TomcatWebAppContext(cl,
-                new MockBundle(cl, "", 0L),
+                bundle,
                 null,
                 null,
-                new URL(configurationBaseURL, relativeWebAppRoot.getPath()),
+                locationURI.toURL(),
+                "",
                 securityHolder,
                 null,
                 Collections.EMPTY_MAP,
@@ -113,7 +119,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         ApplicationPolicyConfigurationManager jacc = setUpJACC(roleDesignates, principalRoleMap, componentPermissions, POLICY_CONTEXT_ID);
         securityHolder.setConfigurationFactory(this.realm);
         URL configurationBaseURL = new File(BASEDIR, "src/test/resources/deployables/war3/WEB-INF/web.xml").toURL();
-        return setUpInsecureAppContext(new File(BASEDIR, "src/test/resources/deployables/war3/").toURI(),
+        return setUpInsecureAppContext("war3",
                 configurationBaseURL,
                 securityHolder,
                 jacc,
@@ -189,8 +195,9 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         engine.doStart();
 
         ServerInfo serverInfo = new BasicServerInfo(".");
+        MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
         container = new TomcatContainer(cl,
-            new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null),
+                bundleContext,
             new File(BASEDIR, "target/var/catalina").toString(), null, null, null, engine, null, serverInfo, null, null);
         container.doStart();
 

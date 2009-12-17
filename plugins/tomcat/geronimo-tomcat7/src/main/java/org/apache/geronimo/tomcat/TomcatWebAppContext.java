@@ -49,6 +49,11 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -79,10 +84,15 @@ import org.osgi.framework.Bundle;
  *
  * @version $Rev$ $Date$
  */
+
+@GBean(name = "Tomcat WebApplication Context",
+        j2eeType = NameFactory.WEB_MODULE)
 public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebModule, StatisticsProvider {
 
     private static final Logger log = LoggerFactory.getLogger(TomcatWebAppContext.class);
-
+    public static final String GBEAN_REF_CLUSTERED_VALVE_RETRIEVER = "ClusteredValveRetriever";
+    public static final String GBEAN_REF_MANAGER_RETRIEVER = "ManagerRetriever";
+ 
     protected final TomcatContainer container;
     private final ClassLoader classLoader;
     private final Bundle bundle;
@@ -110,6 +120,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final String objectName;
     private final String originalSpecDD;
     private final URL configurationBaseURL;
+    private final String modulePath;
     private final Holder holder;
     private final RuntimeCustomizer contextCustomizer;
     private String displayName;
@@ -118,48 +129,50 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final String j2EEServer;
     private final String j2EEApplication;
 
-//  statistics
+    //  statistics
     private ModuleStats statsProvider;
     private boolean reset = true;
 
     private final Valve clusteredValve;
 
     public TomcatWebAppContext(
-            ClassLoader classLoader,
-            Bundle bundle,
-            String objectName,
-            String originalSpecDD,
-            URL configurationBaseUrl,
-            SecurityHolder securityHolder,
-            String virtualServer,
-            Map componentContext,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
-            TransactionManager transactionManager,
-            TrackedConnectionAssociator trackedConnectionAssociator,
-            TomcatContainer container,
-            RunAsSource runAsSource,
-            ConfigurationFactory configurationFactory,
-            ObjectRetriever tomcatRealm,
-            ObjectRetriever clusteredValveRetriever,
-            ValveGBean tomcatValveChain,
-            LifecycleListenerGBean lifecycleListenerChain,
-            CatalinaClusterGBean cluster,
-            ObjectRetriever managerRetriever,
-            boolean crossContext,
-            String workDir,
-            boolean disableCookies,
-            String displayName,
-            Map webServices,
-            Holder holder,
-            RuntimeCustomizer contextCustomizer,
-            J2EEServer server,
-            J2EEApplication application,
-            Kernel kernel)
+            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+            @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
+            @ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+            @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
+            @ParamAttribute(name = "configurationBaseUrl") URL configurationBaseUrl,
+            @ParamAttribute(name = "modulePath")String modulePath,
+            @ParamAttribute(name = "securityHolder") SecurityHolder securityHolder,
+            @ParamAttribute(name = "virtualServer") String virtualServer,
+            @ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
+            @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
+            @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
+            @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
+            @ParamReference(name = "TrackedConnectionAssociator") TrackedConnectionAssociator trackedConnectionAssociator,
+            @ParamReference(name = "TomcatContainer") TomcatContainer container,
+            @ParamReference(name = "RunAsSource") RunAsSource runAsSource,
+            @ParamReference(name = "ConfigurationFactory") ConfigurationFactory configurationFactory,
+            @ParamReference(name = "TomcatRealm") ObjectRetriever tomcatRealm,
+            @ParamReference(name = GBEAN_REF_CLUSTERED_VALVE_RETRIEVER) ObjectRetriever clusteredValveRetriever,
+            @ParamReference(name = "TomcatValveChain") ValveGBean tomcatValveChain,
+            @ParamReference(name = "LifecycleListenerChain") LifecycleListenerGBean lifecycleListenerChain,
+            @ParamReference(name = "Cluster") CatalinaClusterGBean cluster,
+            @ParamReference(name = GBEAN_REF_MANAGER_RETRIEVER) ObjectRetriever managerRetriever,
+            @ParamAttribute(name = "crossContext") boolean crossContext,
+            @ParamAttribute(name = "workDir") String workDir,
+            @ParamAttribute(name = "disableCookies") boolean disableCookies,
+            @ParamAttribute(name = "displayName") String displayName,
+            @ParamAttribute(name = "webServices") Map webServices,
+            @ParamAttribute(name = "holder") Holder holder,
+            @ParamReference(name = "ContextCustomizer") RuntimeCustomizer contextCustomizer,
+            @ParamReference(name = "J2EEServer") J2EEServer server,
+            @ParamReference(name = "J2EEApplication") J2EEApplication application,
+            @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel)
             throws Exception {
         assert classLoader != null;
         assert bundle != null;
         assert configurationBaseUrl != null;
+        assert modulePath != null;
         assert transactionManager != null;
         assert trackedConnectionAssociator != null;
         assert componentContext != null;
@@ -172,16 +185,17 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
 
         this.objectName = objectName;
-        URI root;
-//        TODO is there a simpler way to do this?
-        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
-            root = new URI("file", configurationBaseUrl.getPath(), null);
-        } else {
-            root = URI.create(configurationBaseUrl.toString());
-        }
-        this.setDocBase(root.getPath());
+//        URI root;
+////        TODO is there a simpler way to do this?
+//        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
+//            root = new URI("file", configurationBaseUrl.getPath(), null);
+//        } else {
+//            root = URI.create(configurationBaseUrl.toString());
+//        }
+//        this.setDocBase(root.getPath());
         this.container = container;
         this.bundle = bundle;
+        this.modulePath = modulePath;
         this.originalSpecDD = originalSpecDD;
 
         this.virtualServer = virtualServer;
@@ -196,33 +210,33 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         this.server = server;
         if (securityHolder != null) {
-            securityHolder.setRunAsSource(runAsSource == null? RunAsSource.NULL: runAsSource);
+            securityHolder.setRunAsSource(runAsSource == null ? RunAsSource.NULL : runAsSource);
             securityHolder.setConfigurationFactory(configurationFactory);
         }
 
 
         this.configurationBaseURL = configurationBaseUrl;
 
-        this.holder = holder == null? new Holder(): holder;
+        this.holder = holder == null ? new Holder() : holder;
         this.contextCustomizer = contextCustomizer;
 
-        if (tomcatRealm != null){
-            realm = (Realm)tomcatRealm.getInternalObject();
-            if (realm == null){
+        if (tomcatRealm != null) {
+            realm = (Realm) tomcatRealm.getInternalObject();
+            if (realm == null) {
                 throw new IllegalArgumentException("tomcatRealm must be an instance of org.apache.catalina.Realm.");
             }
-        } else{
+        } else {
             realm = null;
         }
 
         this.displayName = displayName;
 
         //Add the valve list
-        if (tomcatValveChain != null){
+        if (tomcatValveChain != null) {
             ArrayList<Valve> chain = new ArrayList<Valve>();
             ValveGBean valveGBean = tomcatValveChain;
-            while(valveGBean != null){
-                chain.add((Valve)valveGBean.getInternalObject());
+            while (valveGBean != null) {
+                chain.add((Valve) valveGBean.getInternalObject());
                 valveGBean = valveGBean.getNextValve();
             }
             valveChain = chain;
@@ -231,11 +245,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
 
         //Add the Lifecycle Listener list
-        if (lifecycleListenerChain != null){
+        if (lifecycleListenerChain != null) {
             ArrayList<LifecycleListener> chain = new ArrayList<LifecycleListener>();
             LifecycleListenerGBean listenerGBean = lifecycleListenerChain;
-            while(listenerGBean != null){
-                chain.add((LifecycleListener)listenerGBean.getInternalObject());
+            while (listenerGBean != null) {
+                chain.add((LifecycleListener) listenerGBean.getInternalObject());
                 listenerGBean = listenerGBean.getNextListener();
             }
             listenerChain = chain;
@@ -338,7 +352,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public String getServer() {
-        return server == null? null: server.getObjectName();
+        return server == null ? null : server.getObjectName();
     }
 
     public String getDocBase() {
@@ -438,7 +452,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return workDir;
     }
 
-    public Map getWebServices(){
+    public Map getWebServices() {
         return webServices;
     }
 
@@ -446,11 +460,19 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return new TomcatInstanceManager(holder, classLoader, componentContext);
     }
 
+    public Bundle getBundle() {
+        return bundle;
+    }
+
+    public String getModulePath() {
+        return modulePath;
+    }
+
     public RuntimeCustomizer getRuntimeCustomizer() {
         return contextCustomizer;
     }
 
-    public String[] getServlets(){
+    public String[] getServlets() {
         String[] result = null;
         if ((context != null) && (context instanceof StandardContext)) {
             result = ((StandardContext) context).getServlets();
@@ -459,7 +481,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return result;
     }
 
-    public String getDisplayName(){
+    public String getDisplayName() {
         return displayName;
     }
 
@@ -504,21 +526,20 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public String[] getJavaVMs() {
-        return server == null? new String[0]: server.getJavaVMs();
+        return server == null ? new String[0] : server.getJavaVMs();
     }
 
     public String getDeploymentDescriptor() {
         return originalSpecDD;
     }
 
-//  JSR 77 statistics - The static values are initialized at the time of
+    //  JSR 77 statistics - The static values are initialized at the time of
     // creration, getStats return fresh value everytime
     public Stats getStats() {
         if (reset) {
             reset = false;
             return statsProvider.getStats();
-        }
-        else return statsProvider.updateStats();
+        } else return statsProvider.updateStats();
     }
 
     public void resetStats() {
@@ -540,7 +561,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
         DirContextURLStreamHandler.bind(classLoader, resources);
         if (context instanceof StandardContext)
-            statsProvider =  new ModuleStats((StandardContext)context);
+            statsProvider = new ModuleStats((StandardContext) context);
 
         log.debug("TomcatWebAppContext started for " + path);
     }
@@ -566,90 +587,4 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         log.warn("TomcatWebAppContext failed");
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-    public static final String GBEAN_REF_CLUSTERED_VALVE_RETRIEVER = "ClusteredValveRetriever";
-    public static final String GBEAN_REF_MANAGER_RETRIEVER = "ManagerRetriever";
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Tomcat WebApplication Context", TomcatWebAppContext.class, NameFactory.WEB_MODULE);
-
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addAttribute("bundle", Bundle.class, false);
-        infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
-        infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
-
-        infoBuilder.addAttribute("contextPath", String.class, true);
-
-        infoBuilder.addAttribute("securityHolder", SecurityHolder.class, true);
-        infoBuilder.addAttribute("virtualServer", String.class, true);
-        infoBuilder.addAttribute("componentContext", Map.class, true);
-        infoBuilder.addAttribute("unshareableResources", Set.class, true);
-        infoBuilder.addAttribute("applicationManagedSecurityResources", Set.class, true);
-        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
-        infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
-
-        infoBuilder.addReference("Container", TomcatContainer.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoBuilder.addReference("RunAsSource", RunAsSource.class, SecurityNames.JACC_MANAGER);
-        infoBuilder.addReference("ConfigurationFactory", ConfigurationFactory.class);
-        infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
-        infoBuilder.addReference(GBEAN_REF_CLUSTERED_VALVE_RETRIEVER, ObjectRetriever.class);
-        infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
-        infoBuilder.addReference("LifecycleListenerChain", LifecycleListenerGBean.class, LifecycleListenerGBean.J2EE_TYPE);
-        infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
-        infoBuilder.addReference(GBEAN_REF_MANAGER_RETRIEVER, ObjectRetriever.class);
-        infoBuilder.addAttribute("crossContext", boolean.class, true);
-        infoBuilder.addAttribute("workDir", String.class, true);
-        infoBuilder.addAttribute("disableCookies", boolean.class, true);
-        infoBuilder.addAttribute("webServices", Map.class, true);
-        infoBuilder.addAttribute("holder", Holder.class, true);
-        infoBuilder.addReference("ContextCustomizer", RuntimeCustomizer.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoBuilder.addReference("J2EEServer", J2EEServer.class);
-        infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-        infoBuilder.addAttribute("displayName", String.class, true);
-
-        infoBuilder.addInterface(WebModule.class);
-
-        infoBuilder.setConstructor(new String[] {
-                "classLoader",
-                "bundle",
-                "objectName",
-                "deploymentDescriptor",
-                "configurationBaseUrl",
-                "securityHolder",
-                "virtualServer",
-                "componentContext",
-                "unshareableResources",
-                "applicationManagedSecurityResources",
-                "TransactionManager",
-                "TrackedConnectionAssociator",
-                "Container",
-                "RunAsSource",
-                "ConfigurationFactory",
-                "TomcatRealm",
-                GBEAN_REF_CLUSTERED_VALVE_RETRIEVER,
-                "TomcatValveChain",
-                "LifecycleListenerChain",
-                "Cluster",
-                GBEAN_REF_MANAGER_RETRIEVER,
-                "crossContext",
-                "workDir",
-                "disableCookies",
-                "displayName",
-                "webServices",
-                "holder",
-                "ContextCustomizer",
-                "J2EEServer",
-                "J2EEApplication",
-                "kernel"
-                }
-        );
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

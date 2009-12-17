@@ -222,7 +222,7 @@ public class WADITomcatClusteringBuilderTest extends TestCase {
 
         @Override
         protected GBeanData extractWebModule(DeploymentContext moduleContext) throws DeploymentException {
-            GBeanData gbeanData = new GBeanData(TomcatWebAppContext.GBEAN_INFO);
+            GBeanData gbeanData = new GBeanData(TomcatWebAppContext.class);
             gbeanData.setAttribute("contextPath", contextPath);
             return gbeanData;
         }

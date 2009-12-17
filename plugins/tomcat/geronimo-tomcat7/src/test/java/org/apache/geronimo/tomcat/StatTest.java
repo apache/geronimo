@@ -35,8 +35,7 @@ public class StatTest extends AbstractWebModuleTest {
 
     public void testStats() throws Exception {
         TomcatWebAppContext webModule;
-        webModule = setUpInsecureAppContext(new File(BASEDIR, "src/test/resources/deployables/war1/").toURI(), new File(
-                BASEDIR, "src/test/resources/deployables/war1/WEB-INF/web.xml").toURL(), null, null, null, null);
+        webModule = setUpInsecureAppContext("war1", null, null, null, null, null);
             HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/hello.txt")
                     .openConnection();
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
