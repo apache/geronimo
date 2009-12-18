@@ -85,6 +85,7 @@
                             org.springframework*;resolution:=optional,
                             org.jdom*;resolution:=optional,
                             org.dom4j*;resolution:=optional,
+                            org.apache.xmlbeans*;resolution:=optional,
                             *</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Embed-Dependency>*;scope=provided;inline=true</Embed-Dependency>
