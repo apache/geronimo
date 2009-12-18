@@ -22,4 +22,7 @@
   <gbean name="JasperSystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
     <attribute name="systemProperties">org.apache.jasper.Constants.USE_INSTANCE_MANAGER_FOR_TAGS=true</attribute>
   </gbean>
+
+    <gbean name="JasperJSPFactoryConfigurer" class="org.apache.geronimo.jasper.JasperJSPFactoryConfigurer">
+    </gbean>
 </module>
