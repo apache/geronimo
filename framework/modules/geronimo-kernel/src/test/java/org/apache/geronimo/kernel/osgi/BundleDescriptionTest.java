@@ -58,5 +58,20 @@ public class BundleDescriptionTest extends TestCase {
         assertEquals("1.3", externalImports.get(0).getAttributes().get("version"));
         assertEquals("com.thoughtworks.xstream.converters", externalImports.get(1).getName());        
     }
+    
+    public void testSymbolicName() throws Exception {
+        Map<String, String> headers = new HashMap<String, String>();
+        
+        BundleDescription desc = new BundleDescription(headers);
+                
+        // test simple
+        headers.put(Constants.BUNDLE_SYMBOLICNAME, "foo1");
+        assertEquals("foo1", desc.getSymbolicName().getName());
+        
+        // test with  a directive
+        headers.put(Constants.BUNDLE_SYMBOLICNAME, "foo2; singleton:=true");
+        assertEquals("foo2", desc.getSymbolicName().getName());
+        assertEquals("true", desc.getSymbolicName().getDirectives().get("singleton"));
+    }
 }
 

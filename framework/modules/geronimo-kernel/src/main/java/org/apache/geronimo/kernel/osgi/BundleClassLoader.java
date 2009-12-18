@@ -137,7 +137,7 @@ public class BundleClassLoader extends ClassLoader implements BundleReference {
         // handle static wire via Import-Package
         List<BundleDescription.ImportPackage> imports = description.getExternalImports();
         LinkedHashSet<Bundle> wiredBundles = new LinkedHashSet<Bundle>();
-        for (BundleDescription.Package packageImport : imports) {
+        for (BundleDescription.ImportPackage packageImport : imports) {
             ExportedPackage[] exports = packageAdmin.getExportedPackages(packageImport.getName());
             Bundle wiredBundle = getWiredBundle(exports);
             if (wiredBundle != null) {

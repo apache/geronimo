@@ -20,8 +20,11 @@ package org.apache.geronimo.kernel.osgi;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import org.apache.geronimo.kernel.osgi.HeaderParser.HeaderElement;
 import org.osgi.framework.Constants;
@@ -33,6 +36,10 @@ import org.osgi.framework.Version;
 public class BundleDescription  {
 
     private Map headers;
+    
+    public BundleDescription(Manifest manifest) {
+        this.headers = manifestToMap(manifest);
+    }
     
     public BundleDescription(Dictionary dictionary) {
         this.headers = new DictionaryMap(dictionary);
@@ -87,8 +94,8 @@ public class BundleDescription  {
         return realImports;
     }
     
-    private static boolean isExported(List<ExportPackage> exports, Package p) {
-        for (Package export : exports) {
+    private static boolean isExported(List<ExportPackage> exports, ImportPackage p) {
+        for (ExportPackage export : exports) {            
             if (export.getName().equals(p.getName())) {
                 return true;
             }
@@ -109,34 +116,51 @@ public class BundleDescription  {
     /**
      * Returns a list of packages that are listed in <i>DynamicImport-Package</i> header.
      */
-    public List<Package> getDynamicImportPackage() {
+    public List<HeaderEntry> getDynamicImportPackage() {
         String headerValue = (String) headers.get(Constants.DYNAMICIMPORT_PACKAGE);
-        List<Package> imports = new ArrayList<Package>();
+        List<HeaderEntry> imports = new ArrayList<HeaderEntry>();
         List<HeaderElement> elements = HeaderParser.parseHeader(headerValue);
         for (HeaderElement element : elements) {
-            Package p = new Package(element.getName(), element.getAttributes(), element.getDirectives());
+            HeaderEntry p = new HeaderEntry(element.getName(), element.getAttributes(), element.getDirectives());
             imports.add(p);
         }
         return imports;
     }
     
-    public String getSymbolicName() {
-        return (String) headers.get(Constants.BUNDLE_SYMBOLICNAME);
+    public SymbolicName getSymbolicName() {
+        String headerValue = (String) headers.get(Constants.BUNDLE_SYMBOLICNAME);
+        List<HeaderElement> elements = HeaderParser.parseHeader(headerValue);
+        if (elements.size() == 1) {
+            HeaderElement element = elements.get(0);
+            return new SymbolicName(element.getName(), element.getAttributes(), element.getDirectives());
+        }
+        return null;
     }
     
     public Map getHeaders() {
         return headers;
     }
     
-    public static class Package {
+    private static Map<String, String> manifestToMap(Manifest manifest) {
+        Attributes attributes = manifest.getMainAttributes();
+        Map<String, String> headers = new HashMap<String, String>();
+        for (Map.Entry<Object, Object> entry : attributes.entrySet()) {
+            String key = entry.getKey().toString();
+            String value = entry.getValue().toString();
+            headers.put(key, value);
+        }
+        return headers;
+    }
+    
+    public static class HeaderEntry {
     
         private String name;
         private Map<String, String> attributes;
         private Map<String, String> directives;
         
-        public Package(String name, 
-                       Map<String, String> attributes, 
-                       Map<String, String> directives) {
+        public HeaderEntry(String name, 
+                          Map<String, String> attributes, 
+                          Map<String, String> directives) {
             this.name = name;
             this.attributes = attributes;
             this.directives = directives;
@@ -171,7 +195,7 @@ public class BundleDescription  {
         }
     }
     
-    public class ExportPackage extends Package {
+    public static class ExportPackage extends HeaderEntry {
 
         private Version version;
         
@@ -187,7 +211,7 @@ public class BundleDescription  {
         }
     }
         
-    public class ImportPackage extends Package {
+    public static class ImportPackage extends HeaderEntry {
 
         private boolean optional;
         private VersionRange versionRange;
@@ -214,5 +238,15 @@ public class BundleDescription  {
         public VersionRange getVersionRange() {
             return versionRange;
         }
+    }
+    
+    public static class SymbolicName extends HeaderEntry {
+
+        public SymbolicName(String name,
+                            Map<String, String> attributes,
+                            Map<String, String> directives) {
+            super(name, attributes, directives);
+        }
+        
     }
 }
