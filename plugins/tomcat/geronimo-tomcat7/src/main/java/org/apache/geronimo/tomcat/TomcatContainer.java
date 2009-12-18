@@ -272,14 +272,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      */
     public void addContext(TomcatContext contextInfo) throws Exception {
         Context context = createContext(contextInfo.getContextPath(), contextInfo.getClassLoader());
-
-        // Set the context for the Tomcat implementation
-        contextInfo.setContext(context);
-
-        // Have the context to set its properties if its a GeronimoStandardContext
-        if (context instanceof GeronimoStandardContext) {
-            ((GeronimoStandardContext) context).setContextProperties(contextInfo);
-        }
         //Was a virtual server defined?
         String virtualServer = contextInfo.getVirtualServer();
         if (virtualServer == null) {
@@ -288,6 +280,17 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         Container host = engine.findChild(virtualServer);
         if (host == null) {
             throw new IllegalArgumentException("Invalid virtual host '" + virtualServer + "'.  Do you have a matching Host entry in the plan?");
+        }
+        context.setParent(host);
+        // set the bundle context attribute in the servlet context
+        context.getServletContext().setAttribute("osgi-bundlecontext", contextInfo.getBundle().getBundleContext());
+
+        // Set the context for the Tomcat implementation
+        contextInfo.setContext(context);
+
+        // Have the context to set its properties if its a GeronimoStandardContext
+        if (context instanceof GeronimoStandardContext) {
+            ((GeronimoStandardContext) context).setContextProperties(contextInfo);
         }
 
         //Get the security-realm-name if there is one

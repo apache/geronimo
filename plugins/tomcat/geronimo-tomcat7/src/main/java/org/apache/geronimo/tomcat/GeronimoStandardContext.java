@@ -34,9 +34,13 @@ import org.apache.catalina.Loader;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
+import org.apache.catalina.InstanceListener;
+import org.apache.catalina.Lifecycle;
+import org.apache.catalina.ContainerListener;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.core.StandardWrapper;
 import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.geronimo.common.DeploymentException;
@@ -219,6 +223,66 @@ public class GeronimoStandardContext extends StandardContext {
         }
     }
 
+    private final Object instanceListenersLock = new Object();
+    private final Object wrapperLifecyclesLock = new Object();
+    private final Object wrapperListenersLock = new Object();
+    public Wrapper createWrapper() {
+
+        Wrapper wrapper = null;
+        if (getWrapperClass() != null) {
+            try {
+                wrapper = (Wrapper) getInstanceManager().newInstance(getWrapperClass());
+            } catch (Throwable t) {
+                getLogger().error("createWrapper", t);
+                return (null);
+            }
+        } else {
+            wrapper = new StandardWrapper();
+        }
+
+        synchronized (instanceListenersLock) {
+            for (String instanceListener: findInstanceListeners()) {
+                try {
+                    InstanceListener listener =
+                      (InstanceListener) getInstanceManager().newInstance(instanceListener);
+                    wrapper.addInstanceListener(listener);
+                } catch (Throwable t) {
+                    getLogger().error("createWrapper", t);
+                    return (null);
+                }
+            }
+        }
+
+        synchronized (wrapperLifecyclesLock) {
+            for (String wrapperLifecycle: findWrapperLifecycles()) {
+                try {
+                    LifecycleListener listener =
+                      (LifecycleListener) getInstanceManager().newInstance(wrapperLifecycle);
+                    if (wrapper instanceof Lifecycle)
+                        ((Lifecycle) wrapper).addLifecycleListener(listener);
+                } catch (Throwable t) {
+                    getLogger().error("createWrapper", t);
+                    return (null);
+                }
+            }
+        }
+
+        synchronized (wrapperListenersLock) {
+            for (String wrapperListener: findWrapperListeners()) {
+                try {
+                    ContainerListener listener =
+                      (ContainerListener) getInstanceManager().newInstance(wrapperListener);
+                    wrapper.addContainerListener(listener);
+                } catch (Throwable t) {
+                    getLogger().error("createWrapper", t);
+                    return (null);
+                }
+            }
+        }
+
+        return (wrapper);
+
+    }
     /* This method is called by a background thread to destroy sessions (among other things)
      * so we need to apply appropriate context to the thread to expose JNDI, etc.
      */

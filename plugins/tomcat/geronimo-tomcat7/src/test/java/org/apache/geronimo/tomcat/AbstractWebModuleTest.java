@@ -81,6 +81,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         TomcatWebAppContext app = new TomcatWebAppContext(cl,
                 bundle,
                 null,
+                "/test",
                 null,
                 locationURI.toURL(),
                 "",
@@ -110,7 +111,6 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,
                 null,
                 null);
-        app.setContextPath("/test");
         app.doStart();
         return app;
     }

@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.tomcat;
 
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,8 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
@@ -67,7 +64,6 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
-import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
@@ -97,7 +93,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final ClassLoader classLoader;
     private final Bundle bundle;
     protected Context context = null;
-    private String path = null;
+    private String contextPath = null;
     private String docBase = null;
     private String virtualServer = null;
     private final Realm realm;
@@ -139,6 +135,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
             @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
             @ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+            @ParamAttribute(name = "contextPath") String contextPath,
             @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
             @ParamAttribute(name = "configurationBaseUrl") URL configurationBaseUrl,
             @ParamAttribute(name = "modulePath")String modulePath,
@@ -197,6 +194,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.bundle = bundle;
         this.modulePath = modulePath;
         this.originalSpecDD = originalSpecDD;
+        this.contextPath = contextPath;
 
         this.virtualServer = virtualServer;
         this.securityHolder = securityHolder;
@@ -359,9 +357,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return docBase;
     }
 
-    public void setDocBase(String docBase) {
-        this.docBase = docBase;
-    }
+//    public void setDocBase(String docBase) {
+//        this.docBase = docBase;
+//    }
 
     public UserTransaction getUserTransaction() {
         return userTransaction;
@@ -396,11 +394,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public String getContextPath() {
-        return path;
-    }
-
-    public void setContextPath(String path) {
-        this.path = path.startsWith("/") ? path : "/" + path;
+        return contextPath;
     }
 
     public SecurityHolder getSecurityHolder() {
@@ -550,8 +544,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         // See the note of TomcatContainer::addContext
         container.addContext(this);
-        // set the bundle context attribute in the servlet context
-        context.getServletContext().setAttribute("osgi-bundlecontext", bundle.getBundleContext());
         // Is it necessary - doesn't Tomcat Embedded take care of it?
         // super.start();
         //register the classloader <> dir context association so that tomcat's jndi based getResources works.
@@ -563,7 +555,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         if (context instanceof StandardContext)
             statsProvider = new ModuleStats((StandardContext) context);
 
-        log.debug("TomcatWebAppContext started for " + path);
+        log.debug("TomcatWebAppContext started for " + contextPath);
     }
 
     public void doStop() throws Exception {

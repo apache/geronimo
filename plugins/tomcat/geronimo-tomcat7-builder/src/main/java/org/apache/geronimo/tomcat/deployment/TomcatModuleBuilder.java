@@ -354,6 +354,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         //TODO move to method above, also in jetty
         webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext()? null: webModule.getTargetPath());
         String contextPath = webModule.getContextRoot();
+        if (!contextPath.startsWith("/")) {
+            contextPath = "/" + contextPath;
+        }
         try {
             moduleContext.addGBean(webModuleData);
             webModuleData.setAttribute("contextPath", contextPath);
