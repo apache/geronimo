@@ -805,7 +805,6 @@ public class Manifest implements Serializable {
 
     /** Construct an empty manifest */
     public Manifest() {
-        manifestVersion = null;
     }
 
     /**
