@@ -149,7 +149,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
             @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
             @ParamReference(name = "TrackedConnectionAssociator") TrackedConnectionAssociator trackedConnectionAssociator,
-            @ParamReference(name = "TomcatContainer") TomcatContainer container,
+            @ParamReference(name = "Container") TomcatContainer container,
             @ParamReference(name = "RunAsSource") RunAsSource runAsSource,
             @ParamReference(name = "ConfigurationFactory") ConfigurationFactory configurationFactory,
             @ParamReference(name = "TomcatRealm") ObjectRetriever tomcatRealm,
