@@ -74,8 +74,7 @@ public class BundleDescription  {
             ExportPackage p = new ExportPackage(element.getName(), element.getAttributes(), element.getDirectives());
             exports.add(p);
         }
-        return exports;
-        
+        return exports;        
     }
     
     /**
@@ -103,14 +102,31 @@ public class BundleDescription  {
         return false;
     }
     
-    public List<String> getRequireBundle() {
+    /**
+     * Returns a list of bundle names that are listed in <i>Require-Bundle</i> header.
+     */
+    public List<RequireBundle> getRequireBundle() {
         String headerValue = (String) headers.get(Constants.REQUIRE_BUNDLE);
-        List<String> required = new ArrayList<String>();
+        List<RequireBundle> requireBundles = new ArrayList<RequireBundle>();
         List<HeaderElement> elements = HeaderParser.parseHeader(headerValue);
         for (HeaderElement element : elements) {
-            required.add(element.getName());
+            RequireBundle p = new RequireBundle(element.getName(), element.getAttributes(), element.getDirectives());
+            requireBundles.add(p);
         }
-        return required;
+        return requireBundles;   
+    }
+    
+    /**
+     * Returns <i>Fragment-Host</i> header.
+     */
+    public FragmentHost getFragmentHost() {
+        String headerValue = (String) headers.get(Constants.REQUIRE_BUNDLE);
+        List<HeaderElement> elements = HeaderParser.parseHeader(headerValue);
+        if (elements.size() == 1) {
+            HeaderElement element = elements.get(0);
+            return new FragmentHost(element.getName(), element.getAttributes(), element.getDirectives());
+        }
+        return null;
     }
     
     /**
@@ -118,13 +134,7 @@ public class BundleDescription  {
      */
     public List<HeaderEntry> getDynamicImportPackage() {
         String headerValue = (String) headers.get(Constants.DYNAMICIMPORT_PACKAGE);
-        List<HeaderEntry> imports = new ArrayList<HeaderEntry>();
-        List<HeaderElement> elements = HeaderParser.parseHeader(headerValue);
-        for (HeaderElement element : elements) {
-            HeaderEntry p = new HeaderEntry(element.getName(), element.getAttributes(), element.getDirectives());
-            imports.add(p);
-        }
-        return imports;
+        return parseStandardHeader(headerValue);
     }
     
     public SymbolicName getSymbolicName() {
@@ -137,8 +147,23 @@ public class BundleDescription  {
         return null;
     }
     
+    public Version getVersion() {
+        String headerValue = (String) headers.get(Constants.BUNDLE_VERSION);
+        return getVersionRange(headerValue).getLow();
+    }
+    
     public Map getHeaders() {
         return headers;
+    }
+    
+    private List<HeaderEntry> parseStandardHeader(String headerValue) {
+        List<HeaderEntry> imports = new ArrayList<HeaderEntry>();
+        List<HeaderElement> elements = HeaderParser.parseHeader(headerValue);
+        for (HeaderElement element : elements) {
+            HeaderEntry p = new HeaderEntry(element.getName(), element.getAttributes(), element.getDirectives());
+            imports.add(p);
+        }
+        return imports;
     }
     
     private static Map<String, String> manifestToMap(Manifest manifest) {
@@ -150,6 +175,13 @@ public class BundleDescription  {
             headers.put(key, value);
         }
         return headers;
+    }
+    
+    private static VersionRange getVersionRange(String version) {
+        if (version == null) {
+            version = "0.0.0";
+        }
+        return VersionRange.parse(version);
     }
     
     public static class HeaderEntry {
@@ -186,13 +218,6 @@ public class BundleDescription  {
             return builder.toString();
         }
         
-        protected VersionRange getVersionRange() {
-            String version = attributes.get(Constants.VERSION_ATTRIBUTE);
-            if (version == null) {
-                version = "0.0.0";
-            }
-            return VersionRange.parse(version);
-        }
     }
     
     public static class ExportPackage extends HeaderEntry {
@@ -203,7 +228,7 @@ public class BundleDescription  {
                              Map<String, String> attributes,
                              Map<String, String> directives) {
             super(name, attributes, directives);
-            version = getVersionRange().getLow();
+            version = BundleDescription.getVersionRange(attributes.get(Constants.VERSION_ATTRIBUTE)).getLow();
         }
         
         public Version getVersion() {
@@ -224,7 +249,7 @@ public class BundleDescription  {
             String resolution = directives.get(Constants.RESOLUTION_DIRECTIVE);
             optional = Constants.RESOLUTION_OPTIONAL.equals(resolution);
             
-            versionRange = super.getVersionRange();
+            versionRange = BundleDescription.getVersionRange(attributes.get(Constants.VERSION_ATTRIBUTE));
         }
         
         public boolean isOptional() {
@@ -248,5 +273,50 @@ public class BundleDescription  {
             super(name, attributes, directives);
         }
         
+    }
+    
+    public static class RequireBundle extends HeaderEntry {
+
+        private boolean optional;
+        private VersionRange versionRange;
+        
+        public RequireBundle(String name,
+                             Map<String, String> attributes,
+                             Map<String, String> directives) {
+            super(name, attributes, directives);
+
+            String resolution = directives.get(Constants.RESOLUTION_DIRECTIVE);
+            optional = Constants.RESOLUTION_OPTIONAL.equals(resolution);
+            
+            versionRange = BundleDescription.getVersionRange(attributes.get(Constants.BUNDLE_VERSION_ATTRIBUTE));
+        }
+        
+        public boolean isOptional() {
+            return optional;
+        }
+        
+        public boolean isMandatory() {
+            return !optional;
+        }
+        
+        public VersionRange getVersionRange() {
+            return versionRange;
+        }
+    }
+    
+    public static class FragmentHost extends HeaderEntry {
+
+        private VersionRange versionRange;
+        
+        public FragmentHost(String name,
+                             Map<String, String> attributes,
+                             Map<String, String> directives) {
+            super(name, attributes, directives);
+            versionRange = BundleDescription.getVersionRange(attributes.get(Constants.BUNDLE_VERSION_ATTRIBUTE));
+        }
+        
+        public VersionRange getVersionRange() {
+            return versionRange;
+        }
     }
 }
