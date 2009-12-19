@@ -120,7 +120,7 @@ public class BundleDescription  {
      * Returns <i>Fragment-Host</i> header.
      */
     public FragmentHost getFragmentHost() {
-        String headerValue = (String) headers.get(Constants.REQUIRE_BUNDLE);
+        String headerValue = (String) headers.get(Constants.FRAGMENT_HOST);
         List<HeaderElement> elements = HeaderParser.parseHeader(headerValue);
         if (elements.size() == 1) {
             HeaderElement element = elements.get(0);
