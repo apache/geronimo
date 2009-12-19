@@ -15,12 +15,13 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.console.util;
+package org.apache.geronimo.console.securitymanager.util;
 
 import java.util.Hashtable;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.console.util.ObjectNameConstants;
 
 public class SERealmUserHelper extends RealmHelper {
 

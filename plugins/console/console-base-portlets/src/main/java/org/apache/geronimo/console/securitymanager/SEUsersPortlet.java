@@ -30,8 +30,8 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-import org.apache.geronimo.console.util.SERealmGroupHelper;
-import org.apache.geronimo.console.util.SERealmUserHelper;
+import org.apache.geronimo.console.securitymanager.util.SERealmGroupHelper;
+import org.apache.geronimo.console.securitymanager.util.SERealmUserHelper;
 
 /**
  * @version $Rev$ $Date$

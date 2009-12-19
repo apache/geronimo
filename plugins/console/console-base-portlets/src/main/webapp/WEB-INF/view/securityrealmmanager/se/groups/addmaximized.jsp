@@ -14,7 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 --%>
-<%@ page import="org.apache.geronimo.console.util.SERealmGroupHelper" %>
+<%@ page import="org.apache.geronimo.console.securitymanager.util.SERealmGroupHelper" %>
 <%@ page import="java.util.Collection" %>
 <%@ page import="java.util.Iterator" %>
 

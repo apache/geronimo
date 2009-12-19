@@ -15,18 +15,23 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.console.util;
+package org.apache.geronimo.console.securitymanager.util;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.geronimo.console.util.KernelHelper;
+import org.apache.geronimo.console.util.ObjectNameConstants;
 
-public abstract class TimeUtils {
+public abstract class RealmHelper extends KernelHelper {
+    
+    private static final Logger logger = LoggerFactory.getLogger(RealmHelper.class);
 
-    public static String formatDuration(long duration) {
-        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss:SSS");
-        format.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return format.format(new Date(duration));
+    public static boolean isDefaultLoginModuleAvaiable() {
+        try {
+            return (Boolean) invoke(ObjectNameConstants.SE_REALM_MBEAN_NAME, "isAvailable");
+        } catch (Exception e) {
+            logger.error("Fail to check the status of " + ObjectNameConstants.SE_REALM_MBEAN_NAME, e);
+            return false;
+        }
     }
-
 }

@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.console.util;
+package org.apache.geronimo.console.securitymanager.util;
 
 import java.util.Map;
 

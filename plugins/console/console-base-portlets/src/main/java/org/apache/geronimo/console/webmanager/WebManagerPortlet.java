@@ -19,7 +19,7 @@ package org.apache.geronimo.console.webmanager;
 
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.console.util.TimeUtils;
+import org.apache.geronimo.console.webmanager.TimeUtils;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.geronimo.stats.WebContainerStats;
