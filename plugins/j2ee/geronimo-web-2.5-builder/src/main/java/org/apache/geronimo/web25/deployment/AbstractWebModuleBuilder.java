@@ -745,6 +745,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         webModuleData.setAttribute("componentContext", compContext);
         webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
         webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
+        webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext()? null: webModule.getTargetPath());
     }
 
     private static class InternWrapper implements XMLStreamReader {

@@ -381,8 +381,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         GBeanData webModuleData = new GBeanData(moduleName, WebAppContextWrapper.class);
 
         configureBasicWebModuleAttributes(webApp, jettyWebApp, moduleContext, earContext, webModule, webModuleData);
-        //TODO move to method above
-        webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext()? null: webModule.getTargetPath());
 
         // unsharableResources, applicationManagedSecurityResources
         GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);

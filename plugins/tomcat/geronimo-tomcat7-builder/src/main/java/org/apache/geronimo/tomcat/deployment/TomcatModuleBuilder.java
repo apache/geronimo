@@ -351,8 +351,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
         GBeanData webModuleData = new GBeanData(moduleName, TomcatWebAppContext.class);
         configureBasicWebModuleAttributes(webApp, tomcatWebApp, moduleContext, earContext, webModule, webModuleData);
-        //TODO move to method above, also in jetty
-        webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext()? null: webModule.getTargetPath());
         String contextPath = webModule.getContextRoot();
         if (!contextPath.startsWith("/")) {
             contextPath = "/" + contextPath;
