@@ -1450,7 +1450,7 @@ public class BundleDirContext implements DirContext {
         }
         URL url = bundle.getEntry(name);
         if (url == null) {
-            return null;
+            throw new NamingException(sm.getString("resources.notFound", name));
         }
         return new URLResource(url);
     }
