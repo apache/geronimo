@@ -78,37 +78,11 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <useMavenDependencies>
-                        <value>false</value>
-                    </useMavenDependencies>
-                    <category>Jetty</category>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>connector-deployer-1_6</artifactId>
-                            <type>car</type>
-                        </dependency>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>jetty8</artifactId>
                             <type>car</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>j2ee-deployer</artifactId>
-                            <type>car</type>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-web-2.5-builder</artifactId>
-                            <type>jar</type>
-                            <import>classes</import>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.geronimo.modules</groupId>
-                            <artifactId>geronimo-jetty8-builder</artifactId>
-                            <type>jar</type>
                             <import>classes</import>
                         </dependency>
                     </dependencies>
