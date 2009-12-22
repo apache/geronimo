@@ -43,7 +43,7 @@ public class StreamConsoleReader implements ConsoleReader {
     }
 
     public StreamConsoleReader(InputStream in, Writer out) {
-        this(in, new PrintWriter(out));
+        this(in, new PrintWriter(out, true));
     }
 
     /**
@@ -99,6 +99,7 @@ public class StreamConsoleReader implements ConsoleReader {
      */
     public String readLine(String prompt) throws IOException {
         printString(prompt);
+        flushConsole();
         return readLine();
     }
 
