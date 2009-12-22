@@ -51,8 +51,13 @@ public class PlutoURLRebuildFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         HttpServletRequest wrappedHttpServletRequest = httpServletRequest;
+        HttpSession httpSession = httpServletRequest.getSession();
+        String actionParameters = null;
+        if (httpSession != null) {
+            actionParameters = "formId=" + (String) httpSession.getAttribute("formId");
+        }
         HttpServletResponse wrappedHttpServletResponse = new PlutoUrlResponse((HttpServletResponse) response,
-                httpServletRequest.getContextPath() + httpServletRequest.getServletPath());
+                httpServletRequest.getContextPath() + httpServletRequest.getServletPath(), actionParameters);
         /*
          * 1. if it is file uploading, skip it, we must not invoke any method on it, or it will corrupt the request
          * object. Maybe, in the future, we could handler file uploading uniformly here         
@@ -94,10 +99,12 @@ public class PlutoURLRebuildFilter implements Filter {
     protected static class PlutoUrlResponse extends HttpServletResponseWrapper {
 
         private String requestContextServletPath;
+        
+        private String actionParameters;
 
-        public PlutoUrlResponse(HttpServletResponse response, String requestContextServletPath) {
+        public PlutoUrlResponse(HttpServletResponse response, String requestContextServletPath, String actionParameters) {
             super(response);
-
+            this.actionParameters = actionParameters;
             this.requestContextServletPath = requestContextServletPath;
         }
 
@@ -111,6 +118,9 @@ public class PlutoURLRebuildFilter implements Filter {
                 writer
                         .write("<html><head></head><body onload='document.hform.submit()'><form name='hform' method='POST' action='");
                 writer.write(requestContextServletPath);
+                if (actionParameters != null) {
+                    writer.write("?" + actionParameters);
+                }
                 writer.write("'><input type='hidden' name='" + HIDDEN_URL_ELEMENT_NAME + "' value='" + location
                         + "'/></form>");
                 writer.write("</body></html>");
