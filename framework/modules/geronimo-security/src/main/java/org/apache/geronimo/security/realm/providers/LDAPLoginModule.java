@@ -448,10 +448,10 @@ public class LDAPLoginModule implements LoginModule {
         try {
             Hashtable<String, String> env = new Hashtable<String, String>();
             env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
-            if (connectionUsername != null || !"".equals(connectionUsername)) {
+            if (connectionUsername != null && connectionUsername.length() > 0) {
                 env.put(Context.SECURITY_PRINCIPAL, connectionUsername);
             }
-            if (connectionPassword != null || !"".equals(connectionPassword)) {
+            if (connectionPassword != null && connectionPassword.length() > 0) {
                 env.put(Context.SECURITY_CREDENTIALS, connectionPassword);
             }
             env.put(Context.SECURITY_PROTOCOL, connectionProtocol == null ? "" : connectionProtocol);
