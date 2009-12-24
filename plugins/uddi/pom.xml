@@ -14,11 +14,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
--->
-
-<!-- $Rev: 614392 $ $Date: 2008-01-22 19:19:36 -0500 (Tue, 22 Jan 2008) $ -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+--><!-- $Rev: 614392 $ $Date: 2008-01-22 19:19:36 -0500 (Tue, 22 Jan 2008) $ --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -41,7 +37,8 @@
         <module>geronimo-uddi-server</module>
         <module>uddi-jetty</module>
         <module>uddi-tomcat</module>
-    </modules>
+        <module>uddi-jetty-server</module>
+  </modules>
 
 
     <dependencyManagement>
