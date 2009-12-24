@@ -16,25 +16,6 @@
  */
 package org.apache.geronimo.console.util;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -42,34 +23,17 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.EditableConfigurationManager;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.config.*;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.osgi.BundleClassLoader;
-import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.management.AppClientModule;
-import org.apache.geronimo.management.EJB;
-import org.apache.geronimo.management.EJBModule;
-import org.apache.geronimo.management.J2EEDeployedObject;
-import org.apache.geronimo.management.J2EEModule;
-import org.apache.geronimo.management.J2EEResource;
-import org.apache.geronimo.management.JDBCDataSource;
-import org.apache.geronimo.management.JDBCDriver;
-import org.apache.geronimo.management.JDBCResource;
-import org.apache.geronimo.management.JMSResource;
-import org.apache.geronimo.management.Servlet;
+import org.apache.geronimo.logging.SystemLog;
+import org.apache.geronimo.management.*;
 import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.management.geronimo.J2EEDomain;
 import org.apache.geronimo.management.geronimo.J2EEServer;
-import org.apache.geronimo.management.geronimo.JCAAdminObject;
+import org.apache.geronimo.management.geronimo.*;
 import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAResource;
@@ -78,7 +42,13 @@ import org.apache.geronimo.management.geronimo.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.logging.SystemLog;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.*;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * An implementation of the ManagementHelper interface that uses a Geronimo
@@ -94,14 +64,23 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public J2EEDomain[] getDomains() {
-        Set domainNames = kernel.listGBeans(new AbstractNameQuery(J2EEDomain.class.getName()));
-        J2EEDomain[] result = new J2EEDomain[domainNames.size()];
-        int i = 0;
-        for (Iterator iterator = domainNames.iterator(); iterator.hasNext();) {
-            AbstractName domainName = (AbstractName) iterator.next();
-            result[i++] = (J2EEDomain) kernel.getProxyManager().createProxy(domainName, J2EEDomain.class);
+        Set<AbstractName> domainNames = kernel.listGBeans(new AbstractNameQuery(J2EEDomain.class.getName()));
+        List<J2EEDomain> domains = new ArrayList<J2EEDomain>();
+        for (AbstractName domainName: domainNames) {
+            try {
+                domains.add((J2EEDomain) kernel.getGBean(domainName));
+            } catch (GBeanNotFoundException e) {
+                //ignore
+            }
         }
-        return result;
+        return domains.toArray(new J2EEDomain[domains.size()]);
+//        J2EEDomain[] result = new J2EEDomain[domainNames.size()];
+//        int i = 0;
+//        for (Iterator iterator = domainNames.iterator(); iterator.hasNext();) {
+//            AbstractName domainName = (AbstractName) iterator.next();
+//            result[i++] = (J2EEDomain) kernel.getProxyManager().createProxy(domainName, J2EEDomain.class);
+//        }
+//        return result;
     }
 
     public J2EEServer[] getServers(J2EEDomain domain) {
@@ -597,10 +576,10 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     private<T> T proxify(T t, Class<T> clazz) {
-        if (!(t instanceof GeronimoManagedBean)) {
-            AbstractName name = kernel.getAbstractNameFor(t);
-            t = (T) kernel.getProxyManager().createProxy(name, clazz);
-        }
+//        if (!(t instanceof GeronimoManagedBean)) {
+//            AbstractName name = kernel.getAbstractNameFor(t);
+//            t = (T) kernel.getProxyManager().createProxy(name, clazz);
+//        }
         return t;
     }
 

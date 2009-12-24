@@ -16,25 +16,19 @@
  */
 package org.apache.geronimo.pluto;
 
-import java.io.InputStream;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.pluto.container.PortletContainer;
 import org.apache.pluto.container.PortletContainerException;
-import org.apache.pluto.container.driver.PortalDriverServices;
-import org.apache.pluto.container.impl.PortletContainerFactory;
+import org.apache.pluto.driver.AttributeKeys;
 import org.apache.pluto.driver.config.AdminConfiguration;
 import org.apache.pluto.driver.config.DriverConfiguration;
 import org.apache.pluto.driver.config.DriverConfigurationException;
-import org.apache.pluto.driver.container.ResourceSource;
-import org.apache.pluto.driver.AttributeKeys;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Listener used to start up / shut down the Pluto Portal Driver upon startup /
@@ -118,7 +112,7 @@ public class PortalStartupListener implements ServletContextListener {
 
         LOG.debug(" [2a] Loading Optional AdminConfiguration. . .");
         serviceReference = bundleContext.getServiceReference(AdminConfiguration.class.getName());
-        AdminConfiguration adminConfiguration = (AdminConfiguration)bundleContext.getService(serviceReference);
+        AdminConfiguration adminConfiguration = (AdminConfiguration) bundleContext.getService(serviceReference);
 
         if (adminConfiguration != null) {
             LOG.debug(" [2b] Registering Optional AdminConfiguration");
@@ -132,32 +126,16 @@ public class PortalStartupListener implements ServletContextListener {
         DriverConfiguration driverConfig = (DriverConfiguration)
                 servletContext.getAttribute(DRIVER_CONFIG_KEY);
 
-        try {
-            LOG.info("Initializing Portlet Container. . .");
+        LOG.info("Initializing Portlet Container. . .");
 
-            // Create portlet container.
-            LOG.debug(" [1] Creating portlet container...");
-            serviceReference = bundleContext.getServiceReference(PortalDriverServices.class.getName());
-            PortletContainerFactory factory =
-                    PortletContainerFactory.getInstance();
-            PortalDriverServices portalDriverServices = (PortalDriverServices) bundleContext.getService(serviceReference);
-            PortletContainer container = factory.createContainer(driverConfig.getContainerName(), portalDriverServices);
+        // Create portlet container.
+        LOG.debug(" [1] Creating portlet container...");
+        serviceReference = bundleContext.getServiceReference(PortletContainer.class.getName());
+        PortletContainer container = (PortletContainer) bundleContext.getService(serviceReference);
 
-            // Initialize portlet container.
-            LOG.debug(" [2] Initializing portlet container...");
-            container.init();
-
-            // Save portlet container to the servlet context scope.
-            servletContext.setAttribute(CONTAINER_KEY, container);
-            LOG.info("Pluto portlet container started.");
-
-        } catch (DriverConfigurationException ex) {
-            LOG.error("Unable to retrieve driver configuration "
-                    + "due to configuration error: " + ex.getMessage(), ex);
-        } catch (PortletContainerException ex) {
-            LOG.error("Unable to start up portlet container: "
-                    + ex.getMessage(), ex);
-        }
+        // Save portlet container to the servlet context scope.
+        servletContext.setAttribute(CONTAINER_KEY, container);
+        LOG.info("Pluto portlet container started.");
 
         LOG.info("********** Pluto Portal Driver Started **********\n\n");
     }
@@ -196,17 +174,7 @@ public class PortalStartupListener implements ServletContextListener {
         PortletContainer container = (PortletContainer)
                 servletContext.getAttribute(CONTAINER_KEY);
         if (container != null) {
-            try {
-                container.destroy();
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Pluto Portal Driver shut down.");
-                }
-            } catch (PortletContainerException ex) {
-                LOG.error("Unable to shut down portlet container: "
-                        + ex.getMessage(), ex);
-            } finally {
-                servletContext.removeAttribute(CONTAINER_KEY);
-            }
+            servletContext.removeAttribute(CONTAINER_KEY);
         }
     }
 
@@ -219,17 +187,17 @@ public class PortalStartupListener implements ServletContextListener {
         DriverConfiguration driverConfig = (DriverConfiguration)
                 servletContext.getAttribute(DRIVER_CONFIG_KEY);
         if (driverConfig != null) {
-            try {
-                driverConfig.destroy();
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Pluto Portal Driver Config destroyed.");
-                }
-            } catch (DriverConfigurationException ex) {
-                LOG.error("Unable to destroy portal driver config: "
-                        + ex.getMessage(), ex);
-            } finally {
+//            try {
+//                driverConfig.destroy();
+//                if (LOG.isInfoEnabled()) {
+//                    LOG.info("Pluto Portal Driver Config destroyed.");
+//                }
+//            } catch (DriverConfigurationException ex) {
+//                LOG.error("Unable to destroy portal driver config: "
+//                        + ex.getMessage(), ex);
+//            } finally {
                 servletContext.removeAttribute(DRIVER_CONFIG_KEY);
-            }
+//            }
         }
     }
 
@@ -242,17 +210,17 @@ public class PortalStartupListener implements ServletContextListener {
         AdminConfiguration adminConfig = (AdminConfiguration)
                 servletContext.getAttribute(ADMIN_CONFIG_KEY);
         if (adminConfig != null) {
-            try {
-                adminConfig.destroy();
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Pluto Portal Admin Config destroyed.");
-                }
-            } catch (DriverConfigurationException ex) {
-                LOG.error("Unable to destroy portal admin config: "
-                        + ex.getMessage(), ex);
-            } finally {
+//            try {
+//                adminConfig.destroy();
+//                if (LOG.isInfoEnabled()) {
+//                    LOG.info("Pluto Portal Admin Config destroyed.");
+//                }
+//            } catch (DriverConfigurationException ex) {
+//                LOG.error("Unable to destroy portal admin config: "
+//                        + ex.getMessage(), ex);
+//            } finally {
                 servletContext.removeAttribute(ADMIN_CONFIG_KEY);
-            }
+//            }
         }
     }
 

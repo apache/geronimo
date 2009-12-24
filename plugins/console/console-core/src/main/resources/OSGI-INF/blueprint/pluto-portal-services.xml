@@ -42,6 +42,17 @@ limitations under the License.
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <service id="PortletContainerService" interface="org.apache.pluto.container.PortletContainer"
+             ref="PortletContainer"/>
+    <bean id="PortletContainer" class="org.apache.pluto.container.impl.PortletContainerImpl" init-method="init">
+        <argument>
+            <bean factory-ref="DriverConfiguration" factory-method="getPortalName"/>
+        </argument>
+        <argument>
+            <ref component-id="PortalDriverServices"/>
+        </argument>
+    </bean>
+
     <bean id="PlutoServices"
           class="org.apache.pluto.container.driver.PlutoServices">
         <argument>
@@ -68,6 +79,19 @@ limitations under the License.
         <argument>
             <ref component-id="PortletURLListenerService"/>
         </argument>
+        <argument>
+            <null/>
+            <!--<bean class="org.apache.pluto.driver.container.DefaultOptionalContainerServices"/>-->
+        </argument>
+        <argument>
+            <ref component-id="PortletContextService"/>
+        </argument>
+        <argument>
+            <ref component-id="PortletContextService"/>
+        </argument>
+        <argument>
+            <bean class="org.apache.pluto.driver.container.DefaultPortalAdministrationService"/>
+        </argument>
     </bean>
 
     <bean id="PortalContext"
@@ -91,7 +115,7 @@ limitations under the License.
             <ref component-id="PortalURLParser"/>
         </argument>
         <argument>
-            <ref component-id="PropertyConfigService"/>
+            <ref component-id="ResourceConfigFactory"/>
         </argument>
         <argument>
             <ref component-id="RenderConfigService"/>
@@ -135,12 +159,12 @@ limitations under the License.
           factory-method="getParser">
     </bean>
 
-    <bean id="PropertyConfigService"
-          class="org.apache.pluto.driver.services.impl.resource.PropertyConfigServiceImpl">
-        <argument>
-            <ref component-id="ResourceConfigFactory"/>
-        </argument>
-    </bean>
+    <!--<bean id="PropertyConfigService"-->
+          <!--class="org.apache.pluto.driver.services.impl.resource.PropertyConfigServiceImpl">-->
+        <!--<argument>-->
+            <!--<ref component-id="ResourceConfigFactory"/>-->
+        <!--</argument>-->
+    <!--</bean>-->
 
     <bean id="RenderConfigService"
           class="org.apache.pluto.driver.services.impl.resource.RenderConfigServiceImpl">
@@ -152,7 +176,10 @@ limitations under the License.
     <bean id="SupportedModesService"
           class="org.apache.pluto.driver.services.impl.resource.SupportedModesServiceImpl">
         <argument>
-            <ref component-id="PropertyConfigService"/>
+            <ref component-id="ResourceConfigFactory"/>
+        </argument>
+        <argument>
+            <ref component-id="PortletContextService"/>
         </argument>
         <argument>
             <ref component-id="PortletContextService"/>
@@ -162,7 +189,10 @@ limitations under the License.
     <bean id="SupportedWindowStatesService"
           class="org.apache.pluto.driver.services.impl.resource.SupportedWindowStateServiceImpl">
         <argument>
-            <ref component-id="PropertyConfigService"/>
+            <ref component-id="ResourceConfigFactory"/>
+        </argument>
+        <argument>
+            <ref component-id="PortletContextService"/>
         </argument>
     </bean>
 
@@ -174,6 +204,12 @@ limitations under the License.
     </bean>
     <bean id="EventCoordinationService"
           class="org.apache.pluto.driver.services.container.EventCoordinationServiceImpl">
+        <argument>
+            <ref component-id="PortletContextService"/>
+        </argument>
+        <argument>
+            <ref component-id="PortletContextService"/>
+        </argument>
     </bean>
     <bean id="FilterManagerService"
           class="org.apache.pluto.driver.services.container.FilterManagerServiceImpl">
@@ -185,6 +221,9 @@ limitations under the License.
           class="org.apache.pluto.driver.container.PortletContextManager">
         <argument>
             <ref component-id="RequestDispatcherService"/>
+        </argument>
+        <argument>
+            <bean class="org.apache.pluto.container.impl.PortletAppDescriptorServiceImpl"/>
         </argument>
     </bean>
     <bean id="RequestDispatcherService"
@@ -203,7 +242,7 @@ limitations under the License.
         </property>
         <!--<property name="portalCallbackService"><ref component-id="PortalCallbackService"/></property>-->
         <property name="propertyConfigService">
-            <ref component-id="PropertyConfigService"/>
+            <ref component-id="ResourceConfigFactory"/>
         </property>
         <property name="driverConfiguration">
             <ref component-id="DriverConfiguration"/>

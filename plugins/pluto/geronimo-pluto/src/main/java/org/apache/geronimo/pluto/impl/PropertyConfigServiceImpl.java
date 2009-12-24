@@ -16,13 +16,10 @@
  */
 package org.apache.geronimo.pluto.impl;
 
-import java.io.InputStream;
 import java.util.Set;
 
-import org.apache.pluto.driver.config.DriverConfigurationException;
-import org.apache.pluto.driver.container.ResourceSource;
-import org.apache.pluto.driver.services.portal.PropertyConfigService;
 import org.apache.pluto.driver.services.impl.resource.ResourceConfig;
+import org.apache.pluto.driver.services.portal.PropertyConfigService;
 
 /**
  * Default implementation of all of the portal Services.
@@ -49,28 +46,20 @@ public class PropertyConfigServiceImpl implements
         this.config = config;
     }
 
-    /**
-     * Initialization Lifecycle Method
-     * @param ctx ServletContext for finding resources
-     */
-    public void init(ResourceSource ctx) {
-        try {
-            InputStream in = ctx.getResourceAsStream(ResourceConfigReader.CONFIG_FILE);
-            config = ResourceConfigReader.getFactory().parse(in);
-        }
-        catch(Exception e) {
-//            LOG.error("Unable to parse resource config "+e.getMessage(), e);
-            throw new DriverConfigurationException(e);
-        }
-    }
-
-    /**
-     * Shutdown the ResourceService.
-     */
-    public void destroy() {
-        config = null;
-    }
-
+//    /**
+//     * Initialization Lifecycle Method
+//     * @param ctx ServletContext for finding resources
+//     */
+//    public void init(ResourceSource ctx) {
+//    }
+//
+//    /**
+//     * Shutdown the ResourceService.
+//     */
+//    public void destroy() {
+//        config = null;
+//    }
+//
 
     public String getPortalName() {
         return config.getPortalName();
