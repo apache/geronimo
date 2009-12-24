@@ -67,6 +67,7 @@ import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
@@ -106,16 +107,18 @@ public class ServiceReferenceTest
 
     protected void setUp() throws Exception {
         super.setUp();
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+        bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
         tmpbasedir = File.createTempFile("car", "tmp");
         tmpbasedir.delete();
         tmpbasedir.mkdirs();
         environment.setConfigId(configID);
         Jsr77Naming naming = new Jsr77Naming();
         ArtifactManager artifactManager = new DefaultArtifactManager();
-        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET, null);
-        ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET);
+        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, null);
+        ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET, bundleContext);
         AbstractName moduleName = naming.createRootName(configID, "testejb", NameFactory.EJB_MODULE);
-        context = new DeploymentContext(tmpbasedir, null, environment, moduleName, ConfigurationModuleType.CAR, naming, configurationManager, Collections.EMPTY_SET);
+        context = new DeploymentContext(tmpbasedir, null, environment, moduleName, ConfigurationModuleType.CAR, naming, configurationManager, bundleContext);
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();
@@ -177,7 +180,7 @@ public class ServiceReferenceTest
         JavaWsdlMappingType mapping = buildLightweightMappingType();
         QName serviceQName = new QName(NAMESPACE, "MockService");
         AxisBuilder builder = new AxisBuilder(null);
-        Object reference = builder.createService(MockService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, isolatedCl);
+        Object reference = builder.createService(MockService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, bundleContext.getBundle());
         assertNotNull(reference);
         assertTrue(reference instanceof AxisServiceReference);
         AxisServiceReference claReference = (AxisServiceReference) reference;
@@ -199,7 +202,7 @@ public class ServiceReferenceTest
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://www.Monson-Haefel.com/jwsbook/BookQuote", "BookQuoteService");
         AxisBuilder builder = new AxisBuilder(null);
-        Object reference = builder.createService(BookQuoteService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, isolatedCl);
+        Object reference = builder.createService(BookQuoteService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, bundleContext.getBundle());
         assertNotNull(reference);
         assertTrue(reference instanceof AxisServiceReference);
         AxisServiceReference claReference = (AxisServiceReference) reference;
@@ -221,7 +224,7 @@ public class ServiceReferenceTest
         JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
         QName serviceQName = new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopLab");
         AxisBuilder builder = new AxisBuilder(null);
-        Object proxy = builder.createService(InteropLab.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, isolatedCl);
+        Object proxy = builder.createService(InteropLab.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, bundleContext.getBundle());
         assertNotNull(proxy);
         assertTrue(proxy instanceof InteropLab);
         InteropTestPortType interopTestPort = ((InteropLab) proxy).getinteropTestPort();

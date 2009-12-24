@@ -133,22 +133,22 @@ public class EjbDeploymentBuilder {
                 // Remote
                 if (remoteBean.getRemote() != null) {
                     String remoteInterfaceName = remoteBean.getRemote();
-                    assureEJBObjectInterface(remoteInterfaceName, ejbModule.getClassLoader());
+                    assureEJBObjectInterface(remoteInterfaceName, earContext.getDeploymentBundle());
                     gbean.setAttribute(EjbInterface.REMOTE.getAttributeName(), remoteInterfaceName);
 
                     String homeInterfaceName = remoteBean.getHome();
-                    assureEJBHomeInterface(homeInterfaceName, ejbModule.getClassLoader());
+                    assureEJBHomeInterface(homeInterfaceName, earContext.getDeploymentBundle());
                     gbean.setAttribute(EjbInterface.HOME.getAttributeName(), homeInterfaceName);
                 }
 
                 // Local
                 if (remoteBean.getLocal() != null) {
                     String localInterfaceName = remoteBean.getLocal();
-                    assureEJBLocalObjectInterface(localInterfaceName, ejbModule.getClassLoader());
+                    assureEJBLocalObjectInterface(localInterfaceName, earContext.getDeploymentBundle());
                     gbean.setAttribute(EjbInterface.LOCAL.getAttributeName(), localInterfaceName);
 
                     String localHomeInterfaceName = remoteBean.getLocalHome();
-                    assureEJBLocalHomeInterface(localHomeInterfaceName, ejbModule.getClassLoader());
+                    assureEJBLocalHomeInterface(localHomeInterfaceName, earContext.getDeploymentBundle());
                     gbean.setAttribute(EjbInterface.LOCAL_HOME.getAttributeName(), localHomeInterfaceName);
                 }
 
@@ -447,19 +447,19 @@ public class EjbDeploymentBuilder {
         return gbean;
     }
 
-    private static Class assureEJBObjectInterface(String remote, ClassLoader cl) throws DeploymentException {
-        return AbstractNamingBuilder.assureInterface(remote, "javax.ejb.EJBObject", "Remote", cl);
+    private static Class assureEJBObjectInterface(String remote, Bundle bundle) throws DeploymentException {
+        return AbstractNamingBuilder.assureInterface(remote, "javax.ejb.EJBObject", "Remote", bundle);
     }
 
-    private static Class assureEJBHomeInterface(String home, ClassLoader cl) throws DeploymentException {
-        return AbstractNamingBuilder.assureInterface(home, "javax.ejb.EJBHome", "Home", cl);
+    private static Class assureEJBHomeInterface(String home, Bundle bundle) throws DeploymentException {
+        return AbstractNamingBuilder.assureInterface(home, "javax.ejb.EJBHome", "Home", bundle);
     }
 
-    public static Class assureEJBLocalObjectInterface(String local, ClassLoader cl) throws DeploymentException {
-        return AbstractNamingBuilder.assureInterface(local, "javax.ejb.EJBLocalObject", "Local", cl);
+    public static Class assureEJBLocalObjectInterface(String local, Bundle bundle) throws DeploymentException {
+        return AbstractNamingBuilder.assureInterface(local, "javax.ejb.EJBLocalObject", "Local", bundle);
     }
 
-    public static Class assureEJBLocalHomeInterface(String localHome, ClassLoader cl) throws DeploymentException {
-        return AbstractNamingBuilder.assureInterface(localHome, "javax.ejb.EJBLocalHome", "LocalHome", cl);
+    public static Class assureEJBLocalHomeInterface(String localHome, Bundle bundle) throws DeploymentException {
+        return AbstractNamingBuilder.assureInterface(localHome, "javax.ejb.EJBLocalHome", "LocalHome", bundle);
     }
 }

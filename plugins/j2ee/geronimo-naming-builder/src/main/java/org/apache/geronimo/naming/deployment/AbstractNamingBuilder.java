@@ -53,6 +53,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -245,13 +246,13 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return ENCConfigBuilder.buildAbstractNameQuery(configId, module, name, type, moduleType);
     }
 
-    public static Class assureInterface(String interfaceName, String superInterfaceName, String interfaceType, ClassLoader cl) throws DeploymentException {
+    public static Class assureInterface(String interfaceName, String superInterfaceName, String interfaceType, Bundle bundle) throws DeploymentException {
         if (interfaceName == null || interfaceName.equals("")) {
             throw new DeploymentException("interface name cannot be blank");
         }
         Class clazz;
         try {
-            clazz = cl.loadClass(interfaceName);
+            clazz = bundle.loadClass(interfaceName);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException(interfaceType + " interface class not found: " + interfaceName, e);
         }
@@ -260,7 +261,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         }
         Class superInterface;
         try {
-            superInterface = cl.loadClass(superInterfaceName);
+            superInterface = bundle.loadClass(superInterfaceName);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Class " + superInterfaceName + " could not be loaded", e);
         }

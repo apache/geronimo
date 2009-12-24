@@ -126,8 +126,6 @@ public class DeploymentContext {
     //This provides services such as loading more bundles, it is NOT for the configuration we are constructing here.
     //It should be a disposable nested framework so as to not pollute the main framework with stuff we load as deployment parents.
     private final BundleContext bundleContext;
-    //this is the temporary bundle we set up for this deployment
-    private Bundle bundle;
     private Configuration configuration;
     //TODO OSGI set this
     private boolean boot;
@@ -764,18 +762,11 @@ public class DeploymentContext {
     public void close() throws IOException, DeploymentException {
         if (configurationManager != null && configuration != null) {
             try {
+                //TODO OSGI make sure this unloads the bundle from the framework
                 configurationManager.unloadConfiguration(configuration.getId());
             } catch (NoSuchConfigException ignored) {
                 //ignore
             }
-        }
-        if (bundle != null) {
-            try {
-                bundle.uninstall();
-            } catch (BundleException e) {
-                throw new DeploymentException("Could not uninstall temporary bundle for " + environment.getConfigId(), e);
-            }
-            bundle = null;
         }
     }
 

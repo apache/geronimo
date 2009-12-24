@@ -49,6 +49,7 @@ import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.XsdQNameType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -97,14 +98,14 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
 
     private void buildNaming(ServiceRefType serviceRef, GerServiceRefType serviceRefType, Module module, Map componentContext) throws DeploymentException {
         String name = getStringValue(serviceRef.getServiceRefName());
-        ClassLoader cl = module.getEarContext().getClassLoader();
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
 
 //            Map credentialsNameMap = (Map) serviceRefCredentialsNameMap.get(name);
         String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
-        assureInterface(serviceInterfaceName, "javax.xml.rpc.Service", "[Web]Service", cl);
+        assureInterface(serviceInterfaceName, "javax.xml.rpc.Service", "[Web]Service", bundle);
         Class serviceInterface;
         try {
-            serviceInterface = cl.loadClass(serviceInterfaceName);
+            serviceInterface = bundle.loadClass(serviceInterfaceName);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load service interface class: " + serviceInterfaceName, e);
         }
@@ -135,10 +136,10 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
                 PortComponentRefType portComponentRef = portComponentRefs[j];
                 String portComponentLink = getStringValue(portComponentRef.getPortComponentLink());
                 String serviceEndpointInterfaceType = getStringValue(portComponentRef.getServiceEndpointInterface());
-                assureInterface(serviceEndpointInterfaceType, "java.rmi.Remote", "ServiceEndpoint", cl);
+                assureInterface(serviceEndpointInterfaceType, "java.rmi.Remote", "ServiceEndpoint", bundle);
                 Class serviceEndpointClass;
                 try {
-                    serviceEndpointClass = cl.loadClass(serviceEndpointInterfaceType);
+                    serviceEndpointClass = bundle.loadClass(serviceEndpointInterfaceType);
                 } catch (ClassNotFoundException e) {
                     throw new DeploymentException("could not load service endpoint class " + serviceEndpointInterfaceType, e);
                 }
@@ -146,10 +147,10 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
             }
         }
         ServiceRefHandlerType[] handlers = serviceRef.getHandlerArray();
-        List handlerInfos = buildHandlerInfoList(handlers, cl);
+        List handlerInfos = buildHandlerInfoList(handlers, bundle);
 
 //we could get a Reference or the actual serializable Service back.
-        Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, module, cl);
+        Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, module, bundle);
         getJndiContextMap(componentContext).put(ENV + name, ref);
     }
 
@@ -162,7 +163,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
     }
 
 
-    private static List buildHandlerInfoList(ServiceRefHandlerType[] handlers, ClassLoader classLoader) throws DeploymentException {
+    private static List buildHandlerInfoList(ServiceRefHandlerType[] handlers, Bundle bundle) throws DeploymentException {
         List handlerInfos = new ArrayList();
         for (int i = 0; i < handlers.length; i++) {
             ServiceRefHandlerType handler = handlers[i];
@@ -176,7 +177,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
             String handlerClassName = handler.getHandlerClass().getStringValue().trim();
             Class handlerClass;
             try {
-                handlerClass = ClassLoading.loadClass(handlerClassName, classLoader);
+                handlerClass = ClassLoading.loadClass(handlerClassName, bundle);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load handler class", e);
             }

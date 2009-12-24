@@ -62,6 +62,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.xb.xsdschema.ImportDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.IncludeDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -72,22 +73,22 @@ public class AxisServiceBuilder {
     public static final QName SCHEMA_QNAME = new QName(XSD_NS, "schema");
 
 
-    public static ServiceInfo createServiceInfo(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
-        JavaServiceDesc serviceDesc = createServiceDesc(portInfo, classLoader);
-        List handlerInfos = WSDescriptorParser.createHandlerInfoList(portInfo.getHandlers(), classLoader);
+    public static ServiceInfo createServiceInfo(PortInfo portInfo, Bundle bundle) throws DeploymentException {
+        JavaServiceDesc serviceDesc = createServiceDesc(portInfo, bundle);
+        List handlerInfos = WSDescriptorParser.createHandlerInfoList(portInfo.getHandlers(), bundle);
         SchemaInfoBuilder schemaInfoBuilder = portInfo.getSchemaInfoBuilder();
         Map rawWsdlMap = schemaInfoBuilder.getWsdlMap();
         Map wsdlMap = rewriteWsdlMap(portInfo, rawWsdlMap);
         return new ServiceInfo(serviceDesc, handlerInfos, wsdlMap);
     }
 
-    public static JavaServiceDesc createServiceDesc(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
+    public static JavaServiceDesc createServiceDesc(PortInfo portInfo, Bundle bundle) throws DeploymentException {
 
         Port port = portInfo.getPort();
 
         Class serviceEndpointInterface = null;
         try {
-            serviceEndpointInterface = classLoader.loadClass(portInfo.getServiceEndpointInterfaceName());
+            serviceEndpointInterface = bundle.loadClass(portInfo.getServiceEndpointInterfaceName());
         } catch (ClassNotFoundException e) {
             throw (DeploymentException) new DeploymentException("Unable to load the service-endpoint interface for port-component " + portInfo.getPortComponentName()).initCause(e);
         }
@@ -125,7 +126,7 @@ public class AxisServiceBuilder {
 //        }
 
         Collection operations = new ArrayList();
-        Set wrapperElementQNames = buildOperations(binding, serviceEndpointInterface, isLightweight, portInfo, exceptionMap, classLoader, operations);
+        Set wrapperElementQNames = buildOperations(binding, serviceEndpointInterface, isLightweight, portInfo, exceptionMap, bundle, operations);
         for (Iterator iter = operations.iterator(); iter.hasNext();) {
             OperationDesc operation = (OperationDesc) iter.next();
             serviceDesc.addOperationDesc(operation);
@@ -141,10 +142,10 @@ public class AxisServiceBuilder {
 
         List typeInfo;
         if (isLightweight) {
-            LightweightTypeInfoBuilder builder = new LightweightTypeInfoBuilder(classLoader, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames);
+            LightweightTypeInfoBuilder builder = new LightweightTypeInfoBuilder(bundle, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames);
             typeInfo = builder.buildTypeInfo(portInfo.getJavaWsdlMapping());
         } else {
-            HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames, operations, hasEncoded);
+            HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(bundle, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames, operations, hasEncoded);
             typeInfo = builder.buildTypeInfo(portInfo.getJavaWsdlMapping());
         }
 
@@ -156,7 +157,7 @@ public class AxisServiceBuilder {
         return new ReadOnlyServiceDesc(serviceDesc, typeInfo);
     }
 
-    private static Set buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, ClassLoader classLoader, Collection operations) throws DeploymentException {
+    private static Set buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, Bundle bundle, Collection operations) throws DeploymentException {
         Set wrappedElementQNames = new HashSet();
 
         SOAPBinding soapBinding = (SOAPBinding) SchemaInfoBuilder.getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
@@ -176,7 +177,7 @@ public class AxisServiceBuilder {
                 ServiceEndpointMethodMappingType[] methodMappings = portInfo.getServiceEndpointInterfaceMapping().getServiceEndpointMethodMappingArray();
                 ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
                 JavaXmlTypeMappingType[] javaXmlTypeMappingTypes = portInfo.getJavaWsdlMapping().getJavaXmlTypeMappingArray();
-                operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, portInfo.getJavaWsdlMapping(), methodMapping, portStyle, exceptionMap, portInfo.getSchemaInfoBuilder(), javaXmlTypeMappingTypes, classLoader, serviceEndpointInterface);
+                operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, portInfo.getJavaWsdlMapping(), methodMapping, portStyle, exceptionMap, portInfo.getSchemaInfoBuilder(), javaXmlTypeMappingTypes, bundle, serviceEndpointInterface);
                 Set wrappedElementQNamesForOper = ((HeavyweightOperationDescBuilder) operationDescBuilder).getWrapperElementQNames();
                 wrappedElementQNames.addAll(wrappedElementQNamesForOper);
             }

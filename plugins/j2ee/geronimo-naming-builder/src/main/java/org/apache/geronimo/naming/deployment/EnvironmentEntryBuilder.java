@@ -19,17 +19,14 @@ package org.apache.geronimo.naming.deployment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
 
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -46,9 +43,10 @@ import org.apache.geronimo.xbeans.javaee.EnvEntryTypeValuesType;
 import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
 import org.apache.geronimo.xbeans.javaee.JndiNameType;
 import org.apache.geronimo.xbeans.javaee.XsdStringType;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$

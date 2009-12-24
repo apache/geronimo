@@ -60,6 +60,7 @@ import org.apache.openejb.jee.oejb2.OpenejbJarType;
 import org.apache.openejb.jee.oejb2.SessionBeanType;
 import org.apache.openejb.jee.oejb2.WebServiceBindingType;
 import org.apache.openejb.jee.oejb2.WebServiceSecurityType;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -82,6 +83,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         this.listener = listener;
     }
 
+    @Override
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         if (module.getType() != ConfigurationModuleType.EJB) {
             return;
@@ -110,10 +112,12 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         } 
     }
 
+    @Override
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    @Override
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         if (module.getType() != ConfigurationModuleType.EJB) {
             return;
         }
@@ -169,7 +173,8 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         }
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+    @Override
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection collection) throws DeploymentException {
         if (module.getType() != ConfigurationModuleType.EJB) {
             return;
         }
@@ -223,7 +228,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
             }
             
             if (axisBuilder.configureEJB(ejbWebServiceGBean, ejbName, ejbModule,
-                                         ejbModule.getSharedContext(), cl)) {
+                                         ejbModule.getSharedContext(), bundle)) {
                 
                 try {
                     earContext.addGBean(ejbWebServiceGBean);

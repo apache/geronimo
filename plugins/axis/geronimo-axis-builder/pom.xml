@@ -48,8 +48,11 @@
         </dependency>
         
         <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis</artifactId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

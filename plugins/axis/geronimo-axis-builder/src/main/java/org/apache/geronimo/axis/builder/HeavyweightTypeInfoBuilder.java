@@ -65,6 +65,7 @@ import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -75,14 +76,14 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     
     private static final Logger log = LoggerFactory.getLogger(HeavyweightTypeInfoBuilder.class);
 
-    private final ClassLoader cl;
+    private final Bundle bundle;
     private final Map schemaTypeKeyToSchemaTypeMap;
     private final Set wrapperElementQNames;
     private final Collection operations;
     private final boolean hasEncoded;
 
-    public HeavyweightTypeInfoBuilder(ClassLoader cl, Map schemaTypeKeyToSchemaTypeMap, Set wrapperElementQNames, Collection operations, boolean hasEncoded) {
-        this.cl = cl;
+    public HeavyweightTypeInfoBuilder(Bundle bundle, Map schemaTypeKeyToSchemaTypeMap, Set wrapperElementQNames, Collection operations, boolean hasEncoded) {
+        this.bundle = bundle;
         this.schemaTypeKeyToSchemaTypeMap = schemaTypeKeyToSchemaTypeMap;
         this.wrapperElementQNames = wrapperElementQNames;
         this.operations = operations;
@@ -143,7 +144,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             String className = javaXmlTypeMapping.getJavaType().getStringValue().trim();
             Class clazz = null;
             try {
-                clazz = ClassLoading.loadClass(className, cl);
+                clazz = ClassLoading.loadClass(className, bundle);
             } catch (ClassNotFoundException e2) {
                 throw new DeploymentException("Could not load java type", e2);
             }

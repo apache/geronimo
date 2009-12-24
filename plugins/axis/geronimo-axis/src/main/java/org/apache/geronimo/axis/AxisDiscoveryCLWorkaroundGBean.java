@@ -19,6 +19,7 @@ package org.apache.geronimo.axis;
 import org.apache.axis.AxisProperties;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.commons.discovery.tools.DiscoverSingleton;
 
 /**
  * @version $Rev$ $Date$
@@ -30,6 +31,11 @@ public class AxisDiscoveryCLWorkaroundGBean {
         ClassLoader oldClassLoader = currentThread.getContextClassLoader();
         currentThread.setContextClassLoader(classLoader);
         try {
+            //set up log
+            DiscoverSingleton.find(org.apache.commons.logging.LogFactory.class,
+                           "commons-logging.properties",//org.apache.commons.logging.LogFactory.FACTORY_PROPERTIES,
+                           "org.apache.commons.logging.LogFactory");//org.apache.commons.logging.LogFactory.FACTORY_DEFAULT);
+
             //this sets the classloaders used in discovery. One is the current TCCL.
             AxisProperties.getNameDiscoverer();
         } finally {

@@ -66,9 +66,11 @@
             <type>car</type>
         </dependency>
 
+        <!-- not sure about the scope -->
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-axis</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -95,12 +97,12 @@
         </dependency>
 
         <dependency>
-            <groupId>asm</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>asm</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>axis</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>axis</artifactId>
         </dependency>
 
@@ -114,6 +116,23 @@
             <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+
+                        <Import-Package>
+                            org.apache.openejb*;resolution:=optional,
+                            *</Import-Package>
+                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
 

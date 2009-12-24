@@ -77,6 +77,7 @@ import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -162,12 +163,12 @@ public class WSDescriptorParser {
         rpcHolderClasses.put(String.class, StringHolder.class);
     }
 
-    public static Class getHolderType(String paramJavaTypeName, boolean isInOnly, QName typeQName, boolean isComplexType, JavaWsdlMappingType mapping, ClassLoader classLoader) throws DeploymentException {
+    public static Class getHolderType(String paramJavaTypeName, boolean isInOnly, QName typeQName, boolean isComplexType, JavaWsdlMappingType mapping, Bundle bundle) throws DeploymentException {
         Class paramJavaType;
         if (isInOnly) {
             //IN parameters just use their own type
             try {
-                paramJavaType = ClassLoading.loadClass(paramJavaTypeName, classLoader);
+                paramJavaType = ClassLoading.loadClass(paramJavaTypeName, bundle);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("could not load parameter type", e);
             }
@@ -188,7 +189,7 @@ public class WSDescriptorParser {
             } else {
                 //see if it is in the primitive type and simple type mapping
                 try {
-                    paramJavaType = ClassLoading.loadClass(paramJavaTypeName, classLoader);
+                    paramJavaType = ClassLoading.loadClass(paramJavaTypeName, bundle);
                 } catch (ClassNotFoundException e) {
                     throw new DeploymentException("could not load parameter type", e);
                 }
@@ -196,7 +197,7 @@ public class WSDescriptorParser {
                 if (holder != null) {
                     try {
                         //TODO use class names in map or make sure we are in the correct classloader to start with.
-                        holder = ClassLoading.loadClass(holder.getName(), classLoader);
+                        holder = ClassLoading.loadClass(holder.getName(), bundle);
                     } catch (ClassNotFoundException e) {
                         throw new DeploymentException("could not load holder type in correct classloader", e);
                     }
@@ -213,7 +214,7 @@ public class WSDescriptorParser {
                 holderName = buf.toString();
             }
             try {
-                return ClassLoading.loadClass(holderName, classLoader);
+                return ClassLoading.loadClass(holderName, bundle);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load holder class", e);
             }
@@ -461,14 +462,14 @@ public class WSDescriptorParser {
         return webservicesDocument.getWebservices();        
     }
     
-    public static List<HandlerInfo> createHandlerInfoList(PortComponentHandlerType[] handlers, ClassLoader classLoader) throws DeploymentException {
+    public static List<HandlerInfo> createHandlerInfoList(PortComponentHandlerType[] handlers, Bundle bundle) throws DeploymentException {
         List<HandlerInfo> list = new ArrayList<HandlerInfo>();
         for (PortComponentHandlerType handler : handlers) {
             // Get handler class
             Class handlerClass;
             String className = handler.getHandlerClass().getStringValue().trim();
             try {
-                handlerClass = classLoader.loadClass(className);
+                handlerClass = bundle.loadClass(className);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Unable to load handler class: " + className, e);
             }

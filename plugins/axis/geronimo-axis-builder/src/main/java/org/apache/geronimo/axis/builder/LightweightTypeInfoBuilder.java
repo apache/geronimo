@@ -42,17 +42,18 @@ import org.apache.geronimo.webservices.builder.SchemaTypeKey;
 import org.apache.geronimo.webservices.builder.WSDescriptorParser;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaType;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
  */
 public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
-    private final ClassLoader cl;
+    private final Bundle cl;
     private final Map schemaTypeKeyToSchemaTypeMap;
     private final Set wrapperElementQNames;
 
-    public LightweightTypeInfoBuilder(ClassLoader cl, Map schemaTypeKeyToSchemaTypeMap, Set wrapperElementQNames) {
-        this.cl = cl;
+    public LightweightTypeInfoBuilder(Bundle bundle, Map schemaTypeKeyToSchemaTypeMap, Set wrapperElementQNames) {
+        this.cl = bundle;
         this.schemaTypeKeyToSchemaTypeMap = schemaTypeKeyToSchemaTypeMap;
         this.wrapperElementQNames = wrapperElementQNames;
     }

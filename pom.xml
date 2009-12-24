@@ -483,30 +483,6 @@
             </dependency>
 
             <dependency>
-                <groupId>axis</groupId>
-                <artifactId>axis</artifactId>
-                <version>1.4</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>axis</groupId>
-                        <artifactId>axis-jaxrpc</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>axis</groupId>
-                        <artifactId>axis-saaj</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>axis</groupId>
-                        <artifactId>axis-wsdl4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
                 <groupId>asm</groupId>
                 <artifactId>asm</artifactId>
                 <version>3.1</version>

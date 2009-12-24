@@ -96,8 +96,9 @@
 
         <!-- Test only dependencies -->
         <dependency>
-            <groupId>axis</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>axis</artifactId>
+            <version>1.4_1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 

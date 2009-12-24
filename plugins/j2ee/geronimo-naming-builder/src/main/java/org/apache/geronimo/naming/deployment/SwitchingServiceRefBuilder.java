@@ -25,16 +25,12 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
-import org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -50,6 +46,8 @@ import org.apache.geronimo.xbeans.javaee.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 

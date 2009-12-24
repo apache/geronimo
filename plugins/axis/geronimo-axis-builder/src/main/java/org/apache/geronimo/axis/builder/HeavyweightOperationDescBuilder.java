@@ -63,6 +63,7 @@ import org.objectweb.asm.Type;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 import org.apache.geronimo.webservices.builder.WSDescriptorParser;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -76,7 +77,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
     private final Map exceptionMap;
     private final SchemaInfoBuilder schemaInfoBuilder;
-    private final ClassLoader classLoader;
+    private final Bundle bundle;
     private final boolean rpcStyle;
     private final boolean documentStyle;
     private final boolean wrappedStyle;
@@ -96,7 +97,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
      */
     private final Set wrapperElementQNames = new HashSet();
 
-    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, SchemaInfoBuilder schemaInfoBuilder, JavaXmlTypeMappingType[] javaXmlTypeMappingTypes, ClassLoader classLoader, Class serviceEndpointInterface) throws DeploymentException {
+    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, SchemaInfoBuilder schemaInfoBuilder, JavaXmlTypeMappingType[] javaXmlTypeMappingTypes, Bundle bundle, Class serviceEndpointInterface) throws DeploymentException {
         super(bindingOperation);
         this.mapping = mapping;
         this.methodMapping = methodMapping;
@@ -113,7 +114,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 publicTypes.put(qname, javaClassName);
             }
         }
-        this.classLoader = classLoader;
+        this.bundle = bundle;
         this.serviceEndpointInterface = serviceEndpointInterface;
         BindingInput bindingInput = bindingOperation.getBindingInput();
         this.soapBody = (SOAPBody) SchemaInfoBuilder.getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
@@ -472,7 +473,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
     private Class getJavaClass(String javaClassName) throws DeploymentException {
         try {
-            Class javaClass = ClassLoading.loadClass(javaClassName, classLoader);
+            Class javaClass = ClassLoading.loadClass(javaClassName, bundle);
             return javaClass;
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load class", e);
@@ -490,7 +491,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         WsdlReturnValueMappingType wsdlReturnValueMapping = methodMapping.getWsdlReturnValueMapping();
         String returnClassName = wsdlReturnValueMapping.getMethodReturnValue().getStringValue().trim();
         try {
-            returnClass = ClassLoading.loadClass(returnClassName, classLoader);
+            returnClass = ClassLoading.loadClass(returnClassName, bundle);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load return type for operation " + operationName, e);
         }
@@ -670,7 +671,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         boolean isComplexType = schemaInfoBuilder.getComplexTypesInWsdl().containsKey(paramTypeQName);
         String paramJavaTypeName = paramMapping.getParamType().getStringValue().trim();
         boolean isInOnly = mode == ParameterDesc.IN;
-        Class actualParamJavaType = WSDescriptorParser.getHolderType(paramJavaTypeName, isInOnly, paramTypeQName, isComplexType, mapping, classLoader);
+        Class actualParamJavaType = WSDescriptorParser.getHolderType(paramJavaTypeName, isInOnly, paramTypeQName, isComplexType, mapping, bundle);
 
         ParameterDesc parameterDesc = new ParameterDesc(paramQName, mode, paramTypeQName, actualParamJavaType, inHeader, outHeader);
         return parameterDesc;
