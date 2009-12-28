@@ -39,7 +39,7 @@
         <module>asm-commons-3.1</module>
         <module>aspectjrt</module>
         <module>aspectjweaver</module>
-        <module>axis</module>
+        <!--<module>axis</module>-->
         <module>castor</module>
         <module>commons-digester</module>
         <module>commons-discovery</module>
