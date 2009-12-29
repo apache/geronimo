@@ -17,39 +17,37 @@
  * under the License.
  */
 
+package org.apache.geronimo.shell.deploy;
 
-package org.apache.geronimo.shell;
-
-import org.apache.geronimo.kernel.Kernel;
-import org.osgi.framework.ServiceReference;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.geronimo.deployment.cli.ServerConnection;
 
 /**
  * @version $Rev$ $Date$
  */
-
-public abstract class KernelCommandSupport extends BaseCommandSupport {
+@Command(scope = "deploy", name = "disconnect", description = "Disconnect from a Geronimo server")
+public class DisconnectCommand extends ConnectCommand {
+    @Override
     protected Object doExecute() throws Exception {
 
-        ServiceReference ref = getBundleContext().getServiceReference(Kernel.class.getName());
-        if (ref == null) {
-            println("FeaturesService service is unavailable.");
-            return null;
-        }
-        try {
-            Kernel kernel = (Kernel) getBundleContext().getService(ref);
-            if (kernel == null) {
-                println("FeaturesService service is unavailable.");
-                return null;
+        ServerConnection connection = (ServerConnection) session.get(ConnectCommand.SERVER_CONNECTION);
+
+        if (connection != null) {
+            println("Disconnecting from Geronimo server");
+
+            try {
+                connection.close();
+            } catch (Exception e) {
+                // ignore
             }
 
-            doExecute(kernel);
-        }
-        finally {
-            getBundleContext().ungetService(ref);
+            // session.close();
+
+            println("Connection ended");
+        } else {
+            println("Not connected");
         }
         return null;
     }
-
-    protected abstract void doExecute(Kernel kernel) throws Exception;
 
 }

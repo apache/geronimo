@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.shell;
+package org.apache.geronimo.shell.cluster;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -36,6 +36,7 @@ import org.apache.geronimo.deployment.cli.CommandInstallCAR;
 import org.apache.geronimo.deployment.cli.ServerConnection;
 import org.apache.geronimo.deployment.cli.CommandListConfigurations;
 import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
+import org.apache.geronimo.shell.deploy.ConnectCommand;
 import org.apache.geronimo.system.plugin.Farm;
 import org.apache.geronimo.system.plugin.DownloadResults;
 
@@ -44,6 +45,7 @@ import org.osgi.service.command.CommandSession;
 /**
  * @version $Rev$ $Date$
  */
+
 @Command(scope = "geronimo", name = "cluster", description = "administer cluster")
 public class ClusterCommand extends ConnectCommand {
     @Option(name="-c", aliases={"--cluster"}, description="Cluster to perform action on")

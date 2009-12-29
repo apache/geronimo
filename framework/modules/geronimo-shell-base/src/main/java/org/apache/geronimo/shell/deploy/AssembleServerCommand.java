@@ -18,11 +18,8 @@
  */
 
 
-package org.apache.geronimo.shell;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
+package org.apache.geronimo.shell.deploy;
 
 import java.util.List;
 
@@ -34,16 +31,14 @@ import org.apache.geronimo.deployment.cli.ServerConnection;
 import org.apache.geronimo.deployment.cli.CommandListConfigurations;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginListType;
-import org.apache.geronimo.system.plugin.model.PluginType;
 
-import org.osgi.service.command.CommandSession;
 
 /**
  * @version $Rev$ $Date$
  */
-@Command(scope = "geronimo", name = "assemble-server", description = "Extract a geronimo server from the current one")
+
+@Command(scope = "deploy", name = "assemble-server", description = "Extract a geronimo server from the current one")
 public class AssembleServerCommand extends ConnectCommand {
     @Option (name = "-l", aliases = {"--list"}, description = "refresh plugin list")
     boolean refreshList = false;

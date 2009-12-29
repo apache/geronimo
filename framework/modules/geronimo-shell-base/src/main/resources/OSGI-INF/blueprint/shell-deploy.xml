@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           default-activation="lazy">
+
+    <command-bundle xmlns="http://felix.apache.org/karaf/xmlns/shell/v1.0.0">
+        <command name="deploy/assemble-server">
+            <action class="org.apache.geronimo.shell.deploy.AssembleServerCommand">
+            </action>
+        </command>
+        <command name="deploy/connect">
+            <action class="org.apache.geronimo.shell.deploy.ConnectCommand">
+            </action>
+        </command>
+        <command name="deploy/deploy-module">
+            <action class="org.apache.geronimo.shell.deploy.DeployModuleCommand">
+            </action>
+        </command>
+        <command name="deploy/disconnect">
+            <action class="org.apache.geronimo.shell.deploy.DisconnectCommand">
+            </action>
+        </command>
+        <command name="deploy/distribute">
+            <action class="org.apache.geronimo.shell.deploy.DistributeCommand">
+            </action>
+        </command>
+        <command name="deploy/install-library">
+            <action class="org.apache.geronimo.shell.deploy.InstallLibraryCommand">
+            </action>
+        </command>
+        <command name="deploy/install-plugin">
+            <action class="org.apache.geronimo.shell.deploy.InstallPluginCommand">
+            </action>
+        </command>
+        <command name="deploy/list-modules">
+            <action class="org.apache.geronimo.shell.deploy.ListModulesCommand">
+            </action>
+        </command>
+        <command name="deploy/list-plugins">
+            <action class="org.apache.geronimo.shell.deploy.ListPluginsCommand">
+            </action>
+        </command>
+        <command name="deploy/list-targets">
+            <action class="org.apache.geronimo.shell.deploy.ListTargetsCommand">
+            </action>
+        </command>
+        <command name="deploy/login">
+            <action class="org.apache.geronimo.shell.deploy.LoginCommand">
+            </action>
+        </command>
+        <command name="deploy/new-server-instance">
+            <action class="org.apache.geronimo.shell.deploy.NewInstanceCommand">
+            </action>
+        </command>
+        <command name="deploy/redeploy-module">
+            <action class="org.apache.geronimo.shell.deploy.RedeployModuleCommand">
+            </action>
+        </command>
+        <command name="deploy/restart-module">
+            <action class="org.apache.geronimo.shell.deploy.RestartModuleCommand">
+            </action>
+        </command>
+        <command name="deploy/start-module">
+            <action class="org.apache.geronimo.shell.deploy.StartModuleCommand">
+            </action>
+        </command>
+        <command name="deploy/stop-module">
+            <action class="org.apache.geronimo.shell.deploy.StopModuleCommand">
+            </action>
+        </command>
+        <command name="deploy/undeploy-module">
+            <action class="org.apache.geronimo.shell.deploy.UndeployModuleCommand">
+            </action>
+        </command>
+    </command-bundle>
+
+</blueprint>

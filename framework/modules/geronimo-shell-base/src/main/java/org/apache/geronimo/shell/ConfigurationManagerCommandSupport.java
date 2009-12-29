@@ -27,6 +27,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 /**
  * @version $Rev$ $Date$
  */
+
 public abstract class ConfigurationManagerCommandSupport extends KernelCommandSupport {
     protected void doExecute(Kernel kernel) throws Exception {
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);

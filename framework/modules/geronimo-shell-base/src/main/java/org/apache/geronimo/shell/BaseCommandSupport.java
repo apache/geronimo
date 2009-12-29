@@ -32,6 +32,7 @@ import org.osgi.framework.ServiceReference;
 /**
  * @version $Rev$ $Date$
  */
+
 public abstract class BaseCommandSupport extends OsgiCommandSupport implements ConsoleReader {
 
 

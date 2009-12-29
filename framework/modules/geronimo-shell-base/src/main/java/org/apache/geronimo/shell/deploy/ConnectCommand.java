@@ -18,13 +18,11 @@
  */
 
 
-package org.apache.geronimo.shell;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+package org.apache.geronimo.shell.deploy;
+
 import java.io.IOException;
 
-import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.geronimo.deployment.cli.ServerConnection;
@@ -32,31 +30,32 @@ import org.apache.geronimo.deployment.cli.ServerConnection.UsernamePasswordHandl
 import org.apache.geronimo.deployment.plugin.factories.BaseDeploymentFactory;
 import org.apache.geronimo.cli.deployer.ConnectionParamsImpl;
 import org.apache.geronimo.kernel.basic.BasicKernel;
+import org.apache.geronimo.shell.BaseCommandSupport;
 
 import org.osgi.service.command.CommandSession;
 
 /**
  * @version $Rev$ $Date$
  */
-@Command(scope = "geronimo", name = "connect", description = "Connect to a Geronimo server")
+@Command(scope = "deploy", name = "connect", description = "Connect to a Geronimo server")
 public class ConnectCommand extends BaseCommandSupport {
     // the environment variable name use to store the session. 1
     public static final String SERVER_CONNECTION = "geronimo.ServerConnection";
 
     @Option(name="-s", aliases={"--hostname", "--server"}, description="Hostname, default localhost", required = false, multiValued = false)
-    String hostname = "localhost";
+    protected String hostname = "localhost";
 
     @Option(name="-p", aliases={"--port"}, description="Port, default 1099", required = false, multiValued = false)
-    int port = 1099;
+    protected int port = 1099;
 
     @Option(name="-u", aliases={"--username"}, description="Username", required = false, multiValued = false)
-    String username;
+    protected String username;
 
     @Option(name="-w", aliases={"--password"}, description="Password", required = false, multiValued = false)
-    String password;
+    protected String password;
 
     @Option(name="--secure", description="Use secure channel", required = false, multiValued = false)
-    boolean secure = false;
+    protected boolean secure = false;
 
     /**
      * Base execution method.  This serves as both the body
@@ -113,7 +112,7 @@ public class ConnectCommand extends BaseCommandSupport {
 
         if (connection != null) {
             try {
-            	connection.close();
+                connection.close();
             }
             catch (Exception e) {
                 // ignore
@@ -136,7 +135,7 @@ public class ConnectCommand extends BaseCommandSupport {
      */
     protected ServerConnection openConnection(boolean quiet) throws Exception {
         if (!quiet) {
-        	println("Connecting to Geronimo server: " + hostname + ":" + port);
+            println("Connecting to Geronimo server: " + hostname + ":" + port);
         }
 
         BasicKernel kernel = new BasicKernel("Geronimo deployer", getBundleContext());
