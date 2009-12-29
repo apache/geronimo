@@ -609,6 +609,12 @@
                                     <outputDirectory>target/dependencies</outputDirectory>
                                     <destFileName>commons-cli.jar</destFileName>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.xbean</groupId>
+                                    <artifactId>xbean-naming</artifactId>
+                                    <outputDirectory>target/dependencies</outputDirectory>
+                                    <destFileName>xbean-naming.jar</destFileName>
+                                </artifactItem>                                
                             </artifactItems>
                         </configuration>
                     </execution>
