@@ -742,7 +742,7 @@
                             <outputDirectory>${project.build.directory}</outputDirectory>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
-                                <descriptor>${project.basedir}/src/main/descriptors/unix-bin.xml</descriptor>
+                                <descriptor>${project.basedir}/src/main/descriptors/geronimo-bin.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
