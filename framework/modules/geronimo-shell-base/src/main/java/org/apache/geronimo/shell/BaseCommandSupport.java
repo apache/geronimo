@@ -23,11 +23,10 @@ package org.apache.geronimo.shell;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.apache.felix.karaf.shell.console.OsgiCommandSupport;
 import org.apache.geronimo.deployment.cli.ConsoleReader;
-import org.apache.geronimo.kernel.Kernel;
-import org.osgi.framework.ServiceReference;
 
 /**
  * @version $Rev$ $Date$
@@ -35,14 +34,33 @@ import org.osgi.framework.ServiceReference;
 
 public abstract class BaseCommandSupport extends OsgiCommandSupport implements ConsoleReader {
 
+    private PrintWriter printWriter = null;
+    private BufferedReader lineReader = null;
+	
+	
+	/**
+     * Create printWriter and lineReader for the session
+     *
+     */
+	private void init(){	
+	    
+        if (printWriter == null)
+            printWriter = new PrintWriter(session.getConsole(), true);
 
-    /**
+        if (lineReader == null)
+            lineReader = new BufferedReader(new InputStreamReader(session.getKeyboard()));
+	}
+	
+	
+	
+	/**
      * Print an end-of-line marker.
      *
      * @exception IOException
      */
     public void printNewline() throws IOException {
-        session.getConsole().println();
+    	init();
+    	printWriter.println();
     }
 
 
@@ -52,7 +70,8 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
      * @param data   The line to write.
      */
     public void println(String data) {
-        session.getConsole().println(data);
+    	init();
+    	printWriter.println(data);
     }
 
 
@@ -62,7 +81,8 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
      * @param data   The line to write.
      */
     public void printString(String data) {
-        session.getConsole().print(data);
+    	init();
+    	printWriter.print(data);
     }
 
 
@@ -73,7 +93,8 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
      * @exception IOException
      */
     public String readLine() throws IOException {
-        return new BufferedReader(new InputStreamReader(session.getKeyboard())).readLine();
+        init();
+        return lineReader.readLine();
     }
 
 
@@ -96,6 +117,7 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
      * @exception IOException
      */
     public void flushConsole() throws IOException {
-        session.getConsole().flush();
+    	init();
+    	printWriter.flush();
     }
 }
