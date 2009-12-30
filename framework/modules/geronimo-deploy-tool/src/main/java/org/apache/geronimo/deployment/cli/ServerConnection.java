@@ -36,8 +36,8 @@ import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * Supports online connections to the server, via JSR-88, valid only
@@ -91,7 +91,14 @@ public class ServerConnection {
                 throw new DeploymentException(e);
             }
         } else {
+
+            ClassLoader OldCL = Thread.currentThread().getContextClassLoader();
+            Thread.currentThread().setContextClassLoader(DeployUtils.class.getClassLoader());
+           
             tryToConnect(uri, driver, user, password, secure);
+            
+            Thread.currentThread().setContextClassLoader(OldCL);
+
         }
         if (manager == null) {
             throw new DeploymentException("Unexpected error; connection failed.");
