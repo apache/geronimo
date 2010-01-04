@@ -14,15 +14,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.config;
+package org.apache.geronimo.kernel.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -42,8 +43,8 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev$ $Date$
  */
-public class IOUtil {
-    private static final Logger log = LoggerFactory.getLogger(IOUtil.class);
+public class IOUtils {
+    private static final Logger log = LoggerFactory.getLogger(IOUtils.class);
 
     public static void recursiveCopy(File srcDir, File destDir) throws IOException {
         if (srcDir == null) throw new NullPointerException("sourceDir is null");
@@ -177,61 +178,7 @@ public class IOUtil {
         return deleteFile(root);
     }
 
-    public static void flush(OutputStream thing) {
-        if (thing != null) {
-            try {
-                thing.flush();
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
-    public static void flush(Writer thing) {
-        if (thing != null) {
-            try {
-                thing.flush();
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
-    public static void close(JarFile thing) {
-        if (thing != null) {
-            try {
-                thing.close();
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
-    public static void close(InputStream thing) {
-        if (thing != null) {
-            try {
-                thing.close();
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
-    public static void close(OutputStream thing) {
-        if (thing != null) {
-            try {
-                thing.close();
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
-    public static void close(Reader thing) {
-        if (thing != null) {
-            try {
-                thing.close();
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
-    public static void close(Writer thing) {
+    public static void close(Closeable thing) {
         if (thing != null) {
             try {
                 thing.close();
@@ -253,7 +200,7 @@ public class IOUtil {
                 matches.put(pattern, match);
             }
         } else {
-            Map<String, File> files = IOUtil.listAllFileNames(root);
+            Map<String, File> files = IOUtils.listAllFileNames(root);
             for (Map.Entry<String, File> entry : files.entrySet()) {
                 String fileName = entry.getKey();
                 if (SelectorUtils.matchPath(pattern, fileName)) {
@@ -347,5 +294,81 @@ public class IOUtil {
         }
         map.put(prefix, base);
         return map;
+    }
+    
+    public static byte[] getBytes(InputStream inputStream) throws IOException {
+        try {
+            byte[] buffer = new byte[4096];
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            for (int count = inputStream.read(buffer); count >= 0; count = inputStream.read(buffer)) {
+                out.write(buffer, 0, count);
+            }
+            byte[] bytes = out.toByteArray();
+            return bytes;
+        } finally {
+            close(inputStream);
+        }
+    }
+
+    public static void flush(OutputStream thing) {
+        if (thing != null) {
+            try {
+                thing.flush();
+            } catch(Exception ignored) {
+            }
+        }
+    }
+
+    public static void flush(Writer thing) {
+        if (thing != null) {
+            try {
+                thing.flush();
+            } catch(Exception ignored) {
+            }
+        }
+    }
+
+    public static void close(JarFile thing) {
+        if (thing != null) {
+            try {
+                thing.close();
+            } catch(Exception ignored) {
+            }
+        }
+    }
+
+    public static final class EmptyInputStream extends InputStream {
+        public int read() {
+            return -1;
+        }
+
+        public int read(byte b[])  {
+            return -1;
+        }
+
+        public int read(byte b[], int off, int len) {
+            return -1;
+        }
+
+        public long skip(long n) {
+            return 0;
+        }
+
+        public int available() {
+            return 0;
+        }
+
+        public void close() {
+        }
+
+        public synchronized void mark(int readlimit) {
+        }
+
+        public synchronized void reset() {
+        }
+
+        public boolean markSupported() {
+            return false;
+        }
     }
 }

@@ -22,7 +22,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -30,9 +29,9 @@ import java.util.Stack;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.util.IOUtils;
 
 /**
  * @version $Rev$ $Date$
@@ -121,7 +120,7 @@ public class ConfigurationResolver {
             Set<URL> matches = configurationStore.resolve(configurationId, moduleName, pattern);
             return matches;
         } else if (baseDir != null) {
-            Set<URL> matches = IOUtil.search(baseDir, pattern);
+            Set<URL> matches = IOUtils.search(baseDir, pattern);
             return matches;
         } else {
             throw new IllegalStateException("No configurationStore or baseDir supplied so paths can not be resolved");

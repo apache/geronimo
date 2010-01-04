@@ -16,18 +16,6 @@
  */
 package org.apache.geronimo.kernel.mock;
 
-import org.apache.geronimo.kernel.Jsr77Naming;
-import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.IOUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NullConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -35,6 +23,18 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.NullConfigurationStore;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.IOUtils;
 
 /**
  * ???
@@ -87,7 +87,7 @@ public class MockConfigStore
         if (file == null) {
             throw new NoSuchConfigException(configId);
         }
-        return IOUtil.search(file, pattern);
+        return IOUtils.search(file, pattern);
     }
 
     public void installFake(Artifact configId, File file) {

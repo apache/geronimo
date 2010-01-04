@@ -26,7 +26,7 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.IOUtil;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -66,7 +66,7 @@ public class BasicClusterConfigurationStore implements ClusterConfigurationStore
     }
 
     protected void deleteDir(File packedConfigurationDir) {
-        IOUtil.recursiveDelete(packedConfigurationDir);
+        IOUtils.recursiveDelete(packedConfigurationDir);
     }
 
     protected DirectoryPackager newDirectoryPackager() {

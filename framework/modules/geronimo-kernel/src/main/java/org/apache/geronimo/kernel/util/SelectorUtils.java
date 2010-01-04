@@ -14,11 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.config;
+package org.apache.geronimo.kernel.util;
 
 import java.io.File;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
+import org.apache.geronimo.kernel.config.Os;
 
 /**
  * <p>This is a utility class used by selectors and DirectoryScanner. The

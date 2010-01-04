@@ -29,16 +29,14 @@ import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.config.IOUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.tools.ant.taskdefs.Tar;
 import org.apache.tools.ant.taskdefs.Zip;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.types.ResourceCollection;
 import org.apache.tools.ant.types.TarFileSet;
-import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.ZipFileSet;
 
 /**
@@ -65,7 +63,7 @@ public class ArchiverGBean implements ServerArchiver {
     private void removeExcludes(File source, Map<String, File> all) {
         Map<String, File> matches = new HashMap<String, File>();
         for (String exclude : this.excludes) {
-            IOUtil.find(source, exclude, matches);
+            IOUtils.find(source, exclude, matches);
         }
 
         for (String exclude : matches.keySet()) {

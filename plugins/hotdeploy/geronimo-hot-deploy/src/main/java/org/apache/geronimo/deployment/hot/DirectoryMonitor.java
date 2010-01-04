@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.apache.geronimo.deployment.cli.DeployUtils;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.config.IOUtil;
+import org.apache.geronimo.kernel.util.IOUtils;
 
 import java.io.File;
 import java.io.Serializable;
@@ -184,7 +184,7 @@ public class DirectoryMonitor implements Runnable {
                     File file = new File(path);
                     if(file.exists()) { // if not, probably it's deletion kicked off this whole process
                         log.info("Hot deployer deleting "+id);
-                        if(!IOUtil.recursiveDelete(file)) {
+                        if(!IOUtils.recursiveDelete(file)) {
                             log.error("Hot deployer unable to delete "+path);
                         }
                         it.remove();

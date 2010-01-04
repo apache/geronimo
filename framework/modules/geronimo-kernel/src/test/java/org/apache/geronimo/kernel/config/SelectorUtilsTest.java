@@ -18,6 +18,8 @@ package org.apache.geronimo.kernel.config;
 
 import junit.framework.TestCase;
 
+import org.apache.geronimo.kernel.util.SelectorUtils;
+
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-16 23:35:17 -0500 (Thu, 16 Nov 2006) $
  */

@@ -16,18 +16,15 @@
  */
 package org.apache.geronimo.kernel.repository;
 
-import java.io.InputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
-import org.apache.geronimo.kernel.repository.ArtifactTypeHandler;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.config.IOUtil;
+import org.apache.geronimo.kernel.util.IOUtils;
 
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
@@ -76,7 +73,7 @@ public class UnpackArtifactTypeHandler implements ArtifactTypeHandler {
                                 }
                             }
                         } finally {
-                            IOUtil.flush(out);
+                            IOUtils.flush(out);
                             out.close();
                         }
                         in.closeEntry();
@@ -84,7 +81,7 @@ public class UnpackArtifactTypeHandler implements ArtifactTypeHandler {
                 }
             }
         } catch (IOException e) {
-            IOUtil.recursiveDelete(target);
+            IOUtils.recursiveDelete(target);
             throw e;
         } finally {
             in.close();

@@ -47,7 +47,7 @@ import org.apache.geronimo.kernel.config.ConfigurationDataTransformer;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.IOUtil;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoOConfigurationDataTransformer;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -137,7 +137,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 try {
                     configurationData = ConfigurationUtil.readConfigurationData(in);
                 } finally {
-                    IOUtil.close(in);
+                    IOUtils.close(in);
                 }
             } else {
                 JarFile jarFile = new JarFile(location);
@@ -147,8 +147,8 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                     in = jarFile.getInputStream(entry);
                     configurationData = ConfigurationUtil.readConfigurationData(in);
                 } finally {
-                    IOUtil.close(in);
-                    IOUtil.close(jarFile);
+                    IOUtils.close(in);
+                    IOUtils.close(jarFile);
                 }
             }
         } catch (ClassNotFoundException e) {
@@ -188,7 +188,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             } catch (IOException e) {
                 return false;
             } finally {
-                IOUtil.close(jarFile);
+                IOUtils.close(jarFile);
             }
         }
     }
@@ -249,15 +249,15 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             if (moduleName != null) {
                 location = new File(location, moduleName);
             }
-            return IOUtil.search(location, path);
+            return IOUtils.search(location, path);
  /*           if(path == null) {
                 return Collections.singleton(location.toURL());
             } else {
                 if (location.isDirectory()) {
-                    Set matches = IOUtil.search(location, path);
+                    Set matches = IOUtils.search(location, path);
                     return matches;
                 } else {
-                    Set matches = IOUtil.search(location, path);
+                    Set matches = IOUtils.search(location, path);
                     return matches;
                 }
             }
@@ -265,7 +265,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             if (moduleName != null) {
                 path = moduleName + "/" +path;
             }
-            return IOUtil.search(location, path);
+            return IOUtils.search(location, path);
         }
     }
 
@@ -359,7 +359,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 repository.copyToRepository(source, configId, null);
             } else if (source.isDirectory()) {
                 // directory is in wrong place -- directory copy
-                IOUtil.recursiveCopy(source, destination);
+                IOUtils.recursiveCopy(source, destination);
             } else {
                 throw new InvalidConfigException("Unable to install configuration from " + source);
             }
@@ -382,7 +382,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             // don't really care
         }
         File location = repository.getLocation(configId);
-        IOUtil.recursiveDelete(location);
+        IOUtils.recursiveDelete(location);
         // Number of directory levels up, to check and delete empty parent directories in the repo
         int dirDepth = 0;
 
@@ -467,7 +467,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
             try {
                 configurationInfo = ConfigurationUtil.readConfigurationInfo(in, getAbstractName(), inPlaceLocation);
             } finally {
-                IOUtil.close(in);
+                IOUtils.close(in);
             }
         } else {
             JarFile jarFile = new JarFile(location);
@@ -480,8 +480,8 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 in = jarFile.getInputStream(entry);
                 configurationInfo = ConfigurationUtil.readConfigurationInfo(in, getAbstractName(), inPlaceLocation);
             } finally {
-                IOUtil.close(in);
-                IOUtil.close(jarFile);
+                IOUtils.close(in);
+                IOUtils.close(jarFile);
             }
         }
 
