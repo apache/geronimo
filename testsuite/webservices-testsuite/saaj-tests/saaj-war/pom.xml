@@ -51,11 +51,6 @@
             <scope>provided</scope>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-saaj_1.3_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <build>

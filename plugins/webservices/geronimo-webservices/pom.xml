@@ -89,11 +89,6 @@
             <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-saaj_1.3_spec</artifactId>
-        </dependency>
-
         <!-- Test only dependencies -->
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
