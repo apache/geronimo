@@ -58,6 +58,10 @@ public class ConfiguredEncryption extends AbstractEncryption implements GBeanLif
 
 
     public ConfiguredEncryption(String path, ServerInfo serverInfo) throws IOException, ClassNotFoundException {
+        if (path == null || "".equals(path)) {
+            spec = null;
+            return;
+        }
         File location = serverInfo.resolve(path);
         if (location.exists()) {
             FileInputStream in = new FileInputStream(location);
@@ -100,7 +104,9 @@ public class ConfiguredEncryption extends AbstractEncryption implements GBeanLif
     }
 
     public void doStart() throws Exception {
-        EncryptionManager.setEncryptionPrefix("{Configured}", this);
+        if (spec != null) {
+            EncryptionManager.setEncryptionPrefix("{Configured}", this);
+        }
     }
 
     public void doStop() throws Exception {
@@ -112,6 +118,10 @@ public class ConfiguredEncryption extends AbstractEncryption implements GBeanLif
     protected SecretKeySpec getSecretKeySpec() {
         return spec;
     }
+    
+    public String encrypt(String text) {
+        return EncryptionManager.encrypt(text);
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -120,6 +130,7 @@ public class ConfiguredEncryption extends AbstractEncryption implements GBeanLif
         infoBuilder.addAttribute("path", String.class, true, true);
         infoBuilder.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoBuilder.setConstructor(new String[]{"path", "ServerInfo"});
+        infoBuilder.addOperation("encrypt", new Class[] {String.class}, "java.lang.String");
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

@@ -38,6 +38,7 @@ import org.apache.geronimo.cli.deployer.CommandMetaData;
 import org.apache.geronimo.cli.deployer.DeployCommandMetaData;
 import org.apache.geronimo.cli.deployer.DeployerCLParser;
 import org.apache.geronimo.cli.deployer.DistributeCommandMetaData;
+import org.apache.geronimo.cli.deployer.EncryptCommandMetaData;
 import org.apache.geronimo.cli.deployer.InstallLibraryCommandMetaData;
 import org.apache.geronimo.cli.deployer.InstallPluginCommandMetaData;
 import org.apache.geronimo.cli.deployer.ListModulesCommandMetaData;
@@ -90,6 +91,7 @@ public class DeployTool implements Main {
         commands.put(SearchPluginsCommandMetaData.META_DATA, new CommandListConfigurations());
         commands.put(InstallPluginCommandMetaData.META_DATA, new CommandInstallCAR());
         commands.put(InstallLibraryCommandMetaData.META_DATA, new CommandInstallLibrary());
+        commands.put(EncryptCommandMetaData.META_DATA, new CommandEncrypt());
     }
 
     private boolean failed = false;
