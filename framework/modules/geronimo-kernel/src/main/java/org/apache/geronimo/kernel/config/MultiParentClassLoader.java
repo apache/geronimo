@@ -596,7 +596,9 @@ public class MultiParentClassLoader extends URLClassLoader {
         // Resource not found -- no need to search for it again
         // 
         if (!resourcesNotFound.contains(name)) {
-            resourcesNotFound.add(name);
+            synchronized(resourcesNotFound) {
+                resourcesNotFound.add(name);
+            }
         }
 
         return null;
