@@ -61,5 +61,11 @@
         <attribute name="maxPoolSize">500</attribute>
         <attribute name="poolName">DefaultThreadPool</attribute>
     </gbean>
+    
+    <gbean name="ConfiguredEncryption" class="org.apache.geronimo.system.util.ConfiguredEncryption">
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
 
 </module>
