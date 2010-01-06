@@ -31,7 +31,7 @@ import org.apache.geronimo.system.util.ConfiguredEncryption;
 /**
  * The CLI command to encrypt a given string.
  *
- * @version $Rev: 617588 $ $Date: 2008-02-02 02:20:07 +0800 (Sat, 02 Feb 2008) $
+ * @version $Rev$ $Date$
  */
 public class CommandEncrypt extends AbstractCommand {
 
