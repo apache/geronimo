@@ -18,7 +18,7 @@ package org.apache.geronimo.cli.deployer;
 
 
 /**
- * @version $Rev: 515007 $ $Date: 2007-03-06 18:26:41 +1100 (Tue, 06 Mar 2007) $
+ * @version $Rev$ $Date$
  */
 public class EncryptCommandMetaData extends BaseCommandMetaData  {
     public static final CommandMetaData META_DATA = new EncryptCommandMetaData();
