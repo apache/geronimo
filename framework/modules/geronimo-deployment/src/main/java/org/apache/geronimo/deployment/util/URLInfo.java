@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.deployment.util;
 
-import java.net.URL;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  *

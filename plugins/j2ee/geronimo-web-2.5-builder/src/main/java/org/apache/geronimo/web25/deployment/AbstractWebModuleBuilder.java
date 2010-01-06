@@ -35,22 +35,26 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import javax.xml.namespace.QName;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.Location;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.bind.JAXBException;
 import javax.security.auth.message.module.ServerAuthModule;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.Location;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.components.jaspi.model.AuthModuleType;
+import org.apache.geronimo.components.jaspi.model.ConfigProviderType;
+import org.apache.geronimo.components.jaspi.model.JaspiXmlUtil;
+import org.apache.geronimo.components.jaspi.model.ServerAuthConfigType;
+import org.apache.geronimo.components.jaspi.model.ServerAuthContextType;
 import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -66,15 +70,16 @@ import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -82,8 +87,8 @@ import org.apache.geronimo.security.jaspi.AuthConfigProviderGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthConfigGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthContextGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
-import org.apache.geronimo.web25.deployment.security.SpecSecurityBuilder;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
+import org.apache.geronimo.web25.deployment.security.SpecSecurityBuilder;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee.FilterMappingType;
 import org.apache.geronimo.xbeans.javaee.FilterType;
@@ -96,20 +101,15 @@ import org.apache.geronimo.xbeans.javaee.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WebResourceCollectionType;
-import org.apache.geronimo.components.jaspi.model.ConfigProviderType;
-import org.apache.geronimo.components.jaspi.model.JaspiXmlUtil;
-import org.apache.geronimo.components.jaspi.model.ServerAuthConfigType;
-import org.apache.geronimo.components.jaspi.model.ServerAuthContextType;
-import org.apache.geronimo.components.jaspi.model.AuthModuleType;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -332,8 +332,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
-//        } catch (URISyntaxException e) {
-//            throw new DeploymentException("Could not construct URI for location of war entry", e);
         } finally {
             if (!module.isStandAlone()) {
                 try {
@@ -619,7 +617,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     private boolean cleanupConfigurationDir(File configurationDir) {
         LinkedList<String> cannotBeDeletedList = new LinkedList<String>();
 
-        if (!DeploymentUtil.recursiveDelete(configurationDir, cannotBeDeletedList)) {
+        if (!FileUtils.recursiveDelete(configurationDir, cannotBeDeletedList)) {
             // Output a message to help user track down file problem
             log.warn("Unable to delete " + cannotBeDeletedList.size() +
                     " files while recursively deleting directory "

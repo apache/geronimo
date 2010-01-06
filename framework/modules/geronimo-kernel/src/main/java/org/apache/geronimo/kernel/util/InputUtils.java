@@ -18,7 +18,6 @@ package org.apache.geronimo.kernel.util;
 
 // import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +38,7 @@ public class InputUtils {
         // look for illegal chars in input
         if (input != null) {
             Matcher inputMatcher = ILLEGAL_CHARS.matcher(input);
-            if (inputMatcher.find()) 
+            if (inputMatcher.find())
             {
                 log.warn("Illegal characters detected in input" + input);
                 throw new IllegalArgumentException("input  "+input+" contains illegal characters: .. < > : / \\ \' \" | ");

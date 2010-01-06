@@ -25,16 +25,17 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Jsr77Naming;
-import org.apache.geronimo.kernel.osgi.MockBundleContext;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.mock.MockConfigurationManager;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -104,7 +105,7 @@ public class DeploymentContextTest extends TestCase {
          * @throws IOException ain't gonna happen.
          */
         public MockJarFile(URI relativeURI, String manifestClasspath) throws IOException {
-            super(DeploymentUtil.DUMMY_JAR_FILE);
+            super(JarUtils.DUMMY_JAR_FILE);
             this.relativeURI = relativeURI;
             this.manifestClasspath = manifestClasspath;
         }
@@ -121,9 +122,9 @@ public class DeploymentContextTest extends TestCase {
     static class MockJarFileFactory implements DeploymentContext.JarFileFactory {
 
         private final Map<URI, String> data;
-        
+
         private File[] filesInLib2 = {new File("../../libfolder/a.jar") ,new File( "../../libfolder/b.jar"),new File( "../../libfolder/c.txt"), new File("../../libfolder/subfolder")};
-        
+
         public MockJarFileFactory(Map<URI, String> data) {
             this.data = data;
         }
@@ -136,7 +137,7 @@ public class DeploymentContextTest extends TestCase {
         public String getManifestClassPath(JarFile jarFile) throws IOException {
             return ((MockJarFile)jarFile).getManifestClasspath();
         }
-        
+
         public boolean isDirectory(URI relativeURI) throws IOException {
             return relativeURI.equals(URI.create("libfolder")) || relativeURI.equals(URI.create("libfolder/"))
                     || relativeURI.equals(URI.create("libfolder/subfolder"))
@@ -151,7 +152,7 @@ public class DeploymentContextTest extends TestCase {
             }
         }
     }
-    
+
     public void testManifestClassPath1() throws Exception {
         MockJarFile start = new MockJarFile(URI.create("ejb.jar"), "lib1.jar");
         URI resolutionURI = URI.create(".");
@@ -185,7 +186,7 @@ public class DeploymentContextTest extends TestCase {
         assertEquals("lib2/lib2a.jar", classPathList.get(2));
         assertEquals("lib3.jar", classPathList.get(3));
     }
-    
+
     public void testMainfestClassPath3() throws Exception {
         MockJarFile start = new MockJarFile(URI.create("ejb1/ejb1/ejb1.jar"), "../../lib1/lib1/lib1.jar ../../libfolder");
         URI resolutionURI = URI.create(".");
@@ -200,17 +201,17 @@ public class DeploymentContextTest extends TestCase {
         DeploymentContext.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager(), bundleContext);
         ClassPathList classPathList = new ClassPathList();
-        context.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());       
-        assertEquals(6, classPathList.size());        
+        context.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
+        assertEquals(6, classPathList.size());
         assertEquals("lib1/lib1/lib1.jar", classPathList.get(0));
         assertEquals("lib2/lib2.jar", classPathList.get(1));
         assertEquals("lib2/lib2a.jar", classPathList.get(2));
         assertEquals("lib3.jar", classPathList.get(3));
         assertEquals("libfolder/a.jar", classPathList.get(4));
         assertEquals("libfolder/b.jar", classPathList.get(5));
-        
-    }    
-    
+
+    }
+
     public void testManifestClassPathWar1() throws Exception {
         MockJarFile start = new MockJarFile(URI.create("war1.war"), "lib1.jar");
         URI resolutionURI = URI.create("../");

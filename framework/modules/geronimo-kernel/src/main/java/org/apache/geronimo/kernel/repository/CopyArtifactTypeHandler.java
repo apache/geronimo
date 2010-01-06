@@ -26,6 +26,7 @@ import java.io.BufferedInputStream;
 import org.apache.geronimo.kernel.repository.ArtifactTypeHandler;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.util.IOUtils;
 
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
@@ -64,23 +65,9 @@ public class CopyArtifactTypeHandler implements ArtifactTypeHandler {
                     }
                 }
             }
-            out.close(); // also flushes the stream
-            out = null;
-            in.close();
-            in = null;
         } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException ignored) {
-                }
-            }
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignored) {
-                }
-            }
+            IOUtils.close(in);
+            IOUtils.close(out);
             if (monitor != null) {
                 monitor.writeComplete(total);
             }

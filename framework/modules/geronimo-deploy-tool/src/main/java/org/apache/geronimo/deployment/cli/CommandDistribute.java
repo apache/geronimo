@@ -33,6 +33,7 @@ import org.apache.geronimo.cli.deployer.DistributeCommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
+import org.apache.geronimo.kernel.util.JarUtils;
 
 /**
  * The CLI deployer logic to distribute.
@@ -99,7 +100,7 @@ public class CommandDistribute extends AbstractCommand {
         if (args.length > 1) {
             File test = new File(args[1]);
             try {
-                if (FileUtils.isJarFile(test) || test.isDirectory()) {
+                if (JarUtils.isJarFile(test) || test.isDirectory()) {
                     if (module != null) {
                         throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
                     }

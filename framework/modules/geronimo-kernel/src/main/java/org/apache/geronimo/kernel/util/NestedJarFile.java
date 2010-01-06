@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.deployment.util;
+package org.apache.geronimo.kernel.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class NestedJarFile extends JarFile {
     private File tempFile;
 
     public NestedJarFile(JarFile jarFile, String path) throws IOException {
-        super(DeploymentUtil.DUMMY_JAR_FILE);
+        super(JarUtils.DUMMY_JAR_FILE);
 
         // verify that the jar actually contains that path
         JarEntry targetEntry = jarFile.getJarEntry(path + "/");
@@ -74,7 +74,7 @@ public class NestedJarFile extends JarFile {
                 baseJar = new JarFile(targetFile);
                 basePath = "";
             } else {
-                tempFile = DeploymentUtil.toFile(jarFile, targetEntry.getName());
+                tempFile = JarUtils.toFile(jarFile, targetEntry.getName());
                 baseJar = new JarFile(tempFile);
                 basePath = "";
             }
@@ -201,7 +201,7 @@ public class NestedJarFile extends JarFile {
         if (baseEntry == null) {
             throw new IOException("Entry not found: name=" + zipEntry.getName());
         } else if (baseEntry.isDirectory()) {
-            return new DeploymentUtil.EmptyInputStream();
+            return new IOUtils.EmptyInputStream();
         }
         return baseJar.getInputStream(baseEntry);
     }

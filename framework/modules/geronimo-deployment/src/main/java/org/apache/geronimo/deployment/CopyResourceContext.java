@@ -30,7 +30,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 
 class CopyResourceContext implements ResourceContext {
     private final DeploymentContext deploymentContext;
@@ -59,7 +60,7 @@ class CopyResourceContext implements ResourceContext {
         if (targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must not end with a '/' character: " + targetPath);
 
         File targetFile = getTargetFile(targetPath);
-        DeploymentUtil.copyToPackedJar(jarFile, targetFile);
+        JarUtils.copyToPackedJar(jarFile, targetFile);
 
         if (!targetFile.isFile()) throw new IllegalStateException("target file should be a file: " + targetFile);
         deploymentContext.addToClassPath(targetPath.toString());
@@ -148,7 +149,7 @@ class CopyResourceContext implements ResourceContext {
         try {
             out.write(contents);
         } finally {
-            DeploymentUtil.close(out);
+            IOUtils.close(out);
         }
     }
 
@@ -170,7 +171,7 @@ class CopyResourceContext implements ResourceContext {
             try {
                 addFile(targetFile, is);
             } finally {
-                DeploymentUtil.close(is);
+                IOUtils.close(is);
             }
         }
     }
@@ -181,7 +182,7 @@ class CopyResourceContext implements ResourceContext {
             in = source.openStream();
             addFile(targetFile, in);
         } finally {
-            DeploymentUtil.close(in);
+            IOUtils.close(in);
         }
     }
 
@@ -191,7 +192,7 @@ class CopyResourceContext implements ResourceContext {
             in = new FileInputStream(source);
             addFile(targetFile, in);
         } finally {
-            DeploymentUtil.close(in);
+            IOUtils.close(in);
         }
     }
 
@@ -205,7 +206,7 @@ class CopyResourceContext implements ResourceContext {
                 out.write(buffer, 0, count);
             }
         } finally {
-            DeploymentUtil.close(out);
+            IOUtils.close(out);
         }
     }
 }

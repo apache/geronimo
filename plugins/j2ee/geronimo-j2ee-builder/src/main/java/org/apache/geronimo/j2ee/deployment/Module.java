@@ -16,21 +16,21 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.util.jar.JarFile;
-import java.util.Map;
-import java.util.HashMap;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.JarFile;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
-import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.xbean.finder.ClassFinder;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -120,7 +120,7 @@ public abstract class Module {
     public URI resolve(String path) {
         return targetPathURI.resolve(path);
     }
-    
+
     public URI resolve(URI path) {
         return targetPathURI.resolve(path);
     }
@@ -157,7 +157,7 @@ public abstract class Module {
     }
 
     public void close() {
-        DeploymentUtil.close(moduleFile);
+        JarUtils.close(moduleFile);
     }
 
 
@@ -236,5 +236,5 @@ public abstract class Module {
             rootEarContext.addChildConfiguration(getTargetPath(), moduleConfigurationData);
         }
     }
-    
+
 }

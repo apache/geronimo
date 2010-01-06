@@ -23,14 +23,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.wrapper.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
-import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -56,9 +54,9 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.osgi.MockBundle;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -67,6 +65,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.util.UnpackedJarFile;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicy;
@@ -77,9 +76,6 @@ import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
-import org.apache.geronimo.kernel.osgi.MockBundleContext;
-import org.osgi.framework.BundleContext;
-
 import org.osgi.framework.Bundle;
 
 /**

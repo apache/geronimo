@@ -22,14 +22,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.jar.JarFile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -39,9 +38,11 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -82,8 +83,8 @@ public class SingleFileHotDeployer {
         }
 
         // take no action if there is nothing in the directory to deploy.   Perhaps we should
-        // consider doing an undeploy in this case if the application is already deployed. Howevr 
-        // for now this is to handle the case where the application is not already laid down at the 
+        // consider doing an undeploy in this case if the application is already deployed. Howevr
+        // for now this is to handle the case where the application is not already laid down at the
         // time of the initial deploy of this gbean.
         if (dir.list().length == 0) {
             return null;
@@ -123,7 +124,7 @@ public class SingleFileHotDeployer {
 
         JarFile module = null;
         try {
-            module = DeploymentUtil.createJarFile(dir);
+            module = JarUtils.createJarFile(dir);
         } catch (IOException e) {
             throw new DeploymentException("Cound not open module file: " + dir.getAbsolutePath(), e);
         }
@@ -180,7 +181,7 @@ public class SingleFileHotDeployer {
         } catch (Exception e) {
             throw new DeploymentException("Unable to deploy " + dir, e);
         } finally {
-            DeploymentUtil.close(module);
+            JarUtils.close(module);
         }
 
     }
@@ -265,7 +266,7 @@ public class SingleFileHotDeployer {
             }
             throw new Error(e);
         } finally {
-            DeploymentUtil.close(module);
+            JarUtils.close(module);
         }
     }
 
@@ -275,10 +276,10 @@ public class SingleFileHotDeployer {
             ConfigurationData configurationData = (ConfigurationData) iterator.next();
             File dir = configurationData.getConfigurationDir();
             cannotBeDeletedList.clear();
-            if (!DeploymentUtil.recursiveDelete(dir,cannotBeDeletedList)) {
+            if (!FileUtils.recursiveDelete(dir,cannotBeDeletedList)) {
                 // Output a message to help user track down file problem
-                log.warn("Unable to delete " + cannotBeDeletedList.size() + 
-                        " files while recursively deleting directory " 
+                log.warn("Unable to delete " + cannotBeDeletedList.size() +
+                        " files while recursively deleting directory "
                         + dir + LINE_SEP +
                         "The first file that could not be deleted was:" + LINE_SEP + "  "+
                         ( !cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : "") );

@@ -29,13 +29,13 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.ModuleDocument;
@@ -43,11 +43,11 @@ import org.apache.geronimo.deployment.xbeans.ModuleType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -61,6 +61,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -138,7 +140,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
             if (planFile != null) {
                 xmlObject = XmlBeansUtil.parse(planFile.toURI().toURL(), getClass().getClassLoader());
             } else {
-                URL path = DeploymentUtil.createJarURL(jarFile, "META-INF/geronimo-service.xml");
+                URL path = JarUtils.createJarURL(jarFile, "META-INF/geronimo-service.xml");
                 try {
                     xmlObject = XmlBeansUtil.parse(path, getClass().getClassLoader());
                 } catch (FileNotFoundException e) {
@@ -235,7 +237,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
 
             AbstractName moduleName = naming.createRootName(configId, configId.toString(), SERVICE_MODULE);
             context = new DeploymentContext(outfile,
-                    inPlaceDeployment && null != jar ? DeploymentUtil.toFile(jar) : null,
+                    inPlaceDeployment && null != jar ? JarUtils.toFile(jar) : null,
                     environment,
                     moduleName,
                     ConfigurationModuleType.SERVICE,
@@ -275,7 +277,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
             // ignore error on cleanu
         }
         if (directory != null) {
-            DeploymentUtil.recursiveDelete(directory);
+            FileUtils.recursiveDelete(directory);
         }
     }
 

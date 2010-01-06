@@ -18,9 +18,6 @@
 package org.apache.geronimo.deployment;
 
 import java.util.Collection;
-import java.util.Iterator;
-
-import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.repository.Environment;

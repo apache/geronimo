@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.deployment.util;
+package org.apache.geronimo.kernel.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,7 +40,7 @@ public class UnpackedJarFile extends JarFile {
     private Manifest manifest;
 
     public UnpackedJarFile(File baseDir) throws IOException {
-        super(DeploymentUtil.DUMMY_JAR_FILE);
+        super(JarUtils.DUMMY_JAR_FILE);
         this.baseDir = baseDir;
         if (!baseDir.isDirectory()) {
             throw new IOException("File must be a directory: file=" + baseDir.getAbsolutePath());
@@ -92,7 +92,7 @@ public class UnpackedJarFile extends JarFile {
     }
 
     public Enumeration entries() {
-        Collection files = DeploymentUtil.listRecursiveFiles(baseDir);
+        Collection files = FileUtils.listRecursiveFiles(baseDir);
 
         Manifest manifest = getManifestSafe();
         LinkedList entries = new LinkedList();
@@ -117,7 +117,7 @@ public class UnpackedJarFile extends JarFile {
         if (file == null) {
             throw new IOException("Entry not found: name=" + zipEntry.getName());
         } else if (file.isDirectory()) {
-            return new DeploymentUtil.EmptyInputStream();
+            return new IOUtils.EmptyInputStream();
         }
         return new FileInputStream(file);
     }

@@ -24,14 +24,14 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.CatalogEntry;
 import org.apache.xml.resolver.CatalogException;
 import org.apache.xml.resolver.CatalogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

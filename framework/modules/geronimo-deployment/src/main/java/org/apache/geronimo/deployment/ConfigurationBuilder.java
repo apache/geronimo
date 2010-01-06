@@ -20,11 +20,9 @@ package org.apache.geronimo.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;

@@ -37,10 +37,7 @@ import java.util.jar.Manifest;
 
 import javax.management.ObjectName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -48,18 +45,23 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.DeploymentWatcher;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.main.CommandLineManifest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * GBean that knows how to deploy modules (by consulting available module builders)
@@ -68,7 +70,7 @@ import org.apache.geronimo.system.main.CommandLineManifest;
  */
 public class Deployer implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(Deployer.class);
-    
+
     private final int REAPER_INTERVAL = 60 * 1000;
     private DeployerReaper reaper;
     private final String remoteDeployAddress;
@@ -119,14 +121,14 @@ public class Deployer implements GBeanLifecycle {
                 tmpDir.delete();
                 tmpDir.mkdir();
                 File tmpFile = new File(tmpDir, moduleFile.getName());
-                DeploymentUtil.copyFile(moduleFile, tmpFile);
+                FileUtils.copyFile(moduleFile, tmpFile);
                 moduleFile = tmpFile;
                 cleanup = false;
             } catch (IOException e) {
                 throw new DeploymentException(e);
             } finally {
-                // If an Exception is thrown in the try block above, we will need to cleanup here. 
-                if(cleanup && tmpDir != null && !DeploymentUtil.recursiveDelete(tmpDir)) {
+                // If an Exception is thrown in the try block above, we will need to cleanup here.
+                if(cleanup && tmpDir != null && !FileUtils.recursiveDelete(tmpDir)) {
                     reaper.delete(tmpDir.getAbsolutePath(), "delete");
                 }
             }
@@ -139,7 +141,7 @@ public class Deployer implements GBeanLifecycle {
             throw e.cleanse();
         } finally {
             if (tmpDir != null) {
-                if (!DeploymentUtil.recursiveDelete(tmpDir)) {
+                if (!FileUtils.recursiveDelete(tmpDir)) {
                     reaper.delete(tmpDir.getAbsolutePath(), "delete");
                 }
             }
@@ -283,11 +285,11 @@ public class Deployer implements GBeanLifecycle {
             }
             throw new Error(e);
         } finally {
-            DeploymentUtil.close(module);
+            JarUtils.close(module);
         }
     }
 
-    private ConfigurationStore getConfigurationStore(String targetConfigurationStore) 
+    private ConfigurationStore getConfigurationStore(String targetConfigurationStore)
             throws URISyntaxException, GBeanNotFoundException {
         if (targetConfigurationStore != null) {
             AbstractName targetStoreName = new AbstractName(new URI(targetConfigurationStore));
@@ -297,16 +299,16 @@ public class Deployer implements GBeanLifecycle {
         }
     }
 
-    private Artifact getConfigID(JarFile module, 
-            ModuleIDBuilder idBuilder, 
-            Object plan, 
+    private Artifact getConfigID(JarFile module,
+            ModuleIDBuilder idBuilder,
+            Object plan,
             ConfigurationBuilder builder) throws IOException, DeploymentException, InvalidConfigException {
         Artifact configID = builder.getConfigurationID(plan, module, idBuilder);
         // If the Config ID isn't fully resolved, populate it with defaults
         if (!configID.isResolved()) {
             configID = idBuilder.resolve(configID, "car");
         }
-        
+
         // Make sure this configuration doesn't already exist
         try {
             kernel.getGBeanState(Configuration.getConfigurationAbstractName(configID));
@@ -323,12 +325,12 @@ public class Deployer implements GBeanLifecycle {
             ConfigurationStore store,
             DeploymentContext context) throws DeploymentException, IOException, Throwable {
         List<ConfigurationData> configurationDatas = new ArrayList<ConfigurationData>();
-        
+
         boolean configsCleanupRequired = false;
 
         // Set TCCL to the classloader for the configuration being deployed
-        // so that any static blocks invoked during the loading of classes 
-        // during serialization of the configuration have the correct TCCL 
+        // so that any static blocks invoked during the loading of classes
+        // during serialization of the configuration have the correct TCCL
         // ( a TCCL that is consistent with what is set when the same
         // classes are loaded when the configuration is started.
         Thread thread = Thread.currentThread();
@@ -339,7 +341,7 @@ public class Deployer implements GBeanLifecycle {
             try {
                 configurationDatas.add(context.getConfigurationData());
             } catch (DeploymentException e) {
-                Configuration configuration = context.getConfiguration(); 
+                Configuration configuration = context.getConfiguration();
                 if (configuration != null) {
                     ConfigurationData dumbConfigurationData = new ConfigurationData(null, null, null,
                             configuration.getEnvironment(), context.getBaseDir(), null, context.getNaming());
@@ -348,7 +350,7 @@ public class Deployer implements GBeanLifecycle {
                 configurationDatas.addAll(context.getAdditionalDeployment());
                 throw e;
             }
-            
+
             configurationDatas.addAll(context.getAdditionalDeployment());
 
             if (configurationDatas.isEmpty()) {
@@ -445,7 +447,7 @@ public class Deployer implements GBeanLifecycle {
                 throw new DeploymentException("Module file does not exist: " + moduleFile.getAbsolutePath());
             }
             try {
-                module = DeploymentUtil.createJarFile(moduleFile);
+                module = JarUtils.createJarFile(moduleFile);
             } catch (IOException e) {
                 throw new DeploymentException("Cound not open module file: " + moduleFile.getAbsolutePath(), e);
             }
@@ -483,15 +485,15 @@ public class Deployer implements GBeanLifecycle {
         for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
             ConfigurationData configurationData = (ConfigurationData) iterator.next();
             File configurationDir = configurationData.getConfigurationDir();
-            if (!DeploymentUtil.recursiveDelete(configurationDir)) {
+            if (!FileUtils.recursiveDelete(configurationDir)) {
                 reaper.delete(configurationDir.getAbsolutePath(), "delete");
             }
         }
     }
-    
+
     public void doStart() throws Exception {
     }
-    
+
     public void doFail() {
         if (reaper != null) {
             reaper.close();
@@ -521,7 +523,7 @@ public class Deployer implements GBeanLifecycle {
             log.debug("Queued deployment directory to be reaped " + dir);
             startThread();
         }
-        
+
         private synchronized void startThread() {
             if (this.thread == null) {
                 this.thread = new Thread(this, "Geronimo Config Store Reaper");
@@ -529,7 +531,7 @@ public class Deployer implements GBeanLifecycle {
                 this.thread.start();
             }
         }
-        
+
         public void close() {
             this.done = true;
         }
@@ -565,7 +567,7 @@ public class Deployer implements GBeanLifecycle {
                     }});
                 for(String dir: backlog) {
                     File deleteDir = new File(tempDir, dir);
-                    DeploymentUtil.recursiveDelete(deleteDir);
+                    FileUtils.recursiveDelete(deleteDir);
                     log.debug("Reaped deployment directory from previous runs " + deleteDir);
                 }
             } catch (IOException ignored) {
@@ -586,7 +588,7 @@ public class Deployer implements GBeanLifecycle {
                 String dirName = (String) list.nextElement();
                 File deleteDir = new File(dirName);
 
-                if (DeploymentUtil.recursiveDelete(deleteDir)) {
+                if (FileUtils.recursiveDelete(deleteDir)) {
                     pendingDeletionIndex.remove(dirName);
                     log.debug("Reaped deployment directory " + deleteDir);
                 }

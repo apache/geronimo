@@ -17,35 +17,13 @@
 
 package org.apache.geronimo.web25.deployment.security;
 
-import java.io.File;
 import java.net.URL;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.Collections;
-import java.util.ArrayList;
-import java.util.jar.JarFile;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.util.UnpackedJarFile;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
-import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlException;
 
 /**
  * @version $Rev$ $Date$

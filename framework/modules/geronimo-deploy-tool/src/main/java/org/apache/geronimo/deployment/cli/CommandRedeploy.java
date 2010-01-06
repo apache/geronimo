@@ -30,8 +30,8 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.JarUtils;
 
 /**
  * The CLI deployer logic to redeploy.
@@ -69,7 +69,7 @@ public class CommandRedeploy extends AbstractCommand {
                 throw new DeploymentException("Cannot read file " + test.getAbsolutePath());
             }
             try {
-                if (FileUtils.isJarFile(test) || test.isDirectory()) {
+                if (JarUtils.isJarFile(test) || test.isDirectory()) {
                     module = test;
                 } else {
                     plan = test;
@@ -81,7 +81,7 @@ public class CommandRedeploy extends AbstractCommand {
                 test = new File(args[1]);
                 if (test.exists() && test.canRead() && !args[1].equals(args[0])) {
                     try {
-                        if (FileUtils.isJarFile(test) || test.isDirectory()) {
+                        if (JarUtils.isJarFile(test) || test.isDirectory()) {
                             if (module != null) {
                                 throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
                             }

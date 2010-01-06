@@ -45,8 +45,6 @@ import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -57,8 +55,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.SingleElementCollection;
-import org.apache.geronimo.j2ee.deployment.ApplicationInfo;
 import org.apache.geronimo.j2ee.deployment.AppClientModule;
+import org.apache.geronimo.j2ee.deployment.ApplicationInfo;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -81,6 +79,9 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
+import org.apache.geronimo.kernel.util.NestedJarFile;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
@@ -265,12 +266,12 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         ApplicationClientType appClient = null;
         try {
             if (specDDUrl == null) {
-                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "META-INF/application-client.xml");
+                specDDUrl = JarUtils.createJarURL(moduleFile, "META-INF/application-client.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
-            specDD = DeploymentUtil.readAll(specDDUrl);
+            specDD = JarUtils.readAll(specDDUrl);
         } catch (Exception e) {
             //construct a default spec dd
             ApplicationClientDocument appClientDoc = ApplicationClientDocument.Factory.newInstance();
@@ -413,7 +414,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     if (plan != null) {
                         rawPlan = XmlBeansUtil.parse((File) plan);
                     } else {
-                        URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-application-client.xml");
+                        URL path = JarUtils.createJarURL(moduleFile, "META-INF/geronimo-application-client.xml");
                         rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                     }
                 }
@@ -659,7 +660,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 addManifestClassPath(appClientDeploymentContext, appClientModule.getEarFile(), moduleFile, moduleBase);
 
                 // get the classloader
-                Bundle appClientClassBundle = appClientDeploymentContext.getDeploymentBundle();              
+                Bundle appClientClassBundle = appClientDeploymentContext.getDeploymentBundle();
 
                 // pop in all the gbeans declared in the geronimo app client file
                 if (geronimoAppClient != null) {
@@ -908,7 +909,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     private boolean cleanupAppClientDir(File configurationDir) {
         LinkedList<String> cannotBeDeletedList = new LinkedList<String>();
 
-        if (!DeploymentUtil.recursiveDelete(configurationDir, cannotBeDeletedList)) {
+        if (!FileUtils.recursiveDelete(configurationDir, cannotBeDeletedList)) {
             // Output a message to help user track down file problem
             log.warn("Unable to delete " + cannotBeDeletedList.size() +
                     " files while recursively deleting directory "

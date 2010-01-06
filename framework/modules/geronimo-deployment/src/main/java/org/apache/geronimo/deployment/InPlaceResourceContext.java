@@ -17,8 +17,8 @@
 package org.apache.geronimo.deployment;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -29,12 +29,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.util.NestedJarFile;
+import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
+import org.apache.geronimo.kernel.util.NestedJarFile;
 
 class InPlaceResourceContext implements ResourceContext {
     private static final String PACKED_MODULED_SAVED_SUFFIX = ".saved";
-    
+
     private final DeploymentContext deploymentContext;
     private final URI inPlaceBaseConfigurationUri;
     private final Set<ZipFile> zipFilesToExpand = new HashSet<ZipFile>();
@@ -59,7 +60,7 @@ class InPlaceResourceContext implements ResourceContext {
                 zipFilesToExpand.add(zipFile);
             }
         }
-        
+
         deploymentContext.addToClassPath(targetPath.toString());
     }
 
@@ -99,7 +100,7 @@ class InPlaceResourceContext implements ResourceContext {
         try {
             out.write(contents);
         } finally {
-            DeploymentUtil.close(out);
+            IOUtils.close(out);
         }
     }
 
@@ -109,7 +110,7 @@ class InPlaceResourceContext implements ResourceContext {
         if (targetPath.isOpaque()) throw new IllegalArgumentException("targetPath is opaque");
         return new File(inPlaceBaseConfigurationUri.resolve(targetPath));
     }
-    
+
     public void flush() throws IOException {
         for (ZipFile zipFile : zipFilesToExpand) {
             String name = zipFile.getName();
@@ -132,9 +133,9 @@ class InPlaceResourceContext implements ResourceContext {
                         name + " to " + targetFile.getAbsolutePath());
             }
 
-            DeploymentUtil.unzipToDirectory(new ZipFile(targetFile), srcFile);
+            JarUtils.unzipToDirectory(new ZipFile(targetFile), srcFile);
         }
     }
-    
-    
+
+
 }

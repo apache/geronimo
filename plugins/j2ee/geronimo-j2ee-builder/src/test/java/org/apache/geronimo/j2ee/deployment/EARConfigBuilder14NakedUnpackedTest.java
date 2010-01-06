@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.JarUtils;
 
 /**
  * EAR config builder tests for naked J2EE 1.4 unpacked.
@@ -30,7 +30,7 @@ public class EARConfigBuilder14NakedUnpackedTest
     protected void setUp() throws Exception {
         super.setUp();
 
-        earFile = DeploymentUtil.createJarFile(resolveFile("target/test-ear-j2ee_1.4-naked-unpacked.ear"));
+        earFile = JarUtils.createJarFile(resolveFile("target/test-ear-j2ee_1.4-naked-unpacked.ear"));
         locations.put(null, new Artifact("org.apache.geronimo.testsupport", "test-ear-javaee_5", "3.0-SNAPSHOT", "ear"));
         ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "ejb.jar/", null, null, null, null);
         webConfigBuilder.contextRoot = contextRoot;
@@ -39,7 +39,7 @@ public class EARConfigBuilder14NakedUnpackedTest
     }
 
     protected void tearDown() throws Exception {
-        DeploymentUtil.close(earFile);
+        JarUtils.close(earFile);
         close(ejbConfigBuilder.ejbModule);
         close(webConfigBuilder.webModule);
         close(connectorConfigBuilder.connectorModule);

@@ -17,8 +17,8 @@
 
 package org.apache.geronimo.deployment.util;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This class is a workaround for XMLBeans unfortunate habit of closing streams it reads from

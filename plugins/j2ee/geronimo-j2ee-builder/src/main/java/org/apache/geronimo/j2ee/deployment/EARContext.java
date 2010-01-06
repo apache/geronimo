@@ -40,7 +40,7 @@ public class EARContext extends DeploymentContext {
     private final AbstractNameQuery connectionTrackerObjectName;
     private final AbstractNameQuery corbaGBeanObjectName;
 
-    private final Map contextIDToPermissionsMap = new HashMap();
+    private final Map<String, Object> contextIDToPermissionsMap = new HashMap<String, Object>();
     private Object securityConfiguration;
     private boolean hasSecurity;
 

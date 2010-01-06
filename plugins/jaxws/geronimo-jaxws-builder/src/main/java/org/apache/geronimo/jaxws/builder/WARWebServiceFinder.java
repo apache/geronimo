@@ -33,12 +33,13 @@ import javax.jws.WebService;
 import javax.xml.ws.WebServiceProvider;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.util.NestedJarFile;
-import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
+import org.apache.geronimo.kernel.util.NestedJarFile;
+import org.apache.geronimo.kernel.util.UnpackedJarFile;
 import org.apache.xbean.finder.ClassFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,16 +109,16 @@ public class WARWebServiceFinder implements WebServiceFinder {
                  * within it and the classes/ directory.
                  */
                 try {
-                    tmpDir = DeploymentUtil.createTempDir();
+                    tmpDir = FileUtils.createTempDir();
                     /*
-                     * This is needed becuase DeploymentUtil.unzipToDirectory()
+                     * This is needed becuase JarUtils.unzipToDirectory()
                      * always closes the passed JarFile.
                      */
                     JarFile module = new JarFile(moduleFile.getName());
-                    DeploymentUtil.unzipToDirectory(module, tmpDir);
+                    JarUtils.unzipToDirectory(module, tmpDir);
                 } catch (IOException e) {
                     if (tmpDir != null) {
-                        DeploymentUtil.recursiveDelete(tmpDir);
+                        FileUtils.recursiveDelete(tmpDir);
                     }
                     throw new DeploymentException("Failed to expand the module archive", e);
                 }
@@ -167,7 +168,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
             return classes;
         } finally {
             if (tmpDir != null) {
-                DeploymentUtil.recursiveDelete(tmpDir);
+                FileUtils.recursiveDelete(tmpDir);
             }
         }
     }

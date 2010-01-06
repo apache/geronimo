@@ -28,14 +28,10 @@ import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.deployment.cli.DeployUtils;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -48,7 +44,11 @@ import org.apache.geronimo.kernel.config.DeploymentWatcher;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A directory-scanning hot deployer
@@ -272,7 +272,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
 
             ProgressObject po;
 
-            if (FileUtils.isJarFile(file) || file.isDirectory()) {
+            if (JarUtils.isJarFile(file) || file.isDirectory()) {
                 po = mgr.distribute(targets, file, null);
             } else {
                 po = mgr.distribute(targets, null, file);
@@ -299,24 +299,24 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
                     }
                 }
             } else {
-            	 //Try to delete the module , that failed to successfully hot-deploy  
+            	 //Try to delete the module , that failed to successfully hot-deploy
             	log.error("Unable to deploy: " + po.getDeploymentStatus().getMessage());
             	String delfile=file.getAbsolutePath();
                 File fd = new File(delfile);
                 if(fd.isDirectory()){
                	    log.info("Deleting the Directory: "+delfile);
-               	    if(DeploymentUtil.recursiveDelete(fd))
+               	    if(FileUtils.recursiveDelete(fd))
                		    log.debug("Successfully deleted the Directory: "+delfile);
                	    else
                		    log.error("Couldn't delete the hot deployed directory"+delfile);
                 }else if(fd.isFile()){
                	    log.info("Deleting the File: "+delfile);
                	    if(fd.delete()){
-               		log.debug("Successfully deleted the File: "+delfile); 
+               		log.debug("Successfully deleted the File: "+delfile);
                	}else
-               		log.error("Couldn't delete the hot deployed directory"+delfile); 
+               		log.error("Couldn't delete the hot deployed directory"+delfile);
                 }
-                            
+
                 return null;
             }
         } catch (DeploymentManagerCreationException e) {
@@ -338,7 +338,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             return null;
         }
     }
-    
+
     private DeploymentManager getDeploymentManager() throws DeploymentManagerCreationException {
         DeploymentManager manager = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
         if (manager instanceof JMXDeploymentManager) {
@@ -393,7 +393,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
                     continue;
                 }
                 if(parts[1] != null && parts[1].equals(config))
-                    return ids[j].getModuleID();                
+                    return ids[j].getModuleID();
             }
         } catch(Exception ex){
             log.error("Unable to getModuleId",ex);
@@ -411,7 +411,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
             ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
             ProgressObject po;
-            if (FileUtils.isJarFile(file) || file.isDirectory()) {
+            if (JarUtils.isJarFile(file) || file.isDirectory()) {
                 po = mgr.redeploy(ids, file, null);
             } else {
                 po = mgr.redeploy(ids, null, file);

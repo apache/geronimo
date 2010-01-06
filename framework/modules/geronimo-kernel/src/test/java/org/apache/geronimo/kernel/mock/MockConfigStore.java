@@ -34,7 +34,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NullConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.kernel.util.FileUtils;
 
 /**
  * ???
@@ -45,7 +45,7 @@ public class MockConfigStore
     extends NullConfigurationStore
 {
     protected static final Naming naming = new Jsr77Naming();
-    
+
     protected final Map<Artifact, File> locations = new HashMap<Artifact, File>();
     private Map<Artifact, ConfigurationData> configs = new HashMap<Artifact, ConfigurationData>();
 
@@ -87,7 +87,7 @@ public class MockConfigStore
         if (file == null) {
             throw new NoSuchConfigException(configId);
         }
-        return IOUtils.search(file, pattern);
+        return FileUtils.search(file, pattern);
     }
 
     public void installFake(Artifact configId, File file) {

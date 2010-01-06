@@ -39,7 +39,6 @@ import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -64,6 +63,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.EjbContainer;
 import org.apache.geronimo.openejb.EjbDeployment;
@@ -460,7 +460,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
     private boolean cleanupConfigurationDir(File configurationDir) {
         LinkedList<String> cannotBeDeletedList = new LinkedList<String>();
 
-        if (!DeploymentUtil.recursiveDelete(configurationDir, cannotBeDeletedList)) {
+        if (!FileUtils.recursiveDelete(configurationDir, cannotBeDeletedList)) {
             // Output a message to help user track down file problem
             log.warn("Unable to delete " + cannotBeDeletedList.size() +
                     " files while recursively deleting directory "

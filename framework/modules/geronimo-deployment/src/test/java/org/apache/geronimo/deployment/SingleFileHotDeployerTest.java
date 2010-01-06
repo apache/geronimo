@@ -27,7 +27,6 @@ import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.Jsr77Naming;
-import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
@@ -38,8 +37,8 @@ import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;

@@ -33,7 +33,6 @@ import javax.faces.webapp.FacesServlet;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -52,6 +51,7 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.myfaces.LifecycleProviderGBean;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.javaee.FacesConfigDocument;
@@ -216,13 +216,13 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     private List<Class> getFacesClasses(WebAppType webApp, WebModule webModule) throws DeploymentException {
         log.debug("getFacesClasses( " + webApp.toString() + "," + '\n' +
                            (webModule != null ? webModule.getName() : null) + " ): Entry");
-        
+
         Bundle bundle = webModule.getEarContext().getDeploymentBundle();
 
         // 1. META-INF/faces-config.xml
         List<Class> classes = new ArrayList<Class>();
         try {
-            URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), "META-INF/faces-config.xml");
+            URL url = JarUtils.createJarURL(webModule.getModuleFile(), "META-INF/faces-config.xml");
             parseConfigFile(url, bundle, classes);
         } catch (MalformedURLException mfe) {
             throw new DeploymentException("Could not locate META-INF/faces-config.xml" + mfe.getMessage(), mfe);
@@ -230,7 +230,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
         // 2. WEB-INF/faces-config.xml
         try {
-            URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), "WEB-INF/faces-config.xml");
+            URL url = JarUtils.createJarURL(webModule.getModuleFile(), "WEB-INF/faces-config.xml");
             parseConfigFile(url, bundle, classes);
         } catch (MalformedURLException mfe) {
             throw new DeploymentException("Could not locate WEB-INF/faces-config.xml" + mfe.getMessage(), mfe);
@@ -249,7 +249,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                             configfile = configfile.substring(1);
                         }
                         try {
-                            URL url = DeploymentUtil.createJarURL(webModule.getModuleFile(), configfile);
+                            URL url = JarUtils.createJarURL(webModule.getModuleFile(), configfile);
                             parseConfigFile(url, bundle, classes);
                         } catch (MalformedURLException mfe) {
                             throw new DeploymentException("Could not locate config file " + configfile + ", " + mfe.getMessage(), mfe);

@@ -23,20 +23,20 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
 import java.util.jar.JarFile;
 
 import javax.naming.Reference;
 import javax.sql.DataSource;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -57,7 +57,6 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.EditableKernelConfigurationManager;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
@@ -70,6 +69,8 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean;
@@ -79,7 +80,7 @@ import org.osgi.framework.Bundle;
  * @version $Rev:385232 $ $Date$
  */
 public class ConnectorModuleBuilderTest extends TestSupport {
-    
+
     private boolean defaultXATransactionCaching = true;
     private boolean defaultXAThreadCaching = false;
     private int defaultMaxSize = 10;
@@ -119,7 +120,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
     public void testBuildEar() throws Exception {
         JarFile rarFile = null;
         try {
-            rarFile = DeploymentUtil.createJarFile(new File(BASEDIR, "target/test-ear-noger.ear"));
+            rarFile = JarUtils.createJarFile(new File(BASEDIR, "target/test-ear-noger.ear"));
             GBeanBuilder serviceBuilder = new GBeanBuilder(null, null);
 //            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, transactionContextManagerName, connectionTrackerName, null, null, null, new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()), null, null, ejbReferenceBuilder, null,
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment,
@@ -158,12 +159,12 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     context.close();
                 }
                 if (configData != null) {
-                    DeploymentUtil.recursiveDelete(configData.getConfigurationDir());
+                    FileUtils.recursiveDelete(configData.getConfigurationDir());
                 }
             }
             configBuilder.doStop();
         } finally {
-            DeploymentUtil.close(rarFile);
+            JarUtils.close(rarFile);
 
         }
     }
@@ -272,7 +273,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         };
         executeTestBuildModule(action, true);
     }
-    
+
     public void testBuildPackedModule15LocalTx() throws Exception {
         InstallAction action = new InstallAction() {
             private File rarFile = new File(BASEDIR, "target/test-rar-15-localtx.rar");
@@ -320,7 +321,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 
 //            Thread.currentThread().setContextClassLoader(cl);
 
-            JarFile rarJarFile = DeploymentUtil.createJarFile(rarFile);
+            JarFile rarJarFile = JarUtils.createJarFile(rarFile);
             AbstractName earName = null;
             String moduleName = "geronimo/test-ear/1.0/car";
             Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, moduleName, action.getSpecDD(), null, null, earName, naming, new ModuleIDBuilder());
@@ -331,7 +332,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 
             File tempDir = null;
             try {
-                tempDir = DeploymentUtil.createTempDir();
+                tempDir = FileUtils.createTempDir();
                 EARContext earContext = new EARContext(tempDir,
                         null,
                         module.getEnvironment(),
@@ -359,7 +360,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                 verifyDeployment(configurationData, oldCl, moduleAbstractName, resourceAdapterName, is15, moduleName);
             } finally {
                 module.close();
-                DeploymentUtil.recursiveDelete(tempDir);
+                FileUtils.recursiveDelete(tempDir);
             }
         } finally {
             kernel.shutdown();

@@ -30,7 +30,7 @@ import java.util.Map;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.MatchingTask;
@@ -55,22 +55,22 @@ public class ArchiverGBean implements ServerArchiver {
     public void addExclude(String pattern) {
         this.excludes.add(pattern);
     }
-    
+
     public void removeExclude(String pattern) {
         this.excludes.remove(pattern);
     }
-    
+
     private void removeExcludes(File source, Map<String, File> all) {
         Map<String, File> matches = new HashMap<String, File>();
         for (String exclude : this.excludes) {
-            IOUtils.find(source, exclude, matches);
+            FileUtils.find(source, exclude, matches);
         }
 
         for (String exclude : matches.keySet()) {
             all.remove(exclude);
         }
     }
-        
+
     public File archive(String sourcePath, String destPath, Artifact artifact) throws //ArchiverException,
             IOException {
         File source = serverInfo.resolve(sourcePath);
@@ -130,31 +130,31 @@ public class ArchiverGBean implements ServerArchiver {
                 // mark parent directories non-empty
                 for (File parentDir = sourceFile.getParentFile();
                      parentDir != null && !parentDir.equals(source);
-                     parentDir = parentDir.getParentFile()) {               
+                     parentDir = parentDir.getParentFile()) {
                     emptyDirs.put(parentDir, Boolean.FALSE);
                 }
-                
-            } else if (sourceFile.isDirectory()) {                           
-                Boolean isEmpty = emptyDirs.get(sourceFile);                
-                if (isEmpty == null) {       
+
+            } else if (sourceFile.isDirectory()) {
+                Boolean isEmpty = emptyDirs.get(sourceFile);
+                if (isEmpty == null) {
                     emptyDirs.put(sourceFile, Boolean.TRUE);
                     // mark parent directories non-empty
                     for (File parentDir = sourceFile.getParentFile();
                          parentDir != null && !parentDir.equals(source);
-                         parentDir = parentDir.getParentFile()) {               
+                         parentDir = parentDir.getParentFile()) {
                         emptyDirs.put(parentDir, Boolean.FALSE);
                     }
-                }              
+                }
             }
         }
-        
+
         if (!all.isEmpty()) {
             emptyDirs.put(source, Boolean.FALSE);
         }
-                
+
         String sourceDirPath = source.getAbsolutePath();
         for (Map.Entry<File, Boolean> entry : emptyDirs.entrySet()) {
-            if (entry.getValue().booleanValue()) {                
+            if (entry.getValue().booleanValue()) {
                 String emptyDirPath = entry.getKey().getAbsolutePath();
                 String relativeDir = emptyDirPath.substring(sourceDirPath.length());
                 relativeDir = relativeDir.replace('\\', '/');
@@ -162,9 +162,9 @@ public class ArchiverGBean implements ServerArchiver {
             }
         }
         emptyDirs.clear();
-        
+
         all.clear();
-        
+
         // add execute permissions to all non-batch files in the bin/ directory
         File bin = new File(source, "bin");
         if (bin.exists()) {

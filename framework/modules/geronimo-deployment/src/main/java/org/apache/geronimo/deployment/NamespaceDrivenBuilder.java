@@ -17,12 +17,9 @@
 
 package org.apache.geronimo.deployment;
 
-import java.util.List;
-
-import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$

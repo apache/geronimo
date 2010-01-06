@@ -25,12 +25,9 @@ import java.util.jar.JarFile;
 
 import javax.xml.ws.http.HTTPBinding;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -40,14 +37,16 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(JAXWSServiceBuilder.class);
@@ -76,7 +75,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
         JarFile moduleFile = module.getModuleFile();
         try {
-            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, path);
+            URL wsDDUrl = JarUtils.createJarURL(moduleFile, path);
             InputStream in = wsDDUrl.openStream();
             portMap = parseWebServiceDescriptor(in, wsDDUrl, moduleFile, isEJB, servletLocations);
         } catch (IOException e) {

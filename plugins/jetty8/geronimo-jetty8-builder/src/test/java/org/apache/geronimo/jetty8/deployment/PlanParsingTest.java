@@ -20,19 +20,16 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.service.GBeanBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -43,6 +40,8 @@ import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.JarUtils;
+import org.apache.geronimo.kernel.util.UnpackedJarFile;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
@@ -149,13 +148,13 @@ public class PlanParsingTest extends XmlBeansTestSupport {
 
         XmlObject webPlan = new GenericToSpecificPlanConverter(
                 "http://geronimo.apache.org/xml/ns/web/jetty/config-1.0.1",
-                "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2", 
+                "http://geronimo.apache.org/xml/ns/j2ee/web/jetty-2.0.2",
                 "jetty").convertToSpecificPlan(rawPlan);
-        
+
         XmlObject p = webPlan.changeType(JettyWebAppType.type);
         XmlBeansUtil.validateDD(p);
     }
-    
+
     public void testOldFormatExploded() throws Exception {
         URL war = classLoader.getResource("deployables/war5");
         assertTrue(war != null);
@@ -262,7 +261,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     }
 
     private WebAppType getWebApp(JarFile dummyFile) throws IOException, XmlException {
-        URL specDDUrl = DeploymentUtil.createJarURL(dummyFile, "WEB-INF/web.xml");
+        URL specDDUrl = JarUtils.createJarURL(dummyFile, "WEB-INF/web.xml");
         XmlObject parsed = XmlBeansUtil.parse(specDDUrl, getClass().getClassLoader());
         WebAppDocument webAppDoc = (WebAppDocument) parsed.changeType(WebAppDocument.type);
         return webAppDoc.getWebApp();

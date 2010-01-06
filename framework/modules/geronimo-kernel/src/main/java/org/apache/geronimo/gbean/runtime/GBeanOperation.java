@@ -36,7 +36,7 @@ import org.osgi.framework.Bundle;
 public final class GBeanOperation {
     private final GBeanInstance gbeanInstance;
     private final String name;
-    private final List parameterTypes;
+    private List parameterTypes;
     private final MethodInvoker methodInvoker;
     private final boolean framework;
     private final GOperationInfo operationInfo;

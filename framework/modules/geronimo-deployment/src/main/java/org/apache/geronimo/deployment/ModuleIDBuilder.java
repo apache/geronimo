@@ -17,8 +17,8 @@
 package org.apache.geronimo.deployment;
 
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Version;
 
 /**
  * A utility class to flesh out any incomplete Module IDs (formerly known as

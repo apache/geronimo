@@ -38,7 +38,6 @@ import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
@@ -59,8 +58,8 @@ import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
@@ -171,12 +170,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         Boolean isJavaee;
         try {
             if (specDDUrl == null) {
-                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
+                specDDUrl = JarUtils.createJarURL(moduleFile, "WEB-INF/web.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
-            specDD = DeploymentUtil.readAll(specDDUrl);
+            specDD = JarUtils.readAll(specDDUrl);
 
             // we found web.xml, if it won't parse that's an error.
             XmlObject parsed = XmlBeansUtil.parse(specDD);
@@ -293,11 +292,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                     if (plan != null) {
                         rawPlan = XmlBeansUtil.parse(((File) plan).toURL(), getClass().getClassLoader());
                     } else {
-                        URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
+                        URL path = JarUtils.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
                         try {
                             rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                         } catch (FileNotFoundException e) {
-                            path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-tomcat.xml");
+                            path = JarUtils.createJarURL(moduleFile, "WEB-INF/geronimo-tomcat.xml");
                             try {
                                 rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                             } catch (FileNotFoundException e1) {

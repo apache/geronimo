@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
 
 /**
@@ -81,7 +82,7 @@ public class UnpackArtifactTypeHandler implements ArtifactTypeHandler {
                 }
             }
         } catch (IOException e) {
-            IOUtils.recursiveDelete(target);
+            FileUtils.recursiveDelete(target);
             throw e;
         } finally {
             in.close();

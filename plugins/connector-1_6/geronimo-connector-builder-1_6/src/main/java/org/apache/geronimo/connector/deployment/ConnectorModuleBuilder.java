@@ -42,16 +42,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
-import org.apache.geronimo.connector.wrapper.ActivationSpecWrapperGBean;
-import org.apache.geronimo.connector.wrapper.AdminObjectWrapper;
-import org.apache.geronimo.connector.wrapper.AdminObjectWrapperGBean;
-import org.apache.geronimo.connector.wrapper.JCAResourceImplGBean;
-import org.apache.geronimo.connector.wrapper.ResourceAdapterImplGBean;
-import org.apache.geronimo.connector.wrapper.ResourceAdapterModuleImplGBean;
-import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
-import org.apache.geronimo.connector.wrapper.outbound.ManagedConnectionFactoryWrapper;
-import org.apache.geronimo.connector.wrapper.outbound.JCAConnectionFactoryImplGBean;
-import org.apache.geronimo.connector.wrapper.outbound.ManagedConnectionFactoryWrapperGBean;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
@@ -61,11 +51,20 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionLog;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
+import org.apache.geronimo.connector.wrapper.ActivationSpecWrapperGBean;
+import org.apache.geronimo.connector.wrapper.AdminObjectWrapper;
+import org.apache.geronimo.connector.wrapper.AdminObjectWrapperGBean;
+import org.apache.geronimo.connector.wrapper.JCAResourceImplGBean;
+import org.apache.geronimo.connector.wrapper.ResourceAdapterImplGBean;
+import org.apache.geronimo.connector.wrapper.ResourceAdapterModuleImplGBean;
+import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
+import org.apache.geronimo.connector.wrapper.outbound.JCAConnectionFactoryImplGBean;
+import org.apache.geronimo.connector.wrapper.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.connector.wrapper.outbound.ManagedConnectionFactoryWrapperGBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
@@ -91,6 +90,7 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.management.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
@@ -121,9 +121,9 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -222,12 +222,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         XmlObject connector;
         try {
             if (specDDUrl == null) {
-                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "META-INF/ra.xml");
+                specDDUrl = JarUtils.createJarURL(moduleFile, "META-INF/ra.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
-            specDD = DeploymentUtil.readAll(specDDUrl);
+            specDD = JarUtils.readAll(specDDUrl);
         } catch (Exception e) {
             //no ra.xml, not for us.
             return null;
@@ -255,7 +255,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                     if (plan != null) {
                         gerConnectorDoc = GerConnectorDocument.Factory.parse((File) plan, XmlBeansUtil.createXmlOptions(errors));
                     } else {
-                        URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-ra.xml");
+                        URL path = JarUtils.createJarURL(moduleFile, "META-INF/geronimo-ra.xml");
                         gerConnectorDoc = GerConnectorDocument.Factory.parse(path, XmlBeansUtil.createXmlOptions(errors));
                     }
                     if (errors.size() > 0) {

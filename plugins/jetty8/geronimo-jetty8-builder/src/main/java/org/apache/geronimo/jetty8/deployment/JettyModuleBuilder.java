@@ -22,7 +22,7 @@ import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
@@ -236,12 +236,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         WebAppType webApp = null;
         try {
             if (specDDUrl == null) {
-                specDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/web.xml");
+                specDDUrl = JarUtils.createJarURL(moduleFile, "WEB-INF/web.xml");
             }
 
             // read in the entire specDD as a string, we need this for getDeploymentDescriptor
             // on the J2ee management object
-            specDD = DeploymentUtil.readAll(specDDUrl);
+            specDD = JarUtils.readAll(specDDUrl);
 
             // we found web.xml, if it won't parse that's an error.
             XmlObject parsed = XmlBeansUtil.parse(specDD);
@@ -325,11 +325,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                     if (plan != null) {
                         rawPlan = XmlBeansUtil.parse(((File) plan).toURL(), getClass().getClassLoader());
                     } else {
-                        URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
+                        URL path = JarUtils.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
                         try {
                             rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                         } catch (FileNotFoundException e) {
-                            path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
+                            path = JarUtils.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
                             try {
                                 rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                             } catch (FileNotFoundException e1) {

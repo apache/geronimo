@@ -29,7 +29,9 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModel;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.DeploymentWatcher;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
@@ -37,14 +39,12 @@ import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationModel;
-import org.apache.geronimo.kernel.config.DeploymentWatcher;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$

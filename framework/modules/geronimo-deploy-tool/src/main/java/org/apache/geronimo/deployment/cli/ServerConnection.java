@@ -31,13 +31,13 @@ import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 
 import org.apache.geronimo.cli.deployer.ConnectionParams;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.util.JarUtils;
 
 /**
  * Supports online connections to the server, via JSR-88, valid only
@@ -58,7 +58,7 @@ public class ServerConnection {
     public ServerConnection(ConnectionParams params, PrintWriter out, InputStream in, Kernel kernel, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
         this(params, new DefaultUserPasswordHandler(in, out), kernel, geronimoDeploymentFactory);
     }
-    
+
     public ServerConnection(ConnectionParams params, UsernamePasswordHandler handler, Kernel kernel, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
@@ -76,7 +76,7 @@ public class ServerConnection {
         logToSysErr = params.isSyserr();
         boolean offline = params.isOffline();
         boolean secure = params.isSecure();
-        
+
         if ((driver != null) && uri == null) {
             throw new DeploymentSyntaxException("A custom driver requires a custom URI");
         }
@@ -94,9 +94,9 @@ public class ServerConnection {
 
             ClassLoader OldCL = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(DeployUtils.class.getClassLoader());
-           
+
             tryToConnect(uri, driver, user, password, secure);
-            
+
             Thread.currentThread().setContextClassLoader(OldCL);
 
         }
@@ -113,7 +113,7 @@ public class ServerConnection {
             throw new DeploymentException(e);
         }
     }
-    
+
     public void close() throws DeploymentException {
         if (manager != null) {
             manager.release();
@@ -143,10 +143,10 @@ public class ServerConnection {
                 if (savedAuthentication != null) {
                     user = savedAuthentication.getUser();
                     password = new String(savedAuthentication.getPassword());
-                }  
+                }
             } catch (IOException e) {
                 System.out.println("Warning: " + e.getMessage());
-            }          
+            }
         }
 
         if (user == null || password == null) {
@@ -180,7 +180,7 @@ public class ServerConnection {
     private void loadDriver(String driver, DeploymentFactoryManager mgr) throws DeploymentException {
         File file = new File(driver);
         try {
-            if (!file.exists() || !file.canRead() || !FileUtils.isJarFile(file)) {
+            if (!file.exists() || !file.canRead() || !JarUtils.isJarFile(file)) {
                 throw new DeploymentSyntaxException("Driver '" + file.getAbsolutePath() + "' is not a readable JAR file");
             }
         } catch (IOException e) {
@@ -215,7 +215,7 @@ public class ServerConnection {
         String getUsername() throws IOException;
         String getPassword() throws IOException;
     }
-    
+
     private static class DefaultUserPasswordHandler implements UsernamePasswordHandler {
 
         private PrintWriter out;
@@ -226,12 +226,12 @@ public class ServerConnection {
             this.out = out;
             this.in = in;
         }
-        
+
         private void initPrompt() throws IOException {
             this.prompt = new InputPrompt(this.in, this.out);
         }
-        
-        public String getPassword() throws IOException {   
+
+        public String getPassword() throws IOException {
             initPrompt();
             return this.prompt.getPassword("Password: ");
         }
@@ -240,6 +240,6 @@ public class ServerConnection {
             initPrompt();
             return this.prompt.getInput("Username: ");
         }
-        
+
     }
 }

@@ -85,7 +85,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      */
     private final Engine engine;
 
-    private final Map webServices = new HashMap();
+    private final Map<String, Context> webServices = new HashMap<String, Context>();
     private final String objectName;
     private final String[] applicationListeners;
     private final WebManager manager;

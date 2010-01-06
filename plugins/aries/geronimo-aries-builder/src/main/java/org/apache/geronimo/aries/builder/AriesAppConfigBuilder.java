@@ -35,7 +35,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -56,6 +55,7 @@ import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -254,7 +254,7 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
         AbstractName moduleName = naming.createRootName(configId, configId.toString(), "AriesApplication");
         try {
             DeploymentContext context = new DeploymentContext(outfile,                
-                            inPlaceDeployment && null != jarFile ? DeploymentUtil.toFile(jarFile) : null,
+                            inPlaceDeployment && null != jarFile ? JarUtils.toFile(jarFile) : null,
                             environment,
                             moduleName,
                             ConfigurationModuleType.SERVICE,

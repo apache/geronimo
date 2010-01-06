@@ -31,7 +31,7 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.kernel.util.FileUtils;
 
 /**
  * @version $Rev$ $Date$
@@ -51,7 +51,7 @@ public class ConfigurationResolver {
      * For nested configurations, the module name will be non-null.
      */
     private final String moduleName;
-   
+
 
     public ConfigurationResolver(Artifact configurationId, File baseDir) {
         if (configurationId == null)  throw new NullPointerException("configurationId is null");
@@ -120,7 +120,7 @@ public class ConfigurationResolver {
             Set<URL> matches = configurationStore.resolve(configurationId, moduleName, pattern);
             return matches;
         } else if (baseDir != null) {
-            Set<URL> matches = IOUtils.search(baseDir, pattern);
+            Set<URL> matches = FileUtils.search(baseDir, pattern);
             return matches;
         } else {
             throw new IllegalStateException("No configurationStore or baseDir supplied so paths can not be resolved");
@@ -155,7 +155,7 @@ public class ConfigurationResolver {
             }
             throw new MissingDependencyException("Artifact is not resolved and there no artifact resolver available: ", artifact, parentStack);
         }
-        
+
         // resolve the artifact
         try {
             artifact = artifactResolver.resolveInClassLoader(artifact, parents);

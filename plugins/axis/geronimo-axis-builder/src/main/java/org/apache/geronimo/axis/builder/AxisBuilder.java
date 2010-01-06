@@ -78,7 +78,6 @@ import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.webservices.SerializableWebServiceContainerFactoryGBean;
@@ -89,6 +88,7 @@ import org.apache.geronimo.webservices.builder.WSDescriptorParser;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.osgi.framework.Bundle;
 
 /**
@@ -118,7 +118,7 @@ public class AxisBuilder implements WebServiceBuilder {
     public void findWebServices(JarFile moduleFile, boolean isEJB, Map servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
         final String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
         try {
-            URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, path);
+            URL wsDDUrl = JarUtils.createJarURL(moduleFile, path);
             Map portMap = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, isEJB, servletLocations);
             if (portMap != null) {
                 if (defaultEnvironment != null) {

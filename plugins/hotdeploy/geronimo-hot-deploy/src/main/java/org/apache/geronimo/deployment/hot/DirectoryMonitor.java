@@ -16,23 +16,22 @@
  */
 package org.apache.geronimo.deployment.hot;
 
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import org.apache.geronimo.deployment.cli.DeployUtils;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.util.IOUtils;
-
 import java.io.File;
-import java.io.Serializable;
 import java.io.IOException;
-import java.util.Map;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import org.apache.geronimo.deployment.cli.DeployUtils;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Meant to be run as a Thread that tracks the contents of a directory.
@@ -56,7 +55,7 @@ public class DirectoryMonitor implements Runnable {
         boolean isServerRunning();
 
         /**
-         * Checks if the file with same configID is already deployed 
+         * Checks if the file with same configID is already deployed
          *
          * @return true if the file in question is already available in the
          *         server, false if it should be deployed on the next pass.
@@ -184,7 +183,7 @@ public class DirectoryMonitor implements Runnable {
                     File file = new File(path);
                     if(file.exists()) { // if not, probably it's deletion kicked off this whole process
                         log.info("Hot deployer deleting "+id);
-                        if(!IOUtils.recursiveDelete(file)) {
+                        if(!FileUtils.recursiveDelete(file)) {
                             log.error("Hot deployer unable to delete "+path);
                         }
                         it.remove();
@@ -347,7 +346,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                                         File fd = new File(path);
                                         if (fd.isDirectory()) {
                                             log.info("Deleting the Directory: "+path);
-                                            if (DeploymentUtil.recursiveDelete(fd))
+                                            if (FileUtils.recursiveDelete(fd))
                                                 log.debug("Successfully deleted the Directory: "+path);
                                             else
                                                 log.error("Couldn't delete the hot deployed directory="+path);
@@ -355,10 +354,10 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                                         else if (fd.isFile()) {
                                             log.info("Deleting the File: "+path);
                                             if (fd.delete()) {
-                                                log.debug("Successfully deleted the File: "+path); 
+                                                log.debug("Successfully deleted the File: "+path);
                                             }
                                             else
-                                                log.error("Couldn't delete the hot deployed file="+path); 
+                                                log.error("Couldn't delete the hot deployed file="+path);
                                         }
                                         files.remove(path);
                                     }

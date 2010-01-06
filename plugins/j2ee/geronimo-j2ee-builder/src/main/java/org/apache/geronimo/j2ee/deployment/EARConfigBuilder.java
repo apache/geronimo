@@ -32,7 +32,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -40,6 +39,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -49,8 +49,6 @@ import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.PatternType;
@@ -66,7 +64,6 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.j2ee.deployment.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
@@ -85,6 +82,9 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
+import org.apache.geronimo.kernel.util.NestedJarFile;
 import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -383,8 +383,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         ApplicationType application = null;
         if (earFile != null) {
             try {
-                URL applicationXmlUrl = DeploymentUtil.createJarURL(earFile, "META-INF/application.xml");
-                specDD = DeploymentUtil.readAll(applicationXmlUrl);
+                URL applicationXmlUrl = JarUtils.createJarURL(earFile, "META-INF/application.xml");
+                specDD = JarUtils.readAll(applicationXmlUrl);
                 //we found something called application.xml in the right place, if we can't parse it it's an error
                 XmlObject xmlObject = XmlBeansUtil.parse(specDD);
                 application = convertToApplicationSchema(xmlObject).getApplication();
@@ -411,7 +411,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         return null;
                     }
                 } else {
-                    URL path = DeploymentUtil.createJarURL(earFile, "META-INF/geronimo-application.xml");
+                    URL path = JarUtils.createJarURL(earFile, "META-INF/geronimo-application.xml");
                     rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                     gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, APPLICATION_QNAME, GerApplicationType.type);
                 }
@@ -572,7 +572,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
             // Create the output ear context
             earContext = new EARContext(configurationDir,
-                    inPlaceDeployment ? DeploymentUtil.toFile(earFile) : null,
+                    inPlaceDeployment ? JarUtils.toFile(earFile) : null,
                     applicationInfo.getEnvironment(),
                     applicationType,
                     naming,
@@ -590,19 +590,18 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             earContext.getGeneralData().put(ModuleList.class, applicationInfo.getModuleLocations());
 
             // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
-            Set moduleLocations = applicationInfo.getModuleLocations();
-            ClassPathList libClasspath = new ClassPathList();
+            ModuleList moduleLocations = applicationInfo.getModuleLocations();
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
                 //get the value of the library-directory element in spec DD
                 ApplicationType specDD = (ApplicationType) applicationInfo.getSpecDD();
                 String libDir = getLibraryDirectory(specDD);
+                ClassPathList libClasspath = new ClassPathList();
                 for (Enumeration<JarEntry> e = earFile.entries(); e.hasMoreElements();) {
                     ZipEntry entry = e.nextElement();
                     String entryName = entry.getName();
                     boolean addEntry = true;
-                    for (Object moduleLocation : moduleLocations) {
-                        String location = (String) moduleLocation;
-                        if (entryName.startsWith(location)) {
+                    for (String moduleLocation : moduleLocations) {
+                        if (entryName.startsWith(moduleLocation)) {
                             addEntry = false;
                             break;
                         }
@@ -615,9 +614,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         earContext.addFile(URI.create(entry.getName()), earFile, entry);
                     }
                 }
-                if (!libClasspath.isEmpty()) {
-                    earContext.getGeneralData().put(ClassPathList.class, libClasspath);
-                }
+                earContext.getGeneralData().put(ClassPathList.class, libClasspath);
             }
 
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
@@ -629,6 +626,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
             earContext.flush();
             earContext.initializeConfiguration();
+
             for (Module module : applicationInfo.getModules()) {
                 if (earContext != module.getEarContext()) {
                     module.getEarContext().initializeConfiguration();
@@ -643,7 +641,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         getBuilder(module).initContext(earContext, module, bundle);
                     } catch (Exception e) {
                         // ignore any exceptions to continue processing with the rest of the modules;
-                        System.out.println("Exception during initContext() phase");
+                        log.warn("Exception during initContext() phase");
                     }
                 } else {
                     getBuilder(module).initContext(earContext, module, bundle);
@@ -657,7 +655,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
             if (ConfigurationModuleType.EAR == applicationType) {
                 // process persistence unit in EAR library directory
-                earContext.getGeneralData().put(ClassPathList.class, libClasspath);
                 for (ModuleBuilderExtension mbe : persistenceUnitBuilders) {
                     mbe.initContext(earContext, applicationInfo, earContext.getDeploymentBundle());
                 }
@@ -702,7 +699,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         getBuilder(module).addGBeans(earContext, module, bundle, repositories);
                     } catch (DeploymentException e) {
                         // ignore any exceptions to continue processing with the rest of the modules;
-                        System.out.println("Exception during addGBeans() phase");
+                        log.warn("Exception during addGBeans() phase", e);
                     }
                 } else {
                     getBuilder(module).addGBeans(earContext, module, bundle, repositories);
@@ -775,7 +772,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private boolean cleanupConfigurationDir(File configurationDir) {
         LinkedList<String> cannotBeDeletedList = new LinkedList<String>();
 
-        if (!DeploymentUtil.recursiveDelete(configurationDir, cannotBeDeletedList)) {
+        if (!FileUtils.recursiveDelete(configurationDir, cannotBeDeletedList)) {
             // Output a message to help user track down file problem
             log.warn("Unable to delete " + cannotBeDeletedList.size() +
                     " files while recursively deleting directory "
@@ -1110,7 +1107,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             if (gerModule.isSetAltDd()) {
                 // the the url of the alt dd
                 try {
-                    altVendorDDs.put(path, DeploymentUtil.toTempFile(earFile, gerModule.getAltDd().getStringValue()));
+                    altVendorDDs.put(path, JarUtils.toTempFile(earFile, gerModule.getAltDd().getStringValue()));
                 } catch (IOException e) {
                     throw new DeploymentException("Invalid alt vendor dd url: " + gerModule.getAltDd().getStringValue(), e);
                 }
@@ -1128,7 +1125,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private URL getAltSpecDDURL(JarFile earFile, ModuleType moduleXml) throws DeploymentException {
         if (moduleXml != null && moduleXml.isSetAltDd()) {
             try {
-                return DeploymentUtil.createJarURL(earFile, moduleXml.getAltDd().getStringValue());
+                return JarUtils.createJarURL(earFile, moduleXml.getAltDd().getStringValue());
             } catch (MalformedURLException e) {
                 throw new DeploymentException("Invalid alt sped dd url: " + moduleXml.getAltDd().getStringValue(), e);
             }

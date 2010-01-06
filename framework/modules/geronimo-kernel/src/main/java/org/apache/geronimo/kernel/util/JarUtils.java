@@ -14,9 +14,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.deployment.util;
 
+package org.apache.geronimo.kernel.util;
+
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,12 +29,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -43,73 +42,25 @@ import java.util.zip.ZipFile;
 /**
  * @version $Rev$ $Date$
  */
-public final class DeploymentUtil {
-    private DeploymentUtil() {
+public final class JarUtils {
+
+    private JarUtils() {
     }
 
     public static final File DUMMY_JAR_FILE;
+
     private static final boolean jarUrlRewrite;
     static {
+        //TODO Change the property name ?
         jarUrlRewrite = new Boolean(System.getProperty("org.apache.geronimo.deployment.util.DeploymentUtil.jarUrlRewrite", "false"));
         try {
-            DUMMY_JAR_FILE = DeploymentUtil.createTempFile();
-            new JarOutputStream(new FileOutputStream(DeploymentUtil.DUMMY_JAR_FILE), new Manifest()).close();
+            DUMMY_JAR_FILE = FileUtils.createTempFile();
+            new JarOutputStream(new FileOutputStream(JarUtils.DUMMY_JAR_FILE), new Manifest()).close();
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
     }
 
-    // be careful to clean up the temp directory
-    public static File createTempDir() throws IOException {
-        File tempDir = File.createTempFile("geronimo-deploymentUtil", ".tmpdir");
-        tempDir.delete();
-        tempDir.mkdirs();
-        return tempDir;
-    }
-
-    // be careful to clean up the temp file... we tell the vm to delete this on exit
-    // but VMs can't be trusted to acutally delete the file
-    public static File createTempFile() throws IOException {
-        File tempFile = File.createTempFile("geronimo-deploymentUtil", ".tmpdir");
-        tempFile.deleteOnExit();
-        return tempFile;
-    }
-    
-    // be careful to clean up the temp file... we tell the vm to delete this on exit
-    // but VMs can't be trusted to acutally delete the file
-    private static File createTempFile(String extension) throws IOException {
-        File tempFile = File.createTempFile("geronimo-deploymentUtil", extension == null? ".tmpdir": extension);
-        tempFile.deleteOnExit();
-        return tempFile;
-    }
-
-
-    public static void copyFile(File source, File destination) throws IOException {
-        File destinationDir = destination.getParentFile();
-        if (!destinationDir.exists() && !destinationDir.mkdirs()) {
-            throw new java.io.IOException("Cannot create directory : " + destinationDir);
-        }
-        
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = new FileInputStream(source);
-            out = new FileOutputStream(destination);
-            writeAll(in, out);
-        } finally {
-            close(in);
-            close(out);
-        }
-    }
-
-    private static void writeAll(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[4096];
-        int count;
-        while ((count = in.read(buffer)) > 0) {
-            out.write(buffer, 0, count);
-        }
-        out.flush();
-    }
     public static File toTempFile(JarFile jarFile, String path) throws IOException {
         return toTempFile(createJarURL(jarFile, path));
     }
@@ -119,17 +70,17 @@ public final class DeploymentUtil {
         OutputStream out = null;
         JarFile jarFile = null;
         try {
-            if(url.getProtocol().equalsIgnoreCase("jar")) {
+            if (url.getProtocol().equalsIgnoreCase("jar")) {
                 // url.openStream() locks the jar file and does not release the lock even after the stream is closed.
                 // This problem is avoided by using JarFile APIs.
                 File file = new File(url.getFile().substring(5, url.getFile().indexOf("!/")));
-                String path = url.getFile().substring(url.getFile().indexOf("!/")+2);
+                String path = url.getFile().substring(url.getFile().indexOf("!/") + 2);
                 jarFile = new JarFile(file);
                 JarEntry jarEntry = jarFile.getJarEntry(path);
-                if(jarEntry != null) {
+                if (jarEntry != null) {
                     in = jarFile.getInputStream(jarEntry);
                 } else {
-                    throw new FileNotFoundException("JarEntry "+path+" not found in "+file);
+                    throw new FileNotFoundException("JarEntry " + path + " not found in " + file);
                 }
             } else {
                 in = url.openStream();
@@ -139,15 +90,13 @@ public final class DeploymentUtil {
             if (index > 0) {
                 extension = url.getPath().substring(index);
             }
-            File tempFile = createTempFile(extension);
-
+            File tempFile = FileUtils.createTempFile(extension);
             out = new FileOutputStream(tempFile);
-
-            writeAll(in, out);
+            IOUtils.copy(in, out);
             return tempFile;
         } finally {
-            close(out);
-            close(in);
+            IOUtils.close(out);
+            IOUtils.close(in);
             close(jarFile);
         }
     }
@@ -156,29 +105,29 @@ public final class DeploymentUtil {
         Reader reader = null;
         JarFile jarFile = null;
         try {
-            if(url.getProtocol().equalsIgnoreCase("jar")) {
+            if (url.getProtocol().equalsIgnoreCase("jar")) {
                 // url.openStream() locks the jar file and does not release the lock even after the stream is closed.
                 // This problem is avoided by using JarFile APIs.
                 File file = new File(url.getFile().substring(5, url.getFile().indexOf("!/")));
-                String path = url.getFile().substring(url.getFile().indexOf("!/")+2);
+                String path = url.getFile().substring(url.getFile().indexOf("!/") + 2);
                 jarFile = new JarFile(file);
                 JarEntry jarEntry = jarFile.getJarEntry(path);
-                if(jarEntry != null) {
+                if (jarEntry != null) {
                     reader = new InputStreamReader(jarFile.getInputStream(jarEntry));
                 } else {
-                    throw new FileNotFoundException("JarEntry "+path+" not found in "+file);
+                    throw new FileNotFoundException("JarEntry " + path + " not found in " + file);
                 }
             } else {
                 reader = new InputStreamReader(url.openStream());
             }
             char[] buffer = new char[4000];
             StringBuffer out = new StringBuffer();
-            for(int count = reader.read(buffer); count >= 0; count = reader.read(buffer)) {
+            for (int count = reader.read(buffer); count >= 0; count = reader.read(buffer)) {
                 out.append(buffer, 0, count);
             }
             return out.toString();
         } finally {
-            close(reader);
+            IOUtils.close(reader);
             close(jarFile);
         }
     }
@@ -187,7 +136,7 @@ public final class DeploymentUtil {
         if (jarFile instanceof UnpackedJarFile) {
             return ((UnpackedJarFile) jarFile).getBaseDir();
         } else {
-        	throw new IOException("jarFile is not a directory");
+            throw new IOException("jarFile is not a directory");
         }
     }
 
@@ -219,13 +168,12 @@ public final class DeploymentUtil {
                 }
             }
         }
-        
         if (jarFile instanceof UnpackedJarFile) {
             File baseDir = ((UnpackedJarFile) jarFile).getBaseDir();
             return new File(baseDir, path).toURI().toURL();
         } else {
             String urlString = "jar:" + new File(jarFile.getName()).toURI().toURL() + "!/" + path;
-            if(jarUrlRewrite) {
+            if (jarUrlRewrite) {
                 // To prevent the lockout of archive, instead of returning a jar url, write the content to a
                 // temp file and return the url of that file.
                 File tempFile = null;
@@ -235,11 +183,11 @@ public final class DeploymentUtil {
                     // The JarEntry does not exist!
                     // Return url of a file that does not exist.
                     try {
-                        tempFile = createTempFile();
+                        tempFile = FileUtils.createTempFile();
                         tempFile.delete();
                     } catch (IOException ignored) {
                     }
-                 }
+                }
                 return tempFile.toURI().toURL();
             } else {
                 return new URL(urlString);
@@ -258,18 +206,18 @@ public final class DeploymentUtil {
     public static void copyToPackedJar(JarFile inputJar, File outputFile) throws IOException {
         if (inputJar.getClass() == JarFile.class) {
             // this is a plain old jar... nothign special
-            copyFile(new File(inputJar.getName()), outputFile);
-        } else if (inputJar instanceof NestedJarFile && ((NestedJarFile)inputJar).isPacked()) {
-            NestedJarFile nestedJarFile = (NestedJarFile)inputJar;
+            FileUtils.copyFile(new File(inputJar.getName()), outputFile);
+        } else if (inputJar instanceof NestedJarFile && ((NestedJarFile) inputJar).isPacked()) {
+            NestedJarFile nestedJarFile = (NestedJarFile) inputJar;
             JarFile baseJar = nestedJarFile.getBaseJar();
             String basePath = nestedJarFile.getBasePath();
             if (baseJar instanceof UnpackedJarFile) {
                 // our target jar is just a file in upacked jar (a plain old directory)... now
                 // we just need to find where it is and copy it to the outptu
-                copyFile(((UnpackedJarFile)baseJar).getFile(basePath), outputFile);
+                FileUtils.copyFile(((UnpackedJarFile) baseJar).getFile(basePath), outputFile);
             } else {
                 // out target is just a plain old jar file directly accessabel from the file system
-                copyFile(new File(baseJar.getName()), outputFile);
+                FileUtils.copyFile(new File(baseJar.getName()), outputFile);
             }
         } else {
             // copy out the module contents to a standalone jar file (entry by entry)
@@ -292,11 +240,11 @@ public final class DeploymentUtil {
                             out.closeEntry();
                         }
                     } finally {
-                        close(in);
+                        IOUtils.close(in);
                     }
                 }
             } finally {
-                close(out);
+                IOUtils.close(out);
             }
         }
     }
@@ -335,14 +283,10 @@ public final class DeploymentUtil {
                     try {
                         out = new BufferedOutputStream(new FileOutputStream(file));
                         in = zipFile.getInputStream(entry);
-                        writeAll(in, out);
+                        IOUtils.copy(in, out);
                     } finally {
-                        if (null != out) {
-                            out.close();
-                        }
-                        if (null != in) {
-                            in.close();
-                        }
+                        IOUtils.close(in);
+                        IOUtils.close(out);
                     }
                 }
             }
@@ -350,155 +294,46 @@ public final class DeploymentUtil {
             zipFile.close();
         }
     }
-    
-    
-    public static boolean recursiveDelete(File root, Collection<String> unableToDeleteCollection) {
-        if (root == null) {
-            return true;
-        }
-
-        if (root.isDirectory()) {
-            File[] files = root.listFiles();
-            if (files != null) {
-                for (int i = 0; i < files.length; i++) {
-                    File file = files[i];
-                    if (file.isDirectory()) {
-                        recursiveDelete(file, unableToDeleteCollection);
-                    } else {
-                        if (!file.delete() && unableToDeleteCollection != null) {
-                            unableToDeleteCollection.add(file.getAbsolutePath());    
-                        }
-                    }
-                    // help out the GC of file handles by nulling the references
-                    files[i] = null;
-                }
-            }
-        }
-        boolean rootDeleteStatus;
-        if (!(rootDeleteStatus = root.delete()) && unableToDeleteCollection != null) 
-        	unableToDeleteCollection.add(root.getAbsolutePath());
-        
-        return rootDeleteStatus;
-    }
-    
-    public static boolean recursiveDelete(File root) {
-        return recursiveDelete(root, null);
-    }
-
-    public static Collection<File> listRecursiveFiles(File file) {
-        Collection<File> list = new ArrayList<File>();
-        listRecursiveFiles(file, list);
-        return Collections.unmodifiableCollection(list);
-    }
-
-    public static void listRecursiveFiles(File file, Collection<File> collection) {
-        File[] files = file.listFiles();
-        if ( null == files ) {
-            return;
-        }
-        for (File file1 : files) {
-            collection.add(file1);
-            if (file1.isDirectory()) {
-                listRecursiveFiles(file1, collection);
-            }
-        }
-    }
-
-    public static void flush(OutputStream thing) {
-        if (thing != null) {
-            try {
-                thing.flush();
-            } catch(Exception ignored) {
-            }
-        }
-    }
-
-    public static void flush(Writer thing) {
-        if (thing != null) {
-            try {
-                thing.flush();
-            } catch(Exception ignored) {
-            }
-        }
-    }
 
     public static void close(JarFile thing) {
         if (thing != null) {
             try {
                 thing.close();
-            } catch(Exception ignored) {
+            } catch (Exception ignored) {
             }
         }
     }
 
-    public static void close(InputStream thing) {
-        if (thing != null) {
-            try {
-                thing.close();
-            } catch(Exception ignored) {
-            }
-        }
+    /**
+     * Determine whether a file is a JAR File.
+     *
+     * Note: Jar file is a zip file with an *optional* META-INF directory.
+     * Therefore, there is no reliable way to check if a file is a Jar file.
+     * So this functions returns the same as calling isZipFile(File).
+     */
+    public static boolean isJarFile(File file) throws IOException {
+        return isZipFile(file);
     }
 
-    public static void close(OutputStream thing) {
-        if (thing != null) {
-            try {
-                thing.close();
-            } catch(Exception ignored) {
-            }
-        }
-    }
-
-    public static void close(Reader thing) {
-        if (thing != null) {
-            try {
-                thing.close();
-            } catch(Exception ignored) {
-            }
-        }
-    }
-
-    public static void close(Writer thing) {
-        if (thing != null) {
-            try {
-                thing.close();
-            } catch(Exception ignored) {
-            }
-        }
-    }
-
-    public static final class EmptyInputStream extends InputStream {
-        public int read() {
-            return -1;
-        }
-
-        public int read(byte b[])  {
-            return -1;
-        }
-
-        public int read(byte b[], int off, int len) {
-            return -1;
-        }
-
-        public long skip(long n) {
-            return 0;
-        }
-
-        public int available() {
-            return 0;
-        }
-
-        public void close() {
-        }
-
-        public synchronized void mark(int readlimit) {
-        }
-
-        public synchronized void reset() {
-        }
-
-        public boolean markSupported() {
+    /**
+     * Determine whether a file is a ZIP File.
+     */
+    public static boolean isZipFile(File file) throws IOException {
+        if (file.isDirectory()) {
             return false;
+        }
+        if (!file.canRead()) {
+            throw new IOException("Cannot read file " + file.getAbsolutePath());
+        }
+        if (file.length() < 4) {
+            return false;
+        }
+        DataInputStream in = null;
+        try {
+            in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+            return in.readInt() == 0x504b0304;
+        } finally {
+            IOUtils.close(in);
         }
     }
 }
