@@ -28,14 +28,16 @@ import java.util.List;
 import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.FileUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +102,7 @@ public class ConfigIDExtractor {
                 return name;
             }
         } else {
-            if(!FileUtils.isZipFile(module)) {
+            if(!JarUtils.isZipFile(module)) {
                 throw new DeploymentException(module.getAbsolutePath()+" is neither a JAR file nor a directory!");
             }
             JarFile input = new JarFile(module);
