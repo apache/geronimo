@@ -39,7 +39,7 @@ limitations under the License.
     </gbean>
     
     <gbean name="JMSServerManager" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">Server/JMS Server</attribute>
+        <attribute name="pageTitle">1-10/Server/JMS Server</attribute>
         <attribute name="portletContext">/activemq</attribute>
         <attribute name="portletList">[JMSServerManager,JMSConnectorManager]</attribute>
         <attribute name="icon">/images/ico_jmsserv_16x16.gif</attribute>
@@ -49,7 +49,7 @@ limitations under the License.
     </gbean>
     
     <gbean name="JMSWizard" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">Services/JMS Resources</attribute>
+        <attribute name="pageTitle">2-2/Services/JMS Resources</attribute>
         <attribute name="portletContext">/activemq</attribute>
         <attribute name="portletList">[JMSWizard]</attribute>
         <attribute name="icon">/images/ico_jms_16x16.gif</attribute>

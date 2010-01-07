@@ -47,7 +47,8 @@ public class XSRFHandler
     private static final Logger log = LoggerFactory.getLogger(XSRFHandler.class);
     private static final String XSRF_UNIQUEID = "formId";
     private static final String XSRF_JS_FILENAME = "/XSRF.js";
-    private final static String XSRF_JS_UNIQUEID = "<%XSRF_UNIQUEID%>";
+    private static final String XSRF_JS_UNIQUEID = "<%XSRF_UNIQUEID%>";
+    private static final String NOXSS_SHOW_TREE = "noxssShowTree";
 
     private Map<String, String> sessionMap = Collections.synchronizedMap(new HashMap<String, String>());
     private String xsrfJS;
@@ -85,6 +86,14 @@ public class XSRFHandler
         }
 
         if ((hreq.getQueryString() != null) || (hreq.getParameterNames().hasMoreElements())) {
+            
+            if (hreq.getParameterMap().keySet().size() == 1 && hreq.getParameter(NOXSS_SHOW_TREE) != null
+                    && hreq.getParameter(NOXSS_SHOW_TREE).equals("true")) {
+
+                return false;
+
+            }
+            
             String sesId = (String)hses.getAttribute(XSRF_UNIQUEID);
             String reqId = (String)hreq.getParameter(XSRF_UNIQUEID);
             log.debug("XSRF checking requestURI=" + hreq.getRequestURI());

@@ -41,7 +41,7 @@
 
     <!-- Start off a ACEGBean, this is the lifecycle for the portlet -->
     <gbean name="Deployment" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">Applications/Deploy New</attribute>
+        <attribute name="pageTitle">3-8/Applications/Deploy New</attribute>
         <attribute name="portletContext">/plugin</attribute>
         <attribute name="portletList">[Deployment]</attribute>
         <attribute name="icon">/images/ico_deploy_16x16.gif</attribute>
@@ -50,7 +50,7 @@
         </reference>
     </gbean>
     <gbean name="PluginManagement" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">Applications/Plugins</attribute>
+        <attribute name="pageTitle">3-9/Applications/Plugins</attribute>
         <attribute name="portletContext">/plugin</attribute>
         <attribute name="portletList">[ImportExport, CreatePlugin, AssembleServer]</attribute>
         <attribute name="icon">/images/ico_plugin_16x16.gif</attribute>
@@ -60,7 +60,7 @@
     </gbean>
 
     <gbean name="RealmWizard" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">Security/Security Realms</attribute>
+        <attribute name="pageTitle">4-4/Security/Security Realms</attribute>
         <attribute name="portletContext">/plugin</attribute>
         <attribute name="portletList">[RealmWizard]</attribute>
         <attribute name="icon">/images/ico_secrealm_16x16.gif</attribute>

@@ -18,5 +18,5 @@
 --%>
 
 <%
-    response.sendRedirect("./portal/Welcome");
+    response.sendRedirect("./portal/0/Welcome?noxssShowTree=true");
 %>
