@@ -64,6 +64,10 @@
                 <!-- Install as extention to allow 'car' packaging to be used. -->
                 <extensions>true</extensions>
                 <configuration>
+                    <systemProperties> 
+                        <geronimo.build.car>true</geronimo.build.car>
+                        <openejb.log.factory>org.apache.openejb.util.PaxLogStreamFactory</openejb.log.factory>
+                    </systemProperties>
                     <archive>
                         <!-- Do not include META-INF/maven to avoid long file problems on windows -->
                         <addMavenDescriptor>false</addMavenDescriptor>

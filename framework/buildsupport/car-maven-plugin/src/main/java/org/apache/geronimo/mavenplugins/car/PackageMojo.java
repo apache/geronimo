@@ -22,9 +22,11 @@ package org.apache.geronimo.mavenplugins.car;
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -182,14 +184,21 @@ public class PackageMojo extends AbstractCarMojo {
      */
     protected String pluginMetadataFileName = null;
     private BundleContext bundleContext;
+    
+    /**
+     * System properties.
+     * 
+     * @parameter 
+     */
+    protected Map<String, String> systemProperties;
 
     //
     // Mojo
     //
 
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Map<String, String> oldSystemProperties = setSystemProperties();
         try {
-            System.setProperty("geronimo.build.car", "true");
 // We need to make sure to clean up any previous work first or this operation will fail
             FileUtils.forceDelete(targetRepository);
             FileUtils.forceMkdir(targetRepository);
@@ -235,9 +244,39 @@ public class PackageMojo extends AbstractCarMojo {
             }
         } catch (Exception e) {
             throw new MojoExecutionException("could not package plugin", e);
+        } finally {
+            unsetSystemProperties(oldSystemProperties);
         }
     }
 
+    private Map<String, String> setSystemProperties() {
+        if (systemProperties == null) {
+            return Collections.emptyMap();
+        } else {
+            getLog().debug("Setting system properties: " + systemProperties);
+            Map<String, String> previousSystemProperties = new HashMap<String, String>();
+            for (Map.Entry<String, String> entry : systemProperties.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                String oldValue = System.setProperty(key, value);
+                previousSystemProperties.put(key, oldValue);
+            }       
+            return previousSystemProperties;
+        }
+    }
+    
+    private void unsetSystemProperties(Map<String, String> previousSystemProperties) {
+        for (Map.Entry<String, String> entry : previousSystemProperties.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (value == null) {
+                System.clearProperty(key);
+            } else {
+                System.setProperty(key, value);
+            }
+        }        
+    }
+    
     private File getArtifactInRepositoryDir() {
         //
         // HACK: Generate the filename in the repo... really should delegate this to the repo impl
