@@ -359,10 +359,16 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     }
 
     public Container createContainer(Class<? extends ContainerInfo> type, String serviceId, Properties declaredProperties, String providerId) throws OpenEJBException {
-        ContainerInfo containerInfo = configurationFactory.configureService(type, serviceId, declaredProperties, providerId, "Container");
-        assembler.createContainer(containerInfo);
-        Container container = assembler.getContainerSystem().getContainer(serviceId);
-        return container;
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            ContainerInfo containerInfo = configurationFactory.configureService(type, serviceId, declaredProperties, providerId, "Container");
+            assembler.createContainer(containerInfo);
+            Container container = assembler.getContainerSystem().getContainer(serviceId);
+            return container;
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     public ClientInfo configureApplication(ClientModule clientModule) throws OpenEJBException {
