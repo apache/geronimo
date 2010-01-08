@@ -23,16 +23,29 @@ limitations under the License.
 
 <script language="JavaScript">
 
-function autoResize(id){
-    var newheight;
+var iframeId;
 
-    if(document.getElementById){
-        newheight=document.getElementById(id).contentWindow.document .body.scrollHeight;
-    }
+function delayResize(id){
+    iframeId=id;
+    <%--delay the resize so that the ajax content get loaded before the resizing.--%>
+    setTimeout('autoResize()',300); 
+}
 
-    document.getElementById(id).height= (newheight) + "px";
+function autoResize(){
+
+  try{
+    frame = document.getElementById(iframeId);
+    frame_document = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
+    objToResize = (frame.style) ? frame.style : frame;
+    objToResize.height = frame_document.body.scrollHeight + 10;
+  }
+  catch(err){
+    window.status = err.message;
+  }
 
 }
+
+
 </script>
 
 <!-- start accessibility prolog -->
@@ -96,7 +109,7 @@ function autoResize(id){
 
                 </div>
                 
-                    <iframe  src="" id="portletsFrame" width="100%" height="100%" scrolling="no" frameborder="0" onload='autoResize("portletsFrame")'>
+                    <iframe  src="" id="portletsFrame" width="100%" height="100%" scrolling="no" frameborder="0" onload="if (window.parent && window.parent.delayResize) {window.parent.delayResize('portletsFrame');}">
                     
                     </iframe>
                     </td>
