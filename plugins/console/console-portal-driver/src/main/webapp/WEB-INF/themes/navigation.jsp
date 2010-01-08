@@ -160,13 +160,21 @@ function load() {
 
    }
 
-   function displayPortlets(anchor){
-           document.getElementById('content').style.display = 'none';
-        document.getElementById("portletsFrame").src = anchor.href+"?formId="+formID; 
+    function displayPortlets(anchor){
+
+        document.getElementById('content').style.display = 'none';
+        document.getElementById("portletsFrame").src = anchor.href+"?formId="+formID;
+        setTimeout('returnToTop()', 30);
      }
+     
+    function returnToTop(){
+        window.scrollTo(0,0);
+        return false;
+     }
+     
        
 
-   dojo.addOnLoad(load);
+    dojo.addOnLoad(load);
         
 </script>
 
