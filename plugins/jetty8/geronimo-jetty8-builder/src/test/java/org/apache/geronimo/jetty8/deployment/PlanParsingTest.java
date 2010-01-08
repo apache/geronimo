@@ -77,6 +77,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
         super.setUp();
         GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null, null, null);
         builder = new JettyModuleBuilder(defaultEnvironment,
+                Artifact.create("org.apache.geronimo.configs/jetty8/3.0-SNAPSHOT/car"),
                 new Integer(1800),
                 null,
                 jettyContainerObjectName,

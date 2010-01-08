@@ -127,29 +127,7 @@ wsdl=text/xml
         <reference name="ResourceEnvironmentSetter">
             <name>ResourceRefBuilder</name>
         </reference>
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-                <dependencies>
-                    <dependency>
-                        <groupId>${pom.groupId}</groupId>
-                        <artifactId>jetty8</artifactId>
-                        <version>${version}</version>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-                <hidden-classes/>
-                <non-overridable-classes>
-                    <filter>java.</filter>
-                    <filter>javax.</filter>
-                    <filter>org.apache.geronimo.</filter>
-                    <filter>org.apache.myfaces.</filter>
-                    <filter>org.apache.taglibs.</filter>
-                    <filter>org.mortbay.</filter>
-                    <filter>org.xml.</filter>
-                    <filter>org.w3c.</filter>
-                </non-overridable-classes>
-            </environment>
-        </xml-attribute>
+        <attribute name="jettyArtifact">${pom.groupId}/jetty8/${version}/car</attribute>
     </gbean>
 
     <gbean name="StaticContent" class="org.apache.geronimo.jetty8.DefaultServletHolderWrapper">

@@ -21,20 +21,10 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="JspModuleBuilderExtension" class="org.apache.geronimo.jasper.deployment.JspModuleBuilderExtension">
+        <attribute name="jasperArtifact">org.apache.geronimo.configs/jasper/${version}/car</attribute>
         <reference name="NamingBuilders">
             <name>NamingBuilders</name>
         </reference>
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.geronimo.configs</groupId>
-                        <artifactId>jasper</artifactId>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
     </gbean>
 
 </module>

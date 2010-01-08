@@ -31,6 +31,8 @@ import java.util.Set;
 
 import javax.management.ObjectName;
 
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -230,8 +232,21 @@ public final class GBeanInstance implements StateManageable
         this.classLoader = new BundleClassLoader(bundleContext.getBundle());
 
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
+        Bundle bundle;
+        if (gbeanData.getClassSource() == null) {
+            bundle = bundleContext.getBundle();
+        } else {
+            try {
+                Configuration configuration = (Configuration) kernel.getGBean(Configuration.getConfigurationAbstractName(gbeanData.getClassSource()));
+                bundle = configuration.getBundle();
+            } catch (GBeanNotFoundException e) {
+                throw new InvalidConfigurationException("Class loading configuration not found: " + gbeanData.getClassSource(), e);
+            } catch (InvalidConfigException e) {
+                throw new InvalidConfigurationException("Class loading configuration not identified: " + gbeanData.getClassSource(), e);
+            }
+        }
         try {
-            type = bundleContext.getBundle().loadClass(gbeanInfo.getClassName());
+            type = bundle.loadClass(gbeanInfo.getClassName());
         } catch (ClassNotFoundException e) {
             throw new InvalidConfigurationException("Could not load GBeanInfo class from classloader: " + bundleContext +
                     " className=" + gbeanInfo.getClassName(), e);
@@ -240,12 +255,12 @@ public final class GBeanInstance implements StateManageable
         name = gbeanInfo.getName();
 
         // interfaces
-        interfaces = (String[]) gbeanInfo.getInterfaces().toArray(new String[0]);
+        interfaces = gbeanInfo.getInterfaces().toArray(new String[gbeanInfo.getInterfaces().size()]);
 
         // attributes
         attributes = buildAttributes(gbeanInfo);
         for (int i = 0; i < attributes.length; i++) {
-            attributeIndex.put(attributes[i].getName(), new Integer(i));
+            attributeIndex.put(attributes[i].getName(), i);
         }
 
         // references
@@ -255,7 +270,7 @@ public final class GBeanInstance implements StateManageable
 
         references = referencesSet.toArray(new GBeanReference[referencesSet.size()]);
         for (int i = 0; i < references.length; i++) {
-            referenceIndex.put(references[i].getName(), new Integer(i));
+            referenceIndex.put(references[i].getName(), i);
         }
 
         //dependencies

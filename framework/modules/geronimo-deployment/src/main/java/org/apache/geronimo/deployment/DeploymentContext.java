@@ -818,13 +818,15 @@ public class DeploymentContext {
     public static LinkedHashSet<String> getImports(List<GBeanData> gbeans) {
         LinkedHashSet<String> imports = new LinkedHashSet<String>();
         for (GBeanData data: gbeans) {
-            GBeanInfo info = data.getGBeanInfo();
-            addImport(imports, info.getClassName());
-            for (GAttributeInfo attInfo: info.getAttributes()) {
-                addImport(imports, attInfo.getType());
-            }
-            for (GReferenceInfo refInfo: info.getReferences()) {
-                addImport(imports, refInfo.getReferenceType());
+            if (data.getClassSource() == null) {
+                GBeanInfo info = data.getGBeanInfo();
+                addImport(imports, info.getClassName());
+                for (GAttributeInfo attInfo: info.getAttributes()) {
+                    addImport(imports, attInfo.getType());
+                }
+                for (GReferenceInfo refInfo: info.getReferences()) {
+                    addImport(imports, refInfo.getReferenceType());
+                }
             }
         }
         return imports;

@@ -28,6 +28,8 @@ import javax.naming.NamingException;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.tomcat.InstanceManager;
@@ -35,6 +37,7 @@ import org.apache.tomcat.InstanceManager;
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = GBeanInfoBuilder.DEFAULT_J2EE_TYPE)
 public class JasperServletContextCustomizer implements RuntimeCustomizer {
     private final Holder holder;
 
@@ -47,7 +50,7 @@ public class JasperServletContextCustomizer implements RuntimeCustomizer {
         }
     }
 
-    public JasperServletContextCustomizer(Holder holder) {
+    public JasperServletContextCustomizer(@ParamAttribute(name = "holder") Holder holder) {
         this.holder = holder;
     }
 
@@ -78,28 +81,15 @@ public class JasperServletContextCustomizer implements RuntimeCustomizer {
                 throw new InvocationTargetException(e, "Attempted to destroy instance");
             }
         }
-        
+
         public void newInstance(Object o) throws IllegalAccessException, InvocationTargetException, NamingException {
-	    throw new UnsupportedOperationException("separate instantiation and injection is not supported");
-	}
+            throw new UnsupportedOperationException("separate instantiation and injection is not supported");
+        }
 
-	public Object newInstance(String fqcn) throws IllegalAccessException, InvocationTargetException, NamingException,
-		InstantiationException, ClassNotFoundException {
-	    throw new UnsupportedOperationException("separate instantiation and injection is not supported");
-	}
+        public Object newInstance(String fqcn) throws IllegalAccessException, InvocationTargetException, NamingException,
+                InstantiationException, ClassNotFoundException {
+            throw new UnsupportedOperationException("separate instantiation and injection is not supported");
+        }
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JasperServletContextCustomizer.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoBuilder.addAttribute("holder", Holder.class, true, true);
-        infoBuilder.setConstructor(new String[] {"holder"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

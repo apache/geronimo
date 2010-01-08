@@ -29,17 +29,14 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -61,8 +58,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jasper.JasperServletContextCustomizer;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
@@ -78,8 +75,9 @@ import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This JSP module builder extension is meant to find all the TLD descriptor files associated with a
@@ -93,10 +91,6 @@ import org.osgi.framework.Bundle;
 public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
     private static final Logger log = LoggerFactory.getLogger(JspModuleBuilderExtension.class);
-
-    private final Environment defaultEnvironment;
-    private final NamingBuilder namingBuilders;
-
     private static final QName TLIB_VERSION = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "tlib-version");
     private static final QName SHORT_NAME = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "short-name");
     private static final QName TAG_CLASS = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "tag-class");
@@ -106,9 +100,15 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
     private static final String SCHEMA_LOCATION_URL = "http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd";
     private static final String VERSION = "2.1";
 
-    public JspModuleBuilderExtension(@ParamAttribute(name="defaultEnvironment")Environment defaultEnvironment,
-                                     @ParamReference(name="NamingBuilders", namingType = NameFactory.MODULE_BUILDER)NamingBuilder namingBuilders) {
+    private final Environment defaultEnvironment;
+    private final NamingBuilder namingBuilders;
+    private final Artifact jasperArtifact;
+
+    public JspModuleBuilderExtension(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+                                     @ParamAttribute(name = "jasperArtifact") Artifact jasperArtifact,
+                                     @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
+        this.jasperArtifact = jasperArtifact;
         this.namingBuilders = namingBuilders;
     }
 
@@ -159,8 +159,6 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         XmlObject jettyWebApp = webModule.getVendorDD();
 
-        Configuration earConfiguration = earContext.getConfiguration();
-
         Set<String> listenerNames = new HashSet<String>();
 
         ClassFinder classFinder = createJspClassFinder(webApp, webModule, listenerNames);
@@ -173,7 +171,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         GBeanInfo webAppGBeanInfo = webAppData.getGBeanInfo();
         if (webAppGBeanInfo.getReference("ContextCustomizer") != null) {
             AbstractName jspLifecycleName = moduleContext.getNaming().createChildName(moduleName, "jspLifecycleProvider", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-            GBeanData gbeanData = new GBeanData(jspLifecycleName, JasperServletContextCustomizer.GBEAN_INFO);
+            GBeanData gbeanData = new GBeanData(jspLifecycleName, JasperServletContextCustomizer.class, jasperArtifact);
             gbeanData.setAttribute("holder", holder);
 
             try {
@@ -201,14 +199,14 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
     /**
      * getTldFiles(): Find all the TLD files in the web module being deployed
-     *
+     * <p/>
      * <p>Locations to search for these TLD file(s) (matches the precedence search order for TLD
      * files per the JSP specs):
      * <ol>
-     *      <li>web.xml <taglib> entries
-     *      <li>TLD(s) in JAR files in WEB-INF/lib
-     *      <li>TLD(s) under WEB-INF
-     *      <li>All TLD files in all META-INF(s)
+     * <li>web.xml <taglib> entries
+     * <li>TLD(s) in JAR files in WEB-INF/lib
+     * <li>TLD(s) under WEB-INF
+     * <li>All TLD files in all META-INF(s)
      * </ol>
      *
      * @param webApp    spec DD for module
@@ -236,7 +234,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                     }
                     try {
                         File targetFile = webModule.getEarContext().getTargetFile(webModule.resolve(createURI(location)));
-                        if (targetFile!=null) {
+                        if (targetFile != null) {
                             tldURLs.add(targetFile.toURI().toURL());
                         }
                     }
@@ -291,8 +289,8 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 JarEntry jarEntry = entries.nextElement();
                 if (jarEntry.getName().startsWith("WEB-INF/") && jarEntry.getName().endsWith(".tld")) {
                     File targetFile = webModule.getEarContext().getTargetFile(webModule.resolve(createURI(jarEntry.getName())));
-                    if (targetFile!=null) {
-                        modURLs.add(targetFile.toURL());
+                    if (targetFile != null) {
+                        modURLs.add(targetFile.toURI().toURL());
                     }
                 }
                 if (jarEntry.getName().startsWith("WEB-INF/lib/") && jarEntry.getName().endsWith(".jar")) {
@@ -397,7 +395,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                         File[] children = directory.listFiles();
                         for (File child : children) {
                             if (child.getName().endsWith(".tld")) {
-                                dirURLs.add(child.toURL());
+                                dirURLs.add(child.toURI().toURL());
                             }
                         }
                     } else {
@@ -420,7 +418,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
     private List<Class> getListenerClasses(WebAppType webApp, WebModule webModule, Collection<URL> urls, Set<String> listenerNames) throws DeploymentException {
         if (log.isDebugEnabled()) {
             log.debug("getListenerClasses( " + webApp.toString() + "," + '\n' +
-                      webModule.getName() + " ): Entry");
+                    webModule.getName() + " ): Entry");
         }
 
         // Get the classloader from the module's EARContext
@@ -489,17 +487,17 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
     /**
      * convertToTaglibSchema(): Convert older TLD files based on the 1.1 and 1.2 DTD or the 2.0 XSD
      * schemas
-     *
+     * <p/>
      * <p><strong>Note(s):</strong>
      * <ul>
-     *      <li>Those tags from the 1.1 and 1.2 DTD that are no longer valid (e.g., jsp-version) are
-     *      removed
-     *      <li>Valid  tags from the 1.1 and 1.2 DTD are converted (e.g., tlibversion to
-     *      tlib-version)
-     *      <li>The <taglib> root and the <tag> root elements are reordered as necessary (i.e.,
-     *      description, display-name)
-     *      <li>The <rtexprvalue> tag is inserted in the &lt;attribute> tag if necessary since it was
-     *      not required to preceed <type> in 2.0 schema. Default value of false is used.
+     * <li>Those tags from the 1.1 and 1.2 DTD that are no longer valid (e.g., jsp-version) are
+     * removed
+     * <li>Valid  tags from the 1.1 and 1.2 DTD are converted (e.g., tlibversion to
+     * tlib-version)
+     * <li>The <taglib> root and the <tag> root elements are reordered as necessary (i.e.,
+     * description, display-name)
+     * <li>The <rtexprvalue> tag is inserted in the &lt;attribute> tag if necessary since it was
+     * not required to preceed <type> in 2.0 schema. Default value of false is used.
      * </ul>
      *
      * @param xmlObject possibly old-style tag lib document
@@ -518,8 +516,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             cursor.toFirstChild();
             if (SchemaConversionUtils.JAVAEE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
                 log.debug("Nothing to do");
-            }
-            else if (SchemaConversionUtils.J2EE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
+            } else if (SchemaConversionUtils.J2EE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
                 log.debug("Converting XSD 2.0 to 2.1 schema");
                 SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, SCHEMA_LOCATION_URL, VERSION);
                 cursor.toStartDoc();
@@ -581,8 +578,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                         SchemaConversionUtils.convertToTldTag(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
                     }
                 } while (cursor.toNextSibling());
-            }
-            else {
+            } else {
                 log.debug("Converting DTD to 2.1 schema");
                 SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, SCHEMA_LOCATION_URL, VERSION);
                 cursor.toStartDoc();
@@ -592,8 +588,8 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 do {
                     String name = cursor.getName().getLocalPart();
                     if ("jsp-version".equals(name) ||
-                        "jspversion".equals(name) ||
-                        "info".equals(name)) {
+                            "jspversion".equals(name) ||
+                            "info".equals(name)) {
                         cursor.removeXmlContents();
                         cursor.removeXml();
                     }
