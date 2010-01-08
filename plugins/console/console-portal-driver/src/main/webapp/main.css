@@ -137,20 +137,14 @@ a:hover
 
 
 .tundra .dijitLeaf {
-
     width: 0px;
-    height: 0px;
-    
+    height: 0px; 
 }
 
 .tundra .dijitFolderOpened {
-    position: relative;
-    left: 4px;
     background: url('images/folderOpened_new.gif') no-repeat;
 }
 .tundra .dijitFolderClosed {
-    position: relative;
-    left: 4px;
     background: url('images/folderClosed_new.gif') no-repeat;
 }
 
@@ -158,13 +152,6 @@ a:hover
     padding-bottom: 3px;
 }
 
-.tundra .dijitTreeContent {
-    position: relative;
-    left: -4px;
-    min-height: 18px;
-    min-width: 18px;
- }
- 
  
 .Content .TopLeft
 {
