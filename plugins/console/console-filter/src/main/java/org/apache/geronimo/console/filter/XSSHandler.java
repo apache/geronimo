@@ -70,7 +70,8 @@ public class XSSHandler {
             String name = e.nextElement();
             String name2 = name.trim().toLowerCase();
             if (name2.startsWith("noxss")) {
-                log.debug("Skipping specially marked paramter=" + name);
+                log.debug("Skipping specially marked parameter=" + name);
+                continue;
             }
             else if ((name2.startsWith("minxss")) || (name2.indexOf("password") != -1) || (name2.indexOf("xml") != -1) || (name2.indexOf("sql") != -1)) {
                 // perform a "minimal" but more CPU intensive set of checks on

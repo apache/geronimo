@@ -39,7 +39,7 @@ limitations under the License.
 
     <!-- Start off a ACEGBean, this is the lifecycle for the portlet -->
     <gbean name="PlanCreator" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">Applications/Plan Creator</attribute>
+        <attribute name="pageTitle">3-7/Applications/Plan Creator</attribute>
         <attribute name="portletContext">/plan-creator</attribute>
         <attribute name="portletList">[PlanCreator]</attribute>
         <attribute name="icon">/images/ico_xml_16x16.gif</attribute>        

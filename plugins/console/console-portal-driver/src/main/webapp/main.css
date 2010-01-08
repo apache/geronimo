@@ -122,147 +122,50 @@ a:hover
     display: none;
 }
 
-.Menu .Selection
+.Selection
 {
     background-color: #F2F2F2;
     font-size: 12px;
     font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
-.Menu .Selection .CollapsedLeft
-{
-    width: 12px;
-    height: 12px;
-    color: #000000;
-    background-color: #F2F2F2;
-}
-
-.Menu .Selection .Indent
-{
-    width: 2px;
-    background-color: #F2F2F2;
-}
-
-.Menu .Selection .CollapsedRight
-{
-    width: 8px;
-    height: 12px;
-    background-color: #F2F2F2;
-}
-
-.Menu .Selection .TopLeft
-{
-    width: 8px;
-    height: 16px;
-    background-color: #F2F2F2;
-}
-
-.Menu .Selection .TopMiddle
-{
-    color: #000000;
-    text-decoration: none;
-    background-color: #F2F2F2;
-    font-size: 11px;
-}
-
-.Menu .SelectedSubselection .TopMiddle a:link,
-.Menu .SelectedSubselection .TopMiddle a:visited
-{
-    color: #000000;
-    text-decoration: none;
-}
-
-.Menu .SelectedSubselection .TopMiddle a:hover
-{
-    text-decoration: underline;
-}
-
-.Menu .Selection .TopRight
-{
-    width: 8px;
-    height: 16px;
-    background-color: #F2F2F2;
-}
-
-.Menu .Selection .Spacer
-{
-    height: 5px;
-}
-
-.Menu .Hidden
-{
-    visibility: hidden;
-    height: 0px;
-    display: none;
-}
-
-.Menu .Subselection .Left
-{
-    width: 12px;
-    background-color: #F2F2F2;
-}
-
-.Menu .Subselection .Indent
-{
-    width: 2px;
-    background-color: #F2F2F2;
-}
-
-.Menu .Subselection .Middle
-{
-    font-size: 12px;
-    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-    background-color: #F2F2F2;
-    color:#000000;
-}
-
-
-.Menu .Subselection .Middle a:hover
-{
-    color: #5FA3D6;
-}
-
-.Menu .Subselection .Right
-{
-    width: 8px;
-    background-color: #F2F2F2;
-}
-
-.Menu .Subselection .BottomLeft
-{
-    width: 8px;
-    height: 8px;
-    background-color: #F2F2F2;
-}
-
-.Menu .Subselection .BottomMiddle
-{
-    height: 8px;
-    background-color: #F2F2F2;
-}
-
-.Menu .Subselection .BottomRight
-{
-    width: 8px;
-    height: 8px;
-    background-color: #F2F2F2;
-}
-
-.Menu .SelectedSubselection .Middle a{
-    color: #000;
-    text-decoration: none;
-}
-
-.Menu .SelectedSubselection .Middle a:hover{
-    color: #000;
-    text-decoration: underline;
-}
 
 .Gutter
 {
     width: 5px;
 }
 
+
+.tundra .dijitLeaf {
+
+    width: 0px;
+    height: 0px;
+    
+}
+
+.tundra .dijitFolderOpened {
+    position: relative;
+    left: 4px;
+    background: url('images/folderOpened_new.gif') no-repeat;
+}
+.tundra .dijitFolderClosed {
+    position: relative;
+    left: 4px;
+    background: url('images/folderClosed_new.gif') no-repeat;
+}
+
+.tundra .dijitTreeRow {	
+    padding-bottom: 3px;
+}
+
+.tundra .dijitTreeContent {
+    position: relative;
+    left: -4px;
+    min-height: 18px;
+    min-width: 18px;
+ }
+ 
+ 
 .Content .TopLeft
 {
     width: 18px;
