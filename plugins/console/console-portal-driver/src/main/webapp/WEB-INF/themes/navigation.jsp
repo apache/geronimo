@@ -67,6 +67,8 @@ limitations under the License.
 
 <script type="text/javascript">
 
+<%-- scripts to create the navigation tree--%>
+
    dojo.require("dojo.data.ItemFileReadStore");
    dojo.require("dijit.form.FilteringSelect");
    dojo.require("dijit.Tree");
@@ -77,6 +79,8 @@ limitations under the License.
 
    var treeData = <%=treeJson%>;
    var listData = <%=listJson%>;
+   var treeStore;
+   var navigationTree;
 
 function load() {
 
@@ -90,7 +94,7 @@ function load() {
     });
 
              
-   var treeStore = new dojo.data.ItemFileReadStore
+  treeStore = new dojo.data.ItemFileReadStore
     ({
          data: {
              identifier: 'id',
@@ -104,7 +108,7 @@ function load() {
        store: treeStore
    });
        
-   var navigationTree = new dijit.Tree
+   navigationTree = new dijit.Tree
            (
          {  model: treeModel,
             showRoot: false,
@@ -154,6 +158,7 @@ function load() {
            anchorName = anchors[i].innerHTML; 
            if ( anchorName == portalPageName) { 
                displayPortlets(anchors[i]);
+               findAndSelect(portalPageName,navigationTree.rootNode);
                return;
            }
        }
@@ -175,6 +180,65 @@ function load() {
        
 
     dojo.addOnLoad(load);
+   
+
+<%-- scripts to expand  and select tree node automatically when open menu item from quick launcher --%>
+
+   
+function findAndSelect(key, rootNode)
+    {
+        
+        var nodes = [];
+
+        if(findRecur(rootNode.item.children, key, nodes))
+        {
+            select(nodes);
+        } 
+    }
+
+
+function findRecur(items, key, nodes) 
+    {
+        for (var child = 0; child < items.length; child++) {
+
+            nodes.push(items[child]);
+            var label = treeStore.getLabel(items[child]);
+            if (label && label.indexOf(key) != -1)
+                return true;
+
+            if (items[child].children && findRecur(items[child].children, key, nodes))
+                return true;
+            nodes.pop();
+        }
+        return false;
+    }
+    
+function select(nodes)
+    {
+        var i;
+        function expandParent(node)
+        {
+            if(node && !node.isExpanded)
+            {
+                expandParent(node.getParent());
+                navigationTree._expandNode(node);
+            }
+        }
+        //make sure the ancestor node expanded before
+        expandParent(navigationTree._itemNodeMap[treeStore.getIdentity(nodes[0])].getParent());
+        for (i = 0;;i++) {
+            node  = navigationTree._itemNodeMap[treeStore.getIdentity(nodes[i])];
+            if(i < nodes.length-1)
+                navigationTree._expandNode(node);
+            else 
+            {
+                navigationTree.focusNode(node);
+                return node;
+            }
+        }
+    }
+ 
         
 </script>
+
 
