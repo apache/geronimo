@@ -17,7 +17,9 @@
 package org.apache.geronimo.console.navigation;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.TreeMap;
 
 import org.apache.geronimo.pluto.impl.PageConfig;
@@ -45,8 +47,19 @@ import org.slf4j.LoggerFactory;
  */
 
 public class NavigationJsonGenerator {
-     
+      
+    private ResourceBundle navigationResourcebundle;
+         
     private static final Logger log = LoggerFactory.getLogger(NavigationJsonGenerator.class);
+    
+    public NavigationJsonGenerator(Locale locale) {
+
+        if (locale == null) {
+            navigationResourcebundle = ResourceBundle.getBundle("org.apache.geronimo.console.i18n.ConsoleResource");
+        } else {
+            navigationResourcebundle = ResourceBundle.getBundle("org.apache.geronimo.console.i18n.ConsoleResource",locale);
+        }
+    }
     
     public String generateTreeJSON(List<PageConfig> pageConfigList, String contextPath, String DefaultIcon) {
        
@@ -87,11 +100,11 @@ public class NavigationJsonGenerator {
         
 
         if (!node.isLeafNode()) {
-            sb.append("label: \'"+node.getLabel() + "\'");
+            sb.append("label: \'"+getLocalizedString(node.getLabel()) + "\'");
         } else {
             sb.append("label: \'<img src=\"" + contextPath + node.getIcon() + "\" alt=\"\" border=\"0\">&nbsp;");
             sb.append("<a href=\"" + contextPath + "/portal/" + node.getId() + "/" + node.getPath() + "\">"
-                    + node.getLabel() + "</a>\'");
+                    + getLocalizedString(node.getLabel()) + "</a>\'");
         }
 
         sb.append(",");
@@ -150,9 +163,9 @@ public class NavigationJsonGenerator {
         if (node.isLeafNode()) {
             sb.append("\n{");
             sb.append("label: \'<img src=\"").append(contextPath).append(node.getIcon()).append("\">&nbsp;");
-            sb.append("<span>").append(node.getLabel()).append("</span>\'");
+            sb.append("<span>").append(getLocalizedString(node.getLabel())).append("</span>\'");
             sb.append(",");
-            sb.append("name: \'").append(node.getLabel()).append("\'");
+            sb.append("name: \'").append(getLocalizedString(node.getLabel())).append("\'");
             sb.append("},");
         }
         
@@ -203,7 +216,7 @@ public class NavigationJsonGenerator {
         if (node.isLeafNode()) {
             sb.append("<li>");
             sb.append("<a href=\"" + contextPath + "/portal/" + node.getId() + "/" + node.getPath() + "\">"
-                    + node.getLabel() + "</a>");
+                    + getLocalizedString(node.getLabel()) + "</a>");
             sb.append("</li>\n");
         }
         
@@ -216,6 +229,23 @@ public class NavigationJsonGenerator {
         }
 
 
+
+    }
+    
+    private String getLocalizedString(String key) {
+
+        try {
+            
+            return navigationResourcebundle.getString(key);
+
+        } catch (Exception e) {
+
+            log.debug("error when get localized string by key:" + key
+                    + ", fallbacking to the key as the string returned", e);
+
+        }
+
+        return key;
 
     }
 
