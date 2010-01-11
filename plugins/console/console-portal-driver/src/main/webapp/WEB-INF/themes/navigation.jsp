@@ -38,7 +38,7 @@ limitations under the License.
 </c:forEach>
 
 <%
-    NavigationJsonGenerator generator = new NavigationJsonGenerator();
+    NavigationJsonGenerator generator = new NavigationJsonGenerator(request.getLocale());
     String treeJson = generator.generateTreeJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif");
     String listJson = generator.generateQuickLauncherJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif");
 %>
