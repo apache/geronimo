@@ -52,7 +52,7 @@ public class FileUtils {
     }
 
     public static void copyFile(File source, File destination, int bufferSizeInBytes) throws IOException {
-        if (!source.exists() || source.isFile()) {
+        if (!source.exists() || source.isDirectory()) {
             throw new IllegalArgumentException("Source does not exist or it is not a file");
         }
         File destinationDir = destination.getParentFile();
@@ -64,7 +64,7 @@ public class FileUtils {
         try {
             in = new FileInputStream(source);
             out = new FileOutputStream(destination);
-            IOUtils.copy(in, out);
+            IOUtils.copy(in, out, bufferSizeInBytes);
         } finally {
             IOUtils.close(in);
             IOUtils.close(out);
