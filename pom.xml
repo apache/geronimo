@@ -246,8 +246,8 @@
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-annotation_1.0_spec</artifactId>
-                <version>1.1.1</version>
+                <artifactId>geronimo-annotation_1.1_spec</artifactId>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -511,7 +511,7 @@
                 <artifactId>org.apache.servicemix.bundles.ant</artifactId>
                 <version>1.7.0_1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.jdt-core</artifactId>
@@ -1660,7 +1660,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-           
+
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>woden-impl-dom</artifactId>

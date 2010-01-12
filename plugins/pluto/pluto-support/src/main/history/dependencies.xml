@@ -58,12 +58,12 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-el_1.0_spec</artifactId>
+        <artifactId>geronimo-el_2.2_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jsp_2.1-MR2_spec</artifactId>
+        <artifactId>geronimo-jsp_2.2_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
