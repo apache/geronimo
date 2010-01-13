@@ -137,6 +137,14 @@ public class BundleDescription  {
         return parseStandardHeader(headerValue);
     }
     
+    /**
+     * Returns a list of paths that are listed in <i>Bundle-ClassPath</i> header.
+     */
+    public List<HeaderEntry> getBundleClassPath() {
+        String headerValue = (String) headers.get(Constants.BUNDLE_CLASSPATH);
+        return parseStandardHeader(headerValue);
+    }
+    
     public SymbolicName getSymbolicName() {
         String headerValue = (String) headers.get(Constants.BUNDLE_SYMBOLICNAME);
         List<HeaderElement> elements = HeaderParser.parseHeader(headerValue);
