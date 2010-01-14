@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +89,7 @@ public class BundleClassFinder {
      * 
      * @return classes visible to the bundle. Not all classes returned might be loadable. 
      */
-    public Set<String> findAll() {    
+    public Set<String> find() {    
         Set<String> classes = new LinkedHashSet<String>();
         
         classMap = new HashMap<Bundle, Set<String>>();
@@ -117,15 +116,12 @@ public class BundleClassFinder {
         if (!scanImportPackages) {
             return;
         }
-        BundleDescription description = new BundleDescription(fragment.getHeaders());
-        
+        BundleDescription description = new BundleDescription(fragment.getHeaders());        
         List<BundleDescription.ImportPackage> imports = description.getExternalImports();
-        HashSet<Bundle> wiredBundles = new HashSet<Bundle>();
         for (BundleDescription.ImportPackage packageImport : imports) {
             ExportedPackage[] exports = packageAdmin.getExportedPackages(packageImport.getName());
             Bundle wiredBundle = isWired(host, exports);
             if (wiredBundle != null) {
-                wiredBundles.add(wiredBundle);
                 Set<String> allClasses = findAllClasses(wiredBundle);
                 addMatchingClasses(classes, allClasses, packageImport.getName());
             }
@@ -137,7 +133,7 @@ public class BundleClassFinder {
         if (allClasses == null) {
             BundleClassFinder finder = new BundleClassFinder(packageAdmin, bundle);
             finder.setScanImportPackages(false);
-            allClasses = finder.findAll();
+            allClasses = finder.find();
             classMap.put(bundle, allClasses);
         }
         return allClasses;
@@ -192,9 +188,7 @@ public class BundleClassFinder {
     }    
     
     private void scanDirectory(Collection<String> classes, Bundle bundle, String basePath) {
-        if (!basePath.endsWith("/")) {
-            basePath = basePath + "/";
-        }
+        basePath = addSlash(basePath);
         Enumeration e = bundle.findEntries(basePath, PATTERN, true);
         if (e != null) {
             while (e.hasMoreElements()) {
@@ -232,6 +226,13 @@ public class BundleClassFinder {
     private static String toClassName(String name) {
         name = name.substring(0, name.length() - EXT.length());
         name = name.replaceAll("/", ".");
+        return name;
+    }
+    
+    private static String addSlash(String name) {
+        if (!name.endsWith("/")) {
+            name = name + "/";
+        }
         return name;
     }
     
