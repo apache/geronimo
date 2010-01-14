@@ -149,6 +149,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
             <dependency>
                 <groupId>${tomcatGroupId}</groupId>
                 <artifactId>catalina-ha</artifactId>
@@ -187,6 +188,18 @@
                     </exclusion>
                  </exclusions>
             </dependency>
+
+            <dependency>
+                <groupId>${tomcatGroupId}</groupId>
+                <artifactId>util</artifactId>
+                <version>${tomcatVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>${tomcatGroupId}</groupId>
+                        <artifactId>juli</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>   
         </dependencies>
     </dependencyManagement>
 

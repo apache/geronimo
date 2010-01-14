@@ -102,7 +102,7 @@ public class TomcatServerGBean implements GBeanLifecycle {
         if (mbeanServerReference != null) {
             Registry.getRegistry(null, null).setMBeanServer(mbeanServerReference.getMBeanServer());
         }
-        
+
         if (catalinaHome == null){
             catalinaHome = DEFAULT_CATALINA_HOME;
         }
@@ -128,7 +128,7 @@ public class TomcatServerGBean implements GBeanLifecycle {
         Reader in = new StringReader(serverConfig);
 
         try {
-            ServerType serverType = loadServerType(in);            
+            ServerType serverType = loadServerType(in);
             server = serverType.build(classLoader, kernel);
         } finally {
             in.close();
@@ -144,8 +144,14 @@ public class TomcatServerGBean implements GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        server.initialize();
-        ((Lifecycle)server).start();
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(classLoader);
+            server.initialize();
+            ((Lifecycle) server).start();
+        } finally {
+            Thread.currentThread().setContextClassLoader(cl);
+        }
     }
 
     public void doStop() throws Exception {
@@ -174,7 +180,7 @@ public class TomcatServerGBean implements GBeanLifecycle {
         }
         return service;
     }
-    
+
 
     public TomcatServerConfigManager getTomcatServerConfigManager() {
         return tomcatServerConfigManager;

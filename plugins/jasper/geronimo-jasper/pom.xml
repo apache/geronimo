@@ -38,7 +38,12 @@
             <groupId>${tomcatGroupId}</groupId>
             <artifactId>jasper</artifactId>
         </dependency>
-
+        
+        <dependency>
+            <groupId>${tomcatGroupId}</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        
         <!--<dependency>-->
         <!--<groupId>${tomcatGroupId}</groupId>-->
         <!--<artifactId>jasper-jdt</artifactId>-->

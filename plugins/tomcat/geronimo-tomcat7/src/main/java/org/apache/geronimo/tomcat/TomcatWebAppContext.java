@@ -88,7 +88,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private static final Logger log = LoggerFactory.getLogger(TomcatWebAppContext.class);
     public static final String GBEAN_REF_CLUSTERED_VALVE_RETRIEVER = "ClusteredValveRetriever";
     public static final String GBEAN_REF_MANAGER_RETRIEVER = "ManagerRetriever";
- 
+
     protected final TomcatContainer container;
     private final ClassLoader classLoader;
     private final Bundle bundle;
@@ -541,21 +541,25 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public void doStart() throws Exception {
-
-        // See the note of TomcatContainer::addContext
-        container.addContext(this);
-        // Is it necessary - doesn't Tomcat Embedded take care of it?
-        // super.start();
-        //register the classloader <> dir context association so that tomcat's jndi based getResources works.
-        DirContext resources = context.getResources();
-        if (resources == null) {
-            throw new IllegalStateException("JNDI environment was not set up correctly due to previous error");
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(classLoader);
+            // See the note of TomcatContainer::addContext
+            container.addContext(this);
+            // Is it necessary - doesn't Tomcat Embedded take care of it?
+            // super.start();
+            //register the classloader <> dir context association so that tomcat's jndi based getResources works.
+            DirContext resources = context.getResources();
+            if (resources == null) {
+                throw new IllegalStateException("JNDI environment was not set up correctly due to previous error");
+            }
+            DirContextURLStreamHandler.bind(classLoader, resources);
+            if (context instanceof StandardContext)
+                statsProvider = new ModuleStats((StandardContext) context);
+            log.debug("TomcatWebAppContext started for " + contextPath);
+        } finally {
+            Thread.currentThread().setContextClassLoader(cl);
         }
-        DirContextURLStreamHandler.bind(classLoader, resources);
-        if (context instanceof StandardContext)
-            statsProvider = new ModuleStats((StandardContext) context);
-
-        log.debug("TomcatWebAppContext started for " + contextPath);
     }
 
     public void doStop() throws Exception {
