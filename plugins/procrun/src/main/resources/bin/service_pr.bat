@@ -215,9 +215,12 @@ set PR_LOGPREFIX=geronimosrv.log
 set PR_STDOUTPUT=%PR_LOGPATH%\geronimosrv.out
 set PR_STDERROR=%PR_LOGPATH%\geronimosrv.err
 
-"%EXECUTABLE%" //IS//%SERVICE_NAME% --StartImage %JAVA_EXE% --StartPath "%GERONIMO_HOME%" --StartMode exe --StartParams %JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\server.jar"#%STARTUP_ARGS% --StopImage %JAVA_EXE% --StopPath "%GERONIMO_HOME%" --StopMode exe --StopParams %JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\shutdown.jar"#%SHUTDOWN_ARGS%
+@REM set jvm arguments to avoid killing the service when logging off, when using Sun JDK.
+set JVMARGS=-Xrs
+
+"%EXECUTABLE%" //IS//%SERVICE_NAME% --StartImage %JAVA_EXE% --StartPath "%GERONIMO_HOME%" --StartMode exe --StartParams %JVMARGS%#%JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\server.jar"#%STARTUP_ARGS% --StopImage %JAVA_EXE% --StopPath "%GERONIMO_HOME%" --StopMode exe --StopParams %JAVA_AGENT_OPTS%#-Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed';'%JRE_HOME%\lib\endorsed"#-Djava.ext.dirs="%GERONIMO_HOME%\lib\ext';'%JRE_HOME%\lib\ext"#-Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"#-Djava.io.tmpdir="%GERONIMO_TMPDIR%"#-jar#"%GERONIMO_HOME%\bin\shutdown.jar"#%SHUTDOWN_ARGS%
 if not errorlevel 1 goto installed
-echo Failed to install "%SERVICE_NAME%" service.
+echo Failed to install "%SERVICE_NAME%" service. Refer to the log in var/log/geronimosrv.log
 goto end
 
 :installed
