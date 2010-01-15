@@ -158,7 +158,10 @@ function load() {
            anchorName = anchors[i].innerHTML; 
            if ( anchorName == portalPageName) { 
                displayPortlets(anchors[i]);
-               findAndSelect(portalPageName,navigationTree.rootNode);
+               
+               if(navigationTree){
+                   findAndSelect(portalPageName,navigationTree.rootNode);
+               }
                return;
            }
        }
@@ -166,9 +169,14 @@ function load() {
    }
 
     function displayPortlets(anchor){
+    
+        var iframeHref = anchor.href;
 
-        document.getElementById('content').style.display = 'none';
-        document.getElementById("portletsFrame").src = anchor.href+"?formId="+formID;
+        if(document.location.href.indexOf(iframeHref)==0){      
+            iframeHref=document.location.href.substring(0,document.location.href.indexOf("?"));
+        }
+    
+        document.getElementById("portletsFrame").src = iframeHref+"?formId="+formID;
         setTimeout('returnToTop()', 30);
      }
      

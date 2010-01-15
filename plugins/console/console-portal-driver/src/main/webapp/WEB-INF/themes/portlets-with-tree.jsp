@@ -17,11 +17,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --%>
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jstl/fmt_rt" prefix="fmt"%>
 <%@ taglib uri="http://portals.apache.org/pluto" prefix="pluto" %>
+<fmt:setLocale value="<%=request.getLocale()%>" />
+<fmt:setBundle basename="org.apache.geronimo.console.i18n.ConsoleResource"/>
+<%@ page import="org.apache.geronimo.pluto.impl.PageConfig"%>
 
 <body id="admin-console" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" rightmargin="0">
 
 <script language="JavaScript">
+
+<%-- When there's hash in current page url
+redirect the page with noxxsPage hash as the query string,
+the server side will get the real redirect target page based on the value of noxxsPage--%>
+
+ if(document.location.hash!='') {
+       var href = document.location.href;
+       var newHref = href.substring(0,href.lastIndexOf("#"));
+       if(newHref.indexOf("&noxssPage")>0){
+            newHref = newHref.substring(0,href.indexOf("&noxssPage"));
+       }
+       document.location.href =  newHref + "&noxssPage=" +document.location.hash.substr(11,document.location.hash.length);
+    }
 
 var iframeId;
 
@@ -96,18 +113,6 @@ function autoResize(){
                     <!-- Portlet Section -->
                     <td class="Gutter">&nbsp;</td> <!-- Spacer -->
                     <td valign="top">
-
-                <!-- Content block: portlets are divided into two columns/groups -->
-                <!--<div id="body-block" style="height:100%">-->
-                <div id="content">
-                    <pluto:isMaximized var="isMax" />
-
-                    <c:forEach var="portlet" varStatus="status"	items="${currentPage.portletIds}">
-                        <c:set var="portlet" value="${portlet}" scope="request" />
-                        <jsp:include page="portlet-skin.jsp" />
-                    </c:forEach>
-
-                </div>
                 
                     <iframe  src="" id="portletsFrame" width="100%" height="100%" scrolling="no" frameborder="0" onload="if (window.parent && window.parent.delayResize) {window.parent.delayResize('portletsFrame');}">
                     
@@ -123,4 +128,12 @@ function autoResize(){
     </tr>
 </table>
 </body>
-
+<script type="text/javascript">
+    <% 
+    PageConfig pc=(PageConfig)request.getAttribute("currentPage");
+    String pageID=pc.getName();
+    String pageName=pageID.substring(pageID.lastIndexOf("/")+1,pageID.length());
+    %>
+    var pageName = "<fmt:message key="<%=pageName%>"/>";
+    quickLaunchPortlets(pageName);
+</script>

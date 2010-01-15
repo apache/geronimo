@@ -49,6 +49,7 @@ public class XSRFHandler
     private static final String XSRF_JS_FILENAME = "/XSRF.js";
     private static final String XSRF_JS_UNIQUEID = "<%XSRF_UNIQUEID%>";
     private static final String NOXSS_SHOW_TREE = "noxssShowTree";
+    private static final String NOXSS_HASH_OF_PAGE_TO_REDIRECT = "noxssPage";
 
     private Map<String, String> sessionMap = Collections.synchronizedMap(new HashMap<String, String>());
     private String xsrfJS;
@@ -87,8 +88,14 @@ public class XSRFHandler
 
         if ((hreq.getQueryString() != null) || (hreq.getParameterNames().hasMoreElements())) {
             
-            if (hreq.getParameterMap().keySet().size() == 1 && hreq.getParameter(NOXSS_SHOW_TREE) != null
-                    && hreq.getParameter(NOXSS_SHOW_TREE).equals("true")) {
+            if (hreq.getParameterMap().keySet().size() == 1 && hreq.getParameter(NOXSS_SHOW_TREE) != null) {
+
+                return false;
+
+            }
+            
+            if (hreq.getParameterMap().keySet().size() == 2 && hreq.getParameter(NOXSS_SHOW_TREE) != null
+                    && hreq.getParameter(NOXSS_HASH_OF_PAGE_TO_REDIRECT)!=null) {
 
                 return false;
 

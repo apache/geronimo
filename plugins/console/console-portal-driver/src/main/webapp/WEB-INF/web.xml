@@ -58,13 +58,23 @@ limitations under the License.
   </filter>
 
   <filter-mapping>
-	<filter-name>PlutoURLRebuildFilter</filter-name>
-	<url-pattern>/portal/*</url-pattern>
+    <filter-name>PlutoURLRebuildFilter</filter-name>
+    <url-pattern>/portal/*</url-pattern>
   </filter-mapping>
 
   <filter-mapping>
-	<filter-name>PlutoURLRebuildFilter</filter-name>
-	<url-pattern>/secure/*</url-pattern>
+    <filter-name>PlutoURLRebuildFilter</filter-name>
+    <url-pattern>/secure/*</url-pattern>
+  </filter-mapping>
+  
+  <filter>
+    <filter-name>RedirectByHashFilter</filter-name>
+    <filter-class>org.apache.geronimo.console.filter.RedirectByHashFilter</filter-class>
+  </filter>
+  
+  <filter-mapping>
+    <filter-name>RedirectByHashFilter</filter-name>
+    <url-pattern>/portal/*</url-pattern>
   </filter-mapping>
   
   <servlet>

@@ -28,5 +28,11 @@ limitations under the License.
     <jsp:include page="portlet-skin.jsp" />
 </c:forEach>
 </div>
+
+<script type="text/javascript">
+    if(parent){
+        parent.location.hash="#noxssPage=<c:out value="${hashOfCurrentPortalPage}"/>";
+    }
+</script>
 </body>
 
