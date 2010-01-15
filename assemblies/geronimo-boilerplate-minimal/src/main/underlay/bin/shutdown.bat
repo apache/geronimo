@@ -48,12 +48,6 @@
 @if "%GERONIMO_BATCH_ECHO%" == "on"  echo on
 @if not "%GERONIMO_BATCH_ECHO%" == "on"  echo off
 
-if "%OS%" == "Windows_NT" goto okOsCheck
-echo Cannot process Geronimo command - you are running an unsupported operating system.
-cmd /c exit /b 1
-goto end
-
-:okOsCheck
 @setlocal enableextensions
 
 if not "%GERONIMO_HOME%" == "" goto resolveHome

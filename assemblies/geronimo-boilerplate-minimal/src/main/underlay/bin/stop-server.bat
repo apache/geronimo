@@ -43,12 +43,6 @@
 @if "%GERONIMO_BATCH_ECHO%" == "on"  echo on
 @if not "%GERONIMO_BATCH_ECHO%" == "on"  echo off
 
-if "%OS%"=="Windows_NT" goto okOsCheck
-echo Cannot process command - you are running an unsupported operating system.
-cmd /c exit /b 1
-goto end
-
-:okOsCheck
 @setlocal enableextensions
 
 set DIRNAME=%~dp0
