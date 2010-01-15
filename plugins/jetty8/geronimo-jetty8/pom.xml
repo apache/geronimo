@@ -78,9 +78,8 @@
         </dependency>
 
         <dependency>
-          <groupId>org.mortbay.jetty</groupId>
+          <groupId>org.eclipse.jetty</groupId>
           <artifactId>jetty-util</artifactId>
-          <version>6.1.15</version>
         </dependency>
 
         <dependency>
