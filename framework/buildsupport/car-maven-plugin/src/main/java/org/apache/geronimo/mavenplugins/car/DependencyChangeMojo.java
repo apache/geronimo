@@ -143,11 +143,11 @@ public class DependencyChangeMojo extends AbstractCarMojo {
 
     protected void saveDependencyChanges(Collection<DependencyType> dependencies, PluginArtifactType removed)
             throws Exception {
-        File addedFile = new File(dependencyFile.getParentFile(), "dependencies.added.xml");
+        File addedFile = new File(filteredDependencyFile.getParentFile(), "dependencies.added.xml");
         PluginArtifactType added = toPluginArtifactType(dependencies);
         writeDependencies(added,  addedFile);
 
-        File removedFile = new File(dependencyFile.getParentFile(), "dependencies.removed.xml");
+        File removedFile = new File(filteredDependencyFile.getParentFile(), "dependencies.removed.xml");
         writeDependencies(removed,  removedFile);
         
         File treeListing = saveTreeListing();
@@ -172,7 +172,7 @@ public class DependencyChangeMojo extends AbstractCarMojo {
     }
 
     protected File saveTreeListing() throws IOException {
-        File treeListFile = new File(dependencyFile.getParentFile(), "treeListing.txt");
+        File treeListFile = new File(filteredDependencyFile.getParentFile(), "treeListing.txt");
         OutputStream os = new FileOutputStream(treeListFile);
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
         try {
