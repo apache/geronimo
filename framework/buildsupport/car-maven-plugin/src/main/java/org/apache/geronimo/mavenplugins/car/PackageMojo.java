@@ -199,7 +199,7 @@ public class PackageMojo extends AbstractCarMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         Map<String, String> oldSystemProperties = setSystemProperties();
         try {
-// We need to make sure to clean up any previous work first or this operation will fail
+            // We need to make sure to clean up any previous work first or this operation will fail
             FileUtils.forceDelete(targetRepository);
             FileUtils.forceMkdir(targetRepository);
 
@@ -209,10 +209,10 @@ public class PackageMojo extends AbstractCarMojo {
 
             // Use the default configs if none specified
             if (deploymentConfigs == null) {
-                if (!bootstrap) {
-                    deploymentConfigs = new String[]{defaultDeploymentConfig};
-                } else {
+                if (bootstrap) {
                     deploymentConfigs = new String[]{};
+                } else {
+                    deploymentConfigs = new String[]{defaultDeploymentConfig};
                 }
             }
             getLog().debug("Deployment configs: " + Arrays.asList(deploymentConfigs));
@@ -303,8 +303,8 @@ public class PackageMojo extends AbstractCarMojo {
         BundleContext bundleContext = framework.getBundleContext();
         boot.setBundleContext(bundleContext);
 
-        // Generate expanded so we can use Maven to generate the archive
-        boot.setExpanded(true);
+        // Keep the same behavior with RepositoryConfigurationStore
+        boot.setExpanded(false);
 
         boot.bootstrap();
     }

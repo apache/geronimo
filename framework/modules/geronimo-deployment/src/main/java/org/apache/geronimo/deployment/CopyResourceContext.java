@@ -35,16 +35,15 @@ import org.apache.geronimo.kernel.util.JarUtils;
 
 class CopyResourceContext implements ResourceContext {
     private final DeploymentContext deploymentContext;
-    private final URI baseUri;
     private final byte[] buffer = new byte[4096];
+    private File baseDir;
 
     public CopyResourceContext(DeploymentContext deploymentContext, File baseDir) throws DeploymentException {
         this.deploymentContext = deploymentContext;
-        baseUri = baseDir.toURI();
-
         if (baseDir.isFile()) {
             deploymentContext.addToClassPath("");
         }
+        this.baseDir = baseDir;
     }
 
     /**
@@ -157,7 +156,7 @@ class CopyResourceContext implements ResourceContext {
         if (targetPath == null) throw new NullPointerException("targetPath is null");
         if (targetPath.isAbsolute()) throw new IllegalArgumentException("targetPath is absolute");
         if (targetPath.isOpaque()) throw new IllegalArgumentException("targetPath is opaque");
-        return new File(baseUri.resolve(targetPath));
+        return new File(baseDir, targetPath.toString());
     }
 
     public void flush() throws IOException {

@@ -102,13 +102,7 @@ public class MockBundleContext implements BundleContext {
         MockBundle bundle = new MockBundle(classLoader, location, counter++);
         bundles.put(counter, bundle);
         //activate it.
-        Artifact configId = locations.get(location);
-        if (configId == null) {
-            configId = locations.get(null);
-        }
-        if (configId == null) {
-            configId = Artifact.create(location);
-        }
+        Artifact configId = getArtifactByLocation(location);
         ConfigurationData configurationData = configurationDatas.get(configId);
         if (configurationData == null) {
             configurationData = new ConfigurationData(configId, naming);
@@ -193,6 +187,21 @@ public class MockBundleContext implements BundleContext {
 
     public Filter createFilter(String s) throws InvalidSyntaxException {
         return null;
+    }
+
+    private Artifact getArtifactByLocation(String location) {
+        Artifact configId = locations.get(location);
+        if (configId == null) {
+            configId = locations.get(null);
+        }
+        if (configId == null) {
+            try {
+                configId = Artifact.create(location);
+            } catch (Exception e) {
+                configId = new Artifact("org.apache.geronimo", "testwebapp" + System.currentTimeMillis(), "1.0", "car");
+            }
+        }
+        return configId;
     }
 
     private class WrappingBundleContext extends MockBundleContext {

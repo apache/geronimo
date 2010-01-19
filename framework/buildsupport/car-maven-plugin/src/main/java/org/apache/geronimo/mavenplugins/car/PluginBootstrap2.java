@@ -23,13 +23,11 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.jar.JarOutputStream;
 
-import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
-import org.apache.geronimo.deployment.service.GBeanBuilder;
-import org.apache.geronimo.deployment.xbeans.ModuleDocument;
-import org.apache.geronimo.deployment.xbeans.ModuleType;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
+import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -37,12 +35,12 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.NullConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.osgi.framework.BundleContext;
 
@@ -93,7 +91,13 @@ public class PluginBootstrap2 {
         ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.<Repository>singleton(repository), Collections.<NamespaceDrivenBuilder>singleton(gBeanBuilder), new Jsr77Naming(), bundleContext);
         ConfigurationStore targetConfigurationStore = new NullConfigurationStore() {
             public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
-                return buildDir;
+                StringBuilder configurationPathBuilder = new StringBuilder("repository");
+                configurationPathBuilder.append(File.separator).append(configId.getGroupId().replace('.', '/'));
+                configurationPathBuilder.append(File.separator).append(configId.getArtifactId());
+                configurationPathBuilder.append(File.separator).append(configId.getVersion());
+                File configurationDir = new File(buildDir, configurationPathBuilder.toString());
+                configurationDir.mkdirs();
+                return configurationDir;
             }
         };
 

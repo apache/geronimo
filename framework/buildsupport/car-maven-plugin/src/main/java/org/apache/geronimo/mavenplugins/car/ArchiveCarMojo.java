@@ -20,9 +20,11 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.system.osgi.BootActivator;
@@ -33,6 +35,7 @@ import org.apache.maven.model.License;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
+import org.codehaus.plexus.archiver.jar.JarArchiver.FilesetManifestConfig;
 import org.osgi.framework.Constants;
 
 /**
@@ -196,8 +199,9 @@ public class ArchiveCarMojo
         try {
             // Incldue the generated artifact contents
             File artifactDirectory = getArtifactInRepositoryDir();
+
             if (artifactDirectory.exists()) {
-                archiver.getArchiver().addDirectory(artifactDirectory);
+                archiver.getArchiver().addArchivedFileSet(artifactDirectory);
             }
 
             // Include the optional classes.resources
@@ -227,69 +231,71 @@ public class ArchiveCarMojo
             };
 
             archiver.getArchiver().addDirectory(baseDirectory, "META-INF/", includes, new String[0]);
-            File manifestFile = new File(new File(getArtifactInRepositoryDir(), "META-INF"), "MANIFEST.MF");
-            if (manifestFile.exists()) {
-                archiver.getArchiver().setManifest(manifestFile);
-            } else {
-                File configFile = new File(new File(getArtifactInRepositoryDir(), "META-INF"), "imports.txt");
 
-                if (configFile.exists()) {
-                    StringBuilder imports = new StringBuilder("org.apache.geronimo.kernel.osgi,");
-                    if (boot) {
-                        archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, BootActivator.class.getName());
-                        imports.append("org.apache.geronimo.system.osgi,");
-                    } else {
-                        archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, ConfigurationActivator.class.getName());
-                    }
-                    archive.addManifestEntry(Constants.BUNDLE_NAME, project.getName());
-                    archive.addManifestEntry(Constants.BUNDLE_VENDOR, project.getOrganization().getName());
-                    ArtifactVersion version = project.getArtifact().getSelectedVersion();
-                    String versionString = "" + version.getMajorVersion() + "." + version.getMinorVersion() + "." + version.getIncrementalVersion();
-                    if (version.getQualifier() != null) {
-                        versionString += "." + version.getQualifier();
-                    }
-                    archive.addManifestEntry(Constants.BUNDLE_VERSION, versionString);
-                    archive.addManifestEntry(Constants.BUNDLE_MANIFESTVERSION, "2");
-                    archive.addManifestEntry(Constants.BUNDLE_DESCRIPTION, project.getDescription());
-                    // NB, no constant for this one
-                    archive.addManifestEntry("Bundle-License", ((License) project.getLicenses().get(0)).getUrl());
-                    archive.addManifestEntry(Constants.BUNDLE_DOCURL, project.getUrl());
-                    archive.addManifestEntry(Constants.BUNDLE_SYMBOLICNAME, project.getGroupId() + "." + project.getArtifactId());
-                    Reader in = new FileReader(configFile);
-                    char[] buf = new char[1024];
-                    try {
-                        int i;
-                        while ((i = in.read(buf)) > 0) {
-                            imports.append(buf, 0, i);
+            //For no plan car, do nothing
+            if (artifactDirectory.exists()) {
+                JarFile includedJarFile = new JarFile(getArtifactInRepositoryDir());
+                if (includedJarFile.getEntry("META-INF/MANIFEST.MF") != null) {
+                    FilesetManifestConfig mergeFilesetManifestConfig = new FilesetManifestConfig();
+                    mergeFilesetManifestConfig.setValue("merge");
+                    archiver.getArchiver().setFilesetmanifest(mergeFilesetManifestConfig);
+                } else {
+                    //File configFile = new File(new File(getArtifactInRepositoryDir(), "META-INF"), "imports.txt");
+                    ZipEntry importTxtEntry = includedJarFile.getEntry("META-INFO/imports.txt");
+                    if (importTxtEntry != null) {
+                        StringBuilder imports = new StringBuilder("org.apache.geronimo.kernel.osgi,");
+                        if (boot) {
+                            archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, BootActivator.class.getName());
+                            imports.append("org.apache.geronimo.system.osgi,");
+                        } else {
+                            archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, ConfigurationActivator.class.getName());
                         }
-                    } finally {
-                        in.close();
-                    }
-
-                    // do we have any additional processing directives?
-                    if (instructions != null) {
-                        String explicitImports = (String) instructions.get(Constants.IMPORT_PACKAGE);
-                        // if there is an Import-Package instructions, then add these imports to the
-                        // list
-                        if (explicitImports != null) {
-                            // if specified on multiple lines, remove the line-ends.
-                            explicitImports = explicitImports.replaceAll("[\r\n]", "");
-                            imports.append(',');
-                            imports.append(explicitImports);
+                        archive.addManifestEntry(Constants.BUNDLE_NAME, project.getName());
+                        archive.addManifestEntry(Constants.BUNDLE_VENDOR, project.getOrganization().getName());
+                        ArtifactVersion version = project.getArtifact().getSelectedVersion();
+                        String versionString = "" + version.getMajorVersion() + "." + version.getMinorVersion() + "." + version.getIncrementalVersion();
+                        if (version.getQualifier() != null) {
+                            versionString += "." + version.getQualifier();
                         }
-
-                        String requiredBundles = (String) instructions.get(Constants.REQUIRE_BUNDLE);
-                        if (requiredBundles != null) {
-                            requiredBundles = requiredBundles.replaceAll("[\r\n]", "");
-                            archive.addManifestEntry(Constants.REQUIRE_BUNDLE, requiredBundles);
+                        archive.addManifestEntry(Constants.BUNDLE_VERSION, versionString);
+                        archive.addManifestEntry(Constants.BUNDLE_MANIFESTVERSION, "2");
+                        archive.addManifestEntry(Constants.BUNDLE_DESCRIPTION, project.getDescription());
+                        // NB, no constant for this one
+                        archive.addManifestEntry("Bundle-License", ((License) project.getLicenses().get(0)).getUrl());
+                        archive.addManifestEntry(Constants.BUNDLE_DOCURL, project.getUrl());
+                        archive.addManifestEntry(Constants.BUNDLE_SYMBOLICNAME, project.getGroupId() + "." + project.getArtifactId());
+                        Reader in = new InputStreamReader(includedJarFile.getInputStream(importTxtEntry));
+                        char[] buf = new char[1024];
+                        try {
+                            int i;
+                            while ((i = in.read(buf)) > 0) {
+                                imports.append(buf, 0, i);
+                            }
+                        } finally {
+                            in.close();
                         }
+                        // do we have any additional processing directives?
+                        if (instructions != null) {
+                            String explicitImports = (String) instructions.get(Constants.IMPORT_PACKAGE);
+                            // if there is an Import-Package instructions, then add these imports to the
+                            // list
+                            if (explicitImports != null) {
+                                // if specified on multiple lines, remove the line-ends.
+                                explicitImports = explicitImports.replaceAll("[\r\n]", "");
+                                imports.append(',');
+                                imports.append(explicitImports);
+                            }
+                            String requiredBundles = (String) instructions.get(Constants.REQUIRE_BUNDLE);
+                            if (requiredBundles != null) {
+                                requiredBundles = requiredBundles.replaceAll("[\r\n]", "");
+                                archive.addManifestEntry(Constants.REQUIRE_BUNDLE, requiredBundles);
+                            }
+                        }
+                        archive.addManifestEntry(Constants.IMPORT_PACKAGE, imports.toString());
+                        archive.addManifestEntry(Constants.DYNAMICIMPORT_PACKAGE, "*");
                     }
-
-                    archive.addManifestEntry(Constants.IMPORT_PACKAGE, imports.toString());
-                    archive.addManifestEntry(Constants.DYNAMICIMPORT_PACKAGE, "*");
                 }
             }
-
             archiver.createArchive(project, archive);
 
             return archiveFile;

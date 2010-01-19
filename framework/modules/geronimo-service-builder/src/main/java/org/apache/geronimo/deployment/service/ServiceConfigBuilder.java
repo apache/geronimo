@@ -221,9 +221,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
         if(!environment.getConfigId().isResolved()) {
             throw new IllegalStateException("Module ID should be fully resolved by now (not "+environment.getConfigId()+")");
         }
-        File outfile;
         try {
-            outfile = targetConfigurationStore.createNewConfigurationDir(configId);
+            targetConfigurationStore.createNewConfigurationDir(configId);
         } catch (ConfigurationAlreadyExistsException e) {
             throw new DeploymentException(e);
         }
@@ -236,7 +235,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
             }
 
             AbstractName moduleName = naming.createRootName(configId, configId.toString(), SERVICE_MODULE);
-            context = new DeploymentContext(outfile,
+            File tempDirectory = FileUtils.createTempDir();
+            context = new DeploymentContext(tempDirectory,
                     inPlaceDeployment && null != jar ? JarUtils.toFile(jar) : null,
                     environment,
                     moduleName,
@@ -252,33 +252,26 @@ public class ServiceConfigBuilder implements ConfigurationBuilder, GBeanLifecycl
             serviceBuilders.build(moduleType, context, context);
             return context;
         } catch (DeploymentException de) {
-            cleanupAfterFailedBuild(context, outfile);
+            cleanupContext(context);
             throw de;
         } catch (IOException ie) {
-            cleanupAfterFailedBuild(context, outfile);
+            cleanupContext(context);
             throw ie;
         } catch (RuntimeException re) {
-            cleanupAfterFailedBuild(context, outfile);
+            cleanupContext(context);
             throw re;
         } catch (Error e) {
-            cleanupAfterFailedBuild(context, outfile);
+            cleanupContext(context);
             throw e;
         }
     }
 
-    private void cleanupAfterFailedBuild(DeploymentContext context, File directory) {
-        try {
-            if (context !=null) {
+    private void cleanupContext(DeploymentContext context) {
+        if (context != null) {
+            try {
                 context.close();
+            } catch (Exception e) {
             }
-        } catch (DeploymentException de) {
-            // ignore error on cleanup
-        } catch (IOException ioe) {
-            // ignore error on cleanu
-        }
-        if (directory != null) {
-            FileUtils.recursiveDelete(directory);
         }
     }
-
 }

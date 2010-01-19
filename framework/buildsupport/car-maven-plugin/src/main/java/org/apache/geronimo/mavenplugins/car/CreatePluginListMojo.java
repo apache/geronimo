@@ -30,18 +30,18 @@ import java.util.SortedSet;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
-import java.lang.*;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.repository.*;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Maven2Repository;
 import org.apache.geronimo.system.plugin.PluginInstallerGBean;
-import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.PluginListType;
 import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.xml.sax.SAXException;

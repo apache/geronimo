@@ -196,40 +196,21 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
-        if(!configId.isResolved()) {
-            throw new IllegalArgumentException("Artifact "+configId+" is not fully resolved");
+        if (!configId.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + configId + " is not fully resolved");
         }
         File location = repository.getLocation(configId);
         if (location.exists()) {
-            boolean isEmptyDirectory = false;
-            if (location.isDirectory()) {
-                File[] files = location.listFiles();
-                isEmptyDirectory = files.length < 1;
-                if (!isEmptyDirectory && log.isDebugEnabled()) {
-                    log.debug(location.getPath() + " has " + files.length + " files:");
-                    for (File file : files) {
-                        log.debug(file.getPath());
-                    }
-                }
-            }
-            if (isEmptyDirectory) {
-                if (log.isDebugEnabled()) {
-                    log.debug(location.getPath() + " is empty");
-                }
-            } else {
-                log.error(location.getPath() + " is not an empty directory");
-                throw new ConfigurationAlreadyExistsException("Configuration already exists: " + configId);
-            }
-        } else {
+            throw new ConfigurationAlreadyExistsException("Configuration already exists: " + configId);
+        }
+        File parentDirectory = location.getParentFile();
+        if (!parentDirectory.exists()) {
+            parentDirectory.mkdirs();
             if (log.isDebugEnabled()) {
-                log.debug("Creating configuration directory: " + location.getPath());
+                log.debug("Configuration directory: " + parentDirectory + " is created");
             }
-            location.mkdirs();
         }
-        if (!location.exists()) {
-            throw new ConfigurationAlreadyExistsException("Could not create configuration directory: " + location);
-        }
-        return location;
+        return parentDirectory;
     }
 
     public Set<URL> resolve(Artifact configId, String moduleName, String path) throws NoSuchConfigException, MalformedURLException {
@@ -344,12 +325,22 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         } else if (!source.canRead()) {
             throw new InvalidConfigException("Source is not readable " + source);
         }
+        ExecutableConfigurationUtil.writeConfiguration(configurationData, source);
+        // write in-place configuration config file, if need be.
+        inPlaceConfUtil.writeInPlaceLocation(configurationData, source);
 
         // determine the target location
         Artifact configId = configurationData.getId();
         File destination = repository.getLocation(configId);
-
+        if (!source.equals(destination)) {
+            if (source.isFile()) {
+                repository.copyToRepository(source, configId, null);
+            } else {
+                JarUtils.jarDirectory(source, destination);
+            }
+        }
         // if directory in the correct place -- noop
+       /*
         if (!source.equals(destination)) {
             if (destination.exists()) {
                 throw new ConfigurationAlreadyExistsException(configId.toString());
@@ -366,11 +357,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 throw new InvalidConfigException("Unable to install configuration from " + source);
             }
         }
-
-        ExecutableConfigurationUtil.writeConfiguration(configurationData, destination);
-
-        // write in-place configuration config file, if need be.
-        inPlaceConfUtil.writeInPlaceLocation(configurationData, destination);
+    */
     }
 
     public void uninstall(Artifact configId) throws NoSuchConfigException, IOException {

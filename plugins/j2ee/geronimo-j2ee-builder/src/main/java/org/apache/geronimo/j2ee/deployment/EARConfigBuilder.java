@@ -557,10 +557,9 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         EARContext earContext = null;
         ConfigurationModuleType applicationType = applicationInfo.getType();
         applicationInfo.getEnvironment().setConfigId(configId);
-        File configurationDir = null;
         try {
             try {
-                configurationDir = targetConfigurationStore.createNewConfigurationDir(configId);
+                targetConfigurationStore.createNewConfigurationDir(configId);
             } catch (ConfigurationAlreadyExistsException e) {
                 throw new DeploymentException(e);
             }
@@ -569,9 +568,10 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             if (configurationManager == null) {
                 configurationManager = new SimpleConfigurationManager(configurationStores, artifactResolver, repositories, bundleContext);
             }
-
+            //Use a temporary folder to hold the extracted files for analysis use
+            File tempDirectory = FileUtils.createTempDir();
             // Create the output ear context
-            earContext = new EARContext(configurationDir,
+            earContext = new EARContext(tempDirectory,
                     inPlaceDeployment ? JarUtils.toFile(earFile) : null,
                     applicationInfo.getEnvironment(),
                     applicationType,
@@ -714,19 +714,19 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             // it's the caller's responsibility to close the context...
             return earContext;
         } catch (GBeanAlreadyExistsException e) {
-            cleanupContext(earContext, configurationDir);
+            cleanupContext(earContext);
             throw new DeploymentException(e);
         } catch (IOException e) {
-            cleanupContext(earContext, configurationDir);
+            cleanupContext(earContext);
             throw e;
         } catch (DeploymentException e) {
-            cleanupContext(earContext, configurationDir);
+            cleanupContext(earContext);
             throw e;
         } catch (RuntimeException e) {
-            cleanupContext(earContext, configurationDir);
+            cleanupContext(earContext);
             throw e;
         } catch (Error e) {
-            cleanupContext(earContext, configurationDir);
+            cleanupContext(earContext);
             throw e;
         } finally {
             for (Object module1 : applicationInfo.getModules()) {
@@ -766,6 +766,15 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         // cleanup any other configurations generated (e.g. AppClient config dirs)
         for (ConfigurationData configurationData : configurations) {
             cleanupConfigurationDir(configurationData.getConfigurationDir());
+        }
+    }
+
+    private void cleanupContext(EARContext earContext) {
+        if (earContext != null) {
+            try {
+                earContext.close();
+            } catch (Exception e) {
+            }
         }
     }
 

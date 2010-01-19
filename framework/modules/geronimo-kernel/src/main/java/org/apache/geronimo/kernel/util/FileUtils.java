@@ -204,7 +204,7 @@ public class FileUtils {
         return rootDeleteStatus;
     }
 
-    public static boolean recursiveDelete2(File root) {
+    public static boolean recursiveDeleteWithRetries(File root) {
         if (root == null) {
             return true;
         }

@@ -141,7 +141,7 @@ public class GeronimoStandardContext extends StandardContext {
 
             // save the role designates for mapping servlets to their run-as roles
             runAsSource = securityHolder.getRunAsSource();
-            
+
             if (securityHolder.getPolicyContextID() != null) {
 
                 policyContextId = securityHolder.getPolicyContextID();
@@ -159,7 +159,7 @@ public class GeronimoStandardContext extends StandardContext {
 
             }
         }
-        
+
         //Set a UserTransactionBeforeAfter
         interceptor = new UserTransactionBeforeAfter(interceptor, index++, ctx.getUserTransaction());
 
@@ -167,7 +167,7 @@ public class GeronimoStandardContext extends StandardContext {
         if (null != clusteredValve) {
             addValve(clusteredValve);
         }
-        
+
         //Set the BeforeAfters as a valve
         GeronimoBeforeAfterValve geronimoBAValve = new GeronimoBeforeAfterValve(interceptor, index);
         addValve(geronimoBAValve);
@@ -186,7 +186,7 @@ public class GeronimoStandardContext extends StandardContext {
                 addValve((Valve)valve);
             }
         }
-        
+
         // Add User Defined Listeners
         List listenerChain = ctx.getLifecycleListenerChain();
         if (listenerChain != null) {
@@ -216,7 +216,7 @@ public class GeronimoStandardContext extends StandardContext {
 
         //Set the Dispatch listener
         this.addInstanceListener(DispatchListener.class.getName());
-        
+
         //Set the run-as listener. listeners must be added before start() is called
         if (runAsSource != null) {
             this.addInstanceListener(RunAsInstanceListener.class.getName());
@@ -288,12 +288,12 @@ public class GeronimoStandardContext extends StandardContext {
      */
     public void backgroundProcess() {
         Object context[] = null;
-        
+
         if (beforeAfter != null){
             context = new Object[contextCount];
             beforeAfter.before(context, null, null, BeforeAfter.EDGE_SERVLET);
         }
-        
+
         try {
             super.backgroundProcess();
         } finally {
@@ -302,15 +302,15 @@ public class GeronimoStandardContext extends StandardContext {
             }
         }
     }
-    
+
     public void kill() throws Exception {
         Object context[] = null;
-        
+
         if (beforeAfter != null){
             context = new Object[contextCount];
             beforeAfter.before(context, null, null, BeforeAfter.EDGE_SERVLET);
         }
-        
+
         try {
             stop();
             destroy();
@@ -326,7 +326,7 @@ public class GeronimoStandardContext extends StandardContext {
         super.init();
         setDocBase(docBase);
     }
-    
+
     public synchronized void start() throws LifecycleException {
         if (pipelineInitialized) {
             try {
@@ -347,7 +347,7 @@ public class GeronimoStandardContext extends StandardContext {
                     // optimization
                     this.removeInstanceListener(RunAsInstanceListener.class.getName());
                 }
-                
+
             } catch (IOException e) {
                 if (e.getCause() instanceof LifecycleException) {
                     throw (LifecycleException) e.getCause();
@@ -415,7 +415,7 @@ public class GeronimoStandardContext extends StandardContext {
             }
 
             public ClassLoader getClassLoader() {
-                // Implementation Note: the actual CL to be used by this 
+                // Implementation Note: the actual CL to be used by this
                 // context is the Geronimo one and not the Tomcat one.
                 return parentClassLoader;
             }
@@ -507,7 +507,7 @@ public class GeronimoStandardContext extends StandardContext {
      * @return true if at least one servlet specifies a run-as role, false otherwise
      */
     protected boolean hasRunAsServlet() {
-        for (Container servlet : findChildren()) { 
+        for (Container servlet : findChildren()) {
             if (servlet instanceof Wrapper) {
                 if (((Wrapper)servlet).getRunAs() != null) {
                     return true;
@@ -516,11 +516,11 @@ public class GeronimoStandardContext extends StandardContext {
         }
         return false;
     }
-    
+
     /**
      * Get the Subject for the servlet's run-as role
      * @param runAsRole Name of run as role to get Subject for
-     * @return Subject for the servlet's run-as role, if specified.  otherwise null. 
+     * @return Subject for the servlet's run-as role, if specified.  otherwise null.
      */
     public Subject getSubjectForRole(String runAsRole) {
         return runAsSource.getSubjectForRole(runAsRole);

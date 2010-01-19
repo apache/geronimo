@@ -18,11 +18,11 @@
 package org.apache.geronimo.deployment;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.io.OutputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -43,41 +43,44 @@ import java.util.zip.ZipFile;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.osgi.BundleUtils;
-import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.Manifest;
 import org.apache.geronimo.kernel.config.ManifestException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.osgi.BundleUtils;
+import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.system.plugin.model.PluginType;
-import org.apache.geronimo.system.plugin.model.PluginArtifactType;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.DependencyType;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
+import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -129,6 +132,7 @@ public class DeploymentContext {
     private Configuration configuration;
     //TODO OSGI set this
     private boolean boot;
+    private Bundle tempBundle;
 
 
     public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, AbstractName moduleName, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager, Collection<Repository> repositories, BundleContext bundleContext) throws DeploymentException {
@@ -204,15 +208,16 @@ public class DeploymentContext {
 //                    urls.toArray(new URL[urls.size()]),
 //                    parents.toArray(new Bundle[parents.size()]),
 //                    classLoadingRules);
-
+            File tempBundleFile = FileUtils.createTempFile();
             createTempManifest();
             createTempPluginMetadata();
-            String location = "reference:file:" + baseDir.getAbsolutePath();
-            Bundle bundle = this.bundleContext.installBundle(location);
-            if (BundleUtils.canStart(bundle)) {
-                bundle.start(Bundle.START_TRANSIENT);
+            JarUtils.jarDirectory(baseDir, tempBundleFile);
+            String location = "reference:file:" + tempBundleFile.getAbsolutePath();
+            tempBundle = bundleContext.installBundle(location);
+            if (BundleUtils.canStart(tempBundle)) {
+                tempBundle.start(Bundle.START_TRANSIENT);
             }
-            configurationData.setBundleContext(bundle.getBundleContext());
+            configurationData.setBundleContext(tempBundle.getBundleContext());
             configurationManager.loadConfiguration(configurationData);
             return configurationManager.getConfiguration(environment.getConfigId());
         } catch (Exception e) {
@@ -362,8 +367,8 @@ public class DeploymentContext {
     }
 
     public GBeanData getGBeanInstance(AbstractName name) throws GBeanNotFoundException {
-        Map gbeans = configuration.getGBeans();
-        GBeanData gbeanData = (GBeanData) gbeans.get(name);
+        Map<AbstractName, GBeanData> gbeans = configuration.getGBeans();
+        GBeanData gbeanData = gbeans.get(name);
         if (gbeanData == null) {
             throw new GBeanNotFoundException(name);
         }
@@ -764,8 +769,13 @@ public class DeploymentContext {
             try {
                 //TODO OSGI make sure this unloads the bundle from the framework
                 configurationManager.unloadConfiguration(configuration.getId());
-            } catch (NoSuchConfigException ignored) {
-                //ignore
+            } catch (Exception ignored) {
+            }
+        }
+        if (tempBundle != null) {
+            try {
+                tempBundle.uninstall();
+            } catch (BundleException e) {
             }
         }
     }

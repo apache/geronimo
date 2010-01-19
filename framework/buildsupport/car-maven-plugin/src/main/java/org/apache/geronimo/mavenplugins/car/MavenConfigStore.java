@@ -25,14 +25,13 @@ import java.util.List;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoOConfigurationDataTransformer;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 
@@ -78,7 +77,7 @@ public class MavenConfigStore
         if (!source.isDirectory()) {
             throw new InvalidConfigException("Source must be a directory: " + source);
         }
-        
+
         Artifact configId = configurationData.getId();
         File targetFile = repository.getLocation(configId);
         ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, null, targetFile);
