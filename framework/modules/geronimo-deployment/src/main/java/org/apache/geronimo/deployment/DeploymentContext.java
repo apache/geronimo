@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -212,7 +213,7 @@ public class DeploymentContext {
             createTempManifest();
             createTempPluginMetadata();
             JarUtils.jarDirectory(baseDir, tempBundleFile);
-            String location = "reference:file:" + tempBundleFile.getAbsolutePath();
+            String location = "reference:file:" + URLEncoder.encode(tempBundleFile.getAbsolutePath(), "UTF-8");
             tempBundle = bundleContext.installBundle(location);
             if (BundleUtils.canStart(tempBundle)) {
                 tempBundle.start(Bundle.START_TRANSIENT);
