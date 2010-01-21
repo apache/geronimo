@@ -453,6 +453,11 @@
             <artifactId>geronimo-cli</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-shell-base</artifactId>
+            <version>${version}</version>
+        </dependency>    
     </dependencies>
     <build>
         <!--<resources>-->
