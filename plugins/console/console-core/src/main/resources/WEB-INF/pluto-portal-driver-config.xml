@@ -37,7 +37,7 @@ limitations under the License.
 
 
   <!-- Render configuration which defines the portal pages. -->
-  <render-config default="Welcome">
+  <render-config default="0/Welcome">
 
   </render-config>
   
