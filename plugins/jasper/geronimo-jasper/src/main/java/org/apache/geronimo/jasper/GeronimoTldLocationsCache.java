@@ -149,6 +149,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
     public GeronimoTldLocationsCache(ServletContext ctxt) {
         super(ctxt);
         this.ctxt = ctxt;
+        this.mappings = new Hashtable<String,String[]>();
     }
 
     /** Constructor.
