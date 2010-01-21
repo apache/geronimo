@@ -113,7 +113,7 @@
         <module>console</module>
         <!--<module>corba</module>-->
         <!--<module>cxf</module>-->
-        <!--<module>dojo</module>-->
+        <module>dojo</module>
         <!--<module>debugviews</module>-->
         <module>hotdeploy</module>
         <module>j2ee</module>
