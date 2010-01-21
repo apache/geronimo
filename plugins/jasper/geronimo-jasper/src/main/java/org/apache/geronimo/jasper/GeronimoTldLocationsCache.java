@@ -148,6 +148,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
 
     public GeronimoTldLocationsCache(ServletContext ctxt) {
         super(ctxt);
+        this.ctxt = ctxt;
     }
 
     /** Constructor.
