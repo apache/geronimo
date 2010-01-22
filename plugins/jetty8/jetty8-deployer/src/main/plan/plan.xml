@@ -127,7 +127,6 @@ wsdl=text/xml
         <reference name="ResourceEnvironmentSetter">
             <name>ResourceRefBuilder</name>
         </reference>
-        <attribute name="jettyArtifact">${pom.groupId}/jetty8/${version}/car</attribute>
     </gbean>
 
     <gbean name="StaticContent" class="org.apache.geronimo.jetty8.DefaultServletHolderWrapper">

@@ -38,11 +38,19 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.osgi.DelegatingBundle;
+import org.apache.geronimo.kernel.osgi.MultiBundleClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.osgi.framework.Bundle;
@@ -164,6 +172,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Manageable Attribute Store containing overrides to this configuration.
      */
     private ManageableAttributeStore attributeStore = null;
+    
+    private Bundle bundle;
 
     /**
      * Creates a configuration.
@@ -177,28 +187,36 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @throws InvalidConfigException if this configuration turns out to have a problem.
      */
     public Configuration(
-//            @ParamAttribute(name = "classLoaderHolder") ClassLoaderHolder classLoaderHolder,
             @ParamAttribute(name = "configurationData") ConfigurationData configurationData,
             @ParamAttribute(name = "dependencyNode") DependencyNode dependencyNode,
             @ParamAttribute(name = "allServiceParents") List<Configuration> allServiceParents,
             @ParamAttribute(name = "attributeStore") ManageableAttributeStore attributeStore,
-            @ParamAttribute(name = "configurationResolver") ConfigurationResolver configurationResolver) throws InvalidConfigException {
-//        if (classLoaderHolder == null) throw new NullPointerException("classLoaders are null");
-        if (configurationData == null) throw new NullPointerException("configurationData is null");
+            @ParamAttribute(name = "configurationResolver") ConfigurationResolver configurationResolver,
+            @ParamAttribute(name = "configurationManager") ConfigurationManager configurationManager) throws InvalidConfigException {
+        if (configurationData == null) {
+            throw new NullPointerException("configurationData is null");
+        }
 
-//        this.classLoaderHolder = classLoaderHolder;
         this.configurationData = configurationData;
         this.naming = configurationData.getNaming();
         this.attributeStore = attributeStore;
         this.dependencyNode = dependencyNode;
         this.allServiceParents = allServiceParents;
         this.configurationResolver = configurationResolver;
-        abstractName = getConfigurationAbstractName(dependencyNode.getId());
-
+        this.abstractName = getConfigurationAbstractName(dependencyNode.getId());
+        this.bundle = configurationData.getBundleContext().getBundle();
+        
+        if (configurationData.isUseEnvironment() && configurationManager != null) {
+            try {
+                List<Bundle> bundles = getParentBundles(configurationData, configurationResolver, configurationManager);            
+                this.bundle = new DelegatingBundle(bundles);
+            } catch (Exception e) {
+                log.debug("Failed to identify bundle parents for " + configurationData.getId(), e);
+            }
+        }
+        
         try {
-
             // Deserialize the GBeans in the configurationData
-            Bundle bundle = configurationData.getBundleContext().getBundle();
             Collection<GBeanData> gbeans = configurationData.getGBeans(bundle);
             if (attributeStore != null) {
                 gbeans = attributeStore.applyOverrides(dependencyNode.getId(), gbeans, bundle);
@@ -219,6 +237,50 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
+    private List<Bundle> getParentBundles(ConfigurationData configurationData,
+                                          ConfigurationResolver configurationResolver,
+                                          ConfigurationManager configurationManager) 
+                                          throws MissingDependencyException, InvalidConfigException {
+        List<Bundle> bundles = new ArrayList<Bundle>();
+        bundles.add(configurationData.getBundleContext().getBundle());
+      
+        LinkedHashSet<Artifact> parents = configurationManager.resolveParentIds(configurationData);
+        for (Artifact parent : parents) {
+            String location = getBundleLocation(configurationResolver, parent);
+            Bundle bundle = getBundleByLocation(configurationData.getBundleContext(), location);
+            if (bundle != null) {
+                System.out.println("Found " + parent + " " + bundle);
+                bundles.add(bundle);
+            }
+        }
+        
+        return bundles;
+    }
+
+    private static String getBundleLocation(ConfigurationResolver configurationResolver, Artifact configurationId) {
+        if (System.getProperty("geronimo.build.car") == null) {
+            return "mvn:" + configurationId.getGroupId() + "/" + configurationId.getArtifactId() + "/" + configurationId.getVersion() + ("jar".equals(configurationId.getType())?  "": "/" + configurationId.getType());
+        }
+        if (configurationResolver == null) {
+            throw new NullPointerException("ConfigurationResolver is null");
+        }
+        try {
+            File file = configurationResolver.resolve(configurationId);
+            return "reference:file://" + file.getAbsolutePath();
+        } catch (MissingDependencyException e) {
+            return null;
+        }
+    }
+    
+    private static Bundle getBundleByLocation(BundleContext bundleContext, String location) {
+        for (Bundle bundle: bundleContext.getBundles()) {
+            if (location.equals(bundle.getLocation())) {
+               return bundle;
+            }
+        }
+        return null;
+    }
+    
     /**
      * Add a contained configuration, such as for a war inside an ear
      * @param child contained configuration
@@ -341,11 +403,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @return the bundle for this configuration
      */
     public Bundle getBundle() {
-        return configurationData.getBundleContext().getBundle();
+        return bundle;
     }
 
     public BundleContext getBundleContext() {
-        return configurationData.getBundleContext();
+        return bundle.getBundleContext();
     }
 
     /**

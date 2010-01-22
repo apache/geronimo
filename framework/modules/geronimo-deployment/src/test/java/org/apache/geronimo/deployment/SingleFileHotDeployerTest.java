@@ -350,7 +350,8 @@ public class SingleFileHotDeployerTest extends TestSupport {
                                 new LinkedHashSet<Artifact>()),
                         new ArrayList<Configuration>(),
                         null,
-                        null);
+                        null,
+                        this);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

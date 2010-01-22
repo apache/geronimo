@@ -161,8 +161,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
     }
 
     private final Environment defaultEnvironment;
-    //plugin wose bundle can load jetty classes and gbean wrappers.
-    private final Artifact jettyArtifact;
     private final AbstractNameQuery jettyContainerObjectName;
     private final JspServletHolderWrapper jspServlet;
     private final Collection defaultServlets;
@@ -180,7 +178,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
     private static final String JETTY_NAMESPACE = JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
     public JettyModuleBuilder(@ParamAttribute(name="defaultEnvironment")Environment defaultEnvironment,
-                              @ParamAttribute(name="jettyArtifact")Artifact jettyArtifact,
                               @ParamAttribute(name="defaultSessionTimeoutSeconds")Integer defaultSessionTimeoutSeconds,
                               @ParamAttribute(name="defaultWelcomeFiles")List<String> defaultWelcomeFiles,
                               @ParamAttribute(name="jettyContainerObjectName")AbstractNameQuery jettyContainerName,
@@ -200,7 +197,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                               @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) throws GBeanNotFoundException {
         super(kernel, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions);
         this.defaultEnvironment = defaultEnvironment;
-        this.jettyArtifact = jettyArtifact;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? 30 * 60 : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
         this.jspServlet = jspServlet;
@@ -237,7 +233,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         AbstractName templateName = kernel.getAbstractNameFor(template);
         return new GBeanData(kernel.getGBeanData(templateName));
     }
-
+      
     protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
         assert targetPath != null : "targetPath is null";
@@ -283,8 +279,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
         EnvironmentType environmentType = jettyWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
-        //make sure jetty is started.
-        environment.addDependency(new Dependency(jettyArtifact, ImportType.SERVICES));
 
         Boolean distributable = webApp.getDistributableArray().length == 1 ? TRUE : FALSE;
         if (TRUE == distributable) {
@@ -392,7 +386,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
         JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
-        GBeanData webModuleData = new GBeanData(moduleName, WebAppContextWrapper.class, jettyArtifact);
+        GBeanData webModuleData = new GBeanData(moduleName, WebAppContextWrapper.class);
 
         configureBasicWebModuleAttributes(webApp, jettyWebApp, moduleContext, earContext, webModule, webModuleData);
 
@@ -578,7 +572,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 //        AbstractName name = moduleContext.getNaming().createChildName(moduleContext.getModuleName(),
 //                "DefaultWebApplicationHandlerFactory",
 //                NameFactory.GERONIMO_SERVICE);
-//        GBeanData beanData = new GBeanData(name, DefaultWebApplicationHandlerFactory.class, jettyArtifact);
+//        GBeanData beanData = new GBeanData(name, DefaultWebApplicationHandlerFactory.class);
 //        webModuleData.setReferencePattern(WebAppContextWrapper.GBEAN_REF_WEB_APPLICATION_HANDLER_FACTORY, name);
 //        moduleContext.addGBean(beanData);
     }
@@ -614,7 +608,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
     private GBeanData configureDefaultServlet(Object defaultServlet, EARContext earContext, AbstractName moduleName, Set knownServletMappings) throws GBeanNotFoundException, GBeanAlreadyExistsException {
         GBeanData servletGBeanData = getGBeanData(kernel, defaultServlet);
-        servletGBeanData.setClassSource(jettyArtifact);
         AbstractName defaultServletObjectName = earContext.getNaming().createChildName(moduleName, (String) servletGBeanData.getAttribute("servletName"), NameFactory.SERVLET);
         servletGBeanData.setAbstractName(defaultServletObjectName);
         servletGBeanData.setReferencePattern("JettyServletRegistration", moduleName);
@@ -629,7 +622,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         for (FilterType filterType : filterArray) {
             String filterName = filterType.getFilterName().getStringValue().trim();
             AbstractName filterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
-            GBeanData filterData = new GBeanData(filterAbstractName, FilterHolderWrapper.class, jettyArtifact);
+            GBeanData filterData = new GBeanData(filterAbstractName, FilterHolderWrapper.class);
             filterData.setAttribute("filterName", filterName);
             filterData.setAttribute("filterClass", filterType.getFilterClass().getStringValue().trim());
             Map<String, String> initParams = new HashMap<String, String>();
@@ -647,7 +640,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         FilterMappingType[] filterMappingArray = webApp.getFilterMappingArray();
         for (FilterMappingType filterMappingType : filterMappingArray) {
             String filterName = filterMappingType.getFilterName().getStringValue().trim();
-            GBeanData filterMappingData = new GBeanData(JettyFilterMapping.class, jettyArtifact);
+            GBeanData filterMappingData = new GBeanData(JettyFilterMapping.class);
             if (previous != null) {
                 filterMappingData.addDependency(previous);
             }
@@ -708,7 +701,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
     private AbstractName addDefaultFiltersGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, AbstractName previous) throws GBeanNotFoundException, GBeanAlreadyExistsException {
         for (Object defaultFilter : defaultFilters) {
             GBeanData filterGBeanData = getGBeanData(kernel, defaultFilter);
-            filterGBeanData.setClassSource(jettyArtifact);
             String filterName = (String) filterGBeanData.getAttribute("filterName");
             AbstractName defaultFilterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
             filterGBeanData.setAbstractName(defaultFilterAbstractName);
@@ -716,7 +708,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             moduleContext.addGBean(filterGBeanData);
             //add a mapping to /*
 
-            GBeanData filterMappingGBeanData = new GBeanData(JettyFilterMapping.class, jettyArtifact);
+            GBeanData filterMappingGBeanData = new GBeanData(JettyFilterMapping.class);
             if (previous != null) {
                 filterMappingGBeanData.addDependency(previous);
             }
@@ -790,7 +782,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
 
             if (authType != null) {
-                GBeanData securityFactoryData = new GBeanData(factoryName, AuthConfigProviderHandlerFactory.class, jettyArtifact);
+                GBeanData securityFactoryData = new GBeanData(factoryName, AuthConfigProviderHandlerFactory.class);
                 securityFactoryData.setAttribute("messageLayer", "HttpServlet");
                 String contextPath = (String)webModuleData.getAttribute("contextPath");
                 securityFactoryData.setAttribute("appContext", "server " + contextPath);
@@ -800,7 +792,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 //otherwise rely on pre-configured jaspi
             } else {
                 LoginConfigType loginConfig = loginConfigArray.length == 1? loginConfigArray[0]: null;
-                GBeanData securityFactoryData = new GBeanData(factoryName, JettySecurityHandlerFactory.class, jettyArtifact);
+                GBeanData securityFactoryData = new GBeanData(factoryName, JettySecurityHandlerFactory.class);
                 configureConfigurationFactory(jettyWebApp, loginConfig, securityFactoryData);
                 BuiltInAuthMethod auth = BuiltInAuthMethod.NONE;
                 if (loginConfig != null) {
@@ -989,7 +981,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         if (hosts.length > 0 || virtualHosts.length > 0) {
             //use name same as module
             AbstractName hostName = earContext.getNaming().createChildName(webModuleData.getAbstractName(), "Host", "Host");
-            GBeanData hostData = new GBeanData(hostName, Host.class, jettyArtifact);
+            GBeanData hostData = new GBeanData(hostName, Host.class);
             hostData.setAttribute("hosts", hosts);
             hostData.setAttribute("virtualHosts", virtualHosts);
             earContext.addGBean(hostData);
@@ -1076,7 +1068,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 throw new DeploymentException("Could not load javax.servlet.Servlet in bundle " + webBundle, e);
             }
             if (baseServletClass.isAssignableFrom(servletClass)) {
-                servletData = new GBeanData(servletAbstractName, ServletHolderWrapper.class, jettyArtifact);
+                servletData = new GBeanData(servletAbstractName, ServletHolderWrapper.class);
                 servletData.setAttribute("servletClass", servletClassName);
             } else {
                 servletData = new GBeanData(pojoWebServiceTemplate);
@@ -1100,7 +1092,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 }
             }
         } else if (servletType.isSetJspFile()) {
-            servletData = new GBeanData(servletAbstractName, ServletHolderWrapper.class, jettyArtifact);
+            servletData = new GBeanData(servletAbstractName, ServletHolderWrapper.class);
             servletData.setAttribute("jspFile", servletType.getJspFile().getStringValue().trim());
             servletData.setAttribute("servletClass", jspServlet.getServletClassName());
             initParams.put("development", "false");

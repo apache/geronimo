@@ -162,6 +162,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
 //        } catch (NoSuchConfigException e) {
 //            throw new InvalidConfigException(e);
         }
+        gbeanData.setAttribute("configurationManager", this);
         //TODO is this dangerous?  should really add dependency on attribute store name
         gbeanData.setAttribute("attributeStore", attributeStore);
 

@@ -286,7 +286,6 @@ public class JettyModuleBuilderTest extends TestSupport {
         Collection<ModuleBuilderExtension> moduleBuilderExtensions = new ArrayList<ModuleBuilderExtension>();
         GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null, null, null);
         builder = new JettyModuleBuilder(defaultEnvironment,
-                Artifact.create("org.apache.geronimo.configs/jetty8/3.0-SNAPSHOT/car"),
                 new Integer(1800),
                 Collections.EMPTY_LIST,
                 new AbstractNameQuery(containerName),

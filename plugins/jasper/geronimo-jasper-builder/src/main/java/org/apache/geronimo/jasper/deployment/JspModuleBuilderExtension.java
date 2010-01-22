@@ -102,13 +102,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
     private final Environment defaultEnvironment;
     private final NamingBuilder namingBuilders;
-    private final Artifact jasperArtifact;
 
     public JspModuleBuilderExtension(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
-                                     @ParamAttribute(name = "jasperArtifact") Artifact jasperArtifact,
                                      @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
-        this.jasperArtifact = jasperArtifact;
         this.namingBuilders = namingBuilders;
     }
 
@@ -171,7 +168,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         GBeanInfo webAppGBeanInfo = webAppData.getGBeanInfo();
         if (webAppGBeanInfo.getReference("ContextCustomizer") != null) {
             AbstractName jspLifecycleName = moduleContext.getNaming().createChildName(moduleName, "jspLifecycleProvider", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-            GBeanData gbeanData = new GBeanData(jspLifecycleName, JasperServletContextCustomizer.class, jasperArtifact);
+            GBeanData gbeanData = new GBeanData(jspLifecycleName, JasperServletContextCustomizer.class);
             gbeanData.setAttribute("holder", holder);
 
             try {

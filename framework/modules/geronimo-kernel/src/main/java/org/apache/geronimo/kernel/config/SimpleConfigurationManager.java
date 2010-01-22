@@ -424,7 +424,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
         List<Configuration> allServiceParents = buildAllServiceParents(null, dependencyNode);
 
-        Configuration configuration = new Configuration(configurationData, dependencyNode, allServiceParents, null, configurationResolver);
+        Configuration configuration = new Configuration(configurationData, dependencyNode, allServiceParents, null, configurationResolver, this);
         configuration.doStart();
         //TODO why???
         resolvedParentIds.add(configuration.getId());

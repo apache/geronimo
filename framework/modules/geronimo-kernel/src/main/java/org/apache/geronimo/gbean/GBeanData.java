@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.gbean.annotation.EncryptionSetting;
-import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
@@ -38,8 +37,7 @@ public class GBeanData implements Externalizable {
 
     private Externalizable backwardExternalizables[] = new Externalizable[]{
             new V0Externalizable(),
-            new V1Externalizable(),
-            new V2Externalizable()
+            new V1Externalizable()
     };
 
     private GBeanInfo gbeanInfo;
@@ -47,7 +45,6 @@ public class GBeanData implements Externalizable {
     private final Map<String, Object> attributes;
     private final Map<String, ReferencePatterns> references;
     private final Set<ReferencePatterns> dependencies;
-    private Artifact classSource;
     private AbstractName abstractName;
     private int priority;
 
@@ -64,10 +61,6 @@ public class GBeanData implements Externalizable {
 
         GBeanInfo gbeanInfo = infoFactory.getGBeanInfo(gbeanClass);
         setGBeanInfo(gbeanInfo);
-    }
-    public GBeanData(Class gbeanClass, Artifact classSource) {
-        this(gbeanClass);
-        this.classSource = classSource;
     }
 
     public GBeanData(GBeanInfo gbeanInfo) {
@@ -86,15 +79,11 @@ public class GBeanData implements Externalizable {
     public GBeanData(AbstractName abstractName, Class gbeanClass) {
         this();
         this.abstractName = abstractName;
+
         GBeanInfo gbeanInfo = infoFactory.getGBeanInfo(gbeanClass);
         setGBeanInfo(gbeanInfo);
     }
     
-    public GBeanData(AbstractName abstractName, Class gbeanClass, Artifact classSource) {
-        this(abstractName, gbeanClass);
-        this.classSource = classSource;
-    }
-
     public GBeanData(GBeanData gbeanData) {
         setGBeanInfo(gbeanData.gbeanInfo);
         infoFactory = gbeanData.infoFactory;
@@ -102,7 +91,6 @@ public class GBeanData implements Externalizable {
         references = new HashMap<String, ReferencePatterns>(gbeanData.references);
         dependencies = new HashSet<ReferencePatterns>(gbeanData.dependencies);
         abstractName = gbeanData.abstractName;
-        classSource = gbeanData.classSource;
     }
 
     public AbstractName getAbstractName() {
@@ -132,14 +120,6 @@ public class GBeanData implements Externalizable {
         } else {
             priority = gbeanInfo.getPriority();
         }
-    }
-
-    public Artifact getClassSource() {
-        return classSource;
-    }
-
-    public void setClassSource(Artifact classSource) {
-        this.classSource = classSource;
     }
 
     public Map<String, Object> getAttributes() {
@@ -189,7 +169,7 @@ public class GBeanData implements Externalizable {
         setReferencePatterns(name, new ReferencePatterns(abstractName));
     }
 
-    public void setReferencePatterns(String name, Set<? extends Object> patterns) {
+    public void setReferencePatterns(String name, Set patterns) {
         setReferencePatterns(name, new ReferencePatterns(patterns));
     }
 
@@ -249,8 +229,6 @@ public class GBeanData implements Externalizable {
 
         // write the gbean info
         out.writeObject(gbeanInfo);
-
-        out.writeObject(classSource);
 
         // write the abstract name
         out.writeObject(abstractName);
@@ -332,7 +310,6 @@ public class GBeanData implements Externalizable {
         public final void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             // read the gbean info
             readGBeanInfo(in);
-            readClassSource(in);
 
             // read the abstract name
             try {
@@ -390,9 +367,6 @@ public class GBeanData implements Externalizable {
         protected void readGBeanInfo(ObjectInput in) throws IOException, ClassNotFoundException {
         }
 
-        protected void readClassSource(ObjectInput in) throws ClassNotFoundException, IOException {
-        }
-
         protected void readPriority(ObjectInput in) throws IOException, ClassNotFoundException {
             priority = GBeanInfo.PRIORITY_NORMAL;
         }
@@ -413,13 +387,6 @@ public class GBeanData implements Externalizable {
             priority = in.readInt();
         }
 
-    }
-    
-    private class V2Externalizable extends V1Externalizable {
-
-        protected void readClassSource(ObjectInput in) throws ClassNotFoundException, IOException {
-            classSource = (Artifact) in.readObject();
-        }
     }
 
 }

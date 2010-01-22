@@ -122,7 +122,7 @@ public class MockConfigurationManager implements ConfigurationManager {
     public LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         try {
             Artifact configId = configurationData.getEnvironment().getConfigId();
-            Configuration configuration = new Configuration(configurationData, new DependencyNode(configId, null, null), null, null, null);
+            Configuration configuration = new Configuration(configurationData, new DependencyNode(configId, null, null), null, null, null, this);
             configurations.put(configId, configuration);
         } catch (InvalidConfigException e) {
 

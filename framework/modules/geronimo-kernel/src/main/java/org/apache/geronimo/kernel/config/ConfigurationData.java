@@ -106,6 +106,8 @@ public class ConfigurationData implements Serializable {
     private transient ConfigurationDataTransformer configurationDataTransformer;
 
     private transient BundleContext bundleContext;
+    
+    private transient boolean useEnvironment;
 
     public ConfigurationData(Artifact configId, Naming naming, GBeanState gbeanState) {
         this(new Environment(configId), naming, gbeanState);
@@ -302,6 +304,14 @@ public class ConfigurationData implements Serializable {
 
     public void setConfigurationDataTransformer(ConfigurationDataTransformer configurationDataTransformer) {
         this.configurationDataTransformer = configurationDataTransformer;
+    }
+    
+    public boolean isUseEnvironment() {
+        return useEnvironment;
+    }
+
+    public void setUseEnvironment(boolean useEnvironment) {
+        this.useEnvironment = useEnvironment;
     }
 
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.kernel.config;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -35,6 +37,9 @@ public class SerializedConfigurationMarshaler implements ConfigurationMarshaler 
     };
 
     public ConfigurationData readConfigurationData(InputStream in) throws IOException, ClassNotFoundException {
+        if (!(in instanceof BufferedInputStream)) {
+            in = new BufferedInputStream(in);
+        }
         PushbackInputStream pushbackInputStream = new PushbackInputStream(in, 2);
         byte[] streamHeader = new byte[2];
         if (pushbackInputStream.read(streamHeader) != 2) throw new AssertionError("Cound not read stream header");
@@ -61,6 +66,9 @@ public class SerializedConfigurationMarshaler implements ConfigurationMarshaler 
     }
 
     public void writeConfigurationData(ConfigurationData configurationData, OutputStream out) throws IOException {
+        if (!(out instanceof BufferedOutputStream)) {
+            out = new BufferedOutputStream(out);
+        }
         ObjectOutputStream oout = new ObjectOutputStream(out);
         try {
             oout.writeObject(configurationData);

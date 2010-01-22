@@ -116,21 +116,21 @@ public class DeploymentContext {
                         "Specify =\"true\" for more lenient processing such as ignoring missing jars and references that are not spec compliant.");
     }
 
-    private final File baseDir;
-    private final File inPlaceConfigurationDir;
-    private final ResourceContext resourceContext;
-    private final Map<String, ConfigurationData> childConfigurationDatas = new LinkedHashMap<String, ConfigurationData>();
-    private final ConfigurationManager configurationManager;
-    private final Naming naming;
-    private final List<ConfigurationData> additionalDeployment = new ArrayList<ConfigurationData>();
+    protected final File baseDir;
+    protected final File inPlaceConfigurationDir;
+    protected final ResourceContext resourceContext;
+    protected final Map<String, ConfigurationData> childConfigurationDatas = new LinkedHashMap<String, ConfigurationData>();
+    protected final ConfigurationManager configurationManager;
+    protected final Naming naming;
+    protected final List<ConfigurationData> additionalDeployment = new ArrayList<ConfigurationData>();
     protected final AbstractName moduleName;
-    private final LinkedHashSet<String> classPath = new LinkedHashSet<String>();
-    private final ConfigurationModuleType moduleType;
-    private final Environment environment;
+    protected final LinkedHashSet<String> classPath = new LinkedHashSet<String>();
+    protected final ConfigurationModuleType moduleType;
+    protected final Environment environment;
     //This provides services such as loading more bundles, it is NOT for the configuration we are constructing here.
     //It should be a disposable nested framework so as to not pollute the main framework with stuff we load as deployment parents.
     private final BundleContext bundleContext;
-    private Configuration configuration;
+    protected Configuration configuration;
     //TODO OSGI set this
     private boolean boot;
     private Bundle tempBundle;
@@ -829,15 +829,13 @@ public class DeploymentContext {
     public static LinkedHashSet<String> getImports(List<GBeanData> gbeans) {
         LinkedHashSet<String> imports = new LinkedHashSet<String>();
         for (GBeanData data: gbeans) {
-            if (data.getClassSource() == null) {
-                GBeanInfo info = data.getGBeanInfo();
-                addImport(imports, info.getClassName());
-                for (GAttributeInfo attInfo: info.getAttributes()) {
-                    addImport(imports, attInfo.getType());
-                }
-                for (GReferenceInfo refInfo: info.getReferences()) {
-                    addImport(imports, refInfo.getReferenceType());
-                }
+            GBeanInfo info = data.getGBeanInfo();
+            addImport(imports, info.getClassName());
+            for (GAttributeInfo attInfo: info.getAttributes()) {
+                addImport(imports, attInfo.getType());
+            }
+            for (GReferenceInfo refInfo: info.getReferences()) {
+                addImport(imports, refInfo.getReferenceType());
             }
         }
         return imports;
