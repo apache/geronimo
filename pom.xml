@@ -73,7 +73,7 @@
         <axis2Version>1.5</axis2Version>
         <axiomVersion>1.2.8</axiomVersion>
         <springVersion>2.5.6</springVersion>
-        <xbeanVersion>3.6</xbeanVersion>
+        <xbeanVersion>3.7-SNAPSHOT</xbeanVersion>
         <jetty>jetty8</jetty>
 
         <connectorSuffix>-1_6</connectorSuffix>
@@ -142,7 +142,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-ejb_3.1_spec</artifactId>
-                <version>1.0.0-EA1-SNAPSHOT</version>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -154,7 +154,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-connector_1.6_spec</artifactId>
-                <version>1.0-EA-SNAPSHOT</version>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -225,19 +225,15 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-servlet_3.0_spec</artifactId>
-                <version>1.0-EA-SNAPSHOT</version>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jpa_1.0_spec</artifactId>
-                <version>1.1.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jpa_2.0_spec</artifactId>
-                <version>1.0-PFD2</version>
+                <version>1.1-SNAPSHOT</version>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-validation_1.0_spec</artifactId>
@@ -1305,8 +1301,8 @@
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jaxws_2.1_spec</artifactId>
-                <version>1.0</version>
+                <artifactId>geronimo-jaxws_2.2_spec</artifactId>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
