@@ -20,6 +20,7 @@ package org.apache.geronimo.naming.java;
 import java.util.Collections;
 
 import javax.naming.Context;
+import javax.naming.Name;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
@@ -33,38 +34,45 @@ import org.apache.xbean.naming.context.ImmutableContext;
  * @version $Rev$ $Date$
  */
 public class RootContext extends ImmutableContext {
-    private static InheritableThreadLocal compContext = new InheritableThreadLocal();
+    private static InheritableThreadLocal<Context> compContext = new InheritableThreadLocal<Context>();
 
     public RootContext() throws NamingException {
-        super(Collections.EMPTY_MAP);
+        super(Collections.<String, Object>emptyMap());
     }
 
+    @Override
     public Object lookup(String name) throws NamingException {
         if (name.startsWith("java:")) {
-            name = name.substring(5);
-            if (name.length() == 0) {
-                return this;
-            }
-
-            Context compCtx = (Context) compContext.get();
+            Context compCtx = compContext.get();
             if (compCtx == null) {
                 // the component context was not set for this thread
-                throw new NameNotFoundException(name);
+                throw new NameNotFoundException("No thread context set, looking up: " + name);
             }
+            if (name.length() == 5) {
+                return compCtx;
+            }
+            name = name.charAt(5) == '/'? name.substring(6): name.substring(5);
+            return compCtx.lookup(name);
 
-            if ("comp".equals(name)) {
-                return compCtx;
-            } else if (name.startsWith("comp/")) {
-                return compCtx.lookup(name.substring(5));
-            } else if ("/comp".equals(name)) {
-                return compCtx;
-            } else if (name.startsWith("/comp/")) {
-                return compCtx.lookup(name.substring(6));
-            } else {
-                throw new NameNotFoundException("Unrecognized name, does not start with expected 'comp': " + name);
-            }
+
+//            if ("comp".equals(name)) {
+//                return compCtx;
+//            } else if (name.startsWith("comp/")) {
+//                return compCtx.lookup(name.substring(5));
+//            } else if ("/comp".equals(name)) {
+//                return compCtx;
+//            } else if (name.startsWith("/comp/")) {
+//                return compCtx.lookup(name.substring(6));
+//            } else {
+//                throw new NameNotFoundException("Unrecognized name, does not start with expected 'comp': " + name);
+//            }
         }
         return super.lookup(name);
+    }
+
+    @Override
+    public Object lookup(Name name) throws NamingException {
+        return lookup(name.toString());
     }
 
     /**
@@ -81,6 +89,6 @@ public class RootContext extends ImmutableContext {
      * @return the current components context
      */
     public static Context getComponentContext() {
-        return (Context) compContext.get();
+        return compContext.get();
     }
 }

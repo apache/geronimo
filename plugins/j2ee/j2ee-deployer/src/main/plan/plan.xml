@@ -23,6 +23,7 @@
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="transactionManagerAbstractName">?name=TransactionManager</attribute>
         <attribute name="connectionTrackerAbstractName">?name=ConnectionTracker</attribute>
+        <attribute name="globalContextAbstractName">?name=JavaGlobalContext</attribute>
         <attribute name="corbaGBeanAbstractName">?name=Server</attribute>
         <attribute name="serverName">?j2eeType=J2EEServer#org.apache.geronimo.management.geronimo.J2EEServer</attribute>
         <reference name="Repositories">

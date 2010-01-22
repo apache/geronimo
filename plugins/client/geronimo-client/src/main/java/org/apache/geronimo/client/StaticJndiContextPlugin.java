@@ -16,12 +16,14 @@
  */
 package org.apache.geronimo.client;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.InitialContext;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -35,8 +37,13 @@ import org.apache.geronimo.kernel.Kernel;
 public class StaticJndiContextPlugin implements AppClientPlugin {
     private final Context context;
 
-    public StaticJndiContextPlugin(Map context, Kernel kernel, ClassLoader classLoader) throws NamingException {
-        this.context = EnterpriseNamingContext.createEnterpriseNamingContext(context, null, kernel, classLoader);
+    public StaticJndiContextPlugin(Map<JndiKey, Map<String, Object>> contexts, Kernel kernel, ClassLoader classLoader) throws NamingException {
+        //TODO this does not include global entries from other apps.
+        Map<String, Object> clientContext = new HashMap<String, Object>();
+        for (Map<String, Object> context: contexts.values()) {
+            clientContext.putAll(context);
+        }
+        this.context = EnterpriseNamingContext.livenReferences(clientContext, null, kernel, classLoader, "comp/");
     }
 
     public void startClient(AbstractName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {

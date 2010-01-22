@@ -16,16 +16,6 @@
  */
 package org.apache.geronimo.gjndi.binding;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -34,15 +24,21 @@ import org.apache.geronimo.gjndi.GlobalContextGBean;
 import org.apache.geronimo.gjndi.WritableContextGBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.xbean.naming.global.GlobalContextManager;
+
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -51,7 +47,6 @@ public class GBeanBindingTest extends AbstractContextTest {
     private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
     private Kernel kernel;
 
-    private Hashtable contextEnv;
     private Map<String, Object> globalBindings;
     private AbstractName ds1Name;
     private AbstractName ds2Name;
@@ -115,10 +110,7 @@ public class GBeanBindingTest extends AbstractContextTest {
 
         ConfigurationData configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
         configurationData.setBundleContext(bundleContext);
-        configurationData.addGBean("GlobalContext", GlobalContextGBean.GBEAN_INFO);
-
-        contextEnv = new Hashtable();
-        contextEnv.put(Context.INITIAL_CONTEXT_FACTORY, GlobalContextManager.class.getName());
+        configurationData.addGBean("GlobalContext", GlobalContextGBean.class);
 
         // dataSources
         GBeanData ds1GBean = configurationData.addGBean("ds1", MockDataSource.GBEAN_INFO);
@@ -128,25 +120,25 @@ public class GBeanBindingTest extends AbstractContextTest {
         ds2Name = ds2GBean.getAbstractName();
 
         // bindings
-        GBeanData writableGBean = configurationData.addGBean("writable", WritableContextGBean.GBEAN_INFO);
+        GBeanData writableGBean = configurationData.addGBean("writable", WritableContextGBean.class);
         AbstractName writableName = writableGBean.getAbstractName();
         writableGBean.setAttribute("nameInNamespace", "writable");
 
-        GBeanData dsBinding = configurationData.addGBean("dsBinding", GBeanBinding.GBEAN_INFO);
+        GBeanData dsBinding = configurationData.addGBean("dsBinding", GBeanBinding.class);
         dsBinding.setReferencePattern("Context", writableName);
         dsBinding.setAttribute("name", "ds");
         dsBinding.setAttribute("abstractNameQuery", new AbstractNameQuery(null,
                 Collections.singletonMap("name", "ds1"),
                 DataSource.class.getName()));
         
-        GBeanData ds1Binding = configurationData.addGBean("ds1Binding", GBeanBinding.GBEAN_INFO);
+        GBeanData ds1Binding = configurationData.addGBean("ds1Binding", GBeanBinding.class);
         ds1Binding.setReferencePattern("Context", writableName);
         ds1Binding.setAttribute("name", "ds1");
         ds1Binding.setAttribute("abstractNameQuery", new AbstractNameQuery(null,
                 Collections.singletonMap("name", "ds1"),
                 DataSource.class.getName()));
 
-        GBeanData ds2Binding = configurationData.addGBean("ds2Binding", GBeanBinding.GBEAN_INFO);
+        GBeanData ds2Binding = configurationData.addGBean("ds2Binding", GBeanBinding.class);
         ds2Binding.setReferencePattern("Context", writableName);
         ds2Binding.setAttribute("name", "ds2");
         ds2Binding.setAttribute("abstractNameQuery", new AbstractNameQuery(null,

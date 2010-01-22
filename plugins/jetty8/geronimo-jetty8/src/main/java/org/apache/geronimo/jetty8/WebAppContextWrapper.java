@@ -18,14 +18,7 @@
 package org.apache.geronimo.jetty8;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EventListener;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -44,6 +37,7 @@ import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.jetty8.handler.GeronimoWebAppContext;
 import org.apache.geronimo.jetty8.handler.IntegrationContext;
@@ -105,7 +99,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
     public WebAppContextWrapper(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
                                 @ParamAttribute(name = "contextPath") String contextPath,
                                 @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
-                                @ParamAttribute(name = "modulePath")String modulePath,
+                                @ParamAttribute(name = "modulePath") String modulePath,
                                 @ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
                                 @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
                                 @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
@@ -142,6 +136,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
                                 @ParamReference(name = "J2EEServer") J2EEServer server,
                                 @ParamReference(name = "J2EEApplication") J2EEApplication application,
+                                @ParamReference(name = "ApplicationJndi") ApplicationJndi applicationJndi,
                                 @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws Exception {
 
         assert componentContext != null;
@@ -185,7 +180,18 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
         //wrap the web app context with the jndi handler
         GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
-        this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
+        Set<Context> contexts = new LinkedHashSet<Context>(3);
+        Context localContext = EnterpriseNamingContext.livenReferences(componentContext, userTransaction, kernel, classLoader, "comp/");
+        contexts.add(localContext);
+        if (applicationJndi != null) {
+            if (applicationJndi.getApplicationContext() != null) {
+                contexts.add(applicationJndi.getApplicationContext());
+            }
+            if (applicationJndi.getGlobalContext() != null) {
+                contexts.add(applicationJndi.getGlobalContext());
+            }
+        }
+        this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(contexts);
         integrationContext = new IntegrationContext(this.componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle);
         webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath);
         webAppContext.setContextPath(contextPath);

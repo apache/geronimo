@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ import javax.naming.directory.DirContext;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
+import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
 import org.apache.tomcat.InstanceManager;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleListener;
@@ -138,7 +140,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamAttribute(name = "contextPath") String contextPath,
             @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
             @ParamAttribute(name = "configurationBaseUrl") URL configurationBaseUrl,
-            @ParamAttribute(name = "modulePath")String modulePath,
+            @ParamAttribute(name = "modulePath") String modulePath,
             @ParamAttribute(name = "securityHolder") SecurityHolder securityHolder,
             @ParamAttribute(name = "virtualServer") String virtualServer,
             @ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
@@ -164,6 +166,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamReference(name = "ContextCustomizer") RuntimeCustomizer contextCustomizer,
             @ParamReference(name = "J2EEServer") J2EEServer server,
             @ParamReference(name = "J2EEApplication") J2EEApplication application,
+            @ParamReference(name = "ApplicationJndi") ApplicationJndi applicationJndi,
             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel)
             throws Exception {
         assert classLoader != null;
@@ -200,7 +203,18 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.securityHolder = securityHolder;
 
         userTransaction = new GeronimoUserTransaction(transactionManager);
-        this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, userTransaction, kernel, classLoader);
+        Set<javax.naming.Context> contexts = new LinkedHashSet<javax.naming.Context>(3);
+        javax.naming.Context localContext = EnterpriseNamingContext.livenReferences(componentContext, userTransaction, kernel, classLoader, "comp/");
+        contexts.add(localContext);
+        if (applicationJndi != null) {
+            if (applicationJndi.getApplicationContext() != null) {
+                contexts.add(applicationJndi.getApplicationContext());
+            }
+            if (applicationJndi.getGlobalContext() != null) {
+                contexts.add(applicationJndi.getGlobalContext());
+            }
+        }
+        this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(contexts);
 
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;

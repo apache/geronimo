@@ -16,7 +16,11 @@
  */
 package org.apache.geronimo.system.configuration.cli;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * A tool for use by clients who really know what they're doing (such as the

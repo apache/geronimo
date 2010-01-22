@@ -67,6 +67,7 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApplicationClient;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
@@ -691,7 +692,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         // (or not)
                         appClientModule.setClassFinder(createAppClientClassFinder(appClient, appClientModule));
                     }
-
+                    Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(earContext.getGeneralData());
+                    Map<JndiKey, Map<String, Object>> clientContexts = new HashMap<JndiKey, Map<String, Object>>(contexts);
+                    buildingContext.put(NamingBuilder.JNDI_KEY, clientContexts);
                     namingBuilders.buildNaming(appClient, geronimoAppClient, appClientModule, buildingContext);
 
                     if (!appClient.getMetadataComplete()) {

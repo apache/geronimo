@@ -24,21 +24,25 @@ import java.util.Set;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = "GBeanBinding")
 public class GBeanBinding implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(GBeanBinding.class);
 
@@ -50,7 +54,10 @@ public class GBeanBinding implements GBeanLifecycle {
     private final LifecycleListener listener = new GBeanLifecycleListener();
     private final LinkedHashMap<AbstractName, Object> bindings = new LinkedHashMap<AbstractName, Object>();
 
-    public GBeanBinding(Context context, String name, AbstractNameQuery abstractNameQuery, Kernel kernel) {
+    public GBeanBinding(@ParamReference(name="Context", namingType = "Context")Context context,
+                        @ParamAttribute(name="name")String name,
+                        @ParamAttribute(name="abstractNameQuery")AbstractNameQuery abstractNameQuery,
+                        @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) {
         this.context = context;
         this.name = name;
         this.abstractNameQuery = abstractNameQuery;
@@ -213,18 +220,4 @@ public class GBeanBinding implements GBeanLifecycle {
         return value;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(GBeanBinding.class, "GBeanBinding");
-        builder.addReference("Context", Context.class);
-        builder.addAttribute("name", String.class, true);
-        builder.addAttribute("abstractNameQuery", AbstractNameQuery.class, true);
-        builder.setConstructor(new String[]{"Context", "name", "abstractNameQuery", "kernel"});
-        GBEAN_INFO = builder.getBeanInfo();
-    }
 }

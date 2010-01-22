@@ -65,6 +65,9 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -139,6 +142,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private final Naming naming;
     private final Collection<? extends ArtifactResolver> artifactResolvers;
     private final BundleContext bundleContext;
+    private final AbstractNameQuery globalContextAbstractName;
 
     public static ThreadLocal<Boolean> createPlanMode = new ThreadLocal<Boolean>() {
         @Override
@@ -154,50 +158,11 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         }
     };
 
-//    static {
-//        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
-//        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-//        infoBuilder.addAttribute("transactionManagerAbstractName", AbstractNameQuery.class, true);
-//        infoBuilder.addAttribute("connectionTrackerAbstractName", AbstractNameQuery.class, true);
-//        infoBuilder.addAttribute("corbaGBeanAbstractName", AbstractNameQuery.class, true);
-//        infoBuilder.addAttribute("serverName", AbstractNameQuery.class, true);
-//
-//        infoBuilder.addReference("Repositories", Repository.class, "Repository");
-//        infoBuilder.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-//        infoBuilder.addReference("WebConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-//        infoBuilder.addReference("ConnectorConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-//        infoBuilder.addReference("ActivationSpecInfoLocator", ActivationSpecInfoLocator.class, NameFactory.MODULE_BUILDER);
-//        infoBuilder.addReference("AppClientConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
-//        infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
-//        infoBuilder.addReference("PersistenceUnitBuilders", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
-//        infoBuilder.addReference("ArtifactResolvers", ArtifactResolver.class, "ArtifactResolver");
-//
-//        infoBuilder.addAttribute("kernel", Kernel.class, false);
-//
-//        infoBuilder.setConstructor(new String[]{
-//                "defaultEnvironment",
-//                "transactionManagerAbstractName",
-//                "connectionTrackerAbstractName",
-//                "corbaGBeanAbstractName",
-//                "serverName",
-//                "Repositories",
-//                "EJBConfigBuilder",
-//                "WebConfigBuilder",
-//                "ConnectorConfigBuilder",
-//                "ActivationSpecInfoLocator",
-//                "AppClientConfigBuilder",
-//                "ServiceBuilders",
-//                "PersistenceUnitBuilders",
-//                "ArtifactResolvers",
-//                "kernel"
-//        });
-//
-//    }
-
     public EARConfigBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
                             @ParamAttribute(name = "transactionManagerAbstractName") AbstractNameQuery transactionManagerAbstractName,
                             @ParamAttribute(name = "connectionTrackerAbstractName") AbstractNameQuery connectionTrackerAbstractName,
                             @ParamAttribute(name = "corbaGBeanAbstractName") AbstractNameQuery corbaGBeanAbstractName,
+                            @ParamAttribute(name = "globalContextAbstractName") AbstractNameQuery globalContextAbstractName,
                             @ParamAttribute(name = "serverName") AbstractNameQuery serverName,
                             @ParamReference(name = "Repositories", namingType = "Repository")Collection<? extends Repository> repositories,
                             @ParamReference(name = "EJBConfigBuilder", namingType = NameFactory.MODULE_BUILDER)Collection<ModuleBuilder> ejbConfigBuilder,
@@ -214,6 +179,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 transactionManagerAbstractName,
                 connectionTrackerAbstractName,
                 corbaGBeanAbstractName,
+                globalContextAbstractName,
                 serverName,
                 ConfigurationUtil.getConfigurationManager(kernel),
                 repositories,
@@ -233,6 +199,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             AbstractNameQuery connectionTrackerAbstractName,
                             AbstractNameQuery corbaGBeanAbstractName,
                             AbstractNameQuery serverName,
+                            AbstractNameQuery globalContextAbstractName,
                             Collection<? extends Repository> repositories,
                             ModuleBuilder ejbConfigBuilder,
                             ModuleBuilder webConfigBuilder,
@@ -247,6 +214,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 transactionManagerAbstractName,
                 connectionTrackerAbstractName,
                 corbaGBeanAbstractName,
+                globalContextAbstractName,
                 serverName,
                 null,
                 repositories,
@@ -266,6 +234,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                              AbstractNameQuery transactionManagerAbstractName,
                              AbstractNameQuery connectionTrackerAbstractName,
                              AbstractNameQuery corbaGBeanAbstractName,
+                             AbstractNameQuery globalContextAbstractName,
                              AbstractNameQuery serverName,
                              ConfigurationManager configurationManager,
                              Collection<? extends Repository> repositories,
@@ -294,6 +263,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         this.transactionManagerObjectName = transactionManagerAbstractName;
         this.connectionTrackerObjectName = connectionTrackerAbstractName;
         this.corbaGBeanObjectName = corbaGBeanAbstractName;
+        this.globalContextAbstractName = globalContextAbstractName;
         this.serverName = serverName;
         this.naming = naming;
         this.artifactResolvers = artifactResolvers;
@@ -660,7 +630,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 }
 
                 // Create the J2EEApplication managed object
-                GBeanData gbeanData = new GBeanData(earContext.getModuleName(), J2EEApplicationImpl.GBEAN_INFO);
+                GBeanData gbeanData = new GBeanData(earContext.getModuleName(), J2EEApplicationImpl.class);
                 try {
                     String originalSpecDD = applicationInfo.getOriginalSpecDD();
                     if (originalSpecDD == null) {
@@ -692,6 +662,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 earContext.addGBean(gbeanData);
             }
 
+            AbstractName appJndiName = naming.createChildName(earContext.getModuleName(), "ApplicationJndi", "ApplicationJndi");
+            earContext.getGeneralData().put(EARContext.APPLICATION_JNDI_NAME_KEY, appJndiName);
             // each module can now add it's GBeans
             for (Module module : applicationInfo.getModules()) {
                 if (createPlanMode.get()) {
@@ -710,6 +682,12 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 EARConfigBuilder.appInfo.set(applicationInfo);
                 throw new DeploymentException();
             }
+            Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(earContext.getGeneralData());
+            GBeanData appContexts = new GBeanData(appJndiName, ApplicationJndi.class);
+            appContexts.setAttribute("globalContextSegment", contexts.get(JndiScope.global));
+            appContexts.setAttribute("applicationContextMap", contexts.get(JndiScope.application));
+            appContexts.setReferencePattern("GlobalContext", globalContextAbstractName);
+            earContext.addGBean(appContexts);
 
             // it's the caller's responsibility to close the context...
             return earContext;

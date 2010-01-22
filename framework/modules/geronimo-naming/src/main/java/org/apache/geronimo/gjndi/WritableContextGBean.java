@@ -16,8 +16,8 @@
  */
 package org.apache.geronimo.gjndi;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.xbean.naming.context.ContextAccess;
 import org.apache.xbean.naming.context.WritableContext;
 
@@ -27,21 +27,11 @@ import java.util.Collections;
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = "Context")
 public class WritableContextGBean extends WritableContext {
-    public WritableContextGBean(String nameInNamespace) throws NamingException {
-        super(nameInNamespace, Collections.EMPTY_MAP, ContextAccess.MODIFIABLE, false);
+
+    public WritableContextGBean(@ParamAttribute(name="nameInNamespace")String nameInNamespace) throws NamingException {
+        super(nameInNamespace, Collections.<String, Object>emptyMap(), ContextAccess.MODIFIABLE, false);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    public static GBeanInfo getGBeanInfo() {
-        return WritableContextGBean.GBEAN_INFO;
-    }
-
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(WritableContextGBean.class, "Context");
-        builder.addAttribute("nameInNamespace", String.class, true);
-        builder.setConstructor(new String[]{"nameInNamespace"});
-        GBEAN_INFO = builder.getBeanInfo();
-    }
 }

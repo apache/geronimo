@@ -166,16 +166,15 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             Object value = entry.getValue();
 
             // work with names prefixed with java:comp/
-            if (name.startsWith("java:comp/")) {
-                name = name.substring("java:comp/".length());
-            }
-
-            // if this is a ref it will be prefixed with env/
-            if (name.startsWith("env/")) {
+            if (name.startsWith("env/") ||
+                    name.startsWith("java:global/") ||
+                    name.startsWith("java:application/") ||
+                    name.startsWith("java:module/") ||
+                    name.startsWith("java:comp/")) {
                 if (uri != null) {
                     value = createClientRef(value);
                 }
-                getJndiContextMap(componentContext).put(name, value);
+                put(name, value, getJndiContextMap(componentContext));
             }
         }
     }
@@ -222,7 +221,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             EjbRef ref = new EjbRef();
             // ejb-ref-name
             ref.setEjbRefName(refName);
-            
+
             jndiConsumer.getEjbRef().add(ref);
 
             // ejb-ref-type
@@ -296,7 +295,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             EjbLocalRef ref = new EjbLocalRef();
             // ejb-ref-name
             ref.setEjbRefName(refName);
-            
+
             jndiConsumer.getEjbLocalRef().add(ref);
 
             // ejb-ref-type
@@ -387,6 +386,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
     // XMLBean uses lame arrays that can be null, so we need an asList that handles nulls
     // Beware Arrays.asList(), it returns an ArrayList lookalike, that is not fully mutable...
+
     public static <E> List<E> asList(E[] array) {
         if (array == null) {
             return new ArrayList<E>();

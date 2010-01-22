@@ -173,7 +173,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 null,
                 null,
                 null,
-                null);
+                null, null);
         app.doStart();
         return app;
     }

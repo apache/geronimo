@@ -20,27 +20,29 @@
 
 package org.apache.geronimo.gjndi.binding;
 
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.gjndi.KernelContextGBean;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.naming.Name;
+import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gjndi.KernelContextGBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Artifact;
-
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = "Context")
 public class GBeanFormatBinding extends KernelContextGBean {
     protected static final Logger log = LoggerFactory.getLogger(GBeanFormatBinding.class);
     private static final Pattern PATTERN = Pattern.compile("(\\{)(\\w+)(})");
@@ -48,7 +50,11 @@ public class GBeanFormatBinding extends KernelContextGBean {
     protected final String format;
     protected final Pattern namePattern;
 
-    public GBeanFormatBinding(String format, String namePattern, String nameInNamespace, AbstractNameQuery abstractNameQuery, Kernel kernel) throws NamingException {
+    public GBeanFormatBinding(@ParamAttribute(name="format")String format,
+                              @ParamAttribute(name="namePattern")String namePattern,
+                              @ParamAttribute(name="nameInNamespace")String nameInNamespace,
+                              @ParamAttribute(name="abstractNameQuery")AbstractNameQuery abstractNameQuery,
+                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) throws NamingException {
         super(nameInNamespace, abstractNameQuery, kernel);
         this.format = format;
         if (namePattern != null && namePattern.length() > 0) {
@@ -87,20 +93,6 @@ public class GBeanFormatBinding extends KernelContextGBean {
         }
         matcher.appendTail(buf);
         return buf.toString();
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(GBeanFormatBinding.class, KernelContextGBean.GBEAN_INFO, "Context");
-        builder.addAttribute("format", String.class, true);
-        builder.addAttribute("namePattern", String.class, true);
-        builder.setConstructor(new String[]{"format", "namePattern", "nameInNamespace", "abstractNameQuery", "kernel"});
-        GBEAN_INFO = builder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

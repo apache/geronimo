@@ -20,7 +20,6 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
-import org.apache.geronimo.kernel.osgi.MockBundle;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
@@ -110,7 +109,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,
                 null,
                 null,
-                null);
+                null, null);
         app.doStart();
         return app;
     }

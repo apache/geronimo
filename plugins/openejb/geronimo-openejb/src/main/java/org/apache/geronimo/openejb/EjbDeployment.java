@@ -57,8 +57,8 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     private final Context componentContext;
 
     // connector stuff
-    private final Set unshareableResources;
-    private final Set applicationManagedSecurityResources;
+    private final Set<String> unshareableResources;
+    private final Set<String> applicationManagedSecurityResources;
     private final TrackedConnectionAssociator trackedConnectionAssociator;
 
     protected final OpenEjbSystem openEjbSystem;
@@ -87,8 +87,8 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
             String runAsRole,
             RunAsSource runAsSource,
             Context componentContext,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
+            Set<String> unshareableResources,
+            Set<String> applicationManagedSecurityResources,
             TrackedConnectionAssociator trackedConnectionAssociator,
             OpenEjbSystem openEjbSystem) throws LoginException {
         this.objectName = objectName;
@@ -170,11 +170,11 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         return javaCompSubContext;
     }
 
-    public Set getUnshareableResources() {
+    public Set<String> getUnshareableResources() {
         return unshareableResources;
     }
 
-    public Set getApplicationManagedSecurityResources() {
+    public Set<String> getApplicationManagedSecurityResources() {
         return applicationManagedSecurityResources;
     }
 

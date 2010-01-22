@@ -25,6 +25,8 @@ import java.util.HashMap;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
+import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -41,8 +43,9 @@ public class FormatTest extends TestCase {
     }
 
     public void testGBeanInfos() throws Exception {
-        GBeanInfo info = ResourceBinding.getGBeanInfo();
-        info = GBeanFormatBinding.getGBeanInfo();
+        GBeanInfoFactory f = new AnnotationGBeanInfoFactory();
+        GBeanInfo info = f.getGBeanInfo(ResourceBinding.class);
+        info = f.getGBeanInfo(GBeanFormatBinding.class);
     }
 
 }

@@ -70,10 +70,10 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
             
             GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
             try {
-                this.context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext,
+                this.context = EnterpriseNamingContext.livenReferences(componentContext,
                         userTransaction,
                         kernel,
-                        classLoader);
+                        classLoader,"comp/");
             } catch (NamingException e) {
                 LOG.warn("Failed to create naming context", e);
             }

@@ -19,8 +19,8 @@ package org.apache.geronimo.naming.enc;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -31,52 +31,55 @@ import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.EntryFactory;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.xbean.naming.context.ImmutableContext;
+import org.apache.xbean.naming.context.ImmutableFederatedContext;
 
 /**
  * @version $Rev$ $Date$
  */
 public final class EnterpriseNamingContext {
 
-    public static Context createEnterpriseNamingContext(Map<String, Object> componentContext, UserTransaction userTransaction, Kernel kernel, ClassLoader classLoader) throws NamingException {
+    public static Context createEnterpriseNamingContext(Set<Context> contexts) throws NamingException {
+        if (contexts.contains(null)) {
+            contexts.remove(null);
+        }
+        return new ImmutableFederatedContext("java:", contexts);
+    }
+
+    public static Context livenReferences(Map<String, Object> componentContext, UserTransaction userTransaction, Kernel kernel, ClassLoader classLoader, String prefix) throws NamingException {
         Map<String, Object> map = new HashMap<String, Object>();
-        if (componentContext != null) {
-            map.putAll(componentContext);
-        }
-
         boolean containsEnv = false;
-        for (Map.Entry<String, Object> entry: map.entrySet()) {
-            String name = entry.getKey();
-            Object value = entry.getValue();
+        if (componentContext != null) {
+            for (Map.Entry<String, Object> entry: componentContext.entrySet()) {
+                String name = entry.getKey();
+                Object value = entry.getValue();
 
-            if (name.startsWith("env/")) {
-                containsEnv = true;
-            }
-            if (value instanceof EntryFactory) {
-                value = ((EntryFactory)value).buildEntry(kernel, classLoader);
-                entry.setValue(value);
-            }
-            if (value instanceof KernelAwareReference) {
-                ((KernelAwareReference) value).setKernel(kernel);
-            }
-            if (value instanceof ClassLoaderAwareReference) {
-                ((ClassLoaderAwareReference) value).setClassLoader(classLoader);
+                if (name.startsWith(prefix + "env/")) {
+                    containsEnv = true;
+                }
+                if (value instanceof EntryFactory) {
+                    value = ((EntryFactory)value).buildEntry(kernel, classLoader);
+                }
+                if (value instanceof KernelAwareReference) {
+                    ((KernelAwareReference) value).setKernel(kernel);
+                }
+                if (value instanceof ClassLoaderAwareReference) {
+                    ((ClassLoaderAwareReference) value).setClassLoader(classLoader);
+                }
+                map.put(name, value);
             }
         }
+
 
         if (!containsEnv) {
-            Context env = new ImmutableContext("java:comp/env", Collections.EMPTY_MAP, false);
-            map.put("env", env);
+            Context env = new ImmutableContext("java:" + prefix + "env", Collections.<String, Object>emptyMap(), false);
+            map.put(prefix + "env", env);
         }
 
         if (userTransaction != null) {
-            map.put("UserTransaction", userTransaction);
+            map.put(prefix + "UserTransaction", userTransaction);
         }
 
-        return createEnterpriseNamingContext(map);
-    }
-
-    public static Context createEnterpriseNamingContext(Map context) throws NamingException {
-        return new ImmutableContext(context, false);
+        return new ImmutableContext(map, false);
     }
 
 }

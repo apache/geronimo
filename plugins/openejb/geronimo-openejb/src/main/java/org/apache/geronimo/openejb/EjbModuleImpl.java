@@ -20,14 +20,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
-import javax.management.ObjectName;
+import java.util.Map;
 
+import javax.management.ObjectName;
+import javax.naming.Context;
+import javax.naming.NamingException;
+
+import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.UndeployException;
 import org.apache.openejb.NoSuchApplicationException;
@@ -41,6 +48,8 @@ public class EjbModuleImpl implements EJBModule {
     private static final Logger log = LoggerFactory.getLogger(EjbModuleImpl.class);
     private final J2EEServer server;
     private final J2EEApplication application;
+    private final ApplicationJndi applicationJndi;
+    private final Context moduleContext;
     private final String deploymentDescriptor;
     private final String objectName;
     private final Collection<? extends EJB> ejbs;
@@ -49,13 +58,15 @@ public class EjbModuleImpl implements EJBModule {
     private final OpenEjbSystem openEjbSystem;
     private final EjbJarInfo ejbJarInfo;
 
-    public EjbModuleImpl(String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, Collection<? extends EJB> ejbs, ClassLoader classLoader, OpenEjbSystem openEjbSystem, EjbJarInfo ejbJarInfo) {
+    public EjbModuleImpl(String objectName, J2EEServer server, J2EEApplication application, ApplicationJndi applicationJndi, Map<String, Object> moduleJndi, String deploymentDescriptor, Collection<? extends EJB> ejbs, ClassLoader classLoader, Kernel kernel, OpenEjbSystem openEjbSystem, EjbJarInfo ejbJarInfo) throws NamingException {
         this.objectName = objectName;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
         this.server = server;
         this.application = application;
+        this.applicationJndi = applicationJndi;
+        this.moduleContext = EnterpriseNamingContext.livenReferences(moduleJndi, null, kernel, classLoader, "module/");
         this.deploymentDescriptor = deploymentDescriptor;
         this.ejbs = ejbs;
 
@@ -117,6 +128,13 @@ public class EjbModuleImpl implements EJBModule {
         return result;
     }
 
+    public ApplicationJndi getApplicationJndi() {
+        return applicationJndi;
+    }
+
+    public Context getModuleContext() {
+        return moduleContext;
+    }
 
     protected void start() throws Exception {
         openEjbSystem.createEjbJar(ejbJarInfo, classLoader);

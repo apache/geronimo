@@ -22,19 +22,14 @@ package org.apache.geronimo.openejb.cluster.stateful.deployment;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.Context;
-import javax.security.auth.login.LoginException;
-
 import org.apache.geronimo.clustering.SessionManager;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
-import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.openejb.EjbDeploymentGBean;
+import org.apache.geronimo.openejb.EjbModuleImpl;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.cluster.infra.SessionManagerTracker;
 import org.apache.geronimo.security.jacc.RunAsSource;
@@ -42,119 +37,65 @@ import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.apache.openejb.Container;
 
 /**
- *
  * @version $Rev:$ $Date:$
  */
-public class ClusteredStatefulDeployment extends EjbDeployment implements GBeanLifecycle {
+public class ClusteredStatefulDeployment extends EjbDeploymentGBean {
 
     private final SessionManager sessionManager;
 
-    public ClusteredStatefulDeployment() throws LoginException {
-        sessionManager = null;
-    }
+//    public ClusteredStatefulDeployment() throws LoginException {
+//        sessionManager = null;
+//    }
 
     public ClusteredStatefulDeployment(String objectName,
-        String deploymentId,
-        String ejbName,
-        String homeInterfaceName,
-        String remoteInterfaceName,
-        String localHomeInterfaceName,
-        String localInterfaceName,
-        String serviceEndpointInterfaceName,
-        String beanClassName,
-        ClassLoader classLoader,
-        boolean securityEnabled,
-        String defaultRole,
-        String runAsRole,
-        RunAsSource runAsSource,
-        Map componentContext,
-        Set unshareableResources,
-        Set applicationManagedSecurityResources,
-        TrackedConnectionAssociator trackedConnectionAssociator,
-        GeronimoTransactionManager transactionManager,
-        OpenEjbSystem openEjbSystem,
-        SessionManager sessionManager,
-        Kernel kernel) throws Exception {
-        this(objectName,
-            deploymentId,
-            ejbName,
-            homeInterfaceName,
-            remoteInterfaceName,
-            localHomeInterfaceName,
-            localInterfaceName,
-            serviceEndpointInterfaceName,
-            beanClassName,
-            classLoader,
-            securityEnabled,
-            defaultRole,
-            runAsRole,
-            runAsSource,
-            EnterpriseNamingContext.createEnterpriseNamingContext(componentContext,
-                transactionManager,
-                kernel,
-                classLoader),
-            unshareableResources,
-            applicationManagedSecurityResources,
-            trackedConnectionAssociator,
-            openEjbSystem,
-            sessionManager);
-    }
-    
-    public ClusteredStatefulDeployment(String objectName,
-        String deploymentId,
-        String ejbName,
-        String homeInterfaceName,
-        String remoteInterfaceName,
-        String localHomeInterfaceName,
-        String localInterfaceName,
-        String serviceEndpointInterfaceName,
-        String beanClassName,
-        ClassLoader classLoader,
-        boolean securityEnabled,
-        String defaultRole,
-        String runAsRole,
-        RunAsSource runAsSource,
-        Context componentContext,
-        Set unshareableResources,
-        Set applicationManagedSecurityResources,
-        TrackedConnectionAssociator trackedConnectionAssociator,
-        OpenEjbSystem openEjbSystem,
-        SessionManager sessionManager) throws LoginException {
+                                       String deploymentId,
+                                       String ejbName,
+                                       String homeInterfaceName,
+                                       String remoteInterfaceName,
+                                       String localHomeInterfaceName,
+                                       String localInterfaceName,
+                                       String serviceEndpointInterfaceName,
+                                       String beanClassName,
+                                       ClassLoader classLoader,
+                                       boolean securityEnabled,
+                                       String defaultRole,
+                                       String runAsRole,
+                                       RunAsSource runAsSource,
+                                       Map<String, Object> componentContext,
+                                       Set<String> unshareableResources,
+                                       Set<String> applicationManagedSecurityResources,
+                                       TrackedConnectionAssociator trackedConnectionAssociator,
+                                       GeronimoTransactionManager transactionManager,
+                                       OpenEjbSystem openEjbSystem,
+                                       SessionManager sessionManager,
+                                       EjbModuleImpl ejbModule,
+                                       Kernel kernel) throws Exception {
         super(objectName,
-            deploymentId,
-            ejbName,
-            homeInterfaceName,
-            remoteInterfaceName,
-            localHomeInterfaceName,
-            localInterfaceName,
-            serviceEndpointInterfaceName,
-            beanClassName,
-            classLoader,
-            securityEnabled,
-            defaultRole,
-            runAsRole,
-            runAsSource,
-            componentContext,
-            unshareableResources,
-            applicationManagedSecurityResources,
-            trackedConnectionAssociator,
-            openEjbSystem);
+                deploymentId,
+                ejbName,
+                homeInterfaceName,
+                remoteInterfaceName,
+                localHomeInterfaceName,
+                localInterfaceName,
+                serviceEndpointInterfaceName,
+                beanClassName,
+                classLoader,
+                securityEnabled,
+                defaultRole,
+                runAsRole,
+                runAsSource,
+                componentContext,
+                unshareableResources,
+                applicationManagedSecurityResources,
+                trackedConnectionAssociator,
+                transactionManager,
+                openEjbSystem,
+                ejbModule,
+                kernel);
         if (null == sessionManager) {
             throw new IllegalArgumentException("sessionManager is required");
         }
         this.sessionManager = sessionManager;
-    }
-
-    public void doStart() throws Exception {
-        start();
-    }
-
-    public void doStop() throws Exception {
-        stop();
-    }
-
-    public void doFail() {
-        stop();
     }
 
     protected void start() throws Exception {
@@ -190,42 +131,42 @@ public class ClusteredStatefulDeployment extends EjbDeployment implements GBeanL
 
     static {
         GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(ClusteredStatefulDeployment.class,
-            ClusteredStatefulDeployment.class,
-            EjbDeploymentGBean.GBEAN_INFO,
-            NameFactory.STATEFUL_SESSION_BEAN);
-        
+                ClusteredStatefulDeployment.class,
+                EjbDeploymentGBean.GBEAN_INFO,
+                NameFactory.STATEFUL_SESSION_BEAN);
+
         builder.addReference(GBEAN_REF_SESSION_MANAGER, SessionManager.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        
-        builder.setConstructor(new String[] { "objectName",
-            "deploymentId",
-            "ejbName",
 
-            "homeInterfaceName",
-            "remoteInterfaceName",
-            "localHomeInterfaceName",
-            "localInterfaceName",
-            "serviceEndpointInterfaceName",
-            "beanClassName",
-            "classLoader",
+        builder.setConstructor(new String[]{"objectName",
+                "deploymentId",
+                "ejbName",
 
-            "securityEnabled",
-            "defaultRole",
-            "runAsRole",
-            "RunAsSource",
+                "homeInterfaceName",
+                "remoteInterfaceName",
+                "localHomeInterfaceName",
+                "localInterfaceName",
+                "serviceEndpointInterfaceName",
+                "beanClassName",
+                "classLoader",
 
-            "componentContextMap",
+                "securityEnabled",
+                "defaultRole",
+                "runAsRole",
+                "RunAsSource",
 
-            "unshareableResources",
-            "applicationManagedSecurityResources",
-            "TrackedConnectionAssociator",
-            "TransactionManager",
+                "componentContextMap",
 
-            "OpenEjbSystem",
-            GBEAN_REF_SESSION_MANAGER,
+                "unshareableResources",
+                "applicationManagedSecurityResources",
+                "TrackedConnectionAssociator",
+                "TransactionManager",
 
-            "kernel"
+                "OpenEjbSystem",
+                GBEAN_REF_SESSION_MANAGER,
+
+                "kernel"
         });
-        
+
         GBEAN_INFO = builder.getBeanInfo();
     }
 

@@ -153,7 +153,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 } catch (MalformedURLException e) {
                     throw new DeploymentException("Could not convert " + url + " to URL", e);
                 }
-                getJndiContextMap(componentContext).put(ENV + name, new URLReference(url));
+                put(name, new URLReference(url), getJndiContextMap(componentContext));
                 unresolvedRefs.remove(name);
             } else if (ORB.class.isAssignableFrom(iface)) {
                 CorbaGBeanNameSource corbaGBeanNameSource = (CorbaGBeanNameSource) corbaGBeanNameSourceCollection.getElement();
@@ -186,7 +186,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                     module.getEarContext().findGBean(containerId);
 
                     Object ref = new ResourceReferenceFactory<ResourceException>(module.getConfigId(), containerId, iface);
-                    getJndiContextMap(componentContext).put(ENV + name, ref);
+                    put(name, ref, getJndiContextMap(componentContext));
                     // we thought that this might be an unresolved
                     // name because it wasn't in the refMap, but now
                     // we've found it so we can take it out of the

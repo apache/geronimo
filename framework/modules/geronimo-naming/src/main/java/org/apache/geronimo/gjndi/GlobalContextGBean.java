@@ -21,6 +21,9 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.xbean.naming.global.GlobalContextManager;
 
@@ -32,9 +35,10 @@ import java.util.Collections;
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = "GlobalContext")
 public class GlobalContextGBean extends KernelContextGBean implements GBeanLifecycle {
-    public GlobalContextGBean(Kernel kernel) throws NamingException {
-        super("", new AbstractNameQuery(null, Collections.EMPTY_MAP, Context.class.getName()), kernel);
+    public GlobalContextGBean(@ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) throws NamingException {
+        super("", new AbstractNameQuery(null, Collections.<String, Object>emptyMap(), Context.class.getName()), kernel);
     }
 
     @Override
@@ -68,15 +72,4 @@ public class GlobalContextGBean extends KernelContextGBean implements GBeanLifec
         throw new NamingException("value is not a context: abstractName=" + abstractName + " valueType=" + value.getClass().getName());
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(GlobalContextGBean.class, "GlobalContext");
-        builder.setConstructor(new String[]{"kernel"});
-        GBEAN_INFO = builder.getBeanInfo();
-    }
 }

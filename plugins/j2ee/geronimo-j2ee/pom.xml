@@ -46,6 +46,12 @@
             <artifactId>geronimo-management</artifactId>
             <version>${version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -65,7 +71,11 @@
                     <instructions>
                         <!--packages containing "impl" or "internal" are excluded by default -->
                         <Export-Package>
-                            org.apache.geronimo.j2ee,org.apache.geronimo.j2ee.annotation,org.apache.geronimo.j2ee.j2eeobjectnames,org.apache.geronimo.j2ee.management.impl
+                            org.apache.geronimo.j2ee,
+                            org.apache.geronimo.j2ee.annotation,
+                            org.apache.geronimo.j2ee.j2eeobjectnames,
+                            org.apache.geronimo.j2ee.jndi,
+                            org.apache.geronimo.j2ee.management.impl
                         </Export-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>

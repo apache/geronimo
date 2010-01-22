@@ -16,12 +16,7 @@
  */
 package org.apache.geronimo.j2ee.management.impl;
 
-import java.util.Hashtable;
-import java.util.Collection;
-import java.util.ArrayList;
-import javax.management.ObjectName;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.*;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.AppClientModule;
@@ -33,27 +28,34 @@ import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.WebModule;
 
+import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+
 /**
  * @version $Rev$ $Date$
  */
+
+@GBean(j2eeType = NameFactory.J2EE_APPLICATION)
 public class J2EEApplicationImpl implements J2EEApplication {
     private final String objectName;
     private final String deploymentDescriptor;
     private final J2EEServer server;
-    private final Collection resources;
-    private final Collection appClientModules;
-    private final Collection ejbModules;
-    private final Collection resourceAdapterModules;
-    private final Collection webModules;
+    private final Collection<J2EEResource> resources;
+    private final Collection<AppClientModule> appClientModules;
+    private final Collection<EJBModule> ejbModules;
+    private final Collection<ResourceAdapterModule> resourceAdapterModules;
+    private final Collection<WebModule> webModules;
 
-    public J2EEApplicationImpl(String objectName,
-            String deploymentDescriptor,
-            J2EEServer server,
-            Collection resources,
-            Collection appClientModules,
-            Collection ejbModules,
-            Collection resourceAdapterModules,
-            Collection webModules) {
+    public J2EEApplicationImpl(@ParamSpecial(type = SpecialAttributeType.objectName)String objectName,
+            @ParamAttribute(name="deploymentDescriptor")String deploymentDescriptor,
+            @ParamReference(name="Server", namingType = NameFactory.J2EE_SERVER)J2EEServer server,
+            @ParamReference(name="Resources", namingType = NameFactory.J2EE_RESOURCE)Collection<J2EEResource> resources,
+            @ParamReference(name="AppClientModules", namingType = NameFactory.APP_CLIENT_MODULE)Collection<AppClientModule> appClientModules,
+            @ParamReference(name="EJBModules", namingType = NameFactory.EJB_MODULE)Collection<EJBModule> ejbModules,
+            @ParamReference(name="ResourceAdapterModules", namingType = NameFactory.RESOURCE_ADAPTER_MODULE)Collection<ResourceAdapterModule> resourceAdapterModules,
+            @ParamReference(name="WebModules", namingType = NameFactory.WEB_MODULE)Collection<WebModule> webModules) {
 
         this.objectName = objectName;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
@@ -163,33 +165,4 @@ public class J2EEApplicationImpl implements J2EEApplication {
         return server.getObjectName();
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(J2EEApplicationImpl.class, NameFactory.J2EE_APPLICATION);
-        infoFactory.addAttribute("deploymentDescriptor", String.class, true);
-        infoFactory.addReference("Server", J2EEServer.class);
-        infoFactory.addReference("Resources", J2EEResource.class);
-        infoFactory.addReference("AppClientModules", AppClientModule.class);
-        infoFactory.addReference("EJBModules", EJBModule.class);
-        infoFactory.addReference("ResourceAdapterModules", ResourceAdapterModule.class);
-        infoFactory.addReference("WebModules", WebModule.class);
-
-        infoFactory.setConstructor(new String[]{
-                "objectName",
-                "deploymentDescriptor",
-                "Server",
-                "Resources",
-                "AppClientModules",
-                "EJBModules",
-                "ResourceAdapterModules",
-                "WebModules",
-        });
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

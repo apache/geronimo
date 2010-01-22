@@ -16,8 +16,7 @@
  */
 package org.apache.geronimo.gjndi;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.xbean.naming.context.ContextFlyweight;
 
@@ -27,27 +26,18 @@ import javax.naming.NamingException;
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = "Context")
 public class JavaCompContextGBean extends ContextFlyweight {
     protected Context getContext() {
         Context context = RootContext.getComponentContext();
         if (context == null) {
-            throw new NullPointerException("You have accessed the java:comp jndi context on a thread that has not initialized it");
+            throw new NullPointerException("You have accessed the java: jndi context on a thread that has not initialized it");
         }
         return context;
     }
 
     public String getNameInNamespace() throws NamingException {
-        return "java:comp";
+        return "java";
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(JavaCompContextGBean.class, "Context");
-        GBEAN_INFO = builder.getBeanInfo();
-    }
 }

@@ -16,25 +16,36 @@
  */
 package org.apache.geronimo.gjndi;
 
-import junit.framework.TestCase;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NameClassPair;
-import javax.naming.Binding;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.TreeSet;
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeSet;
 
+import javax.naming.Binding;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+
+import junit.framework.TestCase;
 import org.apache.xbean.naming.context.ContextUtil;
+import org.apache.xbean.naming.global.GlobalContextManager;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractContextTest extends TestCase {
+    protected Hashtable contextEnv;
+
+    @Override
+    protected void setUp() throws Exception {
+        contextEnv = new Hashtable();
+        contextEnv.put(Context.INITIAL_CONTEXT_FACTORY, GlobalContextManager.class.getName());
+        contextEnv.put(Context.URL_PKG_PREFIXES, "org.apache.geronimo.naming");
+    }
+
     public static void assertEq(Map expected, Context actual) throws NamingException {
         AbstractContextTest.assertEq(ContextUtil.buildMapTree(expected), actual, actual, null);
     }

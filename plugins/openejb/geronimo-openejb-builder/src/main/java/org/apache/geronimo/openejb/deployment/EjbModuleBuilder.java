@@ -54,6 +54,8 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
@@ -743,7 +745,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         EjbDeploymentBuilder ejbDeploymentBuilder = ejbModule.getEjbBuilder();
 
         // add enc
+        Map<JndiKey, Map<String, Object>> jndiContext = NamingBuilder.JNDI_KEY.get(earContext.getGeneralData());
+        ejbModule.getSharedContext().put(NamingBuilder.JNDI_KEY, jndiContext);
         ejbDeploymentBuilder.buildEnc();
+        Map<String, Object> moduleContext = jndiContext.remove(JndiScope.module);
+
 
         Set<GBeanData> gBeanDatas = earContext.getConfiguration().findGBeanDatas(Collections.singleton(new AbstractNameQuery(PersistenceUnitGBean.class.getName())));
         LinkResolver<String> linkResolver = new UniqueDefaultLinkResolver<String>();
@@ -767,7 +773,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
             }
         }
         // Add JSR77 EJBModule GBean
-        GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImplGBean.GBEAN_INFO);
+        GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImplGBean.class);
         try {
             ejbModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerName());
             if (!ejbModule.isStandAlone()) {
@@ -784,6 +790,9 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
             ejbModuleGBeanData.setReferencePattern("OpenEjbSystem", new AbstractNameQuery(null, Collections.EMPTY_MAP, OpenEjbSystem.class.getName()));
             ejbModuleGBeanData.setAttribute("ejbJarInfo", ejbModule.getEjbJarInfo());
             ejbModuleGBeanData.setAttribute("modulePath", ejbModule.getTargetPath());
+            ejbModuleGBeanData.setAttribute("moduleContext", moduleContext);
+            AbstractName applicationJndiName = (AbstractName)earContext.getGeneralData().get(EARContext.APPLICATION_JNDI_NAME_KEY); 
+            ejbModuleGBeanData.setReferencePattern("ApplicationJndi", applicationJndiName);
             earContext.addGBean(ejbModuleGBeanData);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBModule GBean " + ejbModuleGBeanData.getAbstractName(), e);

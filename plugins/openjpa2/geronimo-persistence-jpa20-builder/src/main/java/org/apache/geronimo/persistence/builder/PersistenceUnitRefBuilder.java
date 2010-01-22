@@ -125,7 +125,7 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
 
                 PersistenceUnitReference reference = new PersistenceUnitReference(module.getConfigId(), persistenceUnitNameQuery);
 
-                NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + persistenceUnitRefName, reference);
+                put(persistenceUnitRefName, reference, NamingBuilder.JNDI_KEY.get(componentContext));
             } catch (DeploymentException e) {
                 problems.add(e);
             }
@@ -143,7 +143,7 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
 
                 PersistenceUnitReference reference = new PersistenceUnitReference(module.getConfigId(), persistenceUnitNameQuery);
 
-                NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + PersistenceUnitRefName, reference);
+                put(PersistenceUnitRefName, reference, NamingBuilder.JNDI_KEY.get(componentContext));
             } catch (DeploymentException e) {
                 problems.add(e);
             }

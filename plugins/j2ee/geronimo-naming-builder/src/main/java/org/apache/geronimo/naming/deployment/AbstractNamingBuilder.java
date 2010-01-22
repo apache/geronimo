@@ -37,6 +37,8 @@ import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -126,13 +128,43 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     public int getPriority() {
         return NORMAL_PRIORITY;
     }
-    
-    protected Object lookupJndiContextMap(Map sharedContext, String name) {
-        Map<String, Object> jndiContext = getJndiContextMap(sharedContext);
-        return jndiContext.get(name);
+
+    protected void put(String key, Object value, Map<JndiKey, Map<String, Object>> contexts) {
+        JndiKey jndiKey;
+        if (key.startsWith("java:")) {
+            int pos = key.indexOf("/", 5);
+            String type = key.substring(5, pos);
+            jndiKey = JndiScope.valueOf(type);
+            key = key.substring(5);
+        } else {
+            key = "comp/env/" + key;
+            jndiKey = JndiScope.comp;
+        }
+        Map<String, Object> scope = contexts.get(jndiKey);
+        if (scope == null) {
+            scope = new HashMap<String, Object>();
+            contexts.put(jndiKey, scope);
+        }
+        scope.put(key, value);
     }
     
-    protected Map<String, Object> getJndiContextMap(Map sharedContext) {
+    protected Object lookupJndiContextMap(Map sharedContext, String key) {
+        JndiKey jndiKey;
+        if (key.startsWith("java:")) {
+            int pos = key.indexOf("/", 5);
+            String type = key.substring(5, pos);
+            jndiKey = JndiScope.valueOf(type);
+            key = key.substring(5);
+        } else {
+            key = "comp/env/" + key;
+            jndiKey = JndiScope.comp;
+        }
+        Map<String, Object> scope = getJndiContextMap(sharedContext).get(jndiKey);
+        if (scope == null) return null;
+        return scope.get(key);
+    }
+    
+    protected Map<JndiKey, Map<String, Object>> getJndiContextMap(Map sharedContext) {
         return NamingBuilder.JNDI_KEY.get(sharedContext);
     }
 

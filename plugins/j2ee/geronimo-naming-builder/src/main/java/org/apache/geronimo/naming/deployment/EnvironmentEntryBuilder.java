@@ -137,7 +137,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 // see Java EE 5 spec, section EE.5.4.1.3
                 if (value != null) {
                     addInjections(name, envEntry.getInjectionTargetArray(), componentContext);
-                    getJndiContextMap(componentContext).put(ENV + name, value);
+                    put(name, value, getJndiContextMap(componentContext));
                 }
             } catch (NumberFormatException e) {
                 throw new DeploymentException("Invalid env-entry value for name: " + name, e);

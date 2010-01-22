@@ -54,7 +54,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
         boolean useSimpleFinder =
             Boolean.getBoolean("org.apache.geronimo.jaxws.builder.useSimpleFinder");
 
-        WebServiceFinder webServiceFinder = null;
+        WebServiceFinder webServiceFinder;
 
         if (useSimpleFinder) {
             webServiceFinder = new SimpleWARWebServiceFinder();
@@ -87,13 +87,13 @@ public class WARWebServiceFinder implements WebServiceFinder {
         if (isEJB) {
             File jarFile = new File(moduleFile.getName());
             try {
-                urlList.add(jarFile.toURL());
+                urlList.add(jarFile.toURI().toURL());
             } catch (MalformedURLException e) {
                 // this should not happen
                 throw new DeploymentException(e);
             }
         } else {
-            File baseDir = null;
+            File baseDir;
 
             if (moduleFile instanceof UnpackedJarFile) {
                 // war directory is being deployed (--inPlace)
@@ -135,7 +135,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
                     // ensure it is first
                     File classesDir = new File(baseDir, "WEB-INF/classes/");
                     try {
-                        urlList.add(0, classesDir.toURL());
+                        urlList.add(0, classesDir.toURI().toURL());
                     } catch (MalformedURLException e) {
                         // this should not happen, ignore
                     }
@@ -143,7 +143,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
                         && name.endsWith(".jar")) {
                     File jarFile = new File(baseDir, name);
                     try {
-                        urlList.add(jarFile.toURL());
+                        urlList.add(jarFile.toURI().toURL());
                     } catch (MalformedURLException e) {
                         // this should not happen, ignore
                     }
@@ -151,8 +151,8 @@ public class WARWebServiceFinder implements WebServiceFinder {
             }
         }
 
-        URL[] urls = urlList.toArray(new URL[] {});
-        TemporaryClassLoader tempClassLoader = null;
+        URL[] urls = urlList.toArray(new URL[urlList.size()]);
+        TemporaryClassLoader tempClassLoader;
         try {
             tempClassLoader = new TemporaryClassLoader(urls, parentClassLoader);
             List<Class> classes = new ArrayList<Class>();

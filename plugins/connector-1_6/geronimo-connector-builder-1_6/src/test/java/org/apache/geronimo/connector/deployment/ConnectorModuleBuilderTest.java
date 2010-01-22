@@ -127,6 +127,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     transactionManagerName,
                     connectionTrackerName,
                     null,
+                    null,
                     new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()),
                     Collections.singleton(repository),
                     null,

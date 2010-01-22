@@ -139,7 +139,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
 
                 PersistenceContextReference reference = new PersistenceContextReference(module.getConfigId(), persistenceUnitNameQuery, transactionScoped, properties);
 
-                NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + persistenceContextRefName, reference);
+                put(persistenceContextRefName, reference, NamingBuilder.JNDI_KEY.get(componentContext));
             } catch (DeploymentException e) {
                 problems.add(e);
             }
@@ -151,7 +151,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
                 String persistenceContextRefName = gerPersistenceContextRef.getPersistenceContextRefName();
                 GerPersistenceContextTypeType.Enum persistenceContextType = gerPersistenceContextRef.getPersistenceContextType();
                 boolean transactionScoped = persistenceContextType == null || !persistenceContextType.equals(GerPersistenceContextTypeType.EXTENDED);
-                Map properties = new HashMap();
+                Map<String, String> properties = new HashMap<String, String>();
                 addProperties(gerPersistenceContextRef, properties);
 
 
@@ -161,7 +161,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
 
                 PersistenceContextReference reference = new PersistenceContextReference(module.getConfigId(), persistenceUnitNameQuery, transactionScoped, properties);
 
-                getJndiContextMap(componentContext).put(ENV + persistenceContextRefName, reference);
+                put(persistenceContextRefName, reference, NamingBuilder.JNDI_KEY.get(componentContext));
             } catch (DeploymentException e) {
                 problems.add(e);
             }

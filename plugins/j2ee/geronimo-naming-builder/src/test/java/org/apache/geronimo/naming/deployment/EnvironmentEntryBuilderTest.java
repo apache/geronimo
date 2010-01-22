@@ -29,6 +29,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.xmlbeans.XmlObject;
@@ -39,7 +40,7 @@ import org.apache.xmlbeans.XmlCursor;
  */
 public class EnvironmentEntryBuilderTest extends TestCase {
     private Map componentContext = new HashMap();
-    private NamingBuilder environmentEntryBuilder = new EnvironmentEntryBuilder(new String[] {AbstractNamingBuilder.JEE_NAMESPACE});
+    private NamingBuilder environmentEntryBuilder = new EnvironmentEntryBuilder(new String[]{AbstractNamingBuilder.JEE_NAMESPACE});
 
     private static final String TEST = "<tmp xmlns=\"http://java.sun.com/xml/ns/javaee\">" +
             "<env-entry>" +
@@ -164,23 +165,23 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             cursor.dispose();
         }
         environmentEntryBuilder.buildNaming(doc, null, null, componentContext);
-        Context context = EnterpriseNamingContext.createEnterpriseNamingContext(NamingBuilder.JNDI_KEY.get(componentContext));
+        Context context = EnterpriseNamingContext.livenReferences(NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp), null, null, null, "comp/");
         Set actual = new HashSet();
-        for (NamingEnumeration e = context.listBindings("env"); e.hasMore();) {
+        for (NamingEnumeration e = context.listBindings("comp/env"); e.hasMore();) {
             NameClassPair pair = (NameClassPair) e.next();
             actual.add(pair.getName());
         }
         Set expected = new HashSet(Arrays.asList(new String[]{"string", "char", "byte", "short", "int", "long", "float", "double", "boolean"}));
         assertEquals(expected, actual);
-        assertEquals(stringVal, context.lookup("env/string"));
-        assertEquals(charVal, context.lookup("env/char"));
-        assertEquals(byteVal, context.lookup("env/byte"));
-        assertEquals(shortVal, context.lookup("env/short"));
-        assertEquals(intVal, context.lookup("env/int"));
-        assertEquals(longVal, context.lookup("env/long"));
-        assertEquals(floatVal, context.lookup("env/float"));
-        assertEquals(doubleVal, context.lookup("env/double"));
-        assertEquals(booleanVal, context.lookup("env/boolean"));
+        assertEquals(stringVal, context.lookup("comp/env/string"));
+        assertEquals(charVal, context.lookup("comp/env/char"));
+        assertEquals(byteVal, context.lookup("comp/env/byte"));
+        assertEquals(shortVal, context.lookup("comp/env/short"));
+        assertEquals(intVal, context.lookup("comp/env/int"));
+        assertEquals(longVal, context.lookup("comp/env/long"));
+        assertEquals(floatVal, context.lookup("comp/env/float"));
+        assertEquals(doubleVal, context.lookup("comp/env/double"));
+        assertEquals(booleanVal, context.lookup("comp/env/boolean"));
     }
 
     public void testEnvEntriesOverride() throws Exception {
@@ -212,34 +213,29 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             cursor.dispose();
         }
         environmentEntryBuilder.buildNaming(doc, plan, null, componentContext);
-        Context context = EnterpriseNamingContext.createEnterpriseNamingContext(NamingBuilder.JNDI_KEY.get(componentContext));
+        Context context = EnterpriseNamingContext.livenReferences(NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp), null, null, null, "comp/");
         Set actual = new HashSet();
-        for (NamingEnumeration e = context.listBindings("env"); e.hasMore();) {
+        for (NamingEnumeration e = context.listBindings("comp/env"); e.hasMore();) {
             NameClassPair pair = (NameClassPair) e.next();
             actual.add(pair.getName());
         }
         Set expected = new HashSet(Arrays.asList(new String[]{"string", "char", "byte", "short", "int", "long", "float", "double", "boolean"}));
         assertEquals(expected, actual);
-        assertEquals(stringVal, context.lookup("env/string"));
-        assertEquals(charVal, context.lookup("env/char"));
-        assertEquals(byteVal, context.lookup("env/byte"));
-        assertEquals(shortVal, context.lookup("env/short"));
-        assertEquals(intVal, context.lookup("env/int"));
-        assertEquals(longVal, context.lookup("env/long"));
-        assertEquals(floatVal, context.lookup("env/float"));
-        assertEquals(doubleVal, context.lookup("env/double"));
-        assertEquals(booleanVal, context.lookup("env/boolean"));
+        assertEquals(stringVal, context.lookup("comp/env/string"));
+        assertEquals(charVal, context.lookup("comp/env/char"));
+        assertEquals(byteVal, context.lookup("comp/env/byte"));
+        assertEquals(shortVal, context.lookup("comp/env/short"));
+        assertEquals(intVal, context.lookup("comp/env/int"));
+        assertEquals(longVal, context.lookup("comp/env/long"));
+        assertEquals(floatVal, context.lookup("comp/env/float"));
+        assertEquals(doubleVal, context.lookup("comp/env/double"));
+        assertEquals(booleanVal, context.lookup("comp/env/boolean"));
     }
 
-    public void xtestEmptyEnvironment() throws NamingException {
-        Context context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
-        try {
-            Context env = (Context) context.lookup("env");
-            assertNotNull(env);
-        } catch (NamingException e) {
-            e.printStackTrace();
-            fail();
-        }
+    public void testEmptyEnvironment() throws NamingException {
+        Context context = EnterpriseNamingContext.livenReferences(NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp), null, null, null, "comp/");
+        Context env = (Context) context.lookup("comp/env");
+        assertNotNull(env);
     }
 
 }

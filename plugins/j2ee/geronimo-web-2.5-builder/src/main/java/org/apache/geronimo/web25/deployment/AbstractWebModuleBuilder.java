@@ -17,33 +17,6 @@
 
 package org.apache.geronimo.web25.deployment;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-
-import javax.security.auth.message.module.ServerAuthModule;
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.Location;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.components.jaspi.model.AuthModuleType;
 import org.apache.geronimo.components.jaspi.model.ConfigProviderType;
@@ -70,6 +43,8 @@ import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -110,6 +85,32 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+
+import javax.security.auth.message.module.ServerAuthModule;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.Location;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 /**
  * @version $Rev$ $Date$
@@ -707,6 +708,10 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleContext.getModuleName());
 
+        //get partial jndi context from earContext.
+        Map<JndiKey, Map<String, Object>> jndiContext = new HashMap<JndiKey, Map<String, Object>>(NamingBuilder.JNDI_KEY.get(earContext.getGeneralData()));
+        buildingContext.put(NamingBuilder.JNDI_KEY, jndiContext);
+
         if (!webApp.getMetadataComplete()) {
             // Create a classfinder and populate it for the naming builder(s). The absence of a
             // classFinder in the module will convey whether metadata-complete is set (or not)
@@ -718,11 +723,19 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         //This means that you cannot use the default environment of the web builder to add configs that will be searched.
         getNamingBuilders().buildNaming(webApp, vendorPlan, webModule, buildingContext);
 
-        Map compContext = NamingBuilder.JNDI_KEY.get(buildingContext);
+        //Combine contexts.  Note this may not work right for jaxws which has a comp/env/WebServiceContext binding
+        Map<String, Object> compContext = new HashMap<String, Object>();
+        if (jndiContext.get(JndiScope.comp) != null) {
+            compContext.putAll(jndiContext.get(JndiScope.comp));
+        }
+        if (jndiContext.get(JndiScope.module) != null) {
+            compContext.putAll(jndiContext.get(JndiScope.module));
+        }
+        
         Holder holder = NamingBuilder.INJECTION_KEY.get(buildingContext);
 
         webModule.getSharedContext().put(WebModule.WEB_APP_DATA, webModuleData);
-        webModule.getSharedContext().put(NamingBuilder.JNDI_KEY, compContext);
+        webModule.getSharedContext().put(NamingBuilder.JNDI_KEY, jndiContext);
         webModule.getSharedContext().put(NamingBuilder.INJECTION_KEY, holder);
         if (moduleContext.getServerName() != null) {
             webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
@@ -741,6 +754,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
 
         webModuleData.setAttribute("componentContext", compContext);
+        webModuleData.setReferencePattern("ApplicationJndi", (AbstractName)earContext.getGeneralData().get(EARContext.APPLICATION_JNDI_NAME_KEY));
         webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
         webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
         webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext()? null: webModule.getTargetPath());

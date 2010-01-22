@@ -152,11 +152,11 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 String refType = getStringValue(resourceEnvRef.getResourceEnvRefType());
                 if (refType.equals("javax.transaction.UserTransaction")) {
                     Reference ref = new UserTransactionReference();
-                    getJndiContextMap(componentContext).put(ENV + name, ref);
+                    put(name, ref, getJndiContextMap(componentContext));
                 } else {
                     AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
                     ResourceReferenceFactory<RuntimeException> ref = buildAdminObjectReference(module, containerId, iface);
-                    getJndiContextMap(componentContext).put(ENV + name, ref);
+                    put(name, ref, getJndiContextMap(componentContext));
                 }
             } catch (UnresolvedReferenceException e) {
                 throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")", e);
@@ -172,7 +172,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
         for (MessageDestinationRefType messageDestinationRef : messageDestinationRefsUntyped) {
             String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
-            if (lookupJndiContextMap(componentContext, ENV + name) != null) {
+            if (lookupJndiContextMap(componentContext, name) != null) {
                 // some other builder handled this entry already
                 continue;
             }
@@ -223,7 +223,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             //throws exception if it can't locate ref.
             AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
             ResourceReferenceFactory<RuntimeException> ref = buildAdminObjectReference(module, containerId, iface);
-            getJndiContextMap(componentContext).put(ENV + name, ref);
+            put(name, ref, getJndiContextMap(componentContext));
 
         }
 

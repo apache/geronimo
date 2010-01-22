@@ -34,6 +34,7 @@ import org.osgi.framework.BundleContext;
  * @version $Rev:386276 $ $Date$
  */
 public class EARContext extends DeploymentContext {
+    public static final String APPLICATION_JNDI_NAME_KEY = "AppplicationJndiName";
 
     private final AbstractNameQuery serverName;
     private final AbstractNameQuery transactionManagerObjectName;

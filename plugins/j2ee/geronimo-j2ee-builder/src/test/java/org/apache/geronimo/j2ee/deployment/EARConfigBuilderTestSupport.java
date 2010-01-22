@@ -96,6 +96,8 @@ public abstract class EARConfigBuilderTestSupport
 
     protected static final AbstractName nonTransactionalTimerObjectName = naming.createChildName(rootConfig, "NonTransactionalThreaPooledTimer", "ThreadPooledTimer");
 
+    protected static final AbstractName globalContextAbstractName = naming.createChildName(rootConfig, "GlobalContext", "GlobalContext");
+
     protected static final AbstractName serverName = naming.createChildName(rootConfig, "J2EEServer", "Server");
 
     protected static final AbstractName earName = naming.createRootName(new Artifact("org.apache.geronimo.test.test-ear", "ear", "", "ear"), "test", NameFactory.J2EE_APPLICATION);
@@ -118,6 +120,8 @@ public abstract class EARConfigBuilderTestSupport
     protected final AbstractNameQuery transactionManagerAbstractNameQuery = new AbstractNameQuery(transactionManagerObjectName, null);
 
     protected final AbstractNameQuery connectionTrackerAbstractNameQuery = new AbstractNameQuery(connectionTrackerObjectName, null);
+
+    protected final AbstractNameQuery globalContextAbstractNameQuery = new AbstractNameQuery(globalContextAbstractName, null);
 
     protected final AbstractNameQuery corbaGBeanAbstractNameQuery = new AbstractNameQuery(serverName, null);
 
@@ -145,6 +149,7 @@ public abstract class EARConfigBuilderTestSupport
                     connectionTrackerAbstractNameQuery,
                     corbaGBeanAbstractNameQuery,
                     null,
+                    globalContextAbstractNameQuery,
                     Collections.singleton(repository),
                     ejbConfigBuilder,
                     webConfigBuilder,
@@ -176,6 +181,7 @@ public abstract class EARConfigBuilderTestSupport
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
+                globalContextAbstractNameQuery,
                 null,
                 ejbConfigBuilder,
                 webConfigBuilder,
@@ -211,6 +217,7 @@ public abstract class EARConfigBuilderTestSupport
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
+                globalContextAbstractNameQuery,
                 null,
                 ejbConfigBuilder,
                 webConfigBuilder,
@@ -246,6 +253,7 @@ public abstract class EARConfigBuilderTestSupport
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
+                globalContextAbstractNameQuery,
                 null,
                 ejbConfigBuilder,
                 webConfigBuilder,
@@ -281,6 +289,7 @@ public abstract class EARConfigBuilderTestSupport
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
+                globalContextAbstractNameQuery,
                 null,
                 ejbConfigBuilder,
                 webConfigBuilder,
@@ -316,6 +325,7 @@ public abstract class EARConfigBuilderTestSupport
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
+                globalContextAbstractNameQuery,
                 null,
                 null,
                 webConfigBuilder,
@@ -352,6 +362,7 @@ public abstract class EARConfigBuilderTestSupport
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
+                globalContextAbstractNameQuery,
                 null,
                 ejbConfigBuilder,
                 null,
@@ -387,6 +398,7 @@ public abstract class EARConfigBuilderTestSupport
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
                 null,
+                globalContextAbstractNameQuery,
                 null,
                 ejbConfigBuilder,
                 webConfigBuilder,

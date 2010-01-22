@@ -24,6 +24,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.AbstractNamespaceBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.annotation.Holder;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
 
@@ -37,12 +38,12 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
     XmlObject[] NO_REFS = new XmlObject[] {};
     String ENV = "env/";
 
-    Key<Map<String, Object>> JNDI_KEY = new Key<Map<String, Object>>() {
+    Key<Map<JndiKey, Map<String, Object>>> JNDI_KEY = new Key<Map<JndiKey, Map<String, Object>>>() {
 
-        public Map<String, Object> get(Map context) {
-            Map<String, Object> result = (Map<String, Object>) context.get(this);
+        public Map<JndiKey, Map<String, Object>> get(Map context) {
+            Map<JndiKey, Map<String, Object>> result = (Map<JndiKey, Map<String, Object>>) context.get(this);
             if (result == null) {
-                result = new HashMap<String, Object>();
+                result = new HashMap<JndiKey, Map<String, Object>>();
                 context.put(this, result);
             }
             return result;

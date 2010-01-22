@@ -27,13 +27,15 @@
 
     <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
         <attribute name="namingFactoryInitial">org.apache.xbean.naming.global.GlobalContextManager</attribute>
-        <attribute name="namingFactoryUrlPkgs">org.apache.xbean.naming</attribute>
+        <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
         <attribute name="namingProviderUrl">rmi://localhost:1099</attribute>
     </gbean>
 
     <gbean name="GlobalContext" class="org.apache.geronimo.gjndi.GlobalContextGBean"/>
 
-    <gbean name="JavaCompContext" class="org.apache.geronimo.gjndi.JavaCompContextGBean"/>
+    <gbean name="JavaGlobalContext" class="org.apache.geronimo.gjndi.FederatedContextGBean">
+        <attribute name="nameInNamespace">java:</attribute>
+    </gbean>
 
     <gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
         <attribute name="nameInNamespace">java:</attribute>

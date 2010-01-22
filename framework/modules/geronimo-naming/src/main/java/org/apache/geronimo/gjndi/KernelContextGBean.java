@@ -23,27 +23,30 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.ContextNotEmptyException;
 import javax.naming.Name;
 import javax.naming.NamingException;
-import javax.naming.ContextNotEmptyException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.xbean.naming.context.ContextAccess;
 import org.apache.xbean.naming.context.WritableContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = "Context")
 public class KernelContextGBean extends WritableContext implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(KernelContextGBean.class);
 
@@ -52,8 +55,10 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
     private final LifecycleListener listener = new ContextLifecycleListener();
     private final Map<AbstractName, Set<Name>> bindingsByAbstractName = new HashMap<AbstractName, Set<Name>>();
 
-    public KernelContextGBean(String nameInNamespace, AbstractNameQuery abstractNameQuery, Kernel kernel) throws NamingException {
-        super(nameInNamespace, Collections.EMPTY_MAP, ContextAccess.MODIFIABLE, false);
+    public KernelContextGBean(@ParamAttribute(name="nameInNamespace")String nameInNamespace, 
+                              @ParamAttribute(name="abstractNameQuery")AbstractNameQuery abstractNameQuery,
+                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) throws NamingException {
+        super(nameInNamespace, Collections.<String, Object>emptyMap(), ContextAccess.MODIFIABLE, false);
         this.abstractNameQuery = abstractNameQuery;
         this.kernel = kernel;
     }
@@ -95,7 +100,7 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
             try {
                 addBinding(abstractName);
             } catch (NamingException e) {
-                log.error("Error adding binding for " + abstractName);
+                log.error("Error adding binding for " + abstractName, e);
             }
         }
 
@@ -262,17 +267,4 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
         return value;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(KernelContextGBean.class, "Context");
-        builder.addAttribute("nameInNamespace", String.class, true);
-        builder.addAttribute("abstractNameQuery", AbstractNameQuery.class, true);
-        builder.setConstructor(new String[]{"nameInNamespace", "abstractNameQuery", "kernel"});
-        GBEAN_INFO = builder.getBeanInfo();
-    }
 }

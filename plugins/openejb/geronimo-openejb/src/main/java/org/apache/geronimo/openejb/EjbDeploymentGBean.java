@@ -17,42 +17,45 @@
  */
 package org.apache.geronimo.openejb;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
-import org.apache.geronimo.security.jacc.RunAsSource;
-import org.apache.geronimo.security.SecurityNames;
-import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
+import org.apache.geronimo.security.SecurityNames;
+import org.apache.geronimo.security.jacc.RunAsSource;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 
 public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle {
     public EjbDeploymentGBean(String objectName,
-            String deploymentId,
-            String ejbName,
-            String homeInterfaceName,
-            String remoteInterfaceName,
-            String localHomeInterfaceName,
-            String localInterfaceName,
-            String serviceEndpointInterfaceName,
-            String beanClassName,
-            ClassLoader classLoader,
-            boolean securityEnabled,
-            String defaultRole,
-            String runAsRole,
-            RunAsSource runAsSource,
-            Map componentContext,
-            Set unshareableResources,
-            Set applicationManagedSecurityResources,
-            TrackedConnectionAssociator trackedConnectionAssociator,
-            GeronimoTransactionManager transactionManager,
-            OpenEjbSystem openEjbSystem,
-            Kernel kernel) throws Exception {
+                              String deploymentId,
+                              String ejbName,
+                              String homeInterfaceName,
+                              String remoteInterfaceName,
+                              String localHomeInterfaceName,
+                              String localInterfaceName,
+                              String serviceEndpointInterfaceName,
+                              String beanClassName,
+                              ClassLoader classLoader,
+                              boolean securityEnabled,
+                              String defaultRole,
+                              String runAsRole,
+                              RunAsSource runAsSource,
+                              Map<String, Object> componentContext,
+                              Set<String> unshareableResources,
+                              Set<String> applicationManagedSecurityResources,
+                              TrackedConnectionAssociator trackedConnectionAssociator,
+                              GeronimoTransactionManager transactionManager,
+                              OpenEjbSystem openEjbSystem,
+                              EjbModuleImpl ejbModule, Kernel kernel) throws Exception {
         super(objectName,
                 deploymentId,
                 ejbName,
@@ -67,11 +70,21 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
                 defaultRole,
                 runAsRole,
                 runAsSource,
-                EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, transactionManager, kernel, classLoader),
+                buildJndiContext(componentContext, ejbModule, transactionManager, kernel, classLoader),
                 unshareableResources,
                 applicationManagedSecurityResources,
                 trackedConnectionAssociator,
                 openEjbSystem);
+    }
+
+    private static Context buildJndiContext(Map<String, Object> componentContext, EjbModuleImpl ejbModule, GeronimoTransactionManager transactionManager, Kernel kernel, ClassLoader classLoader) throws NamingException {
+        Context compContext = EnterpriseNamingContext.livenReferences(componentContext, transactionManager, kernel, classLoader, "comp/");
+        Set<Context> contexts = new LinkedHashSet<Context>(4);
+        contexts.add(compContext);
+        contexts.add(ejbModule.getModuleContext());
+        contexts.add(ejbModule.getApplicationJndi().getApplicationContext());
+        contexts.add(ejbModule.getApplicationJndi().getGlobalContext());
+        return EnterpriseNamingContext.createEnterpriseNamingContext(contexts);
     }
 
     public void doStart() throws Exception {
@@ -117,6 +130,7 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
         infoFactory.addReference("TransactionManager", GeronimoTransactionManager.class);
 
         infoFactory.addReference("OpenEjbSystem", OpenEjbSystem.class);
+        infoFactory.addReference("EjbModule", EjbModuleImpl.class);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
@@ -146,6 +160,7 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
                 "TransactionManager",
 
                 "OpenEjbSystem",
+                "EjbModule",
 
                 "kernel",
         });

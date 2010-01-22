@@ -17,22 +17,41 @@
 package org.apache.geronimo.openejb;
 
 import java.util.Collection;
+import java.util.Map;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import javax.naming.NamingException;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.EJB;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 
 /**
+ * This starts before the ejb gbeans
+ * 
  * @version $Revision$ $Date$
  */
+@GBean(j2eeType = NameFactory.EJB_MODULE)
 public final class EjbModuleImplGBean extends EjbModuleImpl implements GBeanLifecycle {
-    public EjbModuleImplGBean(String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, Collection<? extends EJB> ejbs, ClassLoader classLoader, OpenEjbSystem openEjbSystem, EjbJarInfo ejbJarInfo) {
-        super(objectName, server, application, deploymentDescriptor, ejbs, classLoader, openEjbSystem, ejbJarInfo);
+    public EjbModuleImplGBean(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+                              @ParamReference(name = "J2EEServer", namingType = NameFactory.J2EE_SERVER) J2EEServer server,
+                              @ParamReference(name = "J2EEApplication", namingType = NameFactory.J2EE_APPLICATION) J2EEApplication application,
+                              @ParamReference(name = "ApplicationJndi", namingType = "GBEAN") ApplicationJndi applicationJndi,
+                              @ParamAttribute(name = "moduleJndi") Map<String, Object> moduleJndi,
+                              @ParamAttribute(name = "deploymentDescriptor") String deploymentDescriptor,
+                              @ParamReference(name = "EJBCollection") Collection<? extends EJB> ejbs,
+                              @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel, @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
+                              @ParamAttribute(name = "ejbJarInfo") EjbJarInfo ejbJarInfo) throws NamingException {
+        super(objectName, server, application, applicationJndi, moduleJndi, deploymentDescriptor, ejbs, classLoader, kernel, openEjbSystem, ejbJarInfo);
     }
 
     public void doStart() throws Exception {
@@ -47,37 +66,4 @@ public final class EjbModuleImplGBean extends EjbModuleImpl implements GBeanLife
         stop();
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EjbModuleImplGBean.class, NameFactory.EJB_MODULE);
-        infoBuilder.addReference("J2EEServer", J2EEServer.class);
-        infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
-
-        infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
-
-        infoBuilder.addReference("EJBCollection", EJB.class);
-
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoBuilder.addReference("OpenEjbSystem", OpenEjbSystem.class);
-        infoBuilder.addAttribute("ejbJarInfo", EjbJarInfo.class, true);
-
-        infoBuilder.setConstructor(new String[]{
-                "objectName",
-                "J2EEServer",
-                "J2EEApplication",
-                "deploymentDescriptor",
-                "EJBCollection",
-                "classLoader",
-                "OpenEjbSystem",
-                "ejbJarInfo"
-        });
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

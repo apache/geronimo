@@ -16,22 +16,29 @@
  */
 package org.apache.geronimo.gjndi.binding;
 
-import javax.naming.NamingException;
-import javax.naming.Name;
-
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.ResourceSource;
+
+import javax.naming.Name;
+import javax.naming.NamingException;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = "Context")
 public class ResourceBinding extends GBeanFormatBinding {
 
-    public ResourceBinding(String format, String namePattern, String nameInNamespace, AbstractNameQuery abstractNameQuery, Kernel kernel) throws NamingException {
+    public ResourceBinding(@ParamAttribute(name="format")String format,
+                              @ParamAttribute(name="namePattern")String namePattern,
+                              @ParamAttribute(name="nameInNamespace")String nameInNamespace,
+                              @ParamAttribute(name="abstractNameQuery")AbstractNameQuery abstractNameQuery,
+                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) throws NamingException {
         super(format, namePattern, nameInNamespace, abstractNameQuery, kernel);
     }
 
@@ -57,14 +64,4 @@ public class ResourceBinding extends GBeanFormatBinding {
         }
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(ResourceBinding.class, GBeanFormatBinding.GBEAN_INFO, "Context");
-        GBEAN_INFO = builder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

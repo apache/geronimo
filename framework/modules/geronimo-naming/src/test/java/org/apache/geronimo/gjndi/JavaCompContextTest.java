@@ -16,34 +16,33 @@
  */
 package org.apache.geronimo.gjndi;
 
-import junit.framework.TestCase;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Properties;
 
-import javax.naming.NamingException;
+import javax.naming.Binding;
 import javax.naming.CompositeName;
 import javax.naming.CompoundName;
 import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NameClassPair;
-import javax.naming.Binding;
-import javax.naming.LinkRef;
 import javax.naming.InitialContext;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Properties;
-import java.util.Collections;
+import javax.naming.LinkRef;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 
 import org.apache.geronimo.naming.java.RootContext;
+import org.apache.xbean.naming.context.ContextAccess;
 import org.apache.xbean.naming.context.ImmutableContext;
 import org.apache.xbean.naming.context.WritableContext;
-import org.apache.xbean.naming.context.ContextAccess;
 import org.apache.xbean.naming.global.GlobalContextManager;
 
 /**
  * @version $Rev$ $Date$
  */
-public class JavaCompContextTest extends TestCase {
+public class JavaCompContextTest extends AbstractContextTest {
     protected Context readOnlyContext;
     protected Properties syntax;
     protected Map envBinding;
@@ -174,22 +173,22 @@ public class JavaCompContextTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         System.setProperty("java.naming.factory.initial", GlobalContextManager.class.getName());
-        System.setProperty("java.naming.factory.url.pkgs", "org.apache.geronimo.knaming");
+        System.setProperty("java.naming.factory.url.pkgs", "org.apache.geronimo.naming");
 
         LinkRef link = new LinkRef("java:comp/env/hello");
 
         Map bindings = new HashMap();
-        bindings.put("env/hello", "Hello");
-        bindings.put("env/world", "Hello World");
-        bindings.put("env/here/there/anywhere", "long name");
-        bindings.put("env/link", link);
+        bindings.put("comp/env/hello", "Hello");
+        bindings.put("comp/env/world", "Hello World");
+        bindings.put("comp/env/here/there/anywhere", "long name");
+        bindings.put("comp/env/link", link);
 
         readOnlyContext = new WritableContext("", bindings, ContextAccess.UNMODIFIABLE);
 
         envBinding = new HashMap();
         envBinding.put("hello", "Hello");
         envBinding.put("world", "Hello World");
-        envBinding.put("here", readOnlyContext.lookup("env/here"));
+        envBinding.put("here", readOnlyContext.lookup("comp/env/here"));
         envBinding.put("link", link);
 
         RootContext.setComponentContext(readOnlyContext);
@@ -198,7 +197,7 @@ public class JavaCompContextTest extends TestCase {
         Context globalContext = new ImmutableContext(Collections.<String, Object>singletonMap(javaCompContext.getNameInNamespace(), javaCompContext));
         GlobalContextManager.setGlobalContext(globalContext);
 
-        initialContext = new InitialContext();
+        initialContext = new InitialContext(contextEnv);
         compContext = (Context) initialContext.lookup("java:comp");
         envContext = (Context) initialContext.lookup("java:comp/env");
 

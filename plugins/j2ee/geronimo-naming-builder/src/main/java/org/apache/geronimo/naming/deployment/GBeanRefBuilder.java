@@ -89,7 +89,7 @@ public class GBeanRefBuilder extends AbstractNamingBuilder {
 
             String refName = gbeanRef.getRefName();
 
-            NamingBuilder.JNDI_KEY.get(componentContext).put(ENV + refName, new GBeanReference(module.getConfigId(), queries, gBeanType));
+            put(refName, new GBeanReference(module.getConfigId(), queries, gBeanType), NamingBuilder.JNDI_KEY.get(componentContext));
 
         }
     }

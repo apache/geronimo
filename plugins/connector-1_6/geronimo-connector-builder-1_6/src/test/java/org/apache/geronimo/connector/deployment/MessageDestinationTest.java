@@ -32,6 +32,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.Kernel;
@@ -138,7 +139,7 @@ public class MessageDestinationTest extends TestCase {
         configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.GBEAN_INFO));
         configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.GBEAN_INFO));
         adminObjectRefBuilder.buildNaming(specDD, plan, module, componentContext);
-        assertEquals(2, NamingBuilder.JNDI_KEY.get(componentContext).size());
+        assertEquals(2, NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp).size());
     }
 
     private static final String PLAN2 = "<tmp xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
@@ -162,7 +163,7 @@ public class MessageDestinationTest extends TestCase {
         configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.GBEAN_INFO));
         configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.GBEAN_INFO));
         adminObjectRefBuilder.buildNaming(specDD, plan, module, componentContext);
-        assertEquals(2, NamingBuilder.JNDI_KEY.get(componentContext).size());
+        assertEquals(2, NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp).size());
     }
 
     private static final String SPECDD2 = "<tmp xmlns=\"http://java.sun.com/xml/ns/j2ee\">" +

@@ -16,30 +16,28 @@
  */
 package org.apache.geronimo.gjndi;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameNotFoundException;
-
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.java.RootContext;
+import org.apache.geronimo.naming.java.javaURLContextFactory;
 import org.apache.xbean.naming.context.ImmutableContext;
-import org.apache.xbean.naming.global.GlobalContextManager;
+
+import javax.naming.InitialContext;
+import javax.naming.NameNotFoundException;
+import javax.naming.NotContextException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -47,23 +45,26 @@ import org.apache.xbean.naming.global.GlobalContextManager;
 public class JavaCompGBeanTest extends AbstractContextTest {
     private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
     private Kernel kernel;
-    private Hashtable contextEnv;
 
     public void testLookupEnv() throws Exception {
         Map javaCompBindings = new HashMap();
         javaCompBindings.put("foo", "bar");
 
         // a regular context doesn't contain env
+        Thread.currentThread().setContextClassLoader(javaURLContextFactory.class.getClassLoader());
         RootContext.setComponentContext(new ImmutableContext(javaCompBindings));
         try {
             new InitialContext(contextEnv).lookup("java:comp/env");
             fail("Expected NameNotFoundException");
+        } catch (NotContextException expected) {
+            // expected
         } catch (NameNotFoundException expected) {
             // expected
         }
 
         // ENC adds env if not present
-        RootContext.setComponentContext(EnterpriseNamingContext.createEnterpriseNamingContext(javaCompBindings, null, null, null));
+        javaCompBindings.put("comp/env/foo", "bar");
+        RootContext.setComponentContext(new ImmutableContext(javaCompBindings));
         new InitialContext(contextEnv).lookup("java:comp/env");
     }
 
@@ -105,15 +106,12 @@ public class JavaCompGBeanTest extends AbstractContextTest {
 
         ConfigurationData configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
         configurationData.setBundleContext(bundleContext);
-        configurationData.addGBean("GlobalContext", GlobalContextGBean.GBEAN_INFO);
-        configurationData.addGBean("JavaComp", JavaCompContextGBean.GBEAN_INFO);
+        configurationData.addGBean("GlobalContext", GlobalContextGBean.class);
+        configurationData.addGBean("JavaComp", JavaCompContextGBean.class);
 
         configurationManager.loadConfiguration(configurationData);
         configurationManager.startConfiguration(configurationData.getId());
 
-
-        contextEnv = new Hashtable();
-        contextEnv.put(Context.INITIAL_CONTEXT_FACTORY, GlobalContextManager.class.getName());
     }
 
     protected void tearDown() throws Exception {
