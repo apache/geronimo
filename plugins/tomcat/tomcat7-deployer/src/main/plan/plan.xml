@@ -80,20 +80,6 @@
                         <type>car</type>
                     </dependency>
                 </dependencies>
-                <hidden-classes/>
-                <non-overridable-classes>
-                    <filter>java.</filter>
-                    <filter>javax.</filter>
-                    <filter>org.apache.geronimo.</filter>
-                    <filter>org.apache.jasper.</filter>
-                    <filter>org.apache.naming.</filter>
-                    <filter>org.apache.catalina.</filter>
-                    <filter>org.apache.tomcat.</filter>
-                    <filter>org.apache.myfaces.</filter>
-                    <filter>org.apache.taglibs.</filter>
-                    <filter>org.xml.</filter>
-                    <filter>org.w3c.</filter>
-                </non-overridable-classes>
             </environment>
         </xml-attribute>
     </gbean>
