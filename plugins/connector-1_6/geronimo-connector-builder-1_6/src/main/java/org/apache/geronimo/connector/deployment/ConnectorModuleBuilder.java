@@ -205,6 +205,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         doStop();
     }
 
+    public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return null;
+    }
+    
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, "rar", null, null, null, naming, idBuilder);
     }

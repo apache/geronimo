@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -62,7 +60,6 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.Manifest;
 import org.apache.geronimo.kernel.config.ManifestException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -90,32 +87,6 @@ public class DeploymentContext {
 
     private static final Logger log = LoggerFactory.getLogger(DeploymentContext.class);
 
-    // values for lenience vs. strict manifest classpath interpretation
-    private final static int manifestClassLoaderMode;
-    private final static String manifestClassLoaderMessage;
-    private final static int MFCP_LENIENT = 1;
-    private final static int MFCP_STRICT = 2;
-
-    static {
-        // Extract the LenientMFCP value if specified.  If not, default to strict..
-        String mode = System.getProperty("Xorg.apache.geronimo.deployment.LenientMFCP");
-        int mfcpMode = MFCP_STRICT;    // Default to strict
-        String mfcpModeMessage = "Strict Manifest Classpath";
-        if (mode != null) {
-            if (mode.equals("true")) {
-                mfcpMode = MFCP_LENIENT;
-                mfcpModeMessage = "Lenient Manifest Classpath";
-            }
-        }
-
-        manifestClassLoaderMode = mfcpMode;
-        manifestClassLoaderMessage = mfcpModeMessage;
-        LoggerFactory.getLogger(DeploymentContext.class).info(
-                "The " + manifestClassLoaderMessage + " processing mode is in effect.\n" +
-                        "This option can be altered by specifying -DXorg.apache.geronimo.deployment.LenientMFCP=true|false\n" +
-                        "Specify =\"true\" for more lenient processing such as ignoring missing jars and references that are not spec compliant.");
-    }
-
     protected final File baseDir;
     protected final File inPlaceConfigurationDir;
     protected final ResourceContext resourceContext;
@@ -131,8 +102,6 @@ public class DeploymentContext {
     //It should be a disposable nested framework so as to not pollute the main framework with stuff we load as deployment parents.
     private final BundleContext bundleContext;
     protected Configuration configuration;
-    //TODO OSGI set this
-    private boolean boot;
     private Bundle tempBundle;
 
 
@@ -140,36 +109,42 @@ public class DeploymentContext {
         this(baseDir, inPlaceConfigurationDir, environment, moduleName, moduleType, naming, createConfigurationManager(configurationManager, repositories, bundleContext), bundleContext);
     }
 
-    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, AbstractName moduleName, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager, BundleContext bundleContext) throws DeploymentException {
-        if (baseDir == null) throw new NullPointerException("baseDir is null");
+    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, AbstractName moduleName, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager, BundleContext bundleContext) throws DeploymentException {        
         if (environment == null) throw new NullPointerException("environment is null");
         if (moduleType == null) throw new NullPointerException("type is null");
         if (configurationManager == null) throw new NullPointerException("configurationManager is null");
-
-        if (!baseDir.exists() && !baseDir.mkdirs()) {
-            throw new DeploymentException("Could not create directory for deployment context assembly: " + baseDir);
-        }
-        this.baseDir = baseDir;
-
+        
+        this.baseDir = baseDir; 
         this.inPlaceConfigurationDir = inPlaceConfigurationDir;
-
         this.moduleName = moduleName;
-
         this.naming = naming;
         this.moduleType = moduleType;
         this.environment = environment;
-
-
         this.configurationManager = configurationManager;
-
-        if (null == inPlaceConfigurationDir) {
-            resourceContext = new CopyResourceContext(this, baseDir);
-        } else {
-            resourceContext = new InPlaceResourceContext(this, inPlaceConfigurationDir);
-        }
         this.bundleContext = bundleContext;
+
+        verifyArguments();
+        
+        this.resourceContext = createResourceContext();
     }
 
+    protected void verifyArguments() throws DeploymentException {
+        if (baseDir == null) {
+            throw new NullPointerException("baseDir is null");
+        }        
+        if (!baseDir.exists() && !baseDir.mkdirs()) {
+            throw new DeploymentException("Could not create directory for deployment context assembly: " + baseDir);
+        }
+    }
+    
+    protected ResourceContext createResourceContext() throws DeploymentException {
+        if (null == inPlaceConfigurationDir) {
+            return new CopyResourceContext(this, baseDir);
+        } else {
+            return new InPlaceResourceContext(this, inPlaceConfigurationDir);
+        }
+    }
+    
     private static ConfigurationManager createConfigurationManager(ConfigurationManager configurationManager, Collection<Repository> repositories, BundleContext bundleContext) {
         return new DeploymentConfigurationManager(configurationManager, repositories, bundleContext);
     }
@@ -186,29 +161,6 @@ public class DeploymentContext {
         LinkedHashSet<Artifact> resolvedParentIds = null;
         try {
             ConfigurationData configurationData = new ConfigurationData(moduleType, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
-//            ConfigurationResolver configurationResolver = configurationManager.newConfigurationResolver(configurationData);
-//            List<URL> urls = new ArrayList<URL>();
-//            for (String path: classPath) {
-//                urls.addAll(configurationResolver.resolve(path));
-//            }
-//            List<Bundle> parents = new ArrayList<Bundle>();
-//             resolvedParentIds = configurationManager.resolveParentIds(configurationData);
-//            for (Artifact artifact: resolvedParentIds) {
-//                configurationManager.loadConfiguration(artifact);
-//                Bundle bundle = configurationManager.getBundle(artifact);
-//                if (bundle.getSymbolicName() != null) {
-//                    parents.add(bundle);
-//                }
-//            }
-////            URL[] urls = new URL[0];//TODO crib code from ConfigurationResolver
-////            Bundle[] parents = new Bundle[] {bundleContext.getBundle()}; //TODO this is the "no parents" case, normally use ConfigurationManager to turn parent artifactIds into bundles
-//            ClassLoadingRules classLoadingRules = new ClassLoadingRules();
-//            BundleContext bundleContext = new DeploymentBundleContext(this.bundleContext,
-//                    baseDir.getAbsolutePath(),
-//                    environment.getConfigId(),
-//                    urls.toArray(new URL[urls.size()]),
-//                    parents.toArray(new Bundle[parents.size()]),
-//                    classLoadingRules);
             File tempBundleFile = FileUtils.createTempFile();
             createTempManifest();
             createTempPluginMetadata();
@@ -429,17 +381,7 @@ public class DeploymentContext {
         resourceContext.addInclude(targetPath, source);
     }
 
-    interface JarFileFactory {
-        JarFile newJarFile(URI relativeURI) throws IOException;
-
-        String getManifestClassPath(JarFile jarFile) throws IOException;
-
-        boolean isDirectory(URI relativeURI) throws IOException;
-
-        File[] listFiles(URI relativeURI) throws IOException;
-    }
-
-    private class DefaultJarFileFactory implements JarFileFactory {
+    private class DefaultJarFileFactory implements ClassPathUtils.JarFileFactory {
 
         public JarFile newJarFile(URI relativeURI) throws IOException {
             File targetFile = getTargetFile(relativeURI);
@@ -474,9 +416,13 @@ public class DeploymentContext {
         }
     }
 
-    public void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions) throws DeploymentException {
+    public void getCompleteManifestClassPath(Deployable deployable, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions) throws DeploymentException {
+        if (!(deployable instanceof DeployableJarFile)) {
+            throw new IllegalArgumentException("Expected DeployableJarFile");
+        }
+        JarFile moduleFile = ((DeployableJarFile) deployable).getJarFile();
         List<DeploymentException> problems = new ArrayList<DeploymentException>();
-        getCompleteManifestClassPath(moduleFile, moduleBaseUri, resolutionUri, classpath, exclusions, new DefaultJarFileFactory(), problems);
+        ClassPathUtils.getCompleteManifestClassPath(moduleFile, moduleBaseUri, resolutionUri, classpath, exclusions, new DefaultJarFileFactory(), problems);
         if (!problems.isEmpty()) {
             if (problems.size() == 1) {
                 throw problems.get(0);
@@ -485,247 +431,20 @@ public class DeploymentContext {
         }
     }
 
-    /**
-     * Recursively construct the complete set of paths in the ear for the manifest classpath of the supplied modulefile.
-     * Used only in PersistenceUnitBuilder to figure out if a persistence.xml relates to the starting module.  Having a classloader for
-     * each ejb module would eliminate the need for this and be more elegant.
-     *
-     * @param moduleFile    the module that we start looking at classpaths at, in the car.
-     * @param moduleBaseUri where the moduleFile is inside the car file.  For an (unpacked) war this ends with / which means we also need:
-     * @param resolutionUri the uri to resolve all entries against. For a module such as an ejb jar that is part of the
-     *                      root ear car it is ".".  For a sub-configuration such as a war it is the "reverse" of the path to the war file in the car.
-     *                      For instance, if the war file is foo/bar/myweb.war, the resolutionUri is "../../..".
-     * @param classpath     the classpath list we are constructing.
-     * @param exclusions    the paths to not investigate.  These are typically the other modules in the ear/car file: they will have their contents processed for themselves.
-     * @param factory       the factory for constructing JarFiles and the way to extract the manifest classpath from a JarFile. Introduced to make
-     *                      testing plausible, but may be useful for in-IDE deployment.
-     * @param problems      List to save all the problems we encounter.
-     * @throws org.apache.geronimo.common.DeploymentException
-     *          if something goes wrong.
-     */
-    public void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
-        String manifestClassPath;
-        try {
-            manifestClassPath = factory.getManifestClassPath(moduleFile);
-        } catch (IOException e) {
-            problems.add(new DeploymentException(printInfo("Could not read manifest: " + moduleBaseUri, moduleBaseUri, classpath, exclusions), e));
-            return;
-        }
-
-        if (manifestClassPath == null) {
-            return;
-        }
-
-        for (StringTokenizer tokenizer = new StringTokenizer(manifestClassPath, " "); tokenizer.hasMoreTokens();) {
-            String path = tokenizer.nextToken();
-
-            URI pathUri;
-            try {
-                pathUri = new URI(path);
-            } catch (URISyntaxException e) {
-                problems.add(new DeploymentException(printInfo("Invalid manifest classpath entry, path= " + path, moduleBaseUri, classpath, exclusions)));
-                continue;
-            }
-
-            if (pathUri.isAbsolute()) {
-                problems.add(new DeploymentException(printInfo("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): path= " + path, moduleBaseUri, classpath, exclusions)));
-                continue;
-            }
-
-            URI targetUri = moduleBaseUri.resolve(pathUri);
-
-            try {
-                if (factory.isDirectory(targetUri)) {
-                    if (!targetUri.getPath().endsWith("/")) {
-                        targetUri = URI.create(targetUri.getPath() + "/");
-                    }
-                    for (File file : factory.listFiles(targetUri)) {
-                        if (file.isDirectory()) {
-                            log.debug("Sub directory [" + file.getAbsolutePath() + "] in the manifest entry directory is ignored");
-                            continue;
-                        }
-                        if (!file.getName().endsWith(".jar")) {
-                            log.debug("Only jar files are added to classpath, file [" + file.getAbsolutePath() + "] is ignored");
-                            continue;
-                        }
-                        addToClassPath(moduleBaseUri, resolutionUri, targetUri.resolve(file.getName()), classpath, exclusions, factory, problems);
-                    }
-                } else {
-                    if (!pathUri.getPath().endsWith(".jar")) {
-                        if (manifestClassLoaderMode == MFCP_STRICT) {
-                            problems.add(new DeploymentException(printInfo(
-                                    "Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): path= "
-                                            + path, moduleBaseUri, classpath, exclusions)));
-                        } else {
-                            log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
-                                    + "Therefore, a manifest classpath entry which does not end with .jar, "
-                                    + pathUri + " is being permitted and ignored.");
-                        }
-                        continue;
-                    }
-                    addToClassPath(moduleBaseUri, resolutionUri, targetUri, classpath, exclusions, factory, problems);
-                }
-            } catch (IOException e) {
-                if (manifestClassLoaderMode == MFCP_STRICT) {
-                    problems.add(new DeploymentException(
-                            "An IOException resulting from manifest classpath : targetUri= " + targetUri, e));
-                } else {
-                    log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
-                            + "Therefore, an IOException resulting from manifest classpath " + targetUri
-                            + " is being ignored.");
-                }
-            }
-        }
-    }
-
-    private void addToClassPath(URI moduleBaseUri, URI resolutionUri, URI targetUri, ClassPathList classpath, ModuleList exclusions, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
-        String targetEntry = targetUri.toString();
-        if (exclusions.contains(targetEntry)) {
-            return;
-        }
-        URI resolvedUri = resolutionUri.resolve(targetUri);
-        String classpathEntry = resolvedUri.toString();
-        //don't get caught in circular references
-        if (classpath.contains(classpathEntry)) {
-            return;
-        }
-        classpath.add(classpathEntry);
-        JarFile classPathJarFile;
-        try {
-            classPathJarFile = factory.newJarFile(targetUri);
-        } catch (IOException e) {
-            if (manifestClassLoaderMode == MFCP_STRICT) {
-                problems.add(new DeploymentException(
-                        printInfo(
-                                "Manifest class path entries must be a valid jar file, or if it is a directory, all the files with jar suffix in it must be a valid jar file (JAVAEE 5 Section 8.2):  resolved to targetURI= "
-                                        + targetUri, moduleBaseUri, classpath, exclusions), e));
-            } else {
-                log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
-                        + "Therefore, an IOException resulting from manifest classpath " + targetUri
-                        + " is being ignored.");
-            }
-            return;
-        }
-
-        getCompleteManifestClassPath(classPathJarFile, targetUri, resolutionUri, classpath, exclusions, factory, problems);
-    }
-
-    private String printInfo(String message, URI moduleBaseUri, ClassPathList classpath, ModuleList exclusions) {
-        StringBuffer buf = new StringBuffer(message).append("\n");
-        buf.append("    looking at: ").append(moduleBaseUri);
-        buf.append("    current classpath: ").append(classpath);
-        buf.append("    ignoring modules: ").append(exclusions);
-        return buf.toString();
-    }
-
+ 
     public void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri) throws DeploymentException {
         List<DeploymentException> problems = new ArrayList<DeploymentException>();
-        addManifestClassPath(moduleFile, moduleBaseUri, new DefaultJarFileFactory(), problems);
+        ClassPathUtils.addManifestClassPath(moduleFile, moduleBaseUri, classPath, new DefaultJarFileFactory(), problems);
         if (!problems.isEmpty()) {
             if (problems.size() == 1) {
                 throw problems.get(0);
             }
             throw new DeploymentException("Determining complete manifest classpath unsuccessful: ", problems);
-        }
-    }
-
-    /**
-     * Import the classpath from a jar file's manifest.  The imported classpath
-     * is crafted relative to <code>moduleBaseUri</code>.
-     *
-     * @param moduleFile    the jar file from which the manifest is obtained.
-     * @param moduleBaseUri the base for the imported classpath
-     * @param factory       the factory for constructing JarFiles and the way to extract the manifest classpath from a JarFile. Introduced to make
-     *                      testing plausible, but may be useful for in-IDE deployment.
-     * @param problems      List to save all the problems we encounter.
-     * @throws DeploymentException if there is a problem with the classpath in
-     *                             the manifest
-     */
-    public void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
-        String manifestClassPath;
-        try {
-            manifestClassPath = factory.getManifestClassPath(moduleFile);
-        } catch (IOException e) {
-            problems.add(new DeploymentException("Could not read manifest: " + moduleBaseUri, e));
-            return;
-        }
-
-        if (manifestClassPath == null) {
-            return;
-        }
-
-        for (StringTokenizer tokenizer = new StringTokenizer(manifestClassPath, " "); tokenizer.hasMoreTokens();) {
-            String path = tokenizer.nextToken();
-
-            URI pathUri;
-            try {
-                pathUri = new URI(path);
-            } catch (URISyntaxException e) {
-                problems.add(new DeploymentException("Invalid manifest classpath entry: module= " + moduleBaseUri + ", path= " + path));
-                continue;
-            }
-
-            if (pathUri.isAbsolute()) {
-                problems.add(new DeploymentException("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): path= " + path + ", module= " + moduleBaseUri));
-                continue;
-            }
-
-            URI targetUri = moduleBaseUri.resolve(pathUri);
-
-            try {
-                if (factory.isDirectory(targetUri)) {
-                    if (!targetUri.getPath().endsWith("/")) {
-                        targetUri = URI.create(targetUri.getPath() + "/");
-                    }
-                    for (File file : factory.listFiles(targetUri)) {
-                        if (file.isDirectory()) {
-                            log.debug("Sub directory [" + file.getAbsolutePath() + "] in the manifest entry directory is ignored");
-                            continue;
-                        }
-                        if (!file.getName().endsWith(".jar")) {
-                            log.debug("Only jar files are added to classpath, file [" + file.getAbsolutePath() + "] is ignored");
-                            continue;
-                        }
-                        addToClassPath(targetUri.resolve(file.getName()));
-                    }
-                } else {
-                    if (!pathUri.getPath().endsWith(".jar")) {
-                        if (manifestClassLoaderMode == MFCP_STRICT) {
-                            problems.add(new DeploymentException(
-                                    "Manifest class path entries must end with the .jar extension (J2EE 1.4 Section 8.2): path= "
-                                            + path + ", module= " + moduleBaseUri));
-                        } else {
-                            log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
-                                    + "Therefore, a manifest classpath entry which does not end with .jar, "
-                                    + pathUri + " is being permitted and ignored.");
-                        }
-                        continue;
-                    }
-                    addToClassPath(targetUri);
-                }
-            } catch (IOException e) {
-                if (manifestClassLoaderMode == MFCP_STRICT) {
-                    problems.add(new DeploymentException(
-                            "An IOException resulting from manifest classpath : targetUri= " + targetUri, e));
-                } else {
-                    log.info("The " + manifestClassLoaderMessage + " processing mode is in effect.\n"
-                            + "Therefore, an IOException resulting from manifest classpath " + targetUri
-                            + " is being ignored.");
-                }
-            }
         }
     }
 
     public void addToClassPath(String target) {
         classPath.add(target);
-    }
-
-    private void addToClassPath(URI targetUri) throws DeploymentException {
-        classPath.add(targetUri.getPath());
-//        String classFileName = fqcn.replace('.', '/') + ".class";
-//        resourceContext.addFile(new URI(targetPath.toString() + classFileName), bytes);
-//
-//        configuration.addToClassPath(targetPath.toString());
     }
 
     public void addFile(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
@@ -768,7 +487,6 @@ public class DeploymentContext {
     public void close() throws IOException, DeploymentException {
         if (configurationManager != null && configuration != null) {
             try {
-                //TODO OSGI make sure this unloads the bundle from the framework
                 configurationManager.unloadConfiguration(configuration.getId());
             } catch (Exception ignored) {
             }

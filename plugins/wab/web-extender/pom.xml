@@ -34,6 +34,14 @@
     <packaging>car</packaging>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-server</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.aries.web</groupId>
             <artifactId>org.apache.aries.web.urlhandler</artifactId>

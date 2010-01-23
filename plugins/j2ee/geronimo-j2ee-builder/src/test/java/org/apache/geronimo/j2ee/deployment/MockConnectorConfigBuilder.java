@@ -45,6 +45,10 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
     private Bundle bundle;
     public Module connectorModule;
 
+    public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return null;
+    }
+    
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName earName = naming.createRootName(new Artifact("test", "test-war", "", "rar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
         AbstractName moduleName = naming.createChildName(earName, "rar", NameFactory.RESOURCE_ADAPTER_MODULE);

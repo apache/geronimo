@@ -227,6 +227,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         return (ModuleBuilder) connectorModuleBuilder.getElement();
     }
 
+    public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return null;
+    }
+    
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, "app-client", null, null, null, naming, idBuilder);
     }

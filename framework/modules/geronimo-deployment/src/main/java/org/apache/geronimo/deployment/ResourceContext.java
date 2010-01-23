@@ -24,7 +24,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-interface ResourceContext {
+public interface ResourceContext {
     void addIncludeAsPackedJar(URI targetPath, JarFile jarFile) throws IOException;
 
     void addInclude(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException;

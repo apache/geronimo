@@ -44,6 +44,10 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     public WebModule webModule;
     public String contextRoot;
 
+    public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return null;
+    }
+    
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName earName = naming.createRootName(new Artifact("test", "test-war", "", "war"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
         AbstractName moduleName = naming.createChildName(earName, "war", NameFactory.WEB_MODULE);

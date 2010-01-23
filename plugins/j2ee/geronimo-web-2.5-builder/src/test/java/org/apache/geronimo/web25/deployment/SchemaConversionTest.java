@@ -132,6 +132,10 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
             super(kernel, null, null, null, Collections.EMPTY_SET, null);
         }
 
+        public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+            return null;
+        }
+        
         protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
             return null;
         }
@@ -145,6 +149,7 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         public String getSchemaNamespace() {
             return null;
         }
+        
     }
 
 

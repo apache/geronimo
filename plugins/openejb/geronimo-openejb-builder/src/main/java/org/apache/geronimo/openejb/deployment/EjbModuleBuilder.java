@@ -201,6 +201,10 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         return EjbModuleBuilder.OPENEJBJAR_NAMESPACE;
     }
 
+    public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return null;
+    }
+    
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, "ejb.jar", null, null, null, naming, idBuilder);
     }
@@ -520,7 +524,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         EARContext moduleContext = module.getEarContext();
         ModuleList moduleLocations = (ModuleList) module.getRootEarContext().getGeneralData().get(ModuleList.class);
         URI baseUri = URI.create(module.getTargetPath());
-        moduleContext.getCompleteManifestClassPath(module.getModuleFile(), baseUri, URI.create("."), manifestcp, moduleLocations);
+        moduleContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, URI.create("."), manifestcp, moduleLocations);
         moduleContext.getGeneralData().put(ClassPathList.class, manifestcp);
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {

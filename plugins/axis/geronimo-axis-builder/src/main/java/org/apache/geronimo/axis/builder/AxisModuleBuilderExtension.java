@@ -83,6 +83,9 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         this.listener = listener;
     }
 
+    public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    }
+
     @Override
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         if (module.getType() != ConfigurationModuleType.EJB) {

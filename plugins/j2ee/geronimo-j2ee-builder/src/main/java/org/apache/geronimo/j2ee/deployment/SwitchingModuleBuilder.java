@@ -83,6 +83,15 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         this.defaultNamespace = defaultNamespace;
     }
 
+    public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        ModuleBuilder builder = getBuilderFromNamespace(null);
+        if (builder != null) {
+            return builder.createModule(bundle, naming, idBuilder);
+        } else {
+            return null;
+        }
+    }
+    
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         String namespace;
         if (plan == null) {

@@ -50,6 +50,12 @@
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-web-2.5-builder</artifactId>
+            <version>${version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -63,7 +69,9 @@
                             org.osgi.service.event;resolution:=optional,
                             *
                         </Import-Package>
+<!--
                         <Bundle-Activator>org.apache.geronimo.osgi.web.WebContainerExtender</Bundle-Activator>
+-->
                     </instructions>
                 </configuration>
             </plugin>

@@ -18,5 +18,20 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
+    <gbean name="WebBuilder" class="org.apache.geronimo.osgi.web.WebContainerExtender">
+        <attribute name="transactionManagerAbstractName">?name=TransactionManager</attribute>
+        <attribute name="connectionTrackerAbstractName">?name=ConnectionTracker</attribute>
+        <attribute name="corbaGBeanAbstractName">?name=Server</attribute>
+        <attribute name="globalContextAbstractName">?name=JavaGlobalContext</attribute>
+        <attribute name="serverName">?j2eeType=J2EEServer#org.apache.geronimo.management.geronimo.J2EEServer</attribute>
+        <references name="WebModuleBuilders">
+            <pattern>
+                <name>JettyWebBuilder</name>
+            </pattern>
+            <pattern>
+                <name>TomcatWebBuilder</name>
+            </pattern>
+        </references>
+    </gbean>
 
 </module>

@@ -38,6 +38,9 @@ import java.util.jar.JarFile;
 import javax.management.ObjectName;
 import javax.servlet.Servlet;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.Deployable;
+import org.apache.geronimo.deployment.DeployableBundle;
+import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
@@ -234,6 +237,72 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         return new GBeanData(kernel.getGBeanData(templateName));
     }
       
+    public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        if (bundle == null) {
+            throw new NullPointerException("bundle is null");
+        }
+        String contextPath = (String) bundle.getHeaders().get("Web-ContextPath");
+        if (contextPath == null) {
+            // not for us
+            return null;
+        }
+        
+        String specDD = null;
+        WebAppType webApp = null;
+        
+        URL specDDUrl = bundle.getEntry("WEB-INF/web.xml");
+        if (specDDUrl == null) {
+            webApp = WebAppType.Factory.newInstance();
+        } else {
+            try {
+                specDD = JarUtils.readAll(specDDUrl);
+
+                XmlObject parsed = XmlBeansUtil.parse(specDD);
+                WebAppDocument webAppDoc = convertToServletSchema(parsed);
+                webApp = webAppDoc.getWebApp();
+                check(webApp);
+            } catch (XmlException e) {
+                throw new DeploymentException("Error parsing web.xml for " + bundle.getSymbolicName(), e);
+            } catch (Exception e) {
+                throw new DeploymentException("Error reading web.xml for " + bundle.getSymbolicName(), e);
+            }
+        }
+        
+        AbstractName earName = null;
+        String targetPath = ".";   
+        boolean standAlone = true;
+        
+        Deployable deployable = new DeployableBundle(bundle);
+        // parse vendor dd
+        JettyWebAppType jettyWebApp = getJettyWebApp(null, deployable, standAlone, targetPath, webApp);
+
+        EnvironmentType environmentType = jettyWebApp.getEnvironment();
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+
+        if (webApp.getDistributableArray().length == 1) {
+            clusteringBuilders.buildEnvironment(jettyWebApp, environment);
+        }
+
+        idBuilder.resolve(environment, bundle.getSymbolicName(), "wab");
+
+        AbstractName moduleName;
+        if (earName == null) {
+            earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+            moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.WEB_MODULE);
+        } else {
+            moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
+        }
+
+        // Create the AnnotatedApp interface for the WebModule
+        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
+
+        WebModule module = new WebModule(standAlone, moduleName, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextPath, JETTY_NAMESPACE, annotatedWebApp);
+        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+            mbe.createModule(module, bundle, naming, idBuilder);
+        }
+        return module;
+    }
+    
     protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
         assert targetPath != null : "targetPath is null";
@@ -273,15 +342,15 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             webApp = WebAppType.Factory.newInstance();
         }
 
+        Deployable deployable = new DeployableJarFile(moduleFile);
         // parse vendor dd
-        JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
+        JettyWebAppType jettyWebApp = getJettyWebApp(plan, deployable, standAlone, targetPath, webApp);
         contextRoot = getContextRoot(jettyWebApp, contextRoot, webApp, standAlone, moduleFile, targetPath);
 
         EnvironmentType environmentType = jettyWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
-        Boolean distributable = webApp.getDistributableArray().length == 1 ? TRUE : FALSE;
-        if (TRUE == distributable) {
+        if (webApp.getDistributableArray().length == 1) {
             clusteringBuilders.buildEnvironment(jettyWebApp, environment);
         }
 
@@ -303,8 +372,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         // Create the AnnotatedApp interface for the WebModule
         AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
 
-        WebModule module = new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, JETTY_NAMESPACE, annotatedWebApp);
-
+        WebModule module = new WebModule(standAlone, moduleName, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextRoot, JETTY_NAMESPACE, annotatedWebApp);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
         }
@@ -322,7 +390,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         return contextRoot;
     }
 
-    JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
+    JettyWebAppType getJettyWebApp(Object plan, Deployable deployable, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
         XmlObject rawPlan = null;
         try {
             // load the geronimo-web.xml from either the supplied plan or from the earFile
@@ -333,17 +401,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                     if (plan != null) {
                         rawPlan = XmlBeansUtil.parse(((File) plan).toURL(), getClass().getClassLoader());
                     } else {
-                        URL path = JarUtils.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
-                        try {
+                        URL path = deployable.getResource("WEB-INF/geronimo-web.xml");
+                        if (path == null) {
+                            path = deployable.getResource("WEB-INF/geronimo-jetty.xml");
+                        }
+                        if (path == null) {
+                            log.warn("Web application " + targetPath + " does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
+                        } else {
                             rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
-                        } catch (FileNotFoundException e) {
-                            path = JarUtils.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
-                            try {
-                                rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
-                            } catch (FileNotFoundException e1) {
-                                log.warn(
-                                        "Web application " + targetPath + " does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
-                            }
                         }
                     }
                 }

@@ -97,8 +97,8 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         }
 
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        Class jaxrpcClass = loadClass("javax.xml.rpc.Service", bundle);
-        Class jaxwsClass = loadClass("javax.xml.ws.Service", bundle);
+        Class jaxrpcClass = null;
+        Class jaxwsClass = null;
 
         XmlObject[] serviceRefs = specDD.selectChildren(serviceRefQNameSet);
 
@@ -107,6 +107,12 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
 
         for (XmlObject serviceRef : serviceRefs) {
+            if (jaxrpcClass == null) {
+                jaxrpcClass = loadClass("javax.xml.rpc.Service", bundle);
+            }
+            if (jaxwsClass == null) {
+                jaxwsClass = loadClass("javax.xml.ws.Service", bundle);
+            }
             ServiceRefType serviceRefType = (ServiceRefType) convert(
                     serviceRef, JEE_CONVERTER, ServiceRefType.type);
 

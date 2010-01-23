@@ -18,6 +18,8 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.util.jar.JarFile;
 
+import org.apache.geronimo.deployment.Deployable;
+import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -32,7 +34,11 @@ public class WebModule extends Module {
     public static final String WEB_APP_DATA = "WEB_APP_DATA";
 
     public WebModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, String namespace, AnnotatedWebApp annotatedWebApp) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedWebApp );
+        this(standAlone, moduleName, environment, new DeployableJarFile(moduleFile), targetPath, specDD, vendorDD, originalSpecDD, contextRoot, namespace, annotatedWebApp);
+    }
+    
+    public WebModule(boolean standAlone, AbstractName moduleName, Environment environment, Deployable deployable, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, String namespace, AnnotatedWebApp annotatedWebApp) {
+        super(standAlone, moduleName, environment, deployable, targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedWebApp );
         this.contextRoot = contextRoot;
     }
 

@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.util.jar.JarFile;
+
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.JarUtils;
 
@@ -34,7 +36,7 @@ public class EARConfigBuilder14NakedTest
         locations.put(null, new Artifact("org.apache.geronimo.testsupport", "test-ear-javaee_5", "3.0-SNAPSHOT", "ear"));
         ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "test-ejb-jar.jar", null, null, null, null);
         webConfigBuilder.contextRoot = contextRoot;
-        webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, "test-war.war", null, null, null, contextRoot, WEB_NAMESPACE, null);
+        webConfigBuilder.webModule = new WebModule(false, webModuleName, null, (JarFile)null, "test-war.war", null, null, null, contextRoot, WEB_NAMESPACE, null);
         connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "test-rar.rar", null, null, null, null);
     }
 

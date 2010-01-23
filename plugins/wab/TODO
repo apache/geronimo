@@ -1,0 +1,7 @@
+TODO:
+ - extender needs to start tracking bundles only once kernel is fully initialized (all plugins are loaded)
+ - rfc66 contextpath collision detection
+ - for collision detection the extender will need to know all the contextPaths of other Java EE apps deployed
+ - register ServerContext into service registry (Tomcat & Jetty)
+ - extender needs to check/wait for web container to be available
+

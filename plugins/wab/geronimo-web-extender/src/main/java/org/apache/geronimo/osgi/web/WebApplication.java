@@ -18,8 +18,32 @@
  */
 package org.apache.geronimo.osgi.web;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.deployment.BundleDeploymentContext;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +68,8 @@ public class WebApplication implements Runnable {
     private final AtomicBoolean running = new AtomicBoolean();
     
     private boolean destroyed;
+    
+    private Artifact deployedArtifact;
 
     /**
      * Construct a WebApplicationImp object to represent a
@@ -56,7 +82,7 @@ public class WebApplication implements Runnable {
     public WebApplication(WebContainerExtender extender, Bundle bundle, String contextPath) {
         this.extender = extender;
         this.bundle = bundle;
-        this.contextPath = contextPath;
+        this.contextPath = contextPath;       
     }
 
     public String getContextPath() {
@@ -101,22 +127,18 @@ public class WebApplication implements Runnable {
     }
 
     private void deploying() {
-        LOGGER.debug("Deploying bundle {}", getBundle().getSymbolicName());
         extender.getEventDispatcher().deploying(bundle, contextPath);
     }
 
     private void deployed() {
-        LOGGER.debug("Deployed bundle {}", getBundle().getSymbolicName());
         extender.getEventDispatcher().deployed(bundle, contextPath);
     }
 
     private void undeploying() {
-        LOGGER.debug("Undeploying bundle {}", bundle.getSymbolicName());
         extender.getEventDispatcher().undeploying(bundle, contextPath);
     }
 
     private void undeployed() {
-        LOGGER.debug("Undeployed bundle {}", bundle.getSymbolicName());
         extender.getEventDispatcher().undeployed(bundle, contextPath);
     }
 
@@ -131,12 +153,90 @@ public class WebApplication implements Runnable {
         if (destroyed) {
             return;
         }
+        ConfigurationData configurationData = null;
         try {
             // send out a broadcast alert that we're going to do this
             deploying();
+                       
+            ConfigurationManager configurationManager = extender.getConfigurationManager();
+                        
+            File configSer = bundle.getBundleContext().getDataFile("config.ser");
+            if (configSer.exists() && configSer.lastModified() == bundle.getLastModified()) {
+                LOGGER.info("Redeploying WAB {} at {}", new Object[] {bundle, contextPath});
+                
+                FileInputStream in = new FileInputStream(configSer);
+                try {
+                    configurationData = ConfigurationUtil.readConfigurationData(in);
+                } finally {
+                    in.close();
+                }
+            } else {
+                LOGGER.info("Deploying WAB {} at {}", new Object[] {bundle, contextPath});
+                
+                ModuleIDBuilder idBuilder = new ModuleIDBuilder();
+                Kernel kernel = extender.getKernel();
+                Naming naming = kernel.getNaming();
+                ModuleBuilder webModuleBuilder = extender.getWebModuleBuilder();    
+                
+                WebModule webModule = (WebModule) webModuleBuilder.createModule(bundle, naming, idBuilder);
 
-            // TODO: do actual deployment
-            System.out.println("Deploying " + contextPath + " " + bundle);
+                BundleDeploymentContext deploymentContext = 
+                    new BundleDeploymentContext(
+                        webModule.getEnvironment(),
+                        webModule.getType(),
+                        naming,
+                        configurationManager,
+                        bundle.getBundleContext(),
+                        extender.getServerName(),
+                        webModule.getModuleName(),
+                        extender.getTransactionManagerObjectName(),
+                        extender.getConnectionTrackerObjectName(),
+                        extender.getCorbaGBeanObjectName(),
+                        new HashMap(),
+                        bundle);
+                webModule.setEarContext(deploymentContext);
+                webModule.setRootEarContext(deploymentContext);
+
+                deploymentContext.flush();
+                deploymentContext.initializeConfiguration();
+
+                webModuleBuilder.initContext(deploymentContext, webModule, bundle);
+                
+                AbstractName appJndiName = naming.createChildName(deploymentContext.getModuleName(), "ApplicationJndi", "ApplicationJndi");
+                deploymentContext.getGeneralData().put(EARContext.APPLICATION_JNDI_NAME_KEY, appJndiName);
+                
+                webModuleBuilder.addGBeans(deploymentContext, webModule, bundle, extender.getRepositories());     
+
+                Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(deploymentContext.getGeneralData());
+                GBeanData appContexts = new GBeanData(appJndiName, ApplicationJndi.class);
+                appContexts.setAttribute("globalContextSegment", contexts.get(JndiScope.global));
+                appContexts.setAttribute("applicationContextMap", contexts.get(JndiScope.application));
+                appContexts.setReferencePattern("GlobalContext", extender.getGlobalContextAbstractName());
+                deploymentContext.addGBean(appContexts);
+                
+                configurationData = deploymentContext.getConfigurationData();
+                FileOutputStream out = new FileOutputStream(configSer);
+                try {
+                    ConfigurationUtil.writeConfigurationData(configurationData, out);
+                } finally {
+                    out.close();
+                }
+
+                deploymentContext.close();
+
+                // set config.ser last modified time to be of the bundle
+                configSer.setLastModified(bundle.getLastModified());
+            }
+            
+            configurationData.setUseEnvironment(true);    
+            configurationData.setBundleContext(bundle.getBundleContext());
+            
+            configurationManager.loadConfiguration(configurationData);
+            configurationManager.startConfiguration(configurationData.getId());
+
+            deployedArtifact = configurationData.getId();
+            
+            LOGGER.info("Deployed WAB {} at {}", new Object[] {bundle, contextPath});
             
             // send out the deployed event
             deployed();
@@ -144,11 +244,26 @@ public class WebApplication implements Runnable {
             LOGGER.error("Unable to start web application for bundle " + getBundle().getSymbolicName(), exception);
             // broadcast a failure event
             failed(exception);
+            // undeploy the configuration (in case it was loaded but failed to start)
+            if (configurationData != null) {
+                undeploy(configurationData.getId());
+            }
             // unregister the application and possibly let other WABs with the same ContextPath to deploy
             extender.unregisterWebApplication(this);
         }
     }
-
+    
+    private void undeploy(Artifact artifact) {
+        ConfigurationManager configurationManager = extender.getConfigurationManager();
+        try {
+            configurationManager.uninstallConfiguration(artifact);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchConfigException e) {
+            // ignore
+        }
+    }
+    
     /**
      * Undeploy a web application.
      */
@@ -168,9 +283,12 @@ public class WebApplication implements Runnable {
         // send the undeploying event
         undeploying();
         
-        // TODO: do actual undeployment
-        System.out.println("Undeploying " + contextPath + " " + bundle);
-
+        if (deployedArtifact != null) {
+            LOGGER.info("Undeploying WAB {} at {}", new Object[] {bundle, contextPath});
+            undeploy(deployedArtifact);
+            LOGGER.info("Undeployed WAB {} at {}", new Object[] {bundle, contextPath});
+        }
+        
         // finished with the undeploy operation
         undeployed();
         

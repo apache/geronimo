@@ -208,6 +208,9 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         }
     }
 
+    public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    }
+
     public void createModule(Module module,
         Object plan,
         JarFile moduleFile,

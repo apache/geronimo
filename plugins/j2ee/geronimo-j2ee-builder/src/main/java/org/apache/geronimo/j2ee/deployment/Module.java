@@ -22,13 +22,14 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.Deployable;
+import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 
@@ -42,7 +43,7 @@ public abstract class Module {
     private final String name;
     private final Environment environment;
     private final URI moduleURI;
-    private final JarFile moduleFile;
+    private final Deployable deployable;
     private final String targetPath;
     private final URI targetPathURI;
     private final XmlObject vendorDD;
@@ -58,13 +59,17 @@ public abstract class Module {
     protected final Map sharedContext = new HashMap();
 
     protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp) {
+        this(standAlone, moduleName, environment, new DeployableJarFile(moduleFile), targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedApp);
+    }
+        
+    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, Deployable deployable, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp) {
         assert targetPath != null: "targetPath is null";
         assert moduleName != null: "moduleName is null";
 
         this.standAlone = standAlone;
         this.moduleName = moduleName;
         this.environment = environment;
-        this.moduleFile = moduleFile;
+        this.deployable = deployable;
         this.targetPath = targetPath;
         this.specDD = specDD;
         this.vendorDD = vendorDD;
@@ -106,9 +111,17 @@ public abstract class Module {
     }
 
     public JarFile getModuleFile() {
-        return moduleFile;
+        if (deployable instanceof DeployableJarFile) {
+            return ((DeployableJarFile) deployable).getJarFile();
+        } else {
+            throw new RuntimeException("getModuleFile() is not supported on Bundle-based deployment");
+        }      
     }
-
+    
+    public Deployable getDeployable() {
+        return deployable;        
+    }
+    
     public String getTargetPath() {
         return targetPath;
     }
@@ -157,9 +170,8 @@ public abstract class Module {
     }
 
     public void close() {
-        JarUtils.close(moduleFile);
+        deployable.close();
     }
-
 
     public EARContext getEarContext() {
         return earContext;

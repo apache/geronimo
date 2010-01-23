@@ -33,6 +33,9 @@ import org.osgi.framework.Bundle;
  * @version $Rev:386276 $ $Date$
  */
 public interface ModuleBuilder {
+    
+    Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
+    
     Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
 
     Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
