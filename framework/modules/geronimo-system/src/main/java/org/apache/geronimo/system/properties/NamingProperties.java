@@ -35,7 +35,9 @@ public class NamingProperties {
 
     public NamingProperties(String namingFactoryInitial, String namingFactoryUrlPkgs, String namingProviderUrl) {
         setNamingFactoryInitial(namingFactoryInitial);
-        setNamingFactoryUrlPkgs(namingFactoryUrlPkgs);
+        if (namingFactoryUrlPkgs != null) {
+            setNamingFactoryUrlPkgs(namingFactoryUrlPkgs);
+        }
         setNamingProviderUrl(namingProviderUrl);
 
         try {
@@ -60,7 +62,11 @@ public class NamingProperties {
     }
 
     public void setNamingFactoryUrlPkgs(String namingFactoryUrlPkgs) {
-        System.setProperty(JAVA_NAMING_FACTORY_URL_PKGS, namingFactoryUrlPkgs);
+        if (namingFactoryUrlPkgs != null) {
+            System.setProperty(JAVA_NAMING_FACTORY_URL_PKGS, namingFactoryUrlPkgs);
+        } else {
+            System.getProperties().remove(JAVA_NAMING_FACTORY_URL_PKGS);
+        }
     }
 
     public String getNamingProviderUrl() {

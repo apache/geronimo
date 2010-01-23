@@ -86,6 +86,17 @@
             <artifactId>xbean-naming</artifactId>
         </dependency>
 
+        <!-- aries jndi integration -->
+        <dependency>
+            <groupId>org.apache.aries.jndi</groupId>
+            <artifactId>org.apache.aries.jndi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.aries.jndi</groupId>
+            <artifactId>org.apache.aries.jndi.url</artifactId>
+        </dependency>
+        
+
     </dependencies>
 
     <build>
@@ -106,10 +117,10 @@
                                     <attribute name="port">${NamingPort + PortOffset}</attribute>
                                     <attribute name="host">${ServerHostname}</attribute>
                                 </gbean>
-                                <gbean name="NamingProperties">
-                                    <!-- Check whether this really works if host name is 0.0.0.0 -->
-                                    <attribute name="namingProviderUrl">rmi://${ServerHostname}:${NamingPort + PortOffset}</attribute>
-                                </gbean>
+                                <!--<gbean name="NamingProperties">-->
+                                    <!--&lt;!&ndash; Check whether this really works if host name is 0.0.0.0 &ndash;&gt;-->
+                                    <!--<attribute name="namingProviderUrl">rmi://${ServerHostname}:${NamingPort + PortOffset}</attribute>-->
+                                <!--</gbean>-->
                                 <gbean name="DefaultThreadPool">
                                     <attribute name="keepAliveTime">30000</attribute>
                                     <attribute name="minPoolSize">${MinThreadPoolSize}</attribute>

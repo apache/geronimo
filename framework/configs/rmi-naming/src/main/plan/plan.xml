@@ -25,25 +25,31 @@
         <attribute name="host">${ServerHostname}</attribute>
     </gbean>
 
-    <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
-        <attribute name="namingFactoryInitial">org.apache.xbean.naming.global.GlobalContextManager</attribute>
-        <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
-        <attribute name="namingProviderUrl">rmi://localhost:1099</attribute>
-    </gbean>
+    <!--<gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">-->
+    <!--<attribute name="namingFactoryInitial">org.apache.xbean.naming.global.GlobalContextManager</attribute>-->
+    <!--&lt;!&ndash;<attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>&ndash;&gt;-->
+    <!--<attribute name="namingProviderUrl">rmi://localhost:1099</attribute>-->
+    <!--</gbean>-->
 
-    <gbean name="GlobalContext" class="org.apache.geronimo.gjndi.GlobalContextGBean"/>
+    <!--<gbean name="GlobalContext" class="org.apache.geronimo.gjndi.GlobalContextGBean"/>-->
 
     <gbean name="JavaGlobalContext" class="org.apache.geronimo.gjndi.FederatedContextGBean">
         <attribute name="nameInNamespace">java:</attribute>
     </gbean>
 
-    <gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
+    <gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableFederatedContextMember">
         <attribute name="nameInNamespace">java:</attribute>
+        <reference name="Federation">
+            <name>JavaGlobalContext</name>
+        </reference>
     </gbean>
+    <!--<gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableContextGBean">-->
+    <!--<attribute name="nameInNamespace">java:</attribute>-->
+    <!--</gbean>-->
 
-    <gbean name="GeronimoContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
-        <attribute name="nameInNamespace">ger:</attribute>
-    </gbean>
+    <!--<gbean name="GeronimoContext" class="org.apache.geronimo.gjndi.WritableContextGBean">-->
+    <!--<attribute name="nameInNamespace">ger:</attribute>-->
+    <!--</gbean>-->
 
     <gbean name="MBeanServerReference" class="org.apache.geronimo.system.jmx.RealMBeanServerReference">
         <attribute name="usePlatformMBeanServer">true</attribute>

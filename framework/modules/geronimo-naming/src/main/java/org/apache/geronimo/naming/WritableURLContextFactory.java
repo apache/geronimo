@@ -18,23 +18,30 @@
  */
 
 
-package org.apache.geronimo.naming.java;
+package org.apache.geronimo.naming;
+
+import java.util.Collections;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.geronimo.naming.AbstractURLContextFactory;
+import org.apache.xbean.naming.context.ContextAccess;
+import org.apache.xbean.naming.context.WritableContext;
 
 /**
  * @version $Rev$ $Date$
  */
-public class javaURLContextFactory extends AbstractURLContextFactory {
+public class WritableURLContextFactory extends AbstractURLContextFactory {
 
-    public javaURLContextFactory() {
-        super("java");
+    private final Context context;
+
+    public WritableURLContextFactory(String urlScheme) throws NamingException {
+        super(urlScheme);
+        context = new WritableContext(urlScheme + ":", Collections.<String, Object>emptyMap(), ContextAccess.MODIFIABLE, false);
     }
 
+    @Override
     protected Context getContext() throws NamingException {
-        return new RootContext();
+        return context;
     }
 }
