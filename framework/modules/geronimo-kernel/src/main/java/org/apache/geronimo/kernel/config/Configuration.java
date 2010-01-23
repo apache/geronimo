@@ -243,7 +243,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             String location = getBundleLocation(configurationResolver, parent);
             Bundle bundle = getBundleByLocation(configurationData.getBundleContext(), location);
             if (bundle != null) {
-                System.out.println("Found " + parent + " " + bundle);
                 bundles.add(bundle);
             }
         }

@@ -189,7 +189,7 @@ public class DelegatingBundle implements Bundle {
     }
 
     public String toString() {
-        return "[MultiBundle] " + bundles;
+        return "[DelegatingBundle: " + bundles + "]";
     }
            
 }

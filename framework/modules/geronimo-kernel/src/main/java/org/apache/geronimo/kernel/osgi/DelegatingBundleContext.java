@@ -35,7 +35,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 /**
- * Bundle that delegates ClassLoader operations to a collection of {@link Bundle} objects. 
+ * BundleContext for DelegatingBundle. 
  * 
  * @version $Rev$ $Date$
  */
