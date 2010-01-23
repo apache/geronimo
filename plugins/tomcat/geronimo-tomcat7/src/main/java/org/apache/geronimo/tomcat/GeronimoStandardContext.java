@@ -51,18 +51,15 @@ import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
-import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.UserTransactionBeforeAfter;
 import org.apache.geronimo.tomcat.listener.DispatchListener;
 import org.apache.geronimo.tomcat.listener.RunAsInstanceListener;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.tomcat.valve.DefaultSubjectValve;
 import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 import org.apache.tomcat.InstanceManager;
-import org.osgi.framework.Bundle;
 
 
 /**
@@ -122,7 +119,7 @@ public class GeronimoStandardContext extends StandardContext {
             if (tctx.getSecurityHolder() != null) {
                 configurationFactory = tctx.getSecurityHolder().getConfigurationFactory();
             }
-            
+
             getServletContext().setAttribute(InstanceManager.class.getName(), ctx.getInstanceManager());
         }
 
@@ -486,7 +483,7 @@ public class GeronimoStandardContext extends StandardContext {
                 } catch (LifecycleException e) {
                     throw (IOException) new IOException("wrapping lifecycle exception").initCause(e);
                 }
-                if (GeronimoStandardContext.this.getState() != 1 || !GeronimoStandardContext.this.getAvailable()){
+                if (!GeronimoStandardContext.this.getAvailable()) {
                     throw new IOException("Context did not start for an unknown reason");
                 }
             } else {
