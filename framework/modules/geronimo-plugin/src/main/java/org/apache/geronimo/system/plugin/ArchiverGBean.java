@@ -88,17 +88,33 @@ public class ArchiverGBean implements ServerArchiver {
             fileMode.setValue(Tar.TarLongFileMode.GNU);
             tar.setLongfile(fileMode);
             tar.setDestFile(dest);
-//            tar.setBasedir(source);
             TarFileSet rc = new TarFileSet();
             rc.setDir(source);
             rc.setPrefix(serverName);
             rc.setProject(project);
+            rc.setExcludes("bin/");
             tar.add(rc);
+
+            rc = new TarFileSet();
+            rc.setDir(source);
+            rc.setPrefix(serverName);
+            rc.setProject(project);
+            rc.setIncludes("bin/");
+            rc.setExcludes("bin/*.bat");
+            rc.setFileMode("755");
+            tar.add(rc);
+
+            rc = new TarFileSet();
+            rc.setDir(source);
+            rc.setPrefix(serverName);
+            rc.setProject(project);
+            rc.setIncludes("bin/*.bat");
+            tar.add(rc);
+
             archiver = tar;
         } else if ("zip".equals(artifact.getType())) {
             Zip zip = new Zip();
             zip.setDestFile(dest);
-//            zip.setBasedir(source);
             ZipFileSet fs = new ZipFileSet();
             fs.setDir(source);
             fs.setPrefix(serverName);
@@ -109,75 +125,6 @@ public class ArchiverGBean implements ServerArchiver {
             throw new IllegalArgumentException("Unknown target type: " + artifact.getType());
         }
         archiver.setProject(project);
-//        archiver.set(true);
-//        archiver.set(dest);
-//        archiver.setIncludes("**");
-/* see if using plexus-archiver 1.0-alpha-7 same as maven lets us share code.  Following is for 1.0-alpha-9
-        DefaultFileSet all = new DefaultFileSet();
-        all.setDirectory(source);
-        archiver.addFileSet(all);
-*/
-/*
-        // add in all files and mark them with default file permissions
-        Map<File, Boolean> emptyDirs = new HashMap<File, Boolean>();
-        Map<String, File> all = IOUtil.listAllFileNames(source);
-        removeExcludes(source, all);
-        for (Map.Entry<String, File> entry : all.entrySet()) {
-            String destFileName = serverName + "/" + entry.getKey();
-            File sourceFile = entry.getValue();
-            if (sourceFile.isFile()) {
-                archiver.addFile(sourceFile, destFileName, UnixStat.DEFAULT_FILE_PERM);
-                // mark parent directories non-empty
-                for (File parentDir = sourceFile.getParentFile();
-                     parentDir != null && !parentDir.equals(source);
-                     parentDir = parentDir.getParentFile()) {
-                    emptyDirs.put(parentDir, Boolean.FALSE);
-                }
-
-            } else if (sourceFile.isDirectory()) {
-                Boolean isEmpty = emptyDirs.get(sourceFile);
-                if (isEmpty == null) {
-                    emptyDirs.put(sourceFile, Boolean.TRUE);
-                    // mark parent directories non-empty
-                    for (File parentDir = sourceFile.getParentFile();
-                         parentDir != null && !parentDir.equals(source);
-                         parentDir = parentDir.getParentFile()) {
-                        emptyDirs.put(parentDir, Boolean.FALSE);
-                    }
-                }
-            }
-        }
-
-        if (!all.isEmpty()) {
-            emptyDirs.put(source, Boolean.FALSE);
-        }
-
-        String sourceDirPath = source.getAbsolutePath();
-        for (Map.Entry<File, Boolean> entry : emptyDirs.entrySet()) {
-            if (entry.getValue().booleanValue()) {
-                String emptyDirPath = entry.getKey().getAbsolutePath();
-                String relativeDir = emptyDirPath.substring(sourceDirPath.length());
-                relativeDir = relativeDir.replace('\\', '/');
-                archiver.addDirectory(entry.getKey(), serverName + relativeDir);
-            }
-        }
-        emptyDirs.clear();
-
-        all.clear();
-
-        // add execute permissions to all non-batch files in the bin/ directory
-        File bin = new File(source, "bin");
-        if (bin.exists()) {
-            Map<String, File> includes = IOUtil.listAllFileNames(bin);
-            for (Map.Entry<String, File> entry : includes.entrySet()) {
-                String destFileName = serverName + "/bin/" + entry.getKey();
-                File sourceFile = entry.getValue();
-                if (!destFileName.endsWith(".bat") && sourceFile.isFile()) {
-                    archiver.addFile(sourceFile, destFileName, UnixStat.DEFAULT_DIR_PERM);
-                }
-            }
-        }
-*/
         archiver.execute();
         return dest;
     }
