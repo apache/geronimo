@@ -120,7 +120,7 @@
         <module>jasper</module>
         <module>javamail</module>
         <module>jaxws</module>
-        <!--<module>myfaces</module>-->
+        <module>myfaces</module>
         <module>openejb</module>
         <module>openjpa2</module>
 <!--        <module>openwebbeans</module>-->

@@ -45,6 +45,7 @@ import org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
+import org.apache.geronimo.j2ee.jndi.WebContextSource;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -730,7 +731,18 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         if (jndiContext.get(JndiScope.module) != null) {
             compContext.putAll(jndiContext.get(JndiScope.module));
         }
-        
+        AbstractName contextSourceName = moduleContext.getNaming().createChildName(webModuleData.getAbstractName(), "ContextSource", "ContextSource");
+        GBeanData contextSourceData = new GBeanData(contextSourceName, WebContextSource.class);
+        contextSourceData.setAttribute("componentContext", compContext);
+        contextSourceData.setReferencePattern("ApplicationJndi", (AbstractName)earContext.getGeneralData().get(EARContext.APPLICATION_JNDI_NAME_KEY));
+        contextSourceData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
+        try {
+            moduleContext.addGBean(contextSourceData);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("ContextSource for this webapp already present:" + webModuleData.getAbstractName(), e);
+        }
+        webModuleData.setReferencePattern("ContextSource", contextSourceName);
+
         Holder holder = NamingBuilder.INJECTION_KEY.get(buildingContext);
 
         webModule.getSharedContext().put(WebModule.WEB_APP_DATA, webModuleData);
@@ -752,8 +764,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             addGBeanDependencies(earContext, webModuleData);
         }
 
-        webModuleData.setAttribute("componentContext", compContext);
-        webModuleData.setReferencePattern("ApplicationJndi", (AbstractName)earContext.getGeneralData().get(EARContext.APPLICATION_JNDI_NAME_KEY));
         webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
         webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
         webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext()? null: webModule.getTargetPath());

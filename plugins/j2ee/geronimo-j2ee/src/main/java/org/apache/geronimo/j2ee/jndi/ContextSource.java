@@ -18,26 +18,15 @@
  */
 
 
-package org.apache.geronimo.myfaces;
+package org.apache.geronimo.j2ee.jndi;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
+import javax.naming.Context;
 
 /**
  * @version $Rev$ $Date$
  */
-public class BasicTest extends TestCase {
+public interface ContextSource {
 
-    public void testLifecycleProviderFactory() throws Exception {
-        GBeanInfo gbeanInfo = LifecycleProviderFactoryGBean.getGBeanInfo();
-        LifecycleProviderFactoryGBean factory = new LifecycleProviderFactoryGBean();
-        ApplicationIndexedLifecycleProviderFactory providerFactory = factory.getLifecycleProviderFactory();
-        assertNotNull(providerFactory);
-    }
-
-    public void testLifecycleProvider() throws Exception {
-        GBeanData gBeanInfo = new GBeanData(LifecycleProviderGBean.class);
-        
-    }
+    Context getContext();
+    
 }

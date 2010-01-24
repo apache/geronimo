@@ -37,6 +37,8 @@ import javax.servlet.ServletResponse;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
+import org.apache.geronimo.j2ee.jndi.ContextSource;
+import org.apache.geronimo.j2ee.jndi.WebContextSource;
 import org.apache.geronimo.jetty8.connector.HTTPSocketConnector;
 import org.apache.geronimo.jetty8.security.SecurityHandlerFactory;
 import org.apache.geronimo.jetty8.security.ServerAuthenticationGBean;
@@ -139,11 +141,15 @@ public class AbstractWebModuleTest extends TestSupport {
             }, loginService);
         }
         String contextPath = "/test";
+        ContextSource contextSource = new WebContextSource(Collections.<String, Object>emptyMap(),
+                transactionManager,
+                null,
+                cl,
+                null);
         WebAppContextWrapper app = new WebAppContextWrapper(null,
                 contextPath,
                 null,
                 null,
-                Collections.<String, Object>emptyMap(),
                 cl,
                 bundle,
                 new URL(configurationBaseURL, uriString),
@@ -167,13 +173,13 @@ public class AbstractWebModuleTest extends TestSupport {
                 runAsSource,
                 null,
                 null,
-                transactionManager,
                 connectionTrackingCoordinator,
                 container,
                 null,
                 null,
                 null,
-                null, null);
+                contextSource,
+                transactionManager, null);
         app.doStart();
         return app;
     }

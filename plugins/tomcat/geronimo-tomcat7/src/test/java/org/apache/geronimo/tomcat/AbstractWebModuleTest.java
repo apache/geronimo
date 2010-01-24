@@ -18,6 +18,8 @@ package org.apache.geronimo.tomcat;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
+import org.apache.geronimo.j2ee.jndi.ContextSource;
+import org.apache.geronimo.j2ee.jndi.WebContextSource;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -77,6 +79,11 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         URI locationURI = configurationBaseURL.toURI().resolve(relativeWebAppRoot);
         MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), locationURI.toString(), new HashMap<Artifact, ConfigurationData>(), null);
         bundle = bundleContext.getBundle();
+        ContextSource contextSource = new WebContextSource(Collections.<String, Object>emptyMap(),
+                transactionManager,
+                null,
+                cl,
+                null);
         TomcatWebAppContext app = new TomcatWebAppContext(cl,
                 bundle,
                 null,
@@ -86,7 +93,6 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 "",
                 securityHolder,
                 null,
-                Collections.EMPTY_MAP,
                 null,
                 null,
                 transactionManager,
@@ -109,7 +115,8 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,
                 null,
                 null,
-                null, null);
+                contextSource,
+                null);
         app.doStart();
         return app;
     }

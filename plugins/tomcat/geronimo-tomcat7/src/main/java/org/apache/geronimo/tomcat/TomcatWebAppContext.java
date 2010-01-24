@@ -56,6 +56,7 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
@@ -143,7 +144,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamAttribute(name = "modulePath") String modulePath,
             @ParamAttribute(name = "securityHolder") SecurityHolder securityHolder,
             @ParamAttribute(name = "virtualServer") String virtualServer,
-            @ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
             @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
             @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
             @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
@@ -166,7 +166,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamReference(name = "ContextCustomizer") RuntimeCustomizer contextCustomizer,
             @ParamReference(name = "J2EEServer") J2EEServer server,
             @ParamReference(name = "J2EEApplication") J2EEApplication application,
-            @ParamReference(name = "ApplicationJndi") ApplicationJndi applicationJndi,
+            @ParamReference(name = "ContextSource") ContextSource contextSource,
             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel)
             throws Exception {
         assert classLoader != null;
@@ -175,7 +175,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         assert modulePath != null;
         assert transactionManager != null;
         assert trackedConnectionAssociator != null;
-        assert componentContext != null;
+        assert contextSource != null;
         assert container != null;
 
         if (null != clusteredValveRetriever) {
@@ -202,19 +202,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.virtualServer = virtualServer;
         this.securityHolder = securityHolder;
 
-        userTransaction = new GeronimoUserTransaction(transactionManager);
-        Set<javax.naming.Context> contexts = new LinkedHashSet<javax.naming.Context>(3);
-        javax.naming.Context localContext = EnterpriseNamingContext.livenReferences(componentContext, userTransaction, kernel, classLoader, "comp/");
-        contexts.add(localContext);
-        if (applicationJndi != null) {
-            if (applicationJndi.getApplicationContext() != null) {
-                contexts.add(applicationJndi.getApplicationContext());
-            }
-            if (applicationJndi.getGlobalContext() != null) {
-                contexts.add(applicationJndi.getGlobalContext());
-            }
-        }
-        this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(contexts);
+        this.componentContext = contextSource.getContext();
+        this.userTransaction = new GeronimoUserTransaction(transactionManager);
 
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;

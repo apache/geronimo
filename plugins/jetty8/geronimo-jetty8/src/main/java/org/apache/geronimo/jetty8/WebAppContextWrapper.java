@@ -25,6 +25,7 @@ import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.security.auth.Subject;
 import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -37,7 +38,7 @@ import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
+import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.jetty8.handler.GeronimoWebAppContext;
 import org.apache.geronimo.jetty8.handler.IntegrationContext;
@@ -48,7 +49,6 @@ import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.eclipse.jetty.http.MimeTypes;
@@ -100,7 +100,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
                                 @ParamAttribute(name = "contextPath") String contextPath,
                                 @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
                                 @ParamAttribute(name = "modulePath") String modulePath,
-                                @ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
                                 @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
                                 @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
                                 @ParamAttribute(name = "configurationBaseUrl") URL configurationBaseUrl,
@@ -129,20 +128,19 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
                                 @ParamAttribute(name = "holder") Holder holder,
 
                                 @ParamReference(name = "Host") Host host,
-                                @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
                                 @ParamReference(name = "TrackedConnectionAssociator") TrackedConnectionAssociator trackedConnectionAssociator,
                                 @ParamReference(name = "JettyContainer") JettyContainer jettyContainer,
                                 @ParamReference(name = "ContextCustomizer") RuntimeCustomizer contextCustomizer,
 
                                 @ParamReference(name = "J2EEServer") J2EEServer server,
                                 @ParamReference(name = "J2EEApplication") J2EEApplication application,
-                                @ParamReference(name = "ApplicationJndi") ApplicationJndi applicationJndi,
+                                @ParamReference(name = "ContextSource") ContextSource contextSource,
+                                @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
                                 @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws Exception {
 
-        assert componentContext != null;
+        assert contextSource != null;
         assert classLoader != null;
         assert configurationBaseUrl != null;
-        assert transactionManager != null;
         assert trackedConnectionAssociator != null;
         assert jettyContainer != null;
         if (contextPath == null || !contextPath.startsWith("/")) {
@@ -178,20 +176,8 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
         ServletHandler servletHandler = new ServletHandler();
 
-        //wrap the web app context with the jndi handler
-        GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
-        Set<Context> contexts = new LinkedHashSet<Context>(3);
-        Context localContext = EnterpriseNamingContext.livenReferences(componentContext, userTransaction, kernel, classLoader, "comp/");
-        contexts.add(localContext);
-        if (applicationJndi != null) {
-            if (applicationJndi.getApplicationContext() != null) {
-                contexts.add(applicationJndi.getApplicationContext());
-            }
-            if (applicationJndi.getGlobalContext() != null) {
-                contexts.add(applicationJndi.getGlobalContext());
-            }
-        }
-        this.componentContext = EnterpriseNamingContext.createEnterpriseNamingContext(contexts);
+        this.componentContext = contextSource.getContext();
+        UserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         integrationContext = new IntegrationContext(this.componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle);
         webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath);
         webAppContext.setContextPath(contextPath);

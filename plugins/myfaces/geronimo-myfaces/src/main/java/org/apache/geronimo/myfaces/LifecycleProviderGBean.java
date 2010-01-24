@@ -26,10 +26,11 @@ import java.util.Map;
 import javax.naming.NamingException;
 import javax.naming.Context;
 
+import org.apache.geronimo.gbean.annotation.*;
 import org.apache.myfaces.config.annotation.LifecycleProvider;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -39,6 +40,7 @@ import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 /**
  * @version $Rev$ $Date$
  */
+@GBean
 public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle {
     
     private final Holder holder;
@@ -47,10 +49,14 @@ public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle
     private final ClassLoader classLoader;
 
 
-    public LifecycleProviderGBean(Holder holder, Map componentContext, LifecycleProviderFactorySource factory, Kernel kernel, ClassLoader classLoader) throws NamingException {
+    public LifecycleProviderGBean(@ParamAttribute(name="holder") Holder holder,
+                                  @ParamReference(name="ContextSource", namingType = "Context") ContextSource contextSource,
+                                  @ParamReference(name="LifecycleProviderFactory") LifecycleProviderFactorySource factory,
+                                  @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
+                                  @ParamSpecial(type=SpecialAttributeType.classLoader)ClassLoader classLoader) throws NamingException {
         this.holder = holder;
 //        GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
-        context = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext, null, kernel, classLoader);
+        context = contextSource.getContext();
         this.factory = factory.getLifecycleProviderFactory();
         this.classLoader = classLoader;
     }
@@ -84,24 +90,4 @@ public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle
         doStop();
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LifecycleProviderGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoBuilder.addAttribute("holder", Holder.class, true);
-        infoBuilder.addAttribute("componentContext", Map.class, true);
-
-        infoBuilder.addReference("LifecycleProviderFactory", LifecycleProviderFactorySource.class);
-//        infoBuilder.addReference("TransactionManager", TransactionManager.class);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoBuilder.setConstructor(new String[] {"holder", "componentContext", "LifecycleProviderFactory", "kernel", "classLoader"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

@@ -46,6 +46,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -146,7 +147,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
 
         //use the same jndi context as the web app
-        Map compContext = NamingBuilder.JNDI_KEY.get(module.getSharedContext());
+        Map<JndiKey, Map<String, Object>> compContext = NamingBuilder.JNDI_KEY.get(module.getSharedContext());
         buildingContext.put(NamingBuilder.JNDI_KEY, compContext);
 
         //use the same holder object as the web app.
@@ -155,7 +156,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
         XmlObject jettyWebApp = webModule.getVendorDD();
 
-        Configuration earConfiguration = earContext.getConfiguration();
+//        Configuration earConfiguration = earContext.getConfiguration();
 
         ClassFinder classFinder = createMyFacesClassFinder(webApp, webModule);
         webModule.setClassFinder(classFinder);
@@ -163,9 +164,9 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);
 
         AbstractName providerName = moduleContext.getNaming().createChildName(moduleName, "jsf-lifecycle", "jsf");
-        GBeanData providerData = new GBeanData(providerName, LifecycleProviderGBean.GBEAN_INFO);
+        GBeanData providerData = new GBeanData(providerName, LifecycleProviderGBean.class);
         providerData.setAttribute("holder", holder);
-        providerData.setAttribute("componentContext", compContext);
+        providerData.setReferencePatterns("ContextSource", webAppData.getReferencePatterns("ContextSource"));
         providerData.setReferencePattern("LifecycleProviderFactory", providerFactoryNameQuery);
         try {
             moduleContext.addGBean(providerData);
