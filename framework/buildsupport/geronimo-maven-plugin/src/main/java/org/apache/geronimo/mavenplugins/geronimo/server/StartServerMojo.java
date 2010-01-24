@@ -35,6 +35,9 @@ import org.apache.maven.plugin.MojoExecutionException;
 
 import org.apache.tools.ant.taskdefs.Java;
 
+import org.apache.tools.ant.types.DirSet;
+import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.Path;
 import org.codehaus.mojo.pluginsupport.util.ObjectHolder;
 
 import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
@@ -164,7 +167,12 @@ public class StartServerMojo
 
         // Setup the JVM to start the server with
         final Java java = (Java)createTask("java");
-        java.setJar(new File(geronimoHome, "bin/server.jar"));
+        java.setClassname("org.apache.geronimo.cli.daemon.DaemonCLI");
+        Path path = java.createClasspath();
+        File libDir = new File(geronimoHome, "lib");
+        FileSet fileSet = new FileSet();
+        fileSet.setDir(libDir);
+        path.addFileset(fileSet);
         java.setDir(geronimoHome);
         java.setFailonerror(true);
         java.setFork(true);
@@ -253,6 +261,8 @@ public class StartServerMojo
 
         // Set the properties which we pass to the JVM from the startup script
         setSystemProperty(java, "org.apache.geronimo.home.dir", geronimoHome);
+        setSystemProperty(java, "karaf.home", geronimoHome);
+        setSystemProperty(java, "karaf.base", geronimoHome);
         // Use relative path
         setSystemProperty(java, "java.io.tmpdir", "var/temp");
         setSystemProperty(java, "java.endorsed.dirs", prefixSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
