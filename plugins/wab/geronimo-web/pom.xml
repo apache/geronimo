@@ -29,9 +29,9 @@
     </parent>
 
     <groupId>org.apache.geronimo.modules</groupId>
-    <artifactId>geronimo-web-extender</artifactId>
+    <artifactId>geronimo-web</artifactId>
     <packaging>bundle</packaging>
-    <name>Geronimo Plugins, WAB :: Web Extender</name>
+    <name>Geronimo Plugins, WAB :: Web</name>
 
     <dependencies>
         <dependency>
@@ -50,36 +50,7 @@
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-web</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-web-2.5-builder</artifactId>
-            <version>${version}</version>
-        </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Import-Package>
-                            org.osgi.service.event;resolution:=optional,
-                            *
-                        </Import-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
 

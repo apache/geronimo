@@ -18,7 +18,7 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="WebBuilder" class="org.apache.geronimo.osgi.web.WebContainerExtender">
+    <gbean name="WebBuilder" class="org.apache.geronimo.osgi.web.extender.WebContainerExtender">
         <attribute name="transactionManagerAbstractName">?name=TransactionManager</attribute>
         <attribute name="connectionTrackerAbstractName">?name=ConnectionTracker</attribute>
         <attribute name="corbaGBeanAbstractName">?name=Server</attribute>
