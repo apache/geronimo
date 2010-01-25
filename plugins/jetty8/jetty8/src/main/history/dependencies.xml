@@ -37,6 +37,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-web</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-ajp</artifactId>
         <type>jar</type>

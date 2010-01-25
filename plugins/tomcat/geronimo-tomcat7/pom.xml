@@ -47,6 +47,12 @@
             <version>${version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-web</artifactId>
+            <version>${version}</version>
+        </dependency>
+
         <!-- g-security comes from this -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

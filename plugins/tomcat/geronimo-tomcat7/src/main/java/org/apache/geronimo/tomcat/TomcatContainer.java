@@ -46,6 +46,7 @@ import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.osgi.web.WebApplicationConstants;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -283,7 +284,8 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         }
         context.setParent(host);
         // set the bundle context attribute in the servlet context
-        context.getServletContext().setAttribute("osgi-bundlecontext", contextInfo.getBundle().getBundleContext());
+        context.getServletContext().setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE, 
+                                                 contextInfo.getBundle().getBundleContext());
 
         // Set the context for the Tomcat implementation
         contextInfo.setContext(context);

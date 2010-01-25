@@ -23,14 +23,11 @@ package org.apache.geronimo.jetty8.handler;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.security.SecurityHandler;
@@ -39,8 +36,12 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.URLResource;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceRegistration;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
+import org.apache.geronimo.osgi.web.WebApplicationConstants;
+import org.apache.geronimo.osgi.web.WebApplicationUtils;
 
 /**
  * @version $Rev$ $Date$
@@ -49,12 +50,13 @@ public class GeronimoWebAppContext extends WebAppContext {
 
     private final IntegrationContext integrationContext;
     private final String modulePath;
+    private ServiceRegistration serviceRegistration;
 
     public GeronimoWebAppContext(SecurityHandler securityHandler, SessionHandler sessionHandler, ServletHandler servletHandler, ErrorHandler errorHandler, IntegrationContext integrationContext, ClassLoader classLoader, String modulePath) {
         super(sessionHandler, securityHandler, servletHandler, errorHandler);
         this.integrationContext = integrationContext;
         setClassLoader(classLoader);
-        setAttribute("osgi-bundlecontext", integrationContext.getBundle().getBundleContext());
+        setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE, integrationContext.getBundle().getBundleContext());
         this.modulePath = modulePath;
     }
 
@@ -74,10 +76,18 @@ public class GeronimoWebAppContext extends WebAppContext {
             integrationContext.restoreContext(context);
             integrationContext.completeTx(txActive, null);
         }
+        // for OSGi Web Applications support register ServletContext in service registry
+        Bundle bundle = integrationContext.getBundle();
+        if (WebApplicationUtils.isWebApplicationBundle(bundle)) {
+            serviceRegistration = WebApplicationUtils.registerServletContext(bundle, getServletContext());
+        }
     }
 
     @Override
     protected void doStop() throws Exception {
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+        }
         javax.naming.Context context = integrationContext.setContext();
         boolean txActive = integrationContext.isTxActive();
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);

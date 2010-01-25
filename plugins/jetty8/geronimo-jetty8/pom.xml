@@ -51,6 +51,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-web</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>

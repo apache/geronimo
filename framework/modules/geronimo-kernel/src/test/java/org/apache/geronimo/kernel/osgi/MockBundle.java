@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
@@ -80,7 +81,7 @@ public class MockBundle implements Bundle {
     }
 
     public Dictionary getHeaders() {
-        return null;
+        return new Hashtable();
     }
 
     public long getBundleId() {

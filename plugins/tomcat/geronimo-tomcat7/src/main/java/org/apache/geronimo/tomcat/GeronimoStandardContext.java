@@ -45,6 +45,7 @@ import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.RunAsSource;
@@ -60,6 +61,8 @@ import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 import org.apache.tomcat.InstanceManager;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceRegistration;
 
 
 /**
@@ -87,11 +90,16 @@ public class GeronimoStandardContext extends StandardContext {
     private boolean authenticatorInstalled;
     private ConfigurationFactory configurationFactory;
     private String policyContextId;
+    
+    private Bundle bundle;
+    private ServiceRegistration serviceRegistration;
 
     public GeronimoStandardContext() {
     }
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
+        bundle = ctx.getBundle();
+        
         setResources(new BundleDirContext(ctx.getBundle(), ctx.getModulePath()));
 
         // Create ReadOnlyContext
@@ -304,6 +312,10 @@ public class GeronimoStandardContext extends StandardContext {
     }
 
     public void kill() throws Exception {
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+        }
+        
         Object context[] = null;
 
         if (beforeAfter != null){
@@ -358,6 +370,11 @@ public class GeronimoStandardContext extends StandardContext {
             }
         } else {
             super.start();
+        }
+        
+        // for OSGi Web Applications support register ServletContext in service registry
+        if (WebApplicationUtils.isWebApplicationBundle(bundle)) {
+            serviceRegistration = WebApplicationUtils.registerServletContext(bundle, getServletContext());
         }
     }
 
