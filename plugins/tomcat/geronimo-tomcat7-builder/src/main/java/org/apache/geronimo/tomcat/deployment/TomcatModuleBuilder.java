@@ -363,7 +363,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                         if (path == null) {
                             path = deployable.getResource("WEB-INF/geronimo-tomcat.xml");
                         }
-                        if (plan == null) {
+                        if (path == null) {
                             log.warn("Web application " + targetPath + " does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");                            
                         } else {
                             rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
