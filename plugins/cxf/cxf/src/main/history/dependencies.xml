@@ -7,69 +7,24 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-api</artifactId>
+        <groupId>bouncycastle</groupId>
+        <artifactId>bcprov-jdk14</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>javax.xml.bind</groupId>
+        <artifactId>jaxb-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>javax.xml.soap</groupId>
+        <artifactId>saaj-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-common-utilities</artifactId>
+        <artifactId>cxf-bundle-minimal</artifactId>
         <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-bindings-soap</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-bindings-xml</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-databinding-jaxb</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-frontend-jaxws</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-frontend-simple</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-transports-http</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-ws-addr</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-ws-security</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-tools-common</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>spring</artifactId>
-        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
@@ -92,13 +47,73 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-jaxws</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.schema</groupId>
+        <artifactId>geronimo-schema-jee_5</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-activation_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-annotation_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jaxb_2.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jaxws_2.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jms_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.neethi</groupId>
         <artifactId>neethi</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.santuario</groupId>
-        <artifactId>xmlsec</artifactId>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xmlresolver</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xmlsec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.ws.commons.axiom</groupId>
+        <artifactId>axiom-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.ws.commons.axiom</groupId>
+        <artifactId>axiom-impl</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -112,18 +127,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk15</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>serializer</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
+        <groupId>org.codehaus.woodstox</groupId>
+        <artifactId>wstx-asl</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

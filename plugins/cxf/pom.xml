@@ -52,312 +52,243 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- CXF Plugin -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-api</artifactId>
+                <artifactId>cxf-bundle-minimal</artifactId>
                 <version>${cxfVersion}</version>
                 <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-common-schemas</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+                    <!-- transitive dependency
+                                      
+                        <groupId>org.apache.ws.security</groupId>           
+                        <artifactId>wss4j</artifactId>
+                        <version>1.5.5</version>
+                          
+                        <groupId>org.apache.neethi</groupId>  
+                        <artifactId>neethi</artifactId>
+                        <version>2.0.4</version>
+                    
+                        <groupId>org.apache.ws.commons.schema</groupId>
+                        <artifactId>XmlSchema</artifactId>
+                        <version>1.4.3</version>
 
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-metacode</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
 
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-common-utilities</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
+                        <groupId>org.apache.geronimo.specs</groupId>   
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                        <version>1.0.1</version>
+                    
+                        <groupId>org.apache.geronimo.specs</groupId>    
+                        <artifactId>geronimo-activation_1.1_spec</artifactId>
+                        <version>1.0.2</version>
+                    
+                        <groupId>org.apache.geronimo.specs</groupId>    
+                        <artifactId>geronimo-jms_1.1_spec</artifactId>
+                        <version>1.1.1</version>
+                    
+                        <groupId>org.apache.geronimo.specs</groupId>   
+                        <artifactId>geronimo-jaxws_2.1_spec</artifactId>
+                        <version>1.0</version>
+                        
+                    -->
+   
+                    <!-- geronimo specs,
+                            their versions are not the same with those in root pom -->
                     <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
+                        <groupId>org.apache.geronimo.specs</groupId>    
+                        <artifactId>geronimo-annotation_1.0_spec</artifactId>   
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-javamail_1.4_spec</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-servlet_2.5_spec</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>commons-lang</groupId>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
+                    </exclusion>
+                    
+                    <!-- Spring jars, 
+                            org.springframework*;resolution:=optional, -->
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId> 
+                        <artifactId>spring-beans</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-web</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-jms</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-dao</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-support</artifactId>
+                    </exclusion>
+                    
+                    <!-- Jetty jars 
+                            org.mortbay*;resolution:=optional, -->
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty-util</artifactId>
+                    </exclusion>
+                    
+                    <!-- commons jars, 
+                            org.apache.commons.lang*;resolution:=optional,
+                            org.apache.commons.codec*;resolution:=optional, -->
+                    <exclusion>
+                        <groupId>commons-lang</groupId>                
                         <artifactId>commons-lang</artifactId>
                     </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-core</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
                     <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
+                        <groupId>commons-pool</groupId>
+                        <artifactId>commons-pool</artifactId>
                     </exclusion>
+                
+                    <!-- sun jars -->
                     <exclusion>
                         <groupId>com.sun.xml.bind</groupId>
                         <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-xjc</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>com.sun.xml.fastinfoset</groupId>
                         <artifactId>FastInfoset</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-javamail_1.4_spec</artifactId>
+                        <groupId>com.sun.xml.messaging.saaj</groupId>
+                        <artifactId>saaj-impl</artifactId>
                     </exclusion>
+                    
+                    <!-- xml jars 
+                            ..
+                            org.jaxen*;resolution:=optional,
+                            org.jdom*;resolution:=optional,
+                            org.apache.xmlbeans*;resolution:=optional, -->
+                    <exclusion>
+                        <groupId>xml-resolver</groupId>
+                        <artifactId>xml-resolver</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>serializer</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>jdom</groupId>
+                        <artifactId>jdom</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>jaxen</groupId>
+                        <artifactId>jaxen</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xmlbeans</groupId>
+                        <artifactId>xmlbeans</artifactId>
+                    </exclusion>
+                    
+                    <!-- others -->
+                    <exclusion>
+                        <groupId>aopalliance</groupId> 
+                        <artifactId>aopalliance</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>wsdl4j</groupId>
+                        <artifactId>wsdl4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>asm</groupId>
+                        <artifactId>asm</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>wstx-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.opensaml</groupId>
+                        <artifactId>opensaml</artifactId>
+                    </exclusion>  
+
+                    <!-- not a bundle -->
+                    <exclusion>
+                        <groupId>org.apache.santuario</groupId>
+                        <artifactId>xmlsec</artifactId>
+                    </exclusion>
+                    
+                    <!-- runtime jars -->
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>                 
+                        <artifactId>slf4j-jdk14</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>                    
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>bouncycastle</groupId>                
+                        <artifactId>bcprov-jdk15</artifactId>
+                    </exclusion>
+
                 </exclusions>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-bindings-xml</artifactId>
-                <version>${cxfVersion}</version>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.xmlsec</artifactId>
+                <version>1.4.3_2</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>logkit</groupId>
+                        <artifactId>logkit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>avalon-framework</groupId>
+                        <artifactId>avalon-framework</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-bindings-soap</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-databinding-jaxb</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-javamail_1.4_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-xjc</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.ws</groupId>
-                        <artifactId>jaxws-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.soap</groupId>
-                        <artifactId>saaj-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.parsers</groupId>
-                        <artifactId>jaxp-ri</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-simple</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.ws</groupId>
-                        <artifactId>jaxws-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.soap</groupId>
-                        <artifactId>saaj-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-tools-common</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>jsr250-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.jws</groupId>
-                        <artifactId>jsr181-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.soap</groupId>
-                        <artifactId>saaj-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-xjc</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.velocity</groupId>
-                        <artifactId>velocity</artifactId>
-                    </exclusion>
-                    <!-- New excludes for org.apache.velocity -->
-                    <exclusion>
-                        <groupId>commons-collections</groupId>
-                        <artifactId>commons-collections</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-lang</groupId>
-                        <artifactId>commons-lang</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>oro</groupId>
-                        <artifactId>oro</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-tools-java2ws</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-javascript</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-databinding-aegis</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.soap</groupId>
-                        <artifactId>saaj-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-ws-addr</artifactId>
-                <version>${cxfVersion}</version>
-            </dependency>
-
-
-	</dependencies>
+	    </dependencies>
     </dependencyManagement>
 
 </project>
