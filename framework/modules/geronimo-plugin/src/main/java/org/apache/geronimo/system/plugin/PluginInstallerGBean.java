@@ -1438,7 +1438,13 @@ public class PluginInstallerGBean implements PluginInstaller {
                 continue;
             }
             InputStream in = url.openStream();
-            copyFile(in, new FileOutputStream(target));
+            try {
+                copyFile(in, new FileOutputStream(target));
+            } catch (IOException e) {
+                throw new IOException("Could not copy " + url + " in artifact " + configID, e);
+            } catch (NullPointerException e) {
+                throw new IOException("Could not copy " + url + " in artifact " + configID, e);
+            }
         }
     }
 
