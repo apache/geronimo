@@ -27,16 +27,15 @@
         <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
     </gbean>
 
-    <gbean name="GlobalContext" class="org.apache.geronimo.gjndi.GlobalContextGBean"/>
-
-    <gbean name="JavaCompContext" class="org.apache.geronimo.gjndi.JavaCompContextGBean"/>
-
-    <gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
+    <gbean name="JavaGlobalContext" class="org.apache.geronimo.gjndi.FederatedContextGBean">
         <attribute name="nameInNamespace">java:</attribute>
     </gbean>
 
-    <gbean name="GeronimoContext" class="org.apache.geronimo.gjndi.WritableContextGBean">
-        <attribute name="nameInNamespace">ger:</attribute>
+    <gbean name="JavaContext" class="org.apache.geronimo.gjndi.WritableFederatedContextMember">
+        <attribute name="nameInNamespace">java:</attribute>
+        <reference name="Federation">
+            <name>JavaGlobalContext</name>
+        </reference>
     </gbean>
 
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
