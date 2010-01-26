@@ -139,5 +139,14 @@ public class GeronimoWebAppContext extends WebAppContext {
         protected BasicURLResource(URL url) {
             super(url, null);
         }
+        
+        /* 
+         * Always return true as we are pretty sure the resource does exist. This prevents 
+         * NPE as described at https://bugs.eclipse.org/bugs/show_bug.cgi?id=193269
+         */
+        @Override
+        public boolean exists() {
+            return true;
+        }
     }
 }
