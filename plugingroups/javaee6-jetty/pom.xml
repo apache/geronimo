@@ -46,19 +46,19 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>clustering-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugingroups</groupId>-->
+            <!--<artifactId>clustering-jetty</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>ejb</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugingroups</groupId>-->
+            <!--<artifactId>ejb</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.framework.plugingroups</groupId>
@@ -88,21 +88,21 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>webservices-cxf</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugingroups</groupId>-->
+            <!--<artifactId>webservices-cxf</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
         <!-- end plugin groups -->
 
         <!--other plugins-->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>concurrent-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>concurrent-deployer</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -111,12 +111,12 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>uddi-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>uddi-jetty</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -132,19 +132,19 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>debugviews-console-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
+            <!--<artifactId>debugviews-console-jetty</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>activemq-ra</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>activemq-ra</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -154,75 +154,75 @@
         </dependency>
 
        <!-- admin console related plugins -->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>ca-helper-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>ca-helper-jetty</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-            <artifactId>agent-car-ejb</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->
+            <!--<artifactId>agent-car-ejb</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
         
-        <dependency>
-            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-            <artifactId>agent-car-jmx</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->
+            <!--<artifactId>agent-car-jmx</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-            <artifactId>mconsole-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->
+            <!--<artifactId>mconsole-jetty</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>activemq-console-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
+            <!--<artifactId>activemq-console-jetty</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>debugviews-console-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
+            <!--<artifactId>debugviews-console-jetty</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>plancreator-console-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
+            <!--<artifactId>plancreator-console-jetty</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>plugin-console-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
+            <!--<artifactId>plugin-console-jetty</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>sysdb-console-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
+            <!--<artifactId>sysdb-console-jetty</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>openejb-console-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
+            <!--<artifactId>openejb-console-jetty</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
         <!-- end admin console related plugins -->
     </dependencies>
 

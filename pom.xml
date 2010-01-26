@@ -2354,7 +2354,7 @@ only found in cxf
                 <module>testsupport</module>
                 <module>framework</module>
                 <module>plugins</module>
-                <!--<module>plugingroups</module>-->
+                <module>plugingroups</module>
                 <!--<module>assemblies</module>-->
             </modules>
         </profile>
