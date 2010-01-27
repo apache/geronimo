@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -111,6 +112,16 @@ class InPlaceResourceContext implements ResourceContext {
         return new File(inPlaceBaseConfigurationUri.resolve(targetPath));
     }
 
+    public URL getTargetURL(URI targetPath) {
+        File file = getTargetFile(targetPath);
+        try {
+            return file.toURI().toURL();
+        } catch (MalformedURLException e) {
+            // should not happen            
+            throw new RuntimeException("Malformed URL", e);
+        }
+    }
+    
     public void flush() throws IOException {
         for (ZipFile zipFile : zipFilesToExpand) {
             String name = zipFile.getName();

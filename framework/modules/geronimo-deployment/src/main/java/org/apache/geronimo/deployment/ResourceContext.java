@@ -45,5 +45,7 @@ public interface ResourceContext {
     
     File getTargetFile(URI targetPath);
     
+    URL getTargetURL(URI targetPath);
+    
     void flush() throws IOException;
 }

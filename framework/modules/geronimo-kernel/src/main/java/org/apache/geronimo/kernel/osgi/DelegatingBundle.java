@@ -57,6 +57,10 @@ public class DelegatingBundle implements Bundle {
         this.bundleContext = new DelegatingBundleContext(this, bundle.getBundleContext());
     }
        
+    public Bundle getMainBundle() {
+        return bundle;
+    }
+    
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         for (Bundle bundle : bundles) {
             try {

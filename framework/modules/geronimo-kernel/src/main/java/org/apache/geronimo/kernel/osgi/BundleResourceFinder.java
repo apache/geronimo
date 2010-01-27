@@ -20,8 +20,8 @@
 package org.apache.geronimo.kernel.osgi;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -54,53 +54,60 @@ public class BundleResourceFinder {
         this.suffix = suffix.trim();
     }
     
-    public Set<URL> find() {
-        Set<URL> resources = new LinkedHashSet<URL>();
-
-        scanBundleClassPath(resources, bundle);
+    public void find(ResourceFinderCallback callback) throws Exception {
+        scanBundleClassPath(callback, bundle);
         
         Bundle[] fragments = packageAdmin.getFragments(bundle);
         if (fragments != null) {
             for (Bundle fragment : fragments) {
-                scanBundleClassPath(resources, fragment);
+                scanBundleClassPath(callback, fragment);
             }
         }
-        
+    }
+    
+    public Set<URL> find() {
+        Set<URL> resources = new LinkedHashSet<URL>();
+        try {
+            find(new DefaultResourceFinderCallback(resources));
+        } catch (Exception e) {
+            // this should not happen
+            throw new RuntimeException("Resource discovery failed", e);
+        }
         return resources;
     }
     
-    private void scanBundleClassPath(Collection<URL> resources, Bundle bundle) {
+    private void scanBundleClassPath(ResourceFinderCallback callback, Bundle bundle) throws Exception {
         BundleDescription desc = new BundleDescription(bundle.getHeaders());
         List<HeaderEntry> paths = desc.getBundleClassPath();
         if (paths.isEmpty()) {
-            scanDirectory(resources, bundle, prefix);
+            scanDirectory(callback, bundle, prefix);
         } else {
             for (HeaderEntry path : paths) {
                 String name = path.getName();
                 if (name.equals(".") || name.equals("/")) {
                     // scan root
-                    scanDirectory(resources, bundle, prefix);
+                    scanDirectory(callback, bundle, prefix);
                 } else if (name.endsWith(".jar") || name.endsWith(".zip")) {
                     // scan embedded jar/zip
-                    scanZip(resources, bundle, name);
+                    scanZip(callback, bundle, name);
                 } else {
                     // assume it's a directory
-                    scanDirectory(resources, bundle, addSlash(prefix) + name);
+                    scanDirectory(callback, bundle, addSlash(prefix) + name);
                 }
             }
         }
     }
     
-    private void scanDirectory(Collection<URL> resources, Bundle bundle, String basePath) {
+    private void scanDirectory(ResourceFinderCallback callback, Bundle bundle, String basePath) throws Exception {
         Enumeration e = bundle.findEntries(basePath, "*" + suffix, true);
         if (e != null) {
             while (e.hasMoreElements()) {
-                resources.add((URL) e.nextElement());
+                callback.foundDirectory(bundle, basePath, (URL) e.nextElement());
             }
         }
     }
     
-    private void scanZip(Collection<URL> resources, Bundle bundle, String zipName) {   
+    private void scanZip(ResourceFinderCallback callback, Bundle bundle, String zipName) throws Exception {   
         URL zipEntry = bundle.getEntry(zipName);
         if (zipEntry == null) {
             return;
@@ -111,26 +118,7 @@ public class BundleResourceFinder {
             while ((entry = in.getNextEntry()) != null) {
                 String name = entry.getName();
                 if (prefixMatches(name) && suffixMatches(name)) {
-                    /**
-                     * XXX: The bundle.getResource() uses bundle class loader to find the resource.
-                     * That means that the returned URL might actually come from another bundle
-                     * that also has a resource with the same name.
-                     * 
-                     * Possible solution 1:
-                     *  Build the URL to the right resource.
-                     *   - Pros: Would not use bundle classloader
-                     *   - Cons: The "bundle" url is not standardized so the implementation might be
-                     *     very framework specific.  
-                     * 
-                     * Possible solution 2:
-                     *   Use bundle.getResources() and find the right resource by comparing urls.
-                     *   - Pros: 
-                     *   - Cons: Uses bundle classloader to find the resources
-                     *           Might need to understand the "bundle" url to compare the returned
-                     *           urls.  
-                     */
-                    URL u = getRightResource(name);
-                    resources.add(u);
+                    callback.foundJar(bundle, zipName, entry);
                 }
             }
         } catch (IOException e) {
@@ -151,20 +139,45 @@ public class BundleResourceFinder {
     private boolean suffixMatches(String name) {
         return (suffix.length() == 0) ? true : name.endsWith(suffix);
     }
-        
-    private URL getRightResource(String name) throws IOException {
-        Enumeration e = bundle.getResources(name);
-        URL firstResource = (URL) e.nextElement();
-        if (e.hasMoreElements()) {
-            // TODO: multiple resources found - must pick right one
-        }
-        return firstResource;
-    }
-       
+               
     private static String addSlash(String name) {
         if (!name.endsWith("/")) {
             name = name + "/";
         }
         return name;
+    }
+    
+    public interface ResourceFinderCallback {
+        void foundDirectory(Bundle bundle, String baseDir, URL url) throws Exception;
+        
+        void foundJar(Bundle bundle, String jarName, ZipEntry entry) throws Exception;
+    }
+    
+    public static class DefaultResourceFinderCallback implements ResourceFinderCallback {
+
+        private Set<URL> resources;
+        
+        public DefaultResourceFinderCallback() {
+            this(new LinkedHashSet<URL>());
+        }
+        
+        public DefaultResourceFinderCallback(Set<URL> resources) {  
+            this.resources = resources;
+        }
+        
+        public Set<URL> getResources() {
+            return resources;
+        }
+        
+        public void foundDirectory(Bundle bundle, String baseDir, URL url) throws Exception {
+            resources.add(url);
+        }
+
+        public void foundJar(Bundle bundle, String jarName, ZipEntry entry) throws Exception {
+            URL jarURL = bundle.getEntry(jarName);
+            URL url = new URL("jar:" + jarURL.toString() + "!/" + entry.getName());
+            resources.add(url);
+        }
+        
     }
 }

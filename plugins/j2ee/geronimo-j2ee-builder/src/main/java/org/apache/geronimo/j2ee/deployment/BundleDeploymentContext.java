@@ -24,7 +24,6 @@ import org.apache.geronimo.deployment.BundleResourceContext;
 import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.ModuleList;
-import org.apache.geronimo.deployment.ResourceContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Naming;
@@ -55,21 +54,12 @@ public class BundleDeploymentContext extends EARContext {
                                    Map messageDestinations,
                                    Bundle bundle) throws DeploymentException {
         super(null, null, 
-              environment, moduleType, naming, configurationManager, bundleContext,
+              environment, moduleType, naming, configurationManager, new BundleResourceContext(bundle), bundleContext,
               serverName, baseName, transactionManagerObjectName, connectionTrackerObjectName, 
               corbaGBeanObjectName, messageDestinations);
         this.bundle = bundle;
     }
-
-    @Override
-    protected void verifyArguments() throws DeploymentException {                
-    }
-    
-    @Override
-    protected ResourceContext createResourceContext() throws DeploymentException {
-        return new BundleResourceContext();
-    }
-    
+   
     @Override
     public void initializeConfiguration() throws DeploymentException {
         try {

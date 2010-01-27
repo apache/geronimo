@@ -105,14 +105,34 @@ public class DeploymentContext {
     private Bundle tempBundle;
 
 
-    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, AbstractName moduleName, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager, Collection<Repository> repositories, BundleContext bundleContext) throws DeploymentException {
-        this(baseDir, inPlaceConfigurationDir, environment, moduleName, moduleType, naming, createConfigurationManager(configurationManager, repositories, bundleContext), bundleContext);
+    public DeploymentContext(File baseDir, 
+                             File inPlaceConfigurationDir, 
+                             Environment environment, 
+                             AbstractName moduleName, 
+                             ConfigurationModuleType moduleType, 
+                             Naming naming, 
+                             ConfigurationManager configurationManager, 
+                             Collection<Repository> repositories, 
+                             BundleContext bundleContext) throws DeploymentException {
+        this(baseDir, inPlaceConfigurationDir, environment, moduleName, moduleType, naming, 
+             createConfigurationManager(configurationManager, repositories, bundleContext), bundleContext);
     }
-
-    public DeploymentContext(File baseDir, File inPlaceConfigurationDir, Environment environment, AbstractName moduleName, ConfigurationModuleType moduleType, Naming naming, ConfigurationManager configurationManager, BundleContext bundleContext) throws DeploymentException {        
+    
+    public DeploymentContext(File baseDir, 
+                             File inPlaceConfigurationDir, 
+                             Environment environment, 
+                             AbstractName moduleName, 
+                             ConfigurationModuleType moduleType, 
+                             Naming naming, 
+                             ConfigurationManager configurationManager, 
+                             BundleContext bundleContext) throws DeploymentException {        
         if (environment == null) throw new NullPointerException("environment is null");
         if (moduleType == null) throw new NullPointerException("type is null");
-        if (configurationManager == null) throw new NullPointerException("configurationManager is null");
+        if (configurationManager == null) throw new NullPointerException("configurationManager is null");        
+        if (baseDir == null) throw new NullPointerException("baseDir is null");                
+        if (!baseDir.exists() && !baseDir.mkdirs()) {
+            throw new DeploymentException("Could not create directory for deployment context assembly: " + baseDir);
+        }
         
         this.baseDir = baseDir; 
         this.inPlaceConfigurationDir = inPlaceConfigurationDir;
@@ -122,29 +142,35 @@ public class DeploymentContext {
         this.environment = environment;
         this.configurationManager = configurationManager;
         this.bundleContext = bundleContext;
-
-        verifyArguments();
-        
-        this.resourceContext = createResourceContext();
-    }
-
-    protected void verifyArguments() throws DeploymentException {
-        if (baseDir == null) {
-            throw new NullPointerException("baseDir is null");
-        }        
-        if (!baseDir.exists() && !baseDir.mkdirs()) {
-            throw new DeploymentException("Could not create directory for deployment context assembly: " + baseDir);
-        }
-    }
-    
-    protected ResourceContext createResourceContext() throws DeploymentException {
+                
         if (null == inPlaceConfigurationDir) {
-            return new CopyResourceContext(this, baseDir);
+            this.resourceContext = new CopyResourceContext(this, baseDir);
         } else {
-            return new InPlaceResourceContext(this, inPlaceConfigurationDir);
+            this.resourceContext = new InPlaceResourceContext(this, inPlaceConfigurationDir);
         }
     }
-    
+
+    // For sub-classes only 
+    protected DeploymentContext(File baseDir, 
+                                File inPlaceConfigurationDir, 
+                                Environment environment, 
+                                AbstractName moduleName, 
+                                ConfigurationModuleType moduleType, 
+                                Naming naming, 
+                                ConfigurationManager configurationManager, 
+                                ResourceContext resourceContext,
+                                BundleContext bundleContext) throws DeploymentException {                
+        this.baseDir = baseDir; 
+        this.inPlaceConfigurationDir = inPlaceConfigurationDir;
+        this.moduleName = moduleName;
+        this.naming = naming;
+        this.moduleType = moduleType;
+        this.environment = environment;
+        this.configurationManager = configurationManager;
+        this.resourceContext = resourceContext;
+        this.bundleContext = bundleContext;
+    }
+        
     private static ConfigurationManager createConfigurationManager(ConfigurationManager configurationManager, Collection<Repository> repositories, BundleContext bundleContext) {
         return new DeploymentConfigurationManager(configurationManager, repositories, bundleContext);
     }
@@ -467,6 +493,10 @@ public class DeploymentContext {
         return resourceContext.getTargetFile(targetPath);
     }
 
+    public URL getTargetURL(URI targetPath) {
+        return resourceContext.getTargetURL(targetPath);
+    }
+    
     public Bundle getDeploymentBundle() throws DeploymentException {
         return configuration.getBundle();
     }

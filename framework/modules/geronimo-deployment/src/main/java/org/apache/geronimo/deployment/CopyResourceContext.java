@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
@@ -159,6 +160,16 @@ class CopyResourceContext implements ResourceContext {
         return new File(baseDir, targetPath.toString());
     }
 
+    public URL getTargetURL(URI targetPath) {
+        File file = getTargetFile(targetPath);
+        try {
+            return file.toURI().toURL();
+        } catch (MalformedURLException e) {
+            // should not happen            
+            throw new RuntimeException("Malformed URL", e);
+        }
+    }
+    
     public void flush() throws IOException {
     }
 

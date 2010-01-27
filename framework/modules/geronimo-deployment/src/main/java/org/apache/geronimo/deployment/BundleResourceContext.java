@@ -24,8 +24,16 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.osgi.framework.Bundle;
+
 public class BundleResourceContext implements ResourceContext {
 
+    private Bundle bundle;
+    
+    public BundleResourceContext(Bundle bundle) {
+        this.bundle = bundle;
+    }
+    
     public void addFile(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
     }
 
@@ -61,6 +69,10 @@ public class BundleResourceContext implements ResourceContext {
 
     public File getTargetFile(URI targetPath) {
         throw new RuntimeException("getTargetFile() is not supported on Bundle-based deployment");
+    }
+    
+    public URL getTargetURL(URI targetPath) {
+        return bundle.getEntry(targetPath.toString());
     }
 
 }

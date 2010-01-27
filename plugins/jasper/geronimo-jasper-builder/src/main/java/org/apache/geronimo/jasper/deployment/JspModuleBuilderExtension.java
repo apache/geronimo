@@ -17,27 +17,27 @@
 
 package org.apache.geronimo.jasper.deployment;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.Deployable;
+import org.apache.geronimo.deployment.DeployableBundle;
+import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -59,7 +59,6 @@ import org.apache.geronimo.jasper.JasperServletContextCustomizer;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
@@ -91,6 +90,7 @@ import org.slf4j.LoggerFactory;
 public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
     private static final Logger log = LoggerFactory.getLogger(JspModuleBuilderExtension.class);
+    
     private static final QName TLIB_VERSION = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "tlib-version");
     private static final QName SHORT_NAME = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "short-name");
     private static final QName TAG_CLASS = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "tag-class");
@@ -233,15 +233,11 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                         location = location.substring(1);
                     }
                     try {
-                        File targetFile = webModule.getEarContext().getTargetFile(webModule.resolve(createURI(location)));
-                        if (targetFile != null) {
-                            tldURLs.add(targetFile.toURI().toURL());
+                        URL targetUrl = webModule.getEarContext().getTargetURL(webModule.resolve(createURI(location)));
+                        if (targetUrl != null) {
+                            tldURLs.add(targetUrl);
                         }
-                    }
-                    catch (MalformedURLException mfe) {
-                        throw new DeploymentException("Could not locate TLD file specified in <taglib>: URI: " + uri + " Location: " + location + " " + mfe.getMessage(), mfe);
-                    }
-                    catch (URISyntaxException use) {
+                    } catch (URISyntaxException use) {
                         throw new DeploymentException("Could not locate TLD file specified in <taglib>: URI: " + uri + " Location: " + location + " " + use.getMessage(), use);
                     }
                 }
@@ -253,6 +249,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         tldURLs.addAll(scanModule(webModule));
 
         // 4. All TLD files in all META-INF(s)
+        /*
         try {
             Enumeration<URL> enumURLs = webModule.getEarContext().getDeploymentBundle().getResources("META-INF");
             if (enumURLs != null) {
@@ -265,7 +262,8 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         catch (IOException ioe) {
             throw new DeploymentException("Could not locate TLD files located in META-INF(s) " + ioe.getMessage(), ioe);
         }
-
+        */
+        
         log.debug("getTldFiles() Exit: URL[" + tldURLs.size() + "]: " + tldURLs.toString());
         return tldURLs;
     }
@@ -280,140 +278,16 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
      * @throws DeploymentException if module cannot be scanned
      */
     private List<URL> scanModule(WebModule webModule) throws DeploymentException {
-        log.debug("scanModule( " + webModule.getName() + " ): Entry");
-
-        List<URL> modURLs = new ArrayList<URL>();
-        try {
-            Enumeration<JarEntry> entries = webModule.getModuleFile().entries();
-            while (entries.hasMoreElements()) {
-                JarEntry jarEntry = entries.nextElement();
-                if (jarEntry.getName().startsWith("WEB-INF/") && jarEntry.getName().endsWith(".tld")) {
-                    File targetFile = webModule.getEarContext().getTargetFile(webModule.resolve(createURI(jarEntry.getName())));
-                    if (targetFile != null) {
-                        modURLs.add(targetFile.toURI().toURL());
-                    }
-                }
-                if (jarEntry.getName().startsWith("WEB-INF/lib/") && jarEntry.getName().endsWith(".jar")) {
-                    File targetFile = webModule.getEarContext().getTargetFile(webModule.resolve(createURI(jarEntry.getName())));
-                    List<URL> jarUrls = scanJAR(new JarFile(targetFile), null);
-                    for (URL jarURL : jarUrls) {
-                        modURLs.add(jarURL);
-                    }
-                }
-            }
+        Deployable deployable = webModule.getDeployable();
+        if (deployable instanceof DeployableJarFile) {
+            JarFileTldScanner scanner = new JarFileTldScanner();
+            return scanner.scanModule(webModule);
+        } else if (deployable instanceof DeployableBundle) {
+            BundleTldScanner scanner = new BundleTldScanner();
+            return scanner.scanModule(webModule);
         }
-        catch (IOException ioe) {
-            throw new DeploymentException("Could not scan module for TLD files: " + webModule.getName() + " " + ioe.getMessage(), ioe);
-        }
-        catch (Exception e) {
-            throw new DeploymentException("Could not scan module for TLD files: " + webModule.getName() + " " + e.getMessage(), e);
-        }
-
-        log.debug("scanModule() Exit: URL[" + modURLs.size() + "]: " + modURLs.toString());
-        return modURLs;
+        return Collections.emptyList();
     }
-
-
-    /**
-     * scanJAR(): Scan a JAR files looking for all TLD
-     *
-     * @param jarFile jar file to scan
-     * @param prefix  Optional prefix to limit the search to a specific subdirectory in the JAR file
-     * @return list of the URL(s) for the TLD files in the JAR file
-     * @throws DeploymentException if jar file cannot be scanned
-     */
-    private List<URL> scanJAR(JarFile jarFile, String prefix) throws DeploymentException {
-        log.debug("scanJAR( " + jarFile.getName() + " ): Entry");
-
-        List<URL> jarURLs = new ArrayList<URL>();
-        try {
-            Enumeration<JarEntry> entries = jarFile.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry jarEntry = entries.nextElement();
-                if (prefix != null) {
-                    if (jarEntry.getName().endsWith(".tld") && jarEntry.getName().startsWith(prefix)) {
-                        jarURLs.add(new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName()));
-                    }
-                } else {
-                    if (jarEntry.getName().endsWith(".tld")) {
-                        jarURLs.add(new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName()));
-                    }
-                }
-            }
-        }
-        catch (MalformedURLException mfe) {
-            throw new DeploymentException("Could not scan JAR file for TLD files: " + jarFile.getName() + " " + mfe.getMessage(), mfe);
-        }
-        catch (Exception e) {
-            throw new DeploymentException("Could not scan JAR file for TLD files: " + jarFile.getName() + " " + e.getMessage(), e);
-        }
-
-        log.debug("scanJAR() Exit: URL[" + jarURLs.size() + "]: " + jarURLs.toString());
-        return jarURLs;
-    }
-
-
-    /**
-     * scanDirectory(): Scan a directory for all TLD files
-     *
-     * @param url URL for the directory to be scanned
-     * @return list of the URL(s) for the TLD files in the directory
-     * @throws DeploymentException if directory cannot be scanned
-     */
-    private List<URL> scanDirectory(URL url) throws DeploymentException {
-        log.debug("scanDirectory( " + url.toString() + " ): Entry");
-
-        List<URL> dirURLs = new ArrayList<URL>();
-        File directory;
-        if (url != null) {
-            if (url.toString().startsWith("jar:file:")) {
-                try {
-                    JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-                    URL urlJC = jarConnection.getJarFileURL();
-                    URI baseURI = createURI(urlJC.toString());
-                    directory = new File(baseURI);
-                    if (directory.isDirectory()) {
-                        if (directory.canRead()) {
-                            JarFile temp = new JarFile(directory);
-                            List<URL> tempURLs = scanJAR(temp, "META-INF");
-                            for (URL jarURL : tempURLs) {
-                                dirURLs.add(jarURL);
-                            }
-                        } else {
-                            log.warn("Cannot read JAR file: " + url.toString());
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    throw new DeploymentException("Could not scan directory for TLD files: " + url.toString() + " " + e.getMessage(), e);
-                }
-            } else if (url.toString().startsWith("file:")) {
-                try {
-                    URI baseURI = createURI(url.toString());
-                    directory = new File(baseURI);
-                    if (directory.isDirectory() && directory.canRead()) {
-                        File[] children = directory.listFiles();
-                        for (File child : children) {
-                            if (child.getName().endsWith(".tld")) {
-                                dirURLs.add(child.toURI().toURL());
-                            }
-                        }
-                    } else {
-                        log.warn("Cannot read directory: " + url.toString());
-                    }
-                }
-                catch (Exception e) {
-                    throw new DeploymentException("Could not scan directory for TLD files: " + url.toString() + " " + e.getMessage(), e);
-                }
-            } else if (url.toString().startsWith("jar:")) {
-                log.warn("URL type not accounted for: " + url.toString());
-            }
-        }
-
-        log.debug("scanDirectory() Exit: URL[" + dirURLs.size() + "]: " + dirURLs.toString());
-        return dirURLs;
-    }
-
 
     private List<Class> getListenerClasses(WebAppType webApp, WebModule webModule, Collection<URL> urls, Set<String> listenerNames) throws DeploymentException {
         if (log.isDebugEnabled()) {

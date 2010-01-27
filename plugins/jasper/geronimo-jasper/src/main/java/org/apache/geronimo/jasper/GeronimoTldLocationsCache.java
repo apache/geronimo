@@ -17,29 +17,30 @@
 
 package org.apache.geronimo.jasper;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 import javax.servlet.ServletContext;
 
+import org.apache.geronimo.kernel.osgi.BundleResourceFinder;
+import org.apache.geronimo.kernel.osgi.DelegatingBundle;
+import org.apache.geronimo.kernel.osgi.BundleResourceFinder.ResourceFinderCallback;
 import org.apache.jasper.Constants;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.TldLocationsCache;
 import org.apache.jasper.xmlparser.ParserUtils;
 import org.apache.jasper.xmlparser.TreeNode;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleReference;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -77,9 +78,6 @@ import org.xml.sax.InputSource;
  * to override Jasper's default TldLocationsCache which does not work
  * with Geronimo's MultiParentClassLoader.  Copying was necessary because
  * most of the essential methods and member variables were private.
- *
- * @author Pierre Delisle
- * @author Jan Luehe
  */
 
 public class GeronimoTldLocationsCache extends TldLocationsCache {
@@ -96,12 +94,6 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
     private static final String FILE_PROTOCOL = "file:";
     private static final String JAR_FILE_SUFFIX = ".jar";
 
-    // Names of JARs that are known not to contain any TLDs
-    private static HashSet<String> noTldJars;
-
-    // Names of JARs that have already been scanned
-    ArrayList<String> scannedJars;
-
     /**
      * The mapping of the 'global' tag library URI to the location (resource
      * path) of the TLD associated with that tag library. The location is
@@ -113,65 +105,15 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
 
     private boolean initialized;
     private ServletContext ctxt;
-    private boolean redeployMode;
 
     //*********************************************************************
     // Constructor and Initilizations
-
-    /*
-     * Initializes the set of JARs that are known not to contain any TLDs
-     */
-    static {
-        noTldJars = new HashSet<String>();
-        // Misc JARs not included with Tomcat
-        noTldJars.add("ant.jar");
-        noTldJars.add("commons-dbcp.jar");
-        noTldJars.add("commons-beanutils.jar");
-        noTldJars.add("commons-fileupload-1.0.jar");
-        noTldJars.add("commons-pool.jar");
-        noTldJars.add("commons-digester.jar");
-        noTldJars.add("commons-logging.jar");
-        noTldJars.add("commons-collections.jar");
-        noTldJars.add("jmx.jar");
-        noTldJars.add("jmx-tools.jar");
-        noTldJars.add("xercesImpl.jar");
-        noTldJars.add("xmlParserAPIs.jar");
-        noTldJars.add("xml-apis.jar");
-        // JARs from J2SE runtime
-        noTldJars.add("sunjce_provider.jar");
-        noTldJars.add("ldapsec.jar");
-        noTldJars.add("localedata.jar");
-        noTldJars.add("dnsns.jar");
-        noTldJars.add("tools.jar");
-        noTldJars.add("sunpkcs11.jar");
-    }
 
     public GeronimoTldLocationsCache(ServletContext ctxt) {
         super(ctxt);
         this.ctxt = ctxt;
         this.mappings = new Hashtable<String,String[]>();
     }
-
-    /** Constructor.
-     *
-     * @param ctxt the servlet context of the web application in which Jasper
-     * is running
-     * @param redeployMode if true, then the compiler will allow redeploying
-     * a tag library from the same jar, at the expense of slowing down the
-     * server a bit. Note that this may only work on JDK 1.3.1_01a and later,
-     * because of JDK bug 4211817 fixed in this release.
-     * If redeployMode is false, a faster but less capable mode will be used.
-     */
-    /*
-    public GeronimoTldLocationsCache(ServletContext ctxt, boolean redeployMode) {
-        super(ctxt,redeployMode);
-        scannedJars = new ArrayList<String>();
-        this.ctxt = ctxt;
-        this.redeployMode = redeployMode;
-        mappings = new Hashtable<String,String[]>();
-        initialized = false;
-    }
-    */
 
     /**
      * Sets the list of JARs that are known not to contain any TLDs.
@@ -180,13 +122,6 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
      * known not to contain any TLDs
      */
     public static void setNoTldJars(String jarNames) {
-        if (jarNames != null) {
-            noTldJars.clear();
-            StringTokenizer tokenizer = new StringTokenizer(jarNames, ",");
-            while (tokenizer.hasMoreElements()) {
-                noTldJars.add(tokenizer.nextToken());
-            }
-        }
     }
 
     /**
@@ -216,14 +151,30 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         if (initialized) return;
         try {
             processWebDotXml();
-            scanJars(Thread.currentThread().getContextClassLoader());
-            processTldsInFileSystem("/WEB-INF/");
+            Bundle bundle = getBundle();
+            if (bundle != null) {
+                processWebInf(bundle);
+                processClassPath(bundle);
+            }
             initialized = true;
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
     }
 
+    private Bundle getBundle() {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader instanceof BundleReference) {
+            Bundle bundle = ((BundleReference) classLoader).getBundle();
+            if (bundle instanceof DelegatingBundle) {
+                return ((DelegatingBundle) bundle).getMainBundle();
+            } else {
+                return bundle;
+            }
+        }
+        return null;
+    }
+    
     /*
      * Populates taglib map described in web.xml.
      */
@@ -307,118 +258,61 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         }
     }
 
-    /**
-     * Scans the given JarURLConnection for TLD files located in META-INF
-     * (or a subdirectory of it), adding an implicit map entry to the taglib
-     * map for any TLD that has a <uri> element.
-     *
-     * @param conn The JarURLConnection to the JAR file to scan
-     * @param ignore true if any exceptions raised when processing the given
-     * JAR should be ignored, false otherwise
-     */
-    private void scanJar(JarURLConnection conn, boolean ignore)
-                throws JasperException {
+    private void processClassPath(Bundle bundle) throws Exception {
+        ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
+        PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
+                
+        BundleResourceFinder resourceFinder = new BundleResourceFinder(packageAdmin, bundle, "META-INF/", ".tld");
+        resourceFinder.find(new ResourceFinderCallback() {
 
-        JarFile jarFile = null;
-        String resourcePath = conn.getJarFileURL().toString();
+            public void foundDirectory(Bundle bundle, String basePath, URL url) throws Exception {
+                addMapping(url, new String[] {url.getPath(), null});
+            }
+
+            public void foundJar(Bundle bundle, String jarName, ZipEntry entry) throws Exception {
+                URL jarURL = bundle.getEntry(jarName);
+                URL url = new URL("jar:" + jarURL.toString() + "!/" + entry.getName());
+                
+                addMapping(url, new String[] {jarURL.toString(), entry.getName()});
+            }
+            
+        });
+          
+        bundle.getBundleContext().ungetService(reference);
+    }
+
+    private void processWebInf(Bundle bundle) throws JasperException, IOException {
+        Enumeration e = bundle.findEntries("WEB-INF/", "*.tld", true);
+        if (e != null) {
+            while (e.hasMoreElements()) {
+                URL u = (URL) e.nextElement();
+                addMapping(u, new String[] {u.getPath(), null});
+            }
+        }
+    }
+
+    private void addMapping(URL url, String[] location) throws JasperException, IOException {
+        String path = url.toString();
+        InputStream stream = url.openStream();
+        String uri = null;
         try {
-            if (redeployMode) {
-                conn.setUseCaches(false);
-            }
-            jarFile = conn.getJarFile();
-            Enumeration<JarEntry> entries = jarFile.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry entry = entries.nextElement();
-                String name = entry.getName();
-                if (!name.startsWith("META-INF/")) continue;
-                if (!name.endsWith(".tld")) continue;
-                InputStream stream = jarFile.getInputStream(entry);
-                try {
-                    String uri = getUriFromTld(resourcePath, stream);
-                    // Add implicit map entry only if its uri is not already
-                    // present in the map
-                    if (uri != null && mappings.get(uri) == null) {
-                        mappings.put(uri, new String[]{ resourcePath, name });
-                    }
-                } finally {
-                    if (stream != null) {
-                        try {
-                            stream.close();
-                        } catch (Throwable t) {
-                            // do nothing
-                        }
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            if (!redeployMode) {
-                // if not in redeploy mode, close the jar in case of an error
-                if (jarFile != null) {
-                    try {
-                        jarFile.close();
-                    } catch (Throwable t) {
-                        // ignore
-                    }
-                }
-            }
-            if (!ignore) {
-                throw new JasperException(ex);
-            }
+            uri = getUriFromTld(path, stream);
         } finally {
-            if (redeployMode) {
-                // if in redeploy mode, always close the jar
-                if (jarFile != null) {
-                    try {
-                        jarFile.close();
-                    } catch (Throwable t) {
-                        // ignore
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-     * Searches the filesystem under /WEB-INF for any TLD files, and adds
-     * an implicit map entry to the taglib map for any TLD that has a <uri>
-     * element.
-     */
-    private void processTldsInFileSystem(String startPath)
-            throws Exception {
-
-        Set<String> dirList = ctxt.getResourcePaths(startPath);
-        if (dirList != null) {
-            Iterator<String> it = dirList.iterator();
-            while (it.hasNext()) {
-                String path = it.next();
-                if (path.endsWith("/")) {
-                    processTldsInFileSystem(path);
-                }
-                if (!path.endsWith(".tld")) {
-                    continue;
-                }
-                InputStream stream = ctxt.getResourceAsStream(path);
-                String uri = null;
+            if (stream != null) {
                 try {
-                    uri = getUriFromTld(path, stream);
-                } finally {
-                    if (stream != null) {
-                        try {
-                            stream.close();
-                        } catch (Throwable t) {
-                            // do nothing
-                        }
-                    }
-                }
-                // Add implicit map entry only if its uri is not already
-                // present in the map
-                if (uri != null && mappings.get(uri) == null) {
-                    mappings.put(uri, new String[] { path, null });
+                    stream.close();
+                } catch (Throwable t) {
+                    // do nothing
                 }
             }
         }
+        // Add implicit map entry only if its uri is not already
+        // present in the map
+        if (uri != null && mappings.get(uri) == null) {
+            mappings.put(uri, location);
+        }
     }
-
+    
     /*
      * Returns the value of the uri element of the given TLD, or null if the
      * given TLD does not contain any such element.
@@ -438,85 +332,4 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         return null;
     }
 
-    /*
-     * Scans all JARs accessible to the webapp's classloader and its
-     * parent classloaders for TLDs.
-     *
-     * The list of JARs always includes the JARs under WEB-INF/lib, as well as
-     * all shared JARs in the classloader delegation chain of the webapp's
-     * classloader.
-     *
-     * The set of shared JARs to be scanned for TLDs is narrowed down by
-     * the <tt>noTldJars</tt> class variable, which contains the names of JARs
-     * that are known not to contain any TLDs.
-     */
-    private void scanJars(ClassLoader loader) throws Exception {
-
-//        if (loader instanceof MultiParentClassLoader) {
-//            MultiParentClassLoader mutliLoader = (MultiParentClassLoader) loader;
-//            for (ClassLoader parent : mutliLoader.getParents()) {
-//                scanJars(parent);
-//            }
-//        }
-
-//        if (loader instanceof ChildrenConfigurationClassLoader) {
-//            ChildrenConfigurationClassLoader childLoader = (ChildrenConfigurationClassLoader) loader;
-//            ClassLoader parent = childLoader.getParent();
-//            scanJars(parent);
-//        }
-
-        if (loader instanceof URLClassLoader) {
-            URL[] urls = ((URLClassLoader) loader).getURLs();
-            for (int i=0; i<urls.length; i++) {
-                URLConnection conn = urls[i].openConnection();
-                if (conn instanceof JarURLConnection) {
-                    if (needScanJar(loader,
-                                    ((JarURLConnection) conn).getJarFile().getName())) {
-                        scanJar((JarURLConnection) conn, true);
-                        scannedJars.add(((JarURLConnection) conn).getJarFile().getName());
-                    }
-                } else {
-                    String urlStr = urls[i].toString();
-                    if (urlStr.startsWith(FILE_PROTOCOL)
-                            && urlStr.endsWith(JAR_FILE_SUFFIX)
-                            && needScanJar(loader, urlStr)) {
-                        URL jarURL = new URL("jar:" + urlStr + "!/");
-                        scanJar((JarURLConnection) jarURL.openConnection(),
-                                true);
-                        scannedJars.add(urlStr);
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-     * Determines if the JAR file with the given <tt>jarPath</tt> needs to be
-     * scanned for TLDs.
-     *
-     * @param loader The current classloader in the parent chain
-     * @param webappLoader The webapp classloader
-     * @param jarPath The JAR file path
-     *
-     * @return TRUE if the JAR file identified by <tt>jarPath</tt> needs to be
-     * scanned for TLDs, FALSE otherwise
-     */
-    private boolean needScanJar(ClassLoader loader,
-                                String jarPath) {
-        if (scannedJars.contains(jarPath)) {
-            return false;
-        }
-        else if (loader == Thread.currentThread().getContextClassLoader()) {
-            // JARs under WEB-INF/lib must be scanned unconditionally according
-            // to the spec.
-            return true;
-        } else {
-            String jarName = jarPath;
-            int slash = jarPath.lastIndexOf('/');
-            if (slash >= 0) {
-                jarName = jarPath.substring(slash + 1);
-            }
-            return (!noTldJars.contains(jarName));
-        }
-    }
 }

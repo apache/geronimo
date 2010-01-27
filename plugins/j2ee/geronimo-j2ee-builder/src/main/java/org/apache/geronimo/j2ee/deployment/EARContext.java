@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.ResourceContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Naming;
@@ -89,8 +90,7 @@ public class EARContext extends DeploymentContext {
                       AbstractNameQuery transactionManagerObjectName,
                       AbstractNameQuery connectionTrackerObjectName,
                       AbstractNameQuery corbaGBeanObjectName,
-                      Map messageDestinations
-    ) throws DeploymentException {
+                      Map messageDestinations) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager, bundleContext);
 
         this.serverName = serverName;
@@ -110,6 +110,31 @@ public class EARContext extends DeploymentContext {
         this.messageDestinations  = new HashMap();
     }
 
+    // For sub-classes only     
+    protected EARContext(File baseDir,
+                         File inPlaceConfigurationDir,
+                         Environment environment,
+                         ConfigurationModuleType moduleType,
+                         Naming naming,
+                         ConfigurationManager configurationManager,
+                         ResourceContext resourceContext,
+                         BundleContext bundleContext,
+                         AbstractNameQuery serverName,
+                         AbstractName baseName,
+                         AbstractNameQuery transactionManagerObjectName,
+                         AbstractNameQuery connectionTrackerObjectName,
+                         AbstractNameQuery corbaGBeanObjectName,
+                         Map messageDestinations) throws DeploymentException {
+        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, 
+              configurationManager, resourceContext, bundleContext);
+
+        this.serverName = serverName;
+        this.transactionManagerObjectName = transactionManagerObjectName;
+        this.connectionTrackerObjectName = connectionTrackerObjectName;
+        this.corbaGBeanObjectName = corbaGBeanObjectName;
+        this.messageDestinations = messageDestinations;
+    }
+    
     public AbstractNameQuery getServerName() {
         return serverName;
     }
