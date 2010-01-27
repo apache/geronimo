@@ -583,68 +583,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 module.setOriginalSpecDD(module.getSpecDD().toString());
             }
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
-            /**
-             * This next bit of code is kind of a kludge to get Tomcat to get a default
-             * web.xml if one does not exist.  This is primarily for jaxws.  This code is
-             * necessary because Tomcat either has a bug or there is a problem dynamically
-             * adding a wrapper to an already running context.  Although the wrapper
-             * can be added, the url mappings do not get picked up at the proper level
-             * and therefore Tomcat cannot dispatch the request.  Hence, creating and
-             * writing out a web.xml to the deployed location is the only way around this
-             * until Tomcat fixes that bug.
-             *
-             * For myfaces/jsf, the spec dd may have been updated with a listener.  So, we need to write it out again whether or not
-             * there originally was one. This might not work on windows due to file locking problems.
+
+            /*
+             * Not sure if this is still needed. Disabled for now as it does not work
+             * with Bundle-based deployments.
              */
-
-            if ((Boolean)module.getSharedContext().get(IS_JAVAEE)) {
-                WebAppType shortWebApp = (WebAppType) webApp.copy();
-                shortWebApp.setEjbLocalRefArray(new EjbLocalRefType[0]);
-                shortWebApp.setEjbRefArray(new EjbRefType[0]);
-                shortWebApp.setEnvEntryArray(new EnvEntryType[0]);
-                shortWebApp.setMessageDestinationArray(new MessageDestinationType[0]);
-                shortWebApp.setMessageDestinationRefArray(new MessageDestinationRefType[0]);
-                shortWebApp.setPersistenceContextRefArray(new PersistenceContextRefType[0]);
-                shortWebApp.setPersistenceUnitRefArray(new PersistenceUnitRefType[0]);
-                shortWebApp.setPostConstructArray(new LifecycleCallbackType[0]);
-                shortWebApp.setPreDestroyArray(new LifecycleCallbackType[0]);
-                shortWebApp.setResourceEnvRefArray(new ResourceEnvRefType[0]);
-                shortWebApp.setResourceRefArray(new ResourceRefType[0]);
-                shortWebApp.setServiceRefArray(new ServiceRefType[0]);
-                // TODO Tomcat will fail web services tck tests if the following security settings are set in shortWebApp
-                // need to figure out why...
-                //One clue is that without this stuff tomcat does not install an authenticator.... so there's no security
-//                 shortWebApp.setSecurityConstraintArray(new SecurityConstraintType[0]);
-//                 shortWebApp.setSecurityRoleArray(new SecurityRoleType[0]);
-                File webXml = new File(moduleContext.getBaseDir(), "/WEB-INF/web.xml");
-                File inPlaceDir = moduleContext.getInPlaceConfigurationDir();
-                if (inPlaceDir != null) {
-                    webXml = new File(inPlaceDir, "/WEB-INF/web.xml");
-                }
-//        boolean webXmlExists = (inPlaceDir != null && new File(inPlaceDir,"/WEB-INF/web.xml").exists()) || webXml.exists();
-//        if (!webXmlExists) {
-                webXml.getParentFile().mkdirs();
-                try {
-                    FileWriter outFile = new FileWriter(webXml);
-
-                    XmlOptions opts = new XmlOptions();
-                    opts.setSaveAggressiveNamespaces();
-                    opts.setSaveSyntheticDocumentElement(WebAppDocument.type.getDocumentElementName());
-                    opts.setUseDefaultNamespace();
-                    opts.setSavePrettyPrint();
-
-    //                WebAppDocument doc = WebAppDocument.Factory.newInstance();
-    //                doc.setWebApp(webApp);
-
-                    outFile.write(shortWebApp.xmlText(opts));
-                    outFile.flush();
-                    outFile.close();
-                } catch (Exception e) {
-                    throw new DeploymentException(e);
-                }
-//        }
-            }
-
+            // rewriteWebXml(webModule);
+            
             module.addAsChildConfiguration();
         } catch (DeploymentException de) {
             throw de;
@@ -653,6 +598,71 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         }
     }
 
+    /**
+     * This next bit of code is kind of a kludge to get Tomcat to get a default
+     * web.xml if one does not exist.  This is primarily for jaxws.  This code is
+     * necessary because Tomcat either has a bug or there is a problem dynamically
+     * adding a wrapper to an already running context.  Although the wrapper
+     * can be added, the url mappings do not get picked up at the proper level
+     * and therefore Tomcat cannot dispatch the request.  Hence, creating and
+     * writing out a web.xml to the deployed location is the only way around this
+     * until Tomcat fixes that bug.
+     *
+     * For myfaces/jsf, the spec dd may have been updated with a listener.  So, we need to write it out again whether or not
+     * there originally was one. This might not work on windows due to file locking problems.
+     */
+    private void rewriteWebXml(WebModule webModule) throws DeploymentException {
+        EARContext moduleContext = webModule.getEarContext();
+        WebAppType webApp = (WebAppType) webModule.getSpecDD();
+        if ((Boolean)webModule.getSharedContext().get(IS_JAVAEE)) {            
+            WebAppType shortWebApp = (WebAppType) webApp.copy();
+            shortWebApp.setEjbLocalRefArray(new EjbLocalRefType[0]);
+            shortWebApp.setEjbRefArray(new EjbRefType[0]);
+            shortWebApp.setEnvEntryArray(new EnvEntryType[0]);
+            shortWebApp.setMessageDestinationArray(new MessageDestinationType[0]);
+            shortWebApp.setMessageDestinationRefArray(new MessageDestinationRefType[0]);
+            shortWebApp.setPersistenceContextRefArray(new PersistenceContextRefType[0]);
+            shortWebApp.setPersistenceUnitRefArray(new PersistenceUnitRefType[0]);
+            shortWebApp.setPostConstructArray(new LifecycleCallbackType[0]);
+            shortWebApp.setPreDestroyArray(new LifecycleCallbackType[0]);
+            shortWebApp.setResourceEnvRefArray(new ResourceEnvRefType[0]);
+            shortWebApp.setResourceRefArray(new ResourceRefType[0]);
+            shortWebApp.setServiceRefArray(new ServiceRefType[0]);
+            // TODO Tomcat will fail web services tck tests if the following security settings are set in shortWebApp
+            // need to figure out why...
+            //One clue is that without this stuff tomcat does not install an authenticator.... so there's no security
+//             shortWebApp.setSecurityConstraintArray(new SecurityConstraintType[0]);
+//             shortWebApp.setSecurityRoleArray(new SecurityRoleType[0]);
+            File webXml = new File(moduleContext.getBaseDir(), "/WEB-INF/web.xml");
+            File inPlaceDir = moduleContext.getInPlaceConfigurationDir();
+            if (inPlaceDir != null) {
+                webXml = new File(inPlaceDir, "/WEB-INF/web.xml");
+            }
+//    boolean webXmlExists = (inPlaceDir != null && new File(inPlaceDir,"/WEB-INF/web.xml").exists()) || webXml.exists();
+//    if (!webXmlExists) {
+            webXml.getParentFile().mkdirs();
+            try {
+                FileWriter outFile = new FileWriter(webXml);
+
+                XmlOptions opts = new XmlOptions();
+                opts.setSaveAggressiveNamespaces();
+                opts.setSaveSyntheticDocumentElement(WebAppDocument.type.getDocumentElementName());
+                opts.setUseDefaultNamespace();
+                opts.setSavePrettyPrint();
+
+//                WebAppDocument doc = WebAppDocument.Factory.newInstance();
+//                doc.setWebApp(webApp);
+
+                outFile.write(shortWebApp.xmlText(opts));
+                outFile.flush();
+                outFile.close();
+            } catch (Exception e) {
+                throw new DeploymentException(e);
+            }
+//    }
+        }
+    }
+    
     public String getSchemaNamespace() {
         return TOMCAT_NAMESPACE;
     }
