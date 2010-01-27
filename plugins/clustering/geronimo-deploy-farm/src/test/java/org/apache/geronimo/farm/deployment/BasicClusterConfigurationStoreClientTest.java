@@ -40,6 +40,7 @@ import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 
@@ -66,6 +67,7 @@ public class BasicClusterConfigurationStoreClientTest extends RMockTestCase {
     private AbstractNameQuery clusterConfigurationStoreNameQuery;
     private Artifact configId;
     private ConfigurationData configurationData;
+    private ConfigurationManager configurationManager;
 
     @Override
     protected void setUp() throws Exception {
@@ -73,7 +75,7 @@ public class BasicClusterConfigurationStoreClientTest extends RMockTestCase {
         configurationData = new ConfigurationData(new Environment(configId), new Jsr77Naming());
         File configurationDir = new File("configurationDir");
         configurationData.setConfigurationDir(configurationDir);
-
+        configurationManager = (ConfigurationManager) mock(ConfigurationManager.class);
         clusterInfo = (ClusterInfo) mock(ClusterInfo.class);
 
         Collection<NodeInfo> nodeInfos = new ArrayList<NodeInfo>();
@@ -228,11 +230,11 @@ public class BasicClusterConfigurationStoreClientTest extends RMockTestCase {
     private void recordUninstall(Kernel kernel) throws GBeanNotFoundException, NoSuchOperationException, Exception {
         AbstractName storeName = new AbstractName(configId, Collections.singletonMap("name", "Store"));
         Set<AbstractName> storeNames = Collections.singleton(storeName);
-
-        kernel.listGBeans(clusterConfigurationStoreNameQuery);
-        modify().returnValue(storeNames);
-        
-        kernel.invoke(storeName, "uninstall", new Object[] {configId}, new String[] {Artifact.class.getName()});
+        kernel.getGBean(ConfigurationManager.class);
+        modify().returnValue(configurationManager);
+        configurationManager.stopConfiguration(configId);
+        configurationManager.unloadConfiguration(configId);
+        configurationManager.uninstallConfiguration(configId);
     }
     
     private void recordInstall(Kernel kernel, File packedDir) throws Exception {
