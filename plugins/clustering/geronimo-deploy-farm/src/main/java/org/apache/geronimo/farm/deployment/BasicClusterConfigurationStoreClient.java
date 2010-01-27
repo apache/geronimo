@@ -39,6 +39,8 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -128,12 +130,11 @@ public class BasicClusterConfigurationStoreClient implements ClusterConfiguratio
 
     protected void uninstall(NodeInfo nodeInfo, Artifact configId) throws IOException {
         Kernel kernel = nodeInfo.newKernel();
-        
-        AbstractName clusterConfigurationStoreName = searchClusterConfigurationStore(kernel);
-        
-        Object[] params = new Object[] {configId};
         try {
-            kernel.invoke(clusterConfigurationStoreName, "uninstall", params, METHOD_SIGNATURE_UNINSTALL);
+        	ConfigurationManager configurationManager = (ConfigurationManager) kernel.getGBean(ConfigurationManager.class);
+            configurationManager.stopConfiguration(configId);
+            configurationManager.unloadConfiguration(configId);
+            configurationManager.uninstallConfiguration(configId);
         } catch (Exception e) {
             throw (IOException) new IOException("See nested").initCause(e);
         }
