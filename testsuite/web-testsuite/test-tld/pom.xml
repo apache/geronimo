@@ -23,42 +23,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
+    
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>testsuite</artifactId>
+        <artifactId>web-testsuite</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-
-    <artifactId>web-testsuite</artifactId>
-    <name>Geronimo TestSuite :: Web-tier Testsuite</name>
+    
+    <artifactId>test-tld</artifactId>
+    <name>Geronimo TestSuite :: Web Testsuite :: Test TLD</name>
     <packaging>pom</packaging>
-
-    <description>
-        Geronimo web tier testsuite.
-        Use this testsuite to test the webcontainer.
-         - Servlet 2.5
-         - JSP 2.1
-         - JSP Debug
-         - JSF
-         - JSTL
-    </description>
-
-    <profiles>
-        <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
-            <modules>
-                <module>test-2.1-jsps</module>
-                <module>test-2.5-servlets</module>
-                <module>test-jetty</module>
-                <module>test-myfaces</module>
-                <module>test-tomcat</module>
-                <module>test-web-forward</module>
-                <module>test-web-references</module>
-                <module>test-tld</module>
-            </modules>
-        </profile>
-    </profiles>
+    
+    <modules>
+        <module>test-tld-jar</module>
+        <module>test-tld-war</module>
+    </modules>
 
 </project>
