@@ -22,9 +22,10 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.jaxws.builder.EJBWebServiceFinder;
-import org.apache.geronimo.jaxws.wsdl.WsdlGenerator;
+import org.apache.geronimo.jaxws.ejb.builder.EJBWebServiceFinder;
+import org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.cxf.builder.CXFBuilder;
 
 public class CXFEJBBuilder extends CXFBuilder {
 

@@ -56,13 +56,15 @@
             <version>${version}</version>
             <scope>runtime</scope>
        </dependency>
-
+       
+<!-- why need this? --
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jaxws-sun-tools</artifactId>
             <type>car</type>
             <version>${version}</version>
         </dependency>
+-->
     </dependencies>
     
     <build>

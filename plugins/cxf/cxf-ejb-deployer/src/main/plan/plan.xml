@@ -20,7 +20,7 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="CXFEJBBuilder" class="org.apache.geronimo.cxf.builder.CXFEJBBuilder">
+    <gbean name="CXFEJBBuilder" class="org.apache.geronimo.cxf.ejb.builder.CXFEJBBuilder">
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
@@ -42,7 +42,7 @@
         </references>
     </gbean>
 
-    <gbean name="CXFModuleBuilderExtension" class="org.apache.geronimo.jaxws.builder.JAXWSEJBModuleBuilderExtension">
+    <gbean name="CXFModuleBuilderExtension" class="org.apache.geronimo.jaxws.ejb.builder.JAXWSEJBModuleBuilderExtension">
         <reference name="WebServiceBuilder">
             <name>CXFEJBBuilder</name>
         </reference>

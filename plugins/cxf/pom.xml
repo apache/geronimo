@@ -41,13 +41,13 @@
         <module>cxf-deployer</module>
         <module>cxf-ejb</module>
         <module>cxf-ejb-deployer</module>
-        <module>cxf-jaxws-tools</module>
-        <module>cxf-tools</module>
+        <!--<module>cxf-jaxws-tools</module>-->
+        <!--<module>cxf-tools</module>-->
         <module>geronimo-cxf</module>
         <module>geronimo-cxf-builder</module>
         <module>geronimo-cxf-ejb</module>
         <module>geronimo-cxf-ejb-builder</module>
-        <module>geronimo-cxf-tools</module>
+        <!--<module>geronimo-cxf-tools</module>-->
     </modules>
 
     <dependencyManagement>
@@ -276,10 +276,6 @@
                     <exclusion>
                         <groupId>logkit</groupId>
                         <artifactId>logkit</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>servlet-api</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>avalon-framework</groupId>

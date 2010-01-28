@@ -52,8 +52,8 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
-import org.apache.geronimo.jaxws.wsdl.WsdlGenerator;
-import org.apache.geronimo.jaxws.wsdl.WsdlGeneratorOptions;
+import org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator;
+import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorOptions;
 import org.apache.geronimo.kernel.repository.Environment;
 
 public class CXFBuilder extends JAXWSServiceBuilder {

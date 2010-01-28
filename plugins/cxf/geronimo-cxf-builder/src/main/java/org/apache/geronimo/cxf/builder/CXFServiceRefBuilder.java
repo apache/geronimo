@@ -37,6 +37,7 @@ import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
 import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +51,11 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
     }
        
     public Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef, 
-                                Module module, ClassLoader cl, Class serviceInterface, 
+                                Module module, Bundle bundle, Class serviceInterface, 
                                 QName serviceQName, URI wsdlURI, Class serviceReference, 
                                 Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException {
         EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterface,
-                gerServiceRef, portComponentRefMap, module, cl, 
+                gerServiceRef, portComponentRefMap, module, bundle, 
                 wsdlURI, serviceQName);
         builder.build();
 

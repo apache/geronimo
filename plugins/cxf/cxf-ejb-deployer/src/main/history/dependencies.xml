@@ -11,7 +11,7 @@
         <artifactId>cxf-deployer</artifactId>
         <type>car</type>
     </dependency>
-    <dependency start="true">
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>cxf-ejb</artifactId>
         <type>car</type>
