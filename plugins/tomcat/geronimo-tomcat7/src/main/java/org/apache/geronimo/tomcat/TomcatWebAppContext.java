@@ -118,7 +118,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Map webServices;
     private final String objectName;
     private final String originalSpecDD;
-    private final URL configurationBaseURL;
     private final String modulePath;
     private final Holder holder;
     private final RuntimeCustomizer contextCustomizer;
@@ -140,7 +139,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
             @ParamAttribute(name = "contextPath") String contextPath,
             @ParamAttribute(name = "deploymentDescriptor") String originalSpecDD,
-            @ParamAttribute(name = "configurationBaseUrl") URL configurationBaseUrl,
             @ParamAttribute(name = "modulePath") String modulePath,
             @ParamAttribute(name = "securityHolder") SecurityHolder securityHolder,
             @ParamAttribute(name = "virtualServer") String virtualServer,
@@ -171,7 +169,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             throws Exception {
         assert classLoader != null;
         assert bundle != null;
-        assert configurationBaseUrl != null;
         assert modulePath != null;
         assert transactionManager != null;
         assert trackedConnectionAssociator != null;
@@ -215,8 +212,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             securityHolder.setConfigurationFactory(configurationFactory);
         }
 
-
-        this.configurationBaseURL = configurationBaseUrl;
 
         this.holder = holder == null ? new Holder() : holder;
         this.contextCustomizer = contextCustomizer;
@@ -333,10 +328,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     public boolean isEventProvider() {
         return true;
-    }
-
-    public URL getWARDirectory() {
-        return configurationBaseURL;
     }
 
     public String getWARName() {

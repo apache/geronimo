@@ -40,13 +40,6 @@ public interface WebModule extends org.apache.geronimo.management.WebModule {
      * user.  This is not guaranteed to be anything in particular.
      */
     public String getWARName();
-
-    /**
-     * Gets the location of the web module "source" (typically an exploded
-     * directory).  This is where e.g. a web server would look for static
-     * content or a user would copy updated JSPs to.
-     */
-    public URL getWARDirectory();
     
     /**
      * Get the first displayName value set in the web.xml

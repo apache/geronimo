@@ -89,7 +89,6 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,
                 "/test",
                 null,
-                locationURI.toURL(),
                 "",
                 securityHolder,
                 null,

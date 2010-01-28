@@ -58,14 +58,14 @@ public class WebAppHandler extends BaseApacheHandler {
                 if (app.isRunning()) {
                     WebModule web = (WebModule) PortletManager.getManagedBean(request, app.getModuleBeanName());
                     data.setContextRoot(web.getContextPath());
-                    String path;
-                    if(web.getWARDirectory().getProtocol().equals("file")) {
-                        path = web.getWARDirectory().getPath();
-                    } else {
-                        path = "WARMustBeUnpacked";
-                    }
+//                    String path;
+//                    if(web.getWARDirectory().getProtocol().equals("file")) {
+//                        path = web.getWARDirectory().getPath();
+//                    } else {
+//                        path = "WARMustBeUnpacked";
+//                    }
 
-                    data.setWebAppDir(path);
+//                    data.setWebAppDir(path);
                 }
                 list.add(data);
             }

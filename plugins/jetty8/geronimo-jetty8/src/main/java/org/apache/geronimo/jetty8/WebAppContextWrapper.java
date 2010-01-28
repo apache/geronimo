@@ -83,7 +83,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
     private final ClassLoader webClassLoader;
     private final JettyContainer jettyContainer;
 
-    private final URL configurationBaseURL;
     private String displayName;
 
     private final String objectName;
@@ -102,7 +101,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
                                 @ParamAttribute(name = "modulePath") String modulePath,
                                 @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
                                 @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
-                                @ParamAttribute(name = "configurationBaseUrl") URL configurationBaseUrl,
                                 @ParamAttribute(name = "workDir") String workDir,
                                 @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
                                 @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
@@ -140,7 +138,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
         assert contextSource != null;
         assert classLoader != null;
-        assert configurationBaseUrl != null;
         assert trackedConnectionAssociator != null;
         assert jettyContainer != null;
         if (contextPath == null || !contextPath.startsWith("/")) {
@@ -213,19 +210,12 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
             ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
             verifyObjectName(myObjectName);
         }
-        this.configurationBaseURL = configurationBaseUrl;
         this.jettyContainer = jettyContainer;
         this.originalSpecDD = originalSpecDD;
 
         //DONT install the jetty TLD configuration as we find and create all the listeners ourselves
         webAppContext.setConfigurationClasses(new String[]{});
 
-        String webAppRoot = null;
-        if (configurationBaseUrl != null) {
-            webAppRoot = configurationBaseUrl.toString();
-            webAppContext.setResourceBase(webAppRoot);
-        }
-        webAppContext.setWar(webAppRoot);
         webClassLoader = classLoader;
         webAppContext.setClassLoader(webClassLoader);
 
@@ -268,7 +258,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
     }
 
     public URL getWARDirectory() {
-        return configurationBaseURL;
+        throw new RuntimeException("don't call this");
     }
 
     public String getWARName() {

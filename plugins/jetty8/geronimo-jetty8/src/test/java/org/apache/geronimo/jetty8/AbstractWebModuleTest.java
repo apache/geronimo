@@ -152,7 +152,6 @@ public class AbstractWebModuleTest extends TestSupport {
                 null,
                 cl,
                 bundle,
-                new URL(configurationBaseURL, uriString),
                 null, null,
                 null,
                 "context",
