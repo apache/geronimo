@@ -18,7 +18,6 @@
 package org.apache.geronimo.myfaces.deployment;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +30,7 @@ import java.util.jar.JarFile;
 import javax.faces.webapp.FacesServlet;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -49,10 +49,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.myfaces.LifecycleProviderGBean;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.javaee.FacesConfigDocument;
@@ -95,9 +93,14 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        mergeEnvironment(module);
     }
     
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        mergeEnvironment(module);
+    }
+
+    private void mergeEnvironment(Module module) {
         if (!(module instanceof WebModule)) {
             //not a web module, nothing to do
             return;
@@ -108,9 +111,9 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             return;
         }
 
-        EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
+        EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);  
     }
-
+    
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
     }
 
@@ -221,23 +224,20 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         log.debug("getFacesClasses( " + webApp.toString() + "," + '\n' +
                            (webModule != null ? webModule.getName() : null) + " ): Entry");
 
+        Deployable deployable = webModule.getDeployable();
         Bundle bundle = webModule.getEarContext().getDeploymentBundle();
 
         // 1. META-INF/faces-config.xml
         List<Class> classes = new ArrayList<Class>();
-        try {
-            URL url = JarUtils.createJarURL(webModule.getModuleFile(), "META-INF/faces-config.xml");
+        URL url = deployable.getResource("META-INF/faces-config.xml");
+        if (url != null) {
             parseConfigFile(url, bundle, classes);
-        } catch (MalformedURLException mfe) {
-            throw new DeploymentException("Could not locate META-INF/faces-config.xml" + mfe.getMessage(), mfe);
         }
 
         // 2. WEB-INF/faces-config.xml
-        try {
-            URL url = JarUtils.createJarURL(webModule.getModuleFile(), "WEB-INF/faces-config.xml");
+        url = deployable.getResource("WEB-INF/faces-config.xml");
+        if (url != null) {
             parseConfigFile(url, bundle, classes);
-        } catch (MalformedURLException mfe) {
-            throw new DeploymentException("Could not locate WEB-INF/faces-config.xml" + mfe.getMessage(), mfe);
         }
 
         // 3. javax.faces.CONFIG_FILES
@@ -252,11 +252,11 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                         if (configfile.startsWith("/")) {
                             configfile = configfile.substring(1);
                         }
-                        try {
-                            URL url = JarUtils.createJarURL(webModule.getModuleFile(), configfile);
+                        url = deployable.getResource(configfile);
+                        if (url == null) {
+                            throw new DeploymentException("Could not locate config file " + configfile);
+                        } else {
                             parseConfigFile(url, bundle, classes);
-                        } catch (MalformedURLException mfe) {
-                            throw new DeploymentException("Could not locate config file " + configfile + ", " + mfe.getMessage(), mfe);
                         }
                     }
                 }
@@ -295,7 +295,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             throw new DeploymentException("Could not parse alleged faces-config.xml at " + url.toString(), xmle);
         }
         catch (IOException ioe) {
-            //config file does not exist
+            throw new DeploymentException("Error reading jsf configuration file " + url, ioe);
         }
 
         log.debug("parseConfigFile(): Exit");
