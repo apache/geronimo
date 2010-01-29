@@ -108,7 +108,7 @@
         <!-- Copy over jar files -->
         <fileSet>
             <directory>target/dependencies</directory>
-            <outputDirectory>contents/lib/</outputDirectory>
+            <outputDirectory>contents</outputDirectory>
         </fileSet>
 
     </fileSets>
