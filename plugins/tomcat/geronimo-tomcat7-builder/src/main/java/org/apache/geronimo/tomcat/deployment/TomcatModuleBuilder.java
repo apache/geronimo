@@ -21,8 +21,6 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
@@ -61,7 +59,6 @@ import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -87,24 +84,12 @@ import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatAuthenticationType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
-import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
-import org.apache.geronimo.xbeans.javaee.EjbRefType;
-import org.apache.geronimo.xbeans.javaee.EnvEntryType;
-import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
-import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
-import org.apache.geronimo.xbeans.javaee.MessageDestinationType;
-import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
-import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
-import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
-import org.apache.geronimo.xbeans.javaee.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -583,83 +568,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 module.setOriginalSpecDD(module.getSpecDD().toString());
             }
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
-
-            /*
-             * Not sure if this is still needed. Disabled for now as it does not work
-             * with Bundle-based deployments.
-             */
-            // rewriteWebXml(webModule);
             
             module.addAsChildConfiguration();
         } catch (DeploymentException de) {
             throw de;
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize GBean for web app " + module.getName(), e);
-        }
-    }
-
-    /**
-     * This next bit of code is kind of a kludge to get Tomcat to get a default
-     * web.xml if one does not exist.  This is primarily for jaxws.  This code is
-     * necessary because Tomcat either has a bug or there is a problem dynamically
-     * adding a wrapper to an already running context.  Although the wrapper
-     * can be added, the url mappings do not get picked up at the proper level
-     * and therefore Tomcat cannot dispatch the request.  Hence, creating and
-     * writing out a web.xml to the deployed location is the only way around this
-     * until Tomcat fixes that bug.
-     *
-     * For myfaces/jsf, the spec dd may have been updated with a listener.  So, we need to write it out again whether or not
-     * there originally was one. This might not work on windows due to file locking problems.
-     */
-    private void rewriteWebXml(WebModule webModule) throws DeploymentException {
-        EARContext moduleContext = webModule.getEarContext();
-        WebAppType webApp = (WebAppType) webModule.getSpecDD();
-        if ((Boolean)webModule.getSharedContext().get(IS_JAVAEE)) {            
-            WebAppType shortWebApp = (WebAppType) webApp.copy();
-            shortWebApp.setEjbLocalRefArray(new EjbLocalRefType[0]);
-            shortWebApp.setEjbRefArray(new EjbRefType[0]);
-            shortWebApp.setEnvEntryArray(new EnvEntryType[0]);
-            shortWebApp.setMessageDestinationArray(new MessageDestinationType[0]);
-            shortWebApp.setMessageDestinationRefArray(new MessageDestinationRefType[0]);
-            shortWebApp.setPersistenceContextRefArray(new PersistenceContextRefType[0]);
-            shortWebApp.setPersistenceUnitRefArray(new PersistenceUnitRefType[0]);
-            shortWebApp.setPostConstructArray(new LifecycleCallbackType[0]);
-            shortWebApp.setPreDestroyArray(new LifecycleCallbackType[0]);
-            shortWebApp.setResourceEnvRefArray(new ResourceEnvRefType[0]);
-            shortWebApp.setResourceRefArray(new ResourceRefType[0]);
-            shortWebApp.setServiceRefArray(new ServiceRefType[0]);
-            // TODO Tomcat will fail web services tck tests if the following security settings are set in shortWebApp
-            // need to figure out why...
-            //One clue is that without this stuff tomcat does not install an authenticator.... so there's no security
-//             shortWebApp.setSecurityConstraintArray(new SecurityConstraintType[0]);
-//             shortWebApp.setSecurityRoleArray(new SecurityRoleType[0]);
-            File webXml = new File(moduleContext.getBaseDir(), "/WEB-INF/web.xml");
-            File inPlaceDir = moduleContext.getInPlaceConfigurationDir();
-            if (inPlaceDir != null) {
-                webXml = new File(inPlaceDir, "/WEB-INF/web.xml");
-            }
-//    boolean webXmlExists = (inPlaceDir != null && new File(inPlaceDir,"/WEB-INF/web.xml").exists()) || webXml.exists();
-//    if (!webXmlExists) {
-            webXml.getParentFile().mkdirs();
-            try {
-                FileWriter outFile = new FileWriter(webXml);
-
-                XmlOptions opts = new XmlOptions();
-                opts.setSaveAggressiveNamespaces();
-                opts.setSaveSyntheticDocumentElement(WebAppDocument.type.getDocumentElementName());
-                opts.setUseDefaultNamespace();
-                opts.setSavePrettyPrint();
-
-//                WebAppDocument doc = WebAppDocument.Factory.newInstance();
-//                doc.setWebApp(webApp);
-
-                outFile.write(shortWebApp.xmlText(opts));
-                outFile.flush();
-                outFile.close();
-            } catch (Exception e) {
-                throw new DeploymentException(e);
-            }
-//    }
         }
     }
     

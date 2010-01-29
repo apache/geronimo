@@ -17,16 +17,33 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.tomcat;
 
-import org.apache.catalina.deploy.SecurityConstraint;
+import java.io.StringReader;
+
 import org.apache.catalina.deploy.LoginConfig;
+import org.xml.sax.InputSource;
 
 /**
  * @version $Rev$ $Date$
  */
 public class WebContextConfig extends BaseGeronimoContextConfig {
+    
+    private String deploymentDescriptor;
+    
+    public WebContextConfig(String deploymentDescriptor) {
+        this.deploymentDescriptor = deploymentDescriptor;
+    }
+    
+    @Override
+    protected InputSource getContextWebXmlSource() {
+        if (deploymentDescriptor == null) {
+            return super.getContextWebXmlSource();
+        } else {
+            return new InputSource(new StringReader(deploymentDescriptor));
+        }
+    }
+    
     @Override
     protected void authenticatorConfig() {
         if (!(context instanceof GeronimoStandardContext)) {

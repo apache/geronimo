@@ -168,7 +168,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             Context defaultContext;
             ObjectName objName = objectName == null ? null : ObjectName.getInstance(objectName);
             for (Container host : hosts) {
-                defaultContext = createContext("", classLoader);
+                defaultContext = createContext("", classLoader, null);
                 if (objName != null) {
                     defaultContext.setName(objName.getKeyProperty(NameFactory.J2EE_NAME));
                 }
@@ -272,7 +272,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * @see org.apache.catalina.Host
      */
     public void addContext(TomcatContext contextInfo) throws Exception {
-        Context context = createContext(contextInfo.getContextPath(), contextInfo.getClassLoader());
+        Context context = createContext(contextInfo.getContextPath(), contextInfo.getClassLoader(), contextInfo.getDeploymentDescriptor());
         //Was a virtual server defined?
         String virtualServer = contextInfo.getVirtualServer();
         if (virtualServer == null) {
@@ -431,7 +431,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         webServices.remove(contextPath);
     }
 
-    public Context createContext(String path, ClassLoader cl) {
+    public Context createContext(String path, ClassLoader cl, String deploymentDescriptor) {
 
         if( log.isDebugEnabled() )
             log.debug("Creating context '" + path);
@@ -443,7 +443,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         if (cl != null)
             context.setParentClassLoader(cl);
 
-        ContextConfig config = new WebContextConfig();
+        ContextConfig config = new WebContextConfig(deploymentDescriptor);
         context.addLifecycleListener(config);
 
         context.setDelegate(true);

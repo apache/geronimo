@@ -88,4 +88,6 @@ public interface TomcatContext {
     Bundle getBundle();
 
     String getModulePath();
+    
+    String getDeploymentDescriptor();
 }
