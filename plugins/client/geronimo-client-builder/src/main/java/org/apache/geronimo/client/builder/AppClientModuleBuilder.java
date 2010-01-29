@@ -109,6 +109,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     private static final String LINE_SEP = System.getProperty("line.separator");
     private static final String GERAPPCLIENT_NAMESPACE = GerApplicationClientDocument.type.getDocumentElementName().getNamespaceURI();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-client", "http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1", "http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0");
@@ -230,7 +231,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return null;
     }
-    
+
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, "app-client", null, null, null, naming, idBuilder);
     }
@@ -550,15 +551,11 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     null,
                     clientEnvironment,
                     ConfigurationModuleType.CAR,
-                    earContext.getNaming(),
-                    earContext.getConfigurationManager(),
-                    null, // FIXME: bundle context for app client module?
-                    null, // no server name needed on client
-                    appClientModule.getAppClientName(),
+                    module.getModuleName(),
                     transactionManagerObjectName,
                     connectionTrackerObjectName,
                     corbaGBeanObjectName,
-                    earContext.getMessageDestinations());
+                    earContext);
             appClientModule.setEarContext(appClientDeploymentContext);
             appClientModule.setRootEarContext(appClientDeploymentContext);
 

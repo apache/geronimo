@@ -100,13 +100,30 @@ public class EARContext extends DeploymentContext {
         this.messageDestinations = messageDestinations;
     }
 
-    public EARContext(File baseDir, File inPlaceConfigurationDir, Environment environment, ConfigurationModuleType moduleType, AbstractName baseName, EARContext parent) throws DeploymentException {
+    public EARContext(File baseDir,
+                      File inPlaceConfigurationDir,
+                      Environment environment,
+                      ConfigurationModuleType moduleType,
+                      AbstractName baseName,
+                      EARContext parent) throws DeploymentException {
+        this(baseDir, inPlaceConfigurationDir, environment, moduleType, baseName, parent.getTransactionManagerName(), parent.getConnectionTrackerName(), parent.getCORBAGBeanName(), parent);
+    }
+
+    public EARContext(File baseDir,
+                      File inPlaceConfigurationDir,
+                      Environment environment,
+                      ConfigurationModuleType moduleType,
+                      AbstractName baseName,
+                      AbstractNameQuery transactionManagerName,
+                      AbstractNameQuery connectionTrackerName,
+                      AbstractNameQuery corbaGBeanName,
+                      EARContext parent) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, parent.getNaming(), parent.getConfigurationManager(), parent.getBundleContext());
         this.serverName = parent.getServerName();
 
-        this.transactionManagerObjectName = parent.getTransactionManagerName();
-        this.connectionTrackerObjectName = parent.getConnectionTrackerName();
-        this.corbaGBeanObjectName = parent.getCORBAGBeanName();
+        this.transactionManagerObjectName = transactionManagerName;
+        this.connectionTrackerObjectName = connectionTrackerName;
+        this.corbaGBeanObjectName = corbaGBeanName;
         this.messageDestinations  = new HashMap();
     }
 

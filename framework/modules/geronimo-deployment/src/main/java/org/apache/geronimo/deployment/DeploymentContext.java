@@ -133,6 +133,9 @@ public class DeploymentContext {
         if (!baseDir.exists() && !baseDir.mkdirs()) {
             throw new DeploymentException("Could not create directory for deployment context assembly: " + baseDir);
         }
+        if (bundleContext == null) {
+            throw new NullPointerException("no bundle context");
+        }
         
         this.baseDir = baseDir; 
         this.inPlaceConfigurationDir = inPlaceConfigurationDir;
@@ -160,6 +163,9 @@ public class DeploymentContext {
                                 ConfigurationManager configurationManager, 
                                 ResourceContext resourceContext,
                                 BundleContext bundleContext) throws DeploymentException {                
+        if (bundleContext == null) {
+            throw new NullPointerException("no bundle context");
+        }
         this.baseDir = baseDir; 
         this.inPlaceConfigurationDir = inPlaceConfigurationDir;
         this.moduleName = moduleName;
