@@ -82,6 +82,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -393,6 +394,19 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return resolutionUri;
     }
 
+    protected String getSpecDDAsString(WebModule module) {
+        StringWriter writer = new StringWriter();    
+        XmlOptions options = new XmlOptions();
+        QName webQName = new QName("http://java.sun.com/xml/ns/javaee", "web-app");
+        options.setSaveSyntheticDocumentElement(webQName);
+        try {
+            module.getSpecDD().save(writer, options);
+        } catch (IOException e) {
+            // ignore
+        }
+        return writer.toString();
+    }
+    
     protected WebAppDocument convertToServletSchema(XmlObject xmlObject) throws XmlException {
 
         String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd";

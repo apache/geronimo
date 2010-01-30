@@ -87,7 +87,6 @@ import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
-import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -103,7 +102,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     static final String ROLE_MAPPER_DATA_NAME = "roleMapperDataName";
 
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
-    private static final String IS_JAVAEE = "IS_JAVAEE";
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
@@ -160,18 +158,15 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         
         String specDD = null;
         WebAppType webApp = null;
-        Boolean isJavaee;
         
         URL specDDUrl = bundle.getEntry("WEB-INF/web.xml");
         if (specDDUrl == null) {
             webApp = WebAppType.Factory.newInstance();
-            isJavaee = true;
         } else {
             try {
                 specDD = JarUtils.readAll(specDDUrl);
 
                 XmlObject parsed = XmlBeansUtil.parse(specDD);
-                isJavaee = "http://java.sun.com/xml/ns/javaee".equals(getRootNamespace(parsed));
                 
                 WebAppDocument webAppDoc = convertToServletSchema(parsed);
                 webApp = webAppDoc.getWebApp();
@@ -215,7 +210,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, bundle, naming, idBuilder);
         }
-        module.getSharedContext().put(IS_JAVAEE, isJavaee);
         return module;
     }
     
@@ -227,7 +221,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         // parse the spec dd
         String specDD = null;
         WebAppType webApp = null;
-        Boolean isJavaee;
         try {
             if (specDDUrl == null) {
                 specDDUrl = JarUtils.createJarURL(moduleFile, "WEB-INF/web.xml");
@@ -239,8 +232,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
             // we found web.xml, if it won't parse that's an error.
             XmlObject parsed = XmlBeansUtil.parse(specDD);
-            //Dont save updated xml if it isn't javaee
-            isJavaee = "http://java.sun.com/xml/ns/javaee".equals(getRootNamespace(parsed));
 
             WebAppDocument webAppDoc = convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
@@ -255,7 +246,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 //not for us
                 return null;
             }
-            isJavaee = true;
             //else ignore as jee5 allows optional spec dd for .war's
         }
 
@@ -297,21 +287,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
         }
-        module.getSharedContext().put(IS_JAVAEE, isJavaee);
         return module;
     }
 
-    private static String getRootNamespace(XmlObject object) {
-        XmlCursor cursor = object.newCursor();
-        try {
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            return cursor.getName().getNamespaceURI();
-        } finally {
-            cursor.dispose();
-        }
-    }
-    
     private String getContextRoot(TomcatWebAppType tomcatWebApp, String contextRoot, WebAppType webApp, boolean standAlone, JarFile moduleFile, String targetPath) {
         //If we have a context root, override everything
         if (tomcatWebApp.isSetContextRoot()) {
@@ -565,7 +543,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             //not truly metadata complete until MBEs have run
             if (!webApp.getMetadataComplete()) {
                 webApp.setMetadataComplete(true);
-                module.setOriginalSpecDD(module.getSpecDD().toString());
+                module.setOriginalSpecDD(getSpecDDAsString(webModule));
             }
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             

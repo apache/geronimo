@@ -571,7 +571,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             //not truly metadata complete until MBEs have run
             if (!webApp.getMetadataComplete()) {
                 webApp.setMetadataComplete(true);
-                module.setOriginalSpecDD(module.getSpecDD().toString());
+                module.setOriginalSpecDD(getSpecDDAsString(webModule));
             }
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
 
