@@ -95,6 +95,7 @@ public class GeronimoStandardContext extends StandardContext {
     private ServiceRegistration serviceRegistration;
 
     public GeronimoStandardContext() {
+        setXmlNamespaceAware(true);
     }
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {

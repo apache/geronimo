@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.geronimo.tomcat;
 
 import java.io.File;
@@ -27,7 +26,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Enumeration;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 import java.net.URL;
 
@@ -55,12 +53,9 @@ import org.osgi.framework.Bundle;
 /**
  * Directory Context implementation helper class.
  *
- * @author Remy Maucherat
  * @version $Revision$ $Date$
  */
-
 public class BundleDirContext implements DirContext {
-
 
     private final Bundle bundle;
     private final String path;
@@ -69,22 +64,6 @@ public class BundleDirContext implements DirContext {
         this.bundle = bundle;
         this.path = path;
     }
-
-    /**
-     * Builds a base directory context.
-     */
-//    public BundleDirContext() {
-//        this.env = new Hashtable<String,Object>();
-//    }
-//
-//
-//    /**
-//     * Builds a base directory context using the given environment.
-//     */
-//    public BundleDirContext(Hashtable<String,Object> env) {
-//        this.env = env;
-//    }
-
 
     // ----------------------------------------------------- Instance Variables
 
@@ -145,8 +124,7 @@ public class BundleDirContext implements DirContext {
 
 
     // ------------------------------------------------------------- Properties
-
-
+    
     /**
      * Add an alias.
      */
@@ -567,11 +545,13 @@ public class BundleDirContext implements DirContext {
      */
     public NamingEnumeration<NameClassPair> list(String name)
             throws NamingException {
-        throw new OperationNotSupportedException();
-//        String fullSearchPath = path + name;
-//        //TODO figure out entries
-//        Enumeration entries = bundle.findEntries(fullSearchPath, "", true);
-//        return new NameClassPairEnumeration(entries);
+        name = getName(name);
+        Enumeration entries = bundle.getEntryPaths(name);
+        if (entries == null) {
+            throw new NamingException("Resource not found: " + name);
+        } else {
+            return new NameClassPairEnumeration(name, entries);
+        }
     }
 
 
@@ -605,11 +585,13 @@ public class BundleDirContext implements DirContext {
      */
     public NamingEnumeration<Binding> listBindings(String name)
             throws NamingException {
-        throw new OperationNotSupportedException();
-//        String fullSearchPath = path + name;
-//        //TODO figure out entries
-//        Enumeration entries = bundle.findEntries(fullSearchPath, "", true);
-//        return new BindingEnumeration(entries);
+        name = getName(name);
+        Enumeration entries = bundle.getEntryPaths(name);
+        if (entries == null) {
+            throw new NamingException("Resource not found: " + name);
+        } else {
+            return new BindingEnumeration(bundle, name, entries);
+        }
     }
 
 
@@ -1445,14 +1427,23 @@ public class BundleDirContext implements DirContext {
     }
 
     protected Object doLookup(String name) throws NamingException {
-        if (path != null) {
-            name = path + name;
-        }
+        name = getName(name);
+        // XXX: lookup on directory should return BundleDirContext?
         URL url = bundle.getEntry(name);
         if (url == null) {
             throw new NamingException(sm.getString("resources.notFound", name));
         }
         return new URLResource(url);
+    }
+    
+    private String getName(String name) {
+        if (name.startsWith("/")) {
+            name = name.substring(1);
+        }
+        if (path != null) {
+            name = path + name;
+        }
+        return name;
     }
 
 //    protected abstract String doGetRealPath(String name);
@@ -1483,63 +1474,102 @@ public class BundleDirContext implements DirContext {
         String aliasName;
     }
 
-    private static class NameClassPairEnumeration implements NamingEnumeration<NameClassPair> {
-        public NameClassPairEnumeration(Enumeration entries) {
-        }
-
-
-        @Override
-        public NameClassPair next() throws NamingException {
-            return null;
-        }
-
-        @Override
-        public boolean hasMore() throws NamingException {
-            return false;
-        }
-
-        @Override
-        public void close() throws NamingException {
-        }
-
-        @Override
-        public boolean hasMoreElements() {
-            return false;
-        }
-
-        @Override
-        public NameClassPair nextElement() {
-            return null;
+    private static String getBasePath(String name) {
+        if (name != null && !name.endsWith("/")) {
+            return name + "/";
+        } else {
+            return name;
         }
     }
-    private static class BindingEnumeration implements NamingEnumeration<Binding> {
-        public BindingEnumeration(Enumeration entries) {
+    
+    private static class NameClassPairEnumeration implements NamingEnumeration<NameClassPair> {
+        
+        private String basePath;
+        private Enumeration entries;
+        
+        public NameClassPairEnumeration(String basePath, Enumeration entries) {
+            this.basePath = getBasePath(basePath);
+            this.entries = entries;
         }
 
-
-        @Override
-        public Binding next() throws NamingException {
-            return null;
+        public NameClassPair next() throws NamingException {
+            return nextElement();
         }
 
-        @Override
         public boolean hasMore() throws NamingException {
-            return false;
+            return hasMoreElements();
         }
 
-        @Override
         public void close() throws NamingException {
         }
 
-        @Override
         public boolean hasMoreElements() {
-            return false;
+            return (entries != null && entries.hasMoreElements());
         }
 
-        @Override
-        public Binding nextElement() {
-            return null;
+        public NameClassPair nextElement() {
+            String name = (String) entries.nextElement();
+            String relativeName = getRelativeName(name);
+            if (name.endsWith("/")) {
+                return new Binding(relativeName, DirContext.class.getName());
+            } else {
+                return new Binding(relativeName, String.class.getName());
+            }
         }
+            
+        private String getRelativeName(String name) {
+            if (basePath != null && name.startsWith(basePath)) {
+                return name.substring(basePath.length());
+            } else {
+                return name;
+            }
+        }
+    }
+    
+    private static class BindingEnumeration implements NamingEnumeration<Binding> {
+        
+        private Bundle bundle;
+        private String basePath;
+        private Enumeration entries;
+        
+        public BindingEnumeration(Bundle bundle, String basePath, Enumeration entries) {           
+            this.bundle = bundle;
+            this.basePath = getBasePath(basePath);
+            this.entries = entries;
+        }
+
+        public Binding next() throws NamingException {
+            return nextElement();
+        }
+
+        public boolean hasMore() throws NamingException {
+            return hasMoreElements();
+        }
+
+        public void close() throws NamingException {
+        }
+
+        public boolean hasMoreElements() {
+            return (entries != null && entries.hasMoreElements());
+        }
+
+        public Binding nextElement() {
+            String name = (String) entries.nextElement();
+            String relativeName = getRelativeName(name);
+            if (name.endsWith("/")) {
+                return new Binding(relativeName, new BundleDirContext(bundle, name));
+            } else {
+                return new Binding(relativeName, relativeName);
+            }
+        }
+        
+        private String getRelativeName(String name) {
+            if (basePath != null && name.startsWith(basePath)) {
+                return name.substring(basePath.length());
+            } else {
+                return name;
+            }
+        }        
     }
 
     private static class URLResource extends Resource {
