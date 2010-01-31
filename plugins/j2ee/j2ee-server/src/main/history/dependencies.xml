@@ -26,4 +26,9 @@
         <artifactId>geronimo-j2ee-connector_1.6_spec</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.howl</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>
