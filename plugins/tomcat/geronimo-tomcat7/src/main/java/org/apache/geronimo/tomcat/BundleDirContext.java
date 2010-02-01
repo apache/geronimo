@@ -1482,6 +1482,14 @@ public class BundleDirContext implements DirContext {
         }
     }
     
+    private static String removeSlash(String name) {
+        if (name.endsWith("/")) {
+            return name.substring(0, name.length() - 1);
+        } else {
+            return name;
+        }
+    }
+    
     private static class NameClassPairEnumeration implements NamingEnumeration<NameClassPair> {
         
         private String basePath;
@@ -1511,7 +1519,7 @@ public class BundleDirContext implements DirContext {
             String name = (String) entries.nextElement();
             String relativeName = getRelativeName(name);
             if (name.endsWith("/")) {
-                return new Binding(relativeName, DirContext.class.getName());
+                return new Binding(removeSlash(relativeName), DirContext.class.getName());
             } else {
                 return new Binding(relativeName, String.class.getName());
             }
@@ -1557,7 +1565,7 @@ public class BundleDirContext implements DirContext {
             String name = (String) entries.nextElement();
             String relativeName = getRelativeName(name);
             if (name.endsWith("/")) {
-                return new Binding(relativeName, new BundleDirContext(bundle, name));
+                return new Binding(removeSlash(relativeName), new BundleDirContext(bundle, name));
             } else {
                 return new Binding(relativeName, relativeName);
             }

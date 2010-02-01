@@ -23,6 +23,7 @@ package org.apache.geronimo.jetty8.handler;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Enumeration;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -127,11 +128,19 @@ public class GeronimoWebAppContext extends WebAppContext {
         if (modulePath != null) {
             uriInContext = modulePath + uriInContext;
         }
-        URL url = integrationContext.getBundle().getEntry(uriInContext);
-        if (url == null) {
-            return null;
+        if (uriInContext.endsWith("/")) {
+            Enumeration<String> paths = integrationContext.getBundle().getEntryPaths(uriInContext);
+            if (paths == null) {
+                return null;
+            }
+            return new BundlePathResource(uriInContext, paths);
+        } else {
+            URL url = integrationContext.getBundle().getEntry(uriInContext);
+            if (url == null) {
+                return null;
+            }
+            return new BasicURLResource(url);
         }
-        return new BasicURLResource(url);
     }
 
     private static class BasicURLResource extends URLResource {
