@@ -242,6 +242,7 @@ public class WebContainerExtender implements GBeanLifecycle {
             webApp.schedule();
             return webApp;
         } else {
+            eventDispatcher.deploying(bundle, contextPath);
             List<Long> bundleIds = new ArrayList<Long>();
             bundleIds.add(deployedApp.getBundle().getBundleId());
             eventDispatcher.collision(bundle, contextPath, bundleIds);
