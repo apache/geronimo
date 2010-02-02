@@ -51,7 +51,11 @@ public class MockBundle implements Bundle {
 
     public MockBundle(ClassLoader classLoader, String location, long id) {
         this.classLoader = classLoader;
-        this.location = location;
+        if (location != null && location.endsWith("/")) {
+            this.location = location.substring(0, location.length() - 1);
+        } else {
+            this.location = location;
+        }
         this.id = id;
     }
 
@@ -129,13 +133,17 @@ public class MockBundle implements Bundle {
     }
 
     public URL getEntry(String s) {
+        if (s.startsWith("/")) {
+            s = s.substring(1);   
+        }
         try {
-            return new URL(location + s);
+            return new URL(location + "/" + s);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
     }
 
+    
     public long getLastModified() {
         return 0;
     }
