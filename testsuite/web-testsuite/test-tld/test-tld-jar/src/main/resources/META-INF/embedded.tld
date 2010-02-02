@@ -22,6 +22,11 @@
     <jspversion>2.1</jspversion>
     <shortname>testtaglib</shortname>
     <uri>http://geronimo.apache.org/jar</uri>
+
+    <listener>
+        <listener-class>org.apache.geronimo.testsuite.taglib.TestListener</listener-class>
+    </listener>
+
     <tag>
        <name>jar</name>
        <tagclass>org.apache.geronimo.testsuite.taglib.TestTag</tagclass>

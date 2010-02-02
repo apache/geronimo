@@ -22,7 +22,11 @@
 <head><title>test</title></head>
 <body>
 <localns:local/>
+<br/>
 <webns:web/>
+<br/>
 <jarns:jar/>
+<br/>
+Listener initialized: <%= getServletContext().getAttribute("listener") %>
 </body>
 </html>
