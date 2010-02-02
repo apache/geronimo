@@ -57,7 +57,6 @@ import org.apache.geronimo.xbeans.javaee.FacesConfigDocument;
 import org.apache.geronimo.xbeans.javaee.FacesConfigManagedBeanType;
 import org.apache.geronimo.xbeans.javaee.FacesConfigType;
 import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee.ListenerType;
 import org.apache.geronimo.xbeans.javaee.ParamValueType;
 import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
@@ -135,15 +134,10 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         Map sharedContext = module.getSharedContext();
         //add the ServletContextListener to the web app context
         GBeanData webAppData = (GBeanData) sharedContext.get(WebModule.WEB_APP_DATA);
-        //jetty specific support
+        // add myfaces listener
         Object value = webAppData.getAttribute("listenerClassNames");
         if (value instanceof Collection && !((Collection) value).contains(CONTEXT_LISTENER_NAME)) {
             ((Collection<String>) value).add(CONTEXT_LISTENER_NAME);
-        } else {
-            //try to add listener to the web app xml
-            ListenerType listenerType = webApp.addNewListener();
-            FullyQualifiedClassType className = listenerType.addNewListenerClass();
-            className.setStringValue(CONTEXT_LISTENER_NAME);
         }
         AbstractName moduleName = moduleContext.getModuleName();
         Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();

@@ -19,6 +19,7 @@ package org.apache.geronimo.tomcat;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -121,6 +122,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final String modulePath;
     private final Holder holder;
     private final RuntimeCustomizer contextCustomizer;
+    private final Collection<String> listeners;
     private String displayName;
 
     // JSR 77
@@ -165,6 +167,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamReference(name = "J2EEServer") J2EEServer server,
             @ParamReference(name = "J2EEApplication") J2EEApplication application,
             @ParamReference(name = "ContextSource") ContextSource contextSource,
+            @ParamAttribute(name = "listenerClassNames") Collection<String> listenerClassNames,
             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel)
             throws Exception {
         assert classLoader != null;
@@ -226,6 +229,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
 
         this.displayName = displayName;
+        this.listeners = listenerClassNames;
 
         //Add the valve list
         if (tomcatValveChain != null) {
@@ -252,7 +256,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         } else {
             listenerChain = null;
         }
-
+        
         //Add the cluster
         if (cluster != null) {
             catalinaCluster = (CatalinaCluster) cluster.getInternalObject();
@@ -469,6 +473,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return result;
     }
 
+    public Collection<String> getListeners() {
+        return listeners;
+    }
+    
     public String getDisplayName() {
         return displayName;
     }

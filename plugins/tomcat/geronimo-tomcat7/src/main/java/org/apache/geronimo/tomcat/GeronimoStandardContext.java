@@ -96,6 +96,8 @@ public class GeronimoStandardContext extends StandardContext {
 
     public GeronimoStandardContext() {
         setXmlNamespaceAware(true);
+        // disable Tomcat startup TLD scanning 
+        setProcessTlds(false);
     }
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {

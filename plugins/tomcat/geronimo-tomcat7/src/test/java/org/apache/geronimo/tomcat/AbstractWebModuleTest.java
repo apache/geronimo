@@ -115,6 +115,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,
                 null,
                 contextSource,
+                null,
                 null);
         app.doStart();
         return app;

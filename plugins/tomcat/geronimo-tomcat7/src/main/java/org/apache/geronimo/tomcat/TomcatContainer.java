@@ -19,6 +19,7 @@ package org.apache.geronimo.tomcat;
 import java.io.File;
 import java.net.URL;
 import java.net.URLStreamHandlerFactory;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -342,6 +343,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         // add application listeners to the new context
         if (applicationListeners != null) {
             for (String listener : applicationListeners) {
+                context.addApplicationListener(listener);
+            }
+        }
+        
+        Collection<String> listeners = contextInfo.getListeners();
+        if (listeners != null) {
+            for (String listener : listeners) {
                 context.addApplicationListener(listener);
             }
         }

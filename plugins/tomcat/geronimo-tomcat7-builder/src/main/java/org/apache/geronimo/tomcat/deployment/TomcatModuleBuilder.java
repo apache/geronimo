@@ -23,6 +23,7 @@ import static java.lang.Boolean.TRUE;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -454,6 +455,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 }
             }
 
+            Collection<String> listeners = new ArrayList<String>();
+            webModuleData.setAttribute("listenerClassNames", listeners);
+            
             //Handle the role permissions and webservices on the servlets.
             ServletType[] servletTypes = webApp.getServletArray();
             Map<String, AbstractName> webServices = new HashMap<String, AbstractName>();

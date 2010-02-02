@@ -182,8 +182,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
             webAppData.setReferencePattern("ContextCustomizer", jspLifecycleName);
         }
-        //add listeners if possible
-        //we may need to add them in another way for tomcat
+        // add listeners
         Object value = webAppData.getAttribute("listenerClassNames");
         if (value instanceof Collection) {
             ((Collection<String>) value).addAll(listenerNames);
