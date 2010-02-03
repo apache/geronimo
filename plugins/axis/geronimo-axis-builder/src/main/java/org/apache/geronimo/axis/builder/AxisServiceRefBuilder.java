@@ -28,8 +28,6 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -42,14 +40,16 @@ import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.javaee6.HandlerType;
 import org.apache.geronimo.xbeans.javaee6.ParamValueType;
 import org.apache.geronimo.xbeans.javaee6.PortComponentRefType;
-import org.apache.geronimo.xbeans.javaee6.ServiceRefHandlerType;
 import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee6.XsdQNameType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -146,12 +146,13 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
                 portComponentRefMap.put(serviceEndpointClass, portComponentLink);
             }
         }
-        ServiceRefHandlerType[] handlers = serviceRef.getHandlerArray();
+        HandlerType[] handlers = serviceRef.getHandlerArray();
         List handlerInfos = buildHandlerInfoList(handlers, bundle);
 
 //we could get a Reference or the actual serializable Service back.
         Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, module, bundle);
-        getJndiContextMap(componentContext).put(ENV + name, ref);
+        put(name, ref, getJndiContextMap(componentContext));
+        //getJndiContextMap(componentContext).put(ENV + name, ref);
     }
 
     public QNameSet getSpecQNameSet() {
@@ -163,10 +164,10 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
     }
 
 
-    private static List buildHandlerInfoList(ServiceRefHandlerType[] handlers, Bundle bundle) throws DeploymentException {
+    private static List buildHandlerInfoList(HandlerType[] handlers, Bundle bundle) throws DeploymentException {
         List handlerInfos = new ArrayList();
         for (int i = 0; i < handlers.length; i++) {
-            ServiceRefHandlerType handler = handlers[i];
+            HandlerType handler = handlers[i];
             org.apache.geronimo.xbeans.javaee6.String[] portNameArray = handler.getPortNameArray();
             List portNames = new ArrayList();
             for (int j = 0; j < portNameArray.length; j++) {

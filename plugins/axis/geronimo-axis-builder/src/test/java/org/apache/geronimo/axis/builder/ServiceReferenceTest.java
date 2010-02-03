@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -47,8 +48,6 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
-import org.apache.geronimo.testsupport.TestSupport;
-
 import org.apache.axis.constants.Style;
 import org.apache.axis.soap.SOAPConstants;
 import org.apache.geronimo.axis.builder.bookquote.BookQuote;
@@ -57,31 +56,32 @@ import org.apache.geronimo.axis.builder.interop.InteropLab;
 import org.apache.geronimo.axis.builder.interop.InteropTestPortType;
 import org.apache.geronimo.axis.builder.mock.MockPort;
 import org.apache.geronimo.axis.builder.mock.MockService;
-import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.axis.client.AxisServiceReference;
+import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
-import org.apache.geronimo.kernel.osgi.MockBundleContext;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.UnpackedJarFile;
+import org.apache.geronimo.testsupport.TestSupport;
+import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
-import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 
 /**
  * @version $Rev:385232 $ $Date$

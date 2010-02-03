@@ -65,7 +65,7 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
 
     @Test
     public void testConnector15ToConnector16Transform() throws Exception {
-        URL srcXml = classLoader.getResource("j2ee_1_3dtd/ra-15xml");
+        URL srcXml = classLoader.getResource("j2ee_1_3dtd/ra-15.xml");
         URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/ra-16.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
