@@ -30,9 +30,6 @@ import java.util.List;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleReference;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.packageadmin.ExportedPackage;
-import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
  * ClassLoader for a {@link Bundle}. 
@@ -85,7 +82,7 @@ public class BundleClassLoader extends ClassLoader implements BundleReference {
     public URL getResource(String name) {
         URL resource = bundle.getResource(name);
         if (resource == null && isMetaInfResource(name)) {
-            LinkedHashSet<Bundle> wiredBundles = getWiredBundles();
+            LinkedHashSet<Bundle> wiredBundles = BundleUtils.getWiredBundles(bundle);
             Iterator<Bundle> iterator = wiredBundles.iterator();
             while (iterator.hasNext() && resource == null) {                
                 resource = iterator.next().getResource(name);
@@ -101,7 +98,7 @@ public class BundleClassLoader extends ClassLoader implements BundleReference {
         if (isMetaInfResource(name)) {
             ArrayList<URL> allResources = new ArrayList<URL>();
             addToList(allResources, e);
-            LinkedHashSet<Bundle> wiredBundles = getWiredBundles();
+            LinkedHashSet<Bundle> wiredBundles = BundleUtils.getWiredBundles(bundle);
             for (Bundle wiredBundle : wiredBundles) {
                 Enumeration<URL> resources = wiredBundle.getResources(name);
                 addToList(allResources, resources);
@@ -127,58 +124,7 @@ public class BundleClassLoader extends ClassLoader implements BundleReference {
     private boolean isMetaInfResource(String name) {
         return searchWiredBundles && name != null && (name.startsWith(META_INF_1) || name.startsWith(META_INF_2));
     }
-    
-    private LinkedHashSet<Bundle> getWiredBundles() {
-        ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
-        PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
-        
-        BundleDescription description = new BundleDescription(bundle.getHeaders());
-        
-        // handle static wire via Import-Package
-        List<BundleDescription.ImportPackage> imports = description.getExternalImports();
-        LinkedHashSet<Bundle> wiredBundles = new LinkedHashSet<Bundle>();
-        for (BundleDescription.ImportPackage packageImport : imports) {
-            ExportedPackage[] exports = packageAdmin.getExportedPackages(packageImport.getName());
-            Bundle wiredBundle = getWiredBundle(exports);
-            if (wiredBundle != null) {
-                wiredBundles.add(wiredBundle);
-            }
-        }
-                
-        // handle dynamic wire via DynamicImport-Package
-        if (!description.getDynamicImportPackage().isEmpty()) {
-            for (Bundle b : bundle.getBundleContext().getBundles()) {
-                if (!wiredBundles.contains(b)) {
-                    ExportedPackage[] exports = packageAdmin.getExportedPackages(b);
-                    Bundle wiredBundle = getWiredBundle(exports); 
-                    if (wiredBundle != null) {
-                        wiredBundles.add(wiredBundle);
-                    }
-                }
-            }
-        }
-        
-        bundle.getBundleContext().ungetService(reference);
-        
-        return wiredBundles;
-    }
-    
-    private Bundle getWiredBundle(ExportedPackage[] exports) {
-        if (exports != null) {
-            for (ExportedPackage exportedPackage : exports) {
-                Bundle[] importingBundles = exportedPackage.getImportingBundles();
-                if (importingBundles != null) {
-                    for (Bundle importingBundle : importingBundles) {
-                        if (importingBundle == bundle) {
-                            return exportedPackage.getExportingBundle();
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-    
+      
     private void addToList(List<URL> list, Enumeration<URL> enumeration) {
         if (enumeration != null) {
             while (enumeration.hasMoreElements()) {

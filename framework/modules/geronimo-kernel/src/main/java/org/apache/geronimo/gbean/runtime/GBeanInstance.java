@@ -914,7 +914,7 @@ public final class GBeanInstance implements StateManageable
         try {
             try {
                 //TODO OSGI NO!
-                instance = objectRecipe.create(new BundleClassLoader(bundleContext.getBundle()));
+                instance = objectRecipe.create(classLoader);
             } catch (ConstructionException e) {
                 Throwable targetException = e.getCause();
                 if (targetException instanceof Exception) {
