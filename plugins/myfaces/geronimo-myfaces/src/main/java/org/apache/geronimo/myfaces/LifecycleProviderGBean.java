@@ -17,25 +17,26 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.myfaces;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
-import javax.naming.NamingException;
 import javax.naming.Context;
+import javax.naming.NamingException;
 
-import org.apache.geronimo.gbean.annotation.*;
-import org.apache.myfaces.config.annotation.LifecycleProvider;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.jndi.ContextSource;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
+import org.apache.myfaces.config.annotation.LifecycleProvider;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -47,17 +48,18 @@ public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle
     private final Context context;
     private final ApplicationIndexedLifecycleProviderFactory factory;
     private final ClassLoader classLoader;
-
-
+    private final Bundle bundle;
+    
     public LifecycleProviderGBean(@ParamAttribute(name="holder") Holder holder,
                                   @ParamReference(name="ContextSource", namingType = "Context") ContextSource contextSource,
                                   @ParamReference(name="LifecycleProviderFactory") LifecycleProviderFactorySource factory,
                                   @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
+                                  @ParamSpecial(type = SpecialAttributeType.bundle)Bundle bundle,
                                   @ParamSpecial(type=SpecialAttributeType.classLoader)ClassLoader classLoader) throws NamingException {
         this.holder = holder;
-//        GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         context = contextSource.getContext();
         this.factory = factory.getLifecycleProviderFactory();
+        this.bundle = bundle;
         this.classLoader = classLoader;
     }
 
@@ -79,11 +81,11 @@ public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle
     }
 
     public void doStart() {
-        factory.registerLifecycleProvider(classLoader, this);
+        factory.registerLifecycleProvider(bundle, this);
     }
 
     public void doStop() {
-        factory.unregisterLifecycleProvider(classLoader);
+        factory.unregisterLifecycleProvider(bundle);
     }
 
     public void doFail() {

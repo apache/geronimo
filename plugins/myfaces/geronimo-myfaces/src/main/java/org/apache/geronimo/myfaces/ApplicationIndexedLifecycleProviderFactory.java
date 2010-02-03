@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.myfaces;
 
 import java.util.Map;
@@ -25,25 +24,35 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.faces.context.ExternalContext;
 
+import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.myfaces.config.annotation.LifecycleProvider;
 import org.apache.myfaces.config.annotation.LifecycleProviderFactory;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ApplicationIndexedLifecycleProviderFactory extends LifecycleProviderFactory {
 
-    private final Map<ClassLoader, LifecycleProvider> providers = new ConcurrentHashMap<ClassLoader, LifecycleProvider>();
+    private final Map<Bundle, LifecycleProvider> providers = new ConcurrentHashMap<Bundle, LifecycleProvider>();
 
     public LifecycleProvider getLifecycleProvider(ExternalContext externalContext) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        LifecycleProvider provider = providers.get(cl);
+        Bundle bundle = getBundle();
+        LifecycleProvider provider = providers.get(bundle);
         if (provider == null) {
-            throw new IllegalStateException("No LifecycleProvider registered for application classloader: " + cl);
+            throw new IllegalStateException("No LifecycleProvider registered for application bundle: " + bundle);
         }
         return provider;
     }
 
+    private Bundle getBundle() {
+        Bundle bundle = BundleUtils.getContextBundle();
+        if (bundle == null) {
+            throw new IllegalStateException("Unable to get Bundle object associated with the context classloader");
+        }
+        return bundle;
+    }
+    
     /**
      * Register a lifecycle provider for an application classloader.  This method is intended to be called
      * by the container in which MyFaces is running, once for each application, during application startup before
@@ -52,12 +61,12 @@ public class ApplicationIndexedLifecycleProviderFactory extends LifecycleProvide
      * @param cl       application classloader, used to index LifecycleProviders
      * @param provider LifecycleProvider for the application.
      */
-    public void registerLifecycleProvider(ClassLoader cl, LifecycleProvider provider) {
-        providers.put(cl, provider);
+    public void registerLifecycleProvider(Bundle bundle, LifecycleProvider provider) {
+        providers.put(bundle, provider);
     }
 
-    public void unregisterLifecycleProvider(ClassLoader cl) {
-        providers.remove(cl);
+    public void unregisterLifecycleProvider(Bundle bundle) {
+        providers.remove(bundle);
     }
 
     public void release() {
