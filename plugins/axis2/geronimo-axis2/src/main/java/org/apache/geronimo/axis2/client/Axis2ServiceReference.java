@@ -57,11 +57,11 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
                                  Map<Object, EndpointInfo> seiInfoMap) {
         super(handlerChainsXML, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);
     }
-    
+
     @Override
     public Object getContent() throws NamingException {
         DescriptionBuilderComposite composite = null;
-        
+
         URL catalogURL = getCatalog();
         if (catalogURL != null) {
             composite = new DescriptionBuilderComposite();
@@ -69,7 +69,7 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
             catalogManager.setCatalogFiles(catalogURL.toString());
             composite.setCatalogManager(catalogManager);
         }
-        
+
         ServiceDelegate.setServiceMetadata(composite);
         try {
             return super.getContent();
@@ -87,7 +87,7 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
         }
         return types;
     }
-    
+
     protected HandlerResolver getHandlerResolver(Class serviceClass) {
         JAXWSAnnotationProcessor annotationProcessor =
                 new JAXWSAnnotationProcessor(new JNDIResolver(), new WebServiceContextImpl());
@@ -95,9 +95,9 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
                 new GeronimoHandlerResolver(classLoader, serviceClass, getHandlerChains(), annotationProcessor);
         return handlerResolver;
     }
-    
+
     protected PortMethodInterceptor getPortMethodInterceptor() {
         return new Axis2PortMethodInterceptor(this.seiInfoMap);
     }
-    
+
 }

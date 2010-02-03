@@ -25,7 +25,7 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.xbeans.connector.GerConnectorDocument;
 import org.apache.geronimo.xbeans.connector.GerConnectorType;
-import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
+import org.apache.geronimo.xbeans.javaee6.ConnectorDocument;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -44,8 +44,8 @@ public class PlanParsingTest extends TestSupport {
         assertEquals(1, connectorDocument.getConnector().getResourceadapterArray().length);
     }
 
-    public void testLoadJ2eeDeploymentDescriptor() throws Exception {
-        URL srcXml = classLoader.getResource("connector_1_5/ra.xml");
+    public void testLoadJavaEEDeploymentDescriptor() throws Exception {
+        URL srcXml = classLoader.getResource("connector_1_6/ra.xml");
         XmlObject plan = XmlBeansUtil.parse(srcXml, getClass().getClassLoader());
         ConnectorDocument connectorDocument = (ConnectorDocument) plan.changeType(ConnectorDocument.type);
         assertNotNull(connectorDocument.getConnector().getResourceadapter());
@@ -53,7 +53,7 @@ public class PlanParsingTest extends TestSupport {
     }
 
     public void testLoadGeronimoDeploymentDescriptor15() throws Exception {
-        URL srcXml = classLoader.getResource("connector_1_5/geronimo-ra.xml");
+        URL srcXml = classLoader.getResource("connector_1_6/geronimo-ra.xml");
         XmlObject plan = XmlBeansUtil.parse(srcXml, getClass().getClassLoader());
         GerConnectorDocument connectorDocument = (GerConnectorDocument) plan.changeType(GerConnectorDocument.type);
         GerConnectorType connector = (GerConnectorType) SchemaConversionUtils.fixGeronimoSchema(connectorDocument, CONNECTOR_QNAME, GerConnectorType.type);

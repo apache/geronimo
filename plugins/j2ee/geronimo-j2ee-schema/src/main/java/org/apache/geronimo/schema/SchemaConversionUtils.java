@@ -38,7 +38,7 @@ public class SchemaConversionUtils {
 
     static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming-1.2";
     private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.2";
-    private static final String JPA_PERSISTENCE_NAMESPACE = "http://java.sun.com/xml/ns/persistence";
+    public static final String JPA_PERSISTENCE_NAMESPACE = "http://java.sun.com/xml/ns/persistence";
 
     private static final Map<String, ElementConverter> GERONIMO_SCHEMA_CONVERSIONS = new HashMap<String, ElementConverter>();
 
@@ -90,7 +90,7 @@ public class SchemaConversionUtils {
     public static boolean convertSingleElementToGeronimoSubSchemas(XmlCursor cursor, XmlCursor end) {
         if (cursor.isStart()) {
             String localName = cursor.getName().getLocalPart();
-            ElementConverter converter = (ElementConverter) GERONIMO_SCHEMA_CONVERSIONS.get(localName);
+            ElementConverter converter = GERONIMO_SCHEMA_CONVERSIONS.get(localName);
             if (converter != null) {
                 converter.convertElement(cursor, end);
                 return true;
@@ -240,6 +240,30 @@ public class SchemaConversionUtils {
         return true;
     }
 
+    public static boolean convertSchemaVersion(XmlCursor start, XmlCursor end, String namespace, String schemaLocationURL, String version) {
+        boolean isFirstStart = true;
+        end.toCursor(start);
+        end.toEndToken();
+        while (start.hasNextToken() && start.isLeftOf(end)) {
+            if (start.isStart()) {
+                if (isFirstStart) {
+                    if (start.getAttributeText(new QName("xmlns")) != null) {
+                        start.removeAttribute(new QName("xmlns"));
+                    }
+                    start.setAttributeText(new QName("version"), version);
+                    start.setAttributeText(new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi"), namespace + "  " + schemaLocationURL);
+                    isFirstStart = false;
+                }
+                //convert namespace of each starting element
+                start.setName(new QName(namespace, start.getName().getLocalPart()));
+                start.toNextToken();
+            } else {
+                start.toNextToken();
+            }
+        }
+        return true;
+    }
+
     /**
      * Reorders elements to match descriptionGroup
      *
@@ -291,7 +315,7 @@ public class SchemaConversionUtils {
         moveElements("description", namespace, moveable, cursor);
         moveElements("validator-class", namespace, moveable, cursor);
         moveElements("init-param", namespace, moveable, cursor);
-        
+
         do {
             String name = cursor.getName().getLocalPart();
             if ("init-param".equals(name)) {
@@ -300,7 +324,7 @@ public class SchemaConversionUtils {
                 convertToTldInitParam(namespace, cursor, moveable);
                 cursor.pop();
             }
-        } while (cursor.toPrevSibling());      
+        } while (cursor.toPrevSibling());
     }
 
     public static void convertToTldVariable(String namespace, XmlCursor cursor, XmlCursor moveable) {
@@ -313,14 +337,14 @@ public class SchemaConversionUtils {
         moveElements("scope", namespace, moveable, cursor);
     }
 
-    public static void convertToJNDIEnvironmentRefsGroup(String namespace, XmlCursor cursor, XmlCursor moveable) {       
+    public static void convertToJNDIEnvironmentRefsGroup(String namespace, XmlCursor cursor, XmlCursor moveable) {
         moveElements("env-entry", namespace, moveable, cursor);
         moveElements("ejb-ref", namespace, moveable, cursor);
         moveElements("ejb-local-ref", namespace, moveable, cursor);
         moveElements("resource-ref", namespace, moveable, cursor);
         moveElements("resource-env-ref", namespace, moveable, cursor);
         moveElements("message-destination-ref", namespace, moveable, cursor);
-                
+
         do {
             String name = cursor.getName().getLocalPart();
             if ("env-entry".equals(name)) {
@@ -330,7 +354,7 @@ public class SchemaConversionUtils {
                 convertToEnvEntryGroup(namespace, cursor, moveable);
                 cursor.pop();
             }
-        } while (cursor.toPrevSibling());      
+        } while (cursor.toPrevSibling());
     }
 
     public static void convertToEnvEntryGroup(String namespace, XmlCursor cursor, XmlCursor moveable) {

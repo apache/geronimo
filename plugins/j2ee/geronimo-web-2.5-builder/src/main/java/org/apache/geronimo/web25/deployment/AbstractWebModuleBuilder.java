@@ -66,17 +66,17 @@ import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
 import org.apache.geronimo.web25.deployment.security.SpecSecurityBuilder;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
-import org.apache.geronimo.xbeans.javaee.FilterMappingType;
-import org.apache.geronimo.xbeans.javaee.FilterType;
-import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee.ListenerType;
-import org.apache.geronimo.xbeans.javaee.SecurityConstraintType;
-import org.apache.geronimo.xbeans.javaee.ServletMappingType;
-import org.apache.geronimo.xbeans.javaee.ServletType;
-import org.apache.geronimo.xbeans.javaee.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee.WebAppDocument;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
-import org.apache.geronimo.xbeans.javaee.WebResourceCollectionType;
+import org.apache.geronimo.xbeans.javaee6.FilterMappingType;
+import org.apache.geronimo.xbeans.javaee6.FilterType;
+import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.javaee6.ListenerType;
+import org.apache.geronimo.xbeans.javaee6.SecurityConstraintType;
+import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
+import org.apache.geronimo.xbeans.javaee6.ServletType;
+import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
+import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
+import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.geronimo.xbeans.javaee6.WebResourceCollectionType;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
@@ -357,7 +357,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         URI baseUri = URI.create(module.getTargetPath());
         URI resolutionUri = invertURI(baseUri);
         earContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, resolutionUri, manifestcp, moduleLocations);
-        
+
         WebAppType webApp = (WebAppType) module.getSpecDD();
         if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0)) {
             if (!hasSecurityRealmName) {
@@ -395,7 +395,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     protected String getSpecDDAsString(WebModule module) {
-        StringWriter writer = new StringWriter();    
+        StringWriter writer = new StringWriter();
         XmlOptions options = new XmlOptions();
         QName webQName = new QName("http://java.sun.com/xml/ns/javaee", "web-app");
         options.setSaveSyntheticDocumentElement(webQName);
@@ -406,29 +406,21 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
         return writer.toString();
     }
-    
-    protected WebAppDocument convertToServletSchema(XmlObject xmlObject) throws XmlException {
 
-        String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd";
-        String version = "2.5";
+    protected WebAppDocument convertToServletSchema(XmlObject xmlObject) throws XmlException {
+        String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd";
+        String version = "3.0";
         XmlCursor cursor = xmlObject.newCursor();
         try {
             cursor.toStartDoc();
             cursor.toFirstChild();
-            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
+            String nameSpaceURI = cursor.getName().getNamespaceURI();
+            if ("http://java.sun.com/xml/ns/javaee".equals(nameSpaceURI) || "http://java.sun.com/xml/ns/j2ee".equals(nameSpaceURI)) {
                 SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
                 XmlObject result = xmlObject.changeType(WebAppDocument.type);
                 XmlBeansUtil.validateDD(result);
                 return (WebAppDocument) result;
             }
-
-            if ("http://java.sun.com/xml/ns/javaee".equals(cursor.getName().getNamespaceURI())) {
-                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
-                XmlObject result = xmlObject.changeType(WebAppDocument.type);
-                XmlBeansUtil.validateDD(result);
-                return (WebAppDocument) result;
-            }
-
             //otherwise assume DTD
             XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
             String publicId = xmlDocumentProperties.getDoctypePublicId();

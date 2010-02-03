@@ -95,9 +95,9 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
-import org.apache.geronimo.xbeans.javaee.ApplicationDocument;
-import org.apache.geronimo.xbeans.javaee.ApplicationType;
-import org.apache.geronimo.xbeans.javaee.ModuleType;
+import org.apache.geronimo.xbeans.javaee6.ApplicationDocument;
+import org.apache.geronimo.xbeans.javaee6.ApplicationType;
+import org.apache.geronimo.xbeans.javaee6.ModuleType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -474,18 +474,15 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     }
 
     static ApplicationDocument convertToApplicationSchema(XmlObject xmlObject) throws XmlException {
-        if (ApplicationDocument.type.equals(xmlObject.schemaType())) {
-            XmlBeansUtil.validateDD(xmlObject);
-            return (ApplicationDocument) xmlObject;
-        }
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor moveable = xmlObject.newCursor();
-        String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/application_5.xsd";
-        String version = "5";
+        String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/application_6.xsd";
+        String version = "6";
         try {
             cursor.toStartDoc();
             cursor.toFirstChild();
-            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
+            String nameSpaceURI = cursor.getName().getNamespaceURI();
+            if ("http://java.sun.com/xml/ns/javaee".equals(nameSpaceURI) || "http://java.sun.com/xml/ns/j2ee".equals(nameSpaceURI)) {
                 SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
                 XmlObject result = xmlObject.changeType(ApplicationDocument.type);
                 XmlBeansUtil.validateDD(result);

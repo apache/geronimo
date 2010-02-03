@@ -21,7 +21,7 @@
 package org.apache.geronimo.system.plugin;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface NewServerInstance {
     void newServerInstance(String serverName) throws Exception;

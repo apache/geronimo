@@ -41,7 +41,7 @@ import org.apache.xmlbeans.XmlObject;
  * */
 public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
-        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
+        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.javaee6.String.class.getClassLoader()),
         XmlBeans.typeLoaderForClassLoader(GerConnectorDocument.class.getClassLoader())
     });
 

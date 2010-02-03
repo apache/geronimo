@@ -25,8 +25,8 @@ import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
-import org.apache.geronimo.xbeans.javaee.MessageDestinationType;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.geronimo.xbeans.javaee6.MessageDestinationType;
+import org.apache.geronimo.xbeans.javaee6.WebAppType;
 
 /**
  * 

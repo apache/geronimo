@@ -31,9 +31,9 @@ import org.apache.xmlbeans.XmlException;
 
 public class HandlerChainsUtils {
 
-    public static final QName HANDLER_CHAINS_QNAME = 
+    public static final QName HANDLER_CHAINS_QNAME =
         new QName("http://java.sun.com/xml/ns/javaee", "handler-chains");
-    
+
     private HandlerChainsUtils() {
     }
 
@@ -50,8 +50,8 @@ public class HandlerChainsUtils {
         }
         return handlerChains;
     }
-    
-    public static HandlerChainsType getHandlerChains(String xml) throws XmlException {        
+
+    public static HandlerChainsType getHandlerChains(String xml) throws XmlException {
         HandlerChainsType types = null;
         if (xml != null) {
             try {

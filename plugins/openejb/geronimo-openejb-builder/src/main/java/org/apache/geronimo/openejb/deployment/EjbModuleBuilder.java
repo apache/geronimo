@@ -75,7 +75,7 @@ import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
-import org.apache.geronimo.xbeans.javaee.EjbJarType;
+import org.apache.geronimo.xbeans.javaee6.EjbJarType;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.assembler.classic.*;
 import org.apache.openejb.config.AppModule;

@@ -35,14 +35,14 @@ import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyContextException;
 
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.xbeans.javaee.RoleNameType;
-import org.apache.geronimo.xbeans.javaee.SecurityConstraintType;
-import org.apache.geronimo.xbeans.javaee.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
-import org.apache.geronimo.xbeans.javaee.WebResourceCollectionType;
-import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
-import org.apache.geronimo.xbeans.javaee.ServletType;
-import org.apache.geronimo.xbeans.javaee.SecurityRoleRefType;
+import org.apache.geronimo.xbeans.javaee6.RoleNameType;
+import org.apache.geronimo.xbeans.javaee6.SecurityConstraintType;
+import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
+import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.geronimo.xbeans.javaee6.WebResourceCollectionType;
+import org.apache.geronimo.xbeans.javaee6.SecurityRoleType;
+import org.apache.geronimo.xbeans.javaee6.ServletType;
+import org.apache.geronimo.xbeans.javaee6.SecurityRoleRefType;
 
 /**
  * @version $Rev$ $Date$

@@ -28,8 +28,6 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.HandlerChainsUtils;
@@ -38,17 +36,17 @@ import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-
+import org.apache.geronimo.xbeans.javaee6.HandlerChainType;
+import org.apache.geronimo.xbeans.javaee6.HandlerChainsType;
+import org.apache.geronimo.xbeans.javaee6.HandlerType;
+import org.apache.geronimo.xbeans.javaee6.PortComponentRefType;
+import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder implements ServiceRefBuilder {
     private static final Logger log = LoggerFactory.getLogger(JAXWSServiceRefBuilder.class);
@@ -137,9 +135,9 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         }
 
         if (serviceRef.isSetHandlerChains()) {
-            ServiceRefHandlerChainsType handlerChains = serviceRef.getHandlerChains();
-            for (ServiceRefHandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {
-                for (ServiceRefHandlerType handler : handlerChain.getHandlerArray()) {
+            HandlerChainsType handlerChains = serviceRef.getHandlerChains();
+            for (HandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {
+                for (HandlerType handler : handlerChain.getHandlerArray()) {
                     String handlerClassName = getStringValue(handler.getHandlerClass());
                     Class handlerClass = loadClass(handlerClassName, bundle, "handler");
                     if (!Handler.class.isAssignableFrom(handlerClass)) {
@@ -195,7 +193,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         return GER_SERVICE_REF_QNAME_SET;
     }
 
-    public static String getHandlerChainAsString(ServiceRefHandlerChainsType handlerChains)
+    public static String getHandlerChainAsString(HandlerChainsType handlerChains)
         throws IOException {
         String xml = null;
         if (handlerChains != null) {

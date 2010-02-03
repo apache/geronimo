@@ -25,7 +25,7 @@ import org.apache.geronimo.gjndi.binding.MockDataSource;
 import org.apache.geronimo.gbean.annotation.GBean;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 @GBean
 public class MockResourceSource implements ResourceSource {

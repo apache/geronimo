@@ -41,8 +41,8 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee6.PortComponentRefType;
+import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

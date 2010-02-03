@@ -49,9 +49,9 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextRefDocume
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextTypeType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPropertyType;
-import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
-import org.apache.geronimo.xbeans.javaee.PersistenceContextTypeType;
-import org.apache.geronimo.xbeans.javaee.PropertyType;
+import org.apache.geronimo.xbeans.javaee6.PersistenceContextRefType;
+import org.apache.geronimo.xbeans.javaee6.PersistenceContextTypeType;
+import org.apache.geronimo.xbeans.javaee6.PropertyType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 

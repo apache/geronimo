@@ -46,7 +46,7 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceUnitRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceUnitRefType;
-import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
+import org.apache.geronimo.xbeans.javaee6.PersistenceUnitRefType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 

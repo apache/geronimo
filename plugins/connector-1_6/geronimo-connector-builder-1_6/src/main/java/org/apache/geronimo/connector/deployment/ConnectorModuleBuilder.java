@@ -109,16 +109,15 @@ import org.apache.geronimo.xbeans.connector.GerPartitionedpoolType;
 import org.apache.geronimo.xbeans.connector.GerResourceadapterInstanceType;
 import org.apache.geronimo.xbeans.connector.GerResourceadapterType;
 import org.apache.geronimo.xbeans.connector.GerSinglepoolType;
-import org.apache.geronimo.xbeans.j2ee.ActivationspecType;
-import org.apache.geronimo.xbeans.j2ee.AdminobjectType;
-import org.apache.geronimo.xbeans.j2ee.ConfigPropertyType;
-import org.apache.geronimo.xbeans.j2ee.ConnectionDefinitionType;
-import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
-import org.apache.geronimo.xbeans.j2ee.ConnectorType;
-import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
-import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
+import org.apache.geronimo.xbeans.javaee6.ActivationspecType;
+import org.apache.geronimo.xbeans.javaee6.AdminobjectType;
+import org.apache.geronimo.xbeans.javaee6.ConfigPropertyType;
+import org.apache.geronimo.xbeans.javaee6.ConnectionDefinitionType;
+import org.apache.geronimo.xbeans.javaee6.ConnectorDocument;
+import org.apache.geronimo.xbeans.javaee6.ConnectorType;
+import org.apache.geronimo.xbeans.javaee6.MessagelistenerType;
+import org.apache.geronimo.xbeans.javaee6.ResourceadapterType;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -131,7 +130,7 @@ import org.slf4j.LoggerFactory;
 public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfoLocator, GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(ConnectorModuleBuilder.class);
 
-    private static final QName RESOURCE_ADAPTER_VERSION = new QName(SchemaConversionUtils.J2EE_NAMESPACE, "resourceadapter-version");
+    private static final QName RESOURCE_ADAPTER_VERSION = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "resourceadapter-version");
     private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
     static final String GERCONNECTOR_NAMESPACE = CONNECTOR_QNAME.getNamespaceURI();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
@@ -208,7 +207,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return null;
     }
-    
+
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, "rar", null, null, null, naming, idBuilder);
     }
@@ -323,52 +322,57 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             return (ConnectorDocument) xmlObject;
         }
         XmlCursor cursor = xmlObject.newCursor();
-        XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
-        String publicId = xmlDocumentProperties.getDoctypePublicId();
+        cursor.toStartDoc();
+        cursor.toFirstChild();
         try {
-            if ("-//Sun Microsystems, Inc.//DTD Connector 1.0//EN".equals(publicId)) {
+            String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/connector_1_6.xsd";
+            String version = "1.6";
+            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
+                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
+                XmlObject result = xmlObject.changeType(ConnectorDocument.type);
+                XmlBeansUtil.validateDD(result);
+                return (ConnectorDocument) result;
+            } else if ("-//Sun Microsystems, Inc.//DTD Connector 1.0//EN".equals(cursor.documentProperties().getDoctypePublicId())) {
                 XmlCursor moveable = xmlObject.newCursor();
                 try {
-                    String schemaLocationURL = "http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd";
-                    String version = "1.5";
-                    SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.J2EE_NAMESPACE, schemaLocationURL, version);
+                    SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
                     cursor.toStartDoc();
-                    cursor.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "connector");
+                    cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "connector");
                     cursor.toFirstChild();
-                    SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.J2EE_NAMESPACE, cursor, moveable);
-                    cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "spec-version");
+                    SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
+                    cursor.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "spec-version");
                     cursor.removeXml();
-                    cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "version");
+                    cursor.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "version");
                     cursor.setName(RESOURCE_ADAPTER_VERSION);
-                    cursor.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "resourceadapter");
+                    cursor.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "resourceadapter");
                     moveable.toCursor(cursor);
                     cursor.toFirstChild();
-                    cursor.beginElement("outbound-resourceadapter", SchemaConversionUtils.J2EE_NAMESPACE);
-                    cursor.beginElement("connection-definition", SchemaConversionUtils.J2EE_NAMESPACE);
-                    moveable.toChild(SchemaConversionUtils.J2EE_NAMESPACE, "managedconnectionfactory-class");
+                    cursor.beginElement("outbound-resourceadapter", SchemaConversionUtils.JAVAEE_NAMESPACE);
+                    cursor.beginElement("connection-definition", SchemaConversionUtils.JAVAEE_NAMESPACE);
+                    moveable.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "managedconnectionfactory-class");
                     moveable.push();
                     //from moveable to cursor
                     moveable.moveXml(cursor);
-                    while (moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "config-property")) {
+                    while (moveable.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "config-property")) {
                         moveable.moveXml(cursor);
                     }
                     moveable.pop();
-                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "connectionfactory-interface");
+                    moveable.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "connectionfactory-interface");
                     moveable.moveXml(cursor);
-                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "connectionfactory-impl-class");
+                    moveable.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "connectionfactory-impl-class");
                     moveable.moveXml(cursor);
-                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "connection-interface");
+                    moveable.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "connection-interface");
                     moveable.moveXml(cursor);
-                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "connection-impl-class");
+                    moveable.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "connection-impl-class");
                     moveable.moveXml(cursor);
                     //get out of connection-definition element
                     cursor.toNextToken();
-                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "transaction-support");
+                    moveable.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "transaction-support");
                     moveable.moveXml(cursor);
-                    while (moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "authentication-mechanism")) {
+                    while (moveable.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "authentication-mechanism")) {
                         moveable.moveXml(cursor);
                     }
-                    moveable.toNextSibling(SchemaConversionUtils.J2EE_NAMESPACE, "reauthentication-support");
+                    moveable.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "reauthentication-support");
                     moveable.moveXml(cursor);
                 } finally {
                     moveable.dispose();

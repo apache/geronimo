@@ -62,14 +62,12 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
-import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee.JspConfigType;
-import org.apache.geronimo.xbeans.javaee.ListenerType;
 import org.apache.geronimo.xbeans.javaee.TagType;
 import org.apache.geronimo.xbeans.javaee.TaglibDocument;
-import org.apache.geronimo.xbeans.javaee.TaglibType;
 import org.apache.geronimo.xbeans.javaee.TldTaglibType;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.geronimo.xbeans.javaee6.JspConfigType;
+import org.apache.geronimo.xbeans.javaee6.TaglibType;
+import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
@@ -90,7 +88,7 @@ import org.slf4j.LoggerFactory;
 public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
     private static final Logger log = LoggerFactory.getLogger(JspModuleBuilderExtension.class);
-    
+
     private static final QName TLIB_VERSION = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "tlib-version");
     private static final QName SHORT_NAME = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "short-name");
     private static final QName TAG_CLASS = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "tag-class");
@@ -262,7 +260,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             throw new DeploymentException("Could not locate TLD files located in META-INF(s) " + ioe.getMessage(), ioe);
         }
         */
-        
+
         log.debug("getTldFiles() Exit: URL[" + tldURLs.size() + "]: " + tldURLs.toString());
         return tldURLs;
     }
@@ -318,9 +316,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             TldTaglibType tl = tld.getTaglib();
 
             // Get all the listeners from the TLD file
-            ListenerType[] listeners = tl.getListenerArray();
-            for (ListenerType listener : listeners) {
-                FullyQualifiedClassType cls = listener.getListenerClass();
+            org.apache.geronimo.xbeans.javaee.ListenerType[] listeners = tl.getListenerArray();
+            for (org.apache.geronimo.xbeans.javaee.ListenerType listener : listeners) {
+                org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType cls = listener.getListenerClass();
                 String className = cls.getStringValue().trim();
                 listenerNames.add(className);
                 try {
@@ -335,7 +333,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             // Get all the tags from the TLD file
             TagType[] tags = tl.getTagArray();
             for (TagType tag : tags) {
-                FullyQualifiedClassType cls = tag.getTagClass();
+                org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType cls = tag.getTagClass();
                 String className = cls.getStringValue().trim();
                 try {
                     Class clas = bundle.loadClass(className);

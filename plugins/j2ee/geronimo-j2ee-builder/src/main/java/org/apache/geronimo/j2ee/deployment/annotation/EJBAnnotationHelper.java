@@ -32,15 +32,15 @@ import javax.ejb.Remote;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.geronimo.xbeans.javaee.DescriptionType;
-import org.apache.geronimo.xbeans.javaee.EjbLinkType;
-import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
-import org.apache.geronimo.xbeans.javaee.EjbRefNameType;
-import org.apache.geronimo.xbeans.javaee.EjbRefType;
-import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee.LocalType;
-import org.apache.geronimo.xbeans.javaee.RemoteType;
-import org.apache.geronimo.xbeans.javaee.XsdStringType;
+import org.apache.geronimo.xbeans.javaee6.DescriptionType;
+import org.apache.geronimo.xbeans.javaee6.EjbLinkType;
+import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
+import org.apache.geronimo.xbeans.javaee6.EjbRefNameType;
+import org.apache.geronimo.xbeans.javaee6.EjbRefType;
+import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee6.LocalType;
+import org.apache.geronimo.xbeans.javaee6.RemoteType;
+import org.apache.geronimo.xbeans.javaee6.XsdStringType;
 import org.apache.xbean.finder.ClassFinder;
 
 /**

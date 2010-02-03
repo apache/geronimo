@@ -30,11 +30,11 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
-import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
-import org.apache.geronimo.xbeans.javaee.EjbRefType;
-import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
-import org.apache.geronimo.xbeans.javaee.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
+import org.apache.geronimo.xbeans.javaee6.EjbRefType;
+import org.apache.geronimo.xbeans.javaee6.ResourceEnvRefType;
+import org.apache.geronimo.xbeans.javaee6.ResourceRefType;
+import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
 
 /**
  * 

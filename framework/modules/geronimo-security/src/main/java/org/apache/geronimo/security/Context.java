@@ -27,7 +27,7 @@ import java.util.List;
 import javax.security.auth.Subject;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class Context {
     private final SubjectId id;

@@ -36,7 +36,7 @@ import org.apache.xmlbeans.XmlException;
  */
 public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
-        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.javaee.String.class.getClassLoader()),
+        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.javaee6.String.class.getClassLoader()),
         XmlBeans.typeLoaderForClassLoader(GerWebAppDocument.class.getClassLoader())
     });
 

@@ -42,8 +42,8 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbEjbJarDocument;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.xbeans.javaee.EjbJarDocument;
-import org.apache.geronimo.xbeans.javaee.EjbJarType;
+import org.apache.geronimo.xbeans.javaee6.EjbJarDocument;
+import org.apache.geronimo.xbeans.javaee6.EjbJarType;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.PersistenceContextRef;
@@ -234,7 +234,7 @@ public final class XmlUtil {
         return geronimoEjbJarType;
     }
 
-    public static String getJ2eeStringValue(org.apache.geronimo.xbeans.javaee.String string) {
+    public static String getJ2eeStringValue(org.apache.geronimo.xbeans.javaee6.String string) {
         if (string == null) {
             return null;
         }

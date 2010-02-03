@@ -51,7 +51,7 @@ import org.apache.geronimo.jaxws.wsdl.CatalogWSDLLocator;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortPropertyType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
+import org.apache.geronimo.xbeans.javaee6.PortComponentRefType;
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.CatalogManager;
 import org.apache.xml.resolver.tools.CatalogResolver;

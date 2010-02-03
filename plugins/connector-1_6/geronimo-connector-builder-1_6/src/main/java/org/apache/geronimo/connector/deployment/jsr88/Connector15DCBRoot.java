@@ -52,7 +52,7 @@ public class Connector15DCBRoot extends DConfigBeanRootSupport {
     // This may be overcomplicated -- if we don't refer to J2EE types in our schemas
     // then we should only need to use the GerConnectorDocument loader
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
-        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
+        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.javaee6.String.class.getClassLoader()),
         XmlBeans.typeLoaderForClassLoader(GerConnectorDocument.class.getClassLoader())
     });
 

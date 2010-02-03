@@ -102,6 +102,11 @@
 
         <dependency>
             <groupId>org.apache.geronimo.schema</groupId>
+            <artifactId>geronimo-schema-javaee_6</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.schema</groupId>
             <artifactId>geronimo-schema-jee_5</artifactId>
         </dependency>
 

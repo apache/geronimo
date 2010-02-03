@@ -26,13 +26,13 @@ import javax.servlet.Servlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.javaee.RoleNameType;
-import org.apache.geronimo.xbeans.javaee.RunAsType;
-import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
-import org.apache.geronimo.xbeans.javaee.ServletType;
-import org.apache.geronimo.xbeans.javaee.ServletNameType;
-import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.geronimo.xbeans.javaee6.RoleNameType;
+import org.apache.geronimo.xbeans.javaee6.RunAsType;
+import org.apache.geronimo.xbeans.javaee6.SecurityRoleType;
+import org.apache.geronimo.xbeans.javaee6.ServletType;
+import org.apache.geronimo.xbeans.javaee6.ServletNameType;
+import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.xbean.finder.ClassFinder;
 
 

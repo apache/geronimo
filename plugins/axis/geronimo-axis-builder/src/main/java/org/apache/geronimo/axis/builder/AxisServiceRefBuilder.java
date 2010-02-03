@@ -42,11 +42,11 @@ import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee.ParamValueType;
-import org.apache.geronimo.xbeans.javaee.PortComponentRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee.XsdQNameType;
+import org.apache.geronimo.xbeans.javaee6.ParamValueType;
+import org.apache.geronimo.xbeans.javaee6.PortComponentRefType;
+import org.apache.geronimo.xbeans.javaee6.ServiceRefHandlerType;
+import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee6.XsdQNameType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -167,7 +167,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
         List handlerInfos = new ArrayList();
         for (int i = 0; i < handlers.length; i++) {
             ServiceRefHandlerType handler = handlers[i];
-            org.apache.geronimo.xbeans.javaee.String[] portNameArray = handler.getPortNameArray();
+            org.apache.geronimo.xbeans.javaee6.String[] portNameArray = handler.getPortNameArray();
             List portNames = new ArrayList();
             for (int j = 0; j < portNameArray.length; j++) {
                 portNames.add(portNameArray[j].getStringValue().trim());

@@ -25,9 +25,9 @@ import java.lang.reflect.Method;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee.JavaIdentifierType;
+import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee6.JavaIdentifierType;
 import org.apache.xmlbeans.XmlException;
 
 /**

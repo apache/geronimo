@@ -61,19 +61,19 @@ public abstract class CXFEndpoint {
     protected JaxWsServiceFactoryBean serviceFactory;
 
     protected PortInfo portInfo;
-    
+
     protected AnnotationProcessor annotationProcessor;
-    
-    private String address; 
+
+    private String address;
 
     public CXFEndpoint(Bus bus, Object implementor) {
         this.bus = bus;
         this.implementor = implementor;
-        this.portInfo = (PortInfo) bus.getExtension(PortInfo.class);   
-        
+        this.portInfo = bus.getExtension(PortInfo.class);
+
         this.bus.setExtension(this, CXFEndpoint.class);
     }
-  
+
     protected URL getWsdlURL(URL configurationBaseUrl, String wsdlFile) {
         URL wsdlURL = null;
         if (wsdlFile != null && wsdlFile.trim().length() > 0) {
@@ -97,24 +97,24 @@ public abstract class CXFEndpoint {
         }
         return wsdlURL;
     }
-    
+
     protected Class getImplementorClass() {
         return this.implementor.getClass();
     }
-    
+
     protected org.apache.cxf.endpoint.Endpoint getEndpoint() {
-        return ((ServerImpl) getServer()).getEndpoint();
+        return (getServer()).getEndpoint();
     }
 
     public boolean isSOAP11() {
        return SOAPBinding.SOAP11HTTP_BINDING.equals(implInfo.getBindingType()) ||
               SOAPBinding.SOAP11HTTP_MTOM_BINDING.equals(implInfo.getBindingType());
     }
-    
+
     public boolean isHTTP() {
         return HTTPBinding.HTTP_BINDING.equals(implInfo.getBindingType());
      }
-    
+
     public ServerImpl getServer() {
         return (ServerImpl) server;
     }
@@ -149,24 +149,24 @@ public abstract class CXFEndpoint {
             doInit = false;
         }
     }
-    
-    protected void doPublish(String baseAddress) {      
+
+    protected void doPublish(String baseAddress) {
         // XXX: assume port 8080 by default since we don't know the actual port at startup
         String address = (baseAddress == null) ? "http://localhost:8080" : baseAddress;
-        
+
         JaxWsServerFactoryBean svrFactory = new GeronimoJaxWsServerFactoryBean();
         svrFactory.setBus(bus);
         svrFactory.setAddress(address + this.portInfo.getLocation());
         svrFactory.setServiceFactory(serviceFactory);
         svrFactory.setStart(false);
         svrFactory.setServiceBean(implementor);
-              
+
         if (HTTPBinding.HTTP_BINDING.equals(implInfo.getBindingType())) {
             svrFactory.setTransportId("http://cxf.apache.org/bindings/xformat");
         }
-        
+
         server = svrFactory.create();
-        
+
         init();
 
         org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
@@ -174,15 +174,15 @@ public abstract class CXFEndpoint {
         if (getBinding() instanceof SOAPBinding && this.portInfo.isMTOMEnabled() != null) {
             ((SOAPBinding)getBinding()).setMTOMEnabled(this.portInfo.isMTOMEnabled());
         }
-        
+
         server.start();
     }
 
-    protected void init() { 
+    protected void init() {
     }
-          
+
     /*
-     * Update service's address on the very first invocation. The address 
+     * Update service's address on the very first invocation. The address
      * assumed at start up might not be valid.
      */
     synchronized void updateAddress(URI request) {
@@ -192,33 +192,33 @@ public abstract class CXFEndpoint {
             this.address = requestAddress;
         }
     }
-        
+
     /*
      * Set appropriate handlers for the port/service/bindings.
      */
-    protected void initHandlers() throws Exception {        
-        HandlerChainsType handlerChains = 
-            HandlerChainsUtils.getHandlerChains(this.portInfo.getHandlersAsXML()); 
+    protected void initHandlers() throws Exception {
+        HandlerChainsType handlerChains =
+            HandlerChainsUtils.getHandlerChains(this.portInfo.getHandlersAsXML());
         GeronimoHandlerResolver handlerResolver =
-            new GeronimoHandlerResolver(getImplementorClass().getClassLoader(), 
+            new GeronimoHandlerResolver(getImplementorClass().getClassLoader(),
                                         getImplementorClass(),
-                                        handlerChains, 
+                                        handlerChains,
                                         null);
-                      
-        PortInfoImpl portInfo = new PortInfoImpl(implInfo.getBindingType(), 
+
+        PortInfoImpl portInfo = new PortInfoImpl(implInfo.getBindingType(),
                                                  serviceFactory.getEndpointName(),
                                                  service.getName());
-        
+
         List<Handler> chain = handlerResolver.getHandlerChain(portInfo);
 
         getBinding().setHandlerChain(chain);
     }
-        
+
     protected void injectResources(Object instance) throws AnnotationException {
         this.annotationProcessor.processAnnotations(instance);
         this.annotationProcessor.invokePostConstruct(instance);
     }
-    
+
     protected void injectHandlers() {
         List<Handler> handlers = getBinding().getHandlerChain();
         try {
@@ -229,7 +229,7 @@ public abstract class CXFEndpoint {
             throw new WebServiceException("Handler annotation failed", e);
         }
     }
-    
+
     protected void destroyHandlers() {
         if (this.annotationProcessor != null) {
             // call handlers preDestroy
@@ -239,8 +239,8 @@ public abstract class CXFEndpoint {
             }
         }
     }
-        
-    public void stop() {        
+
+    public void stop() {
         // shutdown server
         if (this.server != null) {
             this.server.stop();

@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  */
 public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
     private static final Logger log = LoggerFactory.getLogger(GeronimoHandlerChainBuilder.class);
-        
+
     private ClassLoader classLoader = null;
     private PortInfo portInfo;
 
@@ -62,9 +62,9 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
         }
     }
 
-    private boolean matchServiceName(PortInfo info, HandlerChainType hc) {               
+    private boolean matchServiceName(PortInfo info, HandlerChainType hc) {
         if (hc.isSetServiceNamePattern()) {
-            QName serviceName = (info == null) ? null : info.getServiceName(); 
+            QName serviceName = (info == null) ? null : info.getServiceName();
             return match(hc.xgetServiceNamePattern().newCursor(), serviceName, hc.getServiceNamePattern());
         } else {
             // handler matches since no service-name-pattern
@@ -74,7 +74,7 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
 
     private boolean matchPortName(PortInfo info, HandlerChainType hc) {
         if (hc.isSetPortNamePattern()) {
-            QName portName = (info == null) ? null : info.getPortName();                    
+            QName portName = (info == null) ? null : info.getPortName();
             return match(hc.xgetPortNamePattern().newCursor(), portName, hc.getPortNamePattern());
         } else {
             // handler maches no port-name-pattern
@@ -102,18 +102,18 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
                         return true;
                     }
                 }
-                return false;               
+                return false;
             }
         }
     }
-    
+
     public List<Handler> buildHandlerChainFromConfiguration(HandlerChainType hc) {
         if (null == hc) {
             return null;
         }
         return sortHandlers(buildHandlerChain(hc, getHandlerClassLoader()));
     }
-    
+
     /*
      * Performs basic localName matching, namespaces are not checked!
      */
@@ -130,21 +130,21 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
                 int pos = namePattern.indexOf(':');
                 if (pos == -1) {
                     localNamePattern = namePattern;
-                } else {       
+                } else {
                     localNamePattern = namePattern.substring(pos + 1);
-                    
+
                     String prefix = namePattern.substring(0, pos);
                     String namespace = node.namespaceForPrefix(prefix.trim());
                     if (namespace == null) {
                         namespace = prefix;
                     }
-                    
+
                     // check namespace
                     if (!namespace.equals(name.getNamespaceURI())) {
                         return false;
                     }
                 }
-                
+
                 // check local name
                 localNamePattern = localNamePattern.trim();
                 if (localNamePattern.contains("*")) {
@@ -152,7 +152,7 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
                     Pattern pattern = Pattern.compile(localNamePattern.replace("*", "(\\w|\\.|-|_)*"));
                     Matcher matcher = pattern.matcher(name.getLocalPart());
                     return matcher.matches();
-                } else { 
+                } else {
                     return localNamePattern.equals(name.getLocalPart());
                 }
             }

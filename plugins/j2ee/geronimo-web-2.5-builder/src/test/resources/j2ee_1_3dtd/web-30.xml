@@ -1,0 +1,139 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<web-app xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee">
+  <description>WebAppDescription</description>
+  <display-name>WebAppDisplayName</display-name>
+  <icon>
+    <small-icon>small</small-icon>
+    <large-icon>large</large-icon>
+  </icon>
+  <distributable/>
+    <context-param>
+        <description>description1</description>
+        <param-name>param1</param-name>
+        <param-value>value1</param-value>
+    </context-param>
+    <context-param>
+        <description>description2</description>
+        <param-name>param2</param-name>
+        <param-value>value2</param-value>
+    </context-param>
+  <filter>
+    <description>filterDescription</description>
+    <display-name>displayName</display-name>
+    <icon>
+      <small-icon>small</small-icon>
+      <large-icon>large</large-icon>
+    </icon>
+    <filter-name>filterName</filter-name>
+    <filter-class>MyClass</filter-class>
+    <init-param>
+      <description>initDescription</description>
+      <param-name>paramName</param-name>
+      <param-value>value</param-value>
+    </init-param>
+  </filter>
+  <servlet>
+    <description>ServletDescription</description>
+    <display-name>servletDisplayName</display-name>
+    <icon>
+      <small-icon>smallServlet</small-icon>
+      <large-icon>largeServlet</large-icon>
+    </icon>
+    <servlet-name>myServlet</servlet-name>
+    <servlet-class>MyServletClass</servlet-class>
+    <init-param>
+      <description>description</description>
+      <param-name>paramName</param-name>
+      <param-value>value</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+    <run-as>
+      <role-name>me</role-name>
+    </run-as>
+  </servlet>
+  <servlet>
+    <description>ServletDescription</description>
+    <display-name>servletDisplayName</display-name>
+    <servlet-name>myOtherServlet</servlet-name>
+    <servlet-class>MyServletClass</servlet-class>
+    <init-param>
+      <description>description</description>
+      <param-name>paramName</param-name>
+      <param-value>value</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+    <run-as>
+      <role-name>me</role-name>
+    </run-as>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>LoginServlet</servlet-name>
+    <url-pattern>/login</url-pattern>
+  </servlet-mapping>
+  <jsp-config>
+    <taglib>
+      <taglib-uri>/WEB-INF/tld/struts-bean.tld</taglib-uri>
+      <taglib-location>/WEB-INF/tld/struts-bean-1.1.tld</taglib-location>
+    </taglib>
+    <taglib>
+      <taglib-uri>/WEB-INF/tld/struts-html.tld</taglib-uri>
+      <taglib-location>/WEB-INF/tld/struts-html-1.1.tld</taglib-location>
+    </taglib>
+    <taglib>
+      <taglib-uri>/WEB-INF/tld/struts-logic.tld</taglib-uri>
+      <taglib-location>/WEB-INF/tld/struts-logic-1.1.tld</taglib-location>
+    </taglib>
+    <taglib>
+      <taglib-uri>/WEB-INF/tld/struts-tiles.tld</taglib-uri>
+      <taglib-location>/WEB-INF/tld/struts-tiles-1.1.tld</taglib-location>
+    </taglib>
+  </jsp-config>
+  <servlet-mapping>
+    <servlet-name>LoginServlet</servlet-name>
+    <url-pattern>/login-error</url-pattern>
+  </servlet-mapping>
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Secured Content</web-resource-name>
+      <description>Require users to authenticate</description>
+      <url-pattern>/secure/*</url-pattern>
+      <url-pattern>/servlets/*</url-pattern>
+      <http-method>POST</http-method>
+      <http-method>GET</http-method>
+    </web-resource-collection>
+    <auth-constraint>
+      <description>Only allow Authenticated Users role</description>
+      <role-name>Users</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <description>Encryption is not required for the application in general.</description>
+      <transport-guarantee>NONE</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+  <login-config>
+    <auth-method>FORM</auth-method>
+    <form-login-config>
+      <form-login-page>/login</form-login-page>
+      <form-error-page>/login-error</form-error-page>
+    </form-login-config>
+  </login-config>
+  <security-role>
+    <description>Users</description>
+    <role-name>Users</role-name>
+  </security-role>
+</web-app>

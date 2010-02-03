@@ -113,7 +113,7 @@ public class ParsingTest
         log.debug("{}", elements);
         assertEquals(4, elements.size());
     }
-    
+
     public void testWebservicesJ2ee14() throws Exception {
         URL url = getClass().getClassLoader().getResource("webservices-j2ee14.xml");
         assertNotNull(WSDescriptorParser.getWebservicesType(url));
@@ -124,4 +124,8 @@ public class ParsingTest
         assertNotNull(WSDescriptorParser.getWebservicesType(url));
     }
 
+    public void testWebservicesJavaEE6() throws Exception {
+        URL url = getClass().getClassLoader().getResource("webservices-javaee6.xml");
+        assertNotNull(WSDescriptorParser.getWebservicesType(url));
+    }
 }

@@ -26,20 +26,21 @@ import java.util.List;
 import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceRef;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.xbeans.javaee.HandlerChainType;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 import org.apache.geronimo.xbeans.javaee.PortComponentHandlerType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerChainsType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefHandlerType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee6.DescriptionType;
+import org.apache.geronimo.xbeans.javaee6.HandlerChainType;
+import org.apache.geronimo.xbeans.javaee6.HandlerChainsType;
+import org.apache.geronimo.xbeans.javaee6.HandlerType;
+import org.apache.geronimo.xbeans.javaee6.ParamValueType;
+import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee6.XsdQNameType;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -279,11 +280,11 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
         // Bind the XML handler chain file to an XMLBeans document
         XmlObject xml = XmlBeansUtil.parse(url, null);
         HandlerChainsDocument hcd = (HandlerChainsDocument) XmlBeansUtil.typedCopy(xml, HandlerChainsDocument.type);
-        HandlerChainsType handlerChains = hcd.getHandlerChains();
-        
-        ServiceRefHandlerChainsType serviceRefHandlerChains = serviceRef.addNewHandlerChains();
-        for (HandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {
-            ServiceRefHandlerChainType serviceRefHandlerChain = serviceRefHandlerChains.addNewHandlerChain();
+        org.apache.geronimo.xbeans.javaee.HandlerChainsType handlerChains = hcd.getHandlerChains();
+
+        HandlerChainsType  serviceRefHandlerChains = serviceRef.addNewHandlerChains();
+        for (org.apache.geronimo.xbeans.javaee.HandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {
+            HandlerChainType serviceRefHandlerChain = serviceRefHandlerChains.addNewHandlerChain();
             if (handlerChain.getPortNamePattern() != null) {
                 serviceRefHandlerChain.setPortNamePattern(handlerChain.getPortNamePattern());
             }
@@ -293,21 +294,48 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
             if (handlerChain.getProtocolBindings() != null) {
                 serviceRefHandlerChain.setProtocolBindings(handlerChain.getProtocolBindings());
             }
-            for ( PortComponentHandlerType handler : handlerChain.getHandlerArray()) {
-                ServiceRefHandlerType serviceRefHandler = serviceRefHandlerChain.addNewHandler();
-                serviceRefHandler.setHandlerName(handler.getHandlerName());
-                serviceRefHandler.setHandlerClass(handler.getHandlerClass());
-                if (handler.getDescriptionArray().length>0) {
-                    serviceRefHandler.setDescriptionArray(handler.getDescriptionArray());
+            for (PortComponentHandlerType srcHandler : handlerChain.getHandlerArray()) {
+                HandlerType serviceRefHandler = serviceRefHandlerChain.addNewHandler();
+                serviceRefHandler.setId(srcHandler.getId());
+                //Copy HandlerName
+                org.apache.geronimo.xbeans.javaee.String srcHandlerName = srcHandler.getHandlerName();
+                org.apache.geronimo.xbeans.javaee6.String desHandlerName = serviceRefHandler.addNewHandlerName();
+                desHandlerName.setStringValue(srcHandlerName.getStringValue());
+                desHandlerName.setId(srcHandlerName.getId());
+                //Copy HandlerClass
+                org.apache.geronimo.xbeans.javaee.String srcHandlerClass = srcHandler.getHandlerClass();
+                org.apache.geronimo.xbeans.javaee6.String desHandlerClass = serviceRefHandler.addNewHandlerClass();
+                desHandlerClass.setId(srcHandlerClass.getId());
+                desHandlerClass.setStringValue(srcHandlerClass.getStringValue());
+                //Copy DescriptionArray
+                for (org.apache.geronimo.xbeans.javaee.DescriptionType srcDescription : srcHandler.getDescriptionArray()) {
+                    DescriptionType desDescription = serviceRefHandler.addNewDescription();
+                    desDescription.setStringValue(srcDescription.getStringValue());
+                    desDescription.setId(srcDescription.getId());
                 }
-                if (handler.getInitParamArray().length>0) {
-                    serviceRefHandler.setInitParamArray(handler.getInitParamArray());
+                //Copy InitParamArray
+                for (org.apache.geronimo.xbeans.javaee.ParamValueType srcParamValue : srcHandler.getInitParamArray()) {
+                    ParamValueType desParamValue = serviceRefHandler.addNewInitParam();
+                    srcParamValue.setId(desParamValue.getId());
+                    desParamValue.addNewParamName().setStringValue(srcParamValue.getParamName().getStringValue());
+                    desParamValue.addNewParamValue().setStringValue(srcParamValue.getParamValue().getStringValue());
+                    for (org.apache.geronimo.xbeans.javaee.DescriptionType srcDescription : srcParamValue.getDescriptionArray()) {
+                        DescriptionType desDescription = desParamValue.addNewDescription();
+                        desDescription.setId(srcDescription.getId());
+                        desDescription.setStringValue(srcDescription.getStringValue());
+                    }
                 }
-                if (handler.getSoapHeaderArray().length>0) {
-                    serviceRefHandler.setSoapHeaderArray(handler.getSoapHeaderArray());
+                //Copy SoapHeaderArray
+                for (org.apache.geronimo.xbeans.javaee.XsdQNameType srcSOAPHeader : srcHandler.getSoapHeaderArray()) {
+                    XsdQNameType desSOAPHeader = serviceRefHandler.addNewSoapHeader();
+                    desSOAPHeader.setId(srcSOAPHeader.getId());
+                    desSOAPHeader.setQNameValue(srcSOAPHeader.getQNameValue());
                 }
-                if (handler.getSoapRoleArray().length>0) {
-                    serviceRefHandler.setSoapRoleArray(handler.getSoapRoleArray());
+                //Copy SoapRoleArray
+                for (org.apache.geronimo.xbeans.javaee.String srcSOAPRole : srcHandler.getSoapRoleArray()) {
+                    org.apache.geronimo.xbeans.javaee6.String desSOAPRole = serviceRefHandler.addNewSoapRole();
+                    desSOAPRole.setId(srcSOAPRole.getId());
+                    desSOAPRole.setStringValue(srcSOAPRole.getStringValue());
                 }
             }
         }

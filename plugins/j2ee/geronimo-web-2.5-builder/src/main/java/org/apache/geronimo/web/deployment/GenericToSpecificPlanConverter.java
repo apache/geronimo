@@ -92,7 +92,7 @@ public class GenericToSpecificPlanConverter {
                         cursor.removeXml();
                     }
                     cursor.pop();
-                    
+
                     cursor.push();
                     while (cursor.hasNextToken()) {
                         if (cursor.isStart()) {
@@ -105,19 +105,21 @@ public class GenericToSpecificPlanConverter {
                         cursor.toNextToken();
                     }
                     cursor.pop();
-                    
-                    cursor.push();                    
+
+                    cursor.push();
                     Map<Object, List<XmlCursor>> map = createElementMap(cursor);
                     cursor.pop();
-                                                            
+
                     moveToBottom(cursor, map.get("security-realm-name"));
                     moveToBottom(cursor, map.get("authentication"));
                     moveToBottom(cursor, map.get("security"));
                     moveToBottom(cursor, map.get("gbean"));
+                    // Convert Persistent Document
+                    convertPersistenceSchemaVersion(cursor, map.get("persistence"));
                     moveToBottom(cursor, map.get("persistence"));
-                                
+
                     clearElementMap(map);
-                    
+
                     return webPlan;
                 } finally {
                     cursor.dispose();
@@ -130,13 +132,13 @@ public class GenericToSpecificPlanConverter {
             rawCursor.dispose();
         }
     }
-               
-    private static Map<Object, List<XmlCursor>> createElementMap(XmlCursor cursor) {        
-        Map<Object, List<XmlCursor>> map = new HashMap<Object, List<XmlCursor>>();   
+
+    private static Map<Object, List<XmlCursor>> createElementMap(XmlCursor cursor) {
+        Map<Object, List<XmlCursor>> map = new HashMap<Object, List<XmlCursor>>();
         cursor.toStartDoc();
         if (cursor.toFirstChild()) {
             do {
-                QName name = cursor.getName();            
+                QName name = cursor.getName();
                 List<XmlCursor> locations = map.get(name);
                 if (locations == null) {
                     locations = new ArrayList<XmlCursor>();
@@ -148,7 +150,7 @@ public class GenericToSpecificPlanConverter {
         }
         return map;
     }
-    
+
     private static void clearElementMap(Map<Object, List<XmlCursor>> map) {
         for (Map.Entry<Object, List<XmlCursor>> entry : map.entrySet()) {
             for (XmlCursor cursor : entry.getValue()) {
@@ -157,7 +159,7 @@ public class GenericToSpecificPlanConverter {
         }
         map.clear();
     }
-    
+
     private static void moveToBottom(XmlCursor cursor, List<XmlCursor> locations) {
         if (locations != null) {
             for (XmlCursor location : locations) {
@@ -166,5 +168,27 @@ public class GenericToSpecificPlanConverter {
             }
         }
     }
-    
+
+    protected void convertPersistenceSchemaVersion(XmlCursor cursor, List<XmlCursor> locations) {
+        if (locations != null) {
+            for (XmlCursor location : locations) {
+                location.push();
+                XmlCursor end = null;
+                try {
+                    end = location.newCursor();
+                    end.toCursor(location);
+                    end.toEndToken();
+                    SchemaConversionUtils.convertSchemaVersion(location, end, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
+                } finally {
+                    if (end != null) {
+                        try {
+                            end.dispose();
+                        } catch (Exception e) {
+                        }
+                    }
+                    location.pop();
+                }
+            }
+        }
+    }
 }

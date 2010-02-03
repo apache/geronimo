@@ -21,7 +21,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * Exception indicating the requestion Configuration could not be located.
- * 
+ *
  * @version $Rev$ $Date$
  */
 public class NoSuchConfigException extends Exception {
@@ -44,5 +44,10 @@ public class NoSuchConfigException extends Exception {
     @Override
     public String toString() {
         return super.toString() + " (configId: " + configId + ")";
+    }
+
+    @Override
+    public String getMessage() {
+        return super.getMessage() + " (configId: " + configId + ")";
     }
 }

@@ -21,8 +21,8 @@ import java.net.URL;
 
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.testsupport.TestSupport;
-import org.apache.geronimo.xbeans.javaee.WebAppDocument;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
+import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.xmlbeans.XmlOptions;
 
 /**

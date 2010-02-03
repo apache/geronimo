@@ -89,9 +89,9 @@ import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
-import org.apache.geronimo.xbeans.javaee.ApplicationClientDocument;
-import org.apache.geronimo.xbeans.javaee.ApplicationClientType;
-import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.javaee6.ApplicationClientDocument;
+import org.apache.geronimo.xbeans.javaee6.ApplicationClientType;
+import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
@@ -477,17 +477,19 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     }
 
     static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
-        if (ApplicationClientDocument.type.equals(xmlObject.schemaType())) {
-            XmlBeansUtil.validateDD(xmlObject);
-            return (ApplicationClientDocument) xmlObject;
-        }
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor moveable = xmlObject.newCursor();
-        String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/application-client_5.xsd";
-        String version = "5";
+        String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/application-client_6.xsd";
+        String version = "6";
         try {
             cursor.toStartDoc();
             cursor.toFirstChild();
+            if ("http://java.sun.com/xml/ns/javaee".equals(cursor.getName().getNamespaceURI())) {
+                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
+                XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
+                XmlBeansUtil.validateDD(result);
+                return (ApplicationClientDocument) result;
+            }
             if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
                 SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
                 XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
@@ -501,18 +503,17 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "application-client");
             cursor.toFirstChild();
             SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
+            XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
+            if (result != null) {
+                XmlBeansUtil.validateDD(result);
+                return (ApplicationClientDocument) result;
+            }
+            XmlBeansUtil.validateDD(xmlObject);
+            return (ApplicationClientDocument) xmlObject;
         } finally {
             cursor.dispose();
             moveable.dispose();
         }
-        XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
-        if (result != null) {
-            XmlBeansUtil.validateDD(result);
-            return (ApplicationClientDocument) result;
-        }
-        XmlBeansUtil.validateDD(xmlObject);
-        return (ApplicationClientDocument) xmlObject;
-
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {

@@ -46,9 +46,9 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
     private XmlOptions options = new XmlOptions();
     private WebModuleBuilder webModuleBuilder = new WebModuleBuilder(null);
 
-    public void testWeb24To25Transform() throws Exception {
-        URL srcXml = classLoader.getResource("j2ee_1_4schema/web-2-24.xml");
-        URL expectedOutputXml = classLoader.getResource("javaee_5schema/web-2-25.xml");
+    public void testWeb25To30Transform() throws Exception {
+        URL srcXml = classLoader.getResource("javaee_5schema/web-2-25.xml");
+        URL expectedOutputXml = classLoader.getResource("javaee_6schema/web-2-30.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml, options);
         xmlObject = webModuleBuilder.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
@@ -62,9 +62,25 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         assertTrue("Differences: " + problems, ok2);
     }
 
-    public void testWeb23To25Transform() throws Exception {
+    public void testWeb24To30Transform() throws Exception {
+        URL srcXml = classLoader.getResource("j2ee_1_4schema/web-2-24.xml");
+        URL expectedOutputXml = classLoader.getResource("javaee_6schema/web-2-30.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml, options);
+        xmlObject = webModuleBuilder.convertToServletSchema(xmlObject);
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        log.debug(xmlObject.toString());
+        log.debug(expected.toString());
+        List problems = new ArrayList();
+        boolean ok = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok);
+        xmlObject = webModuleBuilder.convertToServletSchema(xmlObject);
+        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+        assertTrue("Differences: " + problems, ok2);
+    }
+
+    public void testWeb23To30Transform() throws Exception {
         URL srcXml = classLoader.getResource("j2ee_1_3dtd/web-23.xml");
-        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/web-25.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/web-30.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = webModuleBuilder.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
@@ -78,9 +94,9 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         assertTrue("Differences: " + problems, ok2);
     }
 
-    public void testWeb23To25OtherTransform() throws Exception {
+    public void testWeb23To30OtherTransform() throws Exception {
         URL srcXml = classLoader.getResource("j2ee_1_3dtd/web-1-23.xml");
-        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/web-1-25.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/web-1-30.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = webModuleBuilder.convertToServletSchema(xmlObject);
 //        log.debug(xmlObject.toString());
@@ -93,9 +109,9 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         assertTrue("Differences: " + problems, ok2);
     }
 
-    public void testWeb22To25Transform1() throws Exception {
+    public void testWeb22To30Transform1() throws Exception {
         URL srcXml = classLoader.getResource("j2ee_1_2dtd/web-1-22.xml");
-        URL expectedOutputXml = classLoader.getResource("j2ee_1_2dtd/web-1-25.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_2dtd/web-1-30.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = webModuleBuilder.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
@@ -109,19 +125,19 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         assertTrue("Differences: " + problems, ok2);
     }
 
-    public void testWebRejectBad25() throws Exception {
-        URL srcXml = classLoader.getResource("javaee_5schema/web-1-25.xml");
+    public void testWebRejectBad30() throws Exception {
+        URL srcXml = classLoader.getResource("javaee_6schema/web-1-30.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         try {
             webModuleBuilder.convertToServletSchema(xmlObject);
-            fail("doc src/test-data/javaee_5schema/web-1-25.xml is invalid, should not have validated");
+            fail("doc src/test-data/javaee_5schema/web-1-30.xml is invalid, should not have validated");
         } catch (XmlException e) {
             //expected
         }
     }
 
-    public void testParseWeb25() throws Exception {
-        URL srcXml = classLoader.getResource("javaee_5schema/web-2-25.xml");
+    public void testParseWeb30() throws Exception {
+        URL srcXml = classLoader.getResource("javaee_6schema/web-2-30.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         webModuleBuilder.convertToServletSchema(xmlObject);
     }
@@ -135,7 +151,7 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
             return null;
         }
-        
+
         protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
             return null;
         }
@@ -149,7 +165,7 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         public String getSchemaNamespace() {
             return null;
         }
-        
+
     }
 
 

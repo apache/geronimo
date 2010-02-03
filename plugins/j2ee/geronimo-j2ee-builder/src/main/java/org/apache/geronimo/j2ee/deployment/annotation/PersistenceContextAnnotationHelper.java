@@ -31,12 +31,12 @@ import javax.persistence.PersistenceProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee.JndiNameType;
-import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
-import org.apache.geronimo.xbeans.javaee.PersistenceContextTypeType;
-import org.apache.geronimo.xbeans.javaee.PropertyType;
-import org.apache.geronimo.xbeans.javaee.XsdStringType;
+import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee6.JndiNameType;
+import org.apache.geronimo.xbeans.javaee6.PersistenceContextRefType;
+import org.apache.geronimo.xbeans.javaee6.PersistenceContextTypeType;
+import org.apache.geronimo.xbeans.javaee6.PropertyType;
+import org.apache.geronimo.xbeans.javaee6.XsdStringType;
 import org.apache.xbean.finder.ClassFinder;
 
 
@@ -241,7 +241,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
         // persistence-unit-name
         String unitNameAnnotation = annotation.unitName();
         if (!unitNameAnnotation.equals("")) {
-            org.apache.geronimo.xbeans.javaee.String persistenceUnitName = persistenceContextRef.addNewPersistenceUnitName();
+            org.apache.geronimo.xbeans.javaee6.String persistenceUnitName = persistenceContextRef.addNewPersistenceUnitName();
             persistenceUnitName.setStringValue(unitNameAnnotation);
         }
 

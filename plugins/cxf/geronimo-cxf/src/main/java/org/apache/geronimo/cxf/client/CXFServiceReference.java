@@ -53,22 +53,22 @@ public class CXFServiceReference extends JAXWSServiceReference {
                                AbstractName name,
                                String handlerChainsXML,
                                Map<Object, EndpointInfo> seiInfoMap) {
-        super(handlerChainsXML, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);        
+        super(handlerChainsXML, seiInfoMap, name, serviceQName, wsdlURI, referenceClassName, serviceClassName);
     }
-       
-    @Override   
+
+    @Override
     public Object getContent() throws NamingException {
         Bus bus = CXFWebServiceContainer.getDefaultBus();
-        
+
         URL catalogURL = getCatalog();
         if (catalogURL != null) {
             bus = BusFactory.newInstance().createBus();
             CXFCatalogUtils.loadOASISCatalog(bus, catalogURL);
             SAAJInterceptor.registerInterceptors(bus);
         } else {
-            SAAJInterceptor.registerInterceptors(); 
+            SAAJInterceptor.registerInterceptors();
         }
-        
+
         BusFactory.setThreadDefaultBus(bus);
         try {
             return super.getContent();
@@ -76,7 +76,7 @@ public class CXFServiceReference extends JAXWSServiceReference {
             BusFactory.setThreadDefaultBus(null);
         }
     }
-    
+
     protected HandlerChainsType getHandlerChains() {
         HandlerChainsType types = null;
         try {
@@ -94,9 +94,9 @@ public class CXFServiceReference extends JAXWSServiceReference {
                 new GeronimoHandlerResolver(classLoader, serviceClass, getHandlerChains(), annotationProcessor);
         return handlerResolver;
     }
-    
+
     protected PortMethodInterceptor getPortMethodInterceptor() {
         return new CXFPortMethodInterceptor(this.seiInfoMap);
     }
-    
+
 }

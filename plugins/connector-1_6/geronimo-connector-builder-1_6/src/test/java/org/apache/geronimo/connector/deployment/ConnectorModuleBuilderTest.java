@@ -116,7 +116,6 @@ public class ConnectorModuleBuilderTest extends TestSupport {
     private AbstractName serverName;
     private static final AbstractNameQuery transactionManagerName = new AbstractNameQuery(null, Collections.singletonMap("name", "TransactionManager"));
 
-
     public void testBuildEar() throws Exception {
         JarFile rarFile = null;
         try {
@@ -309,6 +308,31 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         }
     }
 
+    //1.6 tests
+    public void testBuildUnpackedModule16() throws Exception {
+        InstallAction action = new InstallAction() {
+            private File rarFile = new File(BASEDIR, "target/test-rar-16");
+
+            public File getRARFile() {
+                return rarFile;
+            }
+
+        };
+        executeTestBuildModule(action, true);
+    }
+
+
+    public void testBuildPackedModule16() throws Exception {
+        InstallAction action = new InstallAction() {
+            private File rarFile = new File(BASEDIR, "target/test-rar-16.rar");
+
+            public File getRARFile() {
+                return rarFile;
+            }
+
+        };
+        executeTestBuildModule(action, true);
+    }
 
     private void executeTestBuildModule(InstallAction action, boolean is15) throws Exception {
         String resourceAdapterName = "testRA";

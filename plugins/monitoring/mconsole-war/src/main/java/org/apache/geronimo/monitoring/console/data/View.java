@@ -33,7 +33,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.GeneratedValue;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 @Entity(name="mview")
 @NamedQuery(name = "allViews", query = "SELECT a FROM mview a")

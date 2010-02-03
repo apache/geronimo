@@ -43,7 +43,7 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
  * Simple login module that may help create subjects for run-as roles.  List the desired class as the principalClass and the
  * desired allowed names for principals as allowedNames in a comma-separated list.
  *
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class RunAsLoginModule implements LoginModule {
 

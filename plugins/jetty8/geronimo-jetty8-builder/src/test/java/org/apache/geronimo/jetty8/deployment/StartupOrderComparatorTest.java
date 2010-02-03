@@ -17,7 +17,7 @@
 package org.apache.geronimo.jetty8.deployment;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.xbeans.javaee.ServletType;
+import org.apache.geronimo.xbeans.javaee6.ServletType;
 
 /**
  * @version $Rev$ $Date$

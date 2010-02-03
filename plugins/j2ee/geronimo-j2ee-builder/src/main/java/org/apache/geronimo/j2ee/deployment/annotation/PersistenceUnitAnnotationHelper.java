@@ -29,9 +29,9 @@ import javax.persistence.PersistenceUnits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.javaee.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee.JndiNameType;
-import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
+import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee6.JndiNameType;
+import org.apache.geronimo.xbeans.javaee6.PersistenceUnitRefType;
 import org.apache.xbean.finder.ClassFinder;
 
 
@@ -237,7 +237,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
         // persistence-unit-name
         String unitNameAnnotation = annotation.unitName();
         if (!unitNameAnnotation.equals("")) {
-            org.apache.geronimo.xbeans.javaee.String persistenceUnitName = persistenceUnitRef.addNewPersistenceUnitName();
+            org.apache.geronimo.xbeans.javaee6.String persistenceUnitName = persistenceUnitRef.addNewPersistenceUnitName();
             persistenceUnitName.setStringValue(unitNameAnnotation);
         }
 

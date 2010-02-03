@@ -39,8 +39,8 @@ import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.WebServiceRefs;
 
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
-import org.apache.geronimo.xbeans.javaee.WebAppDocument;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
+import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;

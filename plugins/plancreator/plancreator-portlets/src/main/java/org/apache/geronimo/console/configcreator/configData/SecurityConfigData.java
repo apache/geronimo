@@ -32,8 +32,8 @@ import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
-import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
+import org.apache.geronimo.xbeans.javaee6.SecurityRoleType;
+import org.apache.geronimo.xbeans.javaee6.WebAppType;
 
 /**
  * 

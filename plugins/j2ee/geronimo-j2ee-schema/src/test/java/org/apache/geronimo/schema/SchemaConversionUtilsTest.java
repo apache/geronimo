@@ -25,7 +25,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.geronimo.xbeans.javaee.EjbJarType;
+import org.apache.geronimo.xbeans.javaee6.EjbJarType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 

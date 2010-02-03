@@ -60,6 +60,7 @@ import javax.xml.rpc.holders.StringHolder;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.j2ee.ExceptionMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
@@ -297,14 +298,14 @@ public class WSDescriptorParser {
         Map<String,PortInfo> portMap = new HashMap<String, PortInfo>();
         WebserviceDescriptionType[] webserviceDescriptions = webservicesType.getWebserviceDescriptionArray();
         SharedPortInfo sharedPortInfo;
-        for (WebserviceDescriptionType webserviceDescription : webserviceDescriptions) {            
+        for (WebserviceDescriptionType webserviceDescription : webserviceDescriptions) {
             String wsdlLocation = webserviceDescription.getWsdlFile().getStringValue().trim();
             String jaxrpcMappingFile = webserviceDescription.getJaxrpcMappingFile().getStringValue().trim();
-            
-            sharedPortInfo = new SharedPortInfo(wsdlLocation, 
+
+            sharedPortInfo = new SharedPortInfo(wsdlLocation,
                                                 jaxrpcMappingFile,
                                                 DescriptorVersion.J2EE);
-            
+
             PortComponentType[] portComponents = webserviceDescription.getPortComponentArray();
             for (PortComponentType portComponent : portComponents) {
                 String portComponentName = portComponent.getPortComponentName().getStringValue().trim();
@@ -327,7 +328,7 @@ public class WSDescriptorParser {
                     servletLocation = (String) servletLocations.get(linkName);
                 }
                 PortComponentHandlerType[] handlers = portComponent.getHandlerArray();
-                
+
                 PortInfo portInfo = new PortInfo(sharedPortInfo, portComponentName, portQName, seiInterfaceName, handlers, servletLocation);
 
                 if (portMap.put(linkName, portInfo) != null) {
@@ -338,11 +339,11 @@ public class WSDescriptorParser {
         return portMap;
     }
 
-    public static Map<String,PortInfo> parseWebServiceDescriptor(org.apache.geronimo.xbeans.javaee.WebservicesType webservicesType, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
+    public static Map<String,PortInfo> parseWebServiceDescriptor(org.apache.geronimo.xbeans.javaee6.WebservicesType webservicesType, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
         Map<String,PortInfo> portMap = new HashMap<String, PortInfo>();
-        org.apache.geronimo.xbeans.javaee.WebserviceDescriptionType[] webserviceDescriptions = webservicesType.getWebserviceDescriptionArray();
+        org.apache.geronimo.xbeans.javaee6.WebserviceDescriptionType[] webserviceDescriptions = webservicesType.getWebserviceDescriptionArray();
         SharedPortInfo sharedPortInfo;
-        for (org.apache.geronimo.xbeans.javaee.WebserviceDescriptionType webserviceDescription : webserviceDescriptions) {
+        for (org.apache.geronimo.xbeans.javaee6.WebserviceDescriptionType webserviceDescription : webserviceDescriptions) {
             String wsdlLocation = null;
             if (webserviceDescription.isSetWsdlFile()) {
                 wsdlLocation = webserviceDescription.getWsdlFile().getStringValue().trim();
@@ -351,13 +352,13 @@ public class WSDescriptorParser {
             if (webserviceDescription.isSetJaxrpcMappingFile()) {
                 jaxrpcMappingFile = webserviceDescription.getJaxrpcMappingFile().getStringValue().trim();
             }
-            
-            sharedPortInfo = new SharedPortInfo(wsdlLocation, 
-                                                jaxrpcMappingFile, 
+
+            sharedPortInfo = new SharedPortInfo(wsdlLocation,
+                                                jaxrpcMappingFile,
                                                 DescriptorVersion.JAVAEE);
-            
-            org.apache.geronimo.xbeans.javaee.PortComponentType[] portComponents = webserviceDescription.getPortComponentArray();
-            for (org.apache.geronimo.xbeans.javaee.PortComponentType portComponent : portComponents) {
+
+            org.apache.geronimo.xbeans.javaee6.PortComponentType[] portComponents = webserviceDescription.getPortComponentArray();
+            for (org.apache.geronimo.xbeans.javaee6.PortComponentType portComponent : portComponents) {
                 String portComponentName = portComponent.getPortComponentName().getStringValue().trim();
                 QName portQName = null;
                 if (portComponent.isSetWsdlPort()) {
@@ -367,7 +368,7 @@ public class WSDescriptorParser {
                 if (portComponent.isSetServiceEndpointInterface()) {
                     seiInterfaceName = portComponent.getServiceEndpointInterface().getStringValue().trim();
                 }
-                org.apache.geronimo.xbeans.javaee.ServiceImplBeanType serviceImplBeanType = portComponent.getServiceImplBean();
+                org.apache.geronimo.xbeans.javaee6.ServiceImplBeanType serviceImplBeanType = portComponent.getServiceImplBean();
                 if (isEJB == serviceImplBeanType.isSetServletLink()) {
                     throw new DeploymentException("Wrong kind of web service described in web service descriptor: expected " + (isEJB ? "EJB" : "POJO(Servlet)"));
                 }
@@ -390,7 +391,7 @@ public class WSDescriptorParser {
                         handlers[i] = (PortComponentHandlerType)portComponent.getHandlerArray()[i].changeType(PortComponentHandlerType.type);
                     }
                 }
-                
+
                 PortInfo portInfo = new PortInfo(sharedPortInfo, portComponentName, portQName, seiInterfaceName, handlers, servletLocation);
 
                 if (portMap.put(linkName, portInfo) != null) {
@@ -400,20 +401,20 @@ public class WSDescriptorParser {
         }
         return portMap;
     }
-    
+
     public static Map<String,PortInfo> parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
         XmlObject webservicesType = getWebservicesType(wsDDUrl);
         if (webservicesType instanceof WebservicesType) {
             WebservicesType webServices = (WebservicesType)webservicesType;
             return parseWebServiceDescriptor(webServices, moduleFile, isEJB, servletLocations);
-        } else if (webservicesType instanceof org.apache.geronimo.xbeans.javaee.WebservicesType) {
-            org.apache.geronimo.xbeans.javaee.WebservicesType webServices = (org.apache.geronimo.xbeans.javaee.WebservicesType)webservicesType;
+        } else if (webservicesType instanceof org.apache.geronimo.xbeans.javaee6.WebservicesType) {
+            org.apache.geronimo.xbeans.javaee6.WebservicesType webServices = (org.apache.geronimo.xbeans.javaee6.WebservicesType)webservicesType;
             return parseWebServiceDescriptor(webServices, moduleFile, isEJB, servletLocations);
         } else {
             return null;
         }
     }
-    
+
     static XmlObject getWebservicesType(URL wsDDUrl) throws DeploymentException {
         try {
             XmlObject webservicesDocumentUntyped = XmlObject.Factory.parse(wsDDUrl);
@@ -425,7 +426,7 @@ public class WSDescriptorParser {
                 QName qname = cursor.getName();
                 if (WebservicesDocument.type.getDocumentElementName().equals(qname)) {
                     return getJ2EEWebServices(webservicesDocumentUntyped);
-                } else if (org.apache.geronimo.xbeans.javaee.WebservicesDocument.type.getDocumentElementName().equals(qname)) {
+                } else if (org.apache.geronimo.xbeans.javaee6.WebservicesDocument.type.getDocumentElementName().equals(qname)) {
                     return getJavaEEWebServices(webservicesDocumentUntyped);
                 } else {
                     return null;
@@ -450,18 +451,28 @@ public class WSDescriptorParser {
         XmlBeansUtil.validateDD(webservicesDocument);
         return webservicesDocument.getWebservices();
     }
-    
+
     private static XmlObject getJavaEEWebServices(XmlObject webservicesDocumentUntyped) throws XmlException {
-        org.apache.geronimo.xbeans.javaee.WebservicesDocument webservicesDocument;
-        if (webservicesDocumentUntyped instanceof org.apache.geronimo.xbeans.javaee.WebservicesDocument) {
-            webservicesDocument = (org.apache.geronimo.xbeans.javaee.WebservicesDocument) webservicesDocumentUntyped;
-        } else {
-            webservicesDocument = (org.apache.geronimo.xbeans.javaee.WebservicesDocument) webservicesDocumentUntyped.changeType(org.apache.geronimo.xbeans.javaee.WebservicesDocument.type);
+        XmlCursor cursor = null;
+        try {
+            cursor = webservicesDocumentUntyped.newCursor();
+            cursor.toStartDoc();
+            cursor.toFirstChild();
+            SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, "http://java.sun.com/xml/ns/javaee/javaee_web_services_1_3.xsd", "1.3");
+            XmlObject result = webservicesDocumentUntyped.changeType(org.apache.geronimo.xbeans.javaee6.WebservicesDocument.type);
+            XmlBeansUtil.validateDD(result);
+            org.apache.geronimo.xbeans.javaee6.WebservicesDocument webservicesDocument = (org.apache.geronimo.xbeans.javaee6.WebservicesDocument) result;
+            return webservicesDocument.getWebservices();
+        } finally {
+            if (cursor != null) {
+                try {
+                    cursor.dispose();
+                } catch (Exception e) {
+                }
+            }
         }
-        XmlBeansUtil.validateDD(webservicesDocument);
-        return webservicesDocument.getWebservices();        
     }
-    
+
     public static List<HandlerInfo> createHandlerInfoList(PortComponentHandlerType[] handlers, Bundle bundle) throws DeploymentException {
         List<HandlerInfo> list = new ArrayList<HandlerInfo>();
         for (PortComponentHandlerType handler : handlers) {

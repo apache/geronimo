@@ -19,16 +19,16 @@ package org.apache.geronimo.j2ee.deployment.annotation;
 
 import java.util.List;
 
-import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
-import org.apache.geronimo.xbeans.javaee.EjbRefType;
-import org.apache.geronimo.xbeans.javaee.EnvEntryType;
-import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
-import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
-import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
-import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
-import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
-import org.apache.geronimo.xbeans.javaee.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
+import org.apache.geronimo.xbeans.javaee6.EjbRefType;
+import org.apache.geronimo.xbeans.javaee6.EnvEntryType;
+import org.apache.geronimo.xbeans.javaee6.LifecycleCallbackType;
+import org.apache.geronimo.xbeans.javaee6.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.javaee6.PersistenceContextRefType;
+import org.apache.geronimo.xbeans.javaee6.PersistenceUnitRefType;
+import org.apache.geronimo.xbeans.javaee6.ResourceEnvRefType;
+import org.apache.geronimo.xbeans.javaee6.ResourceRefType;
+import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
 
 /**
  * Many of the classes generated from the JEE schemas have methods with identical signatures (see
@@ -39,13 +39,13 @@ import org.apache.geronimo.xbeans.javaee.ServiceRefType;
  * <p><strong>Example(s):</strong>
  * <pre>
  *      public interface ApplicationClientType extends org.apache.xmlbeans.XmlObject {
- *          org.apache.geronimo.xbeans.javaee.EnvEntryType[] getEnvEntryArray();
- *          org.apache.geronimo.xbeans.javaee.ResourceRefType[] getResourceRefArray();
+ *          org.apache.geronimo.xbeans.javaee6.EnvEntryType[] getEnvEntryArray();
+ *          org.apache.geronimo.xbeans.javaee6.ResourceRefType[] getResourceRefArray();
  *      }
  * <p/>
  *      public interface WebAppType extends org.apache.xmlbeans.XmlObject {
- *          org.apache.geronimo.xbeans.javaee.EnvEntryType[] getEnvEntryArray();
- *          org.apache.geronimo.xbeans.javaee.ResourceRefType[] getResourceRefArray();
+ *          org.apache.geronimo.xbeans.javaee6.EnvEntryType[] getEnvEntryArray();
+ *          org.apache.geronimo.xbeans.javaee6.ResourceRefType[] getResourceRefArray();
  *      }
  * </pre>
  * <p/>

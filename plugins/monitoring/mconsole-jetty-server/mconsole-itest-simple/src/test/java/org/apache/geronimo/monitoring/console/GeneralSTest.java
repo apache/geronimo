@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class GeneralSTest extends SeleneseTestCase {
     public void setUp() throws Exception {

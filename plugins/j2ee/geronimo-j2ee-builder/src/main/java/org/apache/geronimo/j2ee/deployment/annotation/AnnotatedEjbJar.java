@@ -21,20 +21,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.javaee.EjbJarType;
-import org.apache.geronimo.xbeans.javaee.EjbLocalRefType;
-import org.apache.geronimo.xbeans.javaee.EjbRefType;
-import org.apache.geronimo.xbeans.javaee.EntityBeanType;
-import org.apache.geronimo.xbeans.javaee.EnvEntryType;
-import org.apache.geronimo.xbeans.javaee.LifecycleCallbackType;
-import org.apache.geronimo.xbeans.javaee.MessageDestinationRefType;
-import org.apache.geronimo.xbeans.javaee.MessageDrivenBeanType;
-import org.apache.geronimo.xbeans.javaee.PersistenceContextRefType;
-import org.apache.geronimo.xbeans.javaee.PersistenceUnitRefType;
-import org.apache.geronimo.xbeans.javaee.ResourceEnvRefType;
-import org.apache.geronimo.xbeans.javaee.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee.SessionBeanType;
+import org.apache.geronimo.xbeans.javaee6.EjbJarType;
+import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
+import org.apache.geronimo.xbeans.javaee6.EjbRefType;
+import org.apache.geronimo.xbeans.javaee6.EntityBeanType;
+import org.apache.geronimo.xbeans.javaee6.EnvEntryType;
+import org.apache.geronimo.xbeans.javaee6.LifecycleCallbackType;
+import org.apache.geronimo.xbeans.javaee6.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.javaee6.MessageDrivenBeanType;
+import org.apache.geronimo.xbeans.javaee6.PersistenceContextRefType;
+import org.apache.geronimo.xbeans.javaee6.PersistenceUnitRefType;
+import org.apache.geronimo.xbeans.javaee6.ResourceEnvRefType;
+import org.apache.geronimo.xbeans.javaee6.ResourceRefType;
+import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee6.SessionBeanType;
 import org.apache.xmlbeans.XmlObject;
 
 /**

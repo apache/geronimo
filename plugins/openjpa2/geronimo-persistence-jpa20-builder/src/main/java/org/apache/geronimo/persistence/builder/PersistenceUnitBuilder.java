@@ -52,9 +52,11 @@ import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
-import org.apache.geronimo.xbeans.persistence.PersistenceDocument;
+import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.xbeans.persistence20.PersistenceDocument;
 import org.apache.xbean.finder.ResourceFinder;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -102,12 +104,15 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         XmlObject[] raws = container.selectChildren(PERSISTENCE_QNAME);
 
         Map<String, PersistenceDocument.Persistence.PersistenceUnit> overrides = new HashMap<String, PersistenceDocument.Persistence.PersistenceUnit>();
-        for (XmlObject raw : raws) {
-            PersistenceDocument.Persistence persistence = (PersistenceDocument.Persistence) raw.copy().changeType(PersistenceDocument.Persistence.type);
-            for (PersistenceDocument.Persistence.PersistenceUnit unit : persistence.getPersistenceUnitArray()) {
-                overrides.put(unit.getName().trim(), unit);
+        try {
+            for (XmlObject raw : raws) {
+                PersistenceDocument.Persistence persistence = convertToPersistenceUnit(raw.copy());
+                for (PersistenceDocument.Persistence.PersistenceUnit unit : persistence.getPersistenceUnitArray()) {
+                    overrides.put(unit.getName().trim(), unit);
+                }
             }
-//            buildPersistenceUnits(persistence, module, module.getTargetPath());
+        } catch (XmlException e) {
+            throw new DeploymentException("Parse Persistence configuration file failed", e);
         }
         try {
             File rootBaseFile = module.getRootEarContext().getConfiguration().getConfigurationDir();
@@ -164,7 +169,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                     PersistenceDocument persistenceDocument;
                     try {
                         XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, new BundleClassLoader(moduleContext.getDeploymentBundle()));
-                        persistenceDocument = (PersistenceDocument) xmlObject.changeType(PersistenceDocument.type);
+                        persistenceDocument = convertToPersistenceDocument(xmlObject);
                     } catch (XmlException e) {
                         throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
                     }
@@ -186,6 +191,46 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     }
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
+    }
+
+    protected PersistenceDocument convertToPersistenceDocument(XmlObject xmlObject) throws XmlException {
+        XmlCursor cursor = null;
+        try {
+            cursor = xmlObject.newCursor();
+            cursor.toStartDoc();
+            cursor.toFirstChild();
+            SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
+            XmlObject result = xmlObject.changeType(PersistenceDocument.type);
+            XmlBeansUtil.validateDD(result);
+            return (PersistenceDocument) result;
+        } finally {
+            if (cursor != null) {
+                try {
+                    cursor.dispose();
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    protected PersistenceDocument.Persistence convertToPersistenceUnit(XmlObject xmlObject) throws XmlException {
+        XmlCursor cursor = null;
+        try {
+            cursor = xmlObject.newCursor();
+            cursor.toStartDoc();
+            cursor.toFirstChild();
+            SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
+            XmlObject result = xmlObject.changeType(PersistenceDocument.Persistence.type);
+            XmlBeansUtil.validateDD(result);
+            return (PersistenceDocument.Persistence) result;
+        } finally {
+            if (cursor != null) {
+                try {
+                    cursor.dispose();
+                } catch (Exception e) {
+                }
+            }
+        }
     }
 
     private void buildPersistenceUnits(PersistenceDocument.Persistence persistence, Map<String, PersistenceDocument.Persistence.PersistenceUnit> overrides, Module module, String persistenceModulePath) throws DeploymentException {

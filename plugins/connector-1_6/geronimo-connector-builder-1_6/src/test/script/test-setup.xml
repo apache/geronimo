@@ -28,6 +28,13 @@
         </copy>
         <jar destfile="${basedir}/target/test-rar-10.rar" basedir="${basedir}/target/test-rar-10"/>
 
+        <!-- Build test-rar-16 -->
+        <mkdir dir="${basedir}/target/test-rar-16/META-INF"/>
+        <copy todir="${basedir}/target/test-rar-16/META-INF">
+            <fileset dir="${basedir}/src/test/resources/connector_1_6"/>
+        </copy>
+        <jar destfile="${basedir}/target/test-rar-16.rar" basedir="${basedir}/target/test-rar-16"/>
+
         <!-- Build test-rar-15 -->
         <mkdir dir="${basedir}/target/test-rar-15/META-INF"/>
         <copy todir="${basedir}/target/test-rar-15/META-INF">

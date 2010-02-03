@@ -38,7 +38,7 @@ import javax.portlet.PortletException;
 import org.apache.geronimo.monitoring.console.data.Graph;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class PopUpGraphServlet extends GenericServlet {
     @Resource

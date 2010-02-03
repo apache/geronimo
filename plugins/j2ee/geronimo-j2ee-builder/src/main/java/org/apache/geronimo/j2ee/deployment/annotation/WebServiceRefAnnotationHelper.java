@@ -31,11 +31,11 @@ import javax.xml.ws.WebServiceRefs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee.JndiNameType;
-import org.apache.geronimo.xbeans.javaee.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee.XsdAnyURIType;
-import org.apache.geronimo.xbeans.javaee.XsdStringType;
+import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
+import org.apache.geronimo.xbeans.javaee6.JndiNameType;
+import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
+import org.apache.geronimo.xbeans.javaee6.XsdAnyURIType;
+import org.apache.geronimo.xbeans.javaee6.XsdStringType;
 import org.apache.xbean.finder.ClassFinder;
 
 

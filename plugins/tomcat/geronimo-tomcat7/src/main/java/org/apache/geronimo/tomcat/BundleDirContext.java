@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -124,7 +124,7 @@ public class BundleDirContext implements DirContext {
 
 
     // ------------------------------------------------------------- Properties
-    
+
     /**
      * Add an alias.
      */
@@ -1435,13 +1435,13 @@ public class BundleDirContext implements DirContext {
         }
         return new URLResource(url);
     }
-    
+
     private String getName(String name) {
         if (name.startsWith("/")) {
             name = name.substring(1);
         }
         if (path != null) {
-            name = path + name;
+            name = path + "/" + name;
         }
         return name;
     }
@@ -1481,7 +1481,7 @@ public class BundleDirContext implements DirContext {
             return name;
         }
     }
-    
+
     private static String removeSlash(String name) {
         if (name.endsWith("/")) {
             return name.substring(0, name.length() - 1);
@@ -1489,12 +1489,12 @@ public class BundleDirContext implements DirContext {
             return name;
         }
     }
-    
+
     private static class NameClassPairEnumeration implements NamingEnumeration<NameClassPair> {
-        
+
         private String basePath;
         private Enumeration entries;
-        
+
         public NameClassPairEnumeration(String basePath, Enumeration entries) {
             this.basePath = getBasePath(basePath);
             this.entries = entries;
@@ -1524,7 +1524,7 @@ public class BundleDirContext implements DirContext {
                 return new Binding(relativeName, String.class.getName());
             }
         }
-            
+
         private String getRelativeName(String name) {
             if (basePath != null && name.startsWith(basePath)) {
                 return name.substring(basePath.length());
@@ -1533,14 +1533,14 @@ public class BundleDirContext implements DirContext {
             }
         }
     }
-    
+
     private static class BindingEnumeration implements NamingEnumeration<Binding> {
-        
+
         private Bundle bundle;
         private String basePath;
         private Enumeration entries;
-        
-        public BindingEnumeration(Bundle bundle, String basePath, Enumeration entries) {           
+
+        public BindingEnumeration(Bundle bundle, String basePath, Enumeration entries) {
             this.bundle = bundle;
             this.basePath = getBasePath(basePath);
             this.entries = entries;
@@ -1570,14 +1570,14 @@ public class BundleDirContext implements DirContext {
                 return new Binding(relativeName, relativeName);
             }
         }
-        
+
         private String getRelativeName(String name) {
             if (basePath != null && name.startsWith(basePath)) {
                 return name.substring(basePath.length());
             } else {
                 return name;
             }
-        }        
+        }
     }
 
     private static class URLResource extends Resource {

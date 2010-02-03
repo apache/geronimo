@@ -38,7 +38,7 @@ import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
-import org.apache.geronimo.xbeans.javaee.EjbRefType;
+import org.apache.geronimo.xbeans.javaee6.EjbRefType;
 import org.apache.geronimo.corba.proxy.CORBAProxyReference;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
