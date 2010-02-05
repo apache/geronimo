@@ -19,6 +19,7 @@
 
 package org.apache.geronimo.kernel.osgi;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -118,11 +119,21 @@ public class BundleResourceFinder {
             while ((entry = in.getNextEntry()) != null) {
                 String name = entry.getName();
                 if (prefixMatches(name) && suffixMatches(name)) {
-                    callback.foundInJar(bundle, zipName, entry, in);
+                    callback.foundInJar(bundle, zipName, entry, new ZipEntryInputStream(in));
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    
+    private static class ZipEntryInputStream extends FilterInputStream {
+        public ZipEntryInputStream(ZipInputStream in) {
+            super(in);
+        }
+        public void close() throws IOException {
+            // not really necessary
+            // ((ZipInputStream) in).closeEntry();
         }
     }
     
