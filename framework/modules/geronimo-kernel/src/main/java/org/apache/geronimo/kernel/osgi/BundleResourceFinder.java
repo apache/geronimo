@@ -20,7 +20,7 @@
 package org.apache.geronimo.kernel.osgi;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
@@ -102,7 +102,7 @@ public class BundleResourceFinder {
         Enumeration e = bundle.findEntries(basePath, "*" + suffix, true);
         if (e != null) {
             while (e.hasMoreElements()) {
-                callback.foundDirectory(bundle, basePath, (URL) e.nextElement());
+                callback.foundInDirectory(bundle, basePath, (URL) e.nextElement());
             }
         }
     }
@@ -118,7 +118,7 @@ public class BundleResourceFinder {
             while ((entry = in.getNextEntry()) != null) {
                 String name = entry.getName();
                 if (prefixMatches(name) && suffixMatches(name)) {
-                    callback.foundJar(bundle, zipName, entry);
+                    callback.foundInJar(bundle, zipName, entry, in);
                 }
             }
         } catch (IOException e) {
@@ -148,9 +148,9 @@ public class BundleResourceFinder {
     }
     
     public interface ResourceFinderCallback {
-        void foundDirectory(Bundle bundle, String baseDir, URL url) throws Exception;
+        void foundInDirectory(Bundle bundle, String baseDir, URL url) throws Exception;
         
-        void foundJar(Bundle bundle, String jarName, ZipEntry entry) throws Exception;
+        void foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception;
     }
     
     public static class DefaultResourceFinderCallback implements ResourceFinderCallback {
@@ -169,11 +169,11 @@ public class BundleResourceFinder {
             return resources;
         }
         
-        public void foundDirectory(Bundle bundle, String baseDir, URL url) throws Exception {
+        public void foundInDirectory(Bundle bundle, String baseDir, URL url) throws Exception {
             resources.add(url);
         }
 
-        public void foundJar(Bundle bundle, String jarName, ZipEntry entry) throws Exception {
+        public void foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception {
             URL jarURL = bundle.getEntry(jarName);
             URL url = new URL("jar:" + jarURL.toString() + "!/" + entry.getName());
             resources.add(url);
