@@ -47,7 +47,7 @@
             <name>PlutoPortalServices</name>
         </reference>
     </gbean>
-    <security-realm-name>geronimo_admin</security-realm-name>
+    <security-realm-name>geronimo-admin</security-realm-name>
     
     <security xmlns="http://geronimo.apache.org/xml/ns/security-1.2">
         <role-mappings>
