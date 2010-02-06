@@ -395,14 +395,14 @@ public class CMPEntityManagerTxScoped implements EntityManager {
     }
 
     @Override
-    public QueryBuilder getQueryBuilder() {
+    public CriteriaBuilder getCriteriaBuilder() {
         EntityManager entityManager = getEntityManager(false);
         if (entityManager != null) {
-            return entityManager.getQueryBuilder();
+            return entityManager.getCriteriaBuilder();
         } else {
             entityManager = createEntityManager();
             try {
-                return entityManager.getQueryBuilder();
+                return entityManager.getCriteriaBuilder();
             } finally {
                 entityManager.close();
             }
@@ -543,21 +543,6 @@ public class CMPEntityManagerTxScoped implements EntityManager {
             entityManager = createEntityManager();
             try {
                 return entityManager.getProperties();
-            } finally {
-                entityManager.close();
-            }
-        }
-    }
-
-    @Override
-    public Set<String> getSupportedProperties() {
-        EntityManager entityManager = getEntityManager(false);
-        if (entityManager != null) {
-            return entityManager.getSupportedProperties();
-        } else {
-            entityManager = createEntityManager();
-            try {
-                return entityManager.getSupportedProperties();
             } finally {
                 entityManager.close();
             }

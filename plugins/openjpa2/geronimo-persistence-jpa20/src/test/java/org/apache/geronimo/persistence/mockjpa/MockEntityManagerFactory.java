@@ -24,7 +24,7 @@ import javax.persistence.Cache;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceUnitUtil;
-import javax.persistence.criteria.QueryBuilder;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
 
 /**
@@ -84,14 +84,9 @@ public class MockEntityManagerFactory implements EntityManagerFactory {
     }
 
     @Override
-    public QueryBuilder getQueryBuilder() {
+    public CriteriaBuilder getCriteriaBuilder() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    @Override
-    public Set<String> getSupportedProperties() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

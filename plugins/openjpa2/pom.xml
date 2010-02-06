@@ -45,7 +45,7 @@
 
 <!-- These are in the geronimo-parent PM for now
     <properties>
-        <openjpaVersion>2.0.0-M3</openjpaVersion>
+        <openjpaVersion>2.0.0-beta</openjpaVersion>
     </properties>
 
     <dependencyManagement>
@@ -127,13 +127,13 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jpa_2.0_spec</artifactId>
-                <version>1.0-PFD2</version>
+                <version>1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-validation_1.0_spec</artifactId>
-                <version>1.0-CR5</version>
+                <version>1.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

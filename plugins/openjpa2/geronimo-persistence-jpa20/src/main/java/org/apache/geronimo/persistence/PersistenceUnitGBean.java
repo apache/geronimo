@@ -36,8 +36,8 @@ import javax.persistence.spi.ClassTransformer;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
-import javax.persistence.spi.SharedCacheMode;
-import javax.persistence.spi.ValidationMode;
+import javax.persistence.SharedCacheMode;
+import javax.persistence.ValidationMode;
 import javax.resource.ResourceException;
 import javax.sql.DataSource;
 

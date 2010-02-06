@@ -200,8 +200,8 @@ public class InternalCMPEntityManagerExtended implements EntityManager, EntityMa
     }
 
     @Override
-    public QueryBuilder getQueryBuilder() {
-        return entityManager.getQueryBuilder();
+    public CriteriaBuilder getCriteriaBuilder() {
+        return entityManager.getCriteriaBuilder();
     }
 
     @Override
@@ -252,11 +252,6 @@ public class InternalCMPEntityManagerExtended implements EntityManager, EntityMa
     @Override
     public Map<String, Object> getProperties() {
         return entityManager.getProperties();
-    }
-
-    @Override
-    public Set<String> getSupportedProperties() {
-        return entityManager.getSupportedProperties();
     }
 
     @Override

@@ -190,11 +190,6 @@ public class NoTxQueryWrapper implements Query {
     }
 
     @Override
-    public Set<String> getSupportedHints() {
-        return query.getSupportedHints();
-    }
-
-    @Override
     public boolean isBound(Parameter<?> param) {
         return query.isBound(param);
     }

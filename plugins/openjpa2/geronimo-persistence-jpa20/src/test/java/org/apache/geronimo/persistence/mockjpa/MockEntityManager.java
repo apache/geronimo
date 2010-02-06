@@ -28,7 +28,7 @@ import javax.persistence.Query;
 import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.QueryBuilder;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
 
 /**
@@ -212,13 +212,7 @@ public class MockEntityManager implements EntityManager {
     }
 
     @Override
-    public QueryBuilder getQueryBuilder() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Set<String> getSupportedProperties() {
+    public CriteriaBuilder getCriteriaBuilder() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -227,32 +221,27 @@ public class MockEntityManager implements EntityManager {
     public void lock(Object entity, LockModeType lockMode,
         Map<String, Object> properties) {
         // TODO Auto-generated method stub
-        
     }
 
     @Override
     public void refresh(Object entity, Map<String, Object> properties) {
         // TODO Auto-generated method stub
-        
     }
 
     @Override
     public void refresh(Object entity, LockModeType lockMode) {
         // TODO Auto-generated method stub
-        
     }
 
     @Override
     public void refresh(Object entity, LockModeType lockMode,
         Map<String, Object> properties) {
         // TODO Auto-generated method stub
-        
     }
 
     @Override
     public void setProperty(String propertyName, Object value) {
         // TODO Auto-generated method stub
-        
     }
 
     @Override

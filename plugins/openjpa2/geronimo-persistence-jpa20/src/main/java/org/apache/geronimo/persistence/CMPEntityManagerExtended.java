@@ -28,7 +28,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.QueryBuilder;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
 
 /**
@@ -169,8 +169,8 @@ public class CMPEntityManagerExtended implements EntityManager {
     }
 
     @Override
-    public QueryBuilder getQueryBuilder() {
-        return getEntityManager().getQueryBuilder();
+    public CriteriaBuilder getCriteriaBuilder() {
+        return getEntityManager().getCriteriaBuilder();
     }
 
     @Override
@@ -221,11 +221,6 @@ public class CMPEntityManagerExtended implements EntityManager {
     @Override
     public Map<String, Object> getProperties() {
         return getEntityManager().getProperties();
-    }
-
-    @Override
-    public Set<String> getSupportedProperties() {
-        return getEntityManager().getSupportedProperties();
     }
 
     @Override
