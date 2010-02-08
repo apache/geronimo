@@ -193,8 +193,13 @@ public class PropertiesFileLoginModule implements LoginModule {
             throw new FailedLoginException();
         }
         String realPassword = users.getProperty(username);
-        // Decrypt the password if needed, so we can compare it with the supplied one
-        if (realPassword != null) {
+        if (realPassword == null || realPassword.equals("")) {
+            // Clear out the private state
+            username = null;
+            password = null;
+            throw new FailedLoginException();
+        } else {
+            // Decrypt the password if needed, so we can compare it with the supplied one
             realPassword = (String) EncryptionManager.decrypt(realPassword);
         }
         char[] entered = ((PasswordCallback) callbacks[1]).getPassword();
