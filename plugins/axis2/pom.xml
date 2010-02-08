@@ -171,6 +171,10 @@
                         <groupId>xml-resolver</groupId>
                         <artifactId>xml-resolver</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-jaxws_2.1_spec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
