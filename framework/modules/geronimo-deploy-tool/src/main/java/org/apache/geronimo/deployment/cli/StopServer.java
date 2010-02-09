@@ -17,7 +17,11 @@
 
 package org.apache.geronimo.deployment.cli;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +33,8 @@ import javax.management.remote.JMXServiceURL;
 import javax.management.remote.rmi.RMIConnectorServer;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -41,26 +47,29 @@ import org.apache.geronimo.system.jmx.KernelDelegate;
  */
 public class StopServer implements Main {
 
-	public static final String RMI_NAMING_CONFG_ID = "org/apache/geronimo/RMINaming";
+    public static final String RMI_NAMING_CONFG_ID = "org/apache/geronimo/RMINaming";
 
-	public static final String DEFAULT_PORT = "1099"; // 1099 is used by java.rmi.registry.Registry
+    public static final String DEFAULT_PORT = "1099"; // 1099 is used by java.rmi.registry.Registry
 
-	String host;
-	
-	String port;
+    String host;
+    
+    String port;
 
-	String user;
+    String user;
 
-	String password;
-	
-	boolean secure = false;
+    String password;
+    
+    boolean secure = false;
 
-	private String[] args;
+    private String[] args;
+    String KEYSTORE_TRUSTSTORE_PASSWORD_FILE="org.apache.geronimo.keyStoreTrustStorePasswordFile";
+    String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION="/var/security/keystores/geronimo-default";
+    String GERONIMO_HOME="org.apache.geronimo.home.dir";
 
-	public static void main(String[] args) throws Exception {
-		StopServer cmd = new StopServer();
-		cmd.execute(args);
-	}
+    public static void main(String[] args) throws Exception {
+        StopServer cmd = new StopServer();
+        cmd.execute(args);
+    }
     
     public int execute(Object opaque) {
         if (! (opaque instanceof String[])) {
@@ -146,67 +155,103 @@ public class StopServer implements Main {
         return 0;
     }
 
-	private boolean argumentHasValue(int i) {
-		return i + 1 < args.length && !args[i + 1].startsWith("--");
-	}
+    private boolean argumentHasValue(int i) {
+        return i + 1 < args.length && !args[i + 1].startsWith("--");
+    }
 
-	private boolean setParam(int i) {
-		if (argumentHasValue(i)) {
-			if (args[i].equals("--user")) {
-				user = args[++i];
-			} else if (args[i].equals("--password")) {
-				password = args[++i];
-			} else if (args[i].equals("--port")) {
-				port = args[++i];
+    private boolean setParam(int i) {
+        if (argumentHasValue(i)) {
+            if (args[i].equals("--user")) {
+                user = args[++i];
+            } else if (args[i].equals("--password")) {
+                password = args[++i];
+            } else if (args[i].equals("--port")) {
+                port = args[++i];
             } else if (args[i].equals("--host")) {
                 host = args[++i];
-			} else {
-				printUsage();
-			}
-			return true;
-		} else if (args[i].equals("--secure")) {
-		    secure = true;
-		} else {
-			printUsage();
-		}
-		return false;
-	}
+            } else {
+                printUsage();
+            }
+            return true;
+        } else if (args[i].equals("--secure")) {
+            secure = true;
+            try {
+                FileInputStream fstream= new FileInputStream(System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
+                DataInputStream in = new DataInputStream(fstream);
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                String strLine;
+                String keyStorePassword=null;
+                String trustStorePassword=null;
+                while ((strLine = br.readLine()) != null)   {
+                    if(strLine.startsWith("keyStorePassword"))
+                    {
+                        keyStorePassword=(String)EncryptionManager.decrypt(strLine.substring(17));                    
+                    }
+                    if(strLine.startsWith("trustStorePassword"))
+                    {
+                        trustStorePassword=(String)EncryptionManager.decrypt(strLine.substring(19));;
+                    }
+                }
+                 
+                String value=System.getProperty("javax.net.ssl.keyStore",System.getProperty(GERONIMO_HOME)+DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+                String value1=System.getProperty("javax.net.ssl.trustStore",System.getProperty(GERONIMO_HOME)+DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+                System.setProperty("javax.net.ssl.keyStore", value);
+                System.setProperty("javax.net.ssl.trustStore", value1);
+                System.setProperty("javax.net.ssl.keyStorePassword",keyStorePassword);
+                System.setProperty("javax.net.ssl.trustStorePassword",trustStorePassword);
+                }
+                
+                catch(NullPointerException e)
+                {
+                throw new NullPointerException("Null value specified for trustStore keyStore location property org.apache.geronimo.keyStoreTrustStorePasswordFile");
+                }
+                
+                catch(IOException e)
+                {
+                    System.out.println("Unable to set KeyStorePassword and TrustStorePassword");
+                    e.printStackTrace();                    
+                }
+        } else {
+            printUsage();
+        }
+        return false;
+    }
 
-	public Kernel getRunningKernel() throws IOException {
-		Map map = new HashMap();
-		map.put(JMXConnector.CREDENTIALS, new String[] { user, password });
+    public Kernel getRunningKernel() throws IOException {
+        Map map = new HashMap();
+        map.put(JMXConnector.CREDENTIALS, new String[] { user, password });
         String connectorName = "/JMXConnector";
         if (secure) {
             connectorName = "/JMXSecureConnector";
             SslRMIClientSocketFactory csf = new SslRMIClientSocketFactory();
             map.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, csf);
         }
-		Kernel kernel = null;
-		try {
-			JMXServiceURL address = new JMXServiceURL(
-					"service:jmx:rmi:///jndi/rmi://" + host + ":" + port + connectorName);
-			JMXConnector jmxConnector = JMXConnectorFactory.connect(address, map);
-			MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
-			kernel = new KernelDelegate(mbServerConnection);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return kernel;
-	}
+        Kernel kernel = null;
+        try {
+            JMXServiceURL address = new JMXServiceURL(
+                    "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + connectorName);
+            JMXConnector jmxConnector = JMXConnectorFactory.connect(address, map);
+            MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
+            kernel = new KernelDelegate(mbServerConnection);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return kernel;
+    }
 
-	public void printUsage() {
-		System.out.println();
-		System.out.println("Command-line shutdown syntax:");
-		System.out.println("    shutdown [options]");
-		System.out.println();
-		System.out.println("The available options are:");
-		System.out.println("    --user <username>");
-		System.out.println("    --password <password>");
-		System.out.println("    --host <hostname>");
-		System.out.println("    --port <port>");
-		System.out.println("    --secure");
-		System.exit(1);
-	}
+    public void printUsage() {
+        System.out.println();
+        System.out.println("Command-line shutdown syntax:");
+        System.out.println("    shutdown [options]");
+        System.out.println();
+        System.out.println("The available options are:");
+        System.out.println("    --user <username>");
+        System.out.println("    --password <password>");
+        System.out.println("    --host <hostname>");
+        System.out.println("    --port <port>");
+        System.out.println("    --secure");
+        System.exit(1);
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
