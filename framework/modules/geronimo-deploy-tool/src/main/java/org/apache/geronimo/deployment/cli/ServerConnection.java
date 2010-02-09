@@ -17,9 +17,14 @@
 
 package org.apache.geronimo.deployment.cli;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.jar.JarFile;
@@ -31,6 +36,7 @@ import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 
 import org.apache.geronimo.cli.deployer.ConnectionParams;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
@@ -52,6 +58,9 @@ public class ServerConnection {
     private SavedAuthentication auth;
     private boolean logToSysErr;
     private boolean verboseMessages;
+    String KEYSTORE_TRUSTSTORE_PASSWORD_FILE="org.apache.geronimo.keyStoreTrustStorePasswordFile";
+    String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION="/var/security/keystores/geronimo-default";
+    String GERONIMO_HOME="org.apache.geronimo.home.dir";
 
     public ServerConnection(ConnectionParams params, PrintWriter out, InputStream in, Kernel kernel, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
         this(params, new DefaultUserPasswordHandler(in, out), kernel, geronimoDeploymentFactory);
@@ -132,6 +141,42 @@ public class ServerConnection {
             }          
         }
 
+        if(secure)
+        {
+            try {
+            FileInputStream fstream= new FileInputStream(System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String strLine;
+            String keyStorePassword=null;
+            String trustStorePassword=null;
+            while ((strLine = br.readLine()) != null)   {
+                if(strLine.startsWith("keyStorePassword"))
+                {
+                    keyStorePassword=(String)EncryptionManager.decrypt(strLine.substring(17));                    
+                }
+                if(strLine.startsWith("trustStorePassword"))
+                {
+                    trustStorePassword=(String)EncryptionManager.decrypt(strLine.substring(19));;
+                }
+            }
+             
+            String value=System.getProperty("javax.net.ssl.keyStore",System.getProperty(GERONIMO_HOME)+DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+            String value1=System.getProperty("javax.net.ssl.trustStore",System.getProperty(GERONIMO_HOME)+DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+            System.setProperty("javax.net.ssl.keyStore", value);
+            System.setProperty("javax.net.ssl.trustStore", value1);
+            System.setProperty("javax.net.ssl.keyStorePassword",keyStorePassword);
+            System.setProperty("javax.net.ssl.trustStorePassword",trustStorePassword);
+            }
+            catch(NullPointerException e)
+            {
+                throw new NullPointerException("Null value specified for trustStore keyStore location property org.apache.geronimo.keyStoreTrustStorePasswordFile");
+            }
+            catch(IOException e)
+            {
+                throw new DeploymentException("Unable to set KeyStorePassword and TrustStorePassword", e);
+            }
+        }
         if (user == null || password == null) {
             try {
                 if (user == null) {
