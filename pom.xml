@@ -80,7 +80,7 @@
         <!--
         Having a single well named version properties makes automatic updating for the weekly build much easier.
         -->
-        <openejbVersion>3.0.1</openejbVersion>
+        <openejbVersion>3.0.2-SNAPSHOT</openejbVersion>
         <derbyVersion>10.5.3.0_1</derbyVersion>
         <externalTomcatVersion>6.0.20.0</externalTomcatVersion>
         <tomcatVersion>6.0.20</tomcatVersion>
