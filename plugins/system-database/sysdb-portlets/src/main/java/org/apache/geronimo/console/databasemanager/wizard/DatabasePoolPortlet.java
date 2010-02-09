@@ -1430,8 +1430,14 @@ public class DatabasePoolPortlet extends BasePortlet {
             StringBuffer buf = new StringBuffer();
             pos = 0;
             for (int i = 1; i < key.length(); i++) {
-                if (Character.isUpperCase(key.charAt(i))) {
-                    if (Character.isUpperCase(key.charAt(i - 1))) { // ongoing capitalized word
+                 if(key.charAt(i)=='_')
+                 {
+                     buf.append(key.substring(pos, i)).append(" ");
+                     pos = i+1;
+                 }
+                 else{
+                     if (Character.isUpperCase(key.charAt(i))) {
+                         if (Character.isUpperCase(key.charAt(i - 1)) || key.charAt(i-1)=='_') { // ongoing capitalized word
 
                     } else { // start of a new word
                         buf.append(key.substring(pos, i)).append(" ");
@@ -1442,6 +1448,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                             key.charAt(i - 1)) && i - pos > 1) { // first lower-case after a series of caps
                         buf.append(key.substring(pos, i - 1)).append(" ");
                         pos = i - 1;
+                    }
                     }
                 }
             }
