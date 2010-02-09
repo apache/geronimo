@@ -71,7 +71,7 @@
         <axis2Version>1.5</axis2Version>
         <axiomVersion>1.2.8</axiomVersion>
         <springVersion>2.5.6</springVersion>
-        <openjpaVersion>1.2.1</openjpaVersion>
+        <openjpaVersion>1.2.2</openjpaVersion>
         <xbeanVersion>3.6</xbeanVersion>
         <jetty>jetty7</jetty>
 
