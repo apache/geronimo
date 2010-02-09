@@ -145,10 +145,7 @@ public class WebContainerEventDispatcher {
             return;
         }
         Dictionary<String, Object> props = createDefaultProperties(bundle, contextPath);
-        /*
-         * XXX: The specification doesn't exactly say what type of COLLISION and COLLISION_BUNDLES are
-         */
-        props.put(WebContainerConstants.COLLISION, Boolean.TRUE);
+        props.put(WebContainerConstants.COLLISION, contextPath);
         props.put(WebContainerConstants.COLLISION_BUNDLES, bundleId);
         eventAdmin.postEvent(new Event(WebContainerConstants.TOPIC_FAILED, props));
     }
