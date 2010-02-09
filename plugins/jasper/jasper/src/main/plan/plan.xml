@@ -25,4 +25,8 @@
 
     <gbean name="JasperJSPFactoryConfigurer" class="org.apache.geronimo.jasper.JasperJSPFactoryConfigurer">
     </gbean>
+
+    <gbean name="JstlTldRegistration" class="org.apache.geronimo.jasper.TldRegistration">
+        <attribute name="packageNameList">org.apache.taglibs.standard</attribute>
+    </gbean>
 </module>

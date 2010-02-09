@@ -38,7 +38,6 @@
         <module>geronimo-myfaces-builder</module>
         <module>myfaces</module>
         <module>myfaces-deployer</module>
-        <module>myfaces-jetty-server</module>
     </modules>
 
 </project>

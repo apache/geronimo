@@ -22,4 +22,8 @@
 
     <gbean name="MyFacesLifecycleProviderFactory" class="org.apache.geronimo.myfaces.LifecycleProviderFactoryGBean"/>
 
+    <gbean name="MyfacesTldRegistration" class="org.apache.geronimo.jasper.TldRegistration">
+        <attribute name="packageNameList">org.apache.myfaces.webapp</attribute>
+    </gbean>
+
 </module>

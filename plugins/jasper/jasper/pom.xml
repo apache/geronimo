@@ -75,26 +75,13 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>${tomcatGroupId}</groupId>-->
-        <!--<artifactId>jasper</artifactId>-->
-        <!--</dependency>-->
 
-        <!--<dependency>-->
-        <!--<groupId>${tomcatGroupId}</groupId>-->
-        <!--<artifactId>jasper-jdt</artifactId>-->
-        <!--</dependency>-->
+        <!-- For JSTL support -->
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
 
-        <!--<dependency>-->
-        <!--<groupId>${tomcatGroupId}</groupId>-->
-        <!--<artifactId>jasper-el</artifactId>-->
-        <!--</dependency>-->
-
-        <!-- are these required? -->
-        <!--<dependency>-->
-        <!--<groupId>${tomcatGroupId}</groupId>-->
-        <!--<artifactId>juli-adapters</artifactId>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>

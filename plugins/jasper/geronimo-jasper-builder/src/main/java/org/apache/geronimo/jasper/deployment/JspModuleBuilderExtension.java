@@ -56,6 +56,7 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jasper.JasperServletContextCustomizer;
+import org.apache.geronimo.jasper.TldProvider;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -73,6 +74,9 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -246,20 +250,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         tldURLs.addAll(scanModule(webModule));
 
         // 4. All TLD files in all META-INF(s)
-        /*
-        try {
-            Enumeration<URL> enumURLs = webModule.getEarContext().getDeploymentBundle().getResources("META-INF");
-            if (enumURLs != null) {
-                while (enumURLs.hasMoreElements()) {
-                    URL enumURL = enumURLs.nextElement();
-                    tldURLs.addAll(scanDirectory(enumURL));
-                }
-            }
-        }
-        catch (IOException ioe) {
-            throw new DeploymentException("Could not locate TLD files located in META-INF(s) " + ioe.getMessage(), ioe);
-        }
-        */
+        tldURLs.addAll(scanGlobalTlds(webModule.getEarContext().getDeploymentBundle()));
 
         log.debug("getTldFiles() Exit: URL[" + tldURLs.size() + "]: " + tldURLs.toString());
         return tldURLs;
@@ -286,6 +277,29 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         return Collections.emptyList();
     }
 
+    private List<URL> scanGlobalTlds(Bundle bundle) throws DeploymentException {
+        BundleContext bundleContext = bundle.getBundleContext();
+        ServiceReference[] references;
+        try {
+            references = bundleContext.getServiceReferences(TldProvider.class.getName(), null);
+        } catch (InvalidSyntaxException e) {
+            // this should not happen            
+            throw new DeploymentException("Invalid filter expression", e);
+        }
+        List<URL> tldURLs = new ArrayList<URL>();
+        if (references != null) {
+            for (ServiceReference reference : references) {
+                TldProvider provider = (TldProvider) bundleContext.getService(reference);
+                for (TldProvider.TldEntry entry : provider.getTlds()) {
+                    URL url = entry.getURL();
+                    tldURLs.add(url);
+                }
+                bundleContext.ungetService(reference);
+            }
+        } 
+        return tldURLs;
+    }
+    
     private List<Class> getListenerClasses(WebAppType webApp, WebModule webModule, Collection<URL> urls, Set<String> listenerNames) throws DeploymentException {
         if (log.isDebugEnabled()) {
             log.debug("getListenerClasses( " + webApp.toString() + "," + '\n' +

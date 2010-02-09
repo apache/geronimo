@@ -19,12 +19,11 @@ package org.apache.geronimo.jasper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import javax.servlet.ServletContext;
@@ -32,18 +31,22 @@ import javax.servlet.ServletContext;
 import org.apache.geronimo.kernel.osgi.BundleResourceFinder;
 import org.apache.geronimo.kernel.osgi.DelegatingBundle;
 import org.apache.geronimo.kernel.osgi.BundleResourceFinder.ResourceFinderCallback;
-import org.apache.jasper.Constants;
+import org.apache.geronimo.kernel.osgi.jar.BundleJarFile;
 import org.apache.jasper.JasperException;
+import org.apache.jasper.compiler.JarResource;
+import org.apache.jasper.compiler.TldLocation;
 import org.apache.jasper.compiler.TldLocationsCache;
+import org.apache.jasper.compiler.WebXml;
 import org.apache.jasper.xmlparser.ParserUtils;
 import org.apache.jasper.xmlparser.TreeNode;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleReference;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
 
 /**
  * A container for all tag libraries that are defined "globally"
@@ -90,9 +93,10 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
     public static final int ROOT_REL_URI = 1;
     public static final int NOROOT_REL_URI = 2;
 
-    private static final String WEB_XML = "/WEB-INF/web.xml";
-    private static final String FILE_PROTOCOL = "file:";
-    private static final String JAR_FILE_SUFFIX = ".jar";
+    private static final String WEB_INF = "/WEB-INF/";
+    private static final String WEB_INF_LIB = "/WEB-INF/lib/";
+    private static final String JAR_EXT = ".jar";
+    private static final String TLD_EXT = ".tld";
 
     /**
      * The mapping of the 'global' tag library URI to the location (resource
@@ -101,7 +105,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
      *    [0] The location
      *    [1] If the location is a jar file, this is the location of the tld.
      */
-    private Hashtable<String,String[]> mappings;
+    private Hashtable<String, TldLocation> mappings;
 
     private boolean initialized;
     private ServletContext ctxt;
@@ -112,7 +116,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
     public GeronimoTldLocationsCache(ServletContext ctxt) {
         super(ctxt);
         this.ctxt = ctxt;
-        this.mappings = new Hashtable<String,String[]>();
+        this.mappings = new Hashtable<String, TldLocation>();
     }
 
     /**
@@ -140,21 +144,23 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
      * Returns null if the uri is not associated with any tag library 'exposed'
      * in the web application.
      */
-    public String[] getLocation(String uri) throws JasperException {
+    public TldLocation getLocation(String uri) throws JasperException {
         if (!initialized) {
             init();
         }
-        return (String[]) mappings.get(uri);
+        return mappings.get(uri);
     }
 
     private void init() throws JasperException {
         if (initialized) return;
         try {
-            processWebDotXml();
+            tldScanWebXml();
+            tldScanResourcePaths(WEB_INF);
+
             Bundle bundle = getBundle();
             if (bundle != null) {
-                processWebInf(bundle);
-                processClassPath(bundle);
+                tldScanClassPath(bundle);
+                tldScanGlobal(bundle);
             }
             initialized = true;
         } catch (Exception ex) {
@@ -177,46 +183,21 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
     
     /*
      * Populates taglib map described in web.xml.
-     */
-    private void processWebDotXml() throws Exception {
+     * 
+     * This is not kept in sync with o.a.c.startup.TldConfig as the Jasper only
+     * needs the URI to TLD mappings from scan web.xml whereas TldConfig needs
+     * to scan the actual TLD files.
+     */    
+    private void tldScanWebXml() throws Exception {
 
-        InputStream is = null;
-
+        WebXml webXml = null;
         try {
-            // Acquire input stream to web application deployment descriptor
-            String altDDName = (String)ctxt.getAttribute(
-                                                    Constants.ALT_DD_ATTR);
-            URL uri = null;
-            if (altDDName != null) {
-                try {
-                    uri = new URL(FILE_PROTOCOL+altDDName.replace('\\', '/'));
-                } catch (MalformedURLException e) {
-                    if (log.isWarnEnabled()) {
-                        log.warn("file not found: " + altDDName);
-                    }
-                }
-            } else {
-                uri = ctxt.getResource(WEB_XML);
-                if (uri == null && log.isWarnEnabled()) {
-                    log.warn("file not found: " + WEB_XML);
-                }
-            }
-
-            if (uri == null) {
-                return;
-            }
-            is = uri.openStream();
-            InputSource ip = new InputSource(is);
-            ip.setSystemId(uri.toExternalForm());
-
+            webXml = new WebXml(ctxt);
+            
             // Parse the web application deployment descriptor
             TreeNode webtld = null;
-            // altDDName is the absolute path of the DD
-            if (altDDName != null) {
-                webtld = new ParserUtils().parseXMLDocument(altDDName, ip);
-            } else {
-                webtld = new ParserUtils().parseXMLDocument(WEB_XML, ip);
-            }
+            webtld = new ParserUtils().parseXMLDocument(webXml.getSystemId(),
+                    webXml.getInputSource());
 
             // Allow taglib to be an element of the root or jsp-config (JSP2.0)
             TreeNode jspConfig = webtld.findChild("jsp-config");
@@ -242,23 +223,60 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
                     continue;
                 if (uriType(tagLoc) == NOROOT_REL_URI)
                     tagLoc = "/WEB-INF/" + tagLoc;
-                String tagLoc2 = null;
-                if (tagLoc.endsWith(JAR_FILE_SUFFIX)) {
-                    tagLoc = ctxt.getResource(tagLoc).toString();
-                    tagLoc2 = "META-INF/taglib.tld";
+                TldLocation location;
+                if (tagLoc.endsWith(JAR_EXT)) {
+                    location = new TldLocation("META-INF/taglib.tld", ctxt.getResource(tagLoc).toString());
+                } else {
+                    location = new TldLocation(tagLoc);
                 }
-                mappings.put(tagUri, new String[] { tagLoc, tagLoc2 });
+                mappings.put(tagUri, location);
             }
         } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (Throwable t) {}
+            if (webXml != null) {
+                webXml.close();
             }
         }
     }
+    
+    /*
+     * Scans the web application's sub-directory identified by startPath,
+     * along with its sub-directories, for TLDs and adds an implicit map entry
+     * to the taglib map for any TLD that has a <uri> element.
+     *
+     * Initially, rootPath equals /WEB-INF/. The /WEB-INF/classes and
+     * /WEB-INF/lib sub-directories are excluded from the search, as per the
+     * JSP 2.0 spec.
+     * 
+     * Keep code in sync with o.a.c.startup.TldConfig
+     */
+    private void tldScanResourcePaths(String startPath)
+            throws Exception {
 
-    private void processClassPath(Bundle bundle) throws Exception {
+        Set<String> dirList = ctxt.getResourcePaths(startPath);
+        if (dirList != null) {
+            Iterator<String> it = dirList.iterator();
+            while (it.hasNext()) {
+                String path = it.next();
+                if (!path.endsWith(TLD_EXT)
+                        && (path.startsWith(WEB_INF_LIB)
+                                || path.startsWith("/WEB-INF/classes/"))) {
+                    continue;
+                }
+                if (path.endsWith(TLD_EXT)) {
+                    if (path.startsWith("/WEB-INF/tags/") &&
+                            !path.endsWith("implicit.tld")) {
+                        continue;
+                    }
+                    InputStream stream = ctxt.getResourceAsStream(path);
+                    tldScanStream(stream, new TldLocation(path));
+                } else {
+                    tldScanResourcePaths(path);
+                }
+            }
+        }
+    }    
+    
+    private void tldScanClassPath(Bundle bundle) throws Exception {
         ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
         PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
                 
@@ -266,70 +284,101 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         resourceFinder.find(new ResourceFinderCallback() {
 
             public void foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception {
-                addMapping(url, new String[] {url.getPath(), null});
+                tldScanStream(url, new TldLocation(url.getPath()));
             }
 
             public void foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception {
-                URL jarURL = bundle.getEntry(jarName);
-                URL url = new URL("jar:" + jarURL.toString() + "!/" + entry.getName());
-                
-                addMapping(url, new String[] {jarURL.toString(), entry.getName()});
+                URL jarURL = bundle.getEntry(jarName); 
+                tldScanStream(in, new TldLocation(entry.getName(), jarURL.toExternalForm()));
             }
             
         });
           
         bundle.getBundleContext().ungetService(reference);
     }
-
-    private void processWebInf(Bundle bundle) throws JasperException, IOException {
-        Enumeration e = bundle.findEntries("WEB-INF/", "*.tld", true);
-        if (e != null) {
-            while (e.hasMoreElements()) {
-                URL u = (URL) e.nextElement();
-                addMapping(u, new String[] {u.getPath(), null});
-            }
-        }
-    }
-
-    private void addMapping(URL url, String[] location) throws JasperException, IOException {
-        String path = url.toString();
-        InputStream stream = url.openStream();
-        String uri = null;
-        try {
-            uri = getUriFromTld(path, stream);
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (Throwable t) {
-                    // do nothing
+   
+    private void tldScanGlobal(Bundle bundle) throws JasperException, IOException, InvalidSyntaxException {
+        BundleContext bundleContext = bundle.getBundleContext();
+        ServiceReference[] references = bundleContext.getServiceReferences(TldProvider.class.getName(), null);
+        if (references != null) {
+            for (ServiceReference reference : references) {
+                TldProvider provider = (TldProvider) bundleContext.getService(reference);
+                for (TldProvider.TldEntry entry : provider.getTlds()) {
+                    URL url = entry.getURL();
+                    if (entry.getJarUrl() != null) { 
+                        tldScanStream(url, new TldLocation(entry.getName(), entry.getJarUrl().toExternalForm()));
+                    } else {
+                        tldScanStream(url, new TldLocation(entry.getName(), new BundleJarResource(entry.getBundle())));
+                    }
                 }
+                bundleContext.ungetService(reference);
             }
-        }
-        // Add implicit map entry only if its uri is not already
-        // present in the map
-        if (uri != null && mappings.get(uri) == null) {
-            mappings.put(uri, location);
         }
     }
     
-    /*
-     * Returns the value of the uri element of the given TLD, or null if the
-     * given TLD does not contain any such element.
-     */
-    private String getUriFromTld(String resourcePath, InputStream in)
-        throws JasperException
-    {
-        // Parse the tag library descriptor at the specified resource path
-        TreeNode tld = new ParserUtils().parseXMLDocument(resourcePath, in);
-        TreeNode uri = tld.findChild("uri");
-        if (uri != null) {
-            String body = uri.getBody();
-            if (body != null)
-                return body;
-        }
-
-        return null;
+    private void tldScanStream(URL url, TldLocation location) throws IOException {
+        InputStream in = url.openStream();
+        tldScanStream(in, location);
     }
+    
+    /*
+     * Scan the TLD contents in the specified input stream and add any new URIs
+     * to the map.
+     * 
+     * @param resourcePath  Path of the resource
+     * @param entryName     If the resource is a JAR file, the name of the entry
+     *                      in the JAR file
+     * @param stream        The input stream for the resource
+     * @throws IOException
+     */
+    private void tldScanStream(InputStream stream, TldLocation location) throws IOException {
+        String path = (location.getJarResource() == null) ?  location.getName() : location.getJarResource().getUrl();
+        try {
+            // Parse the tag library descriptor at the specified resource path
+            String uri = null;
 
+            TreeNode tld =
+                new ParserUtils().parseXMLDocument(path, stream);
+            TreeNode uriNode = tld.findChild("uri");
+            if (uriNode != null) {
+                String body = uriNode.getBody();
+                if (body != null)
+                    uri = body;
+            }
+
+            // Add implicit map entry only if its uri is not already
+            // present in the map
+            if (uri != null && mappings.get(uri) == null) {
+                mappings.put(uri, location);
+            }
+        } catch (JasperException e) {
+            // Hack - makes exception handling simpler
+            throw new IOException(e);
+        } finally {
+            try { stream.close(); } catch (IOException ignore) {}
+        }
+    }
+    
+    private static class BundleJarResource implements JarResource {
+               
+        private Bundle bundle;
+        private URL url;
+        
+        public BundleJarResource(Bundle bundle) {           
+            this.bundle = bundle;
+            this.url = bundle.getEntry("/");
+        }
+        
+        public JarFile getJarFile() throws IOException {
+            return new BundleJarFile(bundle);
+        }
+        
+        public String getUrl() {
+            return url.toExternalForm();
+        }
+        
+        public URL getEntry(String name) {
+            return bundle.getEntry(name);
+        }
+    }
 }
