@@ -245,6 +245,7 @@ public class WebContainerExtender implements GBeanLifecycle {
             eventDispatcher.deploying(bundle, contextPath);
             List<Long> bundleIds = new ArrayList<Long>();
             bundleIds.add(deployedApp.getBundle().getBundleId());
+            bundleIds.add(bundle.getBundleId());
             eventDispatcher.collision(bundle, contextPath, bundleIds);
             LOGGER.warn("WAB {} cannot be deployed. WAB {} is already deployed with {} Context-Path.", 
                         new Object[] {bundle, deployedApp.getBundle(), contextPath});
