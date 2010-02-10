@@ -18,9 +18,9 @@
  */
 package org.apache.geronimo.osgi.web.extender;
 
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.List;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -139,7 +139,7 @@ public class WebContainerEventDispatcher {
      * @param contextPath
      *               The context path information from the bundle.
      */
-    public void collision(Bundle bundle, String contextPath, List<Long> bundleId) {
+    public void collision(Bundle bundle, String contextPath, Collection<Long> bundleId) {
         EventAdmin eventAdmin = getEventAdmin();
         if (eventAdmin == null) {
             return;

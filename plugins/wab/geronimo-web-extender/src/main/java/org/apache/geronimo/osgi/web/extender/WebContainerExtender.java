@@ -20,7 +20,9 @@ package org.apache.geronimo.osgi.web.extender;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -41,7 +43,6 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.Constants;
@@ -74,7 +75,7 @@ public class WebContainerExtender implements GBeanLifecycle {
     private final Collection<? extends Repository> repositories;
     private final ConfigurationManager configurationManager;
     
-    private Map<String, WebApplication> contextPathMap;
+    private Map<String, WebApplications> contextPathMap;
     private WebContainerEventDispatcher eventDispatcher;
     private BundleTracker bt;
     private ExecutorService executor;
@@ -147,7 +148,7 @@ public class WebContainerExtender implements GBeanLifecycle {
         LOGGER.debug("Starting web container extender...");
 
         executor = Executors.newFixedThreadPool(3);
-        contextPathMap = new HashMap<String, WebApplication>();  
+        contextPathMap = Collections.synchronizedMap(new HashMap<String, WebApplications>());  
         eventDispatcher = new WebContainerEventDispatcher(context);
         bt = new BundleTracker(context, Bundle.STARTING | Bundle.ACTIVE, new WebBundleTrackerCustomizer());
         bt.open();
@@ -217,8 +218,8 @@ public class WebContainerExtender implements GBeanLifecycle {
      * @param wab    The deployed application.
      */
     private void undeploy(WebApplication wab) {
-        // remove from our global list before destroying
-        wab.undeploy();
+        WebApplications webApplications = contextPathMap.get(wab.getContextPath());
+        webApplications.remove(wab);
     }
 
     /**
@@ -236,35 +237,32 @@ public class WebContainerExtender implements GBeanLifecycle {
             return null;
         }
         LOGGER.debug("Found web container application in bundle {} with context path: {}", bundle.getSymbolicName(), contextPath);
+        WebApplications webApplications = getWebApplications(contextPath);
         WebApplication webApp = new WebApplication(this, bundle, contextPath);
-        WebApplication deployedApp = registerWebApplication(webApp);
-        if (deployedApp == null) {
-            webApp.schedule();
-            return webApp;
-        } else {
+        Collection<Long> collisions = webApplications.register(webApp);
+        if (!collisions.isEmpty()) {
             eventDispatcher.deploying(bundle, contextPath);
-            List<Long> bundleIds = new ArrayList<Long>();
-            bundleIds.add(deployedApp.getBundle().getBundleId());
-            bundleIds.add(bundle.getBundleId());
-            eventDispatcher.collision(bundle, contextPath, bundleIds);
+            eventDispatcher.collision(bundle, contextPath, collisions);
             LOGGER.warn("WAB {} cannot be deployed. WAB {} is already deployed with {} Context-Path.", 
-                        new Object[] {bundle, deployedApp.getBundle(), contextPath});
-            return null;
+                        new Object[] {bundle, webApplications.getDeployed().getBundle(), contextPath});
         }
+        return webApp;
     }
-    
-    private synchronized WebApplication registerWebApplication(WebApplication webApp) {
-        WebApplication app = contextPathMap.get(webApp.getContextPath());
-        if (app == null) {
-            contextPathMap.put(webApp.getContextPath(), webApp);
-            return null;
-        } else {
-            return app;
+        
+    private WebApplications getWebApplications(String contextPath) {
+        synchronized (contextPathMap) {
+            WebApplications webApplications = contextPathMap.get(contextPath);
+            if (webApplications == null) {
+                webApplications = new WebApplications(contextPath);
+                contextPathMap.put(contextPath, webApplications);
+            }
+            return webApplications;            
         }
     }
  
-    protected synchronized void unregisterWebApplication(WebApplication webApp) {
-        contextPathMap.remove(webApp.getContextPath());
+    protected void unregisterWebApplication(WebApplication wab) {
+        WebApplications webApplications = contextPathMap.get(wab.getContextPath());
+        webApplications.unregister(wab);
     }
 
     public void doFail() {
@@ -277,5 +275,70 @@ public class WebContainerExtender implements GBeanLifecycle {
 
     public void doStop() throws Exception {
         stop(bundleContext);        
+    }
+    
+    private static class WebApplications {
+        
+        private String contextPath;
+        private WebApplication deployed;
+        private List<WebApplication> waiting;
+        
+        public WebApplications(String contextPath) {
+            this.contextPath = contextPath;
+            this.waiting = new LinkedList<WebApplication>();
+        }
+        
+        public synchronized Collection<Long> register(WebApplication webApp) {
+            if (deployed == null) {
+                deployed = webApp;
+                deployed.schedule();
+                return Collections.emptyList();
+            } else {
+                waiting.add(webApp);
+                List<Long> bundleIds = new ArrayList<Long>();
+                bundleIds.add(deployed.getBundle().getBundleId());
+                for (WebApplication app : waiting) {
+                    bundleIds.add(app.getBundle().getBundleId());
+                }
+                return bundleIds;
+            }
+        }
+        
+        public synchronized void unregister(WebApplication webApp) {
+            if (deployed == webApp) {
+                WebApplication candidate = null;
+                for (WebApplication app : waiting) {
+                    if (candidate == null || candidate.getBundle().getBundleId() > app.getBundle().getBundleId()) {
+                        candidate = app;
+                    }
+                }
+                if (candidate == null) {
+                    deployed = null;
+                } else {
+                    waiting.remove(candidate);
+                    deployed = candidate;
+                    deployed.schedule();
+                }
+            } else {
+                waiting.remove(webApp);
+            }
+        }
+        
+        public synchronized void remove(WebApplication webApp) {
+            if (deployed == webApp) {
+                // this will cause unregister() to be invoked
+                deployed.undeploy();
+            } else {
+                waiting.remove(webApp);
+            }
+        }
+        
+        public synchronized WebApplication getDeployed() {
+            return deployed;
+        }
+        
+        public String toString() {
+            return "ContextPath[" + contextPath + " " + deployed + " " + waiting + "]";
+        }
     }
 }
