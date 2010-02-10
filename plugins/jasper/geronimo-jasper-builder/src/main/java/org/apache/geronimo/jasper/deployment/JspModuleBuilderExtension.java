@@ -251,7 +251,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         // 4. All TLD files in all META-INF(s)
         tldURLs.addAll(scanGlobalTlds(webModule.getEarContext().getDeploymentBundle()));
-
+        
         log.debug("getTldFiles() Exit: URL[" + tldURLs.size() + "]: " + tldURLs.toString());
         return tldURLs;
     }
@@ -334,10 +334,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             for (org.apache.geronimo.xbeans.javaee.ListenerType listener : listeners) {
                 org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType cls = listener.getListenerClass();
                 String className = cls.getStringValue().trim();
-                listenerNames.add(className);
                 try {
                     Class clas = bundle.loadClass(className);
                     classes.add(clas);
+                    listenerNames.add(className);
                 }
                 catch (ClassNotFoundException e) {
                     log.warn("JspModuleBuilderExtension: Could not load listener class: " + className + " mentioned in TLD file at " + url.toString());
