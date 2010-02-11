@@ -41,7 +41,7 @@ public class JAXWSTools {
 
     private final static String [][] LIBS =
     {
-        { "org.apache.geronimo.specs", "geronimo-jaxws_2.1_spec" },
+        { "org.apache.geronimo.specs", "geronimo-jaxws_2.2_spec" },
         { "org.apache.geronimo.specs", "geronimo-saaj_1.3_spec" },
         { "org.apache.geronimo.specs", "geronimo-jaxb_2.1_spec" },
         { "com.sun.xml.bind", "jaxb-impl" },
