@@ -55,7 +55,7 @@ public class JAXWSTools {
         { "org.apache.geronimo.specs",    "geronimo-ejb_3.0_spec"},
         { "org.apache.geronimo.specs",    "geronimo-interceptor_3.0_spec"},
         { "org.apache.geronimo.specs",    "geronimo-stax-api_1.0_spec"},
-        { "org.apache.geronimo.specs",    "geronimo-jpa_3.0_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-jpa_1.0_spec"},
         { "org.apache.geronimo.specs",    "geronimo-j2ee-connector_1.5_spec"},
         { "org.apache.geronimo.specs",    "geronimo-jms_1.1_spec"},
         { "org.apache.geronimo.specs",    "geronimo-jta_1.1_spec"},
