@@ -32,11 +32,18 @@ public class BundleJarEntry extends JarEntry {
     private final Manifest manifest;
 
     public BundleJarEntry(String name, URL entryURL, Manifest manifest) {
-        super(name);
+        super(removeSlash(name));
         this.entryURL = entryURL;
         this.manifest = manifest;
     }
 
+    private static String removeSlash(String name) {
+        if (name.startsWith("/")) {
+            name = name.substring(1);
+        }
+        return name;
+    }
+    
     public URL getEntryURL() {
         return entryURL;
     }
