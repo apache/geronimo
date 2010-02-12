@@ -35,6 +35,8 @@ import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.StringUtil;
+import org.eclipse.jetty.util.URIUtil;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.URLResource;
 import org.osgi.framework.Bundle;
@@ -123,6 +125,18 @@ public class GeronimoWebAppContext extends WebAppContext {
         }
     }
 
+    @Override
+    protected boolean isProtectedTarget(String target) {    
+        while (target.startsWith("//")) {
+            target=URIUtil.compactPath(target);
+        }
+         
+        return StringUtil.startsWithIgnoreCase(target, "/web-inf") || 
+               StringUtil.startsWithIgnoreCase(target, "/meta-inf") ||
+               StringUtil.startsWithIgnoreCase(target, "/osgi-inf") ||
+               StringUtil.startsWithIgnoreCase(target, "/osgi-opt");
+    }
+    
     @Override
     public Resource newResource(String url) throws IOException {
         if (url == null) {
