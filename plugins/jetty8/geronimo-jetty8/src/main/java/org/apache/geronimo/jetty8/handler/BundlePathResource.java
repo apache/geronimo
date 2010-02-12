@@ -31,12 +31,12 @@ import org.eclipse.jetty.util.resource.Resource;
 
 public class BundlePathResource extends Resource {
 
-    private String name;
+    private URL url;
     private String[] resources;
     
-    public BundlePathResource(String name, Enumeration<String> paths) {
-        this.name = name;
-        String baseName = removeSlash(name);
+    public BundlePathResource(URL url, Enumeration<String> paths) {
+        this.url = url;
+        String baseName = removeSlash(url.getPath());
         List<String> list = new ArrayList<String>();
         while(paths.hasMoreElements()) {
             String path = getRelativeName(baseName, paths.nextElement());
@@ -78,7 +78,7 @@ public class BundlePathResource extends Resource {
     }
         
     public String getName() {
-        return name;
+        return url.toExternalForm();
     }
     
     public void release() {
@@ -89,7 +89,7 @@ public class BundlePathResource extends Resource {
     }
 
     public URL getURL() {
-        return null;
+        return url;
     }
 
     public File getFile() throws IOException {

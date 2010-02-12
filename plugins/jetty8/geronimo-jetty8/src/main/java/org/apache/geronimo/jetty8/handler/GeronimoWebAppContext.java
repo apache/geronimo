@@ -124,28 +124,52 @@ public class GeronimoWebAppContext extends WebAppContext {
     }
 
     @Override
+    public Resource newResource(String url) throws IOException {
+        if (url == null) {
+            return null;
+        }
+        return newResource(new URL(url));
+    }
+    
+    @Override
+    public Resource newResource(URL url) throws IOException {
+        if (url == null) {
+            return null;
+        }
+        String protocol = url.getProtocol();
+        if ("bundle".equals(protocol) ||
+            "bundleentry".equals(protocol)) {
+            return lookupResource(url.getPath());
+        } else {
+            return super.newResource(url);
+        }
+    }
+    
+    @Override
     public Resource getResource(String uriInContext) throws MalformedURLException {
         if (modulePath != null) {
             uriInContext = modulePath + uriInContext;
         }
+        return lookupResource(uriInContext);
+    }
+    
+    private Resource lookupResource(String uriInContext) {
+        Bundle bundle = integrationContext.getBundle();
+        URL url = bundle.getEntry(uriInContext);
+        if (url == null) {
+            return null;
+        }
         if (uriInContext.endsWith("/")) {
-            Enumeration<String> paths = integrationContext.getBundle().getEntryPaths(uriInContext);
-            if (paths == null) {
-                return null;
-            }
-            return new BundlePathResource(uriInContext, paths);
+            Enumeration<String> paths = bundle.getEntryPaths(uriInContext);
+            return new BundlePathResource(url, paths);
         } else {
-            URL url = integrationContext.getBundle().getEntry(uriInContext);
-            if (url == null) {
-                return null;
-            }
-            return new BasicURLResource(url);
+            return new BundleFileResource(url);
         }
     }
 
-    private static class BasicURLResource extends URLResource {
+    private static class BundleFileResource extends URLResource {
 
-        protected BasicURLResource(URL url) {
+        protected BundleFileResource(URL url) {
             super(url, null);
         }
         
