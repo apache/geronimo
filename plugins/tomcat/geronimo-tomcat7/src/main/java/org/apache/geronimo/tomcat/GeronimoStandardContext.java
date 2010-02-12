@@ -57,6 +57,7 @@ import org.apache.geronimo.tomcat.listener.DispatchListener;
 import org.apache.geronimo.tomcat.listener.RunAsInstanceListener;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
+import org.apache.geronimo.tomcat.valve.ProtectedTargetValve;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
@@ -174,6 +175,8 @@ public class GeronimoStandardContext extends StandardContext {
         //Set a UserTransactionBeforeAfter
         interceptor = new UserTransactionBeforeAfter(interceptor, index++, ctx.getUserTransaction());
 
+        addValve(new ProtectedTargetValve());
+        
         Valve clusteredValve = ctx.getClusteredValve();
         if (null != clusteredValve) {
             addValve(clusteredValve);
