@@ -2371,7 +2371,7 @@ only found in cxf
                 <module>framework</module>
                 <module>plugins</module>
                 <module>plugingroups</module>
-                <!--<module>assemblies</module>-->
+                <module>assemblies</module>
             </modules>
         </profile>
 
