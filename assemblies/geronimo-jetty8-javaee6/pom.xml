@@ -45,6 +45,7 @@
         </dependency>
     </dependencies>
 
+<!-- Needs to be reworked to support the new karaf shell
     <build>
         <plugins>
             <plugin>
@@ -75,5 +76,6 @@
             </plugin>
         </plugins>
     </build>
+-->
 
 </project>
