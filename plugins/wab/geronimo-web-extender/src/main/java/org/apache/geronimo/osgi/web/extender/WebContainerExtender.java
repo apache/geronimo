@@ -75,6 +75,7 @@ public class WebContainerExtender implements GBeanLifecycle {
     private final Collection<? extends Repository> repositories;
     private final ConfigurationManager configurationManager;
     
+    private boolean stopped;
     private Map<String, WebApplications> contextPathMap;
     private WebContainerEventDispatcher eventDispatcher;
     private BundleTracker bt;
@@ -147,6 +148,7 @@ public class WebContainerExtender implements GBeanLifecycle {
     public void start(BundleContext context) {
         LOGGER.debug("Starting web container extender...");
 
+        stopped = false;
         executor = Executors.newFixedThreadPool(3);
         contextPathMap = Collections.synchronizedMap(new HashMap<String, WebApplications>());  
         eventDispatcher = new WebContainerEventDispatcher(context);
@@ -201,6 +203,7 @@ public class WebContainerExtender implements GBeanLifecycle {
     public void stop(BundleContext context) {
         LOGGER.debug("Stopping web container extender...");
         
+        stopped = true;
         if (bt != null) {
             bt.close();
         }
@@ -262,7 +265,7 @@ public class WebContainerExtender implements GBeanLifecycle {
  
     protected void unregisterWebApplication(WebApplication wab) {
         WebApplications webApplications = contextPathMap.get(wab.getContextPath());
-        webApplications.unregister(wab);
+        webApplications.unregister(wab, !stopped);
     }
 
     public void doFail() {
@@ -304,20 +307,21 @@ public class WebContainerExtender implements GBeanLifecycle {
             }
         }
         
-        public synchronized void unregister(WebApplication webApp) {
+        public synchronized void unregister(WebApplication webApp, boolean redeploy) {
             if (deployed == webApp) {
-                WebApplication candidate = null;
-                for (WebApplication app : waiting) {
-                    if (candidate == null || candidate.getBundle().getBundleId() > app.getBundle().getBundleId()) {
-                        candidate = app;
+                deployed = null;
+                if (redeploy) {
+                    WebApplication candidate = null;
+                    for (WebApplication app : waiting) {
+                        if (candidate == null || candidate.getBundle().getBundleId() > app.getBundle().getBundleId()) {
+                            candidate = app;
+                        }
                     }
-                }
-                if (candidate == null) {
-                    deployed = null;
-                } else {
-                    waiting.remove(candidate);
-                    deployed = candidate;
-                    deployed.schedule();
+                    if (candidate != null) {
+                        waiting.remove(candidate);
+                        deployed = candidate;
+                        deployed.schedule();
+                    }
                 }
             } else {
                 waiting.remove(webApp);
