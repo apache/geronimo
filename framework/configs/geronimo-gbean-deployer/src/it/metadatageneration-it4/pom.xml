@@ -92,7 +92,7 @@
                             </obsoletes>
                             <config-xml-content>
                                 <gbean name="DownloadedPluginRepos">
-                                    <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.1.txt</attribute>
+                                    <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-3.0.txt</attribute>
                                     <attribute name="userRepositories">~/.m2/repository,#{key1}</attribute>
                                 </gbean>
                             </config-xml-content>

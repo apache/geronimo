@@ -51,4 +51,14 @@
         <artifactId>webservices-axis2</artifactId>
         <type>car</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>console-jetty</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>plugin-console-jetty</artifactId>
+        <type>car</type>
+    </dependency>
 </plugin-artifact>
