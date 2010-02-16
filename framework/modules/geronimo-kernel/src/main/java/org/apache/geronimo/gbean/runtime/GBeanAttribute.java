@@ -250,6 +250,8 @@ public class GBeanAttribute {
                     }
                 } catch (NoSuchMethodException e) {
                     throw new InvalidConfigurationException("Getter method not found " + getDescription(), e);
+                } catch (NoClassDefFoundError e) {
+                    throw new InvalidConfigurationException("Getter method not found " + getDescription(), e);
                 }
             } else {
                 getInvoker = null;

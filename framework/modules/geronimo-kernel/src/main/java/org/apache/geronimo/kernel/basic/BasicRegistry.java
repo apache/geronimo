@@ -20,11 +20,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.management.ObjectName;
+
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -38,9 +38,9 @@ import org.apache.geronimo.kernel.Kernel;
  * @version $Rev$ $Date$
  */
 public class BasicRegistry implements InstanceRegistry {
-    private final Map objectNameRegistry = new HashMap();
-    private final Map infoRegistry = new HashMap();
-    private final IdentityHashMap instanceRegistry = new IdentityHashMap();
+    private final Map<ObjectName, GBeanInstance> objectNameRegistry = new HashMap<ObjectName, GBeanInstance>();
+    private final Map<AbstractName, GBeanInstance> infoRegistry = new HashMap<AbstractName, GBeanInstance>();
+    private final IdentityHashMap<Object, GBeanInstance> instanceRegistry = new IdentityHashMap<Object, GBeanInstance>();
     private String kernelName = "";
 
     /**
@@ -93,7 +93,7 @@ public class BasicRegistry implements InstanceRegistry {
     }
 
     public synchronized void unregister(AbstractName abstractName) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = (GBeanInstance) infoRegistry.remove(abstractName);
+        GBeanInstance gbeanInstance = infoRegistry.remove(abstractName);
         if (gbeanInstance == null) {
             throw new GBeanNotFoundException(abstractName);
         }
@@ -109,7 +109,7 @@ public class BasicRegistry implements InstanceRegistry {
     }
 
     public synchronized GBeanInstance getGBeanInstanceByInstance(Object instance) {
-        return (GBeanInstance) instanceRegistry.get(instance);
+        return instanceRegistry.get(instance);
     }
 
     /**
@@ -120,7 +120,7 @@ public class BasicRegistry implements InstanceRegistry {
      * @throws GBeanNotFoundException if there is no GBean registered with the supplied name
      */
     public synchronized GBeanInstance getGBeanInstance(ObjectName name) throws GBeanNotFoundException {
-        GBeanInstance instance = (GBeanInstance) objectNameRegistry.get(normalizeObjectName(name));
+        GBeanInstance instance = objectNameRegistry.get(normalizeObjectName(name));
         if (instance == null) {
             throw new GBeanNotFoundException(name);
         }
@@ -128,7 +128,7 @@ public class BasicRegistry implements InstanceRegistry {
     }
 
     public synchronized GBeanInstance getGBeanInstance(AbstractName abstractName) throws GBeanNotFoundException {
-        GBeanInstance instance = (GBeanInstance) infoRegistry.get(abstractName);
+        GBeanInstance instance = infoRegistry.get(abstractName);
         if (instance == null) {
             throw new GBeanNotFoundException(abstractName);
         }
@@ -147,7 +147,7 @@ public class BasicRegistry implements InstanceRegistry {
         } else {
             nameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", shortName), type.getName());
         }
-        Set instances = listGBeans(nameQuery);
+        Set<GBeanInstance> instances = listGBeans(nameQuery);
 
         if (instances.size() == 0) {
             throw new GBeanNotFoundException("No GBeans found", Collections.singleton(nameQuery), null);
@@ -163,7 +163,7 @@ public class BasicRegistry implements InstanceRegistry {
             throw new GBeanNotFoundException("More then one GBean was found with shortName '" + shortName + "' and type '" + type.getName() + "'", Collections.singleton(nameQuery), mapToNames(instances));
         }
 
-        return (GBeanInstance) instances.iterator().next();
+        return instances.iterator().next();
     }
 
     private Set<AbstractName> mapToNames(Set<GBeanInstance> instances) {
@@ -181,18 +181,17 @@ public class BasicRegistry implements InstanceRegistry {
      * @param pattern the object name pattern to search for
      * @return an unordered Set<GBeanInstance> of GBeans that matched the pattern
      */
-    public Set listGBeans(ObjectName pattern) {
+    public Set<GBeanInstance> listGBeans(ObjectName pattern) {
         pattern = normalizeObjectName(pattern);
 
         // fairly dumb implementation that iterates the list of all registered GBeans
-        Map clone;
+        Map<ObjectName, GBeanInstance> clone;
         synchronized (this) {
-            clone = new HashMap(objectNameRegistry);
+            clone = new HashMap<ObjectName, GBeanInstance>(objectNameRegistry);
         }
-        Set result = new HashSet(clone.size());
-        for (Iterator i = clone.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
-            ObjectName name = (ObjectName) entry.getKey();
+        Set<GBeanInstance> result = new HashSet<GBeanInstance>(clone.size());
+        for (Map.Entry<ObjectName, GBeanInstance> entry : clone.entrySet()) {
+            ObjectName name = entry.getKey();
             if (pattern == null || pattern.apply(name)) {
                 result.add(entry.getValue());
             }
@@ -200,16 +199,15 @@ public class BasicRegistry implements InstanceRegistry {
         return result;
     }
 
-    public Set listGBeans(AbstractNameQuery query) {
-        Map clone;
+    public Set<GBeanInstance> listGBeans(AbstractNameQuery query) {
+        Map<AbstractName, GBeanInstance> clone;
         synchronized (this) {
-            clone = new HashMap(infoRegistry);
+            clone = new HashMap<AbstractName, GBeanInstance>(infoRegistry);
         }
-        Set result = new HashSet(clone.size());
-        for (Iterator i = clone.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
-            AbstractName abstractName = (AbstractName) entry.getKey();
-            GBeanInstance gbeanData = (GBeanInstance) entry.getValue();
+        Set<GBeanInstance> result = new HashSet<GBeanInstance>(clone.size());
+        for (Map.Entry<AbstractName, GBeanInstance> entry : clone.entrySet()) {
+            AbstractName abstractName = entry.getKey();
+            GBeanInstance gbeanData = entry.getValue();
             if (query == null || query.matches(abstractName, gbeanData.getGBeanInfo().getInterfaces())) {
                 result.add(gbeanData);
             }

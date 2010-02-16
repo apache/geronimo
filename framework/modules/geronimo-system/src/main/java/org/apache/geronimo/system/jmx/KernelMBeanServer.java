@@ -157,7 +157,7 @@ public class KernelMBeanServer implements MBeanServer {
     }
 
     public Integer getMBeanCount() {
-        return new Integer(kernel.listGBeans((AbstractNameQuery)null).size());
+        return kernel.listGBeans((AbstractNameQuery) null).size();
     }
 
     public MBeanInfo getMBeanInfo(ObjectName name) throws InstanceNotFoundException, ReflectionException {
@@ -199,7 +199,7 @@ public class KernelMBeanServer implements MBeanServer {
         return kernel.isLoaded(abstractName);
     }
 
-    public Set queryNames(ObjectName pattern, QueryExp query) {
+    public Set<ObjectName> queryNames(ObjectName pattern, QueryExp query) {
         // normalize the name
         if (pattern != null && pattern.getDomain().length() == 0) {
             try {
@@ -209,15 +209,14 @@ public class KernelMBeanServer implements MBeanServer {
             }
         }
 
-        Set names;
+        Set<ObjectName> names;
         synchronized (this) {
-            names = new LinkedHashSet(objetNameToAbstractName.keySet());
+            names = new LinkedHashSet<ObjectName>(objetNameToAbstractName.keySet());
         }
 
         // fairly dumb implementation that iterates the list of all registered GBeans
-        Set result = new HashSet(names.size());
-        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            ObjectName name = (ObjectName) iterator.next();
+        Set<ObjectName> result = new HashSet<ObjectName>(names.size());
+        for (ObjectName name : names) {
             if (pattern == null || pattern.apply(name)) {
                 if (query != null) {
                     query.setMBeanServer(this);
@@ -238,11 +237,10 @@ public class KernelMBeanServer implements MBeanServer {
         return result;
     }
 
-    public Set queryMBeans(ObjectName pattern, QueryExp query) {
-        Set names = queryNames(pattern, query);
-        Set objectInstances = new HashSet(names.size());
-        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            ObjectName name = (ObjectName) iterator.next();
+    public Set<ObjectInstance> queryMBeans(ObjectName pattern, QueryExp query) {
+        Set<ObjectName> names = queryNames(pattern, query);
+        Set<ObjectInstance> objectInstances = new HashSet<ObjectInstance>(names.size());
+        for (ObjectName name : names) {
             try {
                 objectInstances.add(getObjectInstance(name));
             } catch (InstanceNotFoundException e) {
@@ -293,13 +291,14 @@ public class KernelMBeanServer implements MBeanServer {
     }
 
     public String[] getDomains() {
-        Set domains = new HashSet();
-        Set names = kernel.listGBeans((AbstractNameQuery)null);
-        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            domains.add(objectName.getDomain());
-        }
-        return (String[]) domains.toArray(new String[domains.size()]);
+        throw new SecurityException("Operation not allowed");
+//        Set<String> domains = new HashSet<String>();
+//        Set<AbstractName> names = kernel.listGBeans((AbstractNameQuery)null);
+//        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+//            ObjectName objectName = (ObjectName) iterator.next();
+//            domains.add(objectName.getDomain());
+//        }
+//        return domains.toArray(new String[domains.size()]);
     }
 
     public ObjectInstance getObjectInstance(ObjectName objectName) throws InstanceNotFoundException {
@@ -398,14 +397,17 @@ public class KernelMBeanServer implements MBeanServer {
         throw new SecurityException("Operation not allowed");
     }
 
+    @Deprecated
     public ObjectInputStream deserialize(String s, ObjectName objectName, byte[] bytes) throws InstanceNotFoundException, OperationsException, ReflectionException {
         throw new SecurityException("Operation not allowed");
     }
 
+    @Deprecated
     public ObjectInputStream deserialize(String s, byte[] bytes) throws OperationsException, ReflectionException {
         throw new SecurityException("Operation not allowed");
     }
 
+    @Deprecated
     public ObjectInputStream deserialize(ObjectName objectName, byte[] bytes) throws InstanceNotFoundException, OperationsException {
         throw new SecurityException("Operation not allowed");
     }

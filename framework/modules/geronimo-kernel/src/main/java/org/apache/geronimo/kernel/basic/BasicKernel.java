@@ -129,7 +129,7 @@ public class BasicKernel implements Kernel
      * Construct a Kernel with the specified name.
      *
      * @param kernelName the name of the kernel
-     * @param bundleContext
+     * @param bundleContext bundle context kernel is configured in.
      */
     public BasicKernel(String kernelName, BundleContext bundleContext) {
         if (kernelName.indexOf(':') >= 0 || kernelName.indexOf('*') >= 0 || kernelName.indexOf('?') >= 0) {
@@ -288,6 +288,7 @@ public class BasicKernel implements Kernel
         return getGBean(null, type);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getGBean(String shortName, Class<T> type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         GBeanInstance gbeanInstance = registry.getGBeanInstance(shortName, type);
         if (gbeanInstance.getState() != State.RUNNING_INDEX) {
@@ -549,6 +550,7 @@ public class BasicKernel implements Kernel
                     }
                 }
             } catch (GBeanNotFoundException e) {
+                //ignore
             }
         }
         return gbeans;
