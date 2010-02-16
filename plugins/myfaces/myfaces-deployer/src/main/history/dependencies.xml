@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<plugin-artifact xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3" xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2">
+<plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>myfaces-deployer</artifactId>
