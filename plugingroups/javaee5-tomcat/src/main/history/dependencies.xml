@@ -17,6 +17,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>welcome-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>jmx-security</artifactId>
         <type>car</type>
@@ -44,11 +49,6 @@
     <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>webservices-axis2</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>welcome-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>

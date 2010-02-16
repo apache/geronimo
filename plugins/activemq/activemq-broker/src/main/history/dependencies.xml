@@ -7,11 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>backport-util-concurrent</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>commons-net</groupId>
         <artifactId>commons-net</artifactId>
         <type>jar</type>
@@ -34,6 +29,11 @@
     <dependency>
         <groupId>org.apache.activemq.protobuf</groupId>
         <artifactId>activemq-protobuf</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>backport-util-concurrent</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
