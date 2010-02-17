@@ -32,11 +32,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.osgi.service.obr</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.components</groupId>
         <artifactId>geronimo-jaspi</artifactId>
         <type>jar</type>
