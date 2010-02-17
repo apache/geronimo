@@ -117,8 +117,8 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>karaf-client</artifactId>
+                <groupId>org.apache.felix.karaf</groupId>
+                <artifactId>org.apache.felix.karaf.client</artifactId>
                 <version>${felix.karaf.version}</version>
                 <exclusions>
                     <exclusion>
@@ -257,8 +257,8 @@
             <artifactId>org.apache.felix.karaf.main</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>karaf-client</artifactId>                                  
+            <groupId>org.apache.felix.karaf</groupId>
+            <artifactId>org.apache.felix.karaf.client</artifactId>                                  
         </dependency>
         <!--<dependency>-->
             <!--<groupId>org.apache.felix.karaf.deployer</groupId>-->
@@ -585,8 +585,8 @@
                                     <destFileName>karaf.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>org.apache.geronimo.bundles</groupId>
-                                    <artifactId>karaf-client</artifactId>
+                                    <groupId>org.apache.felix.karaf</groupId>
+                                    <artifactId>org.apache.felix.karaf.client</artifactId>
                                     <outputDirectory>target/dependencies/lib</outputDirectory>
                                     <destFileName>karaf-client.jar</destFileName>
                                 </artifactItem>

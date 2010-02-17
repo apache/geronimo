@@ -24,12 +24,21 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URI;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.LinkedHashSet;
+import java.util.Set;
+
+import javax.xml.bind.JAXBException;
 
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Maven2Repository;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.obr.GeronimoOBRGBean;
 import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
 import org.apache.geronimo.system.plugin.model.LicenseType;
@@ -81,6 +90,14 @@ public class PluginMetadataGeneratorMojo
      * @required
      */
     protected String pluginMetadataFileName = null;
+
+    /**
+     * Name of generated obr repository.xml file.
+     *
+     * @parameter default-value="OSGI-INF/obr/repository.xml"
+     * @required
+     */
+    protected String obrFileName;
 
     /**
      * Full path of generated plugin metadata file.
@@ -246,6 +263,20 @@ public class PluginMetadataGeneratorMojo
             projectHelper.attachArtifact(getProject(), "plugin-metadata", targetFile);
         } catch (Exception e) {
             throw new MojoExecutionException("Could not create plugin metadata", e);
+        }
+
+        try {
+//generate obr repository.xml
+            File obr = new File(targetDir.toURI().resolve(obrFileName));
+            obr.getParentFile().mkdirs();
+            Set<Artifact> artifacts = new HashSet<Artifact>();
+            for (org.apache.maven.artifact.Artifact artifact: localDependencies) {
+                artifacts.add(mavenToGeronimoArtifact(artifact));
+            }
+            Repository repo = new Maven2Repository(new File(getArtifactRepository().getBasedir()));
+            GeronimoOBRGBean.generateOBR(project.getName(), artifacts, repo, obr);
+        } catch (Exception e) {
+            throw new MojoExecutionException("Could not construct obr repository.xml", e);
         }
     }
 

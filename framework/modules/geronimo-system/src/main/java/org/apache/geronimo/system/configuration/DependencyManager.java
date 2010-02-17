@@ -46,7 +46,9 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.SynchronousBundleListener;
+import org.osgi.service.obr.RepositoryAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +61,8 @@ public class DependencyManager implements SynchronousBundleListener {
 
     private final BundleContext bundleContext;
     private final Collection<Repository> repositories;
+
+    private final RepositoryAdmin repositoryAdmin;
     
     private final Map<Bundle, PluginArtifactType> pluginMap = 
         Collections.synchronizedMap(new WeakHashMap<Bundle, PluginArtifactType>());
@@ -68,6 +72,8 @@ public class DependencyManager implements SynchronousBundleListener {
         this.bundleContext = bundleContext;
         this.repositories = repositories;
         bundleContext.addBundleListener(this);
+        ServiceReference ref = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
+        repositoryAdmin = ref == null? null: (RepositoryAdmin) bundleContext.getService(ref);
     }
 
     public void bundleChanged(BundleEvent bundleEvent) {
@@ -101,7 +107,23 @@ public class DependencyManager implements SynchronousBundleListener {
         }
         return pluginArtifactType;
     }
-    
+
+    private void installRepository(Bundle bundle) {
+        if (repositoryAdmin != null) {
+            URL info = bundle.getEntry("OSGI-INF/obr/repository.xml");
+            if (info != null) {
+                log.info("found repository.xml for bundle " + bundle);
+                try {
+                    repositoryAdmin.addRepository(info);
+                } catch (Exception e) {
+                    log.info("Error adding respository.xml for bundle " + bundle, e);
+                }
+            } else {
+                log.info("did not find geronimo-plugin.xml for bundle " + bundle);
+            }
+        }
+    }
+
     private PluginArtifactType getCachedPluginMetadata(Bundle bundle) {        
         PluginArtifactType pluginArtifactType = pluginMap.get(bundle);
         if (pluginArtifactType == null) {
@@ -109,6 +131,8 @@ public class DependencyManager implements SynchronousBundleListener {
             if (pluginArtifactType != null) {
                 pluginMap.put(bundle, pluginArtifactType);
             }
+            //take this opportunity to install obr repo fragment
+            installRepository(bundle);
         }
         return pluginArtifactType;
     }
@@ -118,12 +142,13 @@ public class DependencyManager implements SynchronousBundleListener {
         if (pluginArtifactType != null) {
             List<DependencyType> dependencies = pluginArtifactType.getDependency();
             try {
-                for (DependencyType dependencyType : dependencies) {
+                tag: for (DependencyType dependencyType : dependencies) {
                     log.info("Installing artifact: " + dependencyType);
                     Artifact artifact = dependencyType.toArtifact();
                     String location = locateBundle(artifact);
                     for (Bundle test: bundleContext.getBundles()) {
                         if (location.equals(test.getLocation())) {
+//                            break tag;
                             continue;
                         }
                     }

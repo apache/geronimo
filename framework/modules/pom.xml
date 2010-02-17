@@ -50,6 +50,7 @@
         <module>geronimo-deploy-tool</module>
         <module>geronimo-shell-base</module>
         <module>geronimo-blueprint</module>
+        <module>geronimo-obr</module>
   </modules>
 
     <profiles>

@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +106,7 @@ public abstract class AbstractCarMojo
     protected File basedir;
 
     protected Set<Artifact> dependencyArtifacts;
-    protected Map<Artifact, Set<Artifact>> localDependencies;
+    protected Set<Artifact> localDependencies;
 
 
     /**
@@ -333,7 +334,7 @@ public abstract class AbstractCarMojo
 
         Scanner scanner = new Scanner();
         scanner.scan(rootNode, useTransitiveDependencies);
-        localDependencies = scanner.localDependencies;
+        localDependencies = scanner.localDependencies.keySet();
         treeListing = scanner.getLog();
     }
 
@@ -371,6 +372,10 @@ public abstract class AbstractCarMojo
 
         if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
             dependencies.addAll(dependencyTypes);
+            localDependencies = new HashSet<Artifact>();
+            for (DependencyType dependency: dependencies) {
+                localDependencies.add(geronimoToMavenArtifact(dependency.toArtifact()));
+            }
         } else {
             Map<String, DependencyType> explicitDependencyMap = new HashMap<String, DependencyType>();
             for (DependencyType dependency : dependencyTypes) {
@@ -379,25 +384,15 @@ public abstract class AbstractCarMojo
 
 
             getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
-            for (Map.Entry<Artifact, Set<Artifact>> entry : localDependencies.entrySet()) {
-                dependencies.add(toDependencyType(entry.getKey(), explicitDependencyMap, localDependencies, useMavenDependencies.isIncludeVersion(), includeImport));
-//                Artifact artifact = entry.getKey();
-//                DependencyType explicitDependency = explicitDependencyMap.get(getKey(artifact));
-//                DependencyType dependency = toDependencyType(artifact, useMavenDependencies.isIncludeVersion(), explicitDependency, includeImport);
-//                for (Artifact parent : entry.getValue()) {
-//                    dependency.getDependency().add(toDependencyType(parent, true, null, false));
-//                }
-//                dependencies.add(dependency);
-//            for (Artifact artifact : localDependencies) {
-//                Dependency explicitDependency = explicitDependencyMap.get(getKey(artifact));
-//                dependencies.add(toDependency(artifact, useMavenDependencies.isIncludeVersion(), explicitDependency, includeImport));
+            for (Artifact entry : localDependencies) {
+                dependencies.add(toDependencyType(entry, explicitDependencyMap, useMavenDependencies.isIncludeVersion(), includeImport));
             }
         }
 
         return dependencies;
     }
 
-    DependencyType toDependencyType(Artifact artifact, Map<String, DependencyType> explicitDependencyMap, Map<Artifact, Set<Artifact>> localDependencies, boolean includeVersion, boolean includeImport) {
+    DependencyType toDependencyType(Artifact artifact, Map<String, DependencyType> explicitDependencyMap, boolean includeVersion, boolean includeImport) {
         DependencyType explicitDependency = explicitDependencyMap.get(getKey(artifact));
         DependencyType dependency = toDependencyType(artifact, includeVersion, explicitDependency, includeImport);
         return dependency;

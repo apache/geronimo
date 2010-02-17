@@ -29,7 +29,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import org.apache.aries.application.ApplicationMetadata;
-import org.apache.aries.application.ApplicationMetadataManager;
+import org.apache.aries.application.ApplicationMetadataFactory;
 import org.apache.aries.application.Content;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -99,11 +99,11 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
         return repository;   
     }
     
-    private ApplicationMetadataManager getApplicationMetadataManager() {
+    private ApplicationMetadataFactory getApplicationMetadataManager() {
         ServiceReference ref = 
-            bundleContext.getServiceReference(ApplicationMetadataManager.class.getName());
+            bundleContext.getServiceReference(ApplicationMetadataFactory.class.getName());
         if (ref != null) {
-            return (ApplicationMetadataManager) bundleContext.getService(ref);
+            return (ApplicationMetadataFactory) bundleContext.getService(ref);
         } else {
             return null;
         }
@@ -201,7 +201,7 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
             return null;
         }
         
-        ApplicationMetadataManager service = getApplicationMetadataManager();
+        ApplicationMetadataFactory service = getApplicationMetadataManager();
         if (service == null) {
             return null;
         }
@@ -209,7 +209,7 @@ public class AriesAppConfigBuilder implements ConfigurationBuilder, GBeanLifecyc
         ApplicationMetadata appMetadata = null;
         try {
             InputStream in = jarFile.getInputStream(appManifest);
-            appMetadata = service.parseApplication(in);
+            appMetadata = service.parseApplicationMetadata(in);
         } catch (IOException e) {
             throw new DeploymentException("Failed to parse application metadata", e);
         }

@@ -107,6 +107,26 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.bundlerepository</artifactId>
+            <version>1.5.0-SNAPSHOT</version>
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.felix</groupId>-->
+                    <!--<artifactId>org.apache.felix.shell</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.felix</groupId>-->
+                    <!--<artifactId>org.osgi.core</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.osgi</groupId>-->
+                    <!--<artifactId>org.osgi.core</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>
             <version>${version}</version>
@@ -162,7 +182,8 @@
                 <configuration>
                     <instructions>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                        <Import-Package>org.apache.log4j.helpers;resolution:=optional,*</Import-Package>
+                        <Import-Package>org.apache.log4j.helpers;resolution:=optional,
+                            *</Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

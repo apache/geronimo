@@ -8,6 +8,11 @@
     </module-id>
     <dependency>
         <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.bundlerepository</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.felix</groupId>
         <artifactId>org.osgi.core</artifactId>
         <type>jar</type>
     </dependency>

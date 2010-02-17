@@ -137,6 +137,7 @@
         <!--<module>procrun</module>-->
         <module>jetty8</module>
         <module>tomcat</module>
+        <module>aries</module>
         <module>wab</module>
     </modules>
 

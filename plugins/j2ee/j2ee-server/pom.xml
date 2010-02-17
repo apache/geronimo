@@ -71,6 +71,12 @@
             <version>${version}</version>
         </dependency>
 
+        <!-- this is an optional import in geronimo components transaction. If we don't install it now,
+        it won't get picked up -->
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.howl</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee</artifactId>

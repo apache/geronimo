@@ -125,6 +125,13 @@
             <type>car</type>
         </dependency>
 
+        <dependency> 
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>aries-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>connector-deployer-1_6</artifactId>
