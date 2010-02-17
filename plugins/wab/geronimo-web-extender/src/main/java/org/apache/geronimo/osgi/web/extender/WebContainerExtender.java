@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
@@ -57,6 +58,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @version $Rev$, $Date$
  */
+@GBean
 public class WebContainerExtender implements GBeanLifecycle {
     // the header that identifies a bundle as being a WAB
     public final static String WEB_CONTEXT_PATH_HEADER = "Web-ContextPath";
@@ -268,16 +270,22 @@ public class WebContainerExtender implements GBeanLifecycle {
         webApplications.unregister(wab, !stopped);
     }
 
-    public void doFail() {
-        stop(bundleContext);  
-    }
-
-    public void doStart() throws Exception {
+    protected void start() {
         start(bundleContext);
     }
-
-    public void doStop() throws Exception {
+    
+    protected void stop() {
         stop(bundleContext);        
+    }
+    
+    public void doStart() throws Exception {
+    }
+
+    public void doFail() {
+    }
+    
+    public void doStop() throws Exception {
+        stop();
     }
     
     private static class WebApplications {

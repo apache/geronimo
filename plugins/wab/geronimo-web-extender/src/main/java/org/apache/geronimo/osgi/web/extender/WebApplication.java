@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
@@ -177,7 +178,9 @@ public class WebApplication implements Runnable {
                 Kernel kernel = extender.getKernel();
                 Naming naming = kernel.getNaming();
                 ModuleBuilder webModuleBuilder = extender.getWebModuleBuilder();    
-                
+                if (webModuleBuilder == null) {
+                    throw new DeploymentException("Unable to deploy " + bundle + " WAB. No web module builders found.");
+                }
                 WebModule webModule = (WebModule) webModuleBuilder.createModule(bundle, naming, idBuilder);
 
                 BundleDeploymentContext deploymentContext = 

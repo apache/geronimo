@@ -1,5 +1,3 @@
 TODO:
- - extender needs to start tracking bundles only once kernel is fully initialized (all plugins are loaded)
  - for collision detection the extender will need to know all the contextPaths of other Java EE apps deployed
- - extender needs to check/wait for web container to be available
 

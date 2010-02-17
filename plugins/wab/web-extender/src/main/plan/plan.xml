@@ -34,4 +34,10 @@
         </references>
     </gbean>
 
+    <gbean name="ServerStatusTracker" class="org.apache.geronimo.osgi.web.extender.ServerStatusTracker">
+        <reference name="extender">
+            <name>WebBuilder</name>
+        </reference>
+    </gbean>
+
 </module>
