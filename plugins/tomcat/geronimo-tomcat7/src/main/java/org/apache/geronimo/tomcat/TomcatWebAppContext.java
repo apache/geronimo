@@ -172,7 +172,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             throws Exception {
         assert classLoader != null;
         assert bundle != null;
-        assert modulePath != null;
         assert transactionManager != null;
         assert trackedConnectionAssociator != null;
         assert contextSource != null;
