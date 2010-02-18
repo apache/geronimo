@@ -224,7 +224,11 @@ public class WebContainerExtender implements GBeanLifecycle {
      */
     private void undeploy(WebApplication wab) {
         WebApplications webApplications = contextPathMap.get(wab.getContextPath());
-        webApplications.remove(wab);
+        if (wab == webApplications.getDeployed()) {
+            wab.undeploy();
+        } else {
+            webApplications.remove(wab);
+        }
     }
 
     /**
@@ -337,12 +341,7 @@ public class WebContainerExtender implements GBeanLifecycle {
         }
         
         public synchronized void remove(WebApplication webApp) {
-            if (deployed == webApp) {
-                // this will cause unregister() to be invoked
-                deployed.undeploy();
-            } else {
-                waiting.remove(webApp);
-            }
+            waiting.remove(webApp);
         }
         
         public synchronized WebApplication getDeployed() {
