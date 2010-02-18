@@ -58,6 +58,9 @@
         <geronimoVersion>${version}</geronimoVersion>
 
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
+        <warnOnDependencyChange>false</warnOnDependencyChange>
+        <logDependencyChanges>false</logDependencyChanges>
+        <overwriteChangedDependencies>false</overwriteChangedDependencies>
 
         <!--
         FIXME: STOP using properties for dependency versions unless you absolutly need them,

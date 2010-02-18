@@ -78,10 +78,12 @@
                         <includeVersion>true</includeVersion>
                         <useTransitiveDependencies>true</useTransitiveDependencies>
                     </useMavenDependencies>
+                    <warnOnDependencyChange>${warnOnDependencyChange}</warnOnDependencyChange>
+                    <logDependencyChanges>${logDependencyChanges}</logDependencyChanges>
+                    <overwriteChangedDependencies>${overwriteChangedDependencies}</overwriteChangedDependencies>
                     <commonInstance>
                         <plugin-artifact>
                             <geronimo-version>${geronimoVersion}</geronimo-version>
-                            <jvm-version>1.5</jvm-version>
                             <jvm-version>1.6</jvm-version>
                             <!--<source-repository>http://www.geronimoplugins.com/repository/geronimo-2.1</source-repository>-->
                             <source-repository>${PluginSrcRepoLocal}</source-repository>

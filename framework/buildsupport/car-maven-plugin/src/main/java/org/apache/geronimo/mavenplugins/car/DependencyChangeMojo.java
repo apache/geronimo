@@ -68,6 +68,18 @@ public class DependencyChangeMojo extends AbstractCarMojo {
     private boolean warnOnDependencyChange;
 
     /**
+     * Whether to show changed dependencies in log
+     * @parameter
+     */
+    private boolean logDependencyChanges;
+
+    /**
+     * Whether to overwrite dependencies.xml if it has changed
+     * @parameter
+     */
+    private boolean overwriteChangedDependencies;
+
+    /**
      * Location of existing dependency file.
      *
      * @parameter expression="${basedir}/src/main/history/dependencies.xml"
@@ -127,6 +139,9 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                     }
                     if (!dependencies.isEmpty() || !removed.getDependency().isEmpty()) {
                         saveDependencyChanges(dependencies, removed);
+                        if (overwriteChangedDependencies) {
+                            writeDependencies(toPluginArtifactType(dependencies),  dependencyFile);
+                        }
                     }
                 } finally {
                     in.close();
@@ -156,9 +171,15 @@ public class DependencyChangeMojo extends AbstractCarMojo {
         out.write("Dependencies have changed:\n");
         if (!added.getDependency().isEmpty()) {
             out.write("\tAdded dependencies are saved here: " + addedFile.getAbsolutePath() + "\n");
+            if (logDependencyChanges) {
+                PluginXmlUtil.writePluginArtifact(added, out);
+            }
         }
         if (!removed.getDependency().isEmpty()) {
             out.write("\tRemoved dependencies are saved here: " + removedFile.getAbsolutePath() + "\n");
+            if (logDependencyChanges) {
+                PluginXmlUtil.writePluginArtifact(removed, out);
+            }
         }
         out.write("\tTree listing is saved here: " + treeListing.getAbsolutePath() + "\n");
         out.write("Delete " + dependencyFile.getAbsolutePath()
