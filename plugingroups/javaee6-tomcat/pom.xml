@@ -51,6 +51,12 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>console-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
@@ -123,28 +129,6 @@
             <!--<type>car</type>-->
         <!--</dependency>-->
 
-        <!-- admin console related plugins -->
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>console-tomcat</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>plugin-console-tomcat</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>ca-helper-tomcat</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->
             <!--<artifactId>agent-car-ejb</artifactId>-->
@@ -158,49 +142,6 @@
             <!--<version>${version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->
-            <!--<artifactId>mconsole-tomcat</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
-            <!--<artifactId>activemq-console-tomcat</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
-            <!--<artifactId>debugviews-console-tomcat</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
-            <!--<artifactId>plancreator-console-tomcat</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
-            <!--<artifactId>sysdb-console-tomcat</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.plugins</groupId>-->
-            <!--<artifactId>openejb-console-tomcat</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-        <!-- end admin console related plugins -->
     </dependencies>
 
     <build>

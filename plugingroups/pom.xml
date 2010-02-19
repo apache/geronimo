@@ -41,6 +41,8 @@
         <module>wab-jetty</module>
         <module>eba-tomcat</module>
         <module>eba-jetty</module>
+        <module>console-tomcat</module>
+        <module>console-jetty</module>
         <module>webservices-axis2</module>
         <!--<module>webservices-cxf</module>-->
   </modules>
