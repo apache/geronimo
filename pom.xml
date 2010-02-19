@@ -2217,7 +2217,7 @@ only found in cxf
                             <assembly>
                                 <id>tomcat</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-tomcat6-javaee5</artifactId>
+                                <artifactId>geronimo-tomcat7-javaee6</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
@@ -2226,7 +2226,7 @@ only found in cxf
                             <assembly>
                                 <id>tomcat-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
-                                <artifactId>geronimo-tomcat6-minimal</artifactId>
+                                <artifactId>geronimo-tomcat7-minimal</artifactId>
                                 <version>${version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
