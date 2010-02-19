@@ -250,8 +250,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         tldURLs.addAll(scanModule(webModule));
 
         // 4. All TLD files in all META-INF(s)
+	/*
         tldURLs.addAll(scanGlobalTlds(webModule.getEarContext().getDeploymentBundle()));
-        
+        */
         log.debug("getTldFiles() Exit: URL[" + tldURLs.size() + "]: " + tldURLs.toString());
         return tldURLs;
     }
