@@ -27,18 +27,18 @@
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>wab-tomcat</artifactId>
+    <artifactId>eba-tomcat</artifactId>
     <packaging>car</packaging>
-    <name>Geronimo Plugin Group :: WAB Tomcat</name>
+    <name>Geronimo Plugin Group :: EBA Tomcat</name>
 
     <description>
-        This plugin group provides the OSGi RFC66 WAB Tomcat functionality.
+        This plugin group provides the Apache Aries EBA on Tomcat functionality.
     </description>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>web-tomcat</artifactId>
+            <artifactId>wab-tomcat</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

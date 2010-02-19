@@ -27,18 +27,18 @@
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>wab-jetty</artifactId>
+    <artifactId>eba-jetty</artifactId>
     <packaging>car</packaging>
-    <name>Geronimo Plugin Group :: WAB Jetty</name>
+    <name>Geronimo Plugin Group :: EBA Jetty</name>
 
     <description>
-        This plugin group provides the OSGi RFC66 WAB Jetty functionality.
+        This plugin group provides the Apache Aries EBA on Jetty functionality.
     </description>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>web-jetty</artifactId>
+            <artifactId>wab-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
