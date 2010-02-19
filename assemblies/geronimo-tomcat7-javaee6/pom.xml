@@ -28,18 +28,18 @@
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>geronimo-tomcat6-javaee5</artifactId>
-    <name>Geronimo Assemblies :: JavaEE 5 + Tomcat</name>
+    <artifactId>geronimo-tomcat7-javaee6</artifactId>
+    <name>Geronimo Assemblies :: Java EE 6 + Tomcat7</name>
     <packaging>server-assembly</packaging>
 
     <description>
-        An assembly of Geronimo into a JavaEE 5 Server using Tomcat as the web container.
+        An assembly of Geronimo into a Java EE 6 Server using Tomcat as the web container.
     </description>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>javaee5-tomcat</artifactId>
+            <artifactId>javaee6-tomcat</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>

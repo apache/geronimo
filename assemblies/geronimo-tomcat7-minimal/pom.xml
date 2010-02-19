@@ -28,8 +28,8 @@
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>geronimo-tomcat6-minimal</artifactId>
-    <name>Geronimo Assemblies :: Minimal + Tomcat</name>
+    <artifactId>geronimo-tomcat7-minimal</artifactId>
+    <name>Geronimo Assemblies :: Minimal + Tomcat7</name>
     <packaging>server-assembly</packaging>
 
     <description>
