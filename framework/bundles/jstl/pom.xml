@@ -63,6 +63,10 @@
                         <Import-Package>com.sun.org.apache*;resolution:=optional,*</Import-Package>                        
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Embed-Dependency>*;scope=provided;inline=true</Embed-Dependency>
+                        <Include-Resource>
+                           {maven-resources},
+                           org/apache/taglibs/standard/tag/common/sql/DataSourceWrapper.class=target/classes/org/apache/taglibs/standard/tag/common/sql/DataSourceWrapper.class
+                        </Include-Resource>
                     </instructions>
                 </configuration>
             </plugin>
