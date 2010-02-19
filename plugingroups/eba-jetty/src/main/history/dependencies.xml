@@ -2,7 +2,7 @@
 <plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
     <module-id>
         <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>wab-jetty</artifactId>
+        <artifactId>eba-jetty</artifactId>
         <version>3.0-SNAPSHOT</version>
         <type>car</type>
     </module-id>
@@ -23,11 +23,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>myfaces-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>system-database</artifactId>
         <type>car</type>
     </dependency>
@@ -37,13 +32,8 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>web-extender</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>web-jetty</artifactId>
+        <artifactId>wab-jetty</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

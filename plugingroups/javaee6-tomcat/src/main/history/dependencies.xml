@@ -13,12 +13,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>wab-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>welcome-tomcat</artifactId>
+        <artifactId>eba-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>

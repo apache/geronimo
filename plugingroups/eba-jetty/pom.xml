@@ -69,19 +69,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>myfaces-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>web-extender</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>system-database</artifactId>
             <version>${version}</version>
             <type>car</type>

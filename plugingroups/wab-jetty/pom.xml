@@ -31,7 +31,7 @@
 
     <artifactId>wab-jetty</artifactId>
     <packaging>car</packaging>
-    <name>Geronimo Plugin Group :: RFC66 WAB Jetty</name>
+    <name>Geronimo Plugin Group :: WAB Jetty</name>
 
     <description>
         This plugin group provides the OSGi RFC66 WAB on Jetty functionality.
@@ -44,6 +44,25 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>${jetty}-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>web-extender</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>welcome-jetty</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>upgrade-cli</artifactId>
@@ -86,7 +105,6 @@
             <!--<version>${version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
-
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.framework</groupId>-->
             <!--<artifactId>gshell-geronimo</artifactId>-->
@@ -99,12 +117,6 @@
             <!--<version>${version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>${jetty}-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>

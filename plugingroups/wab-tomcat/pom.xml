@@ -31,7 +31,7 @@
 
     <artifactId>wab-tomcat</artifactId>
     <packaging>car</packaging>
-    <name>Geronimo Plugin Group :: RFC66 WAB Tomcat</name>
+    <name>Geronimo Plugin Group :: WAB Tomcat</name>
 
     <description>
         This plugin group provides the OSGi RFC66 WAB on Tomcat functionality.
@@ -44,6 +44,25 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat7-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>web-extender</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>welcome-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>upgrade-cli</artifactId>
@@ -99,12 +118,6 @@
             <!--<version>${version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>tomcat7-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>

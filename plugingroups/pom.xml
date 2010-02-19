@@ -37,10 +37,10 @@
         <module>javaee6-jetty</module>
         <module>javaee6-tomcat</module>
         <module>persistence</module>
-        <module>web-tomcat</module>
-        <module>web-jetty</module>
         <module>wab-tomcat</module>
         <module>wab-jetty</module>
+        <module>eba-tomcat</module>
+        <module>eba-jetty</module>
         <module>webservices-axis2</module>
         <!--<module>webservices-cxf</module>-->
   </modules>

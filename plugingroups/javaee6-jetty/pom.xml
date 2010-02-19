@@ -45,17 +45,9 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>wab-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>welcome-jetty</artifactId>
+            <artifactId>eba-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
