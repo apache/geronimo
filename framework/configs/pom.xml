@@ -54,7 +54,7 @@
         <module>gshell-geronimo</module>
         <module>jmx-security</module>
         <!--<module>geronimo-boilerplate</module>-->
-        <module>karaf-framework-aries-blueprint</module>
+        <module>karaf-framework</module>
     </modules>
     
     <build>
