@@ -29,9 +29,9 @@
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>javaee5-tomcat</artifactId>
+    <artifactId>javaee6-tomcat</artifactId>
     <packaging>car</packaging>
-    <name>Geronimo Plugin Group :: Java EE 5 Tomcat</name>
+    <name>Geronimo Plugin Group :: Java EE 6 Tomcat</name>
 
     <description>
         This plugin group provides Java EE 5  Tomcat functionality.
@@ -39,6 +39,27 @@
 
     <dependencies>
         <!--plugin groups-->
+        <dependency>
+            <groupId>org.apache.geronimo.framework.plugingroups</groupId>
+            <artifactId>framework</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>wab-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>welcome-tomcat</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>client</artifactId>
@@ -61,22 +82,8 @@
         <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.plugingroups</groupId>
-            <artifactId>framework</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>persistence</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>web-tomcat</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -118,13 +125,6 @@
         <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>welcome-tomcat</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jmx-security</artifactId>
             <version>${version}</version>
@@ -137,13 +137,6 @@
             <!--<version>${version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>myfaces-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
 
         <!-- admin console related plugins -->
         <dependency>

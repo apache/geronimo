@@ -40,6 +40,27 @@
     <dependencies>
         <!--plugin groups-->
         <dependency>
+            <groupId>org.apache.geronimo.framework.plugingroups</groupId>
+            <artifactId>framework</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>wab-jetty</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>welcome-jetty</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>client</artifactId>
             <version>${version}</version>
@@ -61,22 +82,8 @@
         <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.plugingroups</groupId>
-            <artifactId>framework</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>persistence</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>web-jetty</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -119,13 +126,6 @@
         <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>welcome-jetty</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jmx-security</artifactId>
             <version>${version}</version>
@@ -138,13 +138,6 @@
             <!--<version>${version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>myfaces-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
 
        <!-- admin console related plugins -->
         <dependency>
