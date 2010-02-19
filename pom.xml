@@ -303,13 +303,13 @@
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-connector</artifactId>
-                <version>2.1.2</version>
+                <version>2.1.4-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-connector</artifactId>
-                <version>2.1.2</version>
+                <version>2.1.4-SNAPSHOT</version>
                 <classifier>tests</classifier>
                 <scope>test</scope>
             </dependency>
@@ -317,7 +317,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-transaction</artifactId>
-                <version>2.1.2</version>
+                <version>2.1.4-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -2189,7 +2189,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo.jspc</groupId>
                     <artifactId>jspc-maven-plugin</artifactId>
-                    <version>2.0-alpha-1-20070806</version>
+                    <version>2.0-alpha-2</version>
                     <executions>
                         <execution>
                             <goals>
