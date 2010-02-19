@@ -77,14 +77,13 @@
 
         <connectorSuffix />
         <connectorSpec>geronimo-j2ee-connector_1.5_spec</connectorSpec>
-        <txmanagerVersion>2.1.3</txmanagerVersion>
+        <txmanagerVersion>2.1.4-SNAPSHOT</txmanagerVersion>
         <servletSpec>geronimo-servlet_2.5_spec</servletSpec>
 
         <monitoringConsoleVersion>${version}</monitoringConsoleVersion>
 
         <!-- Deployers -->
-        <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car
-        </gbeanDeployerBootstrap>
+        <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
         <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${version}/car</clientDeployer>
