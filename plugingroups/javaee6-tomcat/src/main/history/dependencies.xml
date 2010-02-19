@@ -7,13 +7,13 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>javamail</artifactId>
+        <groupId>org.apache.geronimo.framework.plugingroups</groupId>
+        <artifactId>framework</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>myfaces-deployer</artifactId>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>wab-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -22,13 +22,13 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jmx-security</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>javamail</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework.plugingroups</groupId>
-        <artifactId>framework</artifactId>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>jmx-security</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -39,11 +39,6 @@
     <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>persistence</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>web-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
