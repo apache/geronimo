@@ -29,12 +29,12 @@
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>web-jetty</artifactId>
+    <artifactId>wab-jetty</artifactId>
     <packaging>car</packaging>
-    <name>Geronimo Plugin Group :: Web Little-G Jetty</name>
+    <name>Geronimo Plugin Group :: RFC66 WAB Jetty</name>
 
     <description>
-        This plugin group provides the little-G Jetty functionality.
+        This plugin group provides the OSGi RFC66 WAB on Jetty functionality.
     </description>
 
     <dependencies>
@@ -108,6 +108,12 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>myfaces-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
