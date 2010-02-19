@@ -33,11 +33,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>persistence</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>webservices-axis2</artifactId>
         <type>car</type>
     </dependency>

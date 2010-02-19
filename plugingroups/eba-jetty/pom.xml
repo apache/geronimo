@@ -43,15 +43,16 @@
             <type>car</type>
         </dependency>
 
+        <!-- Apache Aries EBA required support -->
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-deployer</artifactId>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>persistence</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-server</artifactId>
+            <artifactId>transaction-1_6</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -61,9 +62,17 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+
+        <!-- Other plugins -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>transaction-1_6</artifactId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>j2ee-server</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
