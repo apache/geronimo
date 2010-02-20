@@ -79,10 +79,7 @@
         <xbeanVersion>3.7-SNAPSHOT</xbeanVersion>
         <jetty>jetty8</jetty>
 
-        <connectorSuffix>-1_6</connectorSuffix>
-        <connectorSpec>geronimo-j2ee-connector_1.6_spec</connectorSpec>
         <txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>
-        <servletSpec>geronimo-servlet_3.0_spec</servletSpec>
 
         <monitoringConsoleVersion>${version}</monitoringConsoleVersion>
         <pax.logging.version>1.4.1-SNAPSHOT</pax.logging.version>
