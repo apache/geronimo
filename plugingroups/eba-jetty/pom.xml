@@ -45,6 +45,12 @@
 
         <!-- Apache Aries EBA required support -->
         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>aries-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>persistence</artifactId>
             <version>${version}</version>
