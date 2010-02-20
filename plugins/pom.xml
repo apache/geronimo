@@ -141,6 +141,7 @@
         <module>tomcat</module>
         <module>aries</module>
         <module>wab</module>
+        <module>aries</module>
     </modules>
 
     <profiles>
