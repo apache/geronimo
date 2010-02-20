@@ -41,7 +41,6 @@
         <module>geronimo-connector-builder-1_6</module>
         <module>geronimo-transaction-1_6</module>
         <module>transaction-1_6</module>
-        <module>geronimo-connector-server</module>
     </modules>
 
 </project>

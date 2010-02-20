@@ -44,8 +44,6 @@
         <module>plugin-portlets</module>
         <module>plugin-console-jetty</module>
         <module>plugin-console-tomcat</module>
-        <module>console-jetty-server</module>
-        <module>console-tomcat-server</module>
     </modules>
 
     <dependencyManagement>

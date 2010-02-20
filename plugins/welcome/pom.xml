@@ -36,8 +36,6 @@
         <module>geronimo-welcome</module>
         <module>welcome-jetty</module>
         <module>welcome-tomcat</module>
-    <module>welcome-jetty-server</module>
-    <module>welcome-tomcat-server</module>
   </modules>
 
 </project>
