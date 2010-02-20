@@ -29,11 +29,11 @@
     </parent>
 
     <artifactId>geronimo-jetty8-javaee6</artifactId>
-    <name>Geronimo Assemblies :: JavaEE 6 + Jetty8</name>
+    <name>Geronimo Assemblies :: Java EE 6 + Jetty8</name>
     <packaging>server-assembly</packaging>
 
     <description>
-        An assembly of Geronimo into a JavaEE 6 Server using Jetty as the web container.
+        An assembly of Geronimo into a Java EE 6 Server using Jetty as the web container.
     </description>
 
     <dependencies>
