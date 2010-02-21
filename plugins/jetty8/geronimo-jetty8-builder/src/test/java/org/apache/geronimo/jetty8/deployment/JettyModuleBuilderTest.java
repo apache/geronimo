@@ -247,7 +247,7 @@ public class JettyModuleBuilderTest extends TestSupport {
         configurationManagerData.setReferencePattern("Stores", configStoreName);
         bootstrap.addGBean(configurationManagerData);
 
-        GBeanData serverData = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
+        GBeanData serverData = new GBeanData(serverName, J2EEServerImpl.class);
         bootstrap.addGBean(serverData);
 
         Collection defaultServlets = new HashSet();
@@ -261,17 +261,17 @@ public class JettyModuleBuilderTest extends TestSupport {
         containerData.setAttribute("jettyHome", new File(BASEDIR, "target/var/jetty").toString());
         containerData.setReferencePattern("ServerInfo", serverInfo.getAbstractName());
 
-        GBeanData connector = bootstrap.addGBean("JettyConnector", HTTPSocketConnector.GBEAN_INFO);
+        GBeanData connector = bootstrap.addGBean("JettyConnector", HTTPSocketConnector.class);
         connector.setAttribute("port", new Integer(5678));
         connector.setAttribute("maxThreads", new Integer(50));
 //        connector.setAttribute("minThreads", new Integer(10));
         connector.setReferencePattern("JettyContainer", containerName);
 
-        GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.GBEAN_INFO);
+        GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.class);
         tmName = tm.getAbstractName();
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
 
-        GBeanData ctc = bootstrap.addGBean("ConnectionTrackingCoordinator", ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
+        GBeanData ctc = bootstrap.addGBean("ConnectionTrackingCoordinator", ConnectionTrackingCoordinatorGBean.class);
         ctcName = ctc.getAbstractName();
         ctc.setReferencePattern("TransactionManager", tmName);
 
