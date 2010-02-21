@@ -113,7 +113,7 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                 test.setStart(null);
                 test.setImport(null);
             }
-            dependencies = new LinkedHashSet<DependencyType>(dependencies);
+            Collection<DependencyType> added = new LinkedHashSet<DependencyType>(dependencies);
             if (dependencyFile.exists()) {
                 //filter dependencies file
                 filter(dependencyFile, filteredDependencyFile);
@@ -123,10 +123,10 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                     PluginArtifactType pluginArtifactType = PluginXmlUtil.loadPluginArtifactMetadata(in);
                     PluginArtifactType removed = new PluginArtifactType();
                     for (DependencyType test: pluginArtifactType.getDependency()) {
-                        boolean t1 = dependencies.contains(test);
-                        int s1 = dependencies.size();
-                        boolean t2 = dependencies.remove(test);
-                        int s2 = dependencies.size();
+                        boolean t1 = added.contains(test);
+                        int s1 = added.size();
+                        boolean t2 = added.remove(test);
+                        int s2 = added.size();
                         if (t1 != t2) {
                             getLogger().warn("dependencies.contains: " + t1 + ", dependencies.remove(test): " + t2);
                         }
@@ -137,8 +137,8 @@ public class DependencyChangeMojo extends AbstractCarMojo {
                             removed.getDependency().add(test);
                         }
                     }
-                    if (!dependencies.isEmpty() || !removed.getDependency().isEmpty()) {
-                        saveDependencyChanges(dependencies, removed);
+                    if (!added.isEmpty() || !removed.getDependency().isEmpty()) {
+                        saveDependencyChanges(added, removed);
                         if (overwriteChangedDependencies) {
                             writeDependencies(toPluginArtifactType(dependencies),  dependencyFile);
                         }
