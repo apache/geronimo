@@ -119,7 +119,7 @@ public class DependencyManager implements SynchronousBundleListener {
                     log.info("Error adding respository.xml for bundle " + bundle, e);
                 }
             } else {
-                log.info("did not find geronimo-plugin.xml for bundle " + bundle);
+                log.info("did not find respository.xml for bundle " + bundle);
             }
         }
     }
