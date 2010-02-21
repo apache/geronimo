@@ -20,6 +20,9 @@ package org.apache.geronimo.connector.wrapper.outbound.connectiontracking;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.manager.MonitorableTransactionManager;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
@@ -31,11 +34,13 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
  * 
  * @version $Revision$
  */
+@GBean(j2eeType = NameFactory.JCA_CONNECTION_TRACKER)
 public class ConnectionTrackingCoordinatorGBean extends ConnectionTrackingCoordinator implements GBeanLifecycle {
     private final MonitorableTransactionManager monitorableTm;
     private final GeronimoTransactionListener listener;
 
-    public ConnectionTrackingCoordinatorGBean(MonitorableTransactionManager monitorableTm, boolean lazyConnect) {
+    public ConnectionTrackingCoordinatorGBean(@ParamReference(name = "TransactionManager", namingType = NameFactory.JTA_RESOURCE)MonitorableTransactionManager monitorableTm,
+                                              @ParamAttribute(name = "lazyConnect")boolean lazyConnect) {
         super(lazyConnect);
         this.monitorableTm = monitorableTm;
         listener = new GeronimoTransactionListener(this);
@@ -51,25 +56,6 @@ public class ConnectionTrackingCoordinatorGBean extends ConnectionTrackingCoordi
 
     public void doFail() {
         monitorableTm.removeTransactionAssociationListener(listener);
-    }
-
-    public final static GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ConnectionTrackingCoordinatorGBean.class, NameFactory.JCA_CONNECTION_TRACKER);
-
-        infoFactory.addReference("TransactionManager", MonitorableTransactionManager.class, NameFactory.JTA_RESOURCE);
-        infoFactory.addAttribute("lazyConnect", boolean.class, true);
-
-        infoFactory.addInterface(TrackedConnectionAssociator.class);
-        infoFactory.addInterface(ConnectionTracker.class);
-
-        infoFactory.setConstructor(new String[] {"TransactionManager", "lazyConnect"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

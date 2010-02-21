@@ -48,7 +48,7 @@ public class GenericConnectionManagerGBeanSerializationTest extends TestCase {
         Kernel kernel = new BasicKernel("test", bundleContext);
         kernel.boot();
         AbstractName abstractName = new AbstractName(URI.create("foo/bar/1/car?name=ConnectionManager"));
-        GBeanData data = new GBeanData(abstractName, GenericConnectionManagerGBean.GBEAN_INFO);
+        GBeanData data = new GBeanData(abstractName, GenericConnectionManagerGBean.class);
         data.setAttribute("transactionSupport", NoTransactions.INSTANCE);
         data.setAttribute("pooling", new SinglePool(10, 0, 5000, 5, false, false, true));
         kernel.loadGBean(data, bundleContext);

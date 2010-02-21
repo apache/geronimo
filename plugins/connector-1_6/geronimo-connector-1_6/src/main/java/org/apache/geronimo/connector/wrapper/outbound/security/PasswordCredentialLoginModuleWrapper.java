@@ -22,15 +22,29 @@ import java.util.HashMap;
 import javax.resource.spi.ManagedConnectionFactory;
 
 import org.apache.geronimo.connector.wrapper.outbound.ManagedConnectionFactoryWrapper;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = SecurityNames.LOGIN_MODULE)
 public class PasswordCredentialLoginModuleWrapper extends LoginModuleGBean {
     public static final String MANAGED_CONNECTION_FACTORY_OPTION = "geronimo.managedconnectionfactory.option";
 
-    public PasswordCredentialLoginModuleWrapper(String loginModuleClass, String objectName, boolean wrapPrincipals, Map<String, Object> options, String loginDomainName, ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper, ClassLoader classLoader) {
+    public PasswordCredentialLoginModuleWrapper(@ParamAttribute(name = "loginModuleClass")String loginModuleClass,
+                                                @ParamSpecial(type = SpecialAttributeType.objectName)String objectName,
+                                                @ParamAttribute(name="wrapPrincipals")boolean wrapPrincipals,
+                                                @ParamAttribute(name="options")Map<String, Object> options,
+                                                @ParamAttribute(name="loginDomainName")String loginDomainName,
+                                                @ParamReference(name = "ManagedConnectionFactoryWrapper", namingType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY)ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper,
+                                                @ParamSpecial(type = SpecialAttributeType.classLoader)ClassLoader classLoader) {
         super(loginModuleClass, objectName, wrapPrincipals, getOptions(options, managedConnectionFactoryWrapper), loginDomainName, classLoader);
     }
 

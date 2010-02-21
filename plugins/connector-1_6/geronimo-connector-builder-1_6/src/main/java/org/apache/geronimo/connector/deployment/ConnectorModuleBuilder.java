@@ -39,7 +39,6 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.LocalTransactions;
@@ -58,7 +57,7 @@ import org.apache.geronimo.connector.wrapper.JCAResourceImplGBean;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterImplGBean;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterModuleImplGBean;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
-import org.apache.geronimo.connector.wrapper.outbound.JCAConnectionFactoryImplGBean;
+import org.apache.geronimo.connector.wrapper.outbound.JCAConnectionFactoryImpl;
 import org.apache.geronimo.connector.wrapper.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.connector.wrapper.outbound.ManagedConnectionFactoryWrapperGBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -987,7 +986,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         }
 
         // ConnectionFactory
-        GBeanData connectionFactoryGBeanData = new GBeanData(connectionFactoryAbstractName, JCAConnectionFactoryImplGBean.GBEAN_INFO);
+        GBeanData connectionFactoryGBeanData = new GBeanData(connectionFactoryAbstractName, JCAConnectionFactoryImpl.class);
         connectionFactoryGBeanData.setReferencePattern("JCAManagedConnectionFactory", managedConnectionFactoryAbstractName);
 
         try {

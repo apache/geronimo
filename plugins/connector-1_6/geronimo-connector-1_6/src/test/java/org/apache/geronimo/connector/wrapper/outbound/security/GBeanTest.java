@@ -21,8 +21,9 @@
 package org.apache.geronimo.connector.wrapper.outbound.security;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.connector.wrapper.outbound.security.PasswordCredentialLoginModuleWrapperGBean;
+import org.apache.geronimo.gbean.GBeanInfoFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -30,6 +31,6 @@ import org.apache.geronimo.connector.wrapper.outbound.security.PasswordCredentia
 public class GBeanTest extends TestCase {
 
     public void testGBeans() throws Exception {
-        GBeanInfo gBeanInfo = PasswordCredentialLoginModuleWrapperGBean.getGBeanInfo();
+        new GBeanData(PasswordCredentialLoginModuleWrapper.class);
     }
 }
