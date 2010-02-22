@@ -118,6 +118,9 @@ import java.util.zip.ZipEntry;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
+    //are we combining all web apps into one bundle in an ear?
+    //TODO eliminate this
+    protected static final boolean COMBINED_BUNDLE = true;
 
     public final static NamingBuilder.Key<GBeanData> DEFAULT_JSP_SERVLET_KEY = new NamingBuilder.Key<GBeanData>() {
         public GBeanData get(Map context) {
@@ -192,14 +195,14 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        return createModule(plan, moduleFile, ".", null, true, null, null, naming, idBuilder);
+        return createModule(plan, moduleFile, ".", null, null, null, null, naming, idBuilder);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false, (String) moduleContextInfo, earName, naming, idBuilder);
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, (String) moduleContextInfo, earName, naming, idBuilder);
     }
 
-    protected abstract Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
+    protected abstract Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
 
     /**
      * Some servlets will have multiple url patterns.  However, webservice servlets

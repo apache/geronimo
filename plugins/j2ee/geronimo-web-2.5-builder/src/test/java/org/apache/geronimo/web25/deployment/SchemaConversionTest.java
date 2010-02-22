@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.jar.JarFile;
 
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -152,7 +153,7 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
             return null;
         }
 
-        protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
             return null;
         }
 

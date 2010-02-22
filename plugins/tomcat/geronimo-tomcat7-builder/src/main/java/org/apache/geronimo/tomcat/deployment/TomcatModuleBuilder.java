@@ -214,7 +214,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         return module;
     }
     
-    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
         assert targetPath != null : "targetPath is null";
         assert !targetPath.endsWith("/") : "targetPath must not end with a '/'";
@@ -256,6 +256,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         
         Deployable deployable = new DeployableJarFile(moduleFile);
         // parse vendor dd
+        boolean standAlone = earEnvironment == null;
         TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, deployable, standAlone, targetPath, webApp);
         contextRoot = getContextRoot(tomcatWebApp, contextRoot, webApp, standAlone, moduleFile, targetPath);
 
@@ -264,6 +265,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
         if (webApp.getDistributableArray().length == 1) {
             clusteringBuilders.buildEnvironment(tomcatWebApp, environment);
+        }
+
+        if (!standAlone && COMBINED_BUNDLE) {
+            EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
+            environment = earEnvironment;
         }
 
         // Note: logic elsewhere depends on the default artifact ID being the file name less extension (ConfigIDExtractor)
