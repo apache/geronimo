@@ -275,7 +275,7 @@ public final class JarUtils {
             }
             String name = baseName + file.getName();
             if (file.isDirectory()) {
-                out.putNextEntry(new ZipEntry(name));
+                out.putNextEntry(new ZipEntry(name + "/"));
                 out.closeEntry();            
                 jarDirectory(file, name + "/", destinationFile, out);
             } else if (file.isFile()) {
