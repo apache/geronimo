@@ -34,7 +34,7 @@
     <name>Geronimo Plugin Group :: Java EE 6 Tomcat</name>
 
     <description>
-        This plugin group provides Java EE 5  Tomcat functionality.
+        This plugin group provides Java EE 6  Tomcat functionality.
     </description>
 
     <dependencies>
@@ -122,12 +122,12 @@
             <type>car</type>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>activemq-ra</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>activemq-ra</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->

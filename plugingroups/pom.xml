@@ -52,7 +52,7 @@
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
-                <!-- Install as extention to allow 'car' packaging to be used. -->
+                <!-- Install as extension to allow 'car' packaging to be used. -->
                 <extensions>true</extensions>
                 <configuration>
                     <archive>
@@ -64,13 +64,15 @@
                         <includeVersion>true</includeVersion>
                         <useTransitiveDependencies>true</useTransitiveDependencies>
                     </useMavenDependencies>
+                    <warnOnDependencyChange>${warnOnDependencyChange}</warnOnDependencyChange>
+                    <logDependencyChanges>${logDependencyChanges}</logDependencyChanges>
+                    <overwriteChangedDependencies>${overwriteChangedDependencies}</overwriteChangedDependencies>
                     <osiApproved>true</osiApproved>
                     <category>Geronimo Plugin Group</category>
                     <pluginGroup>true</pluginGroup>
                     <commonInstance>
                         <plugin-artifact>
                             <geronimo-version>${geronimoVersion}</geronimo-version>
-                            <jvm-version>1.5</jvm-version>
                             <jvm-version>1.6</jvm-version>
                             <source-repository>${PluginSrcRepoLocal}</source-repository>
                             <source-repository>${PluginSrcRepoCentral}</source-repository>

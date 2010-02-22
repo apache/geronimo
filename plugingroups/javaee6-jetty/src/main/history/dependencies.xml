@@ -7,18 +7,8 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.framework.plugingroups</groupId>
-        <artifactId>framework</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>eba-jetty</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>console-jetty</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>activemq-ra</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -32,8 +22,23 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.framework.plugingroups</groupId>
+        <artifactId>framework</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>client</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>console-jetty</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>eba-jetty</artifactId>
         <type>car</type>
     </dependency>
     <dependency>

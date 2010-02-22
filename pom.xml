@@ -2331,7 +2331,7 @@ only found in cxf
             <url>http://repository.ops4j.org/mvn-snapshots/</url>
             <snapshots>
                 <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
+                <updatePolicy>daily</updatePolicy>
                 <checksumPolicy>warn</checksumPolicy>
             </snapshots>
             <releases>
