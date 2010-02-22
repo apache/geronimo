@@ -15,17 +15,21 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.activemq;
+package org.apache.geronimo.management.activemq;
 
-import org.apache.geronimo.management.geronimo.JMSBroker;
+import org.apache.geronimo.management.geronimo.JMSConnector;
 
 /**
- * The management interface for the ActiveMQ broker GBean.
- * This is separate from ActiveMQContainer because that interface has hard
- * links to code in activemq-core, yet we still want to be able to
- * distinguish ActiveMQ brokers from non-ActiveMQ JMS brokers.
+ * The GBean interface for the ActiveMQ network connector GBean
  *
  * @version $Rev$ $Date$
  */
-public interface ActiveMQBroker extends JMSBroker {
+public interface ActiveMQConnector extends JMSConnector {
+    String CONNECTOR_J2EE_TYPE = "JMSConnector";
+
+    // Additional stuff you can add to an ActiveMQ connector URI
+    String getPath();
+    void setPath(String path);
+    String getQuery();
+    void setQuery(String query);
 }

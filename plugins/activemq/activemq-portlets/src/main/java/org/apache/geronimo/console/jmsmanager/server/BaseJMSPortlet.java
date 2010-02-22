@@ -24,8 +24,8 @@ import java.util.List;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 
-import org.apache.geronimo.activemq.ActiveMQBroker;
-import org.apache.geronimo.activemq.ActiveMQManager;
+import org.apache.geronimo.management.activemq.ActiveMQBroker;
+import org.apache.geronimo.management.activemq.ActiveMQManager;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;

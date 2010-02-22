@@ -8,7 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>activemq-broker</artifactId>
+        <artifactId>activemq-broker-blueprint</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

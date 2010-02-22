@@ -23,7 +23,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 import org.apache.activemq.broker.TransportConnector;
-import org.apache.geronimo.activemq.ActiveMQConnector;
+import org.apache.geronimo.management.activemq.ActiveMQConnector;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.slf4j.Logger;

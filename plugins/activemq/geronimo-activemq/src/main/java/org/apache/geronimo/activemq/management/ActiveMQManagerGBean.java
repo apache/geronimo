@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.activemq.broker.TransportConnector;
-import org.apache.geronimo.activemq.ActiveMQBroker;
-import org.apache.geronimo.activemq.ActiveMQManager;
+import org.apache.geronimo.management.activemq.ActiveMQBroker;
+import org.apache.geronimo.management.activemq.ActiveMQManager;
 import org.apache.geronimo.activemq.BrokerServiceGBean;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;

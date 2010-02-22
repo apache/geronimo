@@ -18,7 +18,7 @@
 package org.apache.geronimo.activemq;
 
 import org.apache.activemq.broker.BrokerService;
-import org.apache.geronimo.activemq.ActiveMQBroker;
+import org.apache.geronimo.management.activemq.ActiveMQBroker;
 
 /**
  * An interface to the ActiveMQContainerGBean for use by the 

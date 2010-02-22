@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.activemq;
+package org.apache.geronimo.management;
 
 import junit.framework.TestCase;
 

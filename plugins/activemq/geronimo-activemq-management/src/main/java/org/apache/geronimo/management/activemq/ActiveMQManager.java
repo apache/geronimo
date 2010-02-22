@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.activemq;
+package org.apache.geronimo.management.activemq;
 
 import org.apache.geronimo.management.J2EEManagedObject;
 import org.apache.geronimo.management.geronimo.JMSManager;

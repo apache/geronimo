@@ -33,12 +33,12 @@ import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.management.activemq.ActiveMQConnector;
 import org.apache.geronimo.management.geronimo.JMSConnector;
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.activemq.ActiveMQConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
