@@ -249,15 +249,51 @@ public final class JarUtils {
         }
     }
 
-    public static void jarDirectory(File sourceDirecotry, File destinationFile) throws IOException {
-        JarFile inputJar = new UnpackedJarFile(sourceDirecotry);
+    public static void jarDirectory(File sourceDirectory, File destinationFile) throws IOException {
+        JarOutputStream out = null;
         try {
-            copyToPackedJar(inputJar, destinationFile);
+            out = new JarOutputStream(new FileOutputStream(destinationFile));
+            jarDirectory(sourceDirectory, "", destinationFile, out);       
         } finally {
-            close(inputJar);
+            IOUtils.close(out);
         }
     }
 
+    private static void jarDirectory(File baseDirectory, 
+                                     String baseName, 
+                                     File destinationFile, 
+                                     JarOutputStream out) throws IOException {
+        File[] files = baseDirectory.listFiles();
+        if (null == files) {
+            return;
+        }
+        byte[] buffer = new byte[4096];
+        for (File file : files) {
+            // make sure not to include the file we're creating
+            if (file.equals(destinationFile)) {
+                continue;
+            }
+            String name = baseName + file.getName();
+            if (file.isDirectory()) {
+                out.putNextEntry(new ZipEntry(name));
+                out.closeEntry();            
+                jarDirectory(file, name + "/", destinationFile, out);
+            } else if (file.isFile()) {
+                out.putNextEntry(new ZipEntry(name));
+                InputStream in = new FileInputStream(file);
+                try {
+                    int count;
+                    while ((count = in.read(buffer)) > 0) {
+                        out.write(buffer, 0, count);
+                    }
+                } finally {
+                    IOUtils.close(in);
+                    out.closeEntry();
+                }              
+            }
+        }
+    }
+    
     private static void createDirectory(File dir) throws IOException {
         if (dir != null && !dir.exists()) {
             boolean success = dir.mkdirs();
