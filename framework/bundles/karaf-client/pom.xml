@@ -33,7 +33,7 @@
     <groupId>org.apache.geronimo.bundles</groupId>
     <artifactId>karaf-client</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.5.0-SNAPSHOT</version>
     <name>karaf-client</name>
     <description>
         This bundle simply replaces the leading path of classpath entrys from ../system to ../repository in MANIFEST.MF.
@@ -42,7 +42,7 @@
     <properties>
         <pkgGroupId>org.apache.felix.karaf</pkgGroupId>
         <pkgArtifactId>org.apache.felix.karaf.client</pkgArtifactId>
-        <pkgVersion>1.1.0-SNAPSHOT</pkgVersion>
+        <pkgVersion>1.5.0-SNAPSHOT</pkgVersion>
     </properties>
     
     <dependencies>
