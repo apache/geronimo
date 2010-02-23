@@ -41,6 +41,7 @@ public class Environment implements Serializable {
     private final LinkedHashSet<String> bundleClassPath = new LinkedHashSet<String>();
     private final LinkedHashSet<String> imports = new LinkedHashSet<String>();
     private final LinkedHashSet<String> exports = new LinkedHashSet<String>();
+    private final LinkedHashSet<String> requireBundles = new LinkedHashSet<String>();
     private String bundleActivator;
     private final ClassLoadingRules classLoadingRules;
     private boolean suppressDefaultEnvironment;
@@ -61,6 +62,7 @@ public class Environment implements Serializable {
         bundleClassPath.addAll(environment.bundleClassPath);
         imports.addAll(environment.imports);
         exports.addAll(environment.exports);
+        requireBundles.addAll(environment.requireBundles);
         bundleActivator = environment.bundleActivator;
         suppressDefaultEnvironment = environment.isSuppressDefaultEnvironment();
         classLoadingRules = environment.classLoadingRules;
@@ -158,6 +160,18 @@ public class Environment implements Serializable {
         this.bundleActivator = bundleActivator;
     }
 
+    public void addRequireBundles(Collection<String> symbolicNames) {
+        this.requireBundles.addAll(symbolicNames);
+    }
+
+    public void addRequireBundle(String symbolicName) {
+        this.requireBundles.add(symbolicName);
+    }
+
+    public List<String> getRequireBundles() {
+        return Collections.unmodifiableList(new ArrayList<String>(requireBundles));
+    }
+        
     public Manifest getManifest() throws ManifestException {
         Manifest manifest = new Manifest();
         manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_MANIFESTVERSION, "2"));
@@ -184,6 +198,11 @@ public class Environment implements Serializable {
         if (!bundleClassPath.isEmpty()) {
             Manifest.Attribute bundleClassPath = new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.BUNDLE_CLASSPATH, this.bundleClassPath);
             manifest.addConfiguredAttribute(bundleClassPath);
+        }
+        
+        if (!requireBundles.isEmpty()) {
+            Manifest.Attribute requireBundle = new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.REQUIRE_BUNDLE, this.requireBundles);
+            manifest.addConfiguredAttribute(requireBundle);
         }
         return manifest;
     }

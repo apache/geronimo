@@ -75,8 +75,10 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
             for (String exportPackage: environmentType.getExportPackageArray()) {
                 environment.addExportPackage(trim(exportPackage));
             }
-            
-            
+            for (String requireBundle : environmentType.getRequireBundleArray()) {
+                environment.addRequireBundle(requireBundle);
+            }
+                        
             environment.setSuppressDefaultEnvironment(environmentType.isSetSuppressDefaultEnvironment());
             
             ClassLoadingRulesUtil.configureRules(environment.getClassLoadingRules(), environmentType);
@@ -95,6 +97,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
             environment.addToBundleClassPath(additionalEnvironment.getBundleClassPath());
             environment.addImportPackages(additionalEnvironment.getImportPackages());
             environment.addExportPackages(additionalEnvironment.getExportPackages());
+            environment.addRequireBundles(additionalEnvironment.getRequireBundles());
             if (environment.getBundleActivator() == null && additionalEnvironment.getBundleActivator() != null) {
                 environment.setBundleActivator(additionalEnvironment.getBundleActivator());
             }
@@ -138,6 +141,9 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         }
         for (String exportPackage: environment.getExportPackages()) {
             environmentType.addExportPackage(exportPackage);
+        }
+        for (String requireBundle : environment.getRequireBundles()) {
+            environmentType.addRequireBundle(requireBundle);
         }
         
         ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
