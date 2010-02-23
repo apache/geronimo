@@ -195,7 +195,7 @@ public class DeploymentContext {
             ConfigurationData configurationData = new ConfigurationData(moduleType, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
             File tempBundleFile = FileUtils.createTempFile();
             createTempManifest();
-            createTempPluginMetadata();
+            createPluginMetadata();
             JarUtils.jarDirectory(baseDir, tempBundleFile);
             String location = "reference:file:" + URLEncoder.encode(tempBundleFile.getAbsolutePath(), "UTF-8");
             tempBundle = bundleContext.installBundle(location);
@@ -210,7 +210,7 @@ public class DeploymentContext {
         }
     }
 
-    private void createTempPluginMetadata() throws IOException, JAXBException, XMLStreamException {
+    private void createPluginMetadata() throws IOException, JAXBException, XMLStreamException {
         PluginType pluginType = new PluginType();
         pluginType.setName("Temporary Plugin metadata for deployment");
         PluginArtifactType instance = new PluginArtifactType();
@@ -564,6 +564,13 @@ public class DeploymentContext {
         if (environment.getBundleActivator() == null) {
             environment.setBundleActivator(ConfigurationActivator.class.getName());
         }
+
+        try {
+            createPluginMetadata();
+        } catch (Exception e) {
+            throw new DeploymentException("Failed to update geronimo-plugin.xml", e);
+        }
+
         ConfigurationData configurationData = new ConfigurationData(configuration.getModuleType(),
                 gbeans,
                 childConfigurationDatas,
