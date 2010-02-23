@@ -220,7 +220,7 @@ public class DeploymentContext {
             dependenciees.add(DependencyType.newDependencyType(dependency));
         }
         pluginType.getPluginArtifact().add(instance);
-        File metaInf = new File(baseDir, "META-INF");
+        File metaInf = new File(getConfigurationDir(), "META-INF");
         metaInf.mkdirs();
         OutputStream out = new FileOutputStream(new File(metaInf, "geronimo-plugin.xml"));
         try {
@@ -231,17 +231,20 @@ public class DeploymentContext {
     }
 
     private void createTempManifest() throws DeploymentException, IOException {
-        Manifest manifest = new Manifest();
+        Environment env = new Environment(environment);        
+        Artifact id = env.getConfigId();
+        env.setConfigId(new Artifact(id.getGroupId(), id.getArtifactId() + "-DEPLOYMENT", id.getVersion(), id.getType()));
+        env.addToBundleClassPath(classPath);
+        env.setBundleActivator(null);
+        
+        Manifest manifest;
         try {
-            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_MANIFESTVERSION, "2"));
-            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_SYMBOLICNAME, getBundleSymbolicName()));
-            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_VERSION, "0.0.0.0"));
-            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_CLASSPATH, getBundleClassPath()));
-            manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.DYNAMICIMPORT_PACKAGE, "*"));
+            manifest = env.getManifest();
         } catch (ManifestException e) {
             throw new DeploymentException(e);
         }
-        File metaInf = new File(baseDir, "META-INF");
+        
+        File metaInf = new File(getConfigurationDir(), "META-INF");
         metaInf.mkdirs();
         FileWriter fw = new FileWriter(new File(metaInf, "MANIFEST.MF"));
         PrintWriter pw = new PrintWriter(fw);
@@ -253,24 +256,10 @@ public class DeploymentContext {
         }
     }
 
-    private String getBundleClassPath() {
-        if (classPath.isEmpty()) {
-            return ".";
-        }
-        StringBuilder buf = new StringBuilder();
-        String sep = "";
-        for (String path: classPath) {
-            buf.append(sep).append(path);
-            sep = ",";
-        }
-        return buf.toString();
+    private File getConfigurationDir() {
+        return (inPlaceConfigurationDir == null) ? baseDir : inPlaceConfigurationDir;        
     }
-
-    private String getBundleSymbolicName() {
-        Artifact id = environment.getConfigId();
-        return id.getGroupId() + "." + id.getArtifactId() + "-DEPLOYMENT";
-    }
-
+    
     public ConfigurationManager getConfigurationManager() {
         return configurationManager;
     }

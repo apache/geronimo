@@ -184,7 +184,6 @@ public class Environment implements Serializable {
 
         if (bundleActivator != null) {
             manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_ACTIVATOR, bundleActivator));
-//            imports.add("org.apache.geronimo.system.osgi");
         }
 
         if (!imports.isEmpty()) {
