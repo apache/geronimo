@@ -26,8 +26,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -295,7 +297,13 @@ public class MasterConfigurationStore implements ConfigurationStore, GBeanLifecy
 
     protected AbstractName buildControllerName(Artifact configId,
             NodeInfo nodeInfo) {
-        return new AbstractName(configId, Collections.singletonMap("nodeName", nodeInfo.getName()));
+        Map nameMap= new Hashtable();
+        nameMap.put("nodeName", nodeInfo.getName());
+        nameMap.put("artifactId", configId.getArtifactId());
+        nameMap.put("groupId", configId.getGroupId());
+        nameMap.put("version", ""+configId.getVersion().getMajorVersion()+configId.getVersion().getMinorVersion());
+        nameMap.put("type", configId.getType());
+        return new AbstractName(configId, nameMap);
     }
     
    
@@ -303,14 +311,15 @@ public class MasterConfigurationStore implements ConfigurationStore, GBeanLifecy
     
     
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MasterConfigurationStore.class);//,ConfigurationStore.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MasterConfigurationStore.class,GBEAN_J2EE_TYPE);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("abstractName", AbstractName.class, true);
+        infoFactory.addAttribute("abstractName", AbstractName.class, false);
         infoFactory.addReference(GBEAN_REF_REPOSITORY, WritableListableRepository.class, "Repository");
-        infoFactory.addAttribute("defaultEnvironment",Environment.class, false);
+        infoFactory.addAttribute("defaultEnvironment",Environment.class, true,true);
         infoFactory.addReference(GBEAN_REF_CLUSTER_INFO,ClusterInfo.class);
         infoFactory.addReference(GBEAN_REF_CLUSTER_CONF_STORE_CLIENT, ClusterConfigurationStoreClient.class);
+        infoFactory.addInterface(ConfigurationStore.class);
         infoFactory.setConstructor(new String[] { "kernel","objectName","abstractName",GBEAN_REF_REPOSITORY,"defaultEnvironment",GBEAN_REF_CLUSTER_INFO,GBEAN_REF_CLUSTER_CONF_STORE_CLIENT});
         
         GBEAN_INFO = infoFactory.getBeanInfo();
