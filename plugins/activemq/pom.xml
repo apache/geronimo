@@ -102,7 +102,7 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.osgi</groupId>
-                        <artifactId>osgi.core</artifactId>
+                        <artifactId>org.osgi.core</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
