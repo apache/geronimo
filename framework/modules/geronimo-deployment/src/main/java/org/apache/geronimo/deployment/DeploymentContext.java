@@ -565,10 +565,12 @@ public class DeploymentContext {
             environment.setBundleActivator(ConfigurationActivator.class.getName());
         }
 
-        try {
-            createPluginMetadata();
-        } catch (Exception e) {
-            throw new DeploymentException("Failed to update geronimo-plugin.xml", e);
+        if (tempBundle != null) {
+            try {
+                createPluginMetadata();
+            } catch (Exception e) {
+                throw new DeploymentException("Failed to update geronimo-plugin.xml", e);
+            }
         }
 
         ConfigurationData configurationData = new ConfigurationData(configuration.getModuleType(),
