@@ -35,8 +35,8 @@ public class GeronimoServletHolder extends ServletHolder {
     public GeronimoServletHolder(IntegrationContext integrationContext, JettyServletRegistration servletRegistration, String servletClassName) throws ClassNotFoundException {
         this.integrationContext = integrationContext;
         this.servletRegistration = servletRegistration;
+        setClassName(servletClassName);
         if (integrationContext != null) {
-            setClassName(servletClassName);
             _class = servletRegistration.loadClass(servletClassName, Servlet.class);
         }
     }
