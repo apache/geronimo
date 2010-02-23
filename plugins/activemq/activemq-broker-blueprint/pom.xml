@@ -99,8 +99,8 @@
                     <category>JMS</category>
                     <instance>
                         <plugin-artifact>
-                            <copy-file relative-to="server" dest-dir="var/activemq/conf">activemq.xml</copy-file>
-                            <copy-file relative-to="server" dest-dir="var/activemq/template">activemq-template.xml</copy-file>
+                            <!--<copy-file relative-to="server" dest-dir="var/activemq/conf">activemq.xml</copy-file>-->
+                            <!--<copy-file relative-to="server" dest-dir="var/activemq/template">activemq-template.xml</copy-file>-->
                             <copy-file relative-to="geronimo" dest-dir="etc">etc/blueprint-activemq-placeholder.cfg</copy-file>
                             <!--
                             <config-xml-content>
