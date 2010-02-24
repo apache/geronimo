@@ -34,6 +34,7 @@
         <!--<module>clustering-jetty</module>-->
         <!--<module>clustering-tomcat</module>-->
         <!--<module>ejb</module>-->
+        <module>jms</module>
         <module>javaee6-jetty</module>
         <module>javaee6-tomcat</module>
         <module>persistence</module>

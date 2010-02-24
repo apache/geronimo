@@ -81,6 +81,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>jms</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>webservices-axis2</artifactId>
             <version>${version}</version>
             <type>car</type>
@@ -118,13 +125,6 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jmx-security</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>activemq-ra</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
