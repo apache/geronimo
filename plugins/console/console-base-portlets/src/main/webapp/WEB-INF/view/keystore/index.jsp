@@ -105,7 +105,7 @@
           <a href="<portlet:actionURL portletMode="view">
             <portlet:param name="mode" value="lockKeystore-before" />
             <portlet:param name="keystore" value="${keystore.name}" />
-            </portlet:actionURL> " onClick="return confirm('<fmt:message key="keystore.index.continueLocking"/>');" ><img src="/console/images/ico_unlock3_16x16.gif" alt='<fmt:message key="keystore.index.unlocked"/>' /></a>
+            </portlet:actionURL>" onClick="return confirm('<fmt:message key="keystore.index.continueLocking"/>');"><img src="/console/images/ico_unlock3_16x16.gif" alt='<fmt:message key="keystore.index.unlocked"/>' /></a>
             ${keys[keystore.name]}
         </c:otherwise>
       </c:choose>
