@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.geronimo.openejb.cluster.stateful.container;
+package org.apache.geronimo.openejb.cluster.container.stateless;
 
 import java.net.URI;
 import java.util.Collections;
@@ -34,10 +34,10 @@ import com.agical.rmock.extension.junit.RMockTestCase;
 /**
  * @version $Rev$ $Date$
  */
-public class ClusteredStatefulContainerTest extends RMockTestCase {
+public class ClusteredStatelessContainerTest extends RMockTestCase {
 
     private WADISessionManager sessionManager;
-    private ClusteredStatefulContainer container;
+    private ClusteredStatelessContainer container;
     private CoreDeploymentInfo deploymentInfo;
     private String deploymentId;
     private NetworkConnectorTracker tracker;
@@ -61,8 +61,8 @@ public class ClusteredStatefulContainerTest extends RMockTestCase {
         modify().returnValue(tracker);
 
         SecurityService securityService = (SecurityService) mock(SecurityService.class);
-        container = (ClusteredStatefulContainer) intercept(ClusteredStatefulContainer.class, new Object[] {"id",
-                securityService});
+        container = (ClusteredStatelessContainer) intercept(ClusteredStatelessContainer.class, new Object[] {"id",
+                securityService,500,10,true});
         deploymentId = "deploymentId";
         deploymentInfo = new CoreDeploymentInfo(new DeploymentContext(deploymentId, null, null),
             SFSB.class,

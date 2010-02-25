@@ -43,6 +43,8 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
@@ -53,9 +55,9 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
+import org.apache.geronimo.openejb.cluster.deployment.ClusteredDeployment;
 import org.apache.geronimo.openejb.cluster.infra.BasicNetworkConnectorTrackerServiceHolder;
 import org.apache.geronimo.openejb.cluster.infra.NetworkConnectorMonitor;
-import org.apache.geronimo.openejb.cluster.stateful.deployment.ClusteredStatefulDeployment;
 import org.apache.geronimo.openejb.deployment.BasicEjbDeploymentGBeanNameBuilder;
 import org.apache.geronimo.openejb.deployment.EjbDeploymentGBeanNameBuilder;
 import org.apache.geronimo.openejb.deployment.EjbModule;
@@ -69,6 +71,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.SessionBean;
+import org.apache.openejb.jee.SessionType;
 import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
@@ -77,6 +80,7 @@ import org.apache.xmlbeans.XmlObject;
  *
  * @version $Rev:$ $Date:$
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
     private static final QName BASE_CLUSTERING_QNAME = GerClusteringDocument.type.getDocumentElementName();
     private static final QName CLUSTERING_WADI_QNAME = GerOpenejbClusteringWadiDocument.type.getDocumentElementName();
@@ -89,6 +93,8 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
     }
 
     private final String defaultClusteredStatefulContainerId;
+    private final String defaultClusteredStatelessContainerId;
+    
     private final EjbDeploymentGBeanNameBuilder beanNameBuilder;
     private final int defaultSweepInterval;
     private final int defaultSessionTimeout;
@@ -97,17 +103,22 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
     private final AbstractNameQuery defaultClusterName;
     private final AbstractNameQuery defaultNetworkConnectorName;
     private final Environment defaultEnvironment;
+    
 
-    public WADIOpenEJBClusteringBuilder(String defaultClusteredStatefulContainerId,
-        int defaultSweepInterval,
-        int defaultSessionTimeout,
-        int defaultNumPartitions,
-        AbstractNameQuery defaultBackingStrategyFactoryName,
-        AbstractNameQuery defaultClusterName,
-        AbstractNameQuery defaultNetworkConnectorName,        
-        Environment defaultEnvironment) {
+    public WADIOpenEJBClusteringBuilder(
+            @ParamAttribute(name = "defaultClusteredStatefulContainerId") String defaultClusteredStatefulContainerId,
+            @ParamAttribute(name = "defaultClusteredStatelessContainerId") String defaultClusteredStatelessContainerId,
+            @ParamAttribute(name = "defaultSweepInterval") int defaultSweepInterval,
+            @ParamAttribute(name = "defaultSessionTimeout") int defaultSessionTimeout,
+            @ParamAttribute(name = "defaultNumPartitions") int defaultNumPartitions,
+            @ParamAttribute(name = "defaultBackingStrategyFactoryName") AbstractNameQuery defaultBackingStrategyFactoryName, 
+            @ParamAttribute(name = "defaultClusterName") AbstractNameQuery defaultClusterName,
+            @ParamAttribute(name = "defaultNetworkConnectorName") AbstractNameQuery defaultNetworkConnectorName,
+            @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment) {
         if (null == defaultClusteredStatefulContainerId) {
             throw new IllegalArgumentException("defaultClusteredStatefulContainerId is required");
+        } else if (null == defaultClusteredStatelessContainerId) {
+            throw new IllegalArgumentException("defaultClusteredStatelessContainerId is required");
         } else if (defaultSweepInterval < 1) {
             throw new IllegalArgumentException("defaultSweepInterval is lower than 1");
         } else if (defaultSessionTimeout < 1) {
@@ -124,6 +135,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
             throw new IllegalArgumentException("defaultNetworkConnectorName is required");
         }
         this.defaultClusteredStatefulContainerId = defaultClusteredStatefulContainerId;
+        this.defaultClusteredStatelessContainerId = defaultClusteredStatelessContainerId;
         this.defaultSweepInterval = defaultSweepInterval;
         this.defaultSessionTimeout = defaultSessionTimeout;
         this.defaultNumPartitions = defaultNumPartitions;
@@ -170,16 +182,13 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
 
             EjbJar ejbJar = ejbModule.getEjbJar();
             for (EnterpriseBean enterpriseBean : ejbJar.getEnterpriseBeans()) {
+                
                 if (enterpriseBean instanceof SessionBean) {
-                    SessionBean sessionBean = (SessionBean) enterpriseBean;
-                    switch (sessionBean.getSessionType()) {
-                        case STATEFUL:
-                            replaceByClusteredDeploymentGBean(earContext,
-                                ejbModule,
-                                sessionManagerName,
-                                enterpriseBean);
-                    }
+
+                    replaceByClusteredDeploymentGBean(earContext, ejbModule, sessionManagerName, enterpriseBean);
+
                 }
+
             }
         }
     }
@@ -197,14 +206,15 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
             throw new DeploymentException("No GBean [" + name + "]", e);
         }
         GBeanData clusteredDeploymentGBean = new GBeanData(beanInstance);
-        clusteredDeploymentGBean.setGBeanInfo(ClusteredStatefulDeployment.GBEAN_INFO);
-        clusteredDeploymentGBean.setReferencePattern(ClusteredStatefulDeployment.GBEAN_REF_SESSION_MANAGER, sessionManagerName);
+        clusteredDeploymentGBean.setGBeanInfo(ClusteredDeployment.GBEAN_INFO);
+        clusteredDeploymentGBean.setReferencePattern(ClusteredDeployment.GBEAN_REF_SESSION_MANAGER, sessionManagerName);
         try {
             earContext.addGBean(clusteredDeploymentGBean);
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("See nested", e);
         }
     }
+    
 
     public void createModule(Module module,
         Object plan,
@@ -226,7 +236,8 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
 
         EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
 
-        ejbModule.getPreAutoConfigDeployer().add(new MapSFSBToContainerIDDeployer(defaultClusteredStatefulContainerId));
+        ejbModule.getPreAutoConfigDeployer().add(new MapSessionBeanToContainerIDDeployer(defaultClusteredStatefulContainerId,SessionType.STATEFUL));
+        ejbModule.getPreAutoConfigDeployer().add(new MapSessionBeanToContainerIDDeployer(defaultClusteredStatelessContainerId,SessionType.STATELESS));
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -275,7 +286,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         networkConnectorMonitor.setReferencePattern(NetworkConnectorMonitor.GBEAN_REF_NETWORK_CONNECTORS,
             defaultNetworkConnectorName);
         networkConnectorMonitor.setReferencePattern(NetworkConnectorMonitor.GBEAN_REF_EJB_DEP_ID_ACCESSOR,
-            new AbstractNameQuery(ClusteredStatefulDeployment.class.getName()));
+            new AbstractNameQuery(ClusteredDeployment.class.getName()));
         networkConnectorMonitor.setReferencePattern(NetworkConnectorMonitor.GBEAN_REF_WADI_SESSION_MANAGER,
             sessionManagerName);
         
@@ -390,45 +401,5 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         return null;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    public static final String GBEAN_ATTR_DFT_CLUSTERED_SFSB_CONT_ID = "defaultClusteredStatefulContainerId";
-    public static final String GBEAN_ATTR_DFT_SWEEP_INTERVAL = "defaultSweepInterval";
-    public static final String GBEAN_ATTR_DFT_SESSION_TIMEOUT = "defaultSessionTimeout";
-    public static final String GBEAN_ATTR_DFT_NUM_PARTITIONS = "defaultNumPartitions";
-    public static final String GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME = "defaultBackingStrategyFactoryName";
-    public static final String GBEAN_ATTR_DFT_CLUSTER_NAME = "defaultClusterName";
-    public static final String GBEAN_ATTR_DFT_NETWORK_CONNECTOR_NAME = "defaultNetworkConnectorName";
-    public static final String GBEAN_ATTR_DFT_ENVIRONMENT = "defaultEnvironment";
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("WADI OpenEJB Clusteting Builder",
-                WADIOpenEJBClusteringBuilder.class,
-                NameFactory.MODULE_BUILDER);
-
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_CLUSTERED_SFSB_CONT_ID, String.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_SWEEP_INTERVAL, int.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_SESSION_TIMEOUT, int.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_NUM_PARTITIONS, int.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME, AbstractNameQuery.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_CLUSTER_NAME, AbstractNameQuery.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_NETWORK_CONNECTOR_NAME, AbstractNameQuery.class, true);
-        infoBuilder.addAttribute(GBEAN_ATTR_DFT_ENVIRONMENT, Environment.class, true);
-
-        infoBuilder.setConstructor(new String[] { GBEAN_ATTR_DFT_CLUSTERED_SFSB_CONT_ID,
-            GBEAN_ATTR_DFT_SWEEP_INTERVAL,
-            GBEAN_ATTR_DFT_SESSION_TIMEOUT,
-            GBEAN_ATTR_DFT_NUM_PARTITIONS,
-            GBEAN_ATTR_DFT_BACKING_STRATEGY_FACTORY_NAME,
-            GBEAN_ATTR_DFT_CLUSTER_NAME,
-            GBEAN_ATTR_DFT_NETWORK_CONNECTOR_NAME,
-            GBEAN_ATTR_DFT_ENVIRONMENT });
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
+   
 }

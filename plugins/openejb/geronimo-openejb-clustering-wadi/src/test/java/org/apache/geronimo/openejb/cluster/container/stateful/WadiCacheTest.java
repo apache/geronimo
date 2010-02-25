@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.geronimo.openejb.cluster.stateful.container;
+package org.apache.geronimo.openejb.cluster.container.stateful;
 
 import java.io.IOException;
 import java.rmi.dgc.VMID;
@@ -34,7 +34,8 @@ import com.agical.rmock.extension.junit.RMockTestCase;
 import org.apache.geronimo.clustering.Session;
 import org.apache.geronimo.clustering.SessionListener;
 import org.apache.geronimo.clustering.wadi.WADISessionManager;
-import org.apache.geronimo.openejb.cluster.stateful.container.ClusteredStatefulContainerTest.SFSB;
+import org.apache.geronimo.openejb.cluster.container.stateful.WadiCache;
+import org.apache.geronimo.openejb.cluster.container.stateful.ClusteredStatefulContainerTest.SFSB;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.DeploymentContext;
 import org.apache.openejb.core.ThreadContext;

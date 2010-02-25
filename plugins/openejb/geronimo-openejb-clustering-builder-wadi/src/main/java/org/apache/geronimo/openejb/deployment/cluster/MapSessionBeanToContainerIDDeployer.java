@@ -25,6 +25,7 @@ import org.apache.openejb.config.DynamicDeployer;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.SessionBean;
+import org.apache.openejb.jee.SessionType;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
 
@@ -32,15 +33,17 @@ import org.apache.openejb.jee.oejb3.OpenejbJar;
  *
  * @version $Rev:$ $Date:$
  */
-public class MapSFSBToContainerIDDeployer implements DynamicDeployer {
+public class MapSessionBeanToContainerIDDeployer implements DynamicDeployer {
 
     private final String containerId;
+    private final SessionType containerSessionType;
 
-    public MapSFSBToContainerIDDeployer(String containerId) {
+    public MapSessionBeanToContainerIDDeployer(String containerId,SessionType containerSessionType) {
         if (null == containerId) {
             throw new IllegalArgumentException("containerId is required");
         }
         this.containerId = containerId;
+        this.containerSessionType=containerSessionType;
     }
 
     public AppModule deploy(AppModule appModule) throws OpenEJBException {
@@ -51,13 +54,24 @@ public class MapSFSBToContainerIDDeployer implements DynamicDeployer {
                 if (enterpriseBean instanceof SessionBean) {
                     SessionBean sessionBean = (SessionBean) enterpriseBean;
                     switch (sessionBean.getSessionType()) {
-                        case STATEFUL:
+                    case STATEFUL:
+                        if (this.containerSessionType == SessionType.STATEFUL) {
                             String ejbName = sessionBean.getEjbName();
                             EjbDeployment ejbDeployment = openejbJar.getDeploymentsByEjbName().get(ejbName);
                             if (null == ejbDeployment) {
                                 throw new OpenEJBException("No ejbDeployment for ejbName [" + ejbName + "]");
                             }
                             ejbDeployment.setContainerId(containerId);
+                        }
+                    case STATELESS:
+                        if (this.containerSessionType == SessionType.STATELESS) {
+                            String ejbName = sessionBean.getEjbName();
+                            EjbDeployment ejbDeployment = openejbJar.getDeploymentsByEjbName().get(ejbName);
+                            if (null == ejbDeployment) {
+                                throw new OpenEJBException("No ejbDeployment for ejbName [" + ejbName + "]");
+                            }
+                            ejbDeployment.setContainerId(containerId);
+                        }        
                     }
                 }
             }

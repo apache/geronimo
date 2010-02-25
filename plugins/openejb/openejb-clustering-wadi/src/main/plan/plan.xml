@@ -26,5 +26,12 @@
             <name>OpenEjbSystem</name>
         </reference>
     </gbean>
+    
+    <gbean name="DefaultClusteredStatelessContainer" class="org.apache.geronimo.openejb.StatelessContainerGBean">
+        <attribute name="provider">org.apache.geronimo.openejb.cluster:Default Clustered Stateless Container</attribute>
+        <reference name="OpenEjbSystem">
+            <name>OpenEjbSystem</name>
+        </reference>
+    </gbean>
 
 </module>

@@ -28,6 +28,7 @@ import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EntityBean;
 import org.apache.openejb.jee.MessageDrivenBean;
+import org.apache.openejb.jee.SessionType;
 import org.apache.openejb.jee.StatefulBean;
 import org.apache.openejb.jee.StatelessBean;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
@@ -37,7 +38,7 @@ import org.apache.openejb.jee.oejb3.OpenejbJar;
  *
  * @version $Rev:$ $Date:$
  */
-public class MapSFSBToContainerIDDeployerTest extends TestCase {
+public class MapSessionBeanToContainerIDDeployerTest extends TestCase {
 
     public void testContainerIdAreSetForSFSB() throws Exception {
         AppModule appModule = new AppModule(getClass().getClassLoader(), "dummy.jar");
@@ -75,7 +76,7 @@ public class MapSFSBToContainerIDDeployerTest extends TestCase {
         ejbModules.add(ejbModule);
         
         String targetContainerId = "targetContainerId";
-        MapSFSBToContainerIDDeployer deployer = new MapSFSBToContainerIDDeployer(targetContainerId);
+        MapSessionBeanToContainerIDDeployer deployer = new MapSessionBeanToContainerIDDeployer(targetContainerId,SessionType.STATEFUL);
         deployer.deploy(appModule);
         
         assertEquals(targetContainerId, sfsbDeployment.getContainerId());

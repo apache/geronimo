@@ -22,6 +22,7 @@
 
     <gbean name="OpenEJBClusteringBuilder" class="org.apache.geronimo.openejb.deployment.cluster.WADIOpenEJBClusteringBuilder">
         <attribute name="defaultClusteredStatefulContainerId">DefaultClusteredStatefulContainer</attribute>
+        <attribute name="defaultClusteredStatelessContainerId">DefaultClusteredStatelessContainer</attribute>
         <attribute name="defaultSweepInterval">10</attribute>
         <attribute name="defaultSessionTimeout">3600</attribute>
         <attribute name="defaultNumPartitions">24</attribute>

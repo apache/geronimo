@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.geronimo.openejb.cluster.stateful.container;
+package org.apache.geronimo.openejb.cluster.container.stateful;
 
 import java.rmi.dgc.VMID;
 import java.util.Iterator;
@@ -122,6 +122,11 @@ public class WadiCache implements Cache<Object, Instance>, SessionManagerTracker
             }
 
             wadiInstance.lock.lock();
+            
+            if(wadiInstance.getState()==null){
+                wadiInstance.setState(WadiInstanceState.AVAILABLE);
+            }
+            
             try {
                 // verfiy state
                 switch (wadiInstance.getState()) {
@@ -161,6 +166,11 @@ public class WadiCache implements Cache<Object, Instance>, SessionManagerTracker
         }
 
         wadiInstance.lock.lock();
+        
+        if(wadiInstance.getState()==null){
+            wadiInstance.setState(WadiInstanceState.CHECKED_OUT);
+        }
+        
         try {
             // verfiy state
             switch (wadiInstance.getState()) {

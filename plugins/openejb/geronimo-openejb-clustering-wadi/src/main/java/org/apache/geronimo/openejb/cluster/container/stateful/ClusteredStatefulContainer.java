@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.geronimo.openejb.cluster.stateful.container;
+package org.apache.geronimo.openejb.cluster.container.stateful;
 
 import java.net.URI;
 import java.util.HashMap;

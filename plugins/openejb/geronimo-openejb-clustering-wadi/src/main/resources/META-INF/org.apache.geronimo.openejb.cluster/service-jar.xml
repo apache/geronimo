@@ -31,7 +31,48 @@
           service="Container"
           types="STATEFUL"
           constructor="id, securityService"
-          class-name="org.apache.geronimo.openejb.cluster.stateful.container.ClusteredStatefulContainer">
+          class-name="org.apache.geronimo.openejb.cluster.container.stateful.ClusteredStatefulContainer">
+
+  </ServiceProvider>
+  
+  <!--
+  # ==========================================================
+  # Default Clustered Stateless Container
+  # ==========================================================
+  -->
+  <ServiceProvider
+          id="Default Clustered Stateless Container"
+          service="Container"
+          types="STATELESS"
+          constructor="id, securityService, TimeOut, PoolSize, StrictPooling"
+          class-name="org.apache.geronimo.openejb.cluster.container.stateless.ClusteredStatelessContainer">
+
+    # Specifies the time to wait between invocations. This
+    # value is measured in milliseconds. A value of 5 would
+    # result in a time-out of 5 milliseconds between invocations.
+    # A value of zero would mean no timeout.
+
+    TimeOut 0
+
+    # Specifies the size of the bean pools for this
+    # stateless SessionBean container.
+
+    PoolSize 10
+
+    # StrictPooling tells the container what to do when the pool
+    # reaches it's maximum size and there are incoming requests
+    # that need instances.
+    #
+    # With strict pooling, requests will have to wait for instances
+    # to become available. The pool size will never grow beyond the
+    # the set PoolSize value.
+    #
+    # Without strict pooling, the container will create temporary
+    # instances to meet demand. The instances will last for just one
+    # method invocation and then are removed.
+
+    StrictPooling true
+
 
   </ServiceProvider>
 
