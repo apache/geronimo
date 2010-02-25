@@ -48,7 +48,13 @@
             <artifactId>geronimo-pax-logging</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
+        <!-- needed by geronimo-j2ee-management_1.1_spec -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_3.1_spec</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>

@@ -44,14 +44,12 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jacc_1.1_spec</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.1_spec</artifactId>
-        </dependency>
-         <dependency>
-             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jta_1.1_spec</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_3.0_spec</artifactId>
