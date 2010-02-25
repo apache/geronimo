@@ -344,4 +344,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
     public void setInPlace(boolean inPlace) {
         commandContext.setInPlace(inPlace);
     }
+    public Kernel getKernel() {
+        return kernel;
+    }
 }

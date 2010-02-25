@@ -32,12 +32,14 @@ import java.util.List;
 
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 
+
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.cli.deployer.CommandFileCommandMetaData;
 import org.apache.geronimo.cli.deployer.CommandMetaData;
 import org.apache.geronimo.cli.deployer.DeployCommandMetaData;
 import org.apache.geronimo.cli.deployer.DeployerCLParser;
 import org.apache.geronimo.cli.deployer.DistributeCommandMetaData;
+import org.apache.geronimo.cli.deployer.EncryptCommandMetaData;
 import org.apache.geronimo.cli.deployer.InstallLibraryCommandMetaData;
 import org.apache.geronimo.cli.deployer.InstallPluginCommandMetaData;
 import org.apache.geronimo.cli.deployer.ListModulesCommandMetaData;
@@ -89,6 +91,7 @@ public class DeployTool implements Main {
         commands.put(SearchPluginsCommandMetaData.META_DATA, new CommandListConfigurations());
         commands.put(InstallPluginCommandMetaData.META_DATA, new CommandInstallCAR());
         commands.put(InstallLibraryCommandMetaData.META_DATA, new CommandInstallLibrary());
+        commands.put(EncryptCommandMetaData.META_DATA, new CommandEncrypt());
     }
 
     private boolean failed = false;
@@ -107,13 +110,13 @@ public class DeployTool implements Main {
         this.kernel = kernel;
         this.deploymentFactory = deploymentFactory;
     }
-
+    
     public int execute(Object opaque) {
         if (! (opaque instanceof DeployerCLParser)) {
             throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + DeployerCLParser.class + "]");
         }
         DeployerCLParser parser = (DeployerCLParser) opaque;
-
+        
         PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out), true);
         InputStream in = System.in;
 
