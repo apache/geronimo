@@ -85,7 +85,6 @@
         <externalTomcatVersion>6.0.20.0</externalTomcatVersion>
         <tomcatVersion>6.0.20</tomcatVersion>
         <eclipseVersion>3.3.0-v_771</eclipseVersion>
-        <tranqlVendorsVersion>1.4</tranqlVendorsVersion>
         <dojoVersion>1.0.2</dojoVersion>
         <dojoLegacyVersion>0.4.3</dojoLegacyVersion>
         <cxfVersion>2.0.12</cxfVersion>
