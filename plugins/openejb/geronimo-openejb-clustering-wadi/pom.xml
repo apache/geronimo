@@ -45,12 +45,6 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-interceptor_1.1_spec</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 </project>
