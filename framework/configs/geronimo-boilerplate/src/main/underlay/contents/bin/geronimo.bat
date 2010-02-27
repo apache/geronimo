@@ -276,7 +276,7 @@ shift
 @REM use long format of startup progress to be consistent with
 @REM the unix version of the start processing
 set _LONG_OPT=--long
-set _EXECJAVA=start "Geronimo" %GERONIMO_WIN_START_ARGS% %_RUNJAVA%
+set _EXECJAVA=start "Geronimo" %GERONIMO_WIN_START_ARGS% internalLauncher.bat
 goto execCmd
 
 :doStop
