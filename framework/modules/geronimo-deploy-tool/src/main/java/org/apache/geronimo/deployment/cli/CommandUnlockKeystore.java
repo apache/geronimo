@@ -103,9 +103,9 @@ public class CommandUnlockKeystore extends AbstractCommand {
      * Returns the password for private key alias
      */
     private String getKeyAliasPassword(Properties properties, String keyStoreName, String aliasName) throws DeploymentException {
-        String aliasPassword = properties.getProperty(keyStoreName + "." + aliasName + ".keyPassword");
+        String aliasPassword = properties.getProperty(aliasName);
         if (aliasPassword == null) {
-            throw new DeploymentException("No alias with the name " + keyStoreName + "." + aliasName + ".keyPassword" + " exists in the kyeStoreTruststore password properties file::" + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
+            throw new DeploymentException("No alias with the name " + aliasName + " exists in the kyeStoreTruststore password properties file::" + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
         }
         return (String) EncryptionManager.decrypt(aliasPassword);
     }
@@ -134,9 +134,9 @@ public class CommandUnlockKeystore extends AbstractCommand {
      * Returns the key store password
      */
     private String getKeyStorePassword(Properties properties, String keyStoreName) throws DeploymentException {
-        String keyStorePassword = properties.getProperty(keyStoreName + ".keyStorePassword");
+        String keyStorePassword = properties.getProperty("keyStorePassword");
         if (keyStorePassword == null) {
-            throw new DeploymentException("No keyStorePassword attribute named " + keyStoreName + ".keyStorePassword" + "exists in tke kyeStoreTruststore password properties file::" + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
+            throw new DeploymentException("No keyStorePassword attribute named " + "keyStorePassword" + "exists in tke kyeStoreTruststore password properties file::" + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
         }
         return (String) EncryptionManager.decrypt(keyStorePassword);
     }
