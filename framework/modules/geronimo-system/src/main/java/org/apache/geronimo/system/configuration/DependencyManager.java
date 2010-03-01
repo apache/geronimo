@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
@@ -48,7 +49,6 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.SynchronousBundleListener;
-import org.osgi.service.obr.RepositoryAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +107,7 @@ public class DependencyManager implements SynchronousBundleListener {
         }
         return pluginArtifactType;
     }
-
+    
     private void installRepository(Bundle bundle) {
         if (repositoryAdmin != null) {
             URL info = bundle.getEntry("OSGI-INF/obr/repository.xml");
@@ -142,13 +142,12 @@ public class DependencyManager implements SynchronousBundleListener {
         if (pluginArtifactType != null) {
             List<DependencyType> dependencies = pluginArtifactType.getDependency();
             try {
-                tag: for (DependencyType dependencyType : dependencies) {
+                for (DependencyType dependencyType : dependencies) {
                     log.info("Installing artifact: " + dependencyType);
                     Artifact artifact = dependencyType.toArtifact();
                     String location = locateBundle(artifact);
                     for (Bundle test: bundleContext.getBundles()) {
                         if (location.equals(test.getLocation())) {
-//                            break tag;
                             continue;
                         }
                     }

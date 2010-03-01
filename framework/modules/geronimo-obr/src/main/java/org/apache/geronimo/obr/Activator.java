@@ -24,15 +24,15 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.felix.bundlerepository.RepositoryAdmin;
+import org.apache.felix.bundlerepository.Repository;
+import org.apache.felix.bundlerepository.Resolver;
 import org.apache.geronimo.kernel.osgi.BundleDescription;
 import org.apache.geronimo.obr.model.Resource;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.obr.Repository;
-import org.osgi.service.obr.RepositoryAdmin;
-import org.osgi.service.obr.Resolver;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 

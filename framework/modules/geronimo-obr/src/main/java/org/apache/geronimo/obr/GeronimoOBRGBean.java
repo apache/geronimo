@@ -33,6 +33,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
+import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -47,7 +48,6 @@ import org.apache.geronimo.obr.model.Resource;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.obr.RepositoryAdmin;
 
 @GBean
 public class GeronimoOBRGBean implements GBeanLifecycle {

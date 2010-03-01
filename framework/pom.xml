@@ -95,6 +95,10 @@
                         <groupId>net.sf.kxml</groupId>
                         <artifactId>kxml2</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.easymock</groupId>
+                        <artifactId>easymock</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
