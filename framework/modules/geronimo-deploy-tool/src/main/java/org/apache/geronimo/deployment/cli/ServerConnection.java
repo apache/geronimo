@@ -17,16 +17,13 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.util.Properties;
 import java.util.jar.JarFile;
 
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
@@ -45,9 +42,9 @@ import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * Supports online connections to the server, via JSR-88, valid only
- * when the server is online.
- *
+ * Supports online connections to the server, via JSR-88, valid only when the
+ * server is online.
+ * 
  * @version $Rev$ $Date$
  */
 public class ServerConnection {
@@ -59,15 +56,19 @@ public class ServerConnection {
     private SavedAuthentication auth;
     private boolean logToSysErr;
     private boolean verboseMessages;
-    String KEYSTORE_TRUSTSTORE_PASSWORD_FILE="org.apache.geronimo.keyStoreTrustStorePasswordFile";
-    String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION="/var/security/keystores/geronimo-default";
-    String GERONIMO_HOME="org.apache.geronimo.home.dir";
+    String KEYSTORE_TRUSTSTORE_PASSWORD_FILE = "org.apache.geronimo.keyStoreTrustStorePasswordFile";
+    String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION = "/var/security/keystores/geronimo-default";
+    String GERONIMO_HOME = "org.apache.geronimo.home.dir";
+    String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = System.getProperty(GERONIMO_HOME)
+            + "/var/config/config-substitutions.properties";
 
-    public ServerConnection(ConnectionParams params, PrintWriter out, InputStream in, Kernel kernel, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
+    public ServerConnection(ConnectionParams params, PrintWriter out, InputStream in, Kernel kernel,
+            DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
         this(params, new DefaultUserPasswordHandler(in, out), kernel, geronimoDeploymentFactory);
     }
-    
-    public ServerConnection(ConnectionParams params, UsernamePasswordHandler handler, Kernel kernel, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
+
+    public ServerConnection(ConnectionParams params, UsernamePasswordHandler handler, Kernel kernel,
+            DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
         }
@@ -84,7 +85,7 @@ public class ServerConnection {
         logToSysErr = params.isSyserr();
         boolean offline = params.isOffline();
         boolean secure = params.isSecure();
-        
+
         if ((driver != null) && uri == null) {
             throw new DeploymentSyntaxException("A custom driver requires a custom URI");
         }
@@ -106,7 +107,7 @@ public class ServerConnection {
         OfflineDeployerStarter offlineDeployerStarter = new OfflineDeployerStarter(kernel);
         offlineDeployerStarter.start();
     }
-    
+
     public void close() throws DeploymentException {
         if (manager != null) {
             manager.release();
@@ -121,7 +122,8 @@ public class ServerConnection {
         return (auth == null) ? null : auth.getURI();
     }
 
-    private void tryToConnect(String argURI, String driver, String user, String password, boolean secure) throws DeploymentException {
+    private void tryToConnect(String argURI, String driver, String user, String password, boolean secure)
+            throws DeploymentException {
         DeploymentFactoryManager mgr = DeploymentFactoryManager.getInstance();
         if (driver != null) {
             loadDriver(driver, mgr);
@@ -136,46 +138,38 @@ public class ServerConnection {
                 if (savedAuthentication != null) {
                     user = savedAuthentication.getUser();
                     password = new String(savedAuthentication.getPassword());
-                }  
+                }
             } catch (IOException e) {
                 System.out.println("Warning: " + e.getMessage());
-            }          
+            }
         }
 
-        if(secure)
-        {
+        if (secure) {
             try {
-            FileInputStream fstream= new FileInputStream(System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String strLine;
-            String keyStorePassword=null;
-            String trustStorePassword=null;
-            while ((strLine = br.readLine()) != null)   {
-                if(strLine.startsWith("keyStorePassword"))
-                {
-                    keyStorePassword=(String)EncryptionManager.decrypt(strLine.substring(17));                    
-                }
-                if(strLine.startsWith("trustStorePassword"))
-                {
-                    trustStorePassword=(String)EncryptionManager.decrypt(strLine.substring(19));;
-                }
-            }
-             
-            String value=System.getProperty("javax.net.ssl.keyStore",System.getProperty(GERONIMO_HOME)+DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
-            String value1=System.getProperty("javax.net.ssl.trustStore",System.getProperty(GERONIMO_HOME)+DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
-            System.setProperty("javax.net.ssl.keyStore", value);
-            System.setProperty("javax.net.ssl.trustStore", value1);
-            System.setProperty("javax.net.ssl.keyStorePassword",keyStorePassword);
-            System.setProperty("javax.net.ssl.trustStorePassword",trustStorePassword);
-            }
-            catch(NullPointerException e)
-            {
-                throw new NullPointerException("Null value specified for trustStore keyStore location property org.apache.geronimo.keyStoreTrustStorePasswordFile");
-            }
-            catch(IOException e)
-            {
-                throw new DeploymentException("Unable to set KeyStorePassword and TrustStorePassword", e);
+                Properties props = new Properties();
+
+                String keyStorePassword = null;
+                String trustStorePassword = null;
+
+                FileInputStream fstream = new FileInputStream(System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE,
+                        DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
+                props.load(fstream);
+
+                keyStorePassword = (String) EncryptionManager.decrypt(props.getProperty("keyStorePassword"));
+                trustStorePassword = (String) EncryptionManager.decrypt(props.getProperty("trustStorePassword"));
+
+                fstream.close();
+
+                String value = System.getProperty("javax.net.ssl.keyStore", System.getProperty(GERONIMO_HOME)
+                        + DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+                String value1 = System.getProperty("javax.net.ssl.trustStore", System.getProperty(GERONIMO_HOME)
+                        + DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+                System.setProperty("javax.net.ssl.keyStore", value);
+                System.setProperty("javax.net.ssl.trustStore", value1);
+                System.setProperty("javax.net.ssl.keyStorePassword", keyStorePassword);
+                System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+            } catch (IOException e) {
+                throw new DeploymentException("Unable to set KeyStorePassword and TrustStorePassword.", e);
             }
         }
         if (user == null || password == null) {
@@ -220,7 +214,8 @@ public class ServerConnection {
             JarFile jar = new JarFile(file);
             className = jar.getManifest().getMainAttributes().getValue("J2EE-DeploymentFactory-Implementation-Class");
             if (className == null) {
-                throw new DeploymentException("The driver JAR " + file.getAbsolutePath() + " does not specify a J2EE-DeploymentFactory-Implementation-Class; cannot load driver.");
+                throw new DeploymentException("The driver JAR " + file.getAbsolutePath()
+                        + " does not specify a J2EE-DeploymentFactory-Implementation-Class; cannot load driver.");
             }
             jar.close();
             DeploymentFactory factory = (DeploymentFactory) Class.forName(className).newInstance();
@@ -228,7 +223,8 @@ public class ServerConnection {
         } catch (DeploymentException e) {
             throw e;
         } catch (Exception e) {
-            throw new DeploymentSyntaxException("Unable to load driver class " + className + " from JAR " + file.getAbsolutePath(), e);
+            throw new DeploymentSyntaxException("Unable to load driver class " + className + " from JAR "
+                    + file.getAbsolutePath(), e);
         }
     }
 
@@ -242,9 +238,10 @@ public class ServerConnection {
 
     public static interface UsernamePasswordHandler {
         String getUsername() throws IOException;
+
         String getPassword() throws IOException;
     }
-    
+
     private static class DefaultUserPasswordHandler implements UsernamePasswordHandler {
 
         private PrintWriter out;
@@ -255,12 +252,12 @@ public class ServerConnection {
             this.out = out;
             this.in = in;
         }
-        
+
         private void initPrompt() throws IOException {
             this.prompt = new InputPrompt(this.in, this.out);
         }
-        
-        public String getPassword() throws IOException {   
+
+        public String getPassword() throws IOException {
             initPrompt();
             return this.prompt.getPassword("Password: ");
         }
@@ -269,6 +266,6 @@ public class ServerConnection {
             initPrompt();
             return this.prompt.getInput("Username: ");
         }
-        
+
     }
 }
