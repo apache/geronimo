@@ -43,12 +43,16 @@ import com.agical.rmock.extension.junit.RMockTestCase;
 public class ClusteredManagerTest extends RMockTestCase {
     private SessionManager sessionManager;
     private SessionListener sessionListener;
+    private String globalSessionId;
     private String sessionId;
     private Context context;
+    private String nodeName;
 
     @Override
     protected void setUp() throws Exception {
-        sessionId = "sessionId";
+        globalSessionId = "sessionId";
+        nodeName = "NODE";
+        sessionId = globalSessionId + "." + nodeName;
 
         sessionManager = (SessionManager) mock(SessionManager.class);
         sessionManager.registerListener(null);
@@ -62,6 +66,9 @@ public class ClusteredManagerTest extends RMockTestCase {
             }
         });
 
+        sessionManager.getNode().getName();
+        modify().returnValue(nodeName);
+        
         context = (Context) mock(Context.class);
         
         context.getSessionTimeout();
@@ -172,7 +179,7 @@ public class ClusteredManagerTest extends RMockTestCase {
     }
     
     private org.apache.geronimo.clustering.Session recordCreateUnderlyingSession() throws Exception {
-        org.apache.geronimo.clustering.Session underlyingSession = sessionManager.createSession(sessionId);
+        org.apache.geronimo.clustering.Session underlyingSession = sessionManager.createSession(globalSessionId);
         recordUnderlyingSessionState(underlyingSession);
         
         return underlyingSession;
@@ -180,7 +187,7 @@ public class ClusteredManagerTest extends RMockTestCase {
 
     private void recordUnderlyingSessionState(org.apache.geronimo.clustering.Session underlyingSession) {
         underlyingSession.getSessionId();
-        modify().multiplicity(expect.from(0)).returnValue(sessionId);
+        modify().multiplicity(expect.from(0)).returnValue(globalSessionId);
         
         underlyingSession.getState();
         Map attributes = new HashMap();
