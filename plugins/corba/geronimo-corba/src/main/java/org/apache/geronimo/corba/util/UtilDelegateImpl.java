@@ -40,7 +40,7 @@ import org.apache.geronimo.corba.RefGenerator;
 import org.apache.geronimo.corba.StandardServant;
 import org.apache.openejb.BeanType;
 import org.apache.openejb.InterfaceType;
-import org.apache.openejb.core.CoreDeploymentInfo;
+import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.core.ivm.BaseEjbProxyHandler;
 import org.apache.openejb.core.ivm.EjbObjectProxyHandler;
 import org.apache.openejb.core.stateful.StatefulEjbObjectHandler;
@@ -239,7 +239,7 @@ public final class UtilDelegateImpl implements UtilDelegate {
         }
 
         BaseEjbProxyHandler ejbProxyHandler = (BaseEjbProxyHandler) invocationHandler;
-        CoreDeploymentInfo deploymentInfo = ejbProxyHandler.getDeploymentInfo();
+        DeploymentInfo deploymentInfo = ejbProxyHandler.getDeploymentInfo();
         String deploymentId = (String) deploymentInfo.getDeploymentID();
         try {
             RefGenerator refGenerator = AdapterWrapper.getRefGenerator(deploymentId);
