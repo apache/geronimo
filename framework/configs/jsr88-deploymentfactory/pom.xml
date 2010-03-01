@@ -145,11 +145,7 @@
                         </element>
                         <element>
                             <groupId>asm</groupId>
-                            <artifactId>asm</artifactId>
-                        </element>
-                        <element>
-                            <groupId>asm</groupId>
-                            <artifactId>asm-commons</artifactId>
+                            <artifactId>asm-all</artifactId>
                         </element>
                         <element>
                             <groupId>cglib</groupId>

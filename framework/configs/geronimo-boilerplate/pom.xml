@@ -48,12 +48,7 @@
         <!-- lib Dependencies -->
         <dependency>
             <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm-commons</artifactId>
+            <artifactId>asm-all</artifactId>
         </dependency>
 
         <dependency>

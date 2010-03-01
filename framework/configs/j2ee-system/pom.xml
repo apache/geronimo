@@ -67,8 +67,8 @@
 
         <!-- Used by TemporaryClassLoader in kernel -->
         <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>asm</artifactId>
+            <groupId>asm</groupId>
+            <artifactId>asm-all</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
@@ -78,11 +78,6 @@
             <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>sxc-runtime</artifactId>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>asm</groupId>-->
-            <!--<artifactId>asm-commons</artifactId>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>commons-cli</groupId>
@@ -240,11 +235,7 @@
                         </element>
                         <element>
                             <groupId>asm</groupId>
-                            <artifactId>asm</artifactId>
-                        </element>
-                        <element>
-                            <groupId>asm</groupId>
-                            <artifactId>asm-commons</artifactId>
+                            <artifactId>asm-all</artifactId>
                         </element>
                         <element>
                             <groupId>commons-cli</groupId>

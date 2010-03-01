@@ -35,8 +35,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>asm-3.1</module>
-        <module>asm-commons-3.1</module>
         <module>aspectjrt</module>
         <module>aspectjweaver</module>
         <module>axis</module>

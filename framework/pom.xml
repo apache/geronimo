@@ -181,17 +181,6 @@
                 <!--</exclusions>-->
             <!--</dependency>-->
 
-            <!-- bundleized jars -->
-            <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>asm</artifactId>
-                <version>3.1_1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>asm-commons</artifactId>
-                <version>3.1_1-SNAPSHOT</version>
-            </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.apache.geronimo.bundles</groupId>-->
                 <!--<artifactId>plexus-archiver</artifactId>-->
