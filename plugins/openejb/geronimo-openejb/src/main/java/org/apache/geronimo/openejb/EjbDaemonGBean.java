@@ -137,6 +137,7 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         properties.setProperty("multicast.group", clusterName);
         properties.setProperty("ejbd.discovery", discoveryURI);
         properties.setProperty("ejbd.secure", secure + "");
+        properties.setProperty("ejbds.disabled", "true");
         if (threads > 0) {
             properties.setProperty("ejbd.threads", Integer.toString(threads));
         }
