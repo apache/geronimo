@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.geronimo.clustering.SessionManager;
 import org.apache.geronimo.clustering.wadi.WADISessionManager;
@@ -32,6 +33,7 @@ import org.apache.geronimo.openejb.cluster.infra.SessionManagerTracker;
 import org.apache.openejb.ClusteredRPCContainer;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.util.Duration;
 import org.apache.openejb.core.stateless.StatelessContainer;
 import org.apache.openejb.spi.SecurityService;
 import org.codehaus.wadi.core.manager.Manager;
@@ -48,7 +50,7 @@ public class ClusteredStatelessContainer extends StatelessContainer implements S
     private final Map<Object, NetworkConnectorTracker> deploymentIdToNetworkConnectorTracker;
 
     public ClusteredStatelessContainer(Object id, SecurityService securityService, int timeOut, int poolSize, boolean strictPooling) throws OpenEJBException {
-        super(id, securityService, timeOut, poolSize, strictPooling);
+        super(id, securityService, new Duration(timeOut, TimeUnit.MILLISECONDS), 0, poolSize, strictPooling);
 
         deploymentIdToManager = new ConcurrentHashMap<Object, Manager>();
         deploymentIdToNetworkConnectorTracker = new ConcurrentHashMap<Object, NetworkConnectorTracker>();

@@ -44,7 +44,7 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
 
     public EjbDaemonGBean() {
         System.setProperty("openejb.nobanner","true");
-        serviceManager = new ServiceManager();
+        serviceManager = ServiceManager.getManager();
     }
 
     public String getProtocol() {

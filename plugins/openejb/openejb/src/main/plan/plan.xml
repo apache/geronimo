@@ -54,6 +54,7 @@
     <gbean name="DefaultStatelessContainer" class="org.apache.geronimo.openejb.StatelessContainerGBean">
         <attribute name="timeout">0</attribute>
         <attribute name="poolSize">10</attribute>
+        <attribute name="poolMin">0</attribute>
         <attribute name="strictPooling">true</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>

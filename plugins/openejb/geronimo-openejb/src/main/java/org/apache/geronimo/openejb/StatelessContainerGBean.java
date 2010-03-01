@@ -68,6 +68,7 @@ public class StatelessContainerGBean extends EjbContainer {
             @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
             @ParamAttribute(name = "provider") String provider,
             @ParamAttribute(name = "poolSize") int poolSize,
+            @ParamAttribute(name = "poolMin") int poolMin,
             @ParamAttribute(name = "strictPooling") boolean strictPooling,
             @ParamAttribute(name = "timeout") int timeout,
             @ParamAttribute(name = "properties") Properties properties) {
