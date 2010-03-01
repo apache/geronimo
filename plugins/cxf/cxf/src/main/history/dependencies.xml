@@ -136,9 +136,4 @@
         <artifactId>wss4j</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.codehaus.woodstox</groupId>
-        <artifactId>wstx-asl</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>

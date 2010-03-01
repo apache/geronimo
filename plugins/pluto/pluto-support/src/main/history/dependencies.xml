@@ -7,6 +7,11 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm-all</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
         <type>jar</type>
@@ -14,16 +19,6 @@
     <dependency>
         <groupId>org.apache.felix</groupId>
         <artifactId>org.osgi.core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>asm</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>asm-commons</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
