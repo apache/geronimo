@@ -17,14 +17,12 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.management.MBeanServerConnection;
@@ -34,6 +32,7 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.management.remote.rmi.RMIConnectorServer;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
+
 import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.cli.shutdown.ShutdownCLParser;
 import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
@@ -57,14 +56,17 @@ public class StopServer implements Main, GBeanLifecycle {
 	private boolean secure;
 
     private final Bundle bundle;
-    String KEYSTORE_TRUSTSTORE_PASSWORD_FILE="org.apache.geronimo.keyStoreTrustStorePasswordFile";
-    String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION="/var/security/keystores/geronimo-default";
-    String GERONIMO_HOME="org.apache.geronimo.home.dir";
+    private String[] args;
+    String KEYSTORE_TRUSTSTORE_PASSWORD_FILE = "org.apache.geronimo.keyStoreTrustStorePasswordFile";
+    String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION = "/var/security/keystores/geronimo-default";
+    String GERONIMO_HOME = "org.apache.geronimo.home.dir";
+    String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = System.getProperty(GERONIMO_HOME)
+            + "/var/config/config-substitutions.properties";
 
     public StopServer(Bundle bundle) {
         this.bundle = bundle;
     }
-    
+
     public int execute(Object opaque) {
         if (! (opaque instanceof ShutdownCLParser)) {
             throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + ShutdownCLParser.class + "]");
@@ -86,41 +88,34 @@ public class StopServer implements Main, GBeanLifecycle {
         if(secure){
         
           try {
-                FileInputStream fstream= new FileInputStream(System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
-                DataInputStream in = new DataInputStream(fstream);
-                BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                String strLine;
-                String keyStorePassword=null;
-                String trustStorePassword=null;
-                while ((strLine = br.readLine()) != null)   {
-                    if(strLine.startsWith("keyStorePassword"))
-                    {
-                        keyStorePassword=(String)EncryptionManager.decrypt(strLine.substring(17));                    
-                    }
-                    if(strLine.startsWith("trustStorePassword"))
-                    {
-                        trustStorePassword=(String)EncryptionManager.decrypt(strLine.substring(19));;
-                    }
-                }
-                 
-                String value=System.getProperty("javax.net.ssl.keyStore",System.getProperty(GERONIMO_HOME)+DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
-                String value1=System.getProperty("javax.net.ssl.trustStore",System.getProperty(GERONIMO_HOME)+DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+                Properties props = new Properties();
+
+                String keyStorePassword = null;
+                String trustStorePassword = null;
+
+                FileInputStream fstream = new FileInputStream(System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE,
+                        DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
+                props.load(fstream);
+
+                keyStorePassword = (String) EncryptionManager.decrypt(props.getProperty("keyStorePassword"));
+                trustStorePassword = (String) EncryptionManager.decrypt(props.getProperty("trustStorePassword"));
+
+                fstream.close();
+
+                String value = System.getProperty("javax.net.ssl.keyStore", System.getProperty(GERONIMO_HOME)
+                        + DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+                String value1 = System.getProperty("javax.net.ssl.trustStore", System.getProperty(GERONIMO_HOME)
+                        + DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
                 System.setProperty("javax.net.ssl.keyStore", value);
                 System.setProperty("javax.net.ssl.trustStore", value1);
-                System.setProperty("javax.net.ssl.keyStorePassword",keyStorePassword);
-                System.setProperty("javax.net.ssl.trustStorePassword",trustStorePassword);
-                }
-                
-                catch(NullPointerException e)
-                {
-                throw new NullPointerException("Null value specified for trustStore keyStore location property org.apache.geronimo.keyStoreTrustStorePasswordFile");
-                }
-                
-                catch(IOException e)
-                {
-                    System.out.println("Unable to set KeyStorePassword and TrustStorePassword");
-                    e.printStackTrace();                    
-                }
+                System.setProperty("javax.net.ssl.keyStorePassword", keyStorePassword);
+                System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+            }
+
+            catch (IOException e) {
+                System.out.println("Unable to set KeyStorePassword and TrustStorePassword");
+                e.printStackTrace();
+            }
         
         }
         
