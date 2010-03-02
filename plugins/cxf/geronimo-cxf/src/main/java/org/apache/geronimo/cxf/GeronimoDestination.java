@@ -82,15 +82,15 @@ public class GeronimoDestination extends AbstractHTTPDestination
 
         final HttpServletRequest servletRequest = 
             (HttpServletRequest)request.getAttribute(WebServiceContainer.SERVLET_REQUEST);
-        message.put(MessageContext.SERVLET_REQUEST, servletRequest);
+        message.put("HTTP.REQUEST", servletRequest);
         
         HttpServletResponse servletResponse =
             (HttpServletResponse)request.getAttribute(WebServiceContainer.SERVLET_RESPONSE);
-        message.put(MessageContext.SERVLET_RESPONSE, servletResponse);
+        message.put("HTTP.RESPONSE", servletResponse);
         
         ServletContext servletContext = 
             (ServletContext)request.getAttribute(WebServiceContainer.SERVLET_CONTEXT);
-        message.put(MessageContext.SERVLET_CONTEXT, servletContext);
+        message.put("HTTP.CONTEXT", servletContext);
         
         if (this.passSecurityContext) {
             message.put(SecurityContext.class, new SecurityContext() {
