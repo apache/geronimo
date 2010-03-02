@@ -70,7 +70,7 @@ import org.osgi.framework.Bundle;
 
 @GBean(name="Jetty WebApplication Context",
 j2eeType=NameFactory.WEB_MODULE)
-public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistration, WebModule {
+public class WebAppContextWrapper implements JettyServletRegistration, WebModule {
     private static final Logger log = LoggerFactory.getLogger(WebAppContextWrapper.class);
     public static final String GBEAN_ATTR_SESSION_TIMEOUT = "sessionTimeoutSeconds";
     public static final String GBEAN_REF_SESSION_HANDLER_FACTORY = "SessionHandlerFactory";
@@ -302,15 +302,17 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
             }
         }
     }
-
+        
     public void doStart() throws Exception {
         // reset the classsloader... jetty likes to set it to null when stopping
-        this.webAppContext.setClassLoader(webClassLoader);
+        webAppContext.setClassLoader(webClassLoader);
         jettyContainer.addContext(webAppContext);
         webAppContext.start();
+        webAppContext.registerServletContext();
     }
 
     public void doStop() throws Exception {
+        webAppContext.unregisterServletContext();
         webAppContext.stop();
         jettyContainer.removeContext(webAppContext);
         log.debug("WebAppContextWrapper stopped");

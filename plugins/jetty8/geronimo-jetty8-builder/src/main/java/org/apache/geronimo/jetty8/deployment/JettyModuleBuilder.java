@@ -449,6 +449,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 webModuleData.setAttribute("displayName", webApp.getDisplayNameArray()[0].getStringValue());
             }
 
+            // setup context manager
+            AbstractName contextManagerName = 
+                moduleContext.getNaming().createChildName(moduleName, "WebAppContextManager", NameFactory.SERVICE_MODULE);
+            GBeanData contextManager = new GBeanData(contextManagerName, WebAppContextManager.class);
+            contextManager.setReferencePattern("webApp", moduleName);
+            moduleContext.addGBean(contextManager);
+            
             // configure context parameters.
             configureContextParams(webApp, webModuleData);
 
@@ -490,7 +497,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             Map<String, Set<String>> servletMappings = new HashMap<String, Set<String>>();
             if (jspServlet != null) {
                 configureTagLibs(module, webApp, webModuleData, servletMappings, knownJspMappings, jspServlet.getServletName());
-                GBeanData jspServletData = configureDefaultServlet(jspServlet, earContext, moduleName, knownJspMappings);
+                GBeanData jspServletData = configureDefaultServlet(jspServlet, earContext, moduleName, knownJspMappings, contextManager);
                 knownServletMappings.addAll(knownJspMappings);
                 module.getSharedContext().put(DEFAULT_JSP_SERVLET_KEY, jspServletData);
             }
@@ -504,7 +511,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             //be careful that the jsp servlet defaults don't override anything configured in the app.
             if (jspServlet != null) {
-                //TODO rfc 66 make sure this has classSource set
                 GBeanData jspServletData = (GBeanData) module.getSharedContext().get(DEFAULT_JSP_SERVLET_KEY);
                 Set<String> jspMappings = (Set<String>) jspServletData.getAttribute("servletMappings");
                 jspMappings.removeAll(knownServletMappings);
@@ -553,12 +559,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             //add default servlets
             if (defaultServlets != null) {
-                addDefaultServletsGBeans(earContext, moduleContext, moduleName, knownServletMappings);
+                addDefaultServletsGBeans(earContext, moduleContext, moduleName, knownServletMappings, contextManager);
             }
 
             //set up servlet gbeans.
             ServletType[] servletTypes = webApp.getServletArray();
-            addServlets(moduleName, webModule, servletTypes, servletMappings, moduleContext);
+            addServlets(moduleName, webModule, servletTypes, servletMappings, moduleContext, contextManager);
 
             if (jettyWebApp.isSetSecurityRealmName()) {
                 configureSecurityRealm(earContext, webApp, jettyWebApp, webModuleData);
@@ -621,14 +627,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         earContext.addSecurityContext(policyContextID, componentPermissions);
     }
 
-    private void addDefaultServletsGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, Set knownServletMappings) throws GBeanNotFoundException, GBeanAlreadyExistsException {
+    private void addDefaultServletsGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, Set knownServletMappings, GBeanData contextManager) throws GBeanNotFoundException, GBeanAlreadyExistsException {
         for (Object defaultServlet : defaultServlets) {
-            GBeanData servletGBeanData = configureDefaultServlet(defaultServlet, earContext, moduleName, knownServletMappings);
+            GBeanData servletGBeanData = configureDefaultServlet(defaultServlet, earContext, moduleName, knownServletMappings, contextManager);
             moduleContext.addGBean(servletGBeanData);
         }
     }
 
-    private GBeanData configureDefaultServlet(Object defaultServlet, EARContext earContext, AbstractName moduleName, Set knownServletMappings) throws GBeanNotFoundException, GBeanAlreadyExistsException {
+    private GBeanData configureDefaultServlet(Object defaultServlet, EARContext earContext, AbstractName moduleName, Set knownServletMappings, GBeanData contextManager) throws GBeanNotFoundException, GBeanAlreadyExistsException {
         GBeanData servletGBeanData = getGBeanData(kernel, defaultServlet);
         AbstractName defaultServletObjectName = earContext.getNaming().createChildName(moduleName, (String) servletGBeanData.getAttribute("servletName"), NameFactory.SERVLET);
         servletGBeanData.setAbstractName(defaultServletObjectName);
@@ -636,6 +642,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         Set<String> defaultServletMappings = new HashSet<String>((Collection<String>) servletGBeanData.getAttribute("servletMappings"));
         defaultServletMappings.removeAll(knownServletMappings);
         servletGBeanData.setAttribute("servletMappings", defaultServletMappings);
+        contextManager.addDependency(defaultServletObjectName);
         return servletGBeanData;
     }
 
@@ -1029,7 +1036,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                              Module module,
                              ServletType[] servletTypes,
                              Map<String, Set<String>> servletMappings,
-                             EARContext moduleContext) throws DeploymentException {
+                             EARContext moduleContext,
+                             GBeanData contextManager) throws DeploymentException {
 
         // this TreeSet will order the ServletTypes based on whether
         // they have a load-on-startup element and what its value is
@@ -1051,6 +1059,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         for (Object aLoadOrder : loadOrder) {
             ServletType servletType = (ServletType) aLoadOrder;
             previousServlet = addServlet(webModuleName, module, previousServlet, servletType, servletMappings, moduleContext);
+            contextManager.addDependency(previousServlet);
         }
     }
 
@@ -1094,7 +1103,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 servletData.setAttribute("servletClass", servletClassName);
             } else {
                 servletData = new GBeanData(pojoWebServiceTemplate);
-                //TODO rfc 66 set classSource!
                 servletData.setAbstractName(servletAbstractName);
                 //let the web service builder deal with configuring the gbean with the web service stack
 //                Object portInfo = portMap.get(servletName);
@@ -1128,7 +1136,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         if (null != previousServlet) {
             servletData.addDependency(previousServlet);
         }
-
+        
         //TODO in init param setter, add classpath if jspFile is not null.
         servletData.setReferencePattern("JettyServletRegistration", webModuleName);
         servletData.setAttribute("servletName", servletName);

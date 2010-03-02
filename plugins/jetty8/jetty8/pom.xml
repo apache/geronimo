@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>jetty8</artifactId>
-    <name>Geronimo Plugins, Jetty :: Jetty 8</name>
+    <name>Geronimo Plugins, Jetty 8 :: Jetty 8</name>
     <packaging>car</packaging>
 
     <description>Geronimo Jetty Web Server integration.</description>
