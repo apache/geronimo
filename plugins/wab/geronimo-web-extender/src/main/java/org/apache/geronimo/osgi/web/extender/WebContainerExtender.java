@@ -209,8 +209,12 @@ public class WebContainerExtender implements GBeanLifecycle {
         if (bt != null) {
             bt.close();
         }
-        eventDispatcher.destroy();
-        executor.shutdown();
+        if (eventDispatcher != null) {
+            eventDispatcher.destroy();
+        }
+        if (executor != null) {
+            executor.shutdown();
+        }
         
         LOGGER.debug("Web container extender stopped");
     }
