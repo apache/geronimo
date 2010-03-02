@@ -54,7 +54,7 @@ public class Activator implements BundleActivator {
 //                        }
                         
                         for (Repository repo : repositoryAdmin.listRepositories()) {
-                            System.out.println(repo.getName() + " " + repo.getURL());
+                            System.out.println(repo.getName());
                         }
                         
                         org.apache.geronimo.obr.model.Repository r = new org.apache.geronimo.obr.model.Repository();
