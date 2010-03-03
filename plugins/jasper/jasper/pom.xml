@@ -71,11 +71,6 @@
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-        </dependency>
-
         <!-- For JSTL support -->
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>

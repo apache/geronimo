@@ -12,11 +12,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.osgi.core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-deployer</artifactId>
         <type>car</type>

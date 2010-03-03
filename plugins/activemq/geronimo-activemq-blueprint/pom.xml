@@ -117,18 +117,6 @@
             <artifactId>org.apache.aries.blueprint.cm</artifactId>
             <version>1.0.0-incubating-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>1.4.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <version>1.4.0</version>
-            <scope>provided</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

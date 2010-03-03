@@ -32,11 +32,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.osgi.core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>sxc-jaxb</artifactId>
         <type>jar</type>
