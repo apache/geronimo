@@ -89,6 +89,10 @@
             <action class="org.apache.geronimo.shell.deploy.UndeployModuleCommand">
             </action>
         </command>
+        <command name="deploy/ecrypty">
+            <action class="org.apache.geronimo.shell.deploy.EncryptCommand">
+            </action>
+        </command>
     </command-bundle>
 
 </blueprint>
