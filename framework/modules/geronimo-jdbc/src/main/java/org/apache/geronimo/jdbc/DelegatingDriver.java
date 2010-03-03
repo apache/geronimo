@@ -17,12 +17,11 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.jdbc;
 
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.sql.Driver;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -36,7 +35,7 @@ import java.sql.DriverManager;
  */
 public class DelegatingDriver implements Driver {
 
-    private static final List<Driver> DRIVERS = new ArrayList<Driver>();
+    private static final List<Driver> DRIVERS = new CopyOnWriteArrayList<Driver>();
 
     static {
         try {
