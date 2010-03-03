@@ -31,21 +31,6 @@
     <name>Geronimo Build Support :: OSGi Plugin</name>
     <packaging>maven-plugin</packaging>
 
-    <repositories>
-        <!-- Tuscany repository to hold artifacts that are not published in the public maven repos -->
-        <repository>
-            <id>tuscany.repo</id>
-            <name>Tuscany Maven 2.x Repository</name>
-            <url>http://svn.apache.org/repos/asf/tuscany/maven</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencies>
 
         <dependency>
@@ -78,7 +63,6 @@
         <dependency>
             <groupId>org.eclipse</groupId>
             <artifactId>osgi</artifactId>
-            <version>3.5.0-v20090520</version>
             <scope>compile</scope>
         </dependency>
 

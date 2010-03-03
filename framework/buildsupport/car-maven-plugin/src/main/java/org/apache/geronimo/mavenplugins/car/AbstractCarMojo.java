@@ -23,6 +23,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -826,11 +827,11 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.kernel.basic," +
                         "org.apache.geronimo.kernel.classloader," +
                         "org.apache.geronimo.kernel.config," +
-                        "org.apache.geronimo.kernel.config.classloading," +
                         "org.apache.geronimo.kernel.config.xstream," +
                         "org.apache.geronimo.kernel.lifecycle," +
                         "org.apache.geronimo.kernel.management," +
                         "org.apache.geronimo.kernel.osgi," +
+                        "org.apache.geronimo.kernel.osgi.jar," +
                         "org.apache.geronimo.kernel.proxy," +
                         "org.apache.geronimo.kernel.repository," +
                         "org.apache.geronimo.kernel.rmi," +
@@ -853,7 +854,7 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.system.sharedlib," +
                         "org.apache.geronimo.system.threads," +
                         "org.apache.geronimo.system.util," +
-                        "org.apache.geronimo.mavenplugins.car," +
+                        "org.apache.geronimo.mavenplugins.car" +
                        "");
                         /*
 
@@ -941,12 +942,33 @@ public abstract class AbstractCarMojo
                         "javax.enterprise.deploy.shared," +
                         "javax.enterprise.deploy.spi");
 */
+                        
         File storageDir = new File(basedir, "target/bundle-cache");
         properties.put(Constants.FRAMEWORK_STORAGE, storageDir.getAbsolutePath());
+        
+        /* 
+         * A hack for Equinox to restore FrameworkProperties to the initial state.
+         * If the FrameworkProperties is not restored to the initial state, Equinox
+         * will create a separate classloader and load the Geronimo kernel classes
+         * from deployed geronimo-kernel bundle instead of the system bundle. 
+         * That will result in ClassCastException. 
+         */
+        resetFrameworkProperties();
+        
         ServiceLoader<FrameworkFactory> loader = ServiceLoader.load(FrameworkFactory.class);
         Framework framework = loader.iterator().next().newFramework(properties);
         framework.start();
         return framework;
     }
 
+    private static void resetFrameworkProperties() {
+        try {
+            Class clazz = Class.forName("org.eclipse.osgi.framework.internal.core.FrameworkProperties");
+            Field f = clazz.getDeclaredField("properties");
+            f.setAccessible(true);
+            f.set(null, null);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
 }
