@@ -63,6 +63,20 @@ public class GeronimoWebAppContext extends WebAppContext {
         this.modulePath = modulePath;
     }
 
+    public void registerServletContext() {
+        // for OSGi Web Applications support register ServletContext in service registry
+        Bundle bundle = integrationContext.getBundle();
+        if (WebApplicationUtils.isWebApplicationBundle(bundle)) {
+            serviceRegistration = WebApplicationUtils.registerServletContext(bundle, getServletContext());
+        }
+    }
+    
+    public void unregisterServletContext() {
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+        }
+    }
+    
     @Override
     protected void doStart() throws Exception {
         javax.naming.Context context = integrationContext.setContext();
@@ -79,18 +93,10 @@ public class GeronimoWebAppContext extends WebAppContext {
             integrationContext.restoreContext(context);
             integrationContext.completeTx(txActive, null);
         }
-        // for OSGi Web Applications support register ServletContext in service registry
-        Bundle bundle = integrationContext.getBundle();
-        if (WebApplicationUtils.isWebApplicationBundle(bundle)) {
-            serviceRegistration = WebApplicationUtils.registerServletContext(bundle, getServletContext());
-        }
     }
 
     @Override
     protected void doStop() throws Exception {
-        if (serviceRegistration != null) {
-            serviceRegistration.unregister();
-        }
         javax.naming.Context context = integrationContext.setContext();
         boolean txActive = integrationContext.isTxActive();
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);

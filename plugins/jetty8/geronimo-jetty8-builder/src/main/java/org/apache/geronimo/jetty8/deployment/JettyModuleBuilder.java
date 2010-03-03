@@ -18,12 +18,21 @@
 package org.apache.geronimo.jetty8.deployment;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.String;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.jar.JarFile;
 
 import javax.management.ObjectName;
@@ -39,12 +48,32 @@ import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.gbean.*;
-import org.apache.geronimo.gbean.annotation.*;
-import org.apache.geronimo.j2ee.deployment.*;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.jetty8.*;
+import org.apache.geronimo.jetty8.DefaultServletHolderWrapper;
+import org.apache.geronimo.jetty8.FilterHolderWrapper;
+import org.apache.geronimo.jetty8.Host;
+import org.apache.geronimo.jetty8.JettyFilterMapping;
+import org.apache.geronimo.jetty8.JspServletHolderWrapper;
+import org.apache.geronimo.jetty8.ServletHolderWrapper;
+import org.apache.geronimo.jetty8.WebAppContextManager;
+import org.apache.geronimo.jetty8.WebAppContextWrapper;
 import org.apache.geronimo.jetty8.security.AuthConfigProviderHandlerFactory;
 import org.apache.geronimo.jetty8.security.BuiltInAuthMethod;
 import org.apache.geronimo.jetty8.security.JettySecurityHandlerFactory;
@@ -73,7 +102,26 @@ import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyAuthenticationType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
-import org.apache.geronimo.xbeans.javaee6.*;
+import org.apache.geronimo.xbeans.javaee6.DispatcherType;
+import org.apache.geronimo.xbeans.javaee6.ErrorPageType;
+import org.apache.geronimo.xbeans.javaee6.FilterMappingType;
+import org.apache.geronimo.xbeans.javaee6.FilterType;
+import org.apache.geronimo.xbeans.javaee6.FormLoginConfigType;
+import org.apache.geronimo.xbeans.javaee6.JspConfigType;
+import org.apache.geronimo.xbeans.javaee6.JspPropertyGroupType;
+import org.apache.geronimo.xbeans.javaee6.ListenerType;
+import org.apache.geronimo.xbeans.javaee6.LocaleEncodingMappingListType;
+import org.apache.geronimo.xbeans.javaee6.LocaleEncodingMappingType;
+import org.apache.geronimo.xbeans.javaee6.LoginConfigType;
+import org.apache.geronimo.xbeans.javaee6.MimeMappingType;
+import org.apache.geronimo.xbeans.javaee6.ParamValueType;
+import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
+import org.apache.geronimo.xbeans.javaee6.ServletType;
+import org.apache.geronimo.xbeans.javaee6.TaglibType;
+import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
+import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
+import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.geronimo.xbeans.javaee6.WelcomeFileListType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -420,9 +468,15 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         try {
             moduleContext.addGBean(webModuleData);
 
+            // configure WebAppContextManager with right priority so that it starts last
+            AbstractName contextManagerName = earContext.getNaming().createChildName(moduleName, "WebAppContextManager", NameFactory.SERVICE_MODULE);            
+            GBeanData contextManagerGBean = new GBeanData(contextManagerName, WebAppContextManager.class);
+            contextManagerGBean.setPriority(100);
+            contextManagerGBean.setReferencePattern("webApp", moduleName);
+            moduleContext.addGBean(contextManagerGBean);
+            
             // configure hosts and virtual-hosts
             configureHosts(earContext, jettyWebApp, webModuleData);
-
 
             String contextPath = webModule.getContextRoot();
             if (contextPath == null) {
@@ -504,7 +558,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             //be careful that the jsp servlet defaults don't override anything configured in the app.
             if (jspServlet != null) {
-                //TODO rfc 66 make sure this has classSource set
                 GBeanData jspServletData = (GBeanData) module.getSharedContext().get(DEFAULT_JSP_SERVLET_KEY);
                 Set<String> jspMappings = (Set<String>) jspServletData.getAttribute("servletMappings");
                 jspMappings.removeAll(knownServletMappings);
@@ -1094,7 +1147,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 servletData.setAttribute("servletClass", servletClassName);
             } else {
                 servletData = new GBeanData(pojoWebServiceTemplate);
-                //TODO rfc 66 set classSource!
                 servletData.setAbstractName(servletAbstractName);
                 //let the web service builder deal with configuring the gbean with the web service stack
 //                Object portInfo = portMap.get(servletName);

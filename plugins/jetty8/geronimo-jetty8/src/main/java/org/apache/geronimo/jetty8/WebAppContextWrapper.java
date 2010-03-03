@@ -303,14 +303,19 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         }
     }
 
+    public void fullyStarted() {
+        webAppContext.registerServletContext();
+    }
+    
     public void doStart() throws Exception {
         // reset the classsloader... jetty likes to set it to null when stopping
-        this.webAppContext.setClassLoader(webClassLoader);
+        webAppContext.setClassLoader(webClassLoader);
         jettyContainer.addContext(webAppContext);
         webAppContext.start();
     }
 
     public void doStop() throws Exception {
+        webAppContext.unregisterServletContext();
         webAppContext.stop();
         jettyContainer.removeContext(webAppContext);
         log.debug("WebAppContextWrapper stopped");
