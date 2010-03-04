@@ -967,6 +967,8 @@ public abstract class AbstractCarMojo
             Field f = clazz.getDeclaredField("properties");
             f.setAccessible(true);
             f.set(null, null);
+        } catch (ClassNotFoundException e) {
+            // ignore
         } catch (Throwable e) {
             e.printStackTrace();
         }
