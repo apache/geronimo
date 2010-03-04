@@ -82,15 +82,15 @@ public class GeronimoDestination extends AbstractHTTPDestination
 
         final HttpServletRequest servletRequest = 
             (HttpServletRequest)request.getAttribute(WebServiceContainer.SERVLET_REQUEST);
-        message.put("HTTP.REQUEST", servletRequest);
+        message.put(HTTP_REQUEST, servletRequest);
         
         HttpServletResponse servletResponse =
             (HttpServletResponse)request.getAttribute(WebServiceContainer.SERVLET_RESPONSE);
-        message.put("HTTP.RESPONSE", servletResponse);
+        message.put(HTTP_RESPONSE, servletResponse);
         
         ServletContext servletContext = 
             (ServletContext)request.getAttribute(WebServiceContainer.SERVLET_CONTEXT);
-        message.put("HTTP.CONTEXT", servletContext);
+        message.put(HTTP_CONTEXT, servletContext);
         
         if (this.passSecurityContext) {
             message.put(SecurityContext.class, new SecurityContext() {
@@ -126,29 +126,7 @@ public class GeronimoDestination extends AbstractHTTPDestination
             }
         }
         return encoding;
-    }
-    
-    protected void copyRequestHeaders(Message message, Map<String, List<String>> headers) {
-        HttpServletRequest servletRequest = (HttpServletRequest)message.get(MessageContext.SERVLET_REQUEST);
-        if (servletRequest != null) {
-            Enumeration names = servletRequest.getHeaderNames();
-            while(names.hasMoreElements()) {
-                String name = (String)names.nextElement();
-                
-                List<String> headerValues = headers.get(name);
-                if (headerValues == null) {
-                    headerValues = new ArrayList<String>();
-                    headers.put(name, headerValues);
-                }
-                
-                Enumeration values = servletRequest.getHeaders(name);
-                while(values.hasMoreElements()) {
-                    String value = (String)values.nextElement();
-                    headerValues.add(value);
-                }
-            }
-        }
-    }
+    }       
 
     public Logger getLogger() {
         return Logger.getLogger(GeronimoDestination.class.getName());
