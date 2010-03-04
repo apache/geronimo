@@ -52,6 +52,7 @@ import org.apache.geronimo.cli.deployer.SearchPluginsCommandMetaData;
 import org.apache.geronimo.cli.deployer.StartCommandMetaData;
 import org.apache.geronimo.cli.deployer.StopCommandMetaData;
 import org.apache.geronimo.cli.deployer.UndeployCommandMetaData;
+import org.apache.geronimo.cli.deployer.UnlockKeystoreCommandMetaData;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -93,6 +94,7 @@ public class DeployTool implements Main {
         commands.put(InstallPluginCommandMetaData.META_DATA, new CommandInstallCAR());
         commands.put(InstallLibraryCommandMetaData.META_DATA, new CommandInstallLibrary());
         commands.put(EncryptCommandMetaData.META_DATA, new CommandEncrypt());
+        commands.put(UnlockKeystoreCommandMetaData.META_DATA, new CommandUnlockKeystore());
     }
 
     private boolean failed = false;
