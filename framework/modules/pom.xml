@@ -88,7 +88,6 @@
                 <module>geronimo-deploy-config</module>
 
                 <!-- not needed for car-maven-plugin -->
-                <module>geronimo-commands</module>
                 <module>geronimo-core</module>
                 <module>geronimo-deploy-jsr88-bootstrapper</module>
                 <module>geronimo-deploy-jsr88-full</module>

@@ -39,11 +39,7 @@
     </description>
 
     <dependencies>
-        <!-- lib/boot Dependencies -->
-        <dependency>
-            <groupId>org.apache.geronimo.gshell</groupId>
-            <artifactId>gshell-bootstrap</artifactId>
-        </dependency>
+
 
         <!-- lib Dependencies -->
         <dependency>

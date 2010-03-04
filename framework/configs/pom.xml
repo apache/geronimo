@@ -49,9 +49,6 @@
         <module>upgrade-cli</module>
         <module>upgrade</module>
         <module>transformer-agent</module>
-        <module>gshell-framework</module>
-        <module>gshell-remote</module>
-        <module>gshell-geronimo</module>
         <module>jmx-security</module>
         <!--<module>geronimo-boilerplate</module>-->
         <module>karaf-framework</module>
