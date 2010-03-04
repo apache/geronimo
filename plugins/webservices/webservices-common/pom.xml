@@ -64,13 +64,11 @@
         </dependency>
 
 
-<!--    part of java 6 now.  Can cause bundle contstraint violations if
-        loaded because the framework has same classes.
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxws_2.1_spec</artifactId>
+            <artifactId>geronimo-jaxws_2.2_spec</artifactId>
             <scope>provided</scope>
-        </dependency>-->
+        </dependency>
 
          <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

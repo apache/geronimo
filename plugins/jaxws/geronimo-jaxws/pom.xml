@@ -53,11 +53,6 @@
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.1_spec</artifactId>
         </dependency>
 
@@ -77,13 +72,11 @@
             <!--<version>${version}</version>-->
         <!--</dependency>-->
 
-<!--    part of java 6 now.  Can cause bundle contstraint violations if
-        loaded because the framework has same classes.
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxws_2.1_spec</artifactId>
+            <artifactId>geronimo-jaxws_2.2_spec</artifactId>
             <scope>provided</scope>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
