@@ -651,7 +651,7 @@
                 </exclusions>
             </dependency>
 
-            <!-- SLF4J support - used by Server and GShell -->
+            <!-- SLF4J support - used by Server -->
 
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -1684,67 +1684,6 @@
                 <version>1.0M8_1-SNAPSHOT</version>
             </dependency>
 
-            <!-- GShell Framework Support -->
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-bootstrap</artifactId>
-                <version>1.0-alpha-1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-cli</artifactId>
-                <version>1.0-alpha-1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-command-api</artifactId>
-                <version>1.0-alpha-1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell</groupId>
-                <artifactId>gshell-core</artifactId>
-                <version>1.0-alpha-1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.commands</groupId>
-                <artifactId>gshell-builtins</artifactId>
-                <version>1.0-alpha-1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
             <dependency>
                 <groupId>jline</groupId>
                 <artifactId>jline</artifactId>
@@ -1853,19 +1792,6 @@
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-utils</artifactId>
                 <version>1.4.5</version>
-            </dependency>
-
-            <!-- GShell Remote Support -->
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.remote</groupId>
-                <artifactId>gshell-remote-client</artifactId>
-                <version>1.0-alpha-1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.gshell.remote</groupId>
-                <artifactId>gshell-remote-server</artifactId>
-                <version>1.0-alpha-1</version>
             </dependency>
 
             <dependency>
@@ -2128,12 +2054,6 @@ only found in cxf
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <failIfNoTests>false</failIfNoTests>
                     </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.geronimo.gshell</groupId>
-                    <artifactId>gshell-maven-plugin</artifactId>
-                    <version>1.0-alpha-1</version>
                 </plugin>
 
                 <plugin>

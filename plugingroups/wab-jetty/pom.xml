@@ -105,18 +105,6 @@
             <!--<version>${version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>gshell-geronimo</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>gshell-remote</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
