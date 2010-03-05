@@ -17,18 +17,8 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>net.sf.kxml</groupId>
-        <artifactId>kxml2</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -104,11 +94,6 @@
     <dependency>
         <groupId>org.apache.felix</groupId>
         <artifactId>org.osgi.core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.osgi.foundation</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -429,11 +414,6 @@
     <dependency>
         <groupId>org.ops4j.pax.url</groupId>
         <artifactId>pax-url-wrap</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>xmlpull</groupId>
-        <artifactId>xmlpull</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

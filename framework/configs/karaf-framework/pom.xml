@@ -100,24 +100,38 @@
 
             <dependency>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>org.osgi.compendium</artifactId>
-                <version>${felix.compendium.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.felix</groupId>
-                        <artifactId>javax.servlet</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.configadmin</artifactId>
                 <version>${felix.configadmin.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.eventadmin</artifactId>
                 <version>${felix.eventadmin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.metatype</artifactId>
+                <version>${felix.metatype.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>net.sf.kxml</groupId>
+                        <artifactId>kxml2</artifactId>
+                    </exclusion>
+               </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.prefs</artifactId>
+                <version>${felix.prefs.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-codec</groupId>
+                        <artifactId>commons-codec</artifactId>
+                    </exclusion>
+               </exclusions>
             </dependency>
 
             <dependency>
