@@ -45,7 +45,7 @@
         <felix.configadmin.version>1.2.4</felix.configadmin.version>
         <felix.fileinstall.version>2.0.8</felix.fileinstall.version>
         <felix.framework.version>2.1.0-SNAPSHOT</felix.framework.version>
-        <felix.gogo.version>0.3.0-SNAPSHOT</felix.gogo.version>
+        <felix.gogo.version>0.2.2</felix.gogo.version>
         <felix.osgi.version>1.4.0</felix.osgi.version>
         <felix.plugin.version>2.0.1</felix.plugin.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
@@ -70,43 +70,6 @@
         <!--<spring.osgi.version>1.2.0</spring.osgi.version>-->
         <!--<spring.version>2.5.6.SEC01</spring.version>-->
         <sshd.version>0.3.0</sshd.version>
-<!--
-        <aopalliance.version>1.0_1</aopalliance.version>
-        <aries.blueprint.version>1.0.0-incubating-SNAPSHOT</aries.blueprint.version>
-        <cglib.version>2.1_3_2</cglib.version>
-        <commons.logging.version>1.1.1</commons.logging.version>
-        <depends.maven.plugin.version>1.0</depends.maven.plugin.version>
-        <easymock.version>2.4</easymock.version>
-        <equinox.version>3.5.1.v20090827</equinox.version>
-        <felix.bundlerepository.version>1.4.0</felix.bundlerepository.version>
-        <felix.compendium.version>1.4.0</felix.compendium.version>
-        <felix.configadmin.version>1.2.4</felix.configadmin.version>
-        <felix.eventadmin.version>1.0.0</felix.eventadmin.version>
-        <felix.fileinstall.version>2.0.4</felix.fileinstall.version>
-        <felix.framework.version>2.1.0-SNAPSHOT</felix.framework.version>
-        <felix.gogo.version>0.3.0-SNAPSHOT</felix.gogo.version>
-        <felix.osgi.version>1.4.0</felix.osgi.version>
-        <felix.plugin.version>2.0.0</felix.plugin.version>
-        <felix.prefs.version>1.0.2</felix.prefs.version>
-        <felix.webconsole.version>1.2.10</felix.webconsole.version>
-        <felix.metatype.version>1.0.2</felix.metatype.version>
-        <geronimo.servlet.version>1.0-EA-SNAPSHOT</geronimo.servlet.version>
-        <jansi.version>1.0</jansi.version>
-        <jetty.bundle.version>6.1.14_1</jetty.bundle.version>
-        <junit.version>3.8.2_1</junit.version>
-        <jline.version>0.9.95.200909100109</jline.version>
-        <log4j.version>1.2.14</log4j.version>
-        <maven.version>2.0.9</maven.version>
-        <mina.version>2.0.0-M6</mina.version>
-        <pax.exam.version>1.0.0</pax.exam.version>
-        <pax.logging.version>1.4.1-SNAPSHOT</pax.logging.version>
-        <pax.runner.version>1.1.1</pax.runner.version>
-        <pax.url.version>1.1.2</pax.url.version>
-        <pax.web.version>0.6.0</pax.web.version>
-        <servlet.api.version>3.0</servlet.api.version>
-        <sshd.version>0.4.0-SNAPSHOT</sshd.version>
-        <osgi.jmx.version>4.2.0.200907080519</osgi.jmx.version>
-        -->
     </properties>
 
     <repositories>
@@ -135,12 +98,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <!--WTF?? should be specified by import above -->
-            <dependency>
-                <groupId>org.apache.mina</groupId>
-                <artifactId>mina-core</artifactId>
-                <version>${mina.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.osgi.compendium</artifactId>
@@ -344,12 +301,6 @@
                 <version>${felix.gogo.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.felix.gogo</groupId>
-                <artifactId>org.apache.felix.gogo.commands</artifactId>
-                <version>${felix.gogo.version}</version>
-            </dependency>
-            
-            <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.fileinstall</artifactId>
                 <version>${felix.fileinstall.version}</version>
@@ -454,38 +405,6 @@
             <groupId>org.apache.felix.karaf</groupId>
             <artifactId>org.apache.felix.karaf.management</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.osgi</groupId>-->
-            <!--<artifactId>spring-osgi-extender</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.osgi</groupId>-->
-            <!--<artifactId>spring-osgi-core</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.osgi</groupId>-->
-            <!--<artifactId>spring-osgi-io</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.osgi</groupId>-->
-            <!--<artifactId>spring-osgi-annotation</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework</groupId>-->
-            <!--<artifactId>spring-context</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework</groupId>-->
-            <!--<artifactId>spring-beans</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework</groupId>-->
-            <!--<artifactId>spring-core</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework</groupId>-->
-            <!--<artifactId>spring-aop</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.bundlerepository</artifactId>
