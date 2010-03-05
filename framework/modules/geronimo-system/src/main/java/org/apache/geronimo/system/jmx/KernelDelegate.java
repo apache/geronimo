@@ -101,15 +101,14 @@ public class KernelDelegate implements Kernel {
     }
 
     public Object getGBean(Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        try {
-            return invokeKernel("getGBean", new Object[] {type}, new String[] {Class.class.getName()});
-        } catch (GBeanNotFoundException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
+        
+        Set<AbstractName> set = listGBeans(new AbstractNameQuery(type.getName()));
+        
+        for (AbstractName name : set) {
+            return proxyManager.createProxy(name, type);
         }
+        
+        throw new GBeanNotFoundException("No implementation found for type " + type.getName(), null, set);
     }
 
     public Object getGBean(String shortName, Class type) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
