@@ -37,14 +37,18 @@
         <module>geronimo-clustering</module>
         <module>geronimo-clustering-wadi</module>
         <module>geronimo-farm</module>
+        <module>geronimo-farm-wadi</module>
         <module>geronimo-deploy-farm</module>
         <module>geronimo-plugin-farm</module>
         <module>clustering</module>
         <module>wadi-clustering</module>
         <module>farming</module>
         <module>plugin-farm</module>
+        <module>plugin-farm-wadi</module>
         <module>plugin-farm-member</module>
+        <module>plugin-farm-member-wadi</module>
         <module>geronimo-plugin-farm-node</module>
+        <module>geronimo-plugin-farm-node-wadi</module>
         <module>plugin-farm-datasource</module>
     </modules>
 
@@ -64,7 +68,7 @@
     </profiles>
 
     <properties>
-        <wadiVersion>2.1.1</wadiVersion>
+        <wadiVersion>2.1.2</wadiVersion>
     </properties>
     <dependencyManagement>
         <dependencies>
