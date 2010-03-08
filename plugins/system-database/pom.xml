@@ -147,7 +147,7 @@
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-informix-xa</artifactId>
-                <version>1.1</version>
+                <version>1.2</version>
                 <type>rar</type>
                 <exclusions>
                     <exclusion>
