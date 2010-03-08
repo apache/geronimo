@@ -135,9 +135,9 @@ public class CommandUnlockKeystore extends AbstractCommand {
      * Returns the key store password
      */
     private String getKeyStorePassword(Properties properties, String keyStoreName) throws DeploymentException {
-        String keyStorePassword = properties.getProperty("keyStorePassword");
+        String keyStorePassword = properties.getProperty(keyStoreName);
         if (keyStorePassword == null) {
-            throw new DeploymentException("No keyStorePassword attribute named " + "keyStorePassword" + "exists in tke kyeStoreTruststore password properties file::"
+            throw new DeploymentException("No keyStorePassword attribute named " + keyStoreName + " exists in the kyeStoreTruststore password properties file::"
                     + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
         }
         return (String) EncryptionManager.decrypt(keyStorePassword);
