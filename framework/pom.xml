@@ -39,7 +39,7 @@
             <dependency>
                 <groupId>org.eclipse</groupId>
                 <artifactId>osgi</artifactId>
-                <version>3.5.0.v20090520</version>
+                <version>3.5.1.v20090827</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
@@ -69,6 +69,11 @@
                         <groupId>org.apache.felix</groupId>
                         <artifactId>org.osgi.core</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <!-- see FELIX-2179  -->
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -79,7 +84,7 @@
                     <exclusion>
                         <groupId>org.apache.felix</groupId>
                         <artifactId>org.osgi.core</artifactId>
-		    </exclusion>
+                    </exclusion>
                     <exclusion>
                         <groupId>org.apache.felix</groupId>
                         <artifactId>org.osgi.compendium</artifactId>
@@ -87,7 +92,7 @@
                     <exclusion>
                         <groupId>org.apache.felix</groupId>
                         <artifactId>org.apache.felix.shell</artifactId>
-		    </exclusion>
+                    </exclusion>
                     <exclusion>
                         <groupId>org.osgi</groupId>
                         <artifactId>org.osgi.core</artifactId>
@@ -159,37 +164,37 @@
             </dependency>
             <!-- overridden dependencies -->
             <!--<dependency>-->
-                <!--<groupId>org.apache.geronimo.components</groupId>-->
-                <!--<artifactId>geronimo-jaspi</artifactId>-->
-                <!--<version>1.1-SNAPSHOT</version>-->
-                <!--<exclusions>-->
-                    <!--<exclusion>-->
-                        <!--<groupId>org.apache.geronimo.specs</groupId>-->
-                        <!--<artifactId>geronimo-jaxb_2.1_spec</artifactId>-->
-                    <!--</exclusion>-->
-                    <!--<exclusion>-->
-                        <!--<groupId>org.apache.geronimo.specs</groupId>-->
-                        <!--<artifactId>geronimo-stax-api_1.0_spec</artifactId>-->
-                    <!--</exclusion>-->
-                    <!--<exclusion>-->
-                        <!--<groupId>com.envoisolutions.sxc</groupId>-->
-                        <!--<artifactId>sxc-jaxb</artifactId>-->
-                    <!--</exclusion>-->
-                    <!--<exclusion>-->
-                        <!--<groupId>org.codehaus.woodstox</groupId>-->
-                        <!--<artifactId>wstx-asl</artifactId>-->
-                    <!--</exclusion>-->
-                    <!--<exclusion>-->
-                        <!--<groupId>com.sun.xml.bind</groupId>-->
-                        <!--<artifactId>jaxb-impl</artifactId>-->
-                    <!--</exclusion>-->
-                <!--</exclusions>-->
+            <!--<groupId>org.apache.geronimo.components</groupId>-->
+            <!--<artifactId>geronimo-jaspi</artifactId>-->
+            <!--<version>1.1-SNAPSHOT</version>-->
+            <!--<exclusions>-->
+            <!--<exclusion>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-jaxb_2.1_spec</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-stax-api_1.0_spec</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>com.envoisolutions.sxc</groupId>-->
+            <!--<artifactId>sxc-jaxb</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>org.codehaus.woodstox</groupId>-->
+            <!--<artifactId>wstx-asl</artifactId>-->
+            <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>com.sun.xml.bind</groupId>-->
+            <!--<artifactId>jaxb-impl</artifactId>-->
+            <!--</exclusion>-->
+            <!--</exclusions>-->
             <!--</dependency>-->
 
             <!--<dependency>-->
-                <!--<groupId>org.apache.geronimo.bundles</groupId>-->
-                <!--<artifactId>plexus-archiver</artifactId>-->
-                <!--<version>1.0.9_1-SNAPSHOT</version>-->
+            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+            <!--<artifactId>plexus-archiver</artifactId>-->
+            <!--<version>1.0.9_1-SNAPSHOT</version>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
@@ -202,9 +207,9 @@
                 <version>0.7.2_1-SNAPSHOT</version>
             </dependency>
             <!--<dependency>-->
-                <!--<groupId>org.apache.geronimo.bundles</groupId>-->
-                <!--<artifactId>plexus-utils</artifactId>-->
-                <!--<version>1.5.15_1-SNAPSHOT</version>-->
+            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+            <!--<artifactId>plexus-utils</artifactId>-->
+            <!--<version>1.5.15_1-SNAPSHOT</version>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
@@ -214,6 +219,10 @@
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -226,6 +235,12 @@
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.jline</artifactId>
                 <version>0.9.94_1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>

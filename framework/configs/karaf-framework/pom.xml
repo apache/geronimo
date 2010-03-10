@@ -98,11 +98,11 @@
                 <scope>import</scope>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.configadmin</artifactId>
-                <version>${felix.configadmin.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.felix</groupId>-->
+                <!--<artifactId>org.apache.felix.configadmin</artifactId>-->
+                <!--<version>${felix.configadmin.version}</version>-->
+            <!--</dependency>-->
 
             <dependency>
                 <groupId>org.apache.felix</groupId>
@@ -349,10 +349,22 @@
         <dependency>
             <groupId>org.apache.felix.karaf.deployer</groupId>
             <artifactId>org.apache.felix.karaf.deployer.blueprint</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.servicemix.bundles</groupId>
+                    <artifactId>org.apache.servicemix.bundles.junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.felix.karaf.deployer</groupId>
             <artifactId>org.apache.felix.karaf.deployer.features</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.servicemix.bundles</groupId>
+                    <artifactId>org.apache.servicemix.bundles.junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.felix.karaf.features</groupId>
