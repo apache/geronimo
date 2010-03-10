@@ -38,6 +38,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
@@ -63,14 +64,18 @@ public class DependencyManager implements SynchronousBundleListener {
     private final Collection<Repository> repositories;
 
     private final RepositoryAdmin repositoryAdmin;
+
+    private final ArtifactResolver artifactResolver;
     
     private final Map<Bundle, PluginArtifactType> pluginMap = 
         Collections.synchronizedMap(new WeakHashMap<Bundle, PluginArtifactType>());
 
     public DependencyManager(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
-                             @ParamReference(name = "Repositories", namingType = "Repository") Collection<Repository> repositories) {
+                             @ParamReference(name = "Repositories", namingType = "Repository") Collection<Repository> repositories,
+                             @ParamReference(name="ArtifactResolver", namingType = "ArtifactResolver") ArtifactResolver artifactResolver) {
         this.bundleContext = bundleContext;
         this.repositories = repositories;
+        this.artifactResolver = artifactResolver;
         bundleContext.addBundleListener(this);
         ServiceReference ref = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
         repositoryAdmin = ref == null? null: (RepositoryAdmin) bundleContext.getService(ref);
@@ -145,6 +150,9 @@ public class DependencyManager implements SynchronousBundleListener {
                 for (DependencyType dependencyType : dependencies) {
                     log.info("Installing artifact: " + dependencyType);
                     Artifact artifact = dependencyType.toArtifact();
+                    if (artifactResolver != null) {
+                        artifact = artifactResolver.resolveInClassLoader(artifact);
+                    }
                     String location = locateBundle(artifact);
                     for (Bundle test: bundleContext.getBundles()) {
                         if (location.equals(test.getLocation())) {
@@ -172,6 +180,9 @@ public class DependencyManager implements SynchronousBundleListener {
                 for (DependencyType dependencyType : dependencies) {
                     log.info("Starting artifact: " + dependencyType);
                     Artifact artifact = dependencyType.toArtifact();
+                    if (artifactResolver != null) {
+                        artifact = artifactResolver.resolveInClassLoader(artifact);
+                    }
                     String location = locateBundle(artifact);
                         
                     for (Bundle test: bundleContext.getBundles()) {

@@ -85,6 +85,9 @@
 
     <gbean name="DependencyManager" class="org.apache.geronimo.system.configuration.DependencyManager">
         <reference name="Repositories"></reference>
+        <reference name="ArtifactResolver">
+            <name>ArtifactResolver</name>
+        </reference>
     </gbean>
 
     <!-- Logging service -->

@@ -85,7 +85,7 @@ public class PluginBootstrap2 {
 //        ModuleType config = ModuleDocument.Factory.parse(plan).getModule();
 
         Maven2Repository repository = new Maven2Repository(localRepo);
-        new DependencyManager(bundleContext, Collections.<Repository>singleton(repository));
+        new DependencyManager(bundleContext, Collections.<Repository>singleton(repository), null);
 
         GBeanBuilder gBeanBuilder = new GBeanBuilder(null, null);
         ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.<Repository>singleton(repository), Collections.<NamespaceDrivenBuilder>singleton(gBeanBuilder), new Jsr77Naming(), bundleContext);

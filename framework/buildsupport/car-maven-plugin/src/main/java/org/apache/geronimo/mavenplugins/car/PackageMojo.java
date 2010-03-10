@@ -403,8 +403,6 @@ public class PackageMojo extends AbstractCarMojo {
         kernel = KernelFactory.newInstance(bundleContext).createKernel(KERNEL_NAME);
         kernel.boot();
         AbstractName sourceRepoName = bootDeployerSystem();
-        Repository sourceRepo = (Repository) kernel.getGBean(sourceRepoName);
-        new DependencyManager(bundleContext, Collections.<Repository>singleton(sourceRepo));
         Dictionary dictionary = null;
         ServiceRegistration kernelRegistration = bundleContext.registerService(Kernel.class.getName(), kernel, dictionary);
 
@@ -464,6 +462,10 @@ public class PackageMojo extends AbstractCarMojo {
         ReferencePatterns repoPatterns = new ReferencePatterns(repoNames);
         artifactResolverGBean.setReferencePatterns("Repositories", repoPatterns);
         artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
+
+        GBeanData dependencyManager = bootstrap.addGBean("DependencyManager", DependencyManager.class);
+        dependencyManager.setReferencePattern("Repositories", repoGBean.getAbstractName());
+        dependencyManager.setReferencePattern("ArtifactResolver", artifactResolverGBean.getAbstractName());
 
         Set storeNames = new HashSet();
 
