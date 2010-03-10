@@ -150,8 +150,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 connectionTrackerObjectName,
                 corbaGBeanObjectName,
                 credentialStoreName, repositories, new SingleElementCollection<ModuleBuilder>(connectorModuleBuilder),
-                serviceBuilder == null ? Collections.EMPTY_SET : Collections.singleton(serviceBuilder),
-                namingBuilders == null ? Collections.EMPTY_SET : namingBuilders,
+                serviceBuilder == null ? Collections.<NamespaceDrivenBuilder>emptySet() : Collections.singleton(serviceBuilder),
+                namingBuilders == null ? Collections.<NamingBuilder>emptySet() : namingBuilders,
                 moduleBuilderExtensions,
                 clientArtifactResolver);
     }
@@ -552,7 +552,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     null,
                     clientEnvironment,
                     ConfigurationModuleType.CAR,
-                    module.getModuleName(),
+                    appClientModule.getAppClientName(),
                     transactionManagerObjectName,
                     connectionTrackerObjectName,
                     corbaGBeanObjectName,
@@ -590,7 +590,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     }
 
     public void initContext(EARContext earContext, Module clientModule, Bundle bundle) throws DeploymentException {
-        namingBuilders.buildEnvironment(clientModule.getSpecDD(), clientModule.getVendorDD(), ((AppClientModule) clientModule).getEnvironment());
+        namingBuilders.buildEnvironment(clientModule.getSpecDD(), clientModule.getVendorDD(), clientModule.getEnvironment());
 
         AppClientModule appClientModule = ((AppClientModule) clientModule);
         for (ConnectorModule connectorModule : appClientModule.getResourceModules()) {
@@ -608,12 +608,12 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
         ApplicationClientType appClient = (ApplicationClientType) appClientModule.getSpecDD();
         GerApplicationClientType geronimoAppClient = (GerApplicationClientType) appClientModule.getVendorDD();
-
+        //First, the silly gbean on the server that says there's an app client
         // generate the object name for the app client
         AbstractName appClientModuleName = appClientModule.getModuleName();
 
         // create a gbean for the app client module and add it to the ear
-        GBeanData appClientModuleGBeanData = new GBeanData(appClientModuleName, J2EEAppClientModuleImpl.GBEAN_INFO);
+        GBeanData appClientModuleGBeanData = new GBeanData(appClientModuleName, J2EEAppClientModuleImpl.class);
         try {
             appClientModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerName());
             if (!module.isStandAlone()) {
@@ -629,6 +629,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             throw new DeploymentException("Could not add application client module gbean to configuration", e);
         }
 
+        //Now, the gbeans for the actual remote app client
         EARContext appClientDeploymentContext = appClientModule.getEarContext();
         //Share the ejb info with the ear.
         //TODO this might be too much, but I don't want to impose a dependency on geronimo-openejb to get
@@ -681,7 +682,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 // add the app client static jndi provider
                 //TODO track resource ref shared and app managed security
                 AbstractName jndiContextName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
-                GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
+                GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.class);
                 try {
                     Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
                     buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, jndiContextName);
@@ -703,8 +704,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         appClient.setMetadataComplete(true);
                         module.setOriginalSpecDD(module.getSpecDD().toString());
                     }
-
+                    //n the server
                     appClientModuleGBeanData.setAttribute("deploymentDescriptor", appClientModule.getOriginalSpecDD());
+                    //in the app client
                     holder = NamingBuilder.INJECTION_KEY.get(buildingContext);
                     jndiContextGBeanData.setAttribute("context", NamingBuilder.JNDI_KEY.get(buildingContext));
                 } catch (DeploymentException e) {
@@ -717,7 +719,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 
                 // finally add the app client container
                 AbstractName appClientContainerName = appClientDeploymentContext.getModuleName();
-                GBeanData appClientContainerGBeanData = new GBeanData(appClientContainerName, AppClientContainer.GBEAN_INFO);
+                GBeanData appClientContainerGBeanData = new GBeanData(appClientContainerName, AppClientContainer.class);
                 try {
                     appClientContainerGBeanData.setAttribute("mainClassName", appClientModule.getMainClassName());
                     appClientContainerGBeanData.setAttribute("appClientModuleName", appClientModuleName);

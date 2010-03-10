@@ -43,7 +43,18 @@
         <module>geronimo-client</module>
         <module>geronimo-client-builder</module>
     </modules>
-
+    <dependencyManagement>
+        <dependencies>
+            <!-- aries jndi -->
+            <dependency>
+                <groupId>org.apache.geronimo.framework</groupId>
+                <artifactId>framework</artifactId>
+                <version>${version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
         <plugins>
             <plugin>

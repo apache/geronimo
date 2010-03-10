@@ -21,11 +21,11 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <!-- Naming properties -->
-    <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
-        <attribute name="namingFactoryInitial">org.apache.xbean.naming.global.GlobalContextManager</attribute>
-        <attribute name="namingFactoryUrlPkgs">org.apache.xbean.naming</attribute>
-        <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
-    </gbean>
+    <!--<gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">-->
+        <!--<attribute name="namingFactoryInitial">org.apache.xbean.naming.global.GlobalContextManager</attribute>-->
+        <!--<attribute name="namingFactoryUrlPkgs">org.apache.xbean.naming</attribute>-->
+        <!--<attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>-->
+    <!--</gbean>-->
 
     <gbean name="JavaGlobalContext" class="org.apache.geronimo.gjndi.FederatedContextGBean">
         <attribute name="nameInNamespace">java:</attribute>
