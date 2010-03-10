@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -94,7 +95,13 @@ public class CommandLine {
     protected void doInvokeMainGBean(AbstractNameQuery mainGBeanQuery, String mainMethod, String[] args) throws Exception {
         Set matches = kernel.listGBeans(mainGBeanQuery);
         if (matches.isEmpty()) {
-            throw new Exception("No match for AbstractNameQuery: " + mainGBeanQuery);
+            matches = kernel.listGBeans((AbstractNameQuery)null);
+            StringBuilder b = new StringBuilder("No match for AbstractNameQuery: ").append(mainGBeanQuery);
+            b.append("\n  artifactId: ").append(mainGBeanQuery.getArtifact());
+            for (Object o: matches) {
+                b.append("\n ").append(o);
+            }
+            throw new Exception(b.toString());
         }
         if (matches.size() > 1) {
             throw new Exception("Ambiguous AbstractNameQuery: " + mainGBeanQuery + " matches: " + matches);

@@ -46,11 +46,15 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public final class ExecutableConfigurationUtil {
+    private static final Logger log = LoggerFactory.getLogger(ExecutableConfigurationUtil.class);
+
     private static final String META_INF = "META-INF";
     private static final String CONFIG_SER = "config.ser";
     private static final String CONFIG_INFO = "config.info";
@@ -68,6 +72,7 @@ public final class ExecutableConfigurationUtil {
     }
 
     public static void createExecutableConfiguration(ConfigurationData configurationData, Manifest manifest, File destinationFile) throws IOException {
+        log.debug("createExecutableConfiguration: id: {} destination: {}", configurationData.getId(), destinationFile.getAbsolutePath());
         File configurationDir = configurationData.getConfigurationDir();
         
         // ensure parent directories have been created
@@ -166,6 +171,7 @@ public final class ExecutableConfigurationUtil {
     }
 
     public static void writeConfiguration(ConfigurationData configurationData, File source) throws IOException {
+        log.debug("writeConfiguration: id: {} source: {}", configurationData.getId(), source.getAbsolutePath());
         // save the persisted form in the source directory
         File metaInf = new File(source, META_INF);
         metaInf.mkdirs();

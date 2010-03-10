@@ -206,4 +206,12 @@ public class Environment implements Serializable {
         return manifest;
     }
 
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder("Environment [");
+        buf.append("\n  Id: ").append(getConfigId());
+        buf.append("]\n");
+        return buf.toString();
+    }
 }

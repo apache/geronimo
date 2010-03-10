@@ -319,6 +319,7 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         // determine the source file/dir
+        log.debug("Writing config: " + configurationData);
         File source = configurationData.getConfigurationDir();
         if (!source.exists()) {
             throw new InvalidConfigException("Source does not exist " + source);
@@ -334,10 +335,14 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
         File destination = repository.getLocation(configId);
         if (!source.equals(destination)) {
             if (source.isFile()) {
+                log.debug("copying packed bundle from " + source + " to destination " + destination);
                 repository.copyToRepository(source, configId, null);
             } else {
+                log.debug("Packing bundle from " + source + " to destination " + destination);
                 JarUtils.jarDirectory(source, destination);
             }
+        } else {
+            log.debug("Plugin is already in location " + source);
         }
         // if directory in the correct place -- noop
        /*

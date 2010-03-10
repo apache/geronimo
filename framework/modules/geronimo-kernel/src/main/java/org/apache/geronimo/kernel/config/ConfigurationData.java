@@ -314,4 +314,16 @@ public class ConfigurationData implements Serializable {
         this.useEnvironment = useEnvironment;
     }
 
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder("ConfigurationData [");
+        buf.append("\n  Environment: ").append(environment);
+        buf.append("\n  ConfigurationDir: ").append(getConfigurationDir());
+        buf.append("\n  autoStart: ").append(isAutoStart());
+        for (Map.Entry<String, ConfigurationData> entry: getChildConfigurations().entrySet()) {
+            buf.append("\n  Child at: ").append(entry.getKey()).append(entry.getValue());
+        }
+        return buf.toString();
+    }
 }

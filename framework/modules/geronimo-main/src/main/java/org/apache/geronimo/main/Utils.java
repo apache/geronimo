@@ -125,7 +125,7 @@ public class Utils {
             throw new IllegalArgumentException(errPrefix + " '" + path + "' : " + e.getMessage());
         }
         if (!rc.exists()) {
-            throw new IllegalArgumentException(errPrefix + " '" + path + "' : does not exist");
+            throw new IllegalArgumentException(errPrefix + " '" + rc + "' " + " derived from: '" + path + "' : does not exist");
         }
         if (!rc.isDirectory()) {
             throw new IllegalArgumentException(errPrefix + " '" + path + "' : is not a directory");
