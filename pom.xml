@@ -2262,21 +2262,22 @@ only found in cxf
     </pluginRepositories>
 
     <profiles>
-        <profile>
-            <id>default</id>
+        <!--<profile>-->
+        <!-- replaced by nexus profiles -->
+            <!--<id>default</id>-->
 
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
+            <!--<activation>-->
+                <!--<activeByDefault>true</activeByDefault>-->
+            <!--</activation>-->
 
-            <modules>
-                <module>testsupport</module>
-                <module>framework</module>
-                <module>plugins</module>
-                <module>plugingroups</module>
-                <module>assemblies</module>
-            </modules>
-        </profile>
+            <!--<modules>-->
+                <!--<module>testsupport</module>-->
+                <!--<module>framework</module>-->
+                <!--<module>plugins</module>-->
+                <!--<module>plugingroups</module>-->
+                <!--<module>assemblies</module>-->
+            <!--</modules>-->
+        <!--</profile>-->
 
         <profile>
             <id>it</id>
@@ -2328,10 +2329,34 @@ only found in cxf
         </profile>
 
         <profile>
+            <id>nexus</id>
+            <activation>
+                <property>
+                    <name>nexus</name>
+                </property>
+            </activation>
+            <modules>
+                <module>testsupport</module>
+                <module>framework</module>
+                <module>plugins</module>
+                <module>plugingroups</module>
+                <module>assemblies</module>
+            </modules>
+        </profile>
+        <profile>
             <id>explicit-repos</id>
             <activation>
-                <property>!nexus</property>
+                <property>
+                    <name>!nexus</name>
+                </property>
             </activation>
+            <modules>
+                <module>testsupport</module>
+                <module>framework</module>
+                <module>plugins</module>
+                <module>plugingroups</module>
+                <module>assemblies</module>
+            </modules>
             <repositories>
                 <repository>
                     <!-- org.ops4j routing -->
