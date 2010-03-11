@@ -124,7 +124,7 @@
                     <systemProperties>
                         <property>
                             <name>java.security.auth.login.config</name>
-                            <value>${basedir}/src/test/data/data/login.config</value>
+                            <value>${basedir}/src/test/resources/data/login.config</value>
                         </property>
                     </systemProperties>
                     

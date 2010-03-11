@@ -24,20 +24,20 @@
         <!-- Build test-rar-10 -->
         <mkdir dir="${basedir}/target/test-rar-10/META-INF"/>
         <copy todir="${basedir}/target/test-rar-10/META-INF">
-            <fileset dir="${basedir}/src/test/data/connector_1_0"/>
+            <fileset dir="${basedir}/src/test/resources/connector_1_0"/>
         </copy>
         <jar destfile="${basedir}/target/test-rar-10.rar" basedir="${basedir}/target/test-rar-10"/>
 
         <!-- Build test-rar-15 -->
         <mkdir dir="${basedir}/target/test-rar-15/META-INF"/>
         <copy todir="${basedir}/target/test-rar-15/META-INF">
-            <fileset dir="${basedir}/src/test/data/connector_1_5"/>
+            <fileset dir="${basedir}/src/test/resources/connector_1_5"/>
         </copy>
         <jar destfile="${basedir}/target/test-rar-15.rar" basedir="${basedir}/target/test-rar-15"/>
 
         <mkdir dir="${basedir}/target/test-rar-15-notx/META-INF"/>
         <copy todir="${basedir}/target/test-rar-15-notx/META-INF">
-            <fileset dir="${basedir}/src/test/data/connector_1_5_notx"/>
+            <fileset dir="${basedir}/src/test/resources/connector_1_5_notx"/>
         </copy>
 
         <jar destfile="${basedir}/target/test-rar-15-notx.rar"
@@ -46,7 +46,7 @@
         <mkdir dir="${basedir}/target/test-rar-15-localtx/META-INF"/>
 
         <copy todir="${basedir}/target/test-rar-15-localtx/META-INF">
-            <fileset dir="${basedir}/src/test/data/connector_1_5_localtx"/>
+            <fileset dir="${basedir}/src/test/resources/connector_1_5_localtx"/>
         </copy>
 
         <jar destfile="${basedir}/target/test-rar-15-localtx.rar"
@@ -58,14 +58,14 @@
                 <include name="test-rar-10.rar"/>
                 <include name="test-rar-15.rar"/>
             </fileset>
-            <zipfileset dir="${basedir}/src/test/data/ear" prefix="META-INF"/>
+            <zipfileset dir="${basedir}/src/test/resources/ear" prefix="META-INF"/>
         </jar>
         
         <!--do it again without geronimo dds-->
         <!-- Build test-rar-10 -->
         <mkdir dir="${basedir}/target/test-rar-10-noger/META-INF"/>
         <copy todir="${basedir}/target/test-rar-10-noger/META-INF">
-            <fileset dir="${basedir}/src/test/data/connector_1_0">
+            <fileset dir="${basedir}/src/test/resources/connector_1_0">
                 <exclude name="geronimo-ra.xml"/>
             </fileset>
         </copy>
@@ -74,7 +74,7 @@
         <!-- Build test-rar-15 -->
         <mkdir dir="${basedir}/target/test-rar-15-noger/META-INF"/>
         <copy todir="${basedir}/target/test-rar-15-noger/META-INF">
-            <fileset dir="${basedir}/src/test/data/connector_1_5">
+            <fileset dir="${basedir}/src/test/resources/connector_1_5">
                 <exclude name="geronimo-ra.xml"/>
             </fileset>
         </copy>
@@ -86,7 +86,7 @@
                 <include name="test-rar-10-noger.rar"/>
                 <include name="test-rar-15-noger.rar"/>
             </fileset>
-            <zipfileset dir="${basedir}/src/test/data/ear" prefix="META-INF">
+            <zipfileset dir="${basedir}/src/test/resources/ear" prefix="META-INF">
                 <exclude name="geronimo-application.xml"/>
             </zipfileset>
         </jar>
