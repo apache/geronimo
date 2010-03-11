@@ -14,7 +14,8 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
---><!-- $Rev$ $Date$ --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+--><!-- $Rev$ $Date$ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -109,21 +110,7 @@
         <module>geronimo-jetty8-clustering-wadi</module>
         <module>jetty8-clustering-builder-wadi</module>
         <module>jetty8-clustering-wadi</module>
-  </modules>
+    </modules>
 
-    <repositories>
-        <repository>
-            <id>jetty.oss.sonatype.org</id>
-            <name>Jetty Repository</name>
-            <layout>default</layout>
-            <url>http://oss.sonatype.org/content/repositories/jetty/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
 
 </project>

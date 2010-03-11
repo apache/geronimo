@@ -72,21 +72,6 @@
         <sshd.version>0.3.0</sshd.version>
     </properties>
 
-    <repositories>
-        <!-- ServiceMix repo -->
-        <repository>
-            <id>servicemix</id>
-            <name>Apache ServiceMix Repository</name>
-            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencyManagement>
         <dependencies>
             <!-- use versions direct from karaf -->

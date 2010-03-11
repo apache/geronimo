@@ -36,20 +36,6 @@
         JAXWS plugin
     </description>
 
-    <repositories>
-        <repository>
-            <id>java.net</id>
-            <url>http://download.java.net/maven/1/</url>
-            <layout>legacy</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
     <modules>
         <module>geronimo-jaxws</module>
         <module>geronimo-jaxws-builder</module>
