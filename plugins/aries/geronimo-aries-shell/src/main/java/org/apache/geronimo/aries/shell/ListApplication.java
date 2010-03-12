@@ -21,8 +21,8 @@ package org.apache.geronimo.aries.shell;
 
 import java.util.Set;
 
-import org.apache.aries.application.management.ApplicationContext;
-import org.apache.aries.application.management.ApplicationContextManager;
+import org.apache.aries.application.management.AriesApplicationContext;
+import org.apache.aries.application.management.AriesApplicationContextManager;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 
@@ -37,15 +37,15 @@ public class ListApplication extends ApplicationCommandSupport {
     
     @Override
     protected Object doExecute() throws Exception {
-        ApplicationContextManager contextManager = getApplicationContextManager();
+        AriesApplicationContextManager contextManager = getApplicationContextManager();
         if (applicationName == null) {
             System.out.println("EBA Applications:");
-            Set<ApplicationContext> contexts = contextManager.getApplicationContexts();
-            for (ApplicationContext context : contexts) {
+            Set<AriesApplicationContext> contexts = contextManager.getApplicationContexts();
+            for (AriesApplicationContext context : contexts) {
                 System.out.println(context.getApplication().getApplicationMetadata().getApplicationScope() + "\t" + context.getApplicationState());
             }
         } else {
-            ApplicationContext context = findApplicationContext(contextManager, applicationName);
+            AriesApplicationContext context = findApplicationContext(contextManager, applicationName);
             if (context == null) {
                 System.out.println("EBA " + applicationName + " not found");
             } else {

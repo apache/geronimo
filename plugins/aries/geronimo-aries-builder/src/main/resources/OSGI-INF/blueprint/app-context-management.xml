@@ -22,18 +22,16 @@
   <bean id="app-context-manager" class="org.apache.geronimo.aries.builder.GeronimoApplicationContextManager" scope="singleton" activation="lazy" init-method="init" destroy-method="destroy">
     <property name="bundleContext" ref="blueprintBundleContext"/>
   </bean>
-  <service interface="org.apache.aries.application.management.ApplicationContextManager" ref="app-context-manager" />
+  <service interface="org.apache.aries.application.management.AriesApplicationContextManager" ref="app-context-manager" />
   
-  <bean id="default-local-platform" class="org.apache.geronimo.aries.builder.GeronimoLocalPlatform"/>
+  
+  <bean id="default-local-platform" class="org.apache.aries.application.utils.management.DefaultLocalPlatform"/>
   <service interface="org.apache.aries.application.management.LocalPlatform" 
            ref="default-local-platform" />
   
-
-  <bean id="no-op-resolver" class="org.apache.geronimo.aries.builder.NoOpResolver"/>
+  <bean id="no-op-resolver" class="org.apache.aries.application.utils.management.NoOpResolver"/>
   <service interface="org.apache.aries.application.management.AriesApplicationResolver" 
             ref="no-op-resolver"
             ranking="-1"/>
-
-  
-
+ 
 </blueprint>

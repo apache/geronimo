@@ -25,15 +25,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.aries.application.ApplicationMetadata;
-import org.apache.aries.application.management.ApplicationContext;
-import org.apache.aries.application.management.ApplicationContextManager;
 import org.apache.aries.application.management.AriesApplication;
+import org.apache.aries.application.management.AriesApplicationContext;
+import org.apache.aries.application.management.AriesApplicationContextManager;
 import org.apache.aries.application.management.ManagementException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 
-public class GeronimoApplicationContextManager implements ApplicationContextManager {
+public class GeronimoApplicationContextManager implements AriesApplicationContextManager {
 
     private ConcurrentMap<String, GeronimoApplicationContext> contextMap;
     private BundleContext bundleContext;
@@ -57,7 +57,7 @@ public class GeronimoApplicationContextManager implements ApplicationContextMana
         return metadata.getApplicationScope();
     }
 
-    public ApplicationContext getApplicationContext(AriesApplication app) throws BundleException, ManagementException {
+    public AriesApplicationContext getApplicationContext(AriesApplication app) throws BundleException, ManagementException {
         String key = getApplicationKey(app);
         GeronimoApplicationContext applicationContext = contextMap.get(key);
         if (applicationContext == null) {
@@ -77,13 +77,13 @@ public class GeronimoApplicationContextManager implements ApplicationContextMana
         return applicationContext;
     }
 
-    public Set<ApplicationContext> getApplicationContexts() {
-        Set<ApplicationContext> result = new HashSet<ApplicationContext>();
+    public Set<AriesApplicationContext> getApplicationContexts() {
+        Set<AriesApplicationContext> result = new HashSet<AriesApplicationContext>();
         result.addAll(contextMap.values());
         return result;
     }
 
-    public void remove(ApplicationContext app) {     
+    public void remove(AriesApplicationContext app) {     
         String key = getApplicationKey(app.getApplication());
         GeronimoApplicationContext applicationContext = contextMap.remove(key);
         if (applicationContext != null) {

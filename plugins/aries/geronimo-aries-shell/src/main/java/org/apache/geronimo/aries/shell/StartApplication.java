@@ -19,8 +19,8 @@
 
 package org.apache.geronimo.aries.shell;
 
-import org.apache.aries.application.management.ApplicationContext;
-import org.apache.aries.application.management.ApplicationContextManager;
+import org.apache.aries.application.management.AriesApplicationContext;
+import org.apache.aries.application.management.AriesApplicationContextManager;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 
@@ -35,8 +35,8 @@ public class StartApplication extends ApplicationCommandSupport {
     
     @Override
     protected Object doExecute() throws Exception {
-        ApplicationContextManager contextManager = getApplicationContextManager();
-        ApplicationContext context = findApplicationContext(contextManager, applicationName);
+        AriesApplicationContextManager contextManager = getApplicationContextManager();
+        AriesApplicationContext context = findApplicationContext(contextManager, applicationName);
         if (context == null) {
             System.out.println("EBA " + applicationName + " not found");
         } else {

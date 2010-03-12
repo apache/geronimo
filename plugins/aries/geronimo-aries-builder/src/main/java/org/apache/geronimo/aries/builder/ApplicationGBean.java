@@ -25,12 +25,12 @@ import org.apache.aries.application.ApplicationMetadataFactory;
 import org.apache.aries.application.DeploymentContent;
 import org.apache.aries.application.DeploymentMetadata;
 import org.apache.aries.application.DeploymentMetadataFactory;
-import org.apache.aries.application.management.ApplicationContextManager;
 import org.apache.aries.application.management.AriesApplication;
+import org.apache.aries.application.management.AriesApplicationContextManager;
 import org.apache.aries.application.management.AriesApplicationResolver;
 import org.apache.aries.application.management.BundleInfo;
 import org.apache.aries.application.management.ManagementException;
-import org.apache.aries.application.management.ApplicationContext.ApplicationState;
+import org.apache.aries.application.management.AriesApplicationContext.ApplicationState;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
@@ -95,11 +95,11 @@ public class ApplicationGBean implements GBeanLifecycle {
         return applicationState;
     }
         
-    private ApplicationContextManager getApplicationContextManager() {
+    private AriesApplicationContextManager getApplicationContextManager() {
         ServiceReference ref = 
-            bundleContext.getServiceReference(ApplicationContextManager.class.getName());
+            bundleContext.getServiceReference(AriesApplicationContextManager.class.getName());
         if (ref != null) {
-            return (ApplicationContextManager) bundleContext.getService(ref);
+            return (AriesApplicationContextManager) bundleContext.getService(ref);
         } else {
             return null;
         }

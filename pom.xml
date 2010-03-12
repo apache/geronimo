@@ -1944,6 +1944,12 @@ only found in cxf
 
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
+                <artifactId>org.apache.aries.blueprint</artifactId>
+                <version>0.1-incubating-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint.api</artifactId>
                 <version>0.1-incubating-SNAPSHOT</version>
                 <exclusions>

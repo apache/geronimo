@@ -21,8 +21,8 @@ package org.apache.geronimo.aries.shell;
 
 import java.io.File;
 
-import org.apache.aries.application.management.ApplicationContext;
 import org.apache.aries.application.management.AriesApplication;
+import org.apache.aries.application.management.AriesApplicationContext;
 import org.apache.aries.application.management.AriesApplicationManager;
 import org.apache.aries.application.utils.filesystem.FileSystem;
 import org.apache.felix.gogo.commands.Argument;
@@ -41,7 +41,7 @@ public class InstallApplication extends ApplicationCommandSupport {
     protected Object doExecute() throws Exception {
         AriesApplicationManager manager = getAriesApplicationManager();
         AriesApplication application = manager.createApplication(FileSystem.getFSRoot(new File(applicationPath)));        
-        ApplicationContext context = manager.install(application);
+        AriesApplicationContext context = manager.install(application);
         System.out.println("Installed EBA: " + context.getApplication().getApplicationMetadata().getApplicationScope());
         return null;
     }

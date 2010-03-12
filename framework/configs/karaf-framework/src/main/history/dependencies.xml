@@ -27,21 +27,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.aries.blueprint</groupId>
-        <artifactId>org.apache.aries.blueprint.api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.aries.blueprint</groupId>
-        <artifactId>org.apache.aries.blueprint.cm</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.aries.blueprint</groupId>
-        <artifactId>org.apache.aries.blueprint.core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.aries.jmx</groupId>
         <artifactId>org.apache.aries.jmx</artifactId>
         <type>jar</type>

@@ -21,8 +21,8 @@ package org.apache.geronimo.aries.shell;
 
 import java.util.Set;
 
-import org.apache.aries.application.management.ApplicationContext;
-import org.apache.aries.application.management.ApplicationContextManager;
+import org.apache.aries.application.management.AriesApplicationContext;
+import org.apache.aries.application.management.AriesApplicationContextManager;
 import org.apache.aries.application.management.AriesApplicationManager;
 import org.apache.felix.karaf.shell.console.OsgiCommandSupport;
 import org.osgi.framework.ServiceReference;
@@ -32,10 +32,10 @@ import org.osgi.framework.ServiceReference;
  */
 public abstract class ApplicationCommandSupport extends OsgiCommandSupport {
 
-    protected ApplicationContextManager getApplicationContextManager() {
+    protected AriesApplicationContextManager getApplicationContextManager() {
         ServiceReference ref = 
-            bundleContext.getServiceReference(ApplicationContextManager.class.getName());
-        return getService(ApplicationContextManager.class, ref);
+            bundleContext.getServiceReference(AriesApplicationContextManager.class.getName());
+        return getService(AriesApplicationContextManager.class, ref);
     }
     
     protected AriesApplicationManager getAriesApplicationManager() {
@@ -44,9 +44,9 @@ public abstract class ApplicationCommandSupport extends OsgiCommandSupport {
         return getService(AriesApplicationManager.class, ref);
     }
     
-    protected ApplicationContext findApplicationContext(ApplicationContextManager manager, String appName) {
-        Set<ApplicationContext> contexts = manager.getApplicationContexts();
-        for (ApplicationContext context : contexts) {
+    protected AriesApplicationContext findApplicationContext(AriesApplicationContextManager manager, String appName) {
+        Set<AriesApplicationContext> contexts = manager.getApplicationContexts();
+        for (AriesApplicationContext context : contexts) {
             String name = context.getApplication().getApplicationMetadata().getApplicationScope();
             if (appName.equals(name)) {
                 return context;

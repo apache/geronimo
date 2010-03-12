@@ -104,15 +104,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.aries.blueprint</groupId>
-            <artifactId>org.apache.aries.blueprint.api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.aries.blueprint</groupId>
-            <artifactId>org.apache.aries.blueprint.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.aries.blueprint</groupId>
-            <artifactId>org.apache.aries.blueprint.cm</artifactId>
+            <artifactId>org.apache.aries.blueprint</artifactId>
         </dependency>
 
         <dependency>

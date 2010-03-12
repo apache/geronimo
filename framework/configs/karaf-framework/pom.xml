@@ -436,14 +436,6 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.framework</artifactId>
         </dependency>
-      <dependency>
-          <groupId>org.apache.aries.blueprint</groupId>
-          <artifactId>org.apache.aries.blueprint.core</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.aries.blueprint</groupId>
-          <artifactId>org.apache.aries.blueprint.cm</artifactId>
-      </dependency>
         <dependency>
             <groupId>org.apache.aries.jmx</groupId>
             <artifactId>org.apache.aries.jmx</artifactId>

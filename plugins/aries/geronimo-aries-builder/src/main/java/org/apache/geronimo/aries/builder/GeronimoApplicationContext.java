@@ -21,12 +21,12 @@ package org.apache.geronimo.aries.builder;
 
 import java.util.Set;
 
-import org.apache.aries.application.management.ApplicationContext;
 import org.apache.aries.application.management.AriesApplication;
+import org.apache.aries.application.management.AriesApplicationContext;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
-public class GeronimoApplicationContext implements ApplicationContext {
+public class GeronimoApplicationContext implements AriesApplicationContext {
 
     private ApplicationGBean applicationGBean;
     

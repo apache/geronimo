@@ -55,6 +55,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.aries.blueprint</groupId>
+            <artifactId>org.apache.aries.blueprint</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.aries.application</groupId>
             <artifactId>org.apache.aries.application.api</artifactId>
         </dependency>
