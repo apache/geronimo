@@ -20,15 +20,11 @@ package org.apache.geronimo.gbean;
 import java.beans.Introspector;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import net.sf.cglib.reflect.FastClass;
-import net.sf.cglib.reflect.FastMethod;
 
 
 /**
@@ -49,17 +45,16 @@ public class DynamicGBeanDelegate implements DynamicGBean {
         TYPE_LOOKUP.put(Boolean.class, boolean.class);
         TYPE_LOOKUP.put(Character.class, char.class);
     }
-    
-    protected final Map getters = new HashMap();
-    protected final Map setters = new HashMap();
-    protected final Map operations = new HashMap();
+
+    protected final Map<String, Operation> getters = new HashMap<String, Operation>();
+    protected final Map<String, Map<Class, Operation>> setters = new HashMap<String, Map<Class, Operation>>();
+    protected final Map<GOperationSignature, Operation> operations = new HashMap<GOperationSignature, Operation>();
     private Class targetClass;
 
     public void addAll(Object target) {
         this.targetClass = target.getClass();
         Method[] methods = targetClass.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
+        for (Method method : methods) {
             if (isGetter(method)) {
                 addGetter(target, method);
             } else if (isSetter(method)) {
@@ -111,7 +106,7 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     }
 
     private void addSetter(String name, Class type, Operation operation) {
-        Map<Class, Operation> operations = (Map<Class, Operation>)setters.get(name);
+        Map<Class, Operation> operations = setters.get(name);
         if (operations == null) {
             operations = new HashMap<Class, Operation>();
             setters.put(name, operations);
@@ -143,7 +138,7 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     }
 
     public Object getAttribute(String name) throws Exception {
-        Operation operation = (Operation) getters.get(name);
+        Operation operation = getters.get(name);
         if (operation == null) {
             throw new IllegalArgumentException(targetClass.getName() + ": no getter for " + name);
         }
@@ -151,17 +146,17 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     }
 
     public void setAttribute(String name, Object value) throws Exception {
-        Map<Class, Operation> operations = (Map<Class, Operation>)setters.get(name);
+        Map<Class, Operation> operations = setters.get(name);
         if (operations == null) {
             throw new IllegalArgumentException(targetClass.getName() + ": no setters for " + name);
         }        
-        Operation operation = null;                   
+        Operation operation;
         if (operations.size() == 1) {
             operation = operations.values().iterator().next();
         } else if (value == null) {
             // TODO: use better algorithm?
             operation = operations.values().iterator().next();
-        } else if (value != null) {
+        } else {
             Class valueType = value.getClass();
             // lookup using the specific type
             operation = operations.get(valueType);
@@ -192,7 +187,7 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     
     public Object invoke(String name, Object[] arguments, String[] types) throws Exception {
         GOperationSignature signature = new GOperationSignature(name, types);
-        Operation operation = (Operation) operations.get(signature);
+        Operation operation = operations.get(signature);
         if (operation == null) {
             throw new IllegalArgumentException(targetClass.getName() + ": no operation " + signature);
         }
@@ -202,34 +197,34 @@ public class DynamicGBeanDelegate implements DynamicGBean {
     /**
      * Gets all properties (with both a getter and setter), in the form of
      * propertyName
+     * @return array of all property names
      */ 
     public String[] getProperties() {
-        Set one = getters.keySet();
-        Set two = setters.keySet();
-        List out = new ArrayList();
-        for (Iterator it = one.iterator(); it.hasNext();) {
-            String name = (String) it.next();
-            if(Character.isLowerCase(name.charAt(0)) && two.contains(name)) {
+        Set<String> one = getters.keySet();
+        Set<String> two = setters.keySet();
+        List<String> out = new ArrayList<String>();
+        for (String name : one) {
+            if (Character.isLowerCase(name.charAt(0)) && two.contains(name)) {
                 out.add(name);
             }
         }
-        return (String[]) out.toArray(new String[out.size()]);
+        return out.toArray(new String[out.size()]);
     }
 
     public Class getPropertyType(String name) {
-        Operation oper = (Operation) getters.get(name);
+        Operation oper = getters.get(name);
         return oper.method.getReturnType();
     }
 
     protected static class Operation {
         private final Object target;
-        private final FastMethod method;
+        private final Method method;
 
         public Operation(Object target, Method method) {
             assert target != null;
             assert method != null;
             this.target = target;
-            this.method = FastClass.create(target.getClass()).getMethod(method);
+            this.method = method;
         }
 
         public Object invoke(Object[] arguments) throws Exception {
