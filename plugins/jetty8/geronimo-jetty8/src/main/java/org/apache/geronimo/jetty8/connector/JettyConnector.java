@@ -87,10 +87,10 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     }
     
     public int getHeaderBufferSizeBytes() {
-        return listener.getHeaderBufferSize();
+        return listener.getRequestHeaderSize();
     }
     public void setHeaderBufferSizeBytes(int size) {
-        listener.setHeaderBufferSize(size);
+        listener.setRequestHeaderSize(size);
     }
 
     public abstract int getDefaultPort();
@@ -242,18 +242,18 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
             // connections open
             stats.getOpenConnectionCountImpl().setCurrent(listener.getConnectionsOpen());
             stats.getOpenConnectionCountImpl().setHighWaterMark(listener.getConnectionsOpenMax());
-            stats.getOpenConnectionCountImpl().setLowWaterMark(listener.getConnectionsOpenMin());
+            //stats.getOpenConnectionCountImpl().setLowWaterMark(listener.getConnectionsOpenMin());
             // request count
             stats.getRequestCountImpl().setCount(listener.getRequests());
             // connections count and durations
             stats.getConnectionsDurationImpl().setCount(listener.getConnections());
             stats.getConnectionsDurationImpl().setMaxTime(listener.getConnectionsDurationMax());
-            stats.getConnectionsDurationImpl().setMinTime(listener.getConnectionsDurationMin());
+            //stats.getConnectionsDurationImpl().setMinTime(listener.getConnectionsDurationMin());
             stats.getConnectionsDurationImpl().setTotalTime(listener.getConnectionsDurationTotal());
             // requests per connection (connection requests)
-            stats.getConnectionsRequestImpl().setCurrent(listener.getConnectionsRequestsAve());
+            stats.getConnectionsRequestImpl().setCurrent((long)listener.getConnectionsRequestsMean());
             stats.getConnectionsRequestImpl().setHighWaterMark(listener.getConnectionsRequestsMax());
-            stats.getConnectionsRequestImpl().setLowWaterMark(listener.getConnectionsRequestsMin());
+            //stats.getConnectionsRequestImpl().setLowWaterMark(listener.getConnectionsRequestsMin());
         }
         return stats;
     }
