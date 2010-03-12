@@ -147,16 +147,6 @@
                 <version>1.1.2</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.aries.jndi</groupId>
-                <artifactId>org.apache.aries.jndi.core</artifactId>
-                <version>1.0.0-incubating-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.aries.jndi</groupId>
-                <artifactId>org.apache.aries.jndi.url</artifactId>
-                <version>1.0.0-incubating-SNAPSHOT</version>
-            </dependency>
             <!-- overridden dependencies -->
             <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.components</groupId>-->

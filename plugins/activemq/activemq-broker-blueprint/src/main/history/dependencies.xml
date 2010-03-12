@@ -32,11 +32,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.aries</groupId>
-        <artifactId>org.apache.aries.util</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.aries.blueprint</groupId>
         <artifactId>org.apache.aries.blueprint.api</artifactId>
         <type>jar</type>
