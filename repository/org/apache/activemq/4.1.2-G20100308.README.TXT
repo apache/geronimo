@@ -24,6 +24,8 @@ cd activemq-4.1.2
 patch -p0 -u < AMQ1272-stomp-auth-v412.patch
 patch -p0 -u < AMQ-2094.patch
 patch -p0 -u < build.patch
+patch -p0 -u < AMQ-2346.patch
+patch -p0 -u < unitcasesfix.patch
 Answer 'y' to any prompts of "Reversed (or previously applied) patch detected!  Assume -R? [n]"
 
 
@@ -39,13 +41,13 @@ Notes:
 Copy patched activemq-core jar to appropriate filename
 ------------------------------------------------------
   cd activemq-4.1.2
-  cp activemq-core/target/activemq-core-4.1.2.jar <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G20090207/activemq-core-4.1.2-G20090207.jar
+  cp activemq-core/target/activemq-core-4.1.2.jar <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G20100308/activemq-core-4.1.2-G20100308.jar
 
 Optional steps:
 ---------------
-  cd <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G20090207
-  md5sum activemq-core-4.1.2-G20090207.jar > activemq-core-4.1.2-G20090207.jar.md5
-  sha1sum activemq-core-4.1.2-G20090207.jar > activemq-core-4.1.2-G20090207.jar.sha1
+  cd <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G20100308
+  md5sum activemq-core-4.1.2-G20100308.jar > activemq-core-4.1.2-G20100308.jar.md5
+  sha1sum activemq-core-4.1.2-G20100308.jar > activemq-core-4.1.2-G20100308.jar.sha1
 
 
 How the patch (AMQ1272-stomp-auth-v412.patch) was created:

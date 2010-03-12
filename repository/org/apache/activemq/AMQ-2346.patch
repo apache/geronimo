@@ -1,0 +1,13 @@
+Index: activemq-core/src/main/java/org/apache/activemq/ActiveMQConnection.java
+===================================================================
+--- activemq-core/src/main/java/org/apache/activemq/ActiveMQConnection.java	(revision 920319)
++++ activemq-core/src/main/java/org/apache/activemq/ActiveMQConnection.java	(working copy)
+@@ -1325,7 +1325,7 @@
+ 
+         if(isConnectionInfoSentToBroker){
+             if(!transportFailed.get() && !closing.get()){
+-                asyncSendPacket(info.createRemoveCommand());
++                syncSendPacket(info.createRemoveCommand());
+             }
+             isConnectionInfoSentToBroker=false;
+         }        

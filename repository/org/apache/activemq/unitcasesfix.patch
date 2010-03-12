@@ -1,0 +1,13 @@
+Index: activemq-core/src/test/resources/spring-embedded-xbean.xml
+===================================================================
+--- activemq-core/src/test/resources/spring-embedded-xbean.xml	(revision 920319)
++++ activemq-core/src/test/resources/spring-embedded-xbean.xml	(working copy)
+@@ -22,7 +22,7 @@
+   xmlns:amq="http://activemq.org/config/1.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
+-  http://activemq.org/config/1.0 http://activemq.apache.org/snapshot-schema/activemq-core-4.1-SNAPSHOT.xsd">
++  http://activemq.org/config/1.0 file:./target/xbean/activemq.xsd">
+   
+   <!--  lets create an embedded ActiveMQ Broker -->
+   <amq:broker useJmx="false" persistent="false">
