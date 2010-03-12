@@ -32,19 +32,11 @@ import org.eclipse.jetty.server.Request;
  * @version $Rev$ $Date$
  */
 public class ClusteredSessionHandler extends SessionHandler {
-    private final PreHandler chainedHandler;
-    
-    public ClusteredSessionHandler(ClusteredSessionManager sessionManager, PreHandler chainedHandler) {
-        if (null == chainedHandler) {
-            throw new IllegalArgumentException("chainedHandler is required");
-        }
-        this.chainedHandler = chainedHandler;
-        chainedHandler.setNextHandler(new ActualHandler());
 
+    public ClusteredSessionHandler(ClusteredSessionManager sessionManager, PreHandler chainedHandler) {
         setSessionManager(sessionManager);
     }
     
-    @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         setRequestedId(baseRequest, request);
@@ -55,9 +47,10 @@ public class ClusteredSessionHandler extends SessionHandler {
         }
     }
     
-    protected void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+    public void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-        super.handle(target, baseRequest, request, response);
+        setRequestedId(baseRequest, request);
+        super.doHandle(target, baseRequest, request, response);
     }
 
     private class ActualHandler extends AbstractPreHandler {
