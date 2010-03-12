@@ -18,17 +18,22 @@
     </dependency>
     <dependency>
         <groupId>org.apache.aries.application</groupId>
-        <artifactId>org.apache.aries.application.resolver.obr</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.aries.application</groupId>
-        <artifactId>org.apache.aries.application.runtime</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.aries.application</groupId>
         <artifactId>org.apache.aries.application.utils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.felix.gogo</groupId>
+        <artifactId>org.apache.felix.gogo.commands</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.felix.gogo</groupId>
+        <artifactId>org.apache.felix.gogo.runtime</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.felix.karaf.shell</groupId>
+        <artifactId>org.apache.felix.karaf.shell.console</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -79,6 +84,11 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-aries-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-aries-shell</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

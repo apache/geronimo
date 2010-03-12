@@ -18,9 +18,14 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="AriesAppBuilder" class="org.apache.geronimo.aries.builder.AriesAppConfigBuilder">
-        <reference name="Repository">
-            <name>Repository</name>
+    <gbean name="ApplicationBuilder" class="org.apache.geronimo.aries.builder.ApplicationConfigBuilder">
+        <reference name="Installer">
+            <name>AppInstaller</name>
+        </reference>
+    </gbean>
+
+    <gbean name="AppInstaller" class="org.apache.geronimo.aries.builder.ApplicationInstaller">
+        <reference name="Store">
         </reference>
     </gbean>
 
