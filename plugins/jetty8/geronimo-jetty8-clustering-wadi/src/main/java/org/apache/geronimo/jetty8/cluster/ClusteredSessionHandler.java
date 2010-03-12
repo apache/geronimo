@@ -37,16 +37,6 @@ public class ClusteredSessionHandler extends SessionHandler {
         setSessionManager(sessionManager);
     }
     
-    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
-        setRequestedId(baseRequest, request);
-        try {
-            chainedHandler.handle(target, baseRequest, request, response);
-        } catch (ServletException e) {
-            throw (IOException) new IOException().initCause(e);
-        }
-    }
-    
     public void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         setRequestedId(baseRequest, request);
