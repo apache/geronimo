@@ -943,6 +943,8 @@ public abstract class AbstractCarMojo
                         "javax.enterprise.deploy.spi");
 */
                         
+        properties.put(Constants.FRAMEWORK_BOOTDELEGATION, "sun.*,com.sun.*");
+        
         File storageDir = new File(basedir, "target/bundle-cache");
         properties.put(Constants.FRAMEWORK_STORAGE, storageDir.getAbsolutePath());
         
