@@ -71,8 +71,12 @@
                                     <attribute name="port">#{JMXSecurePort + PortOffset}</attribute>
                                     <attribute name="urlPath">/jndi/rmi://#{ServerHostname}:#{NamingPort + PortOffset}/JMXSecureConnector</attribute>
                                 </gbean>
-                             </config-xml-content>
+                            </config-xml-content>
                             <config-substitution key="JMXSecurePort">9998</config-substitution>
+                            <config-substitution key="keyStorePassword">{Simple}rO0ABXNyABlqYXZheC5jcnlwdG8uU2VhbGVkT2JqZWN0PjY9psO3VHACAARbAA1lbmNvZGVkUGFyYW1zdAACW0JbABBlbmNyeXB0ZWRDb250ZW50cQB+AAFMAAlwYXJhbXNBbGd0ABJMamF2YS9sYW5nL1N0cmluZztMAAdzZWFsQWxncQB+AAJ4cHB1cgACW0Ks8xf4BghU4AIAAHhwAAAAEArVToThqcjvbXFD5C2uUmpwdAADQUVT</config-substitution>
+                            <config-substitution key="trustStorePassword">{Simple}rO0ABXNyABlqYXZheC5jcnlwdG8uU2VhbGVkT2JqZWN0PjY9psO3VHACAARbAA1lbmNvZGVkUGFyYW1zdAACW0JbABBlbmNyeXB0ZWRDb250ZW50cQB+AAFMAAlwYXJhbXNBbGd0ABJMamF2YS9sYW5nL1N0cmluZztMAAdzZWFsQWxncQB+AAJ4cHB1cgACW0Ks8xf4BghU4AIAAHhwAAAAEArVToThqcjvbXFD5C2uUmpwdAADQUVT</config-substitution>
+                            <config-substitution key="geronimo">{Simple}rO0ABXNyABlqYXZheC5jcnlwdG8uU2VhbGVkT2JqZWN0PjY9psO3VHACAARbAA1lbmNvZGVkUGFyYW1zdAACW0JbABBlbmNyeXB0ZWRDb250ZW50cQB+AAFMAAlwYXJhbXNBbGd0ABJMamF2YS9sYW5nL1N0cmluZztMAAdzZWFsQWxncQB+AAJ4cHB1cgACW0Ks8xf4BghU4AIAAHhwAAAAEArVToThqcjvbXFD5C2uUmpwdAADQUVT</config-substitution>
+                            <config-substitution key="geronimo-default">{Simple}rO0ABXNyABlqYXZheC5jcnlwdG8uU2VhbGVkT2JqZWN0PjY9psO3VHACAARbAA1lbmNvZGVkUGFyYW1zdAACW0JbABBlbmNyeXB0ZWRDb250ZW50cQB+AAFMAAlwYXJhbXNBbGd0ABJMamF2YS9sYW5nL1N0cmluZztMAAdzZWFsQWxncQB+AAJ4cHB1cgACW0Ks8xf4BghU4AIAAHhwAAAAEArVToThqcjvbXFD5C2uUmpwdAADQUVT</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>
