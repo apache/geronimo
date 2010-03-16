@@ -29,47 +29,53 @@
     <name>Geronimo TestSuite :: Enterprise Testsuite :: Security - JAR</name>
     <packaging>ejb</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jpa_1.0_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jta_1.1_spec</artifactId>
-            <scope>test</scope>
-        </dependency>
+    <profiles>
+        <profile>
+            <id>child</id>
+                    
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-jpa_1.0_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
                 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-security</artifactId>
-            <version>${version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- the enhancer seems to need xerces -->
-        <!--<dependency>-->
-            <!--<groupId>xerces</groupId>-->
-            <!--<artifactId>xercesImpl</artifactId>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-ejb-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-    
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-jta_1.1_spec</artifactId>
+                    <scope>test</scope>
+                </dependency>
+                        
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-ejb_3.0_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+        
+                <dependency>
+                    <groupId>org.apache.geronimo.framework</groupId>
+                    <artifactId>geronimo-security</artifactId>
+                    <version>${version}</version>
+                    <scope>provided</scope>
+                </dependency>
+        
+                <!-- the enhancer seems to need xerces -->
+                <!--<dependency>-->
+                    <!--<groupId>xerces</groupId>-->
+                    <!--<artifactId>xercesImpl</artifactId>-->
+                    <!--<scope>provided</scope>-->
+                <!--</dependency>-->
+            </dependencies>
+        
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-ejb-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+   
+        </profile>      
+    </profiles> 
 </project>

@@ -37,14 +37,21 @@
     <description>
         Geronimo test WAR for EJB Tests
     </description>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>ejb-ejb</artifactId>
-            <version>${version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
+    
+    <profiles>
+        <profile>
+            <id>child</id>
+            
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.testsuite</groupId>
+                    <artifactId>ejb-ejb</artifactId>
+                    <version>${version}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+    
+        </profile>      
+    </profiles>
+    
 </project>

@@ -32,45 +32,52 @@
     <name>Geronimo TestSuite :: CORBA TestSuite :: Hello World Client</name>
     <packaging>jar</packaging>
     <description>Example using CORBA to access a stateless EJB</description>
-
-    <dependencies>
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>corba-helloworld-ejb</artifactId>
-            <version>${version}</version>
-            <type>ejb</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>corba-helloworld-war</artifactId>
-            <version>${version}</version>
-            <type>war</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <description>Geronimo Hello World Enterprise Application CORBA Client JAR</description>
-                    <displayName>Geronimo Hello World Enterprise Application CORBA Client JAR</displayName>
-                    <archive>
-                        <manifest>
-                            <mainClass>org.apache.geronimo.testsuite.corba.helloworld.HelloWorldEJBClient</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+    
+    <profiles>
+        <profile>
+            <id>child</id>
+            
+            <dependencies>
+                <dependency>
+                    <groupId>${pom.groupId}</groupId>
+                    <artifactId>corba-helloworld-ejb</artifactId>
+                    <version>${version}</version>
+                    <type>ejb</type>
+                    <scope>provided</scope>
+                </dependency>
+        
+                <dependency>
+                    <groupId>${pom.groupId}</groupId>
+                    <artifactId>corba-helloworld-war</artifactId>
+                    <version>${version}</version>
+                    <type>war</type>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-ejb_3.0_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <description>Geronimo Hello World Enterprise Application CORBA Client JAR</description>
+                            <displayName>Geronimo Hello World Enterprise Application CORBA Client JAR</displayName>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.apache.geronimo.testsuite.corba.helloworld.HelloWorldEJBClient</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            
+        </profile>
+    </profiles>
+        
 </project>

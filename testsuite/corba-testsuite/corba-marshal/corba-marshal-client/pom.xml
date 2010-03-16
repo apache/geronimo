@@ -33,36 +33,42 @@
     <packaging>jar</packaging>
     <description>Example using CORBA to access a stateless EJB</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>corba-marshal-ejb</artifactId>
-            <version>${version}</version>
-            <type>ejb</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+    <profiles>
+        <profile>
+            <id>child</id>
+            
+            <dependencies>
+                <dependency>
+                    <groupId>${pom.groupId}</groupId>
+                    <artifactId>corba-marshal-ejb</artifactId>
+                    <version>${version}</version>
+                    <type>ejb</type>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-ejb_3.0_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <description>Geronimo Marshal Enterprise Application CORBA Client JAR</description>
+                            <displayName>Geronimo Marshal Enterprise Application CORBA Client JAR</displayName>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.apache.geronimo.testsuite.corba.marshal.MarshalEJBClient</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <description>Geronimo Marshal Enterprise Application CORBA Client JAR</description>
-                    <displayName>Geronimo Marshal Enterprise Application CORBA Client JAR</displayName>
-                    <archive>
-                        <manifest>
-                            <mainClass>org.apache.geronimo.testsuite.corba.marshal.MarshalEJBClient</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+        </profile>
+    </profiles>
 </project>

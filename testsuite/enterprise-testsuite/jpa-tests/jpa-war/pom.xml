@@ -29,39 +29,45 @@
     <artifactId>jpa-war</artifactId>
     <name>Geronimo TestSuite :: Enterprise Testsuite :: JPA - WAR</name>
     <packaging>war</packaging>
+    
+    <profiles>
+        <profile>
+            <id>child</id>
+                    
+             <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.testsuite</groupId>
+                    <artifactId>jpa-ejb</artifactId>
+                    <version>${version}</version>
+                    <optional>true</optional>
+                </dependency>
+                
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-servlet_2.5_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+                
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-ejb_3.0_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+                
+                <dependency>
+                    <groupId>org.apache.geronimo.framework</groupId>
+                    <artifactId>geronimo-security</artifactId>
+                    <version>${version}</version>
+                    <scope>provided</scope>
+                </dependency>
+                
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-jta_1.1_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
 
-     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>jpa-ejb</artifactId>
-            <version>${version}</version>
-            <optional>true</optional>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.5_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-security</artifactId>
-            <version>${version}</version>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jta_1.1_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
+        </profile>      
+    </profiles>
 </project>

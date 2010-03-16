@@ -26,12 +26,19 @@
     <artifactId>manifestcp-jar2</artifactId>
     <name>Geronimo TestSuite :: Deployment Testsuite :: Manifest Classpath JAR</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <profiles>
+        <profile>
+            <id>child</id>
+            
+            <dependencies>
+                <dependency>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                    <version>3.8.1</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            
+        </profile>
+    </profiles>
 </project>

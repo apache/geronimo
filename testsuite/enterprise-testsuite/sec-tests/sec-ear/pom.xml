@@ -29,137 +29,142 @@
     <name>Geronimo TestSuite :: Enterprise Testsuite :: Security - EAR</name>
     <packaging>ear</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>sec-ejb</artifactId>
-            <version>${version}</version>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>sec-war</artifactId>
-            <version>${version}</version>
-            <type>war</type>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-surefire-xml</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>generate-surefire-xml</goal>
-                        </goals>
-                        <!-- 
-                        Merging the configuration of this plugin with the one it inherits.
-                        Updating the reports in the grandparent directly as we'd have missed the boat for the parent's install phase.
-                        -->
+    <profiles>
+        <profile>
+            <id>child</id>
+                    
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.testsuite</groupId>
+                    <artifactId>sec-ejb</artifactId>
+                    <version>${version}</version>
+                    <type>ejb</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.geronimo.testsuite</groupId>
+                    <artifactId>sec-war</artifactId>
+                    <version>${version}</version>
+                    <type>war</type>
+                </dependency>
+            </dependencies>
+        
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>testsuite-maven-plugin</artifactId>
+                        <version>${version}</version>
+                        <executions>
+                            <execution>
+                                <id>generate-surefire-xml</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>generate-surefire-xml</goal>
+                                </goals>
+                                <!-- 
+                                Merging the configuration of this plugin with the one it inherits.
+                                Updating the reports in the grandparent directly as we'd have missed the boat for the parent's install phase.
+                                -->
+                                <configuration>
+                                    <grandParent>true</grandParent>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+        
+                    <plugin>
+                        <artifactId>maven-ear-plugin</artifactId>
                         <configuration>
-                            <grandParent>true</grandParent>
+                            <displayName>security Itest ear</displayName>
+                            <description>security Itest ear</description>
+                            <version>1.4</version>
+                            <modules>
+                                <webModule>
+                                    <groupId>org.apache.geronimo.testsuite</groupId>
+                                    <artifactId>sec-war</artifactId>
+                                    <contextRoot>/sec</contextRoot>
+                                    <bundleFileName>web.war</bundleFileName>
+                                </webModule>
+                                <ejbModule>
+                                    <groupId>org.apache.geronimo.testsuite</groupId>
+                                    <artifactId>sec-ejb</artifactId>
+                                    <bundleFileName>ejb.jar</bundleFileName>
+                                </ejbModule>
+                            </modules>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-ear-plugin</artifactId>
-                <configuration>
-                    <displayName>security Itest ear</displayName>
-                    <description>security Itest ear</description>
-                    <version>1.4</version>
-                    <modules>
-                        <webModule>
-                            <groupId>org.apache.geronimo.testsuite</groupId>
-                            <artifactId>sec-war</artifactId>
-                            <contextRoot>/sec</contextRoot>
-                            <bundleFileName>web.war</bundleFileName>
-                        </webModule>
-                        <ejbModule>
-                            <groupId>org.apache.geronimo.testsuite</groupId>
-                            <artifactId>sec-ejb</artifactId>
-                            <bundleFileName>ejb.jar</bundleFileName>
-                        </ejbModule>
-                    </modules>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>${project.build.directory}/test-classes/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
-                </configuration>
-            </plugin>
-
-            <!-- "ear" packaging doesn't compile test classes -->
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- "ear" packaging doesn't process test resources -->
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>testResources</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>selenium-maven-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>geronimo-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy-module</goal>
-                        </goals>
+                    </plugin>
+        
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>${project.build.directory}/test-classes/testng.xml</suiteXmlFile>
+                            </suiteXmlFiles>
                         </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>undeploy</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-    </build>
+                    </plugin>
+        
+                    <!-- "ear" packaging doesn't compile test classes -->
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+        
+                    <!-- "ear" packaging doesn't process test resources -->
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>testResources</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+        
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>selenium-maven-plugin</artifactId>
+                    </plugin>
+        
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>deploy</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
+                                </configuration>
+                            </execution>
+        
+                            <execution>
+                                <id>undeploy</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+        
+                </plugins>
+            </build>
     
-
+        </profile>      
+    </profiles>
 
 </project>

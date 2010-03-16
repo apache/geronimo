@@ -37,112 +37,119 @@
        <clientLogFile>${basedir}/target/client.log</clientLogFile>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-saaj_1.3_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>org.apache.geronimo.test.SAAJClient</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <systemProperties>
-                        <property>
-                            <name>clientLogFile</name>
-                            <value>${clientLogFile}</value>
-                        </property>
-                    </systemProperties>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-surefire-xml</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>generate-surefire-xml</goal>
-                        </goals>
-                        <!-- 
-                        Merging the configuration of this plugin with the one it inherits.
-                        Updating the reports in the grandparent directly as we'd have missed the boat for the parent's install phase.
-                        -->
+    <profiles>
+        <profile>
+            <id>child</id>
+            
+                    
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-saaj_1.3_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        
+            <build>
+                <plugins>
+        
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
                         <configuration>
-                            <grandParent>true</grandParent>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.apache.geronimo.test.SAAJClient</mainClass>
+                                </manifest>
+                            </archive>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                <artifactId>tools-maven-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>geronimo-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy-client</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy-module</goal>
-                        </goals>
+                    </plugin>
+        
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.jar</moduleArchive>
+                            <systemProperties>
+                                <property>
+                                    <name>clientLogFile</name>
+                                    <value>${clientLogFile}</value>
+                                </property>
+                            </systemProperties>
                         </configuration>
-                    </execution>
-
-                    <execution>
-                        <phase>pre-integration-test</phase>
-                        <id>run-client</id>
-                        <goals>
-                            <goal>run-client</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>JEE5/SAAJClient/1.1/car</moduleId>
-                            <logOutput>true</logOutput>
-                            <logFile>${clientLogFile}</logFile>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>undeploy-client-as-moduleId</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>JEE5/SAAJClientServer/1.1/car</moduleId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
+                    </plugin>
+        
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>testsuite-maven-plugin</artifactId>
+                        <version>${version}</version>
+                        <executions>
+                            <execution>
+                                <id>generate-surefire-xml</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>generate-surefire-xml</goal>
+                                </goals>
+                                <!-- 
+                                Merging the configuration of this plugin with the one it inherits.
+                                Updating the reports in the grandparent directly as we'd have missed the boat for the parent's install phase.
+                                -->
+                                <configuration>
+                                    <grandParent>true</grandParent>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+        
+                    <plugin>
+                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                        <artifactId>tools-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                    </plugin>
+        
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>deploy-client</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.jar</moduleArchive>
+                                </configuration>
+                            </execution>
+        
+                            <execution>
+                                <phase>pre-integration-test</phase>
+                                <id>run-client</id>
+                                <goals>
+                                    <goal>run-client</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>JEE5/SAAJClient/1.1/car</moduleId>
+                                    <logOutput>true</logOutput>
+                                    <logFile>${clientLogFile}</logFile>
+                                </configuration>
+                            </execution>
+        
+                            <execution>
+                                <id>undeploy-client-as-moduleId</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>JEE5/SAAJClientServer/1.1/car</moduleId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            
+        </profile>      
+    </profiles> 
 </project>
 

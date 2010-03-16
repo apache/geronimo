@@ -30,13 +30,19 @@
     <name>Geronimo TestSuite :: CORBA TestSuite :: Hello World EJB</name>
     <packaging>ejb</packaging>
     <description>Geronimo Hello World Enterprise Stateless EJB</description>
+    
+    <profiles>
+        <profile>
+            <id>child</id>
+            
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-ejb_3.0_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
+        </profile>
+    </profiles>
 </project>

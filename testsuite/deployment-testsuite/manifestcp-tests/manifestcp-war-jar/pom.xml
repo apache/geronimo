@@ -26,19 +26,25 @@
 
     <artifactId>manifestcp-war-jar</artifactId>
     <name>Geronimo TestSuite :: Deployment Testsuite :: Manifest Classpath WAR-JAR</name>
+    
+    <profiles>
+        <profile>
+            <id>child</id>
+    
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-servlet_2.5_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.geronimo.testsuite</groupId>
+                    <artifactId>manifestcp-jar2</artifactId>
+                    <version>${version}</version>
+                    <optional>true</optional>
+                </dependency>
+            </dependencies>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.5_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>manifestcp-jar2</artifactId>
-            <version>${version}</version>
-            <optional>true</optional>
-        </dependency>
-    </dependencies>
-
+        </profile>
+    </profiles>
 </project>

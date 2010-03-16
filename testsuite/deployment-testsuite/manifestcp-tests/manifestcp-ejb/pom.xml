@@ -26,29 +26,37 @@
     <artifactId>manifestcp-ejb</artifactId>
     <name>Geronimo TestSuite :: Deployment Testsuite :: Manifest Classpath EJB</name>
     <packaging>ejb</packaging>
+    
+    <profiles>
+        <profile>
+            <id>child</id>
+            
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-ejb-plugin</artifactId>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.testsuite</groupId>
+                    <artifactId>manifestcp-jar</artifactId>
+                    <version>${version}</version>
+                    <optional>true</optional>
+                </dependency>
+            </dependencies>
+            
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-ejb-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>manifestcp-jar</artifactId>
-            <version>${version}</version>
-            <optional>true</optional>
-        </dependency>
-    </dependencies>
+        </profile>
+    </profiles>
 </project>

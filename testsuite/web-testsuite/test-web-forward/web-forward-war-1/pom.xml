@@ -27,26 +27,33 @@
         <version>2.1.5-SNAPSHOT</version>
     </parent>
     <artifactId>web-forward-war-1</artifactId>
-    <name>Geronimo Test Suite :: Test Servlet Forwarding :: WAR I</name>
+    <name>Geronimo TestSuite :: Test Servlet Forwarding :: WAR I</name>
     <packaging>war</packaging>
     
     <description>
         Geronimo test WAR for Servlet forwarding
     </description>
-    <dependencies>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jsp_2.1_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_2.5_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-                
-    </dependencies>
     
+    <profiles>
+        <profile>
+            <id>child</id>
+                    
+            <dependencies>
+                
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-jsp_2.1_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+                
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-servlet_2.5_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+                        
+            </dependencies>
+
+        </profile>      
+    </profiles>    
 </project>

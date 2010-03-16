@@ -37,183 +37,189 @@
         <clientLogFile>${basedir}/target/client.log</clientLogFile>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>corba-helloworld-ejb</artifactId>
-            <version>${version}</version>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>corba-helloworld-war</artifactId>
-            <version>${version}</version>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>corba-helloworld-client</artifactId>
-            <version>${version}</version>
-            <type>jar</type>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-          <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>testsuite-maven-plugin</artifactId>
-                <version>${version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-surefire-xml</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>generate-surefire-xml</goal>
-                        </goals>
-                        <!-- 
-                        Merging the configuration of this plugin with the one it inherits.
-                        Updating the reports in the grandparent directly as we'd have missed the boat for the parent's install phase.
-                        -->
+    <profiles>
+        <profile>
+            <id>child</id>
+            
+            <dependencies>
+                <dependency>
+                    <groupId>${pom.groupId}</groupId>
+                    <artifactId>corba-helloworld-ejb</artifactId>
+                    <version>${version}</version>
+                    <type>ejb</type>
+                </dependency>
+                <dependency>
+                    <groupId>${pom.groupId}</groupId>
+                    <artifactId>corba-helloworld-war</artifactId>
+                    <version>${version}</version>
+                    <type>war</type>
+                </dependency>
+                <dependency>
+                    <groupId>${pom.groupId}</groupId>
+                    <artifactId>corba-helloworld-client</artifactId>
+                    <version>${version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        
+            <build>
+                <plugins>
+                  <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>testsuite-maven-plugin</artifactId>
+                        <version>${version}</version>
+                        <executions>
+                            <execution>
+                                <id>generate-surefire-xml</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>generate-surefire-xml</goal>
+                                </goals>
+                                <!-- 
+                                Merging the configuration of this plugin with the one it inherits.
+                                Updating the reports in the grandparent directly as we'd have missed the boat for the parent's install phase.
+                                -->
+                                <configuration>
+                                    <grandParent>true</grandParent>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+        
+                    <plugin>
+                        <artifactId>maven-ear-plugin</artifactId>
                         <configuration>
-                            <grandParent>true</grandParent>
+                            <description>Geronimo Hello World Enterprise Application EAR</description>
+                            <displayName>Geronimo Hello World Enterprise Application EAR</displayName>
+                            <version>5</version>
+                            <modules>
+                                <webModule>
+                                    <groupId>${pom.groupId}</groupId>
+                                    <artifactId>corba-helloworld-war</artifactId>
+                                    <contextRoot>/corba-helloworld</contextRoot>
+                                    <bundleFileName>corba-helloworld-war-${version}.war</bundleFileName>
+                                </webModule>
+                                <ejbModule>
+                                    <groupId>${pom.groupId}</groupId>
+                                    <artifactId>corba-helloworld-ejb</artifactId>
+                                    <bundleFileName>corba-helloworld-ejb-${version}.jar</bundleFileName>
+                                </ejbModule>
+                                <jarModule>
+                                    <groupId>${pom.groupId}</groupId>
+                                    <artifactId>corba-helloworld-client</artifactId>
+                                    <bundleFileName>corba-helloworld-client-${version}.jar</bundleFileName>
+                                </jarModule>
+                            </modules>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-ear-plugin</artifactId>
-                <configuration>
-                    <description>Geronimo Hello World Enterprise Application EAR</description>
-                    <displayName>Geronimo Hello World Enterprise Application EAR</displayName>
-                    <version>5</version>
-                    <modules>
-                        <webModule>
-                            <groupId>${pom.groupId}</groupId>
-                            <artifactId>corba-helloworld-war</artifactId>
-                            <contextRoot>/corba-helloworld</contextRoot>
-                            <bundleFileName>corba-helloworld-war-${version}.war</bundleFileName>
-                        </webModule>
-                        <ejbModule>
-                            <groupId>${pom.groupId}</groupId>
-                            <artifactId>corba-helloworld-ejb</artifactId>
-                            <bundleFileName>corba-helloworld-ejb-${version}.jar</bundleFileName>
-                        </ejbModule>
-                        <jarModule>
-                            <groupId>${pom.groupId}</groupId>
-                            <artifactId>corba-helloworld-client</artifactId>
-                            <bundleFileName>corba-helloworld-client-${version}.jar</bundleFileName>
-                        </jarModule>
-                    </modules>
-                </configuration>
-            </plugin>
-            <!-- Deploy the ear and invoke the imbedded CORBA app client  -->
-            <!-- ======================================================== -->
-            <!-- ===================================================================== -->
-            <!-- Setup the client log file location for access by the CORBA app client -->
-            <!-- ===================================================================== -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <systemProperties>
-                        <property>
-                            <name>clientLogFile</name>
-                            <value>${clientLogFile}</value>
-                        </property>
-                    </systemProperties>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>geronimo-maven-plugin</artifactId>
-
-                <executions>
-                    <!-- ============================================================================= -->
-                    <!-- These modules must be running before deploying a CORBA module can be deployed -->
-                    <!-- ============================================================================= -->
-                    <execution>
-                        <id>start-j2ee-corba-yoko</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start-module</goal>
-                        </goals>
+                    </plugin>
+                    <!-- Deploy the ear and invoke the imbedded CORBA app client  -->
+                    <!-- ======================================================== -->
+                    <!-- ===================================================================== -->
+                    <!-- Setup the client log file location for access by the CORBA app client -->
+                    <!-- ===================================================================== -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <moduleId>org.apache.geronimo.configs/j2ee-corba-yoko/${version}/car</moduleId>
+                            <systemProperties>
+                                <property>
+                                    <name>clientLogFile</name>
+                                    <value>${clientLogFile}</value>
+                                </property>
+                            </systemProperties>
                         </configuration>
-                    </execution>
-                    <execution>
-                        <id>openejb-corba-deployer</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>start-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</moduleId>
-                        </configuration>
-                    </execution>
-
-                    <!-- ======================= -->
-                    <!-- Deploy the CORBA module -->
-                    <!-- ======================= -->
-                    <execution>
-                        <id>deploy-ear</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
-                        </configuration>
-                    </execution>
-
-                    <!-- =========================== -->
-                    <!-- Invoke the CORBA app client -->
-                    <!-- =========================== -->
-                    <execution>
-                        <phase>pre-integration-test</phase>
-                        <id>run-client</id>
-                        <goals>
-                            <goal>run-client</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>org.apache.geronimo.testsuite/corba-helloworld-client/${version}/car</moduleId>
-                            <logOutput>true</logOutput>
-                            <logFile>${clientLogFile}</logFile>
-                        </configuration>
-                    </execution>
-
-                    <!-- ========================= -->
-                    <!-- Undeploy the CORBA module -->
-                    <!-- ========================= -->
-                    <execution>
-                        <id>undeploy-ear</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>${groupId}/${artifactId}/${version}/car</moduleId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- "ear" packaging doesn't compile test classes -->
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-    </build>
-
+                    </plugin>
+        
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+        
+                        <executions>
+                            <!-- ============================================================================= -->
+                            <!-- These modules must be running before deploying a CORBA module can be deployed -->
+                            <!-- ============================================================================= -->
+                            <execution>
+                                <id>start-j2ee-corba-yoko</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>org.apache.geronimo.configs/j2ee-corba-yoko/${version}/car</moduleId>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>openejb-corba-deployer</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</moduleId>
+                                </configuration>
+                            </execution>
+        
+                            <!-- ======================= -->
+                            <!-- Deploy the CORBA module -->
+                            <!-- ======================= -->
+                            <execution>
+                                <id>deploy-ear</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
+                                </configuration>
+                            </execution>
+        
+                            <!-- =========================== -->
+                            <!-- Invoke the CORBA app client -->
+                            <!-- =========================== -->
+                            <execution>
+                                <phase>pre-integration-test</phase>
+                                <id>run-client</id>
+                                <goals>
+                                    <goal>run-client</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>org.apache.geronimo.testsuite/corba-helloworld-client/${version}/car</moduleId>
+                                    <logOutput>true</logOutput>
+                                    <logFile>${clientLogFile}</logFile>
+                                </configuration>
+                            </execution>
+        
+                            <!-- ========================= -->
+                            <!-- Undeploy the CORBA module -->
+                            <!-- ========================= -->
+                            <execution>
+                                <id>undeploy-ear</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>${groupId}/${artifactId}/${version}/car</moduleId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+        
+                    <!-- "ear" packaging doesn't compile test classes -->
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+        
+                </plugins>
+            </build>
+            
+        </profile>
+    </profiles>
 </project>

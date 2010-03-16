@@ -25,17 +25,25 @@
 
     <artifactId>manifestcp-jar</artifactId>
     <name>Geronimo TestSuite :: Deployment Testsuite :: Manifest Classpath JAR</name>
+    
+    <profiles>
+        <profile>
+            <id>child</id>
+            
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-ejb_3.0_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.geronimo.testsuite</groupId>
+                    <artifactId>manifestcp-jar2</artifactId>
+                    <version>${version}</version>
+                </dependency>
+            </dependencies>
+            
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.0_spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>manifestcp-jar2</artifactId>
-            <version>${version}</version>
-        </dependency>
-    </dependencies>
+        </profile>
+    </profiles> 
 </project>

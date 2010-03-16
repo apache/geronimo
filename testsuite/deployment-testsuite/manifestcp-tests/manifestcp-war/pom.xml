@@ -28,29 +28,36 @@
     <name>Geronimo TestSuite :: Deployment Testsuite :: Manifest Classpath WAR</name>
     <packaging>war</packaging>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>manifestcp-war-jar</artifactId>
-            <version>${version}</version>
-            <optional>true</optional>
-        </dependency>
-    </dependencies>
+    <profiles>
+        <profile>
+            <id>child</id>
+            
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <configuration>
+                            <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.testsuite</groupId>
+                    <artifactId>manifestcp-war-jar</artifactId>
+                    <version>${version}</version>
+                    <optional>true</optional>
+                </dependency>
+            </dependencies>
+            
+        </profile>
+    </profiles>
 </project>
