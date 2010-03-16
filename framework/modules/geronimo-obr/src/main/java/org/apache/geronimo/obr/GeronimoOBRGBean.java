@@ -48,9 +48,13 @@ import org.apache.geronimo.obr.model.Resource;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @GBean
 public class GeronimoOBRGBean implements GBeanLifecycle {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(GeronimoOBRGBean.class);
     
     private BundleContext bundleContext;
     private ListableRepository repository;
@@ -141,7 +145,7 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
                 }
                 repo.getResource().add(resource);
             } else {
-                System.out.println("Warning: Artifact " + artifact + " is not a bundle.");
+                LOG.debug("Artifact {} is not a bundle.", artifact);
             }
         }
         return repo;

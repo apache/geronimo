@@ -47,7 +47,6 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.bundlerepository</artifactId>
-            <version>1.5.0-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
