@@ -137,7 +137,7 @@ public class DependencyManager implements SynchronousBundleListener {
                 pluginMap.put(bundle, pluginArtifactType);
             }
             //take this opportunity to install obr repo fragment
-            installRepository(bundle);
+            // installRepository(bundle);
         }
         return pluginArtifactType;
     }
