@@ -39,6 +39,19 @@
                 <module>manifestcp-ear</module>
             </modules>
         </profile>
+        
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>manifestcp-jar2</module>
+                <module>manifestcp-jar</module>
+                <module>manifestcp-war-jar</module>
+                <module>manifestcp-ejb</module>
+                <module>manifestcp-war</module>
+                <module>manifestcp-ear</module>
+            </modules>
+        </profile>
     </profiles>
 
 </project>

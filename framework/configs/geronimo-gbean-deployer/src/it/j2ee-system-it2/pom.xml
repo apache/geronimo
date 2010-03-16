@@ -29,7 +29,7 @@
     </parent>
 
     <groupId>org.apache.geronimo.buildsupport.it</groupId>
-    <artifactId>j2ee-system</artifactId>
+    <artifactId>j2ee-system-it2</artifactId>
     <name>Geronimo Configs :: J2EE System</name>
     <packaging>car</packaging>
 
@@ -212,11 +212,16 @@
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
                     <category>Geronimo Core</category>
-                    <useMavenDependencies>
-                        <value>true</value>
-                        <includeVersion>true</includeVersion>
-                    </useMavenDependencies>
                     <config-xml-content load = "false"/>
+                </configuration>
+            </plugin>
+            
+            <!-- Add this so that this should not get deployed during release plugin processing-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

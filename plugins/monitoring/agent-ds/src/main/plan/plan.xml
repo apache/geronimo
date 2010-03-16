@@ -19,29 +19,6 @@
 <!-- $Rev$ $Date$ -->
 
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-${geronimoSchemaVersion}">
-    <environment>
-        <moduleId>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>${pom.artifactId}</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </moduleId>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.geronimo.configs</groupId>
-                <artifactId>system-database</artifactId>
-                <type>car</type>
-            </dependency>
-            <!-- SQL files -->
-	        <dependency>
-	            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-	            <artifactId>agent-sql</artifactId>
-	            <version>${monitoringConsoleVersion}</version>
-	            <type>jar</type>
-	        </dependency>
-        </dependencies>
-    </environment>
-    
     <resourceadapter>
         <outbound-resourceadapter>
             <!-- Pool for Active Statistics -->

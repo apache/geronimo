@@ -57,6 +57,16 @@
                 <module>stax-client</module>
             </modules>
         </profile>
+        
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>stax-war</module>
+                <module>stax-ejb</module>
+                <module>stax-client</module>
+            </modules>
+        </profile>
     </profiles>
 
 </project>

@@ -43,5 +43,15 @@
                 <module>web-references-ear</module>
             </modules>
         </profile>
+        
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>web-references-ejb</module>
+                <module>web-references-war</module>
+                <module>web-references-ear</module>
+            </modules>
+        </profile>
     </profiles>
 </project>

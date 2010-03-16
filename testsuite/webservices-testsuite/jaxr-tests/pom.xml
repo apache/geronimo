@@ -57,6 +57,16 @@
                 <module>jaxr-client</module>
             </modules>
         </profile>
+        
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>jaxr-war</module>
+                <module>jaxr-ejb</module>
+                <module>jaxr-client</module>
+            </modules>
+        </profile>
     </profiles>
 
 </project>

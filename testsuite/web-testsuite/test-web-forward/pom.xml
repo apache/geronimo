@@ -43,5 +43,15 @@
                 <module>web-forward-ear</module>
             </modules>
         </profile>
+        
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>web-forward-war-1</module>
+                <module>web-forward-war-2</module>
+                <module>web-forward-ear</module>
+            </modules>
+        </profile>
     </profiles>
 </project>

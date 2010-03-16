@@ -19,28 +19,5 @@
 <!-- $Rev$ $Date$ -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-    <environment>
-        <moduleId>
-            <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-            <artifactId>agent-car-jmx</artifactId>
-            <version>${monitoringConsoleVersion}</version>
-        </moduleId>
-
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.geronimo.plugins.monitoring</groupId>
-                <artifactId>agent-jar</artifactId>
-                <version>${monitoringConsoleVersion}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>agent-ds</artifactId>
-                <version>${monitoringConsoleVersion}</version>
-                <type>car</type>
-            </dependency>
-        </dependencies>
-    </environment>
-
     <gbean name="MasterRemoteControlJMX" class="org.apache.geronimo.monitoring.MasterRemoteControlJMX" />
 </module>

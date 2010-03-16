@@ -59,7 +59,7 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
+    
     <modules>
         <module>commands-testsuite</module>
         <module>console-testsuite</module>
@@ -70,7 +70,7 @@
         <module>webservices-testsuite</module>
         <module>security-testsuite</module>
     </modules>
-
+            
     <build>
         <resources>
             <resource>
@@ -233,6 +233,15 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
+            
+            <!-- Add this so that this should not get deployed during release plugin processing-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -380,6 +389,11 @@
         
         <profile>
             <id>child</id>
+        </profile>
+        
+        <profile>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <id>all-subprojects</id>
         </profile>
     </profiles>
 

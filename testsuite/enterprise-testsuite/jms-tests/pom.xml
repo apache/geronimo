@@ -28,6 +28,10 @@
     <packaging>pom</packaging>
     <name>Geronimo TestSuite :: Enterprise Testsuite :: JMS Tests</name>
 
+    <modules>
+        <module>jms-ejb</module>
+    </modules>
+  
     <profiles>
         <profile>
             <id>child</id>
@@ -36,9 +40,16 @@
                 <module>jms-ear</module>
             </modules>
         </profile>
+                
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>jms-war</module>
+                <module>jms-ear</module>
+            </modules>
+        </profile>
     </profiles>
 
-  <modules>
-    <module>jms-ejb</module>
-  </modules>
+
 </project>
