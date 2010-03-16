@@ -126,6 +126,15 @@ specific services - those should be provided by children.
     </gbean>
     -->
 
+    <gbean name="GeronimoOBR" class="org.apache.geronimo.obr.GeronimoOBRGBean">
+        <reference name="Repository">
+            <name>Repository</name>
+        </reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+
     <gbean name="EmbeddedDaemon" class="org.apache.geronimo.system.main.EmbeddedDaemon"/>
 
 </module>

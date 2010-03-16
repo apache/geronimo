@@ -37,6 +37,7 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -199,8 +200,8 @@ public class ApplicationGBean implements GBeanLifecycle {
         List<Bundle> bundlesWeStarted = new ArrayList<Bundle>();
         try {
             for (Bundle b : applicationBundles) {
-                if (b.getState() != Bundle.ACTIVE) {
-                    b.start(Bundle.START_ACTIVATION_POLICY);
+                if (BundleUtils.canStart(b)) {
+                    b.start(Bundle.START_TRANSIENT);
                     bundlesWeStarted.add(b);
                 }
             }

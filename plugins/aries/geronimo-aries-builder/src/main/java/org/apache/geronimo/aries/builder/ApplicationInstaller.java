@@ -117,7 +117,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
             context.initializeConfiguration();
                         
             app.store(configDir);
-            
+                        
             AbstractName name = naming.createChildName(moduleName, "AriesApplication", "GBean");
             GBeanData data = new GBeanData(name, ApplicationGBean.class);
             data.setReferencePattern("Installer", abstractName);
@@ -189,16 +189,17 @@ public class ApplicationInstaller implements GBeanLifecycle {
         return null;
     }
     
-    private Artifact getConfigId(AriesApplication app) {
-        Artifact configId = 
-            new Artifact("aries-app", 
-                         app.getApplicationMetadata().getApplicationSymbolicName(), 
-                         getVersion(app.getApplicationMetadata().getApplicationVersion()), 
-                         "jar");
-        return configId;
+    private static Artifact getConfigId(AriesApplication app) {
+        return createArtifact("aries-app", 
+                              app.getApplicationMetadata().getApplicationSymbolicName(), 
+                              app.getApplicationMetadata().getApplicationVersion());
     }
     
-    private String getVersion(Version version) {
+    private static Artifact createArtifact(String group, String symbolicName, Version version) {
+        return new Artifact(group, symbolicName, getVersion(version), "jar");
+    }
+    
+    private static String getVersion(Version version) {
         String str = version.getMajor() + "." + version.getMinor() + "." + version.getMinor();
         if (version.getQualifier() != null) {
             str += "-" + version.getQualifier();

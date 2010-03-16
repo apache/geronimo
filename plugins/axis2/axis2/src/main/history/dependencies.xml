@@ -47,11 +47,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.apache.felix.bundlerepository</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>backport-util-concurrent</artifactId>
         <type>jar</type>

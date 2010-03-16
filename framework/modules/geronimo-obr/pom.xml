@@ -59,7 +59,6 @@
                 <configuration>
                     <instructions>
                         <Export-Package>org.apache.geronimo.obr*</Export-Package>
-                        <Bundle-Activator>org.apache.geronimo.obr.Activator</Bundle-Activator>
                     </instructions>
                 </configuration>
             </plugin>

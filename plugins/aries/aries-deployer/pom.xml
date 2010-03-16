@@ -55,6 +55,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-aries-resolver</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.aries.blueprint</groupId>
             <artifactId>org.apache.aries.blueprint</artifactId>
         </dependency>
@@ -68,12 +74,7 @@
             <groupId>org.apache.aries.application</groupId>
             <artifactId>org.apache.aries.application.management</artifactId>
         </dependency>
-<!--
-        <dependency>
-            <groupId>org.apache.aries.application</groupId>
-            <artifactId>org.apache.aries.application.resolver.obr</artifactId>
-        </dependency>
--->
+
     </dependencies>
 
     <build>
@@ -82,7 +83,7 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <category>Geronimo Core</category>
+                    <category>Aries</category>
                 </configuration>
             </plugin>
         </plugins>
