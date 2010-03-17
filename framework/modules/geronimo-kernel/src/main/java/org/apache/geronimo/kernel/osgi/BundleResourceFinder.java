@@ -43,10 +43,10 @@ import org.osgi.service.packageadmin.PackageAdmin;
  */
 public class BundleResourceFinder {
    
-    private Bundle bundle;
-    private PackageAdmin packageAdmin;
-    private String prefix;
-    private String suffix;
+    private final Bundle bundle;
+    private final PackageAdmin packageAdmin;
+    private final String prefix;
+    private final String suffix;
     
     public BundleResourceFinder(PackageAdmin packageAdmin, Bundle bundle, String prefix, String suffix) {
         this.packageAdmin = packageAdmin;
@@ -57,11 +57,13 @@ public class BundleResourceFinder {
     
     public void find(ResourceFinderCallback callback) throws Exception {
         scanBundleClassPath(callback, bundle);
-        
-        Bundle[] fragments = packageAdmin.getFragments(bundle);
-        if (fragments != null) {
-            for (Bundle fragment : fragments) {
-                scanBundleClassPath(callback, fragment);
+
+        if (packageAdmin != null) {
+            Bundle[] fragments = packageAdmin.getFragments(bundle);
+            if (fragments != null) {
+                for (Bundle fragment : fragments) {
+                    scanBundleClassPath(callback, fragment);
+                }
             }
         }
     }
