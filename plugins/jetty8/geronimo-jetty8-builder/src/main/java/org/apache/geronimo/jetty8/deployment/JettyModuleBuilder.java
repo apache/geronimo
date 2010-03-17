@@ -81,6 +81,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -249,7 +250,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         String specDD = null;
         WebAppType webApp = null;
         
-        URL specDDUrl = bundle.getEntry("WEB-INF/web.xml");
+        URL specDDUrl = BundleUtils.getEntry(bundle, "WEB-INF/web.xml");
         if (specDDUrl == null) {
             webApp = WebAppType.Factory.newInstance();
         } else {

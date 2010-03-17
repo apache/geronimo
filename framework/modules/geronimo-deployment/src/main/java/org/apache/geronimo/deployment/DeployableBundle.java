@@ -18,6 +18,7 @@ package org.apache.geronimo.deployment;
 
 import java.net.URL;
 
+import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.osgi.framework.Bundle;
 
 /**
@@ -32,7 +33,7 @@ public class DeployableBundle implements Deployable {
     }
     
     public URL getResource(String name) {
-        return bundle.getEntry(name);
+        return BundleUtils.getEntry(bundle, name);
     }
     
     public void close() {        

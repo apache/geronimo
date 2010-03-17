@@ -19,7 +19,10 @@
 
 package org.apache.geronimo.kernel.osgi;
 
+import java.net.URL;
+import java.util.Collections;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -51,6 +54,66 @@ public class BundleUtils {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         if (classLoader instanceof BundleReference) {
             return ((BundleReference) classLoader).getBundle();
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Works like {@link Bundle#getEntryPaths(String)} but also returns paths
+     * in attached fragment bundles.
+     * 
+     * @param bundle
+     * @param name
+     * @return
+     */
+    public static Enumeration<String> getEntryPaths(Bundle bundle, String name) {
+        Enumeration<URL> entries = bundle.findEntries(name, null, false);
+        if (entries == null) {
+            return null;
+        }
+        LinkedHashSet<String> paths = new LinkedHashSet<String>();
+        while (entries.hasMoreElements()) {
+            URL url = entries.nextElement();
+            String path = url.getPath();
+            if (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+            paths.add(path);
+        }
+        return Collections.enumeration(paths);
+    }
+    
+    /**
+     * Works like {@link Bundle#getEntry(String)} but also checks
+     * attached fragment bundles for the given entry.
+     * 
+     * @param bundle
+     * @param name
+     * @return
+     */
+    public static URL getEntry(Bundle bundle, String name) {
+        if (name.equals("/")) {
+            return bundle.getEntry(name);
+        } else if (name.endsWith("/")) {
+             name = name.substring(0, name.length() - 1);       
+        }
+        String path;
+        String pattern;
+        int pos = name.lastIndexOf("/");
+        if (pos == -1) {
+            path = "/";
+            pattern = name;
+        } else if (pos == 0) {
+            path = "/";
+            pattern = name.substring(1);
+        } else {
+            path = name.substring(0, pos);
+            pattern = name.substring(pos + 1);
+        }
+        Enumeration<URL> entries = bundle.findEntries(path, pattern, false);
+        if (entries != null && entries.hasMoreElements()) {
+            return entries.nextElement();
         } else {
             return null;
         }
@@ -111,4 +174,5 @@ public class BundleUtils {
         }
         return null;
     }
+
 }

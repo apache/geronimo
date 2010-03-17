@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -148,8 +150,17 @@ public class MockBundle implements Bundle {
         return 0;
     }
 
-    public Enumeration findEntries(String s, String s1, boolean b) {
-        return null;
+    public Enumeration findEntries(String path, String pattern, boolean b) {
+        String p = path;        
+        if (!p.endsWith("/")) {
+            p += "/";
+        }
+        if (pattern != null) {
+            p += pattern;
+        }
+        ArrayList<URL> entries = new ArrayList<URL>();
+        entries.add(getEntry(p));
+        return Collections.enumeration(entries);
     }
 
     public BundleContext getBundleContext() {

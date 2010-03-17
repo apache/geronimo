@@ -43,6 +43,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceRegistration;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
+import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.geronimo.osgi.web.WebApplicationConstants;
 import org.apache.geronimo.osgi.web.WebApplicationUtils;
 
@@ -175,12 +176,12 @@ public class GeronimoWebAppContext extends WebAppContext {
     
     private Resource lookupResource(String uriInContext) {
         Bundle bundle = integrationContext.getBundle();
-        URL url = bundle.getEntry(uriInContext);
+        URL url = BundleUtils.getEntry(bundle, uriInContext);
         if (url == null) {
             return null;
         }
         if (uriInContext.endsWith("/")) {
-            Enumeration<String> paths = bundle.getEntryPaths(uriInContext);
+            Enumeration<String> paths = BundleUtils.getEntryPaths(bundle, uriInContext);
             return new BundlePathResource(url, paths);
         } else {
             return new BundleFileResource(url);

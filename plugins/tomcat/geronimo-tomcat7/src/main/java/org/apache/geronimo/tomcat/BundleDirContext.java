@@ -43,6 +43,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.naming.NameParserImpl;
 import org.apache.naming.StringManager;
 import org.apache.naming.resources.Constants;
@@ -546,7 +547,7 @@ public class BundleDirContext implements DirContext {
     public NamingEnumeration<NameClassPair> list(String name)
             throws NamingException {
         name = getName(name);
-        Enumeration entries = bundle.getEntryPaths(name);
+        Enumeration entries = BundleUtils.getEntryPaths(bundle, name);
         if (entries == null) {
             throw new NamingException("Resource not found: " + name);
         } else {
@@ -586,7 +587,7 @@ public class BundleDirContext implements DirContext {
     public NamingEnumeration<Binding> listBindings(String name)
             throws NamingException {
         name = getName(name);
-        Enumeration entries = bundle.getEntryPaths(name);
+        Enumeration entries = BundleUtils.getEntryPaths(bundle, name);
         if (entries == null) {
             throw new NamingException("Resource not found: " + name);
         } else {
@@ -1429,7 +1430,7 @@ public class BundleDirContext implements DirContext {
     protected Object doLookup(String name) throws NamingException {
         name = getName(name);
         // XXX: lookup on directory should return BundleDirContext?
-        URL url = bundle.getEntry(name);
+        URL url = BundleUtils.getEntry(bundle, name);
         if (url == null) {
             throw new NamingException(sm.getString("resources.notFound", name));
         }
