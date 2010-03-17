@@ -61,6 +61,16 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         
+        <!--
+        NOTE: Project version, to be used instead of ${pom.version} since that
+              value magically changes when using SNAPSHOT versions.
+
+              This value *must* be kept in sync with the value of the <version>
+              element, and it will need to be changed manually before a release,
+              as the maven-release-plugin will not update this value.
+        -->
+        <version>2.1.5-SNAPSHOT</version>
+        
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
 
@@ -71,8 +81,8 @@
         -->
         <openejbVersion>3.0.2-SNAPSHOT</openejbVersion>
         <derbyVersion>10.5.3.0_1</derbyVersion>
-        <externalTomcatVersion>6.0.20.0</externalTomcatVersion>
-        <tomcatVersion>6.0.20</tomcatVersion>
+        <externalTomcatVersion>6.0.26.1-SNAPSHOT</externalTomcatVersion>
+        <tomcatVersion>6.0.26</tomcatVersion>
         <eclipseVersion>3.3.0-v_771</eclipseVersion>
         <dojoVersion>1.0.2</dojoVersion>
         <dojoLegacyVersion>0.4.3</dojoLegacyVersion>
@@ -1226,12 +1236,6 @@
                 <groupId>org.eclipse.jdt</groupId>
                 <artifactId>core</artifactId>
                 <version>${eclipseVersion}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.tomcat.extras</groupId>
-                <artifactId>juli</artifactId>
-                <version>${tomcatVersion}</version>
             </dependency>
 
             <dependency>

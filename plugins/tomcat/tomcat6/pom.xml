@@ -99,7 +99,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat.extras</groupId>
+            <groupId>org.apache.geronimo.ext.tomcat</groupId>
             <artifactId>juli</artifactId>
         </dependency>
 
