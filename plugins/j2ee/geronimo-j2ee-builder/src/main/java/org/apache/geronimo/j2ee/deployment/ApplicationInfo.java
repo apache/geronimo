@@ -29,7 +29,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Revision$ $Date$
  */
-public class ApplicationInfo extends Module {
+public class ApplicationInfo extends Module<XmlObject, XmlObject> {
     private ConfigurationModuleType type;
     private LinkedHashSet<Module> modules;
     private ModuleList moduleLocations;

@@ -17,29 +17,31 @@
 
 package org.apache.geronimo.connector.wrapper;
 
-import javax.resource.spi.endpoint.MessageEndpointFactory;
-
-import org.apache.geronimo.gbean.DynamicGBean;
-import org.apache.geronimo.gbean.DynamicGBeanDelegate;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
+import org.apache.geronimo.gbean.DynamicGBean;
+import org.apache.geronimo.gbean.DynamicGBeanDelegate;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * 
  * @version $Revision$
  */
+
+@GBean(j2eeType = NameFactory.JCA_ACTIVATION_SPEC)
 public class ActivationSpecWrapperGBean extends ActivationSpecWrapper implements DynamicGBean {
 
     private final DynamicGBeanDelegate delegate;
 
-    public ActivationSpecWrapperGBean() {
-        delegate = null;
-    }
-
-    public ActivationSpecWrapperGBean(final String activationSpecClass, final String containerId, final ResourceAdapterWrapper resourceAdapterWrapper, final ClassLoader cl) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+    public ActivationSpecWrapperGBean(@ParamAttribute(name="activationSpecClass")final String activationSpecClass,
+                                      @ParamAttribute(name="containerId")final String containerId,
+                                      @ParamReference(name="ResourceAdapaterWrapper", namingType = NameFactory.RESOURCE_ADAPTER)final ResourceAdapterWrapper resourceAdapterWrapper,
+                                      @ParamSpecial(type = SpecialAttributeType.classLoader)final ClassLoader cl) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         super(activationSpecClass, containerId, resourceAdapterWrapper, cl);
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(activationSpec);
@@ -81,29 +83,6 @@ public class ActivationSpecWrapperGBean extends ActivationSpecWrapper implements
     public Object invoke(final String name, final Object[] arguments, final String[] types) throws Exception {
         //we have no dynamic operations.
         return null;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ActivationSpecWrapperGBean.class, NameFactory.JCA_ACTIVATION_SPEC);
-        infoBuilder.addAttribute("activationSpecClass", String.class, true);
-        infoBuilder.addAttribute("containerId", String.class, true);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoBuilder.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
-
-        infoBuilder.setConstructor(new String[]{
-            "activationSpecClass",
-            "containerId",
-            "ResourceAdapterWrapper",
-            "classLoader"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

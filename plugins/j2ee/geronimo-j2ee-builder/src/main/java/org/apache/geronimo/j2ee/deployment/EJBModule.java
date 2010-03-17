@@ -31,7 +31,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class EJBModule extends Module {
+public class EJBModule extends Module<XmlObject, XmlObject> {
     private AbstractName moduleCmpEngineName;
 
     public EJBModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, AnnotatedApp annotatedApp) {

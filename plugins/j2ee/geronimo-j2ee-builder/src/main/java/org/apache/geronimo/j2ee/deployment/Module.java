@@ -36,7 +36,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public abstract class Module {
+public abstract class Module<T, U> {
     private final boolean standAlone;
 
     private final AbstractName moduleName;
@@ -46,23 +46,23 @@ public abstract class Module {
     private final Deployable deployable;
     private final String targetPath;
     private final URI targetPathURI;
-    private final XmlObject vendorDD;
+    private final U vendorDD;
     private final String namespace;
 
     private EARContext earContext;
     private EARContext rootEarContext;
-    private XmlObject specDD;
+    private T specDD;
     private String originalSpecDD;
     private AnnotatedApp annotatedApp;
     private ClassFinder classFinder;
 
     protected final Map sharedContext = new HashMap();
 
-    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp) {
+    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, T specDD, U vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp) {
         this(standAlone, moduleName, environment, new DeployableJarFile(moduleFile), targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedApp);
     }
         
-    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, Deployable deployable, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp) {
+    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, Deployable deployable, String targetPath, T specDD, U vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp) {
         assert targetPath != null: "targetPath is null";
         assert moduleName != null: "moduleName is null";
 
@@ -138,11 +138,11 @@ public abstract class Module {
         return targetPathURI.resolve(path);
     }
 
-    public XmlObject getSpecDD() {
+    public T getSpecDD() {
         return specDD;
     }
 
-    public XmlObject getVendorDD() {
+    public U getVendorDD() {
         return vendorDD;
     }
 
@@ -193,7 +193,7 @@ public abstract class Module {
         return sharedContext;
     }
 
-    public void setSpecDD(XmlObject specDD) {
+    public void setSpecDD(T specDD) {
         this.specDD = specDD;
     }
 

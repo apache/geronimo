@@ -34,7 +34,7 @@ import org.apache.xmlbeans.XmlObject;
  *
  * @version $Rev$ $Date$
  */
-public class AppClientModule extends Module {
+public class AppClientModule extends Module<XmlObject, XmlObject> {
     private final Environment serverEnvironment;
     private JarFile earFile;
     private final AbstractName appClientName;

@@ -29,7 +29,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class WebModule extends Module {
+public class WebModule extends Module<XmlObject, XmlObject> {
     private final String contextRoot;
     public static final String WEB_APP_DATA = "WEB_APP_DATA";
 

@@ -353,18 +353,19 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     protected void basicInitContext(EARContext earContext, Module module, XmlObject gerWebApp, boolean hasSecurityRealmName) throws DeploymentException {
+        WebModule webModule = (WebModule) module;
         //complete manifest classpath
-        EARContext moduleContext = module.getEarContext();
+        EARContext moduleContext = webModule.getEarContext();
         ClassPathList manifestcp = (ClassPathList) moduleContext.getGeneralData().get(ClassPathList.class);
-        ModuleList moduleLocations = (ModuleList) module.getRootEarContext().getGeneralData().get(ModuleList.class);
-        URI baseUri = URI.create(module.getTargetPath());
+        ModuleList moduleLocations = (ModuleList) webModule.getRootEarContext().getGeneralData().get(ModuleList.class);
+        URI baseUri = URI.create(webModule.getTargetPath());
         URI resolutionUri = invertURI(baseUri);
-        earContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, resolutionUri, manifestcp, moduleLocations);
+        earContext.getCompleteManifestClassPath(webModule.getDeployable(), baseUri, resolutionUri, manifestcp, moduleLocations);
 
-        WebAppType webApp = (WebAppType) module.getSpecDD();
+        WebAppType webApp = (WebAppType) webModule.getSpecDD();
         if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0)) {
             if (!hasSecurityRealmName) {
-                throw new DeploymentException("web.xml for web app " + module.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
+                throw new DeploymentException("web.xml for web app " + webModule.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
             }
         }
         if (hasSecurityRealmName) {
@@ -373,20 +374,20 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         //TODO think about how to provide a default security realm name
         XmlObject[] securityElements = XmlBeansUtil.selectSubstitutionGroupElements(SECURITY_QNAME, gerWebApp);
         if (securityElements.length > 0 && !hasSecurityRealmName) {
-            throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
+            throw new DeploymentException("You have supplied a security configuration for web app " + webModule.getName() + " but no security-realm-name to allow login");
         }
-        getNamingBuilders().buildEnvironment(webApp, module.getVendorDD(), module.getEnvironment());
+        getNamingBuilders().buildEnvironment(webApp, webModule.getVendorDD(), webModule.getEnvironment());
         //this is silly
-        getNamingBuilders().initContext(webApp, gerWebApp, module);
+        getNamingBuilders().initContext(webApp, gerWebApp, webModule);
 
-        Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) module.getSpecDD(), ((WebModule) module).getContextRoot());
+        Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) webModule.getSpecDD(), webModule.getContextRoot());
 
-        Map sharedContext = module.getSharedContext();
+        Map sharedContext = webModule.getSharedContext();
         for (Object aWebServiceBuilder : webServiceBuilder) {
             WebServiceBuilder serviceBuilder = (WebServiceBuilder) aWebServiceBuilder;
-            serviceBuilder.findWebServices(module, false, servletNameToPathMap, module.getEnvironment(), sharedContext);
+            serviceBuilder.findWebServices(webModule, false, servletNameToPathMap, webModule.getEnvironment(), sharedContext);
         }
-        serviceBuilders.build(gerWebApp, earContext, module.getEarContext());
+        serviceBuilders.build(gerWebApp, earContext, webModule.getEarContext());
     }
 
     static URI invertURI(URI baseUri) {

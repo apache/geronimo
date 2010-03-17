@@ -99,7 +99,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     }
 
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
-        XmlObject container = module.getVendorDD();
+        XmlObject container = (XmlObject) module.getVendorDD();
         EARContext moduleContext = module.getEarContext();
         XmlObject[] raws = container.selectChildren(PERSISTENCE_QNAME);
 

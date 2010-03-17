@@ -185,7 +185,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             }
 
             public URL getSpecDD() throws MalformedURLException {
-                return new File(BASEDIR, "target/test-rar-10/dummy.xml").toURL();
+                return new File(BASEDIR, "target/test-rar-10/dummy.xml").toURI().toURL();
             }
 
             public File getRARFile() {
@@ -207,7 +207,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             }
 
             public URL getSpecDD() throws MalformedURLException {
-                return new File(BASEDIR, "target/test-rar-10/META-INF/ra.xml").toURL();
+                return new File(BASEDIR, "target/test-rar-10/META-INF/ra.xml").toURI().toURL();
             }
 
             public File getRARFile() {
@@ -229,7 +229,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             }
 
             public URL getSpecDD() throws MalformedURLException {
-                return new File(BASEDIR, "target/test-rar-10/META-INF/ra.xml").toURL();
+                return new File(BASEDIR, "target/test-rar-10/META-INF/ra.xml").toURI().toURL();
             }
 
             public File getRARFile() {

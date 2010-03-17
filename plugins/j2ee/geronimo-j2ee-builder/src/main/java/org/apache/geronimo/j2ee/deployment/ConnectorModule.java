@@ -31,8 +31,8 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class ConnectorModule extends Module {
-    public ConnectorModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, AnnotatedApp annotatedApp ) {
+public class ConnectorModule<T, U> extends Module<T, U> {
+    public ConnectorModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, T specDD, U vendorDD, String originalSpecDD, AnnotatedApp annotatedApp ) {
         super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, annotatedApp );
     }
 
