@@ -37,9 +37,7 @@
         <clientLogFile>${basedir}/target/client.log</clientLogFile>
     </properties>
 
-    <profiles>
-        <profile>
-            <id>child</id>
+
             
             <dependencies>
                 <dependency>
@@ -55,7 +53,11 @@
                     <type>jar</type>
                 </dependency>
             </dependencies>
-        
+            
+    <profiles>
+        <profile>
+            <id>child</id>
+            
             <build>
                 <plugins>
                   <plugin>

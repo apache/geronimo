@@ -28,11 +28,7 @@
     <artifactId>jpa-ear</artifactId>
     <name>Geronimo TestSuite :: Enterprise Testsuite :: JPA - EAR</name>
     <packaging>ear</packaging>
-
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
+          
             <dependencies>
                 <dependency>
                     <groupId>org.apache.geronimo.testsuite</groupId>
@@ -47,7 +43,11 @@
                     <type>war</type>
                 </dependency>
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+           
             <build>
                 <plugins>
                     <plugin>

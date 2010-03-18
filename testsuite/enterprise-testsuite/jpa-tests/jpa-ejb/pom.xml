@@ -28,11 +28,7 @@
     <artifactId>jpa-ejb</artifactId>
     <name>Geronimo TestSuite :: Enterprise Testsuite :: JPA - JAR</name>
     <packaging>ejb</packaging>
-
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
+   
             <dependencies>
                 <dependency>
                     <groupId>org.apache.geronimo.specs</groupId>
@@ -64,9 +60,12 @@
                     <artifactId>xercesImpl</artifactId>
                     <scope>provided</scope>
                 </dependency>
-        
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+                 
             <build>
                 <plugins>
                     <plugin>

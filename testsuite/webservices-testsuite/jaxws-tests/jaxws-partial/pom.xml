@@ -33,12 +33,7 @@
     <artifactId>jaxws-partial</artifactId>
     <name>Geronimo TestSuite :: WebServices TestSuite :: JAX-WS Partial</name>
     <packaging>war</packaging>
-
-    <profiles>
-        <profile>
-            <id>child</id>
-            
-                    
+         
             <dependencies>
                 <dependency>
                     <groupId>org.apache.axis2</groupId>
@@ -64,7 +59,11 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+            
             <build>
                 <plugins>
                     <plugin>

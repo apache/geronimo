@@ -34,12 +34,7 @@
         Geronimo test WAR for web references
     </description>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
             <dependencies>
-                
                 <dependency>
                     <groupId>${pom.groupId}</groupId>
                     <artifactId>web-references-ejb</artifactId>
@@ -77,9 +72,6 @@
                     <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
                     <scope>provided</scope>
                 </dependency>
-                
             </dependencies>
-
-        </profile>      
-    </profiles>            
+         
 </project>

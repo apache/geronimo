@@ -37,10 +37,6 @@
        <clientLogFile>${basedir}/target/client.log</clientLogFile>
     </properties>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-            
                     
             <dependencies>
                 <dependency>
@@ -49,7 +45,11 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+            
             <build>
                 <plugins>
         
@@ -99,13 +99,7 @@
                             </execution>
                         </executions>
                     </plugin>
-        
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>tools-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                    </plugin>
-        
+
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>

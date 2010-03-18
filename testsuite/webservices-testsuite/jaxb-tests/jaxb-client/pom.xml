@@ -37,10 +37,6 @@
        <clientLogFile>${basedir}/target/client.log</clientLogFile>
     </properties>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
             <dependencies>
                 <dependency>
                     <groupId>javax.xml.bind</groupId>
@@ -48,7 +44,11 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+                    
             <build>
                 <plugins>
         
@@ -84,12 +84,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-        
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>tools-maven-plugin</artifactId>
-                        <extensions>true</extensions>
                     </plugin>
         
                     <plugin>
@@ -147,7 +141,6 @@
                     </plugin>
                 </plugins>
             </build>
-
     
         </profile>      
     </profiles>

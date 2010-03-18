@@ -27,10 +27,6 @@
     <name>Geronimo TestSuite :: WebServices TestSuite :: JAX-RPC EJB</name>
     <packaging>jar</packaging>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
             <dependencies>
                 <dependency>
                     <groupId>org.apache.geronimo.specs</groupId>
@@ -65,7 +61,11 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+                    
             <build>
                 <plugins>
                     <plugin>
@@ -101,12 +101,6 @@
                                 </property>
                             </systemProperties>
                         </configuration>
-                    </plugin>
-        
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>tools-maven-plugin</artifactId>
-                        <extensions>true</extensions>
                     </plugin>
         
                     <plugin>

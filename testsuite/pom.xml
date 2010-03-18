@@ -235,6 +235,15 @@
                 </configuration>
             </plugin>
             
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>ianal-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Don't bother checking legal muck here, we never publish them. -->
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            
             <!-- Add this so that this should not get deployed during release plugin processing-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

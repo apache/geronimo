@@ -27,10 +27,6 @@
     <name>Geronimo TestSuite :: WebServices TestSuite :: JAX-RPC WAR</name>
     <packaging>war</packaging>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
             <dependencies>
                 <dependency>
                     <groupId>wsdl4j</groupId>
@@ -38,7 +34,11 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+                    
             <build>
                 <plugins>
                     <plugin>
@@ -75,13 +75,7 @@
                             </systemProperties>
                         </configuration>
                     </plugin>
-        
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>tools-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                    </plugin>
-        
+
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>

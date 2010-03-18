@@ -30,8 +30,7 @@
     
     <artifactId>geronimo-archetype-testsuite</artifactId>
     <name>Geronimo Build Support :: Testsuite Archetype</name>
-    <packaging>maven-plugin</packaging>
-    
+    <!--<packaging>maven-plugin</packaging>-->
     <description>Plugin to help create a testsuite</description>
 
 </project>

@@ -27,10 +27,6 @@
     <name>Geronimo TestSuite :: WebServices TestSuite :: JAX-RPC - JAX-WS WAR</name>
     <packaging>war</packaging>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
             <dependencies>
                 <dependency>
                     <groupId>org.apache.axis2</groupId>
@@ -53,7 +49,11 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+                    
             <build>
                 <plugins>
                     <plugin>
@@ -89,12 +89,6 @@
                                 </property>
                             </systemProperties>
                         </configuration>
-                    </plugin>
-        
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>tools-maven-plugin</artifactId>
-                        <extensions>true</extensions>
                     </plugin>
         
                     <plugin>

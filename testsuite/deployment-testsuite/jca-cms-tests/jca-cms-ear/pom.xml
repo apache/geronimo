@@ -27,10 +27,6 @@
     <name>Geronimo TestSuite :: Deployment Testsuite :: J2CA Container Managed Security EAR</name>
     <packaging>ear</packaging>
     
-    <profiles>
-        <profile>
-            <id>child</id>
-
             <dependencies>
                 <dependency>
                     <groupId>org.tranql</groupId>
@@ -44,7 +40,11 @@
                     <type>war</type>
                 </dependency>
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+                    
             <build>
                 <plugins>
                     <plugin>

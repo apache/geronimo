@@ -29,11 +29,7 @@
     <artifactId>jpa-war</artifactId>
     <name>Geronimo TestSuite :: Enterprise Testsuite :: JPA - WAR</name>
     <packaging>war</packaging>
-    
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
+
              <dependencies>
                 <dependency>
                     <groupId>org.apache.geronimo.testsuite</groupId>
@@ -68,6 +64,4 @@
                 </dependency>
             </dependencies>
 
-        </profile>      
-    </profiles>
 </project>

@@ -34,12 +34,7 @@
         Geronimo test WAR for Servlet forwarding
     </description>
     
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
             <dependencies>
-                
                 <dependency>
                     <groupId>org.apache.geronimo.specs</groupId>
                     <artifactId>geronimo-jsp_2.1_spec</artifactId>
@@ -51,9 +46,6 @@
                     <artifactId>geronimo-servlet_2.5_spec</artifactId>
                     <scope>provided</scope>
                 </dependency>
-                        
             </dependencies>
 
-        </profile>      
-    </profiles>    
 </project>

@@ -30,10 +30,6 @@
     <name>Geronimo TestSuite :: Enterprise Testsuite :: Security - WAR</name>
     <packaging>war</packaging>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
              <dependencies>
                 <dependency>
                     <groupId>org.apache.geronimo.testsuite</groupId>
@@ -63,7 +59,5 @@
                      <scope>provided</scope>
                  </dependency>
             </dependencies>
-            
-        </profile>      
-    </profiles>
+
 </project>

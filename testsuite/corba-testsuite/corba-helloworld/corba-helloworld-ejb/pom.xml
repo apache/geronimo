@@ -31,10 +31,6 @@
     <packaging>ejb</packaging>
     <description>Geronimo Hello World Enterprise Stateless EJB</description>
     
-    <profiles>
-        <profile>
-            <id>child</id>
-            
             <dependencies>
                 <dependency>
                     <groupId>org.apache.geronimo.specs</groupId>
@@ -43,6 +39,4 @@
                 </dependency>
             </dependencies>
 
-        </profile>
-    </profiles>
 </project>

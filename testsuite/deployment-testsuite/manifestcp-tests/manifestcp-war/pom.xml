@@ -27,7 +27,16 @@
     <artifactId>manifestcp-war</artifactId>
     <name>Geronimo TestSuite :: Deployment Testsuite :: Manifest Classpath WAR</name>
     <packaging>war</packaging>
-
+        
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.testsuite</groupId>
+                    <artifactId>manifestcp-war-jar</artifactId>
+                    <version>${version}</version>
+                    <optional>true</optional>
+                </dependency>
+            </dependencies>
+            
     <profiles>
         <profile>
             <id>child</id>
@@ -48,15 +57,6 @@
                     </plugin>
                 </plugins>
             </build>
-        
-            <dependencies>
-                <dependency>
-                    <groupId>org.apache.geronimo.testsuite</groupId>
-                    <artifactId>manifestcp-war-jar</artifactId>
-                    <version>${version}</version>
-                    <optional>true</optional>
-                </dependency>
-            </dependencies>
             
         </profile>
     </profiles>

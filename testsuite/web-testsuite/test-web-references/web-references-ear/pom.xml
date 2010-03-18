@@ -33,13 +33,8 @@
     <description>
         Geronimo test EAR for Web References
     </description>
-
-    <profiles>
-        <profile>
-            <id>child</id>
-                        
+ 
             <dependencies>
-                
                 <dependency>
                     <groupId>${pom.groupId}</groupId>
                     <artifactId>web-references-war</artifactId>
@@ -53,9 +48,12 @@
                     <version>${version}</version>
                     <type>ejb</type>
                 </dependency>
-                
             </dependencies>
-            
+
+    <profiles>
+        <profile>
+            <id>child</id>
+                       
             <build>
                 <plugins>
                     <plugin>

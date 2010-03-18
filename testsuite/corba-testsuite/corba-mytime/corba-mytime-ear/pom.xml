@@ -37,9 +37,6 @@
         <container>jetty6</container>
     </properties>
     
-    <profiles>
-        <profile>
-            <id>child</id>
 
             <dependencies>
                 <dependency>
@@ -61,6 +58,10 @@
                 </dependency>
             </dependencies>
         
+    <profiles>
+        <profile>
+            <id>child</id>
+
             <build>
                 <plugins>
         

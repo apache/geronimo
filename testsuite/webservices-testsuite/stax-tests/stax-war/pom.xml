@@ -32,13 +32,8 @@
     <packaging>war</packaging>
 
     <description>This project executes testcases for your testsuite</description>
-
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
+    
             <dependencies>
-        
         	    <dependency>
         	        <groupId>org.apache.geronimo.specs</groupId>
         	        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
@@ -50,9 +45,12 @@
                     <artifactId>geronimo-servlet_2.5_spec</artifactId>
                     <scope>provided</scope>
                 </dependency>
-        
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+                
             <build>
                 <plugins>
                     <plugin>
@@ -89,13 +87,7 @@
                             </systemProperties>
                         </configuration>
                     </plugin>
-        
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>tools-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                    </plugin>
-        
+
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>

@@ -188,40 +188,4 @@
         </repository>
     </repositories>
 
-    <build>
-        <plugins>
-            <!--
-            HACK: No legal files needed here... so don't fail the build if they are missing
-            -->
-            <plugin>
-                <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                <artifactId>tools-maven-plugin</artifactId>
-
-                <executions>
-                    <execution>
-                        <id>install-legal-files</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy-legal-files</goal>
-                        </goals>
-                        <configuration>
-                            <strict>false</strict>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>verify-legal-files</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>verify-legal-files</goal>
-                        </goals>
-                        <configuration>
-                            <strict>false</strict>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>

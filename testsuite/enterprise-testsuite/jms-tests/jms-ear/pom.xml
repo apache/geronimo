@@ -38,12 +38,8 @@
         Geronimo test EAR for JMS.
     </description>
     
-    <profiles>
-        <profile>
-            <id>child</id>
-            
+          
             <dependencies>
-        
                 <dependency>
                     <groupId>${pom.groupId}</groupId>
                     <artifactId>jms-war</artifactId>
@@ -68,6 +64,11 @@
                     <scope>test</scope>
                 </dependency>
             </dependencies>
+
+
+    <profiles>
+        <profile>
+            <id>child</id>
             
             <build>
                 <plugins>

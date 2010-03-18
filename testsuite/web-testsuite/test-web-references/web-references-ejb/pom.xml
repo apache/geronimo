@@ -38,20 +38,12 @@
         Geronimo test EJBs for J2EE 1.4.
     </description>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
             <dependencies>
-                
                 <dependency>
                     <groupId>org.apache.geronimo.specs</groupId>
                     <artifactId>geronimo-ejb_3.0_spec</artifactId>
                     <scope>provided</scope>
                 </dependency>
-                
             </dependencies>
 
-        </profile>      
-    </profiles>
 </project>

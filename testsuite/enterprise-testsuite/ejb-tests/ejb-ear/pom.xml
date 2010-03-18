@@ -37,10 +37,6 @@
     <description>
         Geronimo test EAR for EJB Tests
     </description>
-    
-    <profiles>
-        <profile>
-            <id>child</id>
             
             <dependencies>
                 <dependency>
@@ -68,7 +64,11 @@
                    <scope>test</scope>
                 </dependency>
             </dependencies>
-        
+    
+    <profiles>
+        <profile>
+            <id>child</id>
+              
             <build>
                 <plugins>
                     <plugin>

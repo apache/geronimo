@@ -33,10 +33,6 @@
     <packaging>jar</packaging>
     <description>Example using CORBA to access a stateless EJB</description>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-            
             <dependencies>
                 <dependency>
                     <groupId>${pom.groupId}</groupId>
@@ -51,7 +47,11 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+              
             <build>
                 <plugins>
                     <plugin>

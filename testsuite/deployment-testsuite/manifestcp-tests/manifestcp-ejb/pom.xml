@@ -26,11 +26,20 @@
     <artifactId>manifestcp-ejb</artifactId>
     <name>Geronimo TestSuite :: Deployment Testsuite :: Manifest Classpath EJB</name>
     <packaging>ejb</packaging>
+            
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.testsuite</groupId>
+                    <artifactId>manifestcp-jar</artifactId>
+                    <version>${version}</version>
+                    <optional>true</optional>
+                </dependency>
+            </dependencies>
     
     <profiles>
         <profile>
             <id>child</id>
-            
+                        
             <build>
                 <plugins>
                     <plugin>
@@ -46,16 +55,6 @@
                     </plugin>
                 </plugins>
             </build>
-        
-            <dependencies>
-                <dependency>
-                    <groupId>org.apache.geronimo.testsuite</groupId>
-                    <artifactId>manifestcp-jar</artifactId>
-                    <version>${version}</version>
-                    <optional>true</optional>
-                </dependency>
-            </dependencies>
-            
 
         </profile>
     </profiles>

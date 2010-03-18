@@ -32,10 +32,6 @@
     <name>Geronimo TestSuite :: CORBA TestSuite :: Hello World WAR</name>
     <packaging>war</packaging>
     <description>Geronimo Hello World Enterprise Web Application</description>
-
-    <profiles>
-        <profile>
-            <id>child</id>
             
             <dependencies>
                 <dependency>
@@ -56,6 +52,4 @@
                 </dependency>
             </dependencies>
 
-        </profile>
-    </profiles>
 </project>

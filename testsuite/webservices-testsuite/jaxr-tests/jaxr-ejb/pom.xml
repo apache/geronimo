@@ -35,10 +35,6 @@
 
     <description>This project executes testcases for your testsuite</description>
 
-    <profiles>
-        <profile>
-            <id>child</id>
-                    
             <dependencies>
                 <dependency>
                     <groupId>org.apache.geronimo.specs</groupId>
@@ -73,15 +69,14 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
-        
+
+    <profiles>
+        <profile>
+            <id>child</id>
+                    
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-                        <artifactId>tools-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                    </plugin>
-        
+
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>testsuite-maven-plugin</artifactId>

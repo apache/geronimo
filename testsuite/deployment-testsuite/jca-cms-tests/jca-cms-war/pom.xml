@@ -28,10 +28,6 @@
     <name>Geronimo TestSuite :: Deployment Testsuite :: J2CA Container Managed Security WAR</name>
     <packaging>war</packaging>
     
-    <profiles>
-        <profile>
-            <id>child</id>   
-            
             <dependencies>
                 <dependency>
                     <groupId>org.apache.geronimo.specs</groupId>
@@ -50,6 +46,10 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
+
+    <profiles>
+        <profile>
+            <id>child</id> 
             
             <build>
                 <plugins>
