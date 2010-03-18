@@ -84,7 +84,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.ext.tomcat</groupId>
+            <groupId>org.apache.tomcat.extras</groupId>
             <artifactId>juli</artifactId>
         </dependency>
 
