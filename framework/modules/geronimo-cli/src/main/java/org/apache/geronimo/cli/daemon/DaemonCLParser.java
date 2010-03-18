@@ -24,7 +24,6 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.geronimo.cli.BaseCLParser;
 import org.apache.geronimo.cli.PrintHelper;
 
-
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
@@ -38,12 +37,20 @@ public class DaemonCLParser extends BaseCLParser {
     private final static String ARGUMENT_MODULE_OVERRIDE_SHORTFORM = "o";
     private final static String ARGUMENT_MODULE_OVERRIDE = "override";
     
+    private final static String ARGUMENT_SECURE_SHORTFORM="s";
+    private final static String ARGUMENT_SECURE="secure";
+    
     public DaemonCLParser(OutputStream out) {
         super(out);
         addProgressOptions();
         addOverride();
+        addSecure();
     }
 
+    public boolean isSecure()
+    {
+        return commandLine.hasOption(ARGUMENT_SECURE_SHORTFORM);
+    }
     public boolean isNoProgress() {
         return commandLine.hasOption(ARGUMENT_NO_PROGRESS_SHORTFORM);
     }
@@ -79,6 +86,14 @@ public class DaemonCLParser extends BaseCLParser {
         Option option = optionBuilder.create(ARGUMENT_MODULE_OVERRIDE_SHORTFORM);
         options.addOption(option);
     }
+    
+    protected void addSecure() {
+        options.addOption(ARGUMENT_SECURE_SHORTFORM,
+                ARGUMENT_SECURE,
+                false,
+                "Use secure channel to communicate with the server.  Unsecured channel is used by default.");
+    }
+
 
     protected void addProgressOptions() {
         OptionGroup optionGroup = new OptionGroup();

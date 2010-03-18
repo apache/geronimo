@@ -18,16 +18,20 @@
 package org.apache.geronimo.system.main;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.cli.daemon.DaemonCLParser;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoEnvironment;
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -54,6 +58,11 @@ public class EmbeddedDaemon implements Main {
     private StartupMonitor monitor;
     private LifecycleMonitor lifecycleMonitor;
     private List<Artifact> configs = new ArrayList<Artifact>();
+    static String KEYSTORE_TRUSTSTORE_PASSWORD_FILE = "org.apache.geronimo.keyStoreTrustStorePasswordFile";
+    static String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION = "/var/security/keystores/geronimo-default";
+    static String GERONIMO_HOME = "org.apache.geronimo.home.dir";
+    static String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = System.getProperty(GERONIMO_HOME)
+            + "/var/config/config-substitutions.properties";
 
     public EmbeddedDaemon(Kernel kernel) {
         this.kernel = kernel;
@@ -66,6 +75,7 @@ public class EmbeddedDaemon implements Main {
         DaemonCLParser parser = (DaemonCLParser) opaque;
         initializeMonitor(parser);
         initializeOverride(parser);
+        initializeSecure(parser);
 
         long start = System.currentTimeMillis();
 
@@ -79,6 +89,40 @@ public class EmbeddedDaemon implements Main {
         return doStartup();
     }
 
+    protected void initializeSecure(DaemonCLParser parser)
+    {
+        if(parser.isSecure()){
+            try {
+                Properties props = new Properties();
+
+                String keyStorePassword = null;
+                String trustStorePassword = null;
+
+                FileInputStream fstream = new FileInputStream(System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE,
+                        DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
+                props.load(fstream);
+
+                keyStorePassword = (String) EncryptionManager.decrypt(props.getProperty("keyStorePassword"));
+                trustStorePassword = (String) EncryptionManager.decrypt(props.getProperty("trustStorePassword"));
+
+                fstream.close();
+
+                String value = System.getProperty("javax.net.ssl.keyStore", System.getProperty(GERONIMO_HOME)
+                        + DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+                String value1 = System.getProperty("javax.net.ssl.trustStore", System.getProperty(GERONIMO_HOME)
+                        + DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+                System.setProperty("javax.net.ssl.keyStore", value);
+                System.setProperty("javax.net.ssl.trustStore", value1);
+                System.setProperty("javax.net.ssl.keyStorePassword", keyStorePassword);
+                System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+            } 
+
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
     protected void initializeOverride(DaemonCLParser parser) {
         String[] override = parser.getOverride();
         if (null != override) {
