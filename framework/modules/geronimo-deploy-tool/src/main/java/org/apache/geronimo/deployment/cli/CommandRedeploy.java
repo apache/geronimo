@@ -39,7 +39,7 @@ import org.apache.geronimo.kernel.util.JarUtils;
 
 /**
  * The CLI deployer logic to redeploy.
- * 
+ *
  * @version $Rev$ $Date$
  */
 public class CommandRedeploy extends AbstractCommand {
@@ -150,7 +150,7 @@ public class CommandRedeploy extends AbstractCommand {
                 File plan = null;
                 test = new File(args[2]); // check whether args[2] is a module or a plan
                 checkFirstArguement(test);
-                if (FileUtils.isJarFile(test) || test.isDirectory()) {
+                if (JarUtils.isJarFile(test) || test.isDirectory()) {
                     if (module != null) {
                         throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
                     }
@@ -165,7 +165,7 @@ public class CommandRedeploy extends AbstractCommand {
                     test1 = new File(args[3]);
                     if (test1.exists() && test1.canRead()) // check if it is plan
                     {
-                        if (FileUtils.isJarFile(test1) || test1.isDirectory()) {
+                        if (JarUtils.isJarFile(test1) || test1.isDirectory()) {
                             if (module != null) {
                                 throw new DeploymentSyntaxException(
                                         "Module and plan cannot both be JAR files or directories!");
