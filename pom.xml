@@ -94,7 +94,7 @@
         <openjpaVersion>1.2.2</openjpaVersion>
         <xbeanVersion>3.6</xbeanVersion>
         <wadiVersion>2.0</wadiVersion>
-        <txmanagerVersion>2.1.4-SNAPSHOT</txmanagerVersion>
+        <txmanagerVersion>2.1.4</txmanagerVersion>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
