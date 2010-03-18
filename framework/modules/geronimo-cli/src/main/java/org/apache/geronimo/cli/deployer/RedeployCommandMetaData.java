@@ -26,7 +26,7 @@ public class RedeployCommandMetaData extends BaseCommandMetaData  {
     public static final CommandMetaData META_DATA = new RedeployCommandMetaData();
 
     private RedeployCommandMetaData() {
-        super("redeploy", "1. Common Commands", "[module] [plan] [ModuleID|TargetModuleID+]",
+        super("redeploy", "1. Common Commands", "[--targets target] [module] [plan] [ModuleID|TargetModuleID+]",
                 "A shortcut to undeploy a module from one or more servers, then " +
                 "deploy a new version.  This is not a smooth cutover -- some client " +
                 "requests may be rejected while the redeploy takes place.\n" +
@@ -42,7 +42,10 @@ public class RedeployCommandMetaData extends BaseCommandMetaData  {
                 "If no ModuleID or TargetModuleID is specified, and you're deploying to "+
                 "Geronimo, the deployer will attempt to guess the correct ModuleID for "+
                 "you based on the module and/or plan you provided.\n"+
-                "Note: To specify a TargetModuleID, use the form TargetName|ModuleName");
+                "Note: To specify a TargetModuleID, use the form TargetName|ModuleName" +
+                "Use --targets option only for clustering redeployment. " +
+                "For clustering redeployment you can find the target with deploy list-targets command. " +
+                "Copy the one with the name as MasterConfigurationStore and use it as a target variable.");
     }
     
     public CommandArgs parse(String[] newArgs) throws CLParserException {
