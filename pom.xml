@@ -1277,7 +1277,7 @@
             <dependency>
                 <groupId>org.apache.tomcat.extras</groupId>
                 <artifactId>juli</artifactId>
-                <version>${externalTomcatVersion}</version>
+                <version>${tomcatVersion}</version>
             </dependency>
 
             <!-- WADI support -->
