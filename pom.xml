@@ -140,9 +140,6 @@
         <PluginSrcRepoApacheSnapshots>http://repository.apache.org/snapshots/</PluginSrcRepoApacheSnapshots>
         <PluginSrcRepoApacheIncubating>http://people.apache.org/repo/m2-incubating-repository/</PluginSrcRepoApacheIncubating>
 
-        <!-- New Nexus repo settings from apache-6.pom -->
-        <distMgmtSnapshotsName>Apache Development Snapshot Repository</distMgmtSnapshotsName>
-        <distMgmtSnapshotsUrl>https://repository.apache.org/content/repositories/snapshots</distMgmtSnapshotsUrl>
         <organization.logo>http://www.apache.org/images/asf_logo_wide.gif</organization.logo>
     </properties>
 
@@ -2471,7 +2468,25 @@
             </plugin>
         </plugins>
     </reporting>
-
+    
+    <pluginRepositories>
+        <!-- required for clean build unless you want to bootstrap the car-maven-plugin -->
+        <pluginRepository>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshots Repository</name>
+            <url>http://repository.apache.org/snapshots</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+    
     <distributionManagement>
         <site>
             <id>geronimo-website</id>
