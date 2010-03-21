@@ -218,11 +218,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-finder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-naming</artifactId>
         <type>jar</type>
     </dependency>
