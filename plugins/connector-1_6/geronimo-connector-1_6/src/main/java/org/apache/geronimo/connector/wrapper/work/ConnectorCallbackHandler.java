@@ -92,8 +92,9 @@ public class ConnectorCallbackHandler implements CallbackHandler {
                             }
                         }
                     });
+                    passwordValidationCallback.setResult(true);
                 } catch (LoginException e) {
-                    throw (IOException)new IOException("Could not log in").initCause(e);
+                    passwordValidationCallback.setResult(false);
                 }
 
             }

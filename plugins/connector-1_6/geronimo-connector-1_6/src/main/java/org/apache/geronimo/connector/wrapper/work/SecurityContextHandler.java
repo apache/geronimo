@@ -24,6 +24,7 @@ import java.util.Stack;
 
 import javax.resource.spi.work.WorkCompletedException;
 import javax.resource.spi.work.SecurityContext;
+import javax.resource.spi.work.WorkContext;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
@@ -34,12 +35,15 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.connector.work.WorkContextHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 @GBean
 public class SecurityContextHandler implements WorkContextHandler<SecurityContext> {
+    private static final Logger log = LoggerFactory.getLogger(SecurityContextHandler.class);
 
     private final String realm;
     private final Subject defaultSubject;
@@ -53,12 +57,14 @@ public class SecurityContextHandler implements WorkContextHandler<SecurityContex
     };
 
     public SecurityContextHandler(@ParamAttribute(name="realm") String realm,
-                                        @ParamAttribute(name="defaultSubjectRealm")String defaultSubjectRealm,
+                                        @ParamAttribute(name="defaultSubjectRealm")String defaultSubjectRealm, 
                                         @ParamAttribute(name="defaultSubjectId")String defaultSubjectId,
                                         @ParamReference(name="DefaultCredentialStore") CredentialStore defaultCredentialStore,
                                         @ParamAttribute(name="serviceSubjectRealm")String serviceSubjectRealm,
                                         @ParamAttribute(name="serviceSubjectId")String serviceSubjectId,
                                         @ParamReference(name="ServiceCredentialStore")CredentialStore serviceCredentialStore) throws LoginException {
+        log.info("SecurityContextHandler set up with\n realm: {}\n defaultSubjectRealm: {}\n defaultSubjectId {}\n DefaultCredentialStore {}\n serviceSubjectRealm {}\n serviceSubjectId {}\n ServiceCredentialStore {}",
+               new Object[] {realm, defaultSubjectRealm, defaultSubjectId, defaultCredentialStore, serviceSubjectRealm, serviceSubjectId, serviceCredentialStore});
         if (defaultCredentialStore != null && defaultSubjectRealm != null && defaultSubjectId != null) {
             defaultSubject = defaultCredentialStore.getSubject(defaultSubjectRealm, defaultSubjectId);
         } else {
@@ -92,8 +98,8 @@ public class SecurityContextHandler implements WorkContextHandler<SecurityContex
         ContextManager.unregisterSubject(clientSubject);
     }
 
-    public Class<SecurityContext> getHandledClass() {
-        return SecurityContext.class;
+    public boolean supports(Class<? extends WorkContext> clazz) {
+        return SecurityContext.class.isAssignableFrom(clazz);
     }
 
     public boolean required() {

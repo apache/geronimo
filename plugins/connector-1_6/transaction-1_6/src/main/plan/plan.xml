@@ -54,6 +54,9 @@
         </reference>
     </gbean>
 
+    <gbean name="HintsContextHandler" class="org.apache.geronimo.connector.wrapper.work.HintsContextHandlerGBean">
+    </gbean>
+
     <gbean name="SecurityContextHandler" class="org.apache.geronimo.connector.wrapper.work.SecurityContextHandler">
         <attribute name="realm">geronimo-admin</attribute>
         <!--<attribute name="defaultSubjectRealm">geronimo-admin</attribute>-->
