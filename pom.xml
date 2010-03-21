@@ -79,7 +79,7 @@
         <xbeanVersion>3.7-SNAPSHOT</xbeanVersion>
         <jetty>jetty8</jetty>
 
-        <txmanagerVersion>2.2-SNAPSHOT</txmanagerVersion>
+        <txmanagerVersion>3.0-SNAPSHOT</txmanagerVersion>
 
         <monitoringConsoleVersion>${version}</monitoringConsoleVersion>
         <pax.logging.version>1.4.1-SNAPSHOT</pax.logging.version>
