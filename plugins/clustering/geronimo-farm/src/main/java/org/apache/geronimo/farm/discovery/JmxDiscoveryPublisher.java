@@ -29,6 +29,8 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.rmi.RMIRegistryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -36,6 +38,7 @@ import org.apache.geronimo.kernel.rmi.RMIRegistryService;
 @GBean
 public class JmxDiscoveryPublisher implements GBeanLifecycle {
 
+    private static final Logger log = LoggerFactory.getLogger(JmxDiscoveryPublisher.class);
     private final URI service;
     private final DiscoveryAgent discoveryAgent;
 
@@ -56,6 +59,8 @@ public class JmxDiscoveryPublisher implements GBeanLifecycle {
             query = (query == null? "": query + "&") + "cluster=" + clusterName;
         }
         service = new URI(discoveryType + ":" + protocol, null,  rmiRegistryService.getHost(), rmiRegistryService.getPort(), "/" + urlPath , query, null);
+        
+        log.info("Register service:"+service + " to discoveryAgent");
         discoveryAgent.registerService(service);
     }
 

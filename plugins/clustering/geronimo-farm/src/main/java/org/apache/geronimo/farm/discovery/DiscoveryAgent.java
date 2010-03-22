@@ -31,7 +31,10 @@ public interface DiscoveryAgent {
 
     /**
      * register a service
-     * @param serviceUri uri for new service
+     * @param serviceUri uri for new service. sample service uri:
+     *    farm:rmi://localhost:1109/JMXConnector?cluster=cluster1
+     *    cluster1:ejb:ejbd://localhost:4201
+     * 
      * @throws java.io.IOException on error
      */
     void registerService(URI serviceUri) throws IOException;

@@ -19,8 +19,8 @@ package org.apache.geronimo.farm.plugin;
 
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.farm.discovery.MulticastLocation;
-import org.apache.geronimo.farm.discovery.MulticastSearch;
+import org.apache.geronimo.farm.discovery.multicast.MulticastLocation;
+import org.apache.geronimo.farm.discovery.multicast.MulticastSearch;
 
 import java.io.InputStream;
 import java.io.OutputStream;

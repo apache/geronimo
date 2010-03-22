@@ -34,8 +34,34 @@
         <attribute name="useExponentialBackOff">false</attribute>
     </gbean>
     
-
-   <gbean name="DiscoveryAgent" class="org.apache.geronimo.farm.discovery.multicast.MulticastDiscoveryAgent">
+	<gbean name="NodeServiceTrackerClusteredServiceHolder" class="org.apache.geronimo.farm.service.NodeServiceTrackerClusteredServiceHolder">
+        <reference name="NodeServiceVitalsFactory">
+            <name>NodeServiceVitalsFactory</name>
+        </reference>  
+    </gbean>
+    
+    <gbean name="BasicWADISessionManagerHolder" class="org.apache.geronimo.clustering.wadi.BasicWADISessionManagerHolder">
+        <attribute name="serviceSpaceURI">farm://localhost:8080/serviceSpace/serviceTracker/</attribute>
+        <attribute name="sweepInterval">10</attribute>
+        <attribute name="sessionTimeout">3600</attribute>
+        <attribute name="numPartitions">24</attribute>
+        <attribute name="disableReplication">true</attribute>
+        <attribute name="deltaReplication">true</attribute>
+        <reference name="Cluster">
+            <name>DefaultCluster</name>
+        </reference>
+        <reference name="BackingStrategyFactory">
+            <name>DefaultBackingStrategyFactory</name>
+        </reference>
+        <references name="ServiceHolders">
+            <pattern>
+                <name>NodeServiceTrackerClusteredServiceHolder</name>
+            </pattern>
+        </references>
+        
+    </gbean>   
+    
+   <!--<gbean name="DiscoveryAgent" class="org.apache.geronimo.farm.discovery.multicast.MulticastDiscoveryAgent">
         <attribute name="heartRate">500</attribute>
         <attribute name="maxMissedHeartbeats">10</attribute>
         <attribute name="loopbackMode">false</attribute>
@@ -45,6 +71,14 @@
         <reference name="NodeServiceVitalsFactory">
             <name>NodeServiceVitalsFactory</name>
         </reference>  
+    </gbean>--> 
+
+   <gbean name="DiscoveryAgent" class="org.apache.geronimo.farm.discovery.wadi.WADIDiscoveryAgent">
+        <attribute name="heartRate">5000</attribute>
+        <attribute name="maxMissedHeartbeats">10</attribute>
+        <reference name="BasicWADISessionManagerHolder">
+            <name>BasicWADISessionManagerHolder</name>
+        </reference>
     </gbean>
     
     <gbean name="DiscoveryPublisher" class="org.apache.geronimo.farm.discovery.JmxDiscoveryPublisher">

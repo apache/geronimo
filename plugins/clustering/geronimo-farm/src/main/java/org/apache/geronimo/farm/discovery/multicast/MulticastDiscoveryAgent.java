@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.farm.discovery;
+package org.apache.geronimo.farm.discovery.multicast;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -36,12 +36,17 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.geronimo.farm.discovery.DiscoveryAgent;
+import org.apache.geronimo.farm.discovery.DiscoveryListener;
+import org.apache.geronimo.farm.service.NodeService;
+import org.apache.geronimo.farm.service.NodeServiceVitals;
+import org.apache.geronimo.farm.service.NodeServiceVitalsFactory;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -64,45 +69,30 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
     private boolean loopbackMode = false;
     private SocketAddress address;
 
-    private Map<String, Service> registeredServices = new ConcurrentHashMap<String, Service>();
+    private Map<String, NodeService> registeredServices = new ConcurrentHashMap<String, NodeService>();
 
     private int maxMissedHeartbeats = 10;
     private long heartRate = 500;
 
     private final Listener listener;
 
-    public MulticastDiscoveryAgent() {
-        listener = new Listener();
-    }
+    private final NodeServiceVitalsFactory serviceVitalsFactory;
 
-    // ---------------------------------
-    // Listenting specific settings
-    private long initialReconnectDelay = 1000 * 5;
-    private long maxReconnectDelay = 1000 * 30;
-    private long backOffMultiplier = 0;
-    private boolean useExponentialBackOff;
-    private int maxReconnectAttempts = 10; // todo: check this out
-    // ---------------------------------
+
 
     public MulticastDiscoveryAgent(@ParamReference(name="MulticastLocation")MulticastLocation location,
                                    @ParamAttribute(name="heartRate") long heartRate,
                                    @ParamAttribute(name="maxMissedHeartbeats") int maxMissedHeartbeats,
                                    @ParamAttribute(name="loopbackMode")  boolean loopbackMode,
-                                   @ParamAttribute(name="initialReconnectDelay") long initialReconnectDelay,
-                                   @ParamAttribute(name="maxReconnectDelay") long maxReconnectDelay,
-                                   @ParamAttribute(name="maxReconnectAttempts") int maxReconnectAttempts,
-                                   @ParamAttribute(name="backOffMultiplier") long backOffMultiplier,
-                                   @ParamAttribute(name="useExponentialBackOff") boolean useExponentialBackOff) {
+                                   @ParamReference(name="NodeServiceVitalsFactory") NodeServiceVitalsFactory serviceVitalsFactory
+) {
+        this.serviceVitalsFactory = serviceVitalsFactory;
         this.host = location.getHost();
         this.port = location.getPort();
         this.heartRate = heartRate;
         this.maxMissedHeartbeats = maxMissedHeartbeats;
         this.loopbackMode = loopbackMode;
-        this.initialReconnectDelay = initialReconnectDelay;
-        this.maxReconnectDelay = maxReconnectDelay;
-        this.maxReconnectAttempts = maxReconnectAttempts;
-        this.backOffMultiplier = backOffMultiplier;
-        this.useExponentialBackOff = useExponentialBackOff;
+
         listener = new Listener();
     }
 
@@ -124,13 +114,13 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
     }
 
     public void registerService(URI serviceUri) throws IOException {
-        Service service = new Service(serviceUri);
-        this.registeredServices.put(service.uriString, service);
+        NodeService service = new NodeService(serviceUri);
+        this.registeredServices.put(service.getUriString(), service);
     }
 
     public void unregisterService(URI serviceUri) throws IOException {
-        Service service = new Service(serviceUri);
-        this.registeredServices.remove(service.uriString);
+        NodeService service = new NodeService(serviceUri);
+        this.registeredServices.remove(service.getUriString());
     }
 
     public void reportFailed(URI serviceUri) throws IOException {
@@ -138,8 +128,8 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
     }
 
 
-    private boolean isSelf(Service service) {
-        return isSelf(service.uriString);
+    private boolean isSelf(NodeService service) {
+        return isSelf(service.getUriString());
     }
 
     private boolean isSelf(String service) {
@@ -206,116 +196,11 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
     }
 
 
-    class Service {
-        private final URI uri;
-        private final String uriString;
-
-        public Service(URI uri) {
-            this.uri = uri;
-            this.uriString = uri.toString();
-        }
-
-        public Service(String uriString) throws URISyntaxException {
-            this(new URI(uriString));
-        }
-    }
-
-    private class ServiceVitals {
-
-        private final Service service;
-
-        private long lastHeartBeat;
-        private long recoveryTime;
-        private int failureCount;
-        private boolean dead;
-
-        public ServiceVitals(Service service) {
-            this.service = service;
-            this.lastHeartBeat = System.currentTimeMillis();
-        }
-
-        public synchronized void heartbeat() {
-            lastHeartBeat = System.currentTimeMillis();
-
-            // Consider that the service recovery has succeeded if it has not
-            // failed in 60 seconds.
-            if (!dead && failureCount > 0 && (lastHeartBeat - recoveryTime) > 1000 * 60) {
-                if (log.isDebugEnabled()) {
-                    log.debug("I now think that the " + service + " service has recovered.");
-                }
-                failureCount = 0;
-                recoveryTime = 0;
-            }
-        }
-
-        public synchronized long getLastHeartbeat() {
-            return lastHeartBeat;
-        }
-
-        public synchronized boolean pronounceDead() {
-            if (!dead) {
-                dead = true;
-                failureCount++;
-
-                long reconnectDelay;
-                if (useExponentialBackOff) {
-                    reconnectDelay = (long) Math.pow(backOffMultiplier, failureCount);
-                    if (reconnectDelay > maxReconnectDelay) {
-                        reconnectDelay = maxReconnectDelay;
-                    }
-                } else {
-                    reconnectDelay = initialReconnectDelay;
-                }
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Remote failure of " + service + " while still receiving multicast advertisements.  " +
-                            "Advertising events will be suppressed for " + reconnectDelay
-                            + " ms, the current failure count is: " + failureCount);
-                }
-
-                recoveryTime = System.currentTimeMillis() + reconnectDelay;
-                return true;
-            }
-            return false;
-        }
-
-        /**
-         * @return true if this broker is marked failed and it is now the right
-         *         time to start recovery.
-         */
-        public synchronized boolean doRecovery() {
-            if (!dead) {
-                return false;
-            }
-
-            // Are we done trying to recover this guy?
-            if (maxReconnectAttempts > 0 && failureCount > maxReconnectAttempts) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Max reconnect attempts of the " + service + " service has been reached.");
-                }
-                return false;
-            }
-
-            // Is it not yet time?
-            if (System.currentTimeMillis() < recoveryTime) {
-                return false;
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug("Resuming event advertisement of the " + service + " service.");
-            }
-            dead = false;
-            return true;
-        }
-
-        public boolean isDead() {
-            return dead;
-        }
-    }
+  
 
 
     class Listener implements Runnable {
-        private Map<String, ServiceVitals> discoveredServices = new ConcurrentHashMap<String, ServiceVitals>();
+        private Map<String, NodeServiceVitals> discoveredServices = new ConcurrentHashMap<String, NodeServiceVitals>();
         private DiscoveryListener discoveryListener;
 
         public void setDiscoveryListener(DiscoveryListener discoveryListener) {
@@ -331,7 +216,7 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
                     multicast.receive(packet);
                     if (packet.getLength() > 0) {
                         String str = new String(packet.getData(), packet.getOffset(), packet.getLength());
-//                        System.out.println("read = " + str);
+                       System.out.println("read = " + str);
                         processData(str);
                     }
                 } catch (SocketTimeoutException se) {
@@ -352,15 +237,15 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
                 return;
             }
 
-            ServiceVitals vitals = discoveredServices.get(uriString);
+            NodeServiceVitals vitals = discoveredServices.get(uriString);
 
             if (vitals == null) {
                 try {
-                    vitals = new ServiceVitals(new Service(uriString));
+                    vitals = serviceVitalsFactory.createSerivceVitals(new NodeService(uriString));
 
                     discoveredServices.put(uriString, vitals);
 
-                    fireServiceAddEvent(vitals.service.uri);
+                    fireServiceAddEvent(vitals.getService().getUri());
                 } catch (URISyntaxException e) {
                     // don't continuously log this
                 }
@@ -369,19 +254,19 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
                 vitals.heartbeat();
 
                 if (vitals.doRecovery()) {
-                    fireServiceAddEvent(vitals.service.uri);
+                    fireServiceAddEvent(vitals.getService().getUri());
                 }
             }
         }
 
         private void checkServices() {
             long expireTime = System.currentTimeMillis() - (heartRate * maxMissedHeartbeats);
-            for (ServiceVitals serviceVitals : discoveredServices.values()) {
-                if (serviceVitals.getLastHeartbeat() < expireTime && !isSelf(serviceVitals.service)) {
+            for (NodeServiceVitals serviceVitals : discoveredServices.values()) {
+                if (serviceVitals.getLastHeartbeat() < expireTime && !isSelf(serviceVitals.getService())) {
 
-                    ServiceVitals vitals = discoveredServices.remove(serviceVitals.service.uriString);
+                    NodeServiceVitals vitals = discoveredServices.remove(serviceVitals.getService().getUriString());
                     if (vitals != null && !vitals.isDead()) {
-                        fireServiceRemovedEvent(vitals.service.uri);
+                        fireServiceRemovedEvent(vitals.getService().getUri());
                     }
                 }
             }
@@ -413,6 +298,7 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
         }
 
         private void fireServiceAddEvent(final URI uri) {
+            System.out.println("discoveryAgent.fireServiceAddEvent");
             if (discoveryListener != null) {
                 final DiscoveryListener discoveryListener = this.discoveryListener;
 
@@ -430,10 +316,10 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
         }
 
         public void reportFailed(URI serviceUri) {
-            final Service service = new Service(serviceUri);
-            ServiceVitals serviceVitals = discoveredServices.get(service.uriString);
+            final NodeService service = new NodeService(serviceUri);
+            NodeServiceVitals serviceVitals = discoveredServices.get(service.getUriString());
             if (serviceVitals != null && serviceVitals.pronounceDead()) {
-                fireServiceRemovedEvent(service.uri);
+                fireServiceRemovedEvent(service.getUri());
             }
         }
     }
@@ -452,7 +338,7 @@ public class MulticastDiscoveryAgent implements DiscoveryAgent, GBeanLifecycle {
                 try {
                     byte[] data = uri.getBytes();
                     DatagramPacket packet = new DatagramPacket(data, 0, data.length, address);
-//                    System.out.println("ann = " + uri);
+                    System.out.println("heart beat  = " + uri);
                     multicast.send(packet);
                     failed = null;
                 } catch (IOException e) {
