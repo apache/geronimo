@@ -812,7 +812,6 @@ public abstract class AbstractCarMojo
                         "org.apache.commons.jexl;version=\"1.1\"," +
                         "org.apache.commons.jexl.context;version=\"1.1\"," +
                         "org.apache.commons.jexl.resolver;version=\"1.1\"," +
-                        "org.apache.commons.logging;version=\"1.1.1\"," +
                         "org.apache.geronimo.cli," +
                         "org.apache.geronimo.cli.client," +
                         "org.apache.geronimo.cli.daemon," +
@@ -947,7 +946,11 @@ public abstract class AbstractCarMojo
         
         File storageDir = new File(basedir, "target/bundle-cache");
         properties.put(Constants.FRAMEWORK_STORAGE, storageDir.getAbsolutePath());
-        
+
+        if (log.isDebugEnabled()) {
+            properties.put("felix.log.level", "4");
+        }
+
         /* 
          * A hack for Equinox to restore FrameworkProperties to the initial state.
          * If the FrameworkProperties is not restored to the initial state, Equinox
