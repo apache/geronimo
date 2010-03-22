@@ -74,6 +74,6 @@ public class RequirementImpl implements Requirement {
     }
 
     public boolean isSatisfied(Capability capability) {
-        return filter.match(new MapToDictionary(capability.getProperties()));
+        return filter.match(new MapToDictionary(capability.getPropertiesAsMap()));
     }
 }

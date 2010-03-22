@@ -91,7 +91,7 @@ public class GeronimoOBRResolver implements AriesApplicationResolver {
             TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc),
                     new StreamResult(f));
 
-            appRepository = repositoryAdmin.repository(f.toURI().toURL());
+            appRepository = repositoryAdmin.getHelper().repository(f.toURI().toURL());
 
             f.delete();
         } catch (Exception e) {

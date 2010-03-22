@@ -66,9 +66,4 @@
         <artifactId>geronimo-jpa_2.0_spec</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-finder</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>

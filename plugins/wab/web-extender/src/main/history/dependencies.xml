@@ -141,9 +141,4 @@
         <artifactId>org.apache.servicemix.specs.saaj-api-1.3</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-finder</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>

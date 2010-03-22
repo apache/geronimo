@@ -58,7 +58,7 @@ public class ApplicationResourceImpl implements Resource {
             boolean optional = Boolean.valueOf(resolution);
 
             String f = ManifestHeaderProcessor.generateFilter(Resource.SYMBOLIC_NAME, c.getContentName(), c.getAttributes());
-            Filter filter = repositoryAdmin.filter(f);
+            Filter filter = repositoryAdmin.getHelper().filter(f);
             _requirements[i] = new RequirementImpl("bundle", filter, false, optional, false, comment);
         }
     }
@@ -105,5 +105,9 @@ public class ApplicationResourceImpl implements Resource {
 
     public boolean isLocal() {
         return false;
+    }
+
+    public Long getSize() {
+        return null;
     }
 }
