@@ -20,21 +20,25 @@
 
 package org.apache.geronimo.kernel.osgi;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.FileUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -151,18 +155,43 @@ public class MockBundle implements Bundle {
     }
 
     public Enumeration findEntries(String path, String pattern, boolean b) {
-        String p = path;        
-        if (!p.endsWith("/")) {
-            p += "/";
+        File base = getLocationFile();
+        if (base == null) {
+            return null;
+        }        
+        String filePattern = path;        
+        if (!filePattern.endsWith("/")) {
+            filePattern += "/";
         }
         if (pattern != null) {
-            p += pattern;
+            filePattern += pattern;
         }
-        ArrayList<URL> entries = new ArrayList<URL>();
-        entries.add(getEntry(p));
+        Set<URL> entries;
+        try {
+            entries = FileUtils.search(base, filePattern);
+        } catch (MalformedURLException e) {
+            entries = Collections.emptySet();
+        }
         return Collections.enumeration(entries);
     }
 
+    private File getLocationFile() {
+        if (location == null) {
+            return null;
+        }
+        File file = null;
+        if (location.startsWith("file:")) {
+            try {
+                file = new File( (new URI(location)).getPath() );
+            } catch (URISyntaxException e) {
+                // ignore
+            }            
+        } else {
+            file = new File(location);
+        }
+        return file;
+    }
+    
     public BundleContext getBundleContext() {
         // if no bundle context was provided, just give an empty Mock one
         if (bundleContext == null) {
