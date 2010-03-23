@@ -47,6 +47,7 @@
             <groupId>${pkgGroupId}</groupId>
             <artifactId>${pkgArtifactId}</artifactId>
             <version>${pkgVersion}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -100,6 +101,7 @@
                            META-INF.maven.org.apache.servicemix.bundles*;-split-package:=merge-first,
                            META-INF.services;-split-package:=merge-first,
                         </Private-Package>
+                        <Export-Provider>com.sun.xml.bind.v2.ContextFactory</Export-Provider>
                     </instructions>
                 </configuration>
             </plugin>
