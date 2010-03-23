@@ -43,4 +43,14 @@
         <module>transaction-1_6</module>
     </modules>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.aries.transaction</groupId>
+                <artifactId>org.apache.aries.transaction.blueprint</artifactId>
+                <version>0.1-incubating-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
 </project>

@@ -573,7 +573,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 
 
         // add fake TransactionManager so refs will resolve
-        GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.GBEAN_INFO);
+        GBeanData tm = bootstrap.addGBean("TransactionManager", GeronimoTransactionManagerGBean.class);
         tm.setAttribute("defaultTransactionTimeoutSeconds", 10);
 
         ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);

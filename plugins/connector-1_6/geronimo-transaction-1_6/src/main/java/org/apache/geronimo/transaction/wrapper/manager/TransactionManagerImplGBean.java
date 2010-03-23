@@ -19,13 +19,14 @@ package org.apache.geronimo.transaction.wrapper.manager;
 
 import javax.transaction.xa.XAException;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.apache.geronimo.transaction.manager.XidFactory;
 import org.apache.geronimo.transaction.manager.TransactionLog;
+import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.TransactionTimer;
+import org.apache.geronimo.transaction.manager.XidFactory;
 
 /**
  * Simple implementation of a transaction manager.  This does not include XATerminator or XAWork functionality:
@@ -33,37 +34,19 @@ import org.apache.geronimo.transaction.manager.TransactionTimer;
  *
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType=NameFactory.JTA_RESOURCE)
 public class TransactionManagerImplGBean extends TransactionManagerImpl {
 
     /**
      * TODO NOTE!!! this should be called in an unspecified transaction context, but we cannot enforce this restriction!
      */
-    public TransactionManagerImplGBean(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog) throws XAException {
+    public TransactionManagerImplGBean(@ParamAttribute(name="defaultTransactionTimeoutSeconds") int defaultTransactionTimeoutSeconds,
+                                       @ParamReference(name="XidFactory", namingType=NameFactory.XID_FACTORY) XidFactory xidFactory, 
+                                       @ParamReference(name="TransactionLog", namingType=NameFactory.TRANSACTION_LOG) TransactionLog transactionLog) throws XAException {
         super(defaultTransactionTimeoutSeconds, xidFactory, transactionLog);
         // Start the TransactionTimer$CurrentTime thread. This should avoid potential ClassLoader 
         // memory leaks caused by InheritableThreadLocals on the CurrentTime thread. See GERONIMO-4869 for more info.
         TransactionTimer.getCurrentTime();
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TransactionManagerImplGBean.class, NameFactory.JTA_RESOURCE);
-
-        infoBuilder.addAttribute("defaultTransactionTimeoutSeconds", int.class, true);
-        infoBuilder.addReference("XidFactory", XidFactory.class, NameFactory.XID_FACTORY);
-        infoBuilder.addReference("TransactionLog", TransactionLog.class, NameFactory.TRANSACTION_LOG);
-
-        infoBuilder.setConstructor(new String[]{
-                "defaultTransactionTimeoutSeconds",
-                "XidFactory",
-                "TransactionLog"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }
