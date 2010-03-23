@@ -69,6 +69,7 @@ import org.apache.geronimo.connector.wrapper.JCAResourceImplGBean;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterImplGBean;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterModuleImplGBean;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
+import org.apache.geronimo.connector.wrapper.outbound.GenericConnectionManagerGBean;
 import org.apache.geronimo.connector.wrapper.outbound.JCAConnectionFactoryImpl;
 import org.apache.geronimo.connector.wrapper.outbound.ManagedConnectionFactoryWrapper;
 import org.apache.geronimo.connector.wrapper.outbound.ManagedConnectionFactoryWrapperGBean;
@@ -517,81 +518,86 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 }
             }      
         }
-        if (raClass != null/*and not metadata complete */) {
-            //TODO configproperties
-        }
-
-        //inbound
-        log.info("connector of type: " + connector);
-        InboundResource inboundResource = connector.getResourceAdapter().getInboundResourceAdapter();
-        if (inboundResource == null) {
-            inboundResource = new InboundResource();
-            inboundResource.setMessageAdapter(new MessageAdapter());
-        }
-        MessageAdapter messageAdapter = inboundResource.getMessageAdapter();
-        List<Class> activationSpecClasses = classFinder.findAnnotatedClasses(Activation.class);
-
-        for (Class<?> asClass: activationSpecClasses) {
-            Activation activation = asClass.getAnnotation(Activation.class);
-            for (Class messageListenerClass: activation.messageListeners()) {
-                MessageListener messageListener = new MessageListener();
-                messageListener.setMessageListenerType(messageListenerClass.getName());
-                ActivationSpec activationSpec = new ActivationSpec();
-                activationSpec.setActivationSpecClass(asClass.getName());
-                //TODO set required config properties from @NotNull annotations
-                messageListener.setActivationSpec(activationSpec);
-                messageAdapter.getMessageListener().add(messageListener);
+        if (connector.isMetadataComplete() != null && connector.isMetadataComplete()) {
+            log.info("Connector is metadata complete");
+        } else {
+            log.info("Reading connector annotations");
+            if (raClass != null/*and not metadata complete */) {
                 //TODO configproperties
             }
-        }
-        if (connector.getResourceAdapter().getInboundResourceAdapter() == null && inboundResource.getMessageAdapter().getMessageListener().size() > 0) {
-            connector.getResourceAdapter().setInboundResourceAdapter(inboundResource);
-        }
 
-        //admin objects
-        for (Class adminObjectClass: classFinder.findAnnotatedClasses(AdministeredObject.class)) {
-            AdministeredObject administeredObject = (AdministeredObject) adminObjectClass.getAnnotation(AdministeredObject.class);
-            Class[] interfaces = administeredObject.adminObjectInterfaces();
-            if (interfaces == null || interfaces.length == 0) {
-                List<Class> allInterfaces = new ArrayList<Class>(Arrays.asList(adminObjectClass.getInterfaces()));
-                allInterfaces.remove(Serializable.class);
-                allInterfaces.remove(Externalizable.class);
-                //TODO check if specified in ra.xml
-                if (allInterfaces.size() != 1) {
-                    throw new DeploymentException("Interface for admin object not specified properly: " + allInterfaces);
+            //inbound
+            log.info("connector of type: " + connector);
+            InboundResource inboundResource = connector.getResourceAdapter().getInboundResourceAdapter();
+            if (inboundResource == null) {
+                inboundResource = new InboundResource();
+                inboundResource.setMessageAdapter(new MessageAdapter());
+            }
+            MessageAdapter messageAdapter = inboundResource.getMessageAdapter();
+            List<Class> activationSpecClasses = classFinder.findAnnotatedClasses(Activation.class);
+
+            for (Class<?> asClass: activationSpecClasses) {
+                Activation activation = asClass.getAnnotation(Activation.class);
+                for (Class messageListenerClass: activation.messageListeners()) {
+                    MessageListener messageListener = new MessageListener();
+                    messageListener.setMessageListenerType(messageListenerClass.getName());
+                    ActivationSpec activationSpec = new ActivationSpec();
+                    activationSpec.setActivationSpecClass(asClass.getName());
+                    //TODO set required config properties from @NotNull annotations
+                    messageListener.setActivationSpec(activationSpec);
+                    messageAdapter.getMessageListener().add(messageListener);
+                    //TODO configproperties
                 }
-                interfaces = allInterfaces.toArray(new Class[1]);
             }
-            for (Class aoInterface: interfaces) {
-                AdminObject adminObject = new AdminObject();
-                adminObject.setAdminObjectInterface(aoInterface.getName());
-                adminObject.setAdminObjectClass(adminObjectClass.getName());
-                //TODO configproperties
-                adminObject.getConfigProperty();
-                connector.getResourceAdapter().getAdminObject().add(adminObject);
+            if (connector.getResourceAdapter().getInboundResourceAdapter() == null && inboundResource.getMessageAdapter().getMessageListener().size() > 0) {
+                connector.getResourceAdapter().setInboundResourceAdapter(inboundResource);
             }
-        }
 
-        OutboundResourceAdapter outboundResourceAdapter = connector.getResourceAdapter().getOutboundResourceAdapter();
-        if (outboundResourceAdapter == null) {
-            outboundResourceAdapter = new OutboundResourceAdapter();
-        }
+            //admin objects
+            for (Class adminObjectClass: classFinder.findAnnotatedClasses(AdministeredObject.class)) {
+                AdministeredObject administeredObject = (AdministeredObject) adminObjectClass.getAnnotation(AdministeredObject.class);
+                Class[] interfaces = administeredObject.adminObjectInterfaces();
+                if (interfaces == null || interfaces.length == 0) {
+                    List<Class> allInterfaces = new ArrayList<Class>(Arrays.asList(adminObjectClass.getInterfaces()));
+                    allInterfaces.remove(Serializable.class);
+                    allInterfaces.remove(Externalizable.class);
+                    //TODO check if specified in ra.xml
+                    if (allInterfaces.size() != 1) {
+                        throw new DeploymentException("Interface for admin object not specified properly: " + allInterfaces);
+                    }
+                    interfaces = allInterfaces.toArray(new Class[1]);
+                }
+                for (Class aoInterface: interfaces) {
+                    AdminObject adminObject = new AdminObject();
+                    adminObject.setAdminObjectInterface(aoInterface.getName());
+                    adminObject.setAdminObjectClass(adminObjectClass.getName());
+                    //TODO configproperties
+                    adminObject.getConfigProperty();
+                    connector.getResourceAdapter().getAdminObject().add(adminObject);
+                }
+            }
 
-        //outbound
-        for (Class<? extends ManagedConnectionFactory> mcfClass: classFinder.findAnnotatedClasses(javax.resource.spi.ConnectionDefinition.class)) {
-            javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation = mcfClass.getAnnotation(javax.resource.spi.ConnectionDefinition.class);
-            ConnectionDefinition connectionDefinition = buildConnectionDefinition(mcfClass, connectionDefinitionAnnotation);
-            outboundResourceAdapter.getConnectionDefinition().add(connectionDefinition);
-        }
-        for (Class<? extends ManagedConnectionFactory> mcfClass: classFinder.findAnnotatedClasses(ConnectionDefinitions.class)) {
-            ConnectionDefinitions connectionDefinitionAnnotations = mcfClass.getAnnotation(ConnectionDefinitions.class);
-            for (javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation: connectionDefinitionAnnotations.value()) {
+            OutboundResourceAdapter outboundResourceAdapter = connector.getResourceAdapter().getOutboundResourceAdapter();
+            if (outboundResourceAdapter == null) {
+                outboundResourceAdapter = new OutboundResourceAdapter();
+            }
+
+            //outbound
+            for (Class<? extends ManagedConnectionFactory> mcfClass: classFinder.findAnnotatedClasses(javax.resource.spi.ConnectionDefinition.class)) {
+                javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation = mcfClass.getAnnotation(javax.resource.spi.ConnectionDefinition.class);
                 ConnectionDefinition connectionDefinition = buildConnectionDefinition(mcfClass, connectionDefinitionAnnotation);
                 outboundResourceAdapter.getConnectionDefinition().add(connectionDefinition);
             }
-        }
-        if (outboundResourceAdapter.getConnectionDefinition().size() >0) {
-            connector.getResourceAdapter().setOutboundResourceAdapter(outboundResourceAdapter);
+            for (Class<? extends ManagedConnectionFactory> mcfClass: classFinder.findAnnotatedClasses(ConnectionDefinitions.class)) {
+                ConnectionDefinitions connectionDefinitionAnnotations = mcfClass.getAnnotation(ConnectionDefinitions.class);
+                for (javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation: connectionDefinitionAnnotations.value()) {
+                    ConnectionDefinition connectionDefinition = buildConnectionDefinition(mcfClass, connectionDefinitionAnnotation);
+                    outboundResourceAdapter.getConnectionDefinition().add(connectionDefinition);
+                }
+            }
+            if (outboundResourceAdapter.getConnectionDefinition().size() >0) {
+                connector.getResourceAdapter().setOutboundResourceAdapter(outboundResourceAdapter);
+            }
         }
 
 
@@ -1025,7 +1031,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         return editor.getValue();
     }
 
-    private AbstractName configureConnectionManager(EARContext earContext, AbstractName jcaResourceName, String ddTransactionSupport, GerConnectiondefinitionInstanceType connectionfactoryInstance, Bundle bundle) throws DeploymentException {
+    private AbstractName configureConnectionManager(EARContext earContext, AbstractName managedConnectionFactoryName, String ddTransactionSupport, GerConnectiondefinitionInstanceType connectionfactoryInstance, Bundle bundle) throws DeploymentException {
 //        if (connectionfactoryInstance.getConnectionmanagerRef() != null) {
         //we don't configure anything, just use the supplied gbean
 //            try {
@@ -1036,16 +1042,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 //        }
 
         // create the object name for our connection manager
-        AbstractName connectionManagerAbstractName = earContext.getNaming().createChildName(jcaResourceName, connectionfactoryInstance.getName().trim(), NameFactory.JCA_CONNECTION_MANAGER);
+        AbstractName connectionManagerAbstractName = earContext.getNaming().createChildName(managedConnectionFactoryName, connectionfactoryInstance.getName().trim(), NameFactory.JCA_CONNECTION_MANAGER);
 
         // create the data holder for our connection manager
-        GBeanInfo gbeanInfo;
-        try {
-            gbeanInfo = GBeanInfo.getGBeanInfo("org.apache.geronimo.connector.wrapper.outbound.GenericConnectionManagerGBean", bundle);
-        } catch (InvalidConfigurationException e) {
-            throw new DeploymentException("Unable to create GMBean", e);
-        }
-        GBeanData connectionManagerGBean = new GBeanData(connectionManagerAbstractName, gbeanInfo);
+        GBeanData connectionManagerGBean = new GBeanData(connectionManagerAbstractName, GenericConnectionManagerGBean.class);
 
         //we configure our connection manager
         GerConnectionmanagerType connectionManager = connectionfactoryInstance.getConnectionmanager();
@@ -1114,6 +1114,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerName());
             connectionManagerGBean.setAttribute("containerManagedSecurity", connectionManager.isSetContainerManagedSecurity());
             connectionManagerGBean.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
+            connectionManagerGBean.setReferencePattern("ManagedConnectionFactory", managedConnectionFactoryName);
         } catch (Exception e) {
             throw new DeploymentException("Problem setting up ConnectionManager named " + connectionfactoryInstance.getName().trim(), e);
         }
@@ -1130,8 +1131,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         GBeanData managedConnectionFactoryInstanceGBeanData = new GBeanData(managedConnectionFactoryPrototypeGBeanData);
         AbstractName connectionFactoryAbstractName = earContext.getNaming().createChildName(jcaResourceName, connectiondefinitionInstance.getName().trim(), NameFactory.JCA_CONNECTION_FACTORY);
         AbstractName managedConnectionFactoryAbstractName = earContext.getNaming().createChildName(connectionFactoryAbstractName, connectiondefinitionInstance.getName().trim(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
-        // ConnectionManager
-        AbstractName connectionManagerAbstractName = configureConnectionManager(earContext, managedConnectionFactoryAbstractName, transactionSupport, connectiondefinitionInstance, bundle);
 
         // ManagedConnectionFactory
         setDynamicGBeanDataAttributes(managedConnectionFactoryInstanceGBeanData, connectiondefinitionInstance.getConfigPropertySettingArray(), bundle);
@@ -1152,7 +1151,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             if (resourceAdapterAbstractName != null) {
                 managedConnectionFactoryInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterAbstractName);
             }
-            managedConnectionFactoryInstanceGBeanData.setReferencePattern("ConnectionManagerContainer", connectionManagerAbstractName);
             //additional interfaces implemented by connection factory
             String[] implementedInterfaces = connectiondefinitionInstance.getImplementedInterfaceArray();
             if (implementedInterfaces != null) {
@@ -1174,10 +1172,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Could not add managed connection factory gbean to context", e);
         }
+        // ConnectionManager
+        AbstractName connectionManagerName = configureConnectionManager(earContext, managedConnectionFactoryAbstractName, transactionSupport, connectiondefinitionInstance, bundle);
 
         // ConnectionFactory
         GBeanData connectionFactoryGBeanData = new GBeanData(connectionFactoryAbstractName, JCAConnectionFactoryImpl.class);
-        connectionFactoryGBeanData.setReferencePattern("JCAManagedConnectionFactory", managedConnectionFactoryAbstractName);
+        connectionFactoryGBeanData.setReferencePattern("ConnectionManager", connectionManagerName);
 
         try {
             earContext.addGBean(connectionFactoryGBeanData);

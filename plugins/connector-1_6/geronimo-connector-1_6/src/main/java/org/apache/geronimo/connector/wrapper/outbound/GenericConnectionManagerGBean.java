@@ -24,6 +24,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
+import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 import javax.security.auth.Subject;
 import org.apache.geronimo.connector.outbound.GenericConnectionManager;
@@ -46,6 +47,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 
@@ -64,13 +66,15 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
                                          @ParamAttribute(name="containerManagedSecurity")boolean containerManagedSecurity,
                                          @ParamReference(name="ConnectionTracker", namingType = NameFactory.JCA_CONNECTION_TRACKER)ConnectionTracker connectionTracker,
                                          @ParamReference(name="TransactionManager", namingType = NameFactory.JTA_RESOURCE)RecoverableTransactionManager transactionManager,
+                                         @ParamReference(name="ManagedConnectionFactory", namingType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY)ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper,
                                          @ParamSpecial(type= SpecialAttributeType.objectName)String objectName,
                                          @ParamSpecial(type= SpecialAttributeType.abstractName)AbstractName abstractName,
                                          @ParamSpecial(type= SpecialAttributeType.classLoader)ClassLoader classLoader,
                                          @ParamSpecial(type= SpecialAttributeType.kernel)Kernel kernel) {
-        super(transactionSupport, pooling, getSubjectSource(containerManagedSecurity), connectionTracker, transactionManager, objectName, classLoader);
+        super(transactionSupport, pooling, getSubjectSource(containerManagedSecurity), connectionTracker, transactionManager, managedConnectionFactoryWrapper.getManagedConnectionFactory(), objectName, classLoader);
         this.kernel = kernel;
         this.abstractName = abstractName;
+        doRecovery();
     }
 
     public GenericConnectionManagerGBean() {

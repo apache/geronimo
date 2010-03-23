@@ -28,6 +28,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.sql.DataSource;
 
+import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -101,7 +103,7 @@ public class SQLLoginModule implements LoginModule {
     private String connectionURL;
     private Properties properties;
     private Driver driver;
-    private JCAManagedConnectionFactory factory;
+    private DataSource dataSource;
     private String userSelect;
     private String groupSelect;
     private String digest;
@@ -155,21 +157,21 @@ public class SQLLoginModule implements LoginModule {
             }
             String kernelName = (String) options.get(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION);
             Kernel kernel = KernelRegistry.getKernel(kernelName);
-            Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(JCAManagedConnectionFactory.class.getName()));
-            JCAManagedConnectionFactory factory;
+            Map<String, String> nameMap = new HashMap<String, String>();
+            nameMap.put("name", dataSourceName);
+            nameMap.put("J2EEApplication", dataSourceAppName);
+            nameMap.put("j2eeType", "JCAConnectionManager");
+            Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(null, nameMap));
             for (AbstractName name : set) {
-                if (name.getName().get("J2EEApplication").equals(dataSourceAppName) &&
-                        name.getName().get("name").equals(dataSourceName)) {
-                    try {
-                        factory = (JCAManagedConnectionFactory) kernel.getGBean(name);
-                        String type = factory.getConnectionFactoryInterface();
-                        if (type.equals(DataSource.class.getName())) {
-                            this.factory = factory;
-                            break;
-                        }
-                    } catch (GBeanNotFoundException e) {
-                        // ignore... GBean was unregistered
-                    }
+                try {
+                    dataSource = (DataSource) kernel.invoke(name, "createConnectionFactory");
+                    break;
+                } catch (GBeanNotFoundException e) {
+                    // ignore... GBean was unregistered
+                } catch (NoSuchOperationException e) {
+
+                } catch (Exception e) {
+
                 }
             }
         } else {
@@ -224,9 +226,8 @@ public class SQLLoginModule implements LoginModule {
 
         try {
             Connection conn;
-            if (factory != null) {
-                DataSource ds = (DataSource) factory.getConnectionFactory();
-                conn = ds.getConnection();
+            if (dataSource != null) {
+                conn = dataSource.getConnection();
             } else {
                 conn = driver.connect(connectionURL, properties);
             }

@@ -19,6 +19,7 @@ package org.apache.geronimo.connector.wrapper.outbound;
 import java.util.Hashtable;
 
 import javax.management.ObjectName;
+import javax.resource.ResourceException;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
@@ -28,47 +29,76 @@ import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.naming.ResourceSource;
 
 /**
  * @version $Rev$ $Date$
  */
 @GBean(j2eeType = NameFactory.JCA_CONNECTION_FACTORY)
-public class JCAConnectionFactoryImpl implements JCAConnectionFactory {
+public class JCAConnectionFactoryImpl implements JCAConnectionFactory, ResourceSource<ResourceException> {
     private final String objectName;
-    private final JCAManagedConnectionFactory managedConnectionFactory;
+    private final GenericConnectionManagerGBean connectionManager;
 
     public JCAConnectionFactoryImpl(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
-                                    @ParamReference(name = "JCAManagedConnectionFactory", namingType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY) JCAManagedConnectionFactory managedConnectionFactory) {
+                                    @ParamReference(name = "ConnectionManager", namingType = NameFactory.JCA_CONNECTION_MANAGER) GenericConnectionManagerGBean connectionManager) {
         ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
         this.objectName = objectName;
-        this.managedConnectionFactory = managedConnectionFactory;
+        this.connectionManager = connectionManager;
     }
 
+    @Override
     public String getManagedConnectionFactory() {
-        return managedConnectionFactory.getObjectName();
+        return ((JCAManagedConnectionFactory)connectionManager.getManagedConnectionFactory()).getObjectName();
     }
 
+    @Override
     public JCAManagedConnectionFactory getManagedConnectionFactoryInstance() {
-        return managedConnectionFactory;
+        return ((JCAManagedConnectionFactory)connectionManager.getManagedConnectionFactory());
     }
 
+    @Override
     public String getObjectName() {
         return objectName;
     }
 
+    @Override
     public boolean isStateManageable() {
         return false;
     }
 
+    @Override
     public boolean isStatisticsProvider() {
         return false;
     }
 
+    @Override
     public boolean isEventProvider() {
         return false;
     }
+
+    @Override
+    public Object getConnectionManager() {
+        return connectionManager;
+    }
+
+    @Override
+    public Object createConnectionFactory() throws Exception {
+        return connectionManager.createConnectionFactory();
+    }
+
+    @Override
+    public Object $getResource() throws ResourceException {
+        try {
+            return createConnectionFactory();
+        } catch (ResourceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResourceException("Should not happen", e);
+        }
+    }
+
 
     /**
      * ObjectName must match this pattern:
@@ -96,4 +126,5 @@ public class JCAConnectionFactoryImpl implements JCAConnectionFactory {
 //            throw new InvalidObjectNameException("JCAConnectionFactory object name can only have j2eeType, name, JCAResource, and J2EEServer properties", objectName);
 //        }
     }
+
 }

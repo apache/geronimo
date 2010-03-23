@@ -41,7 +41,7 @@ import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 /**
  * @version $Rev$ $Date$
  */
-public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, JCAManagedConnectionFactory, ResourceSource<ResourceException> {
+public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, JCAManagedConnectionFactory {
 
     private static final Logger log = LoggerFactory.getLogger(ManagedConnectionFactoryWrapper.class);
 
@@ -55,7 +55,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     private final LinkedHashSet<Class> allImplementedInterfaces = new LinkedHashSet<Class>();
 
     private final ResourceAdapterWrapper resourceAdapterWrapper;
-    private final ConnectionManagerContainer connectionManagerContainer;
 
     private ManagedConnectionFactory managedConnectionFactory;
 
@@ -80,7 +79,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         objectName = null;
         classLoader = null;
         resourceAdapterWrapper = null;
-        connectionManagerContainer = null;
     }
 
     public ManagedConnectionFactoryWrapper(String managedConnectionFactoryClass,
@@ -90,7 +88,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
                                            String connectionInterface,
                                            String connectionImplClass,
                                            ResourceAdapterWrapper resourceAdapterWrapper,
-                                           ConnectionManagerContainer connectionManagerContainer,
                                            Kernel kernel,
                                            AbstractName abstractName,
                                            String objectName,
@@ -108,7 +105,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         }
 
         this.resourceAdapterWrapper = resourceAdapterWrapper;
-        this.connectionManagerContainer = connectionManagerContainer;
 
         //set up that must be done before start
         classLoader = cl;
@@ -149,10 +145,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         return resourceAdapterWrapper;
     }
 
-    public Object getConnectionManagerContainer() {
-        return connectionManagerContainer;
-    }
-
     public void doStart() throws Exception {
         //register with resource adapter
         if (managedConnectionFactory instanceof ResourceAdapterAssociation) {
@@ -162,7 +154,10 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             resourceAdapterWrapper.registerResourceAdapterAssociation((ResourceAdapterAssociation) managedConnectionFactory);
             log.debug("Registered managedConnectionFactory with ResourceAdapter " + resourceAdapterWrapper.toString());
         }
-        connectionManagerContainer.doRecovery(managedConnectionFactory);
+    }
+
+    public ManagedConnectionFactory getManagedConnectionFactory() {
+        return managedConnectionFactory;
     }
 
     public void doStop() {
@@ -198,28 +193,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     public Object invoke(String name, Object[] arguments, String[] types) throws Exception {
         //we have no dynamic operations.
         return null;
-    }
-
-    public Object getConnectionFactory() throws ResourceException {
-        return $getConnectionFactory();
-    }
-
-    public Object $getResource() throws ResourceException {
-        return $getConnectionFactory();
-    }
-
-    public Object $getConnectionFactory() throws ResourceException {
-        Object connectionFactory =  connectionManagerContainer.createConnectionFactory(managedConnectionFactory);
-        for (Class intf: allImplementedInterfaces) {
-            if (!intf.isAssignableFrom(connectionFactory.getClass())) {
-                throw new ResourceException("ConnectionFactory does not implement expected interface: " + intf.getName());
-            }
-        }
-        return connectionFactory;
-    }
-
-    public ManagedConnectionFactory $getManagedConnectionFactory() {
-        return managedConnectionFactory;
     }
 
     /**

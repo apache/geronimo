@@ -178,7 +178,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 } else if (JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
                     j2eeType = NameFactory.JAXR_CONNECTION_FACTORY;
                 } else {
-                    j2eeType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY;
+                    j2eeType = NameFactory.JCA_CONNECTION_FACTORY;
                 }
                 try {
                     AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, null, gerResourceRef);

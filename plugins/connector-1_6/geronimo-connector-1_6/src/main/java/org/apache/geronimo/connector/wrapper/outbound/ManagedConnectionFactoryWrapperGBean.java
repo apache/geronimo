@@ -47,7 +47,6 @@ public class ManagedConnectionFactoryWrapperGBean {
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
-        infoFactory.addReference("ConnectionManagerContainer", ConnectionManagerContainer.class, NameFactory.JCA_CONNECTION_MANAGER);
 
         infoFactory.setConstructor(new String[]{
             "managedConnectionFactoryClass",
@@ -57,7 +56,6 @@ public class ManagedConnectionFactoryWrapperGBean {
             "connectionInterface",
             "connectionImplClass",
             "ResourceAdapterWrapper",
-            "ConnectionManagerContainer",
             "kernel",
             "abstractName",
             "objectName",

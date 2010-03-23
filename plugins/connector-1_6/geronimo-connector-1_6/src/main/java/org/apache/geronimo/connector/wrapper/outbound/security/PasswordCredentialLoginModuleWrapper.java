@@ -52,7 +52,7 @@ public class PasswordCredentialLoginModuleWrapper extends LoginModuleGBean {
         if (options == null) {
             options = new HashMap<String, Object>();
         }
-        ManagedConnectionFactory managedConnectionFactory = managedConnectionFactoryWrapper.$getManagedConnectionFactory();
+        ManagedConnectionFactory managedConnectionFactory = managedConnectionFactoryWrapper.getManagedConnectionFactory();
         options.put(MANAGED_CONNECTION_FACTORY_OPTION, managedConnectionFactory);
         return options;
     }

@@ -46,9 +46,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.geronimo.management.geronimo.JCAAdminObject;
-import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,14 +111,26 @@ public abstract class JMSMessageHelper {
     }
 
     protected ConnectionFactory getConnectionFactory(PortletRequest portletRequest, JMSDestinationInfo destinationInfo) throws JMSException {
-        JCAManagedConnectionFactory[] jcaManagedConnectionFactories = PortletManager.getOutboundFactoriesForRA(portletRequest, destinationInfo.getResourceAdapterModuleAbName(), destinationInfo
-                .getType().getConnectionFactoryInterfaces());
-        if (jcaManagedConnectionFactories != null && jcaManagedConnectionFactories.length > 0) {
-            try {
-                return (ConnectionFactory) (jcaManagedConnectionFactories[0].getConnectionFactory());
-            } catch (Exception e) {
+        ResourceAdapterModule module = (ResourceAdapterModule) PortletManager.getManagedBean(portletRequest, destinationInfo.getResourceAdapterModuleAbName());
+        for (ResourceAdapter adapter: module.getResourceAdapterInstances()) {
+            for (JCAResource resource: adapter.getJCAResourceImplementations()) {
+                for (JCAConnectionFactory jcacf: resource.getConnectionFactoryInstances()) {
+                    try {
+                        return (ConnectionFactory) jcacf.createConnectionFactory();
+                    } catch (Exception e) {
+                        //try another
+                    }
+                }
             }
         }
+//        JCAManagedConnectionFactory[] jcaManagedConnectionFactories = PortletManager.getOutboundFactoriesForRA(portletRequest, destinationInfo.getResourceAdapterModuleAbName(), destinationInfo
+//                .getType().getConnectionFactoryInterfaces());
+//        if (jcaManagedConnectionFactories != null && jcaManagedConnectionFactories.length > 0) {
+//            try {
+//                return (ConnectionFactory) (jcaManagedConnectionFactories[0].getConnectionFactory());
+//            } catch (Exception e) {
+//            }
+//        }
         return null;
     }
 

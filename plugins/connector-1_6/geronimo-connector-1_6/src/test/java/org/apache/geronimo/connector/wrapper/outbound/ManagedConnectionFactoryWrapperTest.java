@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import javax.resource.cci.Connection;
@@ -34,6 +35,7 @@ import org.apache.geronimo.connector.mock.MockConnectionFactory;
 import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
+import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
@@ -46,6 +48,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.osgi.framework.BundleContext;
@@ -59,9 +62,10 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     private AbstractName managedConnectionFactoryName;
     private static final String KERNEL_NAME = "testKernel";
     private static final String TARGET_NAME = "testCFName";
+    private AbstractName connectionManagerName;
 
     public void testProxy() throws Exception {
-        Object proxy = kernel.invoke(managedConnectionFactoryName, "$getResource");
+        Object proxy = kernel.invoke(connectionManagerName, "createConnectionFactory");
         assertNotNull(proxy);
         assertTrue(proxy instanceof ConnectionFactory);
         Connection connection = ((ConnectionFactory) proxy).getConnection();
@@ -81,7 +85,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     }
 
     public void XtestSerialization() throws Exception {
-        ConnectionFactory proxy = (ConnectionFactory) kernel.invoke(managedConnectionFactoryName, "$getResource");
+        ConnectionFactory proxy = (ConnectionFactory) kernel.invoke(connectionManagerName, "$getResource");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(proxy);
@@ -107,6 +111,20 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
 
     }
 
+    public void testConnectionManagerSerialization() throws Exception {
+        Object cm = kernel.getGBean(connectionManagerName);
+        assertTrue(cm instanceof GenericConnectionManagerGBean);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(baos);
+        out.writeObject(cm);
+        out.flush();
+        byte[] bytes = baos.toByteArray();
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        ObjectInputStream in = new ObjectInputStream(bais);
+        Object cm2 = in.readObject();
+        assertSame(cm, cm2);
+    }
+
     protected void setUp() throws Exception {
         super.setUp();
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
@@ -118,12 +136,6 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         AbstractName ctcName = ctc.getAbstractName();
         kernel.loadGBean(ctc, bundleContext);
 
-        GBeanData cmf = buildGBeanData("name", "ConnectionManagerContainer", GenericConnectionManagerGBean.class);
-        AbstractName cmfName = cmf.getAbstractName();
-        cmf.setAttribute("transactionSupport", NoTransactions.INSTANCE);
-        cmf.setAttribute("pooling", new NoPool());
-        cmf.setReferencePattern("ConnectionTracker", ctcName);
-        kernel.loadGBean(cmf, bundleContext);
 
 
         GBeanData mcfw = buildGBeanData("name", TARGET_NAME, ManagedConnectionFactoryWrapperGBean.class);
@@ -135,12 +147,20 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         mcfw.setAttribute("connectionInterface", Connection.class.getName());
         mcfw.setAttribute("connectionImplClass", MockConnection.class.getName());
         //"ResourceAdapterWrapper",
-        mcfw.setReferencePattern("ConnectionManagerContainer", cmfName);
+//        mcfw.setReferencePattern("ConnectionManagerContainer", cmfName);
         //"ManagedConnectionFactoryListener",
         kernel.loadGBean(mcfw, bundleContext);
 
+        GBeanData cmf = buildGBeanData("name", "ConnectionManagerContainer", GenericConnectionManagerGBean.class);
+        connectionManagerName = cmf.getAbstractName();
+        cmf.setAttribute("transactionSupport", NoTransactions.INSTANCE);
+        cmf.setAttribute("pooling", new NoPool());
+        cmf.setReferencePattern("ConnectionTracker", ctcName);
+        cmf.setReferencePattern("ManagedConnectionFactory", managedConnectionFactoryName);
+        kernel.loadGBean(cmf, bundleContext);
+
         kernel.startGBean(ctcName);
-        kernel.startGBean(cmfName);
+        kernel.startGBean(connectionManagerName);
         kernel.startGBean(managedConnectionFactoryName);
     }
     private GBeanData buildGBeanData(String key, String value, Class info) {
