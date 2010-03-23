@@ -47,14 +47,14 @@ public class GeronimoApplicationContext implements AriesApplicationContext {
     }
 
     public void start() throws BundleException {
-        applicationGBean.getBundle().start();
+        applicationGBean.applicationStart();
     }
 
     public void stop() throws BundleException {
-        applicationGBean.getBundle().stop();
+        applicationGBean.applicationStop();
     }
   
     protected void uninstall() {
-        applicationGBean.uninstall();
+        applicationGBean.applicationUninstall();
     }
 }

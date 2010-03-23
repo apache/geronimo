@@ -90,6 +90,10 @@ public class ApplicationInstaller implements GBeanLifecycle {
         doStop();
     }
                 
+    protected ConfigurationManager getConfigurationManager() {
+        return configurationManager;
+    }
+    
     public DeploymentContext startInstall(AriesApplication app, ConfigurationStore targetConfigurationStore) 
         throws ConfigurationAlreadyExistsException, DeploymentException {
                                 
@@ -120,6 +124,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
                         
             AbstractName name = naming.createChildName(moduleName, "AriesApplication", "GBean");
             GBeanData data = new GBeanData(name, ApplicationGBean.class);
+            data.setAttribute("configId", configId);
             data.setReferencePattern("Installer", abstractName);
             
             context.addGBean(data);

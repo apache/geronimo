@@ -33,11 +33,13 @@ import org.apache.aries.application.management.ManagementException;
 import org.apache.aries.application.management.AriesApplicationContext.ApplicationState;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.osgi.BundleUtils;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -54,34 +56,38 @@ public class ApplicationGBean implements GBeanLifecycle {
         
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationGBean.class);
     
-    private BundleContext bundleContext;
-    private ApplicationInstaller installer;
+    private final Bundle bundle;
+    private final ApplicationInstaller installer;
+    private final Artifact configId;
     private GeronimoApplication application;
     private ApplicationState applicationState;
     private Set<Bundle> applicationBundles;
     
     public ApplicationGBean(@ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
-                            @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
+                            @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
+                            @ParamAttribute(name="configId") Artifact configId, 
                             @ParamReference(name="Installer") ApplicationInstaller installer) 
         throws Exception {
-        this.bundleContext = bundleContext;
+        this.bundle = bundle;
         this.installer = installer;
+        this.configId = configId;
                 
         // XXX: fix me
-        DeploymentMetadataFactory deploymentFactory = getDeploymentMetadataFactory();
-        ApplicationMetadataFactory applicationFactory = getApplicationMetadataFactory();
+        BundleContext bundleContext = bundle.getBundleContext();
+        DeploymentMetadataFactory deploymentFactory = getDeploymentMetadataFactory(bundleContext);
+        ApplicationMetadataFactory applicationFactory = getApplicationMetadataFactory(bundleContext);
         
-        this.application = new GeronimoApplication(bundleContext.getBundle(), applicationFactory, deploymentFactory);
+        this.application = new GeronimoApplication(bundle, applicationFactory, deploymentFactory);
         
         install();
         
         GeronimoApplicationContextManager applicationManager = 
-            (GeronimoApplicationContextManager) getApplicationContextManager();
+            (GeronimoApplicationContextManager) getApplicationContextManager(bundleContext);
         applicationManager.registerApplicationContext(new GeronimoApplicationContext(this));
     }
     
     protected Bundle getBundle() {
-        return bundleContext.getBundle();
+        return bundle;
     }
     
     protected AriesApplication getAriesApplication() {
@@ -96,7 +102,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         return applicationState;
     }
         
-    private AriesApplicationContextManager getApplicationContextManager() {
+    private AriesApplicationContextManager getApplicationContextManager(BundleContext bundleContext) {
         ServiceReference ref = 
             bundleContext.getServiceReference(AriesApplicationContextManager.class.getName());
         if (ref != null) {
@@ -106,7 +112,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         }
     }
     
-    private DeploymentMetadataFactory getDeploymentMetadataFactory() {
+    private DeploymentMetadataFactory getDeploymentMetadataFactory(BundleContext bundleContext) {
         ServiceReference ref = 
             bundleContext.getServiceReference(DeploymentMetadataFactory.class.getName());
         if (ref != null) {
@@ -116,7 +122,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         }
     }
     
-    private ApplicationMetadataFactory getApplicationMetadataFactory() {
+    private ApplicationMetadataFactory getApplicationMetadataFactory(BundleContext bundleContext) {
         ServiceReference ref = 
             bundleContext.getServiceReference(ApplicationMetadataFactory.class.getName());
         if (ref != null) {
@@ -128,6 +134,8 @@ public class ApplicationGBean implements GBeanLifecycle {
     
     private void install() throws Exception {
 
+        BundleContext bundleContext = bundle.getBundleContext();
+        
         AriesApplicationResolver resolver = null;
 
         ServiceReference ref = bundleContext.getServiceReference(AriesApplicationResolver.class.getName());
@@ -242,7 +250,25 @@ public class ApplicationGBean implements GBeanLifecycle {
         doStop();
     }
    
-    protected void uninstall() {
+    protected void applicationStart() throws BundleException {
+        try {
+            installer.getConfigurationManager().loadConfiguration(configId);
+            installer.getConfigurationManager().startConfiguration(configId);
+        } catch (Exception e) {
+            throw new BundleException("Failed to start application", e);            
+        }
+    }
+    
+    protected void applicationStop() throws BundleException {
+        try {
+            installer.getConfigurationManager().unloadConfiguration(configId);
+            bundle.stop();
+        } catch (Exception e) {
+            throw new BundleException("Failed to start application", e);            
+        }
+    }
+    
+    protected void applicationUninstall() {
         LOG.debug("Uninstalling {}", application.getApplicationMetadata().getApplicationScope());
         
         // uninstall application bundles
@@ -260,7 +286,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         
         // uninstall application bundle         
         try {
-            bundleContext.getBundle().uninstall();
+            bundle.uninstall();
         } catch (Exception e) {
             e.printStackTrace();
         }        
