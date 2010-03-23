@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,7 @@ public class MultiParentClassLoader extends URLClassLoader {
     private final String[] hiddenResources;
     private final String[] nonOverridableResources;
     private boolean destroyed = false;
-    private Set<String> resourcesNotFound = new HashSet<String>();
+    private Map<String,Object> resourcesNotFound = new ConcurrentHashMap<String,Object>();
 
     // I used this pattern as its temporary and with the static final we get compile time 
     // optimizations.
@@ -552,7 +553,7 @@ public class MultiParentClassLoader extends URLClassLoader {
     }
 
     public URL getResource(String name) {
-        if (isDestroyed() || resourcesNotFound.contains(name)) {
+        if (isDestroyed() || resourcesNotFound.containsKey(name)) {
             return null;
         }
 
@@ -594,12 +595,9 @@ public class MultiParentClassLoader extends URLClassLoader {
 
         // 
         // Resource not found -- no need to search for it again
+        // Use the name as key and value. We don't care about the value and it needs to be non-null.
         // 
-        if (!resourcesNotFound.contains(name)) {
-            synchronized(resourcesNotFound) {
-                resourcesNotFound.add(name);
-            }
-        }
+        resourcesNotFound.put(name, name);
 
         return null;
     }
