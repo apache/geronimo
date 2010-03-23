@@ -62,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxb_2.1_spec</artifactId>
+            <artifactId>geronimo-jaxb_2.2_spec</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -122,7 +122,7 @@
                     </adminobject>
                 </connector>
             </resource>
-            <gbean name="mail/MailSession" class="org.apache.geronimo.mail.MailGBean">
+            <gbean name="mail/MailSession" class="org.apache.geronimo.resource.mail.MailGBean">
                 <attribute name="properties">
                 mail.smtp.host=mail.apache.com
                 </attribute>

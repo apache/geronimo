@@ -20,14 +20,14 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="mail/MailSession" class="org.apache.geronimo.mail.MailGBean">
+    <gbean name="mail/MailSession" class="org.apache.geronimo.resource.mail.MailGBean">
         <attribute name="transportProtocol">smtp</attribute>
       <!--TODO osgi:jndi -->
         <!--<attribute name="jndiName">ger:MailSession</attribute>-->
         <reference name="Protocols"/>
     </gbean>
 
-    <gbean name="SMTPTransport" class="org.apache.geronimo.mail.SMTPTransportGBean">
+    <gbean name="SMTPTransport" class="org.apache.geronimo.resource.mail.SMTPTransportGBean">
         <attribute name="host">localhost</attribute>
         <attribute name="port">25</attribute>
     </gbean>

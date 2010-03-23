@@ -26,9 +26,4 @@
         <artifactId>geronimo-jaxws-builder</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-jaxb_2.1_spec</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>

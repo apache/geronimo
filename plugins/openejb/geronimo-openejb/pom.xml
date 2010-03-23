@@ -96,8 +96,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.jaxb-impl</artifactId>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>jaxb-impl</artifactId>
         </dependency>
 
         <dependency>

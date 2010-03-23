@@ -31,14 +31,14 @@
     <artifactId>geronimo-deployment</artifactId>
     <packaging>bundle</packaging>
     <name>Geronimo Framework, Modules :: Deployment</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
@@ -49,8 +49,13 @@
         <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.servicemix.specs</groupId>
-            <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxb_2.2_spec</artifactId>
         </dependency>
 
         <dependency>
@@ -73,6 +78,6 @@
         </dependency>
 
     </dependencies>
-    
+
 </project>
 

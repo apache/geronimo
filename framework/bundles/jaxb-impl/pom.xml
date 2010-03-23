@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <!--
 
@@ -29,8 +28,8 @@
     </parent>
 
     <groupId>org.apache.geronimo.bundles</groupId>
-    <artifactId>sxc-jaxb</artifactId>
-    <version>0.7.2_1-SNAPSHOT</version>
+    <artifactId>jaxb-impl</artifactId>
+    <version>2.2-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Apache Geronimo Bundles: ${pkgArtifactId}-${pkgVersion}</name>
     <description>
@@ -38,9 +37,9 @@
     </description>
 
     <properties>
-        <pkgGroupId>com.envoisolutions.sxc</pkgGroupId>
-        <pkgArtifactId>sxc-jaxb</pkgArtifactId>
-        <pkgVersion>0.7.2</pkgVersion>
+        <pkgGroupId>com.sun.xml.bind</pkgGroupId>
+        <pkgArtifactId>jaxb-impl</pkgArtifactId>
+        <pkgVersion>2.1.12</pkgVersion>
     </properties>
 
     <dependencies>
@@ -48,29 +47,31 @@
             <groupId>${pkgGroupId}</groupId>
             <artifactId>${pkgArtifactId}</artifactId>
             <version>${pkgVersion}</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.1_spec</artifactId>
-            <!--<optional>true</optional>-->
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxb_2.2_spec</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <optional>true</optional>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxb_2.2_spec</artifactId>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>java.net</id>
+            <name>java.net Maven Repository</name>
+            <url>http://download.java.net/maven/1/</url>
+            <layout>legacy</layout>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
@@ -79,9 +80,26 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Export-Package>com.envoisolutions.sxc*;version="0.7.2"</Export-Package>
-                        <Import-Package>com.envoisolutions.sxc.builder*;resolution:=optional,com.envoisolutions.sxc.compiler*;resolution:=optional,com.sun.codemodel*;resolution:=optional,com.sun.xml.fastinfoset*;resolution:=optional,com.sun.xml.txw2*;resolution:=optional,org.jvnet.fastinfoset*;resolution:=optional,org.jvnet.staxex*;resolution:=optional,sun.misc*;resolution:=optional,*</Import-Package>
-                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                        <Export-Package>
+                           com.sun.xml.bind*;-split-package:=merge-first,
+                           com.sun.istack*;-split-package:=merge-first,
+                           com.sun.xml.txw2*;-split-package:=merge-first
+                        </Export-Package>
+                        <Import-Package>
+                           !com.sun.xml.bind*,
+                           !com.sun.istack*,
+                           !com.sun.xml.txw2*,
+                           com.sun.xml.fastinfoset*;resolution:=optional,
+                           javax.xml.stream*;resolution:=optional,
+                           org.jvnet.fastinfoset*;resolution:=optional,
+                           org.jvnet.staxex*;resolution:=optional,
+                           *
+                        </Import-Package>
+                        <Private-Package>
+                           META-INF;-split-package:=merge-first,
+                           META-INF.maven.org.apache.servicemix.bundles*;-split-package:=merge-first,
+                           META-INF.services;-split-package:=merge-first,
+                        </Private-Package>
                     </instructions>
                 </configuration>
             </plugin>

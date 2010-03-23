@@ -726,12 +726,12 @@ public abstract class AbstractCarMojo
                        "javax.util.concurrent;version=1.0," +
                        "javax.util.concurrent.locks;version=1.0," +
                        "javax.xml," +
-                       "javax.xml.bind;version=2.1," +
-                       "javax.xml.bind.annotation;version=2.1," +
-                       "javax.xml.bind.annotation.adapters;version=2.1," +
-                       "javax.xml.bind.attachment;version=2.1," +
-                       "javax.xml.bind.helpers;version=2.1," +
-                       "javax.xml.bind.util;version=2.1," +
+                       "javax.xml.bind;version=2.2," +
+                       "javax.xml.bind.annotation;version=2.2," +
+                       "javax.xml.bind.annotation.adapters;version=2.2," +
+                       "javax.xml.bind.attachment;version=2.2," +
+                       "javax.xml.bind.helpers;version=2.2," +
+                       "javax.xml.bind.util;version=2.2," +
                        "javax.xml.crypto," +
                        "javax.xml.crypto.dom," +
                        "javax.xml.crypto.dsig," +
@@ -739,12 +739,8 @@ public abstract class AbstractCarMojo
                        "javax.xml.crypto.dsig.keyinfo," +
                        "javax.xml.crypto.dsig.spec," +
                        "javax.xml.datatype," +
-                       "javax.xml.namespace," +
                        "javax.xml.parsers," +
                        "javax.xml.soap;version=1.3," +
-                       "javax.xml.stream;version=1.0," +
-                       "javax.xml.stream.events;version=1.0," +
-                       "javax.xml.stream.util;version=1.0," +
                        "javax.xml.transform," +
                        "javax.xml.transform.dom," +
                        "javax.xml.transform.sax," +
@@ -941,9 +937,9 @@ public abstract class AbstractCarMojo
                         "javax.enterprise.deploy.shared," +
                         "javax.enterprise.deploy.spi");
 */
-                        
+
         properties.put(Constants.FRAMEWORK_BOOTDELEGATION, "sun.*,com.sun.*");
-        
+
         File storageDir = new File(basedir, "target/bundle-cache");
         properties.put(Constants.FRAMEWORK_STORAGE, storageDir.getAbsolutePath());
 
@@ -951,15 +947,15 @@ public abstract class AbstractCarMojo
             properties.put("felix.log.level", "4");
         }
 
-        /* 
+        /*
          * A hack for Equinox to restore FrameworkProperties to the initial state.
          * If the FrameworkProperties is not restored to the initial state, Equinox
          * will create a separate classloader and load the Geronimo kernel classes
-         * from deployed geronimo-kernel bundle instead of the system bundle. 
-         * That will result in ClassCastException. 
+         * from deployed geronimo-kernel bundle instead of the system bundle.
+         * That will result in ClassCastException.
          */
         resetFrameworkProperties();
-        
+
         ServiceLoader<FrameworkFactory> loader = ServiceLoader.load(FrameworkFactory.class);
         Framework framework = loader.iterator().next().newFramework(properties);
         framework.start();

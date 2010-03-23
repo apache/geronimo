@@ -43,9 +43,10 @@
         <module>commons-discovery</module>
         <module>derby-all</module>
         <module>dwr</module>
+        <module>jaxb-impl</module>
         <module>jstl</module>
         <module>woden-impl-dom</module>
-        <module>backport-util-concurrent</module>        
+        <module>backport-util-concurrent</module>
         <module>httpcore</module>
         <module>karaf-client</module>
         <!-- todo remove -->

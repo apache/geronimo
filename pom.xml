@@ -135,6 +135,11 @@
         <dependencies>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-osgi-registry</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-activation_1.1_spec</artifactId>
                 <version>1.0.2</version>
             </dependency>
@@ -251,7 +256,7 @@
                 <artifactId>geronimo-jta_1.1_spec</artifactId>
                 <version>1.1.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
@@ -300,7 +305,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.geronimo.schema</groupId>
                 <artifactId>geronimo-schema-javaee_6</artifactId>
@@ -515,6 +520,12 @@
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.ant</artifactId>
                 <version>1.7.0_1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1318,6 +1329,12 @@
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.woodstox</artifactId>
                 <version>3.2.8_1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.servicemix.specs</groupId>
+                        <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -1350,8 +1367,8 @@
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jaxb_2.1_spec</artifactId>
-                <version>1.0</version>
+                <artifactId>geronimo-jaxb_2.2_spec</artifactId>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -1371,39 +1388,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.jaxb-impl</artifactId>
-                <version>2.1.6_1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.stream</groupId>
-                        <artifactId>stax-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>activation</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-activation_1.1_spec</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
+                <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.1.7</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>2.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -1508,8 +1495,8 @@
                         <artifactId>geronimo-javamail_1.4_spec</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>    
-                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>   
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>jaxen</groupId>
@@ -1544,8 +1531,8 @@
                         <artifactId>geronimo-javamail_1.4_spec</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>    
-                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>   
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.codehaus.woodstox</groupId>
@@ -1885,7 +1872,7 @@
                 </exclusions>
             </dependency>
 
-<!-- 
+<!--
 only found in cxf
             <dependency>
                 <groupId>org.bouncycastle</groupId>
