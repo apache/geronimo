@@ -53,8 +53,8 @@
         </dependency>
 
         <dependency>
-            <groupId>net.sourceforge.serp</groupId>
-            <artifactId>serp</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.serp</artifactId>
         </dependency>
 
         <dependency>
@@ -72,6 +72,26 @@
             <artifactId>transaction-1_6</artifactId>
             <version>${version}</version>
             <type>car</type>
+        </dependency>
+
+       <dependency>
+            <groupId>org.apache.aries.jpa</groupId>
+            <artifactId>org.apache.aries.jpa.api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.aries.jpa</groupId>
+            <artifactId>org.apache.aries.jpa.blueprint.aries</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.aries.jpa</groupId>
+            <artifactId>org.apache.aries.jpa.container</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.aries.jpa</groupId>
+            <artifactId>org.apache.aries.jpa.container.context</artifactId>
         </dependency>
     </dependencies>
 

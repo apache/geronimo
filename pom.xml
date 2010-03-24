@@ -445,9 +445,9 @@
             </dependency>
 
             <dependency>
-                <groupId>net.sourceforge.serp</groupId>
-                <artifactId>serp</artifactId>
-                <version>1.13.1</version>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.serp</artifactId>
+                <version>1.13.1_2</version>
             </dependency>
 
             <dependency>

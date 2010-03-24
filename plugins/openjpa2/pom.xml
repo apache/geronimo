@@ -36,13 +36,6 @@
         OpenJPA2 plugin
     </description>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
-        </dependency>
-    </dependencies>
-
 <!-- These are in the geronimo-parent PM for now
     <properties>
         <openjpaVersion>2.0.0-beta</openjpaVersion>
@@ -119,7 +112,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openjpa</groupId>
+                <groupId>org.apache.openjpa</groupId>-
                 <artifactId>openjpa-persistence-jdbc</artifactId>
                 <version>${openjpaVersion}</version>
             </dependency>
@@ -146,5 +139,33 @@
         <module>openjpa2</module>
         <module>persistence-jpa20-deployer</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.aries.jpa</groupId>
+                <artifactId>org.apache.aries.jpa.api</artifactId>
+                <version>0.1-incubating-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.aries.jpa</groupId>
+                <artifactId>org.apache.aries.jpa.blueprint.aries</artifactId>
+                <version>0.1-incubating-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.aries.jpa</groupId>
+                <artifactId>org.apache.aries.jpa.container</artifactId>
+                <version>0.1-incubating-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.aries.jpa</groupId>
+                <artifactId>org.apache.aries.jpa.container.context</artifactId>
+                <version>0.1-incubating-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

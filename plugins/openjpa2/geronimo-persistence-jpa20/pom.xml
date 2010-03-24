@@ -81,8 +81,8 @@
         </dependency>
 
         <dependency>
-            <groupId>net.sourceforge.serp</groupId>
-            <artifactId>serp</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.serp</artifactId>
             <scope>test</scope>
         </dependency>
 
