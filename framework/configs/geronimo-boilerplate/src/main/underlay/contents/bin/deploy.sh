@@ -186,4 +186,11 @@ fi
   -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
   -jar "$GERONIMO_HOME"/bin/deployer.jar "$@" 
 
-stty echo
+# Remember the exit status
+status=$?
+
+# Reset tty
+stty echo 2>/dev/null
+stty sane 2>/dev/null
+
+exit $status
