@@ -2122,6 +2122,8 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>xmlbeans-maven-plugin</artifactId>
+                    <!-- genesis 2.0 used 2.3.1 has a problem when copy XmlBeans generated schemas -->
+                    <version>2.3.3</version>
                     <executions>
                         <execution>
                             <goals>
