@@ -190,7 +190,6 @@ fi
 status=$?
 
 # Reset tty
-stty echo 2>/dev/null
-stty sane 2>/dev/null
+stty echo > /dev/null 2>&1
 
 exit $status
