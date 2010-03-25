@@ -42,6 +42,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>woodstox</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.components</groupId>
         <artifactId>geronimo-jaspi</artifactId>
         <type>jar</type>
@@ -259,11 +264,6 @@
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.howl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.woodstox</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

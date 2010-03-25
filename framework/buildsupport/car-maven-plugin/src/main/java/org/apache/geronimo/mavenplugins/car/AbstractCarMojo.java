@@ -742,12 +742,6 @@ public abstract class AbstractCarMojo
                        "javax.xml.transform.stax," +
                        "javax.xml.transform.stream," +
                        "javax.xml.validation," +
-                       "javax.xml.ws;version=2.2," +
-                       "javax.xml.ws.handler;version=2.2," +
-                       "javax.xml.ws.handler.soap;version=2.2," +
-                       "javax.xml.ws.http;version=2.2," +
-                       "javax.xml.ws.soap;version=2.2," +
-                       "javax.xml.ws.spi;version=2.2," +
                        "javax.xml.xpath," +
                        "org.ietf.jgss," +
                        "org.omg.CORBA," +

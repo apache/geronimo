@@ -27,7 +27,7 @@
         <artifactId>corba</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>client-corba-yoko</artifactId>
     <name>Geronimo Plugins, Corba :: Client Yoko</name>
@@ -41,7 +41,7 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-            
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client-security</artifactId>
@@ -53,6 +53,12 @@
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-client</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxws_2.2_spec</artifactId>
+        </dependency>
+
         <!-- client CORBABean needs the ApplicationServer class -->
         <dependency>
             <groupId>org.apache.openejb</groupId>
