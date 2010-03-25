@@ -33,6 +33,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ClassPathList;
+import org.apache.geronimo.deployment.DeployableBundle;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -99,6 +100,10 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     }
 
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+        // don't do anything for Bundle-based deployments
+        if (module.getDeployable() instanceof DeployableBundle) {
+            return;
+        }
         XmlObject container = (XmlObject) module.getVendorDD();
         EARContext moduleContext = module.getEarContext();
         XmlObject[] raws = container.selectChildren(PERSISTENCE_QNAME);
