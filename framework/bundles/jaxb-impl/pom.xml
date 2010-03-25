@@ -57,6 +57,10 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxb_2.2_spec</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -82,26 +86,22 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                           com.sun.xml.bind*;-split-package:=merge-first,
-                           com.sun.istack*;-split-package:=merge-first,
-                           com.sun.xml.txw2*;-split-package:=merge-first
+                           com.sun.xml.bind*,
+                           com.sun.istack*,
+                           com.sun.xml.txw2*,
                         </Export-Package>
                         <Import-Package>
-                           !com.sun.xml.bind*,
-                           !com.sun.istack*,
-                           !com.sun.xml.txw2*,
                            com.sun.xml.fastinfoset*;resolution:=optional,
-                           javax.xml.stream*;resolution:=optional,
                            org.jvnet.fastinfoset*;resolution:=optional,
                            org.jvnet.staxex*;resolution:=optional,
                            *
                         </Import-Package>
                         <Private-Package>
                            META-INF;-split-package:=merge-first,
-                           META-INF.maven.org.apache.servicemix.bundles*;-split-package:=merge-first,
                            META-INF.services;-split-package:=merge-first,
                         </Private-Package>
                         <Export-Provider>com.sun.xml.bind.v2.ContextFactory</Export-Provider>
+                        <SPI-Provider>true</SPI-Provider>
                     </instructions>
                 </configuration>
             </plugin>
