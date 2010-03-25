@@ -199,6 +199,10 @@
                         <groupId>commons-io</groupId>
                         <artifactId>commons-io</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-saaj_1.3_spec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 

@@ -58,9 +58,9 @@
         <geronimoVersion>${version}</geronimoVersion>
 
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
-        <warnOnDependencyChange>false</warnOnDependencyChange>
-        <logDependencyChanges>false</logDependencyChanges>
-        <overwriteChangedDependencies>false</overwriteChangedDependencies>
+        <warnOnDependencyChange>true</warnOnDependencyChange>
+        <logDependencyChanges>true</logDependencyChanges>
+        <overwriteChangedDependencies>true</overwriteChangedDependencies>
 
         <!--
         FIXME: STOP using properties for dependency versions unless you absolutly need them,
@@ -141,7 +141,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-activation_1.1_spec</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.3-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -1310,7 +1310,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
