@@ -134,8 +134,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.woodstox</artifactId>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>woodstox</artifactId>
         </dependency>
 
         <dependency>

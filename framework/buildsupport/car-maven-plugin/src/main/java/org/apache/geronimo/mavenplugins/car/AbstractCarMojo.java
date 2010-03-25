@@ -726,12 +726,7 @@ public abstract class AbstractCarMojo
                        "javax.util.concurrent;version=1.0," +
                        "javax.util.concurrent.locks;version=1.0," +
                        "javax.xml," +
-                       "javax.xml.bind;version=2.2," +
-                       "javax.xml.bind.annotation;version=2.2," +
-                       "javax.xml.bind.annotation.adapters;version=2.2," +
-                       "javax.xml.bind.attachment;version=2.2," +
-                       "javax.xml.bind.helpers;version=2.2," +
-                       "javax.xml.bind.util;version=2.2," +
+                       "javax.xml.namespace;version=1.0," +
                        "javax.xml.crypto," +
                        "javax.xml.crypto.dom," +
                        "javax.xml.crypto.dsig," +

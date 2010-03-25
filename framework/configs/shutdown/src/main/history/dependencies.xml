@@ -27,6 +27,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>woodstox</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-cli</artifactId>
         <type>jar</type>
@@ -118,6 +123,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-osgi-registry</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-stax-api_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
@@ -144,11 +154,6 @@
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.jline</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.woodstox</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

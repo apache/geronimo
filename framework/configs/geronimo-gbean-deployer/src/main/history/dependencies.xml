@@ -47,6 +47,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-osgi-registry</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
         <type>jar</type>

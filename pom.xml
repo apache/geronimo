@@ -1326,27 +1326,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.woodstox</artifactId>
-                <version>3.2.8_1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.servicemix.specs</groupId>
-                        <artifactId>org.apache.servicemix.specs.stax-api-1.0</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.codehaus.woodstox</groupId>
-                <artifactId>wstx-asl</artifactId>
-                <version>3.2.7</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>stax</groupId>
-                        <artifactId>stax-api</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>org.apache.geronimo.bundles</groupId>
+                <artifactId>woodstox</artifactId>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>

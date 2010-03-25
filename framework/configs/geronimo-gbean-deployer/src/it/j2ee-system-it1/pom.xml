@@ -103,8 +103,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>wstx-asl</artifactId>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>woodstox</artifactId>
         </dependency>
 
         <dependency>

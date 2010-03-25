@@ -34,6 +34,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-osgi-registry</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-rmi-loader</artifactId>
             <version>${version}</version>

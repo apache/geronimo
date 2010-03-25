@@ -56,5 +56,6 @@
         <module>wadi-core</module>
         <module>wadi-group</module>
         <module>wadi-tribes</module>
+        <module>woodstox</module>
     </modules>
 </project>
