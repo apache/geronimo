@@ -280,7 +280,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.felix.karaf</groupId>
-            <artifactId>org.apache.felix.karaf.client</artifactId>                                  
+            <artifactId>org.apache.felix.karaf.client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.felix.karaf.deployer</groupId>
@@ -465,7 +465,7 @@
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-shell-base</artifactId>
             <version>${version}</version>
-        </dependency>    
+        </dependency>
     </dependencies>
     <build>
         <!--<resources>-->

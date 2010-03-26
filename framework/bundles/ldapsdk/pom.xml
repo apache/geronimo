@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.bundles</groupId>
     <artifactId>ldapsdk</artifactId>
-    <version>4.1-SNAPSHOT</version>
+    <version>${pkgVersion}${bundleVersion}</version>
     <packaging>bundle</packaging>
     <name>Apache Geronimo Bundles: ${pkgArtifactId}-${pkgVersion}</name>
     <description>

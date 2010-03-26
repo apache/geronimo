@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.bundles</groupId>
     <artifactId>log4j</artifactId>
-    <version>1.2.15_1-SNAPSHOT</version>
+    <version>${pkgVersion}${bundleVersion}</version>
     <packaging>bundle</packaging>
     <name>Apache Geronimo Bundles: ${pkgArtifactId}-${pkgVersion}</name>
     <description>

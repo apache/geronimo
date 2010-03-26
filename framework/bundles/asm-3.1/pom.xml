@@ -29,7 +29,7 @@
     <groupId>org.apache.geronimo.bundles</groupId>
     <artifactId>asm</artifactId>
     <packaging>bundle</packaging>
-    <version>3.1_1-SNAPSHOT</version>
+    <version>${pkgVersion}${bundleVersion}</version>
     <name>Apache Geronimo Bundles: ${pkgArtifactId}-${pkgVersion}</name>
     <description>
         This bundle simply wraps ${pkgArtifactId}-${pkgVersion}.jar.

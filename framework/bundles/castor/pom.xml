@@ -29,7 +29,7 @@
 
     <groupId>org.apache.geronimo.bundles</groupId>
     <artifactId>castor</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>${pkgVersion}${bundleVersion}</version>
     <packaging>bundle</packaging>
     <name>Apache Geronimo Bundles: ${pkgArtifactId}-${pkgVersion}</name>
     <description>

@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.bundles</groupId>
     <artifactId>sxc-jaxb</artifactId>
-    <version>0.7.2_1-SNAPSHOT</version>
+    <version>${pkgVersion}${bundleVersion}</version>
     <packaging>bundle</packaging>
     <name>Apache Geronimo Bundles: ${pkgArtifactId}-${pkgVersion}</name>
     <description>

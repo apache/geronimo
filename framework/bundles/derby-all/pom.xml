@@ -29,7 +29,7 @@
 
     <groupId>org.apache.geronimo.bundles</groupId>
     <artifactId>derby-all</artifactId>
-    <version>${derbyVersion}-SNAPSHOT</version>
+    <version>${derbyVersion}${bundleVersion}</version>
     <packaging>bundle</packaging>
     <name>Apache Geronimo Bundles: Derby-${derbyVersion}</name>
     <description>

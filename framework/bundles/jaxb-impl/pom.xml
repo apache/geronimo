@@ -28,7 +28,7 @@
 
     <groupId>org.apache.geronimo.bundles</groupId>
     <artifactId>jaxb-impl</artifactId>
-    <version>2.2-SNAPSHOT</version>
+    <version>${pkgVersion}${bundleVersion}</version>
     <packaging>bundle</packaging>
     <name>Apache Geronimo Bundles: ${pkgArtifactId}-${pkgVersion}</name>
     <description>
@@ -38,7 +38,7 @@
     <properties>
         <pkgGroupId>com.sun.xml.bind</pkgGroupId>
         <pkgArtifactId>jaxb-impl</pkgArtifactId>
-        <pkgVersion>2.1.12</pkgVersion>
+        <pkgVersion>2.2</pkgVersion>
     </properties>
 
     <dependencies>

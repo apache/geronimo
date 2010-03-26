@@ -56,6 +56,8 @@
 
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
+        <!-- Additional version modifier added to all bundlized jars -->
+        <bundleVersion>_1-SNAPSHOT</bundleVersion>
 
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
         <warnOnDependencyChange>true</warnOnDependencyChange>
@@ -507,13 +509,13 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>aspectjrt</artifactId>
-                <version>1.6.2-SNAPSHOT</version>
+                <version>1.6.2_1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.6.2-SNAPSHOT</version>
+                <version>1.6.2_1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -559,7 +561,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>castor</artifactId>
-                <version>1.0.5-SNAPSHOT</version>
+                <version>1.0.5_1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -763,7 +765,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>derby-all</artifactId>
-                <version>${derbyVersion}-SNAPSHOT</version>
+                <version>${derbyVersion}_1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -1328,7 +1330,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>woodstox</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>3.2.9_1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -1372,7 +1374,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.2_1-SNAPSHOT</version>
             </dependency>
 
             <dependency>

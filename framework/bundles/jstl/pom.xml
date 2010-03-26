@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.bundles</groupId>
     <artifactId>${pkgArtifactId}</artifactId>
-    <version>${pkgVersion}_1-SNAPSHOT</version>
+    <version>${pkgVersion}${bundleVersion}</version>
     <packaging>bundle</packaging>
     <name>Apache Geronimo Bundles: ${pkgArtifactId}-${pkgVersion}</name>
     <description>
@@ -52,7 +52,7 @@
     </dependencies>
 
     <build>
-        <plugins>           
+        <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -60,7 +60,7 @@
                 <configuration>
                     <instructions>
                         <Export-Package>*;version=${pkgVersion}</Export-Package>
-                        <Import-Package>com.sun.org.apache*;resolution:=optional,*</Import-Package>                        
+                        <Import-Package>com.sun.org.apache*;resolution:=optional,*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Embed-Dependency>*;scope=provided;inline=true</Embed-Dependency>
                         <Include-Resource>

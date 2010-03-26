@@ -29,7 +29,7 @@
 
     <groupId>org.apache.geronimo.bundles</groupId>
     <artifactId>${pkgArtifactId}</artifactId>
-    <version>${pkgVersion}_1-SNAPSHOT</version>
+    <version>${pkgVersion}${bundleVersion}</version>
     <packaging>bundle</packaging>
     <name>Apache Geronimo Bundles: ${pkgArtifactId}-${pkgVersion}</name>
     <description>
@@ -52,7 +52,7 @@
     </dependencies>
 
     <build>
-        <plugins>           
+        <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
