@@ -23,19 +23,17 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.Hashtable;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 import javax.security.auth.Subject;
 import org.apache.geronimo.connector.outbound.GenericConnectionManager;
-import org.apache.geronimo.connector.outbound.PoolingAttributes;
 import org.apache.geronimo.connector.outbound.SubjectSource;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -47,9 +45,13 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
-import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceException;
+import org.osgi.framework.ServiceFactory;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * @version $Revision$
@@ -58,22 +60,28 @@ import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 public class GenericConnectionManagerGBean extends GenericConnectionManager implements GBeanLifecycle, Serializable, Externalizable {
     private Kernel kernel;
     private AbstractName abstractName;
+    private BundleContext bundleContext;
+    private ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper;
+    private ServiceRegistration serviceRegistration;
     //externalizable format version
     private static final int VERSION = 1;
 
     public GenericConnectionManagerGBean(@ParamAttribute(name="transactionSupport") TransactionSupport transactionSupport,
                                          @ParamAttribute(name="pooling")PoolingSupport pooling,
                                          @ParamAttribute(name="containerManagedSecurity")boolean containerManagedSecurity,
-                                         @ParamReference(name="ConnectionTracker", namingType = NameFactory.JCA_CONNECTION_TRACKER)ConnectionTracker connectionTracker,
-                                         @ParamReference(name="TransactionManager", namingType = NameFactory.JTA_RESOURCE)RecoverableTransactionManager transactionManager,
-                                         @ParamReference(name="ManagedConnectionFactory", namingType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY)ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper,
-                                         @ParamSpecial(type= SpecialAttributeType.objectName)String objectName,
-                                         @ParamSpecial(type= SpecialAttributeType.abstractName)AbstractName abstractName,
-                                         @ParamSpecial(type= SpecialAttributeType.classLoader)ClassLoader classLoader,
-                                         @ParamSpecial(type= SpecialAttributeType.kernel)Kernel kernel) {
+                                         @ParamReference(name="ConnectionTracker", namingType = NameFactory.JCA_CONNECTION_TRACKER) ConnectionTracker connectionTracker,
+                                         @ParamReference(name="TransactionManager", namingType = NameFactory.JTA_RESOURCE) RecoverableTransactionManager transactionManager,
+                                         @ParamReference(name="ManagedConnectionFactory", namingType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY) ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper,
+                                         @ParamSpecial(type=SpecialAttributeType.objectName) String objectName,
+                                         @ParamSpecial(type=SpecialAttributeType.abstractName) AbstractName abstractName,
+                                         @ParamSpecial(type=SpecialAttributeType.classLoader) ClassLoader classLoader,
+                                         @ParamSpecial(type=SpecialAttributeType.bundleContext) BundleContext bundleContext,
+                                         @ParamSpecial(type=SpecialAttributeType.kernel) Kernel kernel) {
         super(transactionSupport, pooling, getSubjectSource(containerManagedSecurity), connectionTracker, transactionManager, managedConnectionFactoryWrapper.getManagedConnectionFactory(), objectName, classLoader);
         this.kernel = kernel;
         this.abstractName = abstractName;
+        this.bundleContext = bundleContext;
+        this.managedConnectionFactoryWrapper = managedConnectionFactoryWrapper;
         doRecovery();
     }
 
@@ -91,6 +99,46 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         }
     }
 
+    public void doFail() {
+    }
+
+    public void doStart() throws Exception {
+        String connectionInterface = managedConnectionFactoryWrapper.getConnectionFactoryInterface();
+        String jndiName = managedConnectionFactoryWrapper.getJndiName();
+        if (jndiName == null) {
+            jndiName = abstractName.getArtifact().getGroupId() + "/" + 
+                       abstractName.getArtifact().getArtifactId() + "/" + 
+                       abstractName.getNameProperty("j2eeType") + "/" + 
+                       abstractName.getNameProperty("name");
+        }
+                
+        Hashtable properties = new Hashtable();
+        properties.put("osgi.jndi.service.name", jndiName);
+        // register ServiceFactory so that each bundle gets its own instance of the connection factory
+        serviceRegistration = bundleContext.registerService(connectionInterface, new ConnectionFactoryService(), properties);
+    }
+
+    private class ConnectionFactoryService implements ServiceFactory {
+
+        public Object getService(Bundle bundle, ServiceRegistration registration) {
+            try {
+                return createConnectionFactory();
+            } catch (ResourceException e) {
+                throw new ServiceException("Error creating connection factory", e);
+            }
+        }
+
+        public void ungetService(Bundle bundle, ServiceRegistration registration, Object service) {
+        }
+        
+    }
+    
+    public void doStop() throws Exception {
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+        }
+    }
+    
     private static SubjectSource getSubjectSource(boolean containerManagedSecurity) {
         if (containerManagedSecurity) {
             return new SubjectSource() {

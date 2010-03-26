@@ -41,6 +41,7 @@ public class ManagedConnectionFactoryWrapperGBean {
         infoFactory.addAttribute("connectionFactoryImplClass", String.class, true);
         infoFactory.addAttribute("connectionInterface", String.class, true);
         infoFactory.addAttribute("connectionImplClass", String.class, true);
+        infoFactory.addAttribute("jndiName", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("abstractName", AbstractName.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
@@ -55,6 +56,7 @@ public class ManagedConnectionFactoryWrapperGBean {
             "connectionFactoryImplClass",
             "connectionInterface",
             "connectionImplClass",
+            "jndiName",
             "ResourceAdapterWrapper",
             "kernel",
             "abstractName",

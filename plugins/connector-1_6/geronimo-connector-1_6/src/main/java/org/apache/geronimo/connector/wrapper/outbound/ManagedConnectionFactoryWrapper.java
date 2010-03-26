@@ -51,6 +51,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     private final String connectionFactoryImplClass;
     private final String connectionInterface;
     private final String connectionImplClass;
+    private final String jndiName;
 
     private final LinkedHashSet<Class> allImplementedInterfaces = new LinkedHashSet<Class>();
 
@@ -79,6 +80,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         objectName = null;
         classLoader = null;
         resourceAdapterWrapper = null;
+        jndiName = null;
     }
 
     public ManagedConnectionFactoryWrapper(String managedConnectionFactoryClass,
@@ -87,6 +89,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
                                            String connectionFactoryImplClass,
                                            String connectionInterface,
                                            String connectionImplClass,
+                                           String jndiName,
                                            ResourceAdapterWrapper resourceAdapterWrapper,
                                            Kernel kernel,
                                            AbstractName abstractName,
@@ -98,6 +101,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         this.connectionFactoryImplClass = connectionFactoryImplClass;
         this.connectionInterface = connectionInterface;
         this.connectionImplClass = connectionImplClass;
+        this.jndiName = jndiName;
 
         allImplementedInterfaces.add(cl.loadClass(connectionFactoryInterface));
         for (String interfaceName: implementedInterfaces) {
@@ -117,6 +121,10 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         this.objectName = objectName;
     }
 
+    public String getJndiName() {
+        return jndiName;
+    }
+    
     public String getManagedConnectionFactoryClass() {
         return managedConnectionFactoryClass;
     }
