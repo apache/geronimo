@@ -80,12 +80,6 @@ org.osgi.framework.system.packages = \
  javax.tools, \
  javax.transaction; javax.transaction.xa; version=1.1; partial=true; mandatory:=partial, \
  javax.xml, \
- javax.xml.bind;version=2.1, \
- javax.xml.bind.annotation;version=2.1, \
- javax.xml.bind.annotation.adapters;version=2.1, \
- javax.xml.bind.attachment;version=2.1, \
- javax.xml.bind.helpers;version=2.1, \
- javax.xml.bind.util;version=2.1, \
  javax.xml.crypto, \
  javax.xml.crypto.dom, \
  javax.xml.crypto.dsig, \
@@ -93,24 +87,15 @@ org.osgi.framework.system.packages = \
  javax.xml.crypto.dsig.keyinfo, \
  javax.xml.crypto.dsig.spec, \
  javax.xml.datatype, \
- javax.xml.namespace, \
+ javax.xml.namespace;version=1.0, \
  javax.xml.parsers, \
  javax.xml.soap;version=1.3, \
- javax.xml.stream;version=1.0, \
- javax.xml.stream.events;version=1.0, \
- javax.xml.stream.util;version=1.0, \
  javax.xml.transform, \
  javax.xml.transform.dom, \
  javax.xml.transform.sax, \
  javax.xml.transform.stax, \
  javax.xml.transform.stream, \
  javax.xml.validation, \
- javax.xml.ws;version=2.2, \
- javax.xml.ws.handler;version=2.2, \
- javax.xml.ws.handler.soap;version=2.2, \
- javax.xml.ws.http;version=2.2, \
- javax.xml.ws.soap;version=2.2, \
- javax.xml.ws.spi;version=2.2, \
  javax.xml.xpath, \
  org.ietf.jgss, \
  org.omg.CORBA, \
@@ -159,7 +144,7 @@ org.osgi.framework.system.packages = \
 
 org.osgi.framework.system.packages.extra = \
  sun.misc
- 
+
 org.osgi.framework.bootdelegation = \
  javax.*,\
  org.ietf.jgss,\
@@ -168,7 +153,7 @@ org.osgi.framework.bootdelegation = \
  org.xml.*,\
  sun.*,\
  com.sun.*
- 
+
 org.osgi.framework.executionenvironment = \
  OSGi/Minimum-1.0,\
  OSGi/Minimum-1.1,\
