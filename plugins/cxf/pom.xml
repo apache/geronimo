@@ -71,11 +71,6 @@
                         <artifactId>XmlSchema</artifactId>
                         <version>1.4.3</version>
 
-
-                        <groupId>org.apache.geronimo.specs</groupId>   
-                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-                        <version>1.0.1</version>
-                    
                         <groupId>org.apache.geronimo.specs</groupId>    
                         <artifactId>geronimo-activation_1.1_spec</artifactId>
                         <version>1.0.2</version>
@@ -83,11 +78,6 @@
                         <groupId>org.apache.geronimo.specs</groupId>    
                         <artifactId>geronimo-jms_1.1_spec</artifactId>
                         <version>1.1.1</version>
-                    
-                        <groupId>org.apache.geronimo.specs</groupId>   
-                        <artifactId>geronimo-jaxws_2.1_spec</artifactId>
-                        <version>1.0</version>
-                        
                     -->
    
                     <!-- geronimo specs,
@@ -108,7 +98,15 @@
                         <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
                     </exclusion>
-                    
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-jaxws_2.1_spec</artifactId>
+                    </exclusion>
+                                       
                     <!-- Spring jars, 
                             org.springframework*;resolution:=optional, -->
                     <exclusion>
@@ -236,6 +234,14 @@
                         <groupId>org.opensaml</groupId>
                         <artifactId>opensaml</artifactId>
                     </exclusion>  
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jaxb-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.soap</groupId>
+                        <artifactId>saaj-api</artifactId>
+                    </exclusion>
 
                     <!-- not a bundle -->
                     <exclusion>
@@ -280,6 +286,10 @@
                     <exclusion>
                         <groupId>avalon-framework</groupId>
                         <artifactId>avalon-framework</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
