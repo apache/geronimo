@@ -43,6 +43,11 @@
         </dependency>
 
         <dependency>
+              <groupId>org.apache.aries.blueprint</groupId>
+            <artifactId>org.apache.aries.blueprint</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.aries.web</groupId>
             <artifactId>org.apache.aries.web.urlhandler</artifactId>
         </dependency>
