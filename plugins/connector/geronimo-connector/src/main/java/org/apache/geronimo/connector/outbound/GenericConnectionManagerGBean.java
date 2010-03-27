@@ -26,7 +26,9 @@ import java.io.Serializable;
 
 import javax.resource.spi.ConnectionManager;
 import javax.security.auth.Subject;
-
+import org.apache.geronimo.connector.outbound.GenericConnectionManager;
+import org.apache.geronimo.connector.outbound.PoolingAttributes;
+import org.apache.geronimo.connector.outbound.SubjectSource;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
@@ -34,6 +36,11 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
@@ -45,30 +52,29 @@ import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 /**
  * @version $Revision$
  */
+@GBean(j2eeType = NameFactory.JCA_CONNECTION_MANAGER)
 public class GenericConnectionManagerGBean extends GenericConnectionManager implements GBeanLifecycle, Serializable, Externalizable {
     private Kernel kernel;
     private AbstractName abstractName;
     //externalizable format version
     private static final int VERSION = 1;
 
-    public GenericConnectionManagerGBean() {
-        super();
-        kernel = null;
-        abstractName = null;
-    }
-
-    public GenericConnectionManagerGBean(TransactionSupport transactionSupport,
-                                         PoolingSupport pooling,
-                                         boolean containerManagedSecurity,
-                                         ConnectionTracker connectionTracker,
-                                         RecoverableTransactionManager transactionManager,
-                                         String objectName,
-                                         AbstractName abstractName,
-                                         ClassLoader classLoader,
-                                         Kernel kernel) {
+    public GenericConnectionManagerGBean(@ParamAttribute(name="transactionSupport") TransactionSupport transactionSupport,
+                                         @ParamAttribute(name="pooling")PoolingSupport pooling,
+                                         @ParamAttribute(name="containerManagedSecurity")boolean containerManagedSecurity,
+                                         @ParamReference(name="ConnectionTracker", namingType = NameFactory.JCA_CONNECTION_TRACKER)ConnectionTracker connectionTracker,
+                                         @ParamReference(name="TransactionManager", namingType = NameFactory.JTA_RESOURCE)RecoverableTransactionManager transactionManager,
+                                         @ParamSpecial(type= SpecialAttributeType.objectName)String objectName,
+                                         @ParamSpecial(type= SpecialAttributeType.abstractName)AbstractName abstractName,
+                                         @ParamSpecial(type= SpecialAttributeType.classLoader)ClassLoader classLoader,
+                                         @ParamSpecial(type= SpecialAttributeType.kernel)Kernel kernel) {
         super(transactionSupport, pooling, getSubjectSource(containerManagedSecurity), connectionTracker, transactionManager, objectName, classLoader);
         this.kernel = kernel;
         this.abstractName = abstractName;
+    }
+
+    public GenericConnectionManagerGBean() {
+        super();
     }
 
     public ConnectionManager getConnectionManager() {
@@ -121,43 +127,6 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
             throw new IOException("No kernel named: '" + kernelName + "' found");
         }
         abstractName = (AbstractName) in.readObject();
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(GenericConnectionManagerGBean.class, AbstractConnectionManagerGBean.GBEAN_INFO);
-
-        infoBuilder.addAttribute("transactionSupport", TransactionSupport.class, true);
-        infoBuilder.addAttribute("pooling", PoolingSupport.class, true);
-        infoBuilder.addAttribute("containerManagedSecurity", Boolean.TYPE, true);
-
-        infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addAttribute("abstractName", AbstractName.class, false);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-
-        infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_CONNECTION_TRACKER);
-        infoBuilder.addReference("TransactionManager", RecoverableTransactionManager.class, NameFactory.JTA_RESOURCE);
-
-
-        infoBuilder.setConstructor(new String[]{
-                "transactionSupport",
-                "pooling",
-                "containerManagedSecurity",
-                "ConnectionTracker",
-                "TransactionManager",
-                "objectName",
-                "abstractName",
-                "classLoader",
-                "kernel"
-        });
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

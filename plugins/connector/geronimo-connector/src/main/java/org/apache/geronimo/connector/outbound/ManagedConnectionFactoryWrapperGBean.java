@@ -45,10 +45,6 @@ public class ManagedConnectionFactoryWrapperGBean {
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addOperation("$getResource");
-        infoFactory.addOperation("$getConnectionFactory");
-        infoFactory.addOperation("$getManagedConnectionFactory");
-
         infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
         infoFactory.addReference("ConnectionManagerContainer", ConnectionManagerContainer.class, NameFactory.JCA_CONNECTION_MANAGER);
 

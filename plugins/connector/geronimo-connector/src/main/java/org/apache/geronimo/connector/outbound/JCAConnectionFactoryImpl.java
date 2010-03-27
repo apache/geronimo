@@ -19,7 +19,11 @@ package org.apache.geronimo.connector.outbound;
 import java.util.Hashtable;
 
 import javax.management.ObjectName;
-
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
@@ -28,12 +32,13 @@ import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 /**
  * @version $Rev$ $Date$
  */
-public class JCAConnectionFactoryImpl implements JCAConnectionFactory  {
+@GBean(j2eeType = NameFactory.JCA_CONNECTION_FACTORY)
+public class JCAConnectionFactoryImpl implements JCAConnectionFactory {
     private final String objectName;
     private final JCAManagedConnectionFactory managedConnectionFactory;
 
-    public JCAConnectionFactoryImpl(String objectName, JCAManagedConnectionFactory managedConnectionFactory) {
-        // todo do we really need to do this at runtime - shouldn't the builder set this up correctly?
+    public JCAConnectionFactoryImpl(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+                                    @ParamReference(name = "JCAManagedConnectionFactory", namingType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY) JCAManagedConnectionFactory managedConnectionFactory) {
         ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 

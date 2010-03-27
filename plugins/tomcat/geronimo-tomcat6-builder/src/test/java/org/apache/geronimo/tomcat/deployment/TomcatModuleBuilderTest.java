@@ -308,7 +308,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
         tmName = tm.getAbstractName();
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
 
-        GBeanData ctc = bootstrap.addGBean("ConnectionTrackingCoordinator", ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
+        GBeanData ctc = bootstrap.addGBean("ConnectionTrackingCoordinator", ConnectionTrackingCoordinatorGBean.class);
         ctcName = ctc.getAbstractName();
         ctc.setReferencePattern("TransactionManager", tmName);
 

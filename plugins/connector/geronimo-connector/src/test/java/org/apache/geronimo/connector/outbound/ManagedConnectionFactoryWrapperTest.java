@@ -106,11 +106,11 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         kernel.boot();
         ClassLoader cl = MockConnectionTrackingCoordinator.class.getClassLoader();
 
-        GBeanData ctc = buildGBeanData("name", "ConnectionTrackingCoordinator", MockConnectionTrackingCoordinator.getGBeanInfo());
+        GBeanData ctc = buildGBeanData("name", "ConnectionTrackingCoordinator", MockConnectionTrackingCoordinator.class);
         AbstractName ctcName = ctc.getAbstractName();
         kernel.loadGBean(ctc, cl);
 
-        GBeanData cmf = buildGBeanData("name", "ConnectionManagerContainer", GenericConnectionManagerGBean.getGBeanInfo());
+        GBeanData cmf = buildGBeanData("name", "ConnectionManagerContainer", GenericConnectionManagerGBean.class);
         AbstractName cmfName = cmf.getAbstractName();
         cmf.setAttribute("transactionSupport", NoTransactions.INSTANCE);
         cmf.setAttribute("pooling", new NoPool());
@@ -118,7 +118,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         kernel.loadGBean(cmf, cl);
 
 
-        GBeanData mcfw = buildGBeanData("name", TARGET_NAME, ManagedConnectionFactoryWrapperGBean.getGBeanInfo());
+        GBeanData mcfw = buildGBeanData("name", TARGET_NAME, ManagedConnectionFactoryWrapperGBean.class);
         managedConnectionFactoryName = mcfw.getAbstractName();
         mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class.getName());
         mcfw.setAttribute("connectionFactoryInterface", ConnectionFactory.class.getName());
@@ -135,7 +135,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         kernel.startGBean(cmfName);
         kernel.startGBean(managedConnectionFactoryName);
     }
-    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) {
+    private GBeanData buildGBeanData(String key, String value, Class info) {
         AbstractName abstractName = buildAbstractName(key, value);
         return new GBeanData(abstractName, info);
     }
