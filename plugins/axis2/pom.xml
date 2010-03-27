@@ -91,6 +91,14 @@
                         <groupId>wsdl4j</groupId>
                         <artifactId>wsdl4j</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>wstx-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -135,6 +143,14 @@
                         <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-annotation_1.0_spec</artifactId>
                     </exclusion>                    
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>wstx-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -179,6 +195,14 @@
                         <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-jaxws_2.1_spec</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>wstx-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -203,6 +227,14 @@
                         <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-saaj_1.3_spec</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>wstx-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -222,7 +254,15 @@
                     </exclusion>
                     <exclusion>
                         <groupId>commons-io</groupId>
-                         <artifactId>commons-io</artifactId>
+                        <artifactId>commons-io</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>wstx-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -238,12 +278,20 @@
                     </exclusion>
                     <exclusion>
                         <groupId>xalan</groupId>
-                         <artifactId>xalan</artifactId>
+                        <artifactId>xalan</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>commons-io</groupId>
-                         <artifactId>commons-io</artifactId>
+                        <artifactId>commons-io</artifactId>
                     </exclusion>                    
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>wstx-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -263,6 +311,14 @@
                     <exclusion>
                         <groupId>commons-io</groupId>
                          <artifactId>commons-io</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.woodstox</groupId>
+                        <artifactId>wstx-asl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-stax-api_1.0_spec</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
