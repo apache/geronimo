@@ -407,24 +407,4 @@
         </profile>
     </profiles>
 
-    <repositories>
-        <!--
-        NOTE: This is useful to run the testsuite on any machine, independent of the Geronimo build.
-        scm location svn co https://svn.apache.org/repos/asf/geronimo/server/trunk/testsuite
-        -->
-        <repository>
-            <id>apache-snapshots</id>
-            <name>Apache Snapshots Repository</name>
-            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
 </project>
