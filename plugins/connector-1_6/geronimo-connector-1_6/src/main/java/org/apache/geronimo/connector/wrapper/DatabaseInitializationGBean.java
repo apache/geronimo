@@ -119,7 +119,7 @@ public class DatabaseInitializationGBean {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(DatabaseInitializationGBean.class, "GBean");
         infoBuilder.addAttribute("testSQL", String.class, false);
         infoBuilder.addAttribute("path", String.class, true);
-        infoBuilder.addReference("DataSource", ResourceSource.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        infoBuilder.addReference("DataSource", ResourceSource.class, NameFactory.JCA_CONNECTION_FACTORY);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
         infoBuilder.setConstructor(new String[]{"testSQL", "path", "DataSource", "classLoader"});
