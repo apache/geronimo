@@ -29,6 +29,7 @@ import java.util.jar.JarFile;
 
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainerFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -78,7 +79,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
     
     protected Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,
                                                               URL wsDDUrl,
-                                                              JarFile moduleFile,
+                                                              Deployable deployable,
                                                               boolean isEJB,
                                                               Map correctedPortLocations)
             throws DeploymentException {

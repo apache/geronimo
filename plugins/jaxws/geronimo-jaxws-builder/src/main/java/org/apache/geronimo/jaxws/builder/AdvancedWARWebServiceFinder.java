@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.jaxws.JAXWSUtils;
@@ -72,7 +71,7 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
             // partial web.xml, discover all web service classes
 
             Map<String, List<String>> classServletMap = createClassServetMap(webApp);
-            List<Class> services = WARWebServiceFinder.discoverWebServices(module.getModuleFile(), false, new BundleClassLoader(bundle));
+            List<Class> services = WARWebServiceFinder.discoverWebServices(module, bundle, false);
             String contextRoot = ((WebModule) module).getContextRoot();
             for (Class service : services) {
                 // skip interfaces and such

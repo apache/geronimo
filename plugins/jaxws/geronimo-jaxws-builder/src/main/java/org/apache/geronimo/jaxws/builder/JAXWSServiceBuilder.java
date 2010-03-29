@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
-import java.util.jar.JarFile;
 
 import javax.xml.ws.http.HTTPBinding;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractName;
@@ -43,7 +43,6 @@ import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.util.JarUtils;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,12 +72,17 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                 Map sharedContext) throws DeploymentException {
         Map portMap = null;
         String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
-        JarFile moduleFile = module.getModuleFile();
-        try {
-            URL wsDDUrl = JarUtils.createJarURL(moduleFile, path);
-            InputStream in = wsDDUrl.openStream();
-            portMap = parseWebServiceDescriptor(in, wsDDUrl, moduleFile, isEJB, servletLocations);
-        } catch (IOException e) {
+        Deployable deployable = module.getDeployable();
+        URL wsDDUrl = deployable.getResource(path);
+        if (wsDDUrl != null) {
+            InputStream in;
+            try {
+                in = wsDDUrl.openStream();
+            } catch (IOException e) {
+                throw new DeploymentException("Failed to parse " + path, e);
+            }
+            portMap = parseWebServiceDescriptor(in, wsDDUrl, deployable, isEJB, servletLocations);
+        } else {
             // webservices.xml does not exist
             portMap = discoverWebServices(module, isEJB, servletLocations);
         }
@@ -102,7 +106,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
     protected abstract Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,
                                                                        URL wsDDUrl,
-                                                                       JarFile moduleFile,
+                                                                       Deployable deployable, 
                                                                        boolean isEJB,
                                                                        Map correctedPortLocations)
             throws DeploymentException;

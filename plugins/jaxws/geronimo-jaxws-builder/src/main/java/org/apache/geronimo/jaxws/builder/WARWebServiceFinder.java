@@ -33,14 +33,22 @@ import javax.jws.WebService;
 import javax.xml.ws.WebServiceProvider;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.Deployable;
+import org.apache.geronimo.deployment.DeployableBundle;
+import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
+import org.apache.geronimo.kernel.osgi.BundleAnnotationFinder;
+import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.kernel.util.NestedJarFile;
 import org.apache.geronimo.kernel.util.UnpackedJarFile;
 import org.apache.xbean.finder.ClassFinder;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +80,48 @@ public class WARWebServiceFinder implements WebServiceFinder {
         return webServiceFinder.discoverWebServices(module, isEJB, correctedPortLocations);
     }
 
+    /**
+     * Returns a list of any classes annotated with @WebService or
+     * @WebServiceProvider annotation.
+     */
+    static List<Class> discoverWebServices(Module module, 
+                                           Bundle bundle,
+                                           boolean isEJB) 
+            throws DeploymentException {
+        Deployable deployable = module.getDeployable();
+        if (deployable instanceof DeployableJarFile) {
+            return discoverWebServices( ((DeployableJarFile) deployable).getJarFile(), isEJB, new BundleClassLoader(bundle));
+        } else if (deployable instanceof DeployableBundle) {
+            return discoverWebServices( ((DeployableBundle) deployable).getBundle(), isEJB);
+        } else {
+            throw new DeploymentException("Unsupported deployable: " + deployable.getClass());
+        }
+    }
+
+    /**
+     * Returns a list of any classes annotated with @WebService or
+     * @WebServiceProvider annotation.
+     */
+    static List<Class> discoverWebServices(Bundle bundle, 
+                                           boolean isEJB) 
+            throws DeploymentException {
+        LOG.debug("Discovering web service classes");
+        
+        ServiceReference sr = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
+        PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(sr);
+        try {
+            BundleAnnotationFinder classFinder = new BundleAnnotationFinder(packageAdmin, bundle);
+            List<Class> classes = new ArrayList<Class>();
+            classes.addAll(classFinder.findAnnotatedClasses(WebService.class));
+            classes.addAll(classFinder.findAnnotatedClasses(WebServiceProvider.class));
+            return classes;
+        } catch (Exception e) {
+            throw new DeploymentException("Error scanning for web service annotations in bundle", e);
+        } finally {
+            bundle.getBundleContext().ungetService(sr);
+        }
+    }
+    
     /**
      * Returns a list of any classes annotated with @WebService or
      * @WebServiceProvider annotation.
