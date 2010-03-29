@@ -72,15 +72,10 @@ limitations under the License.
    dojo.require("dojo.data.ItemFileReadStore");
    dojo.require("dijit.form.FilteringSelect");
    dojo.require("dijit.Tree");
-   
-   dijit._TreeNode.prototype.setLabelNode = function (label) {
-       this.labelNode.innerHTML = label;
-    };
 
    var treeData = <%=treeJson%>;
    var listData = <%=listJson%>;
    var treeStore;
-   var navigationTree;
 
 function load() {
 
@@ -108,7 +103,7 @@ function load() {
        store: treeStore
    });
        
-   navigationTree = new dijit.Tree
+   var navigationTree = new dijit.Tree
            (
          {  model: treeModel,
             showRoot: false,
@@ -121,7 +116,12 @@ function load() {
                 {
                  displayPortlets(anchorNode);
                 }                     
-            }
+            },
+            _createTreeNode: function(args) {
+                    var tnode = new dijit._TreeNode(args);
+                    tnode.labelNode.innerHTML = args.label;
+                    return tnode;
+                }
          },
          dojo.byId("navigationTree")
        );
@@ -131,7 +131,6 @@ function load() {
        (
           {
            id: "quickLauncher",
-           value: "Server Log",
            store: listStore,
            searchAttr: "name",
            name: "quickLauncher",
@@ -158,9 +157,8 @@ function load() {
            anchorName = anchors[i].innerHTML; 
            if ( anchorName == portalPageName) { 
                displayPortlets(anchors[i]);
-               
-               if(navigationTree){
-                   findAndSelect(portalPageName,navigationTree.rootNode);
+               if(dijit.byId("navigationTree")){
+                   findAndSelect(portalPageName,dijit.byId("navigationTree").rootNode);
                }
                return;
            }
@@ -196,33 +194,35 @@ function load() {
 function findAndSelect(key, rootNode)
     {
         
-        var nodes = [];
+        var pathToExpandItems = [];
 
-        if(findRecur(rootNode.item.children, key, nodes))
+        if(findRecur(rootNode.item.children, key, pathToExpandItems))
         {
-            select(nodes);
+            select(pathToExpandItems);
         } 
     }
 
 
-function findRecur(items, key, nodes) 
+function findRecur(items, key, pathToExpandItems) 
     {
         for (var child = 0; child < items.length; child++) {
 
-            nodes.push(items[child]);
+            pathToExpandItems.push(items[child]);
             var label = treeStore.getLabel(items[child]);
             if (label && label.indexOf(key) != -1)
                 return true;
 
-            if (items[child].children && findRecur(items[child].children, key, nodes))
+            if (items[child].children && findRecur(items[child].children, key, pathToExpandItems))
                 return true;
-            nodes.pop();
+            pathToExpandItems.pop();
         }
         return false;
     }
     
-function select(nodes)
+function select(pathToExpandItems)
     {
+    
+    var navigationTree=dijit.byId("navigationTree");
         var i;
         function expandParent(node)
         {
@@ -233,10 +233,12 @@ function select(nodes)
             }
         }
         //make sure the ancestor node expanded before
-        expandParent(navigationTree._itemNodeMap[treeStore.getIdentity(nodes[0])].getParent());
+         var firstNode = getTreeNode(navigationTree,pathToExpandItems[0],treeStore);     
+         expandParent(firstNode.getParent());
+        
         for (i = 0;;i++) {
-            node  = navigationTree._itemNodeMap[treeStore.getIdentity(nodes[i])];
-            if(i < nodes.length-1)
+            node  = getTreeNode(navigationTree,pathToExpandItems[i],treeStore);
+            if(i < pathToExpandItems.length-1)
                 navigationTree._expandNode(node);
             else 
             {
@@ -245,6 +247,12 @@ function select(nodes)
             }
         }
     }
+    
+   function getTreeNode(tree,item,treeStore){
+   
+        var wrapperNode =tree._itemNodesMap[treeStore.getIdentity(item)];
+        return wrapperNode[0];
+   } 
  
         
 </script>
