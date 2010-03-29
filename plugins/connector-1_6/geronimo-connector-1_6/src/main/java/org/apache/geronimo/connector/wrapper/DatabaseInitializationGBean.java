@@ -18,8 +18,11 @@
 package org.apache.geronimo.connector.wrapper;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -29,20 +32,30 @@ import java.sql.Statement;
 import javax.resource.ResourceException;
 import javax.sql.DataSource;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.ResourceSource;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean
 public class DatabaseInitializationGBean {
+    
     private static final Logger log = LoggerFactory.getLogger(DatabaseInitializationGBean.class);
 
-    public DatabaseInitializationGBean(String testSQL, String path, ResourceSource<ResourceException> cfSource, ClassLoader classLoader) throws Exception {
+    public DatabaseInitializationGBean(@ParamAttribute(name="testSQL") String testSQL, 
+                                       @ParamAttribute(name="sql") String sql,
+                                       @ParamAttribute(name="path") String path, 
+                                       @ParamReference(name="DataSource", namingType=NameFactory.JCA_CONNECTION_FACTORY) ResourceSource<ResourceException> cfSource, 
+                                       @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle) throws Exception {
 
         DataSource ds = (DataSource) cfSource.$getResource();
         Connection c = ds.getConnection();
@@ -69,9 +82,8 @@ public class DatabaseInitializationGBean {
                 if (pass) {
                     //script needs to be run
                     log.debug("Executing script: " + path);
-                    URL sourceURL = classLoader.getResource(path);
-                    InputStream ins = sourceURL.openStream();
-                    BufferedReader r = new BufferedReader(new InputStreamReader(ins));
+                    Reader reader = getSQLInput(sql, path, bundle);
+                    BufferedReader r = new BufferedReader(reader);
                     try {
                         String line;
                         StringBuffer buf = new StringBuffer();
@@ -82,8 +94,8 @@ public class DatabaseInitializationGBean {
                                 if (line.endsWith(";")) {
                                     int size = buf.length();
                                     buf.delete(size - 2, size - 1);
-                                    String sql = buf.toString();
-                                    s.execute(sql);
+                                    String sqlCmd = buf.toString();
+                                    s.execute(sqlCmd);
                                     buf = new StringBuffer();
                                 }
                             }
@@ -113,22 +125,22 @@ public class DatabaseInitializationGBean {
 
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(DatabaseInitializationGBean.class, "GBean");
-        infoBuilder.addAttribute("testSQL", String.class, false);
-        infoBuilder.addAttribute("path", String.class, true);
-        infoBuilder.addReference("DataSource", ResourceSource.class, NameFactory.JCA_CONNECTION_FACTORY);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoBuilder.setConstructor(new String[]{"testSQL", "path", "DataSource", "classLoader"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
+    private Reader getSQLInput(String sqlString, String path, Bundle bundle) throws Exception {
+        if (sqlString != null) {
+            return new StringReader(sqlString);
+        } else if (path != null) {
+            URL resource = bundle.getResource(path);
+            if (resource == null) {
+                File file = new File(path);
+                if (!file.exists()) {
+                    throw new Exception("SQL resource file not found: " + path);
+                }
+                return new InputStreamReader(new FileInputStream(file));
+            } else {
+                return new InputStreamReader(resource.openStream());
+            }            
+        } else {
+            throw new Exception("SQL resource file or string not specified");
+        }
     }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }
