@@ -72,7 +72,7 @@ TBD
 
 Certification Status
 --------------------
-Apache Geronimo v2.1.x has passed 100% of SUN's Java Enterprise Edition 5.0 
+Apache Geronimo v@VERSION@ has passed 100% of SUN's Java Enterprise Edition 5.0 
 Certification Test Suite. See "Distributions" for further details.
 
 
