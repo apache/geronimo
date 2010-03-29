@@ -29,7 +29,7 @@ import java.util.zip.ZipEntry;
 import javax.servlet.ServletContext;
 
 import org.apache.geronimo.kernel.osgi.BundleResourceFinder;
-import org.apache.geronimo.kernel.osgi.DelegatingBundle;
+import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.geronimo.kernel.osgi.BundleResourceFinder.ResourceFinderCallback;
 import org.apache.geronimo.kernel.osgi.jar.BundleJarFile;
 import org.apache.jasper.JasperException;
@@ -41,7 +41,6 @@ import org.apache.jasper.xmlparser.ParserUtils;
 import org.apache.jasper.xmlparser.TreeNode;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleReference;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -157,7 +156,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
             tldScanWebXml();
             tldScanResourcePaths(WEB_INF);
 
-            Bundle bundle = getBundle();
+            Bundle bundle = BundleUtils.getContextBundle(true);
             if (bundle != null) {
                 tldScanClassPath(bundle);
                 tldScanGlobal(bundle);
@@ -166,19 +165,6 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         } catch (Exception ex) {
             throw new JasperException(ex);
         }
-    }
-
-    private Bundle getBundle() {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        if (classLoader instanceof BundleReference) {
-            Bundle bundle = ((BundleReference) classLoader).getBundle();
-            if (bundle instanceof DelegatingBundle) {
-                return ((DelegatingBundle) bundle).getMainBundle();
-            } else {
-                return bundle;
-            }
-        }
-        return null;
     }
     
     /*

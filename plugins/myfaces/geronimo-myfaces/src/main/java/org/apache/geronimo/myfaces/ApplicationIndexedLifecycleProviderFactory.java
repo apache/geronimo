@@ -46,7 +46,7 @@ public class ApplicationIndexedLifecycleProviderFactory extends LifecycleProvide
     }
 
     private Bundle getBundle() {
-        Bundle bundle = BundleUtils.getContextBundle();
+        Bundle bundle = BundleUtils.getContextBundle(false);
         if (bundle == null) {
             throw new IllegalStateException("Unable to get Bundle object associated with the context classloader");
         }

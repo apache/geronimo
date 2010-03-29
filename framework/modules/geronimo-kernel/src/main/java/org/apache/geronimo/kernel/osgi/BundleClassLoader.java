@@ -132,13 +132,41 @@ public class BundleClassLoader extends ClassLoader implements BundleReference {
             }
         }
     }
+        
+    /**
+     * Return the bundle associated with this classloader.
+     * 
+     * In most cases the bundle associated with the classloader is a regular framework bundle. 
+     * However, in some cases the bundle associated with the classloader is a {@link DelegatingBundle}.
+     * In such cases, the <tt>unwrap</tt> parameter controls whether this function returns the
+     * {@link DelegatingBundle} instance or the main application bundle backing with the {@link DelegatingBundle}.
+     *
+     * @param unwrap If true and if the bundle associated with this classloader is a {@link DelegatingBundle}, 
+     *        this function will return the main application bundle backing with the {@link DelegatingBundle}. 
+     *        Otherwise, the bundle associated with this classloader is returned as is.
+     * @return The bundle associated with this classloader.
+     */
+    public Bundle getBundle(boolean unwrap) {
+        if (unwrap && bundle instanceof DelegatingBundle) {
+            return ((DelegatingBundle) bundle).getMainBundle();
+        }
+        return bundle;
+    }
     
     /**
-     * Return the bundle instance backing this classloader.
+     * Return the bundle associated with this classloader.
+     * 
+     * This method calls {@link #getBundle(boolean) getBundle(true)} and therefore always returns a regular 
+     * framework bundle.  
+     * <br><br>
+     * Note: Some libraries use {@link BundleReference#getBundle()} to obtain a bundle for the given 
+     * classloader and expect the returned bundle instance to be work with any OSGi API. Some of these API might
+     * not work if {@link DelegatingBundle} is returned. That is why this function will always return
+     * a regular framework bundle. See {@link #getBundle(boolean)} for more information.
      *
-     * @return The bundle used to source the classloader.
+     * @return The bundle associated with this classloader.
      */
     public Bundle getBundle() {
-        return bundle;
+        return getBundle(true);
     }
 }

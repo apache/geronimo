@@ -48,11 +48,20 @@ public class BundleUtils {
     }
     
     /**
-     * Returns Bundle (if any) associated with current thread's context ClassLoader.
+     * Returns bundle (if any) associated with current thread's context classloader.
+     * 
+     * @param unwrap if true and if the bundle associated with the context classloader is a 
+     *        {@link DelegatingBundle}, this function will return the main application bundle 
+     *        backing with the {@link DelegatingBundle}. Otherwise, the bundle associated with 
+     *        the context classloader is returned as is. See {@link BundleClassLoader#getBundle(boolean)}
+     *        for more information.
+     * @return The bundle associated with the current thread's context classloader. Might be null.
      */
-    public static Bundle getContextBundle() {
+    public static Bundle getContextBundle(boolean unwrap) {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        if (classLoader instanceof BundleReference) {
+        if (classLoader instanceof BundleClassLoader) {
+            return ((BundleClassLoader) classLoader).getBundle(unwrap);        
+        } else if (classLoader instanceof BundleReference) {
             return ((BundleReference) classLoader).getBundle();
         } else {
             return null;
