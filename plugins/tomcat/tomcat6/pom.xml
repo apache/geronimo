@@ -118,12 +118,12 @@
                    <include>**/*.xml</include>
                 </includes>
             </resource>
-            <resource>
+            <!--<resource>
                 <directory>${pom.basedir}/src/main/resources</directory>
                 <excludes>
                    <exclude>**/*.xml</exclude>
                 </excludes>
-            </resource>
+            </resource>-->
         </resources>
         <plugins>
             <plugin>
