@@ -58,6 +58,7 @@ public class MockBundleContext implements BundleContext {
     private final Map<Artifact, ConfigurationData> configurationDatas;
     private final Map<String, Artifact> locations;
     private final Map<Long, Bundle> bundles = new HashMap<Long, Bundle>();
+    private final Map<String, ServiceReference> serviceReferences = new HashMap<String, ServiceReference>();
 
     private long counter = 0;
 
@@ -158,7 +159,9 @@ public class MockBundleContext implements BundleContext {
     }
 
     public ServiceRegistration registerService(String s, Object o, Dictionary dictionary) {
-        return null;
+        ServiceReference sr = new MockServiceReference(o);
+        serviceReferences.put(s, sr);
+        return new MockServiceRegistration(s, sr);
     }
 
     public ServiceReference[] getServiceReferences(String s, String s1) throws InvalidSyntaxException {
@@ -170,11 +173,11 @@ public class MockBundleContext implements BundleContext {
     }
 
     public ServiceReference getServiceReference(String s) {
-        return null;
+        return serviceReferences.get(s);
     }
 
     public Object getService(ServiceReference serviceReference) {
-        return null;
+        return ((MockServiceReference)serviceReference).service;
     }
 
     public boolean ungetService(ServiceReference serviceReference) {
@@ -215,6 +218,70 @@ public class MockBundleContext implements BundleContext {
             return MockBundleContext.this.installBundle(location);
         }
 
+    }
+
+    private class MockServiceReference implements ServiceReference {
+
+        private final Object service;
+
+        private MockServiceReference(Object service) {
+            this.service = service;
+        }
+
+        @Override
+        public Object getProperty(String s) {
+            return null;
+        }
+
+        @Override
+        public String[] getPropertyKeys() {
+            return new String[0];
+        }
+
+        @Override
+        public Bundle getBundle() {
+            return bundle;
+        }
+
+        @Override
+        public Bundle[] getUsingBundles() {
+            return new Bundle[0];
+        }
+
+        @Override
+        public boolean isAssignableTo(Bundle bundle, String s) {
+            return false;
+        }
+
+        @Override
+        public int compareTo(Object o) {
+            return 0;
+        }
+    }
+
+    private class MockServiceRegistration implements ServiceRegistration {
+
+        private final String s;
+        private final ServiceReference sr;
+
+        private MockServiceRegistration(String s, ServiceReference sr) {
+            this.s = s;
+            this.sr = sr;
+        }
+
+        @Override
+        public ServiceReference getReference() {
+            return sr;
+        }
+
+        @Override
+        public void setProperties(Dictionary dictionary) {
+        }
+
+        @Override
+        public void unregister() {
+            serviceReferences.remove(s);
+        }
     }
 
 }

@@ -110,7 +110,7 @@ public class RAR_1_0DConfigBeanTest extends TestSupport {
 
     protected void XsetUp() throws Exception {
         File docDir = new File(BASEDIR, "src/test/data/connector_1_0");
-        j2eeDD = new File(docDir, "ra.xml").toURL();
+        j2eeDD = new File(docDir, "ra.xml").toURI().toURL();
         xmlOptions = new XmlOptions();
         xmlOptions.setLoadLineNumbers();
         errors = new ArrayList();

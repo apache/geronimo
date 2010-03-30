@@ -75,6 +75,9 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean;
 import org.osgi.framework.Bundle;
+import org.osgi.service.packageadmin.ExportedPackage;
+import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.service.packageadmin.RequiredBundle;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -131,7 +134,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     Collections.singleton(repository),
                     null,
                     null,
-                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(serviceBuilder)),
+                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(serviceBuilder), bundleContext),
                     activationSpecInfoLocator,
                     null,
                     serviceBuilder,
@@ -338,7 +341,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         String resourceAdapterName = "testRA";
 
         try {
-            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(new GBeanBuilder(null, null)));
+            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(new GBeanBuilder(null, null)), bundleContext);
             File rarFile = action.getRARFile();
 
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -535,6 +538,63 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         Map<String, Artifact> locations = new HashMap<String, Artifact>();
         locations.put(null, artifact);
         bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, locations);
+        PackageAdmin packageAdmin = new PackageAdmin() {
+
+                @Override
+                public ExportedPackage[] getExportedPackages(Bundle bundle) {
+                    return new ExportedPackage[0];
+                }
+
+                @Override
+                public ExportedPackage[] getExportedPackages(String s) {
+                    return new ExportedPackage[0];
+                }
+
+                @Override
+                public ExportedPackage getExportedPackage(String s) {
+                    return null;
+                }
+
+                @Override
+                public void refreshPackages(Bundle[] bundles) {
+                }
+
+                @Override
+                public boolean resolveBundles(Bundle[] bundles) {
+                    return false;
+                }
+
+                @Override
+                public RequiredBundle[] getRequiredBundles(String s) {
+                    return new RequiredBundle[0];
+                }
+
+                @Override
+                public Bundle[] getBundles(String s, String s1) {
+                    return new Bundle[0];
+                }
+
+                @Override
+                public Bundle[] getFragments(Bundle bundle) {
+                    return new Bundle[0];
+                }
+
+                @Override
+                public Bundle[] getHosts(Bundle bundle) {
+                    return new Bundle[0];
+                }
+
+                @Override
+                public Bundle getBundle(Class aClass) {
+                    return null;
+                }
+
+                @Override
+                public int getBundleType(Bundle bundle) {
+                    return 0;
+                }
+            };
+        bundleContext.registerService(PackageAdmin.class.getName(), packageAdmin, null);
         kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
         kernel.boot();
 

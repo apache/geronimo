@@ -88,6 +88,11 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.MultiGBeanInfoFactory;
 import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.deployment.ActivationSpecInfoLocator;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -139,8 +144,11 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.service.packageadmin.RequiredBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -148,6 +156,8 @@ import org.xml.sax.SAXException;
 /**
  * @version $Rev:385659 $ $Date$
  */
+
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfoLocator, GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(ConnectorModuleBuilder.class);
 
@@ -194,15 +204,18 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     private final NamespaceDrivenBuilderCollection serviceBuilders;
     private final String defaultWorkManagerName;
 
-    public ConnectorModuleBuilder(Environment defaultEnvironment,
-                                  int defaultMaxSize,
-                                  int defaultMinSize,
-                                  int defaultBlockingTimeoutMilliseconds,
-                                  int defaultIdleTimeoutMinutes,
-                                  boolean defaultXATransactionCaching,
-                                  boolean defaultXAThreadCaching,
-                                  String defaultWorkManagerName,
-                                  Collection<NamespaceDrivenBuilder> serviceBuilders) {
+    private final PackageAdmin packageAdmin;
+
+    public ConnectorModuleBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+                                  @ParamAttribute(name = "defaultMaxSize") int defaultMaxSize,
+                                  @ParamAttribute(name = "defaultMinSize") int defaultMinSize,
+                                  @ParamAttribute(name = "defaultBlockingTimeoutMilliseconds") int defaultBlockingTimeoutMilliseconds,
+                                  @ParamAttribute(name = "defaultIdleTimeoutMinutes") int defaultIdleTimeoutMinutes,
+                                  @ParamAttribute(name = "defaultXATransactionCaching") boolean defaultXATransactionCaching,
+                                  @ParamAttribute(name = "defaultXAThreadCaching") boolean defaultXAThreadCaching,
+                                  @ParamAttribute(name = "defaultWorkManagerName") String defaultWorkManagerName,
+                                  @ParamReference(name = "ServiceBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<NamespaceDrivenBuilder> serviceBuilders,
+                                  @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) {
         this.defaultEnvironment = defaultEnvironment;
 
         this.defaultMaxSize = defaultMaxSize;
@@ -213,6 +226,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         this.defaultXAThreadCaching = defaultXAThreadCaching;
         this.defaultWorkManagerName = defaultWorkManagerName;
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+        ServiceReference sr = bundleContext.getServiceReference(PackageAdmin.class.getName());
+        packageAdmin = (PackageAdmin) bundleContext.getService(sr);
     }
 
     public void doStart() throws Exception {
@@ -478,8 +493,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         ConnectorModule<ConnectorBase, XmlObject> resourceModule = (ConnectorModule<ConnectorBase, XmlObject>) module;
 
         BundleAnnotationFinder classFinder;
-        ServiceReference sr = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
-        PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(sr);
         try {
             classFinder = new BundleAnnotationFinder(packageAdmin, bundle);
         } catch (Exception e) {
@@ -489,6 +502,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         ConnectorBase connector = resourceModule.getSpecDD();
         connector = mergeMetadata(bundle, classFinder, connector);
 
+        addExportPackages(connector, module.getEnvironment(), bundle);
 
         /*
         The chain of idiotic jsr-77 meaningless objects is:
@@ -615,7 +629,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             ResourceAdapterBase resourceAdapter = new ResourceAdapterBase();
             connector.setResourceAdapter(resourceAdapter);
             resourceAdapter.setResourceAdapterClass(raClass.getName());
-        } else  {
+        } else {
             String raClassName = connector.getResourceAdapter().getResourceAdapterClass();
             if (raClassName != null) {
                 try {
@@ -660,9 +674,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             MessageAdapter messageAdapter = inboundResource.getMessageAdapter();
             List<Class> activationSpecClasses = classFinder.findAnnotatedClasses(Activation.class);
 
-            for (Class<?> asClass: activationSpecClasses) {
+            for (Class<?> asClass : activationSpecClasses) {
                 Activation activation = asClass.getAnnotation(Activation.class);
-                for (Class messageListenerClass: activation.messageListeners()) {
+                for (Class messageListenerClass : activation.messageListeners()) {
                     ActivationSpec activationSpec = getActivationSpec(messageAdapter, messageListenerClass);
 
                     if (activationSpec.getActivationSpecClass() == null) {
@@ -679,7 +693,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             }
 
             //admin objects
-            for (Class adminObjectClass: classFinder.findAnnotatedClasses(AdministeredObject.class)) {
+            for (Class adminObjectClass : classFinder.findAnnotatedClasses(AdministeredObject.class)) {
                 AdministeredObject administeredObject = (AdministeredObject) adminObjectClass.getAnnotation(AdministeredObject.class);
                 Class[] interfaces = administeredObject.adminObjectInterfaces();
                 if (interfaces == null || interfaces.length == 0) {
@@ -692,7 +706,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                     }
                     interfaces = allInterfaces.toArray(new Class[1]);
                 }
-                for (Class aoInterface: interfaces) {
+                for (Class aoInterface : interfaces) {
                     AdminObject adminObject = getAdminObject(resourceAdapter, aoInterface);
                     if (adminObject.getAdminObjectClass() == null) {
                         adminObject.setAdminObjectClass(adminObjectClass.getName());
@@ -709,17 +723,17 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             }
 
             //outbound
-            for (Class<? extends ManagedConnectionFactory> mcfClass: classFinder.findAnnotatedClasses(javax.resource.spi.ConnectionDefinition.class)) {
+            for (Class<? extends ManagedConnectionFactory> mcfClass : classFinder.findAnnotatedClasses(javax.resource.spi.ConnectionDefinition.class)) {
                 javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation = mcfClass.getAnnotation(javax.resource.spi.ConnectionDefinition.class);
                 buildConnectionDefinition(mcfClass, connectionDefinitionAnnotation, outboundResourceAdapter);
             }
-            for (Class<? extends ManagedConnectionFactory> mcfClass: classFinder.findAnnotatedClasses(ConnectionDefinitions.class)) {
+            for (Class<? extends ManagedConnectionFactory> mcfClass : classFinder.findAnnotatedClasses(ConnectionDefinitions.class)) {
                 ConnectionDefinitions connectionDefinitionAnnotations = mcfClass.getAnnotation(ConnectionDefinitions.class);
-                for (javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation: connectionDefinitionAnnotations.value()) {
+                for (javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation : connectionDefinitionAnnotations.value()) {
                     buildConnectionDefinition(mcfClass, connectionDefinitionAnnotation, outboundResourceAdapter);
                 }
             }
-            if (outboundResourceAdapter.getConnectionDefinition().size() >0) {
+            if (outboundResourceAdapter.getConnectionDefinition().size() > 0) {
                 resourceAdapter.setOutboundResourceAdapter(outboundResourceAdapter);
             }
         }
@@ -728,12 +742,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
     /**
      * Find or create an ActivationSpec object for the supplied messageListenerClass
-     * @param messageAdapter MessageAdapter container object
+     *
+     * @param messageAdapter       MessageAdapter container object
      * @param messageListenerClass class for the activation spec
      * @return ActivationSpec data object
      */
     private ActivationSpec getActivationSpec(MessageAdapter messageAdapter, Class messageListenerClass) {
-        for (MessageListener messageListener: messageAdapter.getMessageListener()) {
+        for (MessageListener messageListener : messageAdapter.getMessageListener()) {
             if (messageListenerClass.getName().equals(messageListener.getMessageListenerType())) {
                 return messageListener.getActivationSpec();
             }
@@ -748,12 +763,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
     /**
      * find or create an AdminObject for the supplied admin object interface
+     *
      * @param resourceAdapter ResourceAdapter container object
-     * @param aoInterface admin object interface
+     * @param aoInterface     admin object interface
      * @return AdminObject data object
      */
     private AdminObject getAdminObject(ResourceAdapterBase resourceAdapter, Class aoInterface) {
-        for (AdminObject adminObject: resourceAdapter.getAdminObject()) {
+        for (AdminObject adminObject : resourceAdapter.getAdminObject()) {
             if (aoInterface.getName().equals(adminObject.getAdminObjectInterface())) {
                 return adminObject;
             }
@@ -787,7 +803,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     private void setConfigProperty(List<ConfigProperty> configProperties, javax.resource.spi.ConfigProperty cpa, String name, Class<?> type) throws DeploymentException {
         name = Introspector.decapitalize(name);
         ConfigProperty target = null;
-        for (ConfigProperty configProperty: configProperties) {
+        for (ConfigProperty configProperty : configProperties) {
             if (name.equals(configProperty.getConfigPropertyName())) {
                 target = configProperty;
                 break;
@@ -799,7 +815,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             configProperties.add(target);
         }
         if (cpa.type() != Object.class && cpa.type() != type) {
-            throw new DeploymentException("wrong type specified: " + cpa.type().getName() + " expecting " +  type.getName());
+            throw new DeploymentException("wrong type specified: " + cpa.type().getName() + " expecting " + type.getName());
         }
         if (target.getConfigPropertyType() == null) {
             target.setConfigPropertyType(type.getName());
@@ -820,7 +836,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
     private List<String> toString(Class<?>[] classes) {
         List<String> list = new ArrayList<String>(classes.length);
-        for (Class<?>clazz: classes) {
+        for (Class<?> clazz : classes) {
             list.add(clazz.getName());
         }
         return list;
@@ -840,7 +856,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     }
 
     private ConnectionDefinition getConnectionDefinition(javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation, OutboundResourceAdapter outboundResourceAdapter) {
-        for (ConnectionDefinition connectionDefinition: outboundResourceAdapter.getConnectionDefinition()) {
+        for (ConnectionDefinition connectionDefinition : outboundResourceAdapter.getConnectionDefinition()) {
             if (connectionDefinitionAnnotation.connectionFactory().getName().equals(connectionDefinition.getConnectionFactoryInterface())) {
                 return connectionDefinition;
             }
@@ -849,6 +865,39 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         outboundResourceAdapter.getConnectionDefinition().add(connectionDefinition);
         connectionDefinition.setConnectionFactoryInterface(connectionDefinitionAnnotation.connectionFactory().getName());
         return connectionDefinition;
+    }
+
+    private void addExportPackages(ConnectorBase connector, Environment environment, Bundle bundle) throws DeploymentException {
+        if (connector.getResourceAdapter().getOutboundResourceAdapter() != null) {
+            for (ConnectionDefinition connectionDefinition : connector.getResourceAdapter().getOutboundResourceAdapter().getConnectionDefinition()) {
+                addExportPackage(environment, connectionDefinition.getConnectionFactoryInterface(), bundle);
+                addExportPackage(environment, connectionDefinition.getConnectionInterface(), bundle);
+            }
+        }
+        if (connector.getResourceAdapter().getInboundResourceAdapter() != null) {
+            for (MessageListener messageListener : connector.getResourceAdapter().getInboundResourceAdapter().getMessageAdapter().getMessageListener()) {
+                addExportPackage(environment, messageListener.getMessageListenerType(), bundle);
+                addExportPackage(environment, messageListener.getActivationSpec().getActivationSpecClass(), bundle);
+            }
+        }
+        for (AdminObject adminObject : connector.getResourceAdapter().getAdminObject()) {
+            addExportPackage(environment, adminObject.getAdminObjectInterface(), bundle);
+        }
+    }
+
+    private void addExportPackage(Environment environment, String intf, Bundle bundle) throws DeploymentException {
+        try {
+            Class clazz = bundle.loadClass(intf);
+            if (bundle == packageAdmin.getBundle(clazz)) {
+                int pos = intf.lastIndexOf(".");
+                String aPackage = intf.substring(0, pos);
+                //            environment.addImportPackage(aPackage);
+                environment.addExportPackage(aPackage);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not load exported class: " + intf);
+        }
+
     }
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
@@ -1364,41 +1413,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             throw new DeploymentException("No managed connection factory infos found for resource adapter module: " + resourceAdapterModuleData.getAbstractName());
         }
         return (GBeanData) managedConnectionFactoryInfos.get(connectionFactoryInterfaceName);
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ConnectorModuleBuilder.class, NameFactory.MODULE_BUILDER);
-
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("defaultMaxSize", int.class, true, true);
-        infoBuilder.addAttribute("defaultMinSize", int.class, true, true);
-        infoBuilder.addAttribute("defaultBlockingTimeoutMilliseconds", int.class, true, true);
-        infoBuilder.addAttribute("defaultIdleTimeoutMinutes", int.class, true, true);
-        infoBuilder.addAttribute("defaultXATransactionCaching", boolean.class, true, true);
-        infoBuilder.addAttribute("defaultXAThreadCaching", boolean.class, true, true);
-        infoBuilder.addAttribute("defaultWorkManagerName", String.class, true, true);
-
-        infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
-
-        infoBuilder.addInterface(ModuleBuilder.class);
-        infoBuilder.addInterface(ActivationSpecInfoLocator.class);
-
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment",
-                "defaultMaxSize",
-                "defaultMinSize",
-                "defaultBlockingTimeoutMilliseconds",
-                "defaultIdleTimeoutMinutes",
-                "defaultXATransactionCaching",
-                "defaultXAThreadCaching",
-                "defaultWorkManagerName",
-                "ServiceBuilders"});
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }
