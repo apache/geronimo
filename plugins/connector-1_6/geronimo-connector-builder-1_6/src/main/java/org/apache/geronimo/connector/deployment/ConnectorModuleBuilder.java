@@ -653,7 +653,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                         outboundResourceAdapter = new OutboundResourceAdapter();
                         resourceAdapter.setOutboundResourceAdapter(outboundResourceAdapter);
                     }
-                    if (outboundResourceAdapter.isReauthenticationSupport()) {
+                    if (outboundResourceAdapter.isReauthenticationSupport() == null) {
                         outboundResourceAdapter.setReauthenticationSupport(ra.reauthenticationSupport());
                     }
                     if (outboundResourceAdapter.getTransactionSupport() == null) {
