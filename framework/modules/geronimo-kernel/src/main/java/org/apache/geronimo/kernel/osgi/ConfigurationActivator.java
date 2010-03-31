@@ -20,7 +20,6 @@
 
 package org.apache.geronimo.kernel.osgi;
 
-import java.net.URL;
 import java.io.InputStream;
 
 import org.osgi.framework.BundleActivator;
@@ -41,32 +40,49 @@ import org.apache.geronimo.gbean.AbstractName;
  * @version $Rev$ $Date$
  */
 public class ConfigurationActivator implements BundleActivator {
-    
+
     private Artifact id;
 
 
     public void start(BundleContext bundleContext) throws Exception {
-        ServiceReference kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
-        Kernel kernel = (Kernel) bundleContext.getService(kernelReference);
-        ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
-        Bundle bundle = bundleContext.getBundle();
-        URL plan = bundle.getEntry("META-INF/config.ser");
-        InputStream in = plan.openStream();
+        ServiceReference kernelReference = null;
+        InputStream in = null;
         try {
+            kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
+            if (kernelReference == null) {
+                return;
+            }
+            Kernel kernel = (Kernel) bundleContext.getService(kernelReference);
+            ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
+            Bundle bundle = bundleContext.getBundle();
+            in = bundle.getEntry("META-INF/config.ser").openStream();
             //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
             ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
             data.setBundleContext(bundleContext);
             manager.loadConfiguration(data);
             id = data.getId();
-//            manager.startConfiguration(id);
+            //            manager.startConfiguration(id);
         } finally {
-            in.close();
+            if (in != null)
+                try {
+                    in.close();
+                } catch (Exception e) {
+                }
+            if (kernelReference != null)
+                try {
+                    bundleContext.ungetService(kernelReference);
+                } catch (Exception e) {
+                }
         }
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
-        ServiceReference kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
-        if (kernelReference != null) {
+        ServiceReference kernelReference = null;
+        try {
+            kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
+            if (kernelReference == null) {
+                return;
+            }
             Kernel kernel = (Kernel) bundleContext.getService(kernelReference);
             AbstractName name = Configuration.getConfigurationAbstractName(id);
             //TODO investigate how this is called and whether just stopping/unloading the configuration gbean will
@@ -76,25 +92,25 @@ public class ConfigurationActivator implements BundleActivator {
             try {
                 kernel.stopGBean(name);
             } catch (GBeanNotFoundException e) {
-
             } catch (InternalKernelException e) {
-
             } catch (IllegalStateException e) {
-
             }
             try {
                 kernel.unloadGBean(name);
             } catch (GBeanNotFoundException e) {
-
             } catch (InternalKernelException e) {
-
             } catch (IllegalStateException e) {
-
             }
             //TODO this code is more symmetrical with start, but currently sets the load attribute to false in config.xml,
             //which prevents restarting the server.
-//            ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
-//            manager.unloadConfiguration(id);
+            //            ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
+            //            manager.unloadConfiguration(id);
+        } finally {
+            if (kernelReference != null)
+                try {
+                    bundleContext.ungetService(kernelReference);
+                } catch (Exception e) {
+                }
         }
     }
 }
