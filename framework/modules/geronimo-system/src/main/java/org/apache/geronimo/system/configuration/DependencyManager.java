@@ -66,8 +66,8 @@ public class DependencyManager implements SynchronousBundleListener {
     private final RepositoryAdmin repositoryAdmin;
 
     private final ArtifactResolver artifactResolver;
-    
-    private final Map<Bundle, PluginArtifactType> pluginMap = 
+
+    private final Map<Bundle, PluginArtifactType> pluginMap =
         Collections.synchronizedMap(new WeakHashMap<Bundle, PluginArtifactType>());
 
     public DependencyManager(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
@@ -112,7 +112,7 @@ public class DependencyManager implements SynchronousBundleListener {
         }
         return pluginArtifactType;
     }
-    
+
     private void installRepository(Bundle bundle) {
         if (repositoryAdmin != null) {
             URL info = bundle.getEntry("OSGI-INF/obr/repository.xml");
@@ -129,7 +129,7 @@ public class DependencyManager implements SynchronousBundleListener {
         }
     }
 
-    private PluginArtifactType getCachedPluginMetadata(Bundle bundle) {        
+    private PluginArtifactType getCachedPluginMetadata(Bundle bundle) {
         PluginArtifactType pluginArtifactType = pluginMap.get(bundle);
         if (pluginArtifactType == null) {
             pluginArtifactType = getPluginMetadata(bundle);
@@ -141,7 +141,7 @@ public class DependencyManager implements SynchronousBundleListener {
         }
         return pluginArtifactType;
     }
-        
+
     private void installed(Bundle bundle) {
         PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
         if (pluginArtifactType != null) {
@@ -154,11 +154,6 @@ public class DependencyManager implements SynchronousBundleListener {
                         artifact = artifactResolver.resolveInClassLoader(artifact);
                     }
                     String location = locateBundle(artifact);
-                    for (Bundle test: bundleContext.getBundles()) {
-                        if (location.equals(test.getLocation())) {
-                            continue;
-                        }
-                    }
                     try {
                         bundleContext.installBundle(location);
                     } catch (BundleException e) {
@@ -184,14 +179,12 @@ public class DependencyManager implements SynchronousBundleListener {
                         artifact = artifactResolver.resolveInClassLoader(artifact);
                     }
                     String location = locateBundle(artifact);
-                        
-                    for (Bundle test: bundleContext.getBundles()) {
-                        if (location.equals(test.getLocation())) {
-                            bundles.add(test);
-                        }
-                    }                        
+                    Bundle b = bundleContext.installBundle(location);
+                    if (b.getState() != Bundle.ACTIVE) {
+                        bundles.add(b);
+                    }
                 }
-                    
+
                 for (Bundle b : bundles) {
                     if (BundleUtils.canStart(b)) {
                         try {
@@ -204,9 +197,9 @@ public class DependencyManager implements SynchronousBundleListener {
             } catch (Exception e) {
                 log.error("Could not install bundle dependecy", e);
             }
-        }         
+        }
     }
-    
+
     private String locateBundle(Artifact configurationId) throws NoSuchConfigException, IOException, InvalidConfigException {
         if (System.getProperty("geronimo.build.car") == null) {
             return "mvn:" + configurationId.getGroupId() + "/" + configurationId.getArtifactId() + "/" + configurationId.getVersion() + ("jar".equals(configurationId.getType())?  "": "/" + configurationId.getType());
