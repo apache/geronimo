@@ -38,7 +38,7 @@
 
 <!-- These are in the geronimo-parent PM for now
     <properties>
-        <openjpaVersion>2.0.0-beta</openjpaVersion>
+        <openjpaVersion>2.0.0-beta3</openjpaVersion>
     </properties>
 
     <dependencyManagement>
