@@ -72,5 +72,9 @@ limitations under the License.
         <bean class="com.sun.jndi.url.rmi.rmiURLContextFactory"/>
     </service>
 
+    <service id="OpenEJBInitialContextFactory"
+             interface="org.apache.openejb.client.RemoteInitialContextFactory">
+        <bean class="org.apache.openejb.client.RemoteInitialContextFactory"/>
+    </service>
 
 </blueprint>

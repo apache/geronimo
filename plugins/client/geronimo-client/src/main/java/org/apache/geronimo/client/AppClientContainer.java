@@ -152,8 +152,9 @@ public final class AppClientContainer implements GBeanLifecycle {
                 for (Injection injection : injections) {
                     try {
                         String jndiName = injection.getJndiName();
-                        //our componentContext is attached to jndi at "java:comp" so we remove that when looking stuff up in it
-                        Object object = componentContext.lookup("env/" + jndiName);
+                        //TODO this may not be correct due to module, app, and global jndi names.
+                        //our componentContext is attached to jndi at "java:" so we remove that when looking stuff up in it
+                        Object object = componentContext.lookup("comp/env/" + jndiName);
                         if (object instanceof String) {
                             String string = (String) object;
                             // Pass it in raw so it could be potentially converted to
