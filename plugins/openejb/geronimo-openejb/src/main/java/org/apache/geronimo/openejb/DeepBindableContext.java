@@ -26,6 +26,7 @@ import org.apache.openejb.SystemException;
 import org.apache.openejb.core.JndiFactory;
 import org.apache.xbean.naming.context.ContextAccess;
 import org.apache.xbean.naming.context.WritableContext;
+import org.apache.xbean.naming.global.GlobalContextManager;
 
 import javax.naming.Binding;
 import javax.naming.CompositeName;
@@ -70,7 +71,7 @@ public class DeepBindableContext extends WritableContext {
         private final Context rootContext;
 
         XBeanJndiFactory() throws NamingException {
-            rootContext = new ContextWrapper((Context) new InitialContext().lookup(""));
+            rootContext = new ContextWrapper(DeepBindableContext.this);
         }
 
         public Context createComponentContext(Map<String, Object> bindings) throws SystemException {

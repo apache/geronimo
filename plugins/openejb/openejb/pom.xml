@@ -176,7 +176,7 @@
                             <config-substitution key="MulticastDiscoveryAddress">239.255.3.2</config-substitution>
                             <config-substitution key="MulticastDiscoveryPort">6142</config-substitution>
                             <config-substitution key="ClusterName">cluster1</config-substitution>
-                            <copy-file relative-to="geronimo" dest-dir="">schema</copy-file>
+                            <copy-file relative-to="geronimo" dest-dir="schema">schema/</copy-file>
                         </plugin-artifact>
                     </instance>
                 </configuration>

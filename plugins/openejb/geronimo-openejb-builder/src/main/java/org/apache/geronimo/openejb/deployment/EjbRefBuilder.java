@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.openejb.deployment;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -174,7 +175,9 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 if (uri != null) {
                     value = createClientRef(value);
                 }
-                put(name, value, getJndiContextMap(componentContext));
+                if (value instanceof Serializable) {
+                    put(name, value, getJndiContextMap(componentContext));
+                }
             }
         }
     }

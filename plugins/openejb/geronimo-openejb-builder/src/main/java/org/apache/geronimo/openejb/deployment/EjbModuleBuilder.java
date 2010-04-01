@@ -405,30 +405,30 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
         installModule(module, earContext);
         EARContext moduleContext;
-        if (module.isStandAlone()) {
+//        if (module.isStandAlone()) {
             moduleContext = earContext;
-        } else {
-            Environment environment = earContext.getConfiguration().getEnvironment();
-            File configurationDir = new File(earContext.getBaseDir(), module.getTargetPath());
-//            configurationDir.mkdirs();
-
-            // construct the ejb app deployment context... this is the same class used by the ear context
-            try {
-                File inPlaceConfigurationDir = null;
-                if (null != earContext.getInPlaceConfigurationDir()) {
-                    inPlaceConfigurationDir = new File(earContext.getInPlaceConfigurationDir(), module.getTargetPath());
-                }
-                moduleContext = new EARContext(configurationDir,
-                        inPlaceConfigurationDir,
-                        environment,
-                        ConfigurationModuleType.EJB,
-                        module.getModuleName(),
-                        earContext);
-            } catch (DeploymentException e) {
-                cleanupConfigurationDir(configurationDir);
-                throw e;
-            }
-        }
+//        } else {
+//            Environment environment = earContext.getConfiguration().getEnvironment();
+//            File configurationDir = new File(earContext.getBaseDir(), module.getTargetPath());
+////            configurationDir.mkdirs();
+//
+//            // construct the ejb app deployment context... this is the same class used by the ear context
+//            try {
+//                File inPlaceConfigurationDir = null;
+//                if (null != earContext.getInPlaceConfigurationDir()) {
+//                    inPlaceConfigurationDir = new File(earContext.getInPlaceConfigurationDir(), module.getTargetPath());
+//                }
+//                moduleContext = new EARContext(configurationDir,
+//                        inPlaceConfigurationDir,
+//                        environment,
+//                        ConfigurationModuleType.EJB,
+//                        module.getModuleName(),
+//                        earContext);
+//            } catch (DeploymentException e) {
+//                cleanupConfigurationDir(configurationDir);
+//                throw e;
+//            }
+//        }
         module.setEarContext(moduleContext);
         module.setRootEarContext(earContext);
         if (((EjbModule) module).getEjbJar().getAssemblyDescriptor() != null) {

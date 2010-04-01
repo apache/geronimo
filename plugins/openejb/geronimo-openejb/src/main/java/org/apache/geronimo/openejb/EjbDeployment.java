@@ -65,7 +65,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
 
     protected CoreDeploymentInfo deploymentInfo;
 
-    private Context javaCompSubContext;
+//    private Context javaCompSubContext;
 
     public EjbDeployment() throws LoginException {
         this(null, null, null, null, null, null, null, null, null, null,
@@ -167,7 +167,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     }
 
     public Context getComponentContext() {
-        return javaCompSubContext;
+        return componentContext;
     }
 
     public Set<String> getUnshareableResources() {
@@ -276,10 +276,10 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
             throw new IllegalStateException("Ejb does not exist " + deploymentId);
         }
 
-        javaCompSubContext = (Context) deploymentInfo.getJndiEnc().lookup("java:comp");
-        if (componentContext != null) {
-            javaCompSubContext.bind("geronimo", componentContext);
-        }
+//        javaCompSubContext = (Context) deploymentInfo.getJndiEnc().lookup("java:comp");
+//        if (componentContext != null) {
+//            javaCompSubContext.bind("geronimo", componentContext);
+//        }
         synchronized(deploymentInfo){
             deploymentInfo.set(EjbDeployment.class, this);
        	    deploymentInfo.notifyAll();
