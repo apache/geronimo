@@ -20,4 +20,10 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
+    <!--
+    <gbean name="Axis2Cache" class="org.apache.geronimo.axis2.ClearCacheGBean">
+        <attribute name="period">600000</attribute>
+    </gbean>
+    -->
+
 </module>
