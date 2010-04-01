@@ -24,11 +24,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Request;
@@ -56,7 +52,7 @@ public class TomcatEJBWebServiceContext extends StandardContext {
         log.debug("EJB Webservice Context = " + contextPath);
 
         this.classLoader = classLoader;
-        
+
         //Create a dummy wrapper
         Wrapper wrapper = this.createWrapper();
         String name = System.currentTimeMillis() + "";
@@ -66,8 +62,8 @@ public class TomcatEJBWebServiceContext extends StandardContext {
 
     }
 
-    public void start() throws LifecycleException {
-        super.start();
+    protected void startInternal() throws LifecycleException {
+        super.startInternal();
         addValve(new EJBWebServiceValve());
     }
 
@@ -78,24 +74,24 @@ public class TomcatEJBWebServiceContext extends StandardContext {
             ClassLoader oldClassLoader = currentThread.getContextClassLoader();
             currentThread.setContextClassLoader(classLoader);
             try {
-                handle(req, res);                
+                handle(req, res);
             } finally {
                 currentThread.setContextClassLoader(oldClassLoader);
             }
         }
-        
+
         private void handle(Request req, Response res) throws IOException, ServletException {
-            res.setContentType("text/xml");            
+            res.setContentType("text/xml");
             RequestAdapter request = new RequestAdapter(req);
             ResponseAdapter response = new ResponseAdapter(res);
 
-            request.setAttribute(WebServiceContainer.SERVLET_REQUEST, (HttpServletRequest)req);
-            request.setAttribute(WebServiceContainer.SERVLET_RESPONSE, (HttpServletResponse)res);
+            request.setAttribute(WebServiceContainer.SERVLET_REQUEST, req);
+            request.setAttribute(WebServiceContainer.SERVLET_RESPONSE, res);
             // TODO: add support for context
             request.setAttribute(WebServiceContainer.SERVLET_CONTEXT, null);
 
             req.finishRequest();
-            
+
             if (isWSDLRequest(req)) {
                 try {
                     webServiceContainer.getWsdl(request, response);
@@ -119,9 +115,9 @@ public class TomcatEJBWebServiceContext extends StandardContext {
         }
 
         private boolean isWSDLRequest(Request req) {
-            return ("GET".equals(req.getMethod()) && (req.getParameter("wsdl") != null || req.getParameter("xsd") != null));            
+            return ("GET".equals(req.getMethod()) && (req.getParameter("wsdl") != null || req.getParameter("xsd") != null));
         }
-        
+
     }
 
     public static class RequestAdapter implements WebServiceContainer.Request {

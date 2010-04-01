@@ -91,19 +91,19 @@ public class GeronimoStandardContext extends StandardContext {
     private boolean authenticatorInstalled;
     private ConfigurationFactory configurationFactory;
     private String policyContextId;
-    
+
     private Bundle bundle;
     private ServiceRegistration serviceRegistration;
 
     public GeronimoStandardContext() {
         setXmlNamespaceAware(true);
-        // disable Tomcat startup TLD scanning 
+        // disable Tomcat startup TLD scanning
         setProcessTlds(false);
     }
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
         bundle = ctx.getBundle();
-        
+
         setResources(new BundleDirContext(ctx.getBundle(), ctx.getModulePath()));
 
         // Create ReadOnlyContext
@@ -176,7 +176,7 @@ public class GeronimoStandardContext extends StandardContext {
         interceptor = new UserTransactionBeforeAfter(interceptor, index++, ctx.getUserTransaction());
 
         addValve(new ProtectedTargetValve());
-        
+
         Valve clusteredValve = ctx.getClusteredValve();
         if (null != clusteredValve) {
             addValve(clusteredValve);
@@ -321,7 +321,7 @@ public class GeronimoStandardContext extends StandardContext {
         if (serviceRegistration != null) {
             serviceRegistration.unregister();
         }
-        
+
         Object context[] = null;
 
         if (beforeAfter != null){
@@ -345,16 +345,11 @@ public class GeronimoStandardContext extends StandardContext {
         setDocBase(docBase);
     }
 
-    public synchronized void start() throws LifecycleException {
+    protected void startInternal() throws LifecycleException {
         if (pipelineInitialized) {
             try {
-                Valve valve = getFirst();
+                Valve valve = getPipeline().getFirst();
                 valve.invoke(null, null);
-                //Install the DefaultSubjectValve after the authentication valve so the default subject is supplied
-                //only if no real subject is authenticated.
-
-//                Valve defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
-//                addValve(defaultSubjectValve);
 
                 // if a servlet uses run-as then make sure role desgnates have been provided
                 if (hasRunAsServlet()) {
@@ -375,9 +370,9 @@ public class GeronimoStandardContext extends StandardContext {
                 throw new LifecycleException(e);
             }
         } else {
-            super.start();
+            super.startInternal();
         }
-        
+
         // for OSGi Web Applications support register ServletContext in service registry
         if (WebApplicationUtils.isWebApplicationBundle(bundle)) {
             serviceRegistration = WebApplicationUtils.registerServletContext(bundle, getServletContext());
@@ -502,7 +497,7 @@ public class GeronimoStandardContext extends StandardContext {
         public void invoke(Request request, Response response) throws IOException, ServletException {
             if (request == null && response == null) {
                 try {
-                    GeronimoStandardContext.super.start();
+                    GeronimoStandardContext.super.startInternal();
                 } catch (LifecycleException e) {
                     throw (IOException) new IOException("wrapping lifecycle exception").initCause(e);
                 }

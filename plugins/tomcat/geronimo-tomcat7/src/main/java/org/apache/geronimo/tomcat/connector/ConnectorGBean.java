@@ -49,26 +49,26 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     public final static String CONNECTOR_CONTAINER_REFERENCE = "TomcatContainer";
 
     protected final ServerInfo serverInfo;
-    
+
     protected final Connector connector;
 
     protected final TomcatContainer container;
 
     private String name;
-    
+
     private boolean wrappedConnector;
-    
+
     public ConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
                         @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
                         @ParamAttribute(manageable=false, name = "protocol") String tomcatProtocol,
                         @ParamReference(name = "TomcatContainer") TomcatContainer container,
                         @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
                         @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
-        
+
         //Relief for new Tomcat-only parameters that may come in the future
         if (initParams == null){
             initParams = new HashMap<String, String>();
-            
+
         }
 
         // Do we really need this?? For Tomcat I don't think so...
@@ -85,7 +85,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         if (serverInfo == null){
             throw new IllegalArgumentException("serverInfo cannot be null.");
         }
-        
+
         tomcatProtocol = validateProtocol(tomcatProtocol);
 
         this.name = name;
@@ -103,7 +103,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
             connector = conn;
             wrappedConnector = true;
         }
-        
+
         setParameters(connector, initParams);
 
     }
@@ -121,66 +121,66 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
         String executorName=null;
         Executor executor=null;
-        
+
         if (this.connector.getAttribute("executor") != null) {
-            
+
             Object value = connector.getAttribute("executor");
             if (value == null)
                 executorName=null;
-            
+
             if (value instanceof String)
                 executorName= (String)value;
-            
+
             if(value instanceof Executor){
                 executorName= ((Executor) value).getName();
             }
-            
+
             executor = TomcatServerGBean.executors.get(executorName);
-            
-            if (executor == null) { 
-               
-                log.warn("No executor found with name:" + executorName+", trying to get default executor with name 'DefaultThreadPool'");
-                executor = TomcatServerGBean.executors.get("DefaultThreadPool");   
-            }  
-            
-            
-        } else {
-            
-            executor = TomcatServerGBean.executors.get("DefaultThreadPool");  
-            
+
             if (executor == null) {
-                
+
+                log.warn("No executor found with name:" + executorName+", trying to get default executor with name 'DefaultThreadPool'");
+                executor = TomcatServerGBean.executors.get("DefaultThreadPool");
+            }
+
+
+        } else {
+
+            executor = TomcatServerGBean.executors.get("DefaultThreadPool");
+
+            if (executor == null) {
+
                 log.warn("No executor found in service with name: DefaultThreadPool");
-                
-            } 
+
+            }
         }
-        
-        
+
+
         if (executor != null)
 
         {
-            log.info("executor:"+executor.getName()+" found, set it to connector:"+this.getName() );     
+            log.info("executor:"+executor.getName()+" found, set it to connector:"+this.getName() );
 
             try {
 
-                IntrospectionUtils.callMethod1(this.connector.getProtocolHandler(), 
-                                                "setExecutor", 
+                IntrospectionUtils.callMethod1(this.connector.getProtocolHandler(),
+                                                "setExecutor",
                                                 executor,
                                                 java.util.concurrent.Executor.class.getName(),
                                                 connector.getClass().getClassLoader());
             } catch (Exception e) {
-                
+
                 log.info("connector:"+this.getName()+"does not support executor set, do nothing");
             }
         }
-        
+
         container.addConnector(this.connector);
-        
+
         log.debug("{} connector started", name);
 
     }
 
-    public void doStop() {        
+    public void doStop() {
         if (!wrappedConnector) {
             container.removeConnector(connector);
         }
@@ -192,15 +192,15 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
      * @param protocol
      */
     protected String validateProtocol(String tomcatProtocol) { return tomcatProtocol;}
-    
+
     public abstract int getDefaultPort();
-    
+
     public abstract String getGeronimoProtocol();
-    
+
     public abstract Stats getStats();
-    
+
     public abstract void resetStats();
-    
+
     public Object getInternalObject() {
         return connector;
     }
@@ -215,10 +215,6 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
     public boolean getAllowTrace() {
         return connector.getAllowTrace();
-    }
-
-    public void setEmptySessionPath(boolean emptySessionPath) {
-        connector.setEmptySessionPath(emptySessionPath);
     }
 
     public void setEnableLookups(boolean enabled) {
@@ -240,7 +236,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
         //to the container's scheme.  This whole idea needs rework.
         return getGeronimoProtocol();
     }
-    
+
     public String getTomcatProtocol() {
         return connector.getProtocol();
     }
@@ -276,64 +272,64 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     public boolean getUseIPVHosts() {
         return connector.getUseIPVHosts();
     }
-    
+
     @Persistent(manageable=false)
     public void setMaxSavePostSize(int maxSavePostSize) {
         connector.setMaxSavePostSize(maxSavePostSize);
     }
-    
+
     @Persistent(manageable=false)
     public void setProxyName(String proxyName) {
         if (proxyName.equals(""))
             proxyName = null;
         connector.setProxyName(proxyName);
     }
-    
+
     @Persistent(manageable=false)
     public void setProxyPort(int port) {
         connector.setProxyPort(port);
     }
-    
+
     @Persistent(manageable=false)
     public void setRedirectPort(int port) {
         connector.setRedirectPort(port);
     }
-    
+
     @Persistent(manageable=false)
     public void setScheme(String scheme) {
         connector.setScheme(scheme);
     }
-    
+
     @Persistent(manageable=false)
     public void setSecure(boolean secure) {
         connector.setSecure(secure);
     }
-    
+
     public boolean getSslEnabled() {
         Object value = connector.getAttribute("SSLEnabled");
         return value == null ? false : new Boolean(value.toString()).booleanValue();
     }
-    
+
     @Persistent(manageable=false)
     public void setSslEnabled(boolean sslEnabled) {
         connector.setAttribute("SSLEnabled", sslEnabled);
     }
-    
+
     @Persistent(manageable=false)
     public void setUriEncoding(String uriEncoding) {
         connector.setURIEncoding(uriEncoding);
     }
-    
+
     @Persistent(manageable=false)
     public void setUseBodyEncodingForURI(boolean useBodyEncodingForURI) {
         connector.setUseBodyEncodingForURI(useBodyEncodingForURI);
     }
-    
+
     @Persistent(manageable=false)
     public void setUseIPVHosts(boolean useIPVHosts) {
         connector.setUseIPVHosts(useIPVHosts);
     }
-    
+
     @Persistent(manageable=false)
     public void setXpoweredBy(boolean xpoweredBy) {
         connector.setXpoweredBy(xpoweredBy);
@@ -346,10 +342,6 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     public int getMaxSavePostSize() {
         int value = connector.getMaxSavePostSize();
         return value == 0 ? 4096 : value;
-    }
-
-    public boolean getEmptySessionPath() {
-        return connector.getEmptySessionPath();
     }
 
     public boolean getXpoweredBy() {

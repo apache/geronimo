@@ -20,6 +20,7 @@
 package org.apache.geronimo.tomcat.cluster;
 
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.LifecycleState;
 import org.apache.catalina.Session;
 import org.apache.catalina.session.StandardManager;
 import org.apache.catalina.session.StandardSession;
@@ -41,13 +42,13 @@ public class ClusteredManager extends StandardManager {
             throw new IllegalArgumentException("sessionManager is required");
         }
         this.sessionManager = sessionManager;
-        
+
         nodeName = sessionManager.getNode().getName();
         router = newRouter(nodeName);
 
         sessionManager.registerListener(new MigrationListener());
     }
-    
+
     protected Router newRouter(String nodeName) {
         return new JkRouter(nodeName);
     }
@@ -56,12 +57,13 @@ public class ClusteredManager extends StandardManager {
     public String getJvmRoute() {
         return nodeName;
     }
-    
+
     @Override
-    public void stop() throws LifecycleException {
-        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+    protected void stopInternal() throws LifecycleException {
+        // lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+        setState(LifecycleState.STOPPING);
     }
-    
+
     @Override
     public Session createEmptySession() {
         return new ClusteredSession();
@@ -89,14 +91,14 @@ public class ClusteredManager extends StandardManager {
             }
             remove(clusteredSession);
         }
-        
+
         protected ClusteredSession getClusteredSession(org.apache.geronimo.clustering.Session session) {
             String sessionId = session.getSessionId();
             sessionId = router.transformGlobalSessionIdToSessionId(sessionId);
             return (ClusteredSession) ClusteredManager.this.sessions.get(sessionId);
         }
     }
-    
+
     public class ClusteredSession extends StandardSession {
         private org.apache.geronimo.clustering.Session session;
 
@@ -107,9 +109,9 @@ public class ClusteredManager extends StandardManager {
         protected ClusteredSession(org.apache.geronimo.clustering.Session session) {
             super(ClusteredManager.this);
             this.session = session;
-            
+
             attributes = session.getState();
-            
+
             String sessionId = router.transformGlobalSessionIdToSessionId(session.getSessionId());
             super.setId(sessionId);
             setValid(true);
@@ -119,15 +121,15 @@ public class ClusteredManager extends StandardManager {
         @Override
         public void setId(String id) {
             super.setId(id);
-            
+
             newUnderlyingSession(id);
-            
+
             attributes = session.getState();
         }
 
         protected void newUnderlyingSession(String id) {
             String globalSessionId = router.transformSessionIdToGlobalSessionId(id);
-            
+
             try {
                 session = sessionManager.createSession(globalSessionId);
             } catch (SessionAlreadyExistException e) {
@@ -140,7 +142,7 @@ public class ClusteredManager extends StandardManager {
             super.invalidate();
             session.release();
         }
-        
+
         @Override
         public void endAccess() {
             super.endAccess();

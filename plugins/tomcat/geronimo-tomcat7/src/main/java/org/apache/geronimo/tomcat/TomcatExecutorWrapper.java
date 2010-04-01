@@ -17,22 +17,21 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.tomcat;
 
 import java.util.concurrent.TimeUnit;
 
 import org.apache.catalina.LifecycleException;
-import org.apache.catalina.LifecycleListener;
-import org.apache.catalina.util.LifecycleSupport;
+import org.apache.catalina.LifecycleState;
+import org.apache.catalina.util.LifecycleBase;
 import org.apache.geronimo.pool.GeronimoExecutor;
 
 /**
  * @version $Rev$ $Date$
  */
-public class TomcatExecutorWrapper implements org.apache.catalina.Executor{
+public class TomcatExecutorWrapper extends LifecycleBase implements org.apache.catalina.Executor {
+
     private final GeronimoExecutor executor;
-    private final LifecycleSupport lifecycle = new LifecycleSupport(this);
 
     public TomcatExecutorWrapper(GeronimoExecutor executor) {
         this.executor = executor;
@@ -47,30 +46,16 @@ public class TomcatExecutorWrapper implements org.apache.catalina.Executor{
         executor.execute(runnable);
     }
 
-    public void addLifecycleListener(LifecycleListener listener) {
-        lifecycle.addLifecycleListener(listener);
+    @Override
+    protected void startInternal() throws LifecycleException {
+        setState(LifecycleState.STARTING);
     }
 
-    public LifecycleListener[] findLifecycleListeners() {
-        return lifecycle.findLifecycleListeners();
+    @Override
+    protected void stopInternal() throws LifecycleException {
+        setState(LifecycleState.STOPPING);
     }
 
-    public void removeLifecycleListener(LifecycleListener listener) {
-        lifecycle.removeLifecycleListener(listener);
-    }
-
-    public void start() throws LifecycleException {
-        lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
-        lifecycle.fireLifecycleEvent(START_EVENT, null);
-        lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
-    }
-
-    public void stop() throws LifecycleException {
-        lifecycle.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
-        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
-        lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
-    }
- 
     @Override
     public void execute(Runnable runnable, long timeout, TimeUnit unit) {
         // FIXME Figure out how to implement it

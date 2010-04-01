@@ -51,7 +51,6 @@ import org.apache.geronimo.osgi.web.WebApplicationConstants;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.naming.resources.DirContextURLStreamHandlerFactory;
@@ -285,7 +284,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         }
         context.setParent(host);
         // set the bundle context attribute in the servlet context
-        context.getServletContext().setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE, 
+        context.getServletContext().setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE,
                                                  contextInfo.getBundle().getBundleContext());
 
         // Set the context for the Tomcat implementation
@@ -296,57 +295,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             ((GeronimoStandardContext) context).setContextProperties(contextInfo);
         }
 
-        //Get the security-realm-name if there is one
-        SecurityHolder secHolder = contextInfo.getSecurityHolder() == null? new SecurityHolder(): contextInfo.getSecurityHolder();
-
-        //Did we declare a GBean at the context level?
-//        if (contextInfo.getRealm() != null) {
-//            Realm realm = contextInfo.getRealm();
-//
-//            //Allow for the <security-realm-name> override from the
-//            //geronimo-web.xml file to be used if our Realm is a JAAS type
-//            if (secHolder.getConfigurationFactory() != null) {
-//                if (realm instanceof JAASRealm) {
-//                    ((JAASRealm) realm).setAppName(secHolder.getConfigurationFactory().getConfigurationName());
-//                }
-//            }
-//            context.setRealm(realm);
-//        } else {
-//            Realm realm = host.getRealm();
-//            //Check and see if we have a declared realm name and no match to a parent name
-//            if (secHolder.getConfigurationFactory() != null) {
-//                    //Is the context requiring JACC?
-//                    if (secHolder.isSecurity()) {
-//                        //JACC
-//                        realm = new TomcatGeronimoRealm(secHolder.getConfigurationFactory());
-//                    } else {
-//                        //JAAS
-//                        realm = new TomcatJAASRealm(secHolder.getConfigurationFactory());
-//                        ((JAASRealm) realm).setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-//                        ((JAASRealm) realm).setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-//                    }
-//
-//                    if (log.isDebugEnabled()) {
-//                        log.debug("The security-realm-name '" + secHolder.getConfigurationFactory().getConfigurationName() +
-//                            "' was specified and a parent (Engine/Host) is not named the same or no RealmGBean was configured for this context. " +
-//                            "Creating a default " + realm.getClass().getName() +
-//                            " adapter for this context.");
-//                    }
-//
-//                    context.setRealm(realm);
-//            } else {
-//                //The same reason with the above
-//                //anotherCtxObj.setRealm(realm);
-//            }
-//        }
-
         // add application listeners to the new context
         if (applicationListeners != null) {
             for (String listener : applicationListeners) {
                 context.addApplicationListener(listener);
             }
         }
-        
+
         Collection<String> listeners = contextInfo.getListeners();
         if (listeners != null) {
             for (String listener : listeners) {

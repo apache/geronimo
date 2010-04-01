@@ -31,7 +31,6 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -61,7 +60,7 @@ public abstract class Module<T, U> {
     protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, T specDD, U vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp) {
         this(standAlone, moduleName, environment, new DeployableJarFile(moduleFile), targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedApp);
     }
-        
+
     protected Module(boolean standAlone, AbstractName moduleName, Environment environment, Deployable deployable, String targetPath, T specDD, U vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp) {
         assert targetPath != null: "targetPath is null";
         assert moduleName != null: "moduleName is null";
@@ -115,13 +114,13 @@ public abstract class Module<T, U> {
             return ((DeployableJarFile) deployable).getJarFile();
         } else {
             throw new RuntimeException("getModuleFile() is not supported on Bundle-based deployment");
-        }      
+        }
     }
-    
+
     public Deployable getDeployable() {
-        return deployable;        
+        return deployable;
     }
-    
+
     public String getTargetPath() {
         return targetPath;
     }

@@ -61,10 +61,10 @@ public class JkRouter implements Router {
         if (null == augmentedSessionID) {
             return;
         }
-        
+
         setNewSessionCookie(request, response, augmentedSessionID);
     }
-    
+
     public String transformGlobalSessionIdToSessionId(String sessionId) {
         return sessionId + "." + nodeName;
     }
@@ -84,8 +84,8 @@ public class JkRouter implements Router {
             Cookie newCookie = new Cookie(Globals.SESSION_COOKIE_NAME, augmentedSessionID);
             newCookie.setMaxAge(-1);
             String contextPath = null;
-            if (!response.getConnector().getEmptySessionPath() && (context != null)) {
-                contextPath = context.getEncodedPath();
+            if (context != null && context.getSessionCookiePath() != null) {
+                contextPath = context.getSessionCookiePath();
             }
             if ((contextPath != null) && (contextPath.length() > 0)) {
                 newCookie.setPath(contextPath);

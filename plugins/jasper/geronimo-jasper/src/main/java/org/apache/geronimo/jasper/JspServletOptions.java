@@ -156,4 +156,8 @@ public class JspServletOptions implements Options {
         return delegate.isXpoweredBy();
     }
 
+    public boolean getRecompileOnFail() {
+        return delegate.getRecompileOnFail();
+    }
+
 }

@@ -21,8 +21,6 @@ package org.apache.geronimo.tomcat.connector;
 public interface CommonProtocol {
     public boolean getAllowTrace();
     public void setAllowTrace(boolean allowTrace);
-    public boolean getEmptySessionPath();
-    public void setEmptySessionPath(boolean emptySessionPath);
     public boolean getEnableLookups();
     public void setEnableLookups(boolean enableLookups);
     public int getMaxPostSize();
