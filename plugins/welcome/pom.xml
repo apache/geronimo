@@ -36,6 +36,16 @@
         <module>geronimo-welcome</module>
         <module>welcome-jetty</module>
         <module>welcome-tomcat</module>
-  </modules>
+    </modules>
 
+    <profiles>
+        <profile>
+            <id>mini-servers</id>
+            <modules>
+                <module>welcome-jetty-server</module>
+                <module>welcome-tomcat-server</module>
+            </modules>
+        </profile>
+    </profiles>
+    
 </project>

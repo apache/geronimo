@@ -46,6 +46,16 @@
         <module>plugin-console-tomcat</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>mini-servers</id>
+            <modules>
+                <module>console-jetty-server</module>
+                <module>console-tomcat-server</module>
+            </modules>
+        </profile>
+    </profiles>
+    
     <dependencyManagement>
         <dependencies>
             <dependency>

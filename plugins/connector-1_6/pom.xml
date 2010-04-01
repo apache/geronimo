@@ -43,6 +43,15 @@
         <module>transaction-1_6</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>mini-servers</id>
+            <modules>
+                <module>geronimo-connector-server</module>
+            </modules>
+        </profile>
+    </profiles>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

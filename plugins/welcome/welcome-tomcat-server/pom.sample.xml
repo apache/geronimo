@@ -1,0 +1,152 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.geronimo.plugins</groupId>
+    <artifactId>welcome-tomcat-server</artifactId>
+    <version>3.0-SNAPSHOT</version>
+    <packaging>application-assembly</packaging>
+
+    <properties>
+        <!-- This property is required by the car:package mojo -->
+        <geronimoVersion>3.0-SNAPSHOT</geronimoVersion>
+
+    </properties>
+
+
+    <dependencies>
+        <!-- You will need the boilerplate to get a runnable server -->
+        <dependency>
+            <groupId>org.apache.geronimo.assemblies</groupId>
+            <artifactId>geronimo-boilerplate</artifactId>
+            <version>${geronimoVersion}</version>
+            <type>car</type>
+        </dependency>
+
+
+        <!-- List the plugins you want in your server -->
+
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+
+                <plugin>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                    <artifactId>car-maven-plugin</artifactId>
+                    <version>${geronimoVersion}</version>
+                    <extensions>true</extensions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                    <artifactId>tools-maven-plugin</artifactId>
+                    <version>1.3</version>
+                    <extensions>true</extensions>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+        <!-- uncomment if you have more content to stuff in here (not recommended - use a plugin with copy-files) -->
+<!--
+        <resources>
+            <resource>
+                <directory>${pom.basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+-->
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                <artifactId>tools-maven-plugin</artifactId>
+
+                <!-- Tools includes custom packagings, install as extension to pick them up -->
+                <extensions>true</extensions>
+
+<!--
+                <executions>
+                    <execution>
+                        <id>install-legal-files</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-legal-files</goal>
+                        </goals>
+                        <configuration>
+                            -->
+<!-- Fail the build if no legal files were copied -->
+<!--
+                            <strict>true</strict>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>verify-legal-files</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>verify-legal-files</goal>
+                        </goals>
+                        <configuration>
+                            -->
+<!-- Fail the build if no legal files were found -->
+<!--
+                            <strict>true</strict>
+                        </configuration>
+                    </execution>
+                </executions>
+-->
+            </plugin>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>install</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>install-modules</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>archive</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>archive</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <servers>
+                        <serverInstance>
+                            <name>default</name>
+                            <configFile>var/config/config.xml</configFile>
+                            <configSubstitutionsFile>var/config/config-substitutions.properties</configSubstitutionsFile>
+                            <configSubstitutionsPrefix>org.apache.geronimo.config.substitution.</configSubstitutionsPrefix>
+                            <artifactAliasesFile>var/config/artifact_aliases.properties</artifactAliasesFile>
+                        </serverInstance>
+                        <serverInstance>
+                            <name>client</name>
+                            <attributeManagerFrom>default</attributeManagerFrom>
+                            <artifactAliasesFile>var/config/client_artifact_aliases.properties</artifactAliasesFile>
+                        </serverInstance>
+                        <serverInstance>
+                            <name>offline</name>
+                            <configFile>var/config/offline-deployer-config.xml</configFile>
+                            <configSubstitutionsFile>var/config/config-substitutions.properties</configSubstitutionsFile>
+                            <configSubstitutionsPrefix>org.apache.geronimo.config.substitution.</configSubstitutionsPrefix>
+                            <artifactAliasesFile>var/config/artifact_aliases.properties</artifactAliasesFile>
+                        </serverInstance>
+                        <serverInstance>
+                            <name>jsr88</name>
+                            <configFile>var/config/jsr88-configurer-config.xml</configFile>
+                            <configSubstitutionsFile>var/config/config-substitutions.properties</configSubstitutionsFile>
+                            <configSubstitutionsPrefix>org.apache.geronimo.config.substitution.</configSubstitutionsPrefix>
+                            <artifactAliasesFile>var/config/artifact_aliases.properties</artifactAliasesFile>
+                        </serverInstance>
+                    </servers>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

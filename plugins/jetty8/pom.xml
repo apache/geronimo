@@ -112,5 +112,13 @@
         <module>jetty8-clustering-wadi</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>mini-servers</id>
+            <modules>
+                <module>jetty-server</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
