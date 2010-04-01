@@ -8,17 +8,12 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>j2ee-corba-yoko</artifactId>
+        <artifactId>openejb</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>mejb</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>openejb-corba-deployer</artifactId>
+        <artifactId>openejb-deployer</artifactId>
         <type>car</type>
     </dependency>
 </plugin-artifact>

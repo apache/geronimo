@@ -38,26 +38,41 @@
     </description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>openejb-corba-deployer</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>openejb-corba-deployer</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-corba-yoko</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>j2ee-corba-yoko</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>mejb</artifactId>-->
+            <!--<version>${version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
+
+        <!-- these will be implied by the above, once the above work again -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>mejb</artifactId>
+            <artifactId>openejb</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
+        
     </dependencies>
 
     <build>
