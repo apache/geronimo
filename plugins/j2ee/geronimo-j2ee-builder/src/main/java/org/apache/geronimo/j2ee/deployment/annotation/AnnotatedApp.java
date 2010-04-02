@@ -19,6 +19,7 @@ package org.apache.geronimo.j2ee.deployment.annotation;
 
 import java.util.List;
 
+import org.apache.geronimo.xbeans.javaee6.DataSourceType;
 import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee6.EjbRefType;
 import org.apache.geronimo.xbeans.javaee6.EnvEntryType;
@@ -127,6 +128,9 @@ public interface AnnotatedApp {
 
     PersistenceUnitRefType[] getPersistenceUnitRefArray();
     PersistenceUnitRefType addNewPersistenceUnitRef();
+    
+    DataSourceType[] getDataSourceArray();
+    DataSourceType addNewDataSource();
 
     String getComponentType();
 }

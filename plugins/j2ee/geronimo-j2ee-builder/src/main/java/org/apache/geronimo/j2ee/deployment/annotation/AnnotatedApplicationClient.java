@@ -23,6 +23,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.xbeans.javaee6.ApplicationClientType;
+import org.apache.geronimo.xbeans.javaee6.DataSourceType;
 import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee6.EjbRefType;
 import org.apache.geronimo.xbeans.javaee6.EnvEntryType;
@@ -198,6 +199,14 @@ public class AnnotatedApplicationClient implements AnnotatedApp {
         return applicationClient.addNewPersistenceUnitRef();
     }
 
+    public DataSourceType[] getDataSourceArray() {
+        return applicationClient.getDataSourceArray();
+    }
+    
+    public DataSourceType addNewDataSource() {
+        return applicationClient.addNewDataSource();
+    }
+    
     public String getComponentType() {
         return componentType;
     }

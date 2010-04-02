@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.xbeans.javaee6.DataSourceType;
 import org.apache.geronimo.xbeans.javaee6.EjbJarType;
 import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee6.EjbRefType;
@@ -167,6 +168,14 @@ public class AnnotatedEjbJar implements AnnotatedApp {
         return delegate.addNewPersistenceUnitRef();
     }
 
+    public DataSourceType[] getDataSourceArray() {
+        return delegate.getDataSourceArray();
+    }
+    
+    public DataSourceType addNewDataSource() {
+        return delegate.addNewDataSource();
+    }
+    
     public String getComponentType() {
         return null;
     }
@@ -205,7 +214,6 @@ public class AnnotatedEjbJar implements AnnotatedApp {
     public static class EntityBean implements AnnotatedApp {
         private final EntityBeanType bean;
 
-
         public EntityBean(EntityBeanType bean) {
             this.bean = bean;
         }
@@ -214,71 +222,57 @@ public class AnnotatedEjbJar implements AnnotatedApp {
             return bean.getEjbLocalRefArray();
         }
 
-
         public EjbLocalRefType addNewEjbLocalRef() {
             return bean.addNewEjbLocalRef();
         }
-
 
         public EjbRefType[] getEjbRefArray() {
             return bean.getEjbRefArray();
         }
 
-
         public EjbRefType addNewEjbRef() {
             return bean.addNewEjbRef();
         }
-
 
         public EnvEntryType[] getEnvEntryArray() {
             return bean.getEnvEntryArray();
         }
 
-
         public EnvEntryType addNewEnvEntry() {
             return bean.addNewEnvEntry();
         }
-
 
         public ServiceRefType[] getServiceRefArray() {
             return bean.getServiceRefArray();
         }
 
-
         public ServiceRefType addNewServiceRef() {
             return bean.addNewServiceRef();
         }
-
 
         public ResourceRefType[] getResourceRefArray() {
             return bean.getResourceRefArray();
         }
 
-
         public ResourceRefType addNewResourceRef() {
             return bean.addNewResourceRef();
         }
-
 
         public MessageDestinationRefType[] getMessageDestinationRefArray() {
             return bean.getMessageDestinationRefArray();
         }
 
-
         public MessageDestinationRefType addNewMessageDestinationRef() {
             return bean.addNewMessageDestinationRef();
         }
-
 
         public ResourceEnvRefType[] getResourceEnvRefArray() {
             return bean.getResourceEnvRefArray();
         }
 
-
         public ResourceEnvRefType addNewResourceEnvRef() {
             return bean.addNewResourceEnvRef();
         }
-
 
         public String toString() {
             return bean.xmlText();
@@ -288,46 +282,46 @@ public class AnnotatedEjbJar implements AnnotatedApp {
             throw new AssertionError("don't call this");
         }
 
-
         public LifecycleCallbackType[] getPostConstructArray() {
             return bean.getPostConstructArray();
         }
-
 
         public LifecycleCallbackType addPostConstruct() {
             return bean.addNewPostConstruct();
         }
 
-
         public LifecycleCallbackType[] getPreDestroyArray() {
             return bean.getPreDestroyArray();
         }
-
 
         public LifecycleCallbackType addPreDestroy() {
             return bean.addNewPreDestroy();
         }
 
-
         public PersistenceContextRefType[] getPersistenceContextRefArray() {
             return bean.getPersistenceContextRefArray();
         }
-
 
         public PersistenceContextRefType addNewPersistenceContextRef() {
             return bean.addNewPersistenceContextRef();
         }
 
-
         public PersistenceUnitRefType[] getPersistenceUnitRefArray() {
             return bean.getPersistenceUnitRefArray();
         }
-
 
         public PersistenceUnitRefType addNewPersistenceUnitRef() {
             return bean.addNewPersistenceUnitRef();
         }
 
+        public DataSourceType[] getDataSourceArray() {
+            return bean.getDataSourceArray();
+        }
+        
+        public DataSourceType addNewDataSource() {
+            return bean.addNewDataSource();
+        }
+        
         public String getComponentType() {
             return bean.getEjbClass().getStringValue().trim();
         }
@@ -336,82 +330,74 @@ public class AnnotatedEjbJar implements AnnotatedApp {
     public static class MessageDriveBean implements AnnotatedApp {
         private final MessageDrivenBeanType bean;
 
-
         public MessageDriveBean(MessageDrivenBeanType bean) {
             this.bean = bean;
         }
-
 
         public EjbLocalRefType[] getEjbLocalRefArray() {
             return bean.getEjbLocalRefArray();
         }
 
-
         public EjbLocalRefType addNewEjbLocalRef() {
             return bean.addNewEjbLocalRef();
         }
-
 
         public EjbRefType[] getEjbRefArray() {
             return bean.getEjbRefArray();
         }
 
-
         public EjbRefType addNewEjbRef() {
             return bean.addNewEjbRef();
         }
-
 
         public EnvEntryType[] getEnvEntryArray() {
             return bean.getEnvEntryArray();
         }
 
-
         public EnvEntryType addNewEnvEntry() {
             return bean.addNewEnvEntry();
         }
-
 
         public ServiceRefType[] getServiceRefArray() {
             return bean.getServiceRefArray();
         }
 
-
         public ServiceRefType addNewServiceRef() {
             return bean.addNewServiceRef();
         }
-
 
         public ResourceRefType[] getResourceRefArray() {
             return bean.getResourceRefArray();
         }
 
-
         public ResourceRefType addNewResourceRef() {
             return bean.addNewResourceRef();
         }
-
 
         public MessageDestinationRefType[] getMessageDestinationRefArray() {
             return bean.getMessageDestinationRefArray();
         }
 
-
         public MessageDestinationRefType addNewMessageDestinationRef() {
             return bean.addNewMessageDestinationRef();
         }
-
 
         public ResourceEnvRefType[] getResourceEnvRefArray() {
             return bean.getResourceEnvRefArray();
         }
 
-
         public ResourceEnvRefType addNewResourceEnvRef() {
             return bean.addNewResourceEnvRef();
         }
 
-
+        public DataSourceType[] getDataSourceArray() {
+            return bean.getDataSourceArray();
+        }
+        
+        public DataSourceType addNewDataSource() {
+            return bean.addNewDataSource();
+        }
+        
         public String toString() {
             return bean.xmlText();
         }
@@ -420,46 +406,38 @@ public class AnnotatedEjbJar implements AnnotatedApp {
             throw new AssertionError("don't call this");
         }
 
-
         public LifecycleCallbackType[] getPostConstructArray() {
             return bean.getPostConstructArray();
         }
-
 
         public LifecycleCallbackType addPostConstruct() {
             return bean.addNewPostConstruct();
         }
 
-
         public LifecycleCallbackType[] getPreDestroyArray() {
             return bean.getPreDestroyArray();
         }
-
 
         public LifecycleCallbackType addPreDestroy() {
             return bean.addNewPreDestroy();
         }
 
-
         public PersistenceContextRefType[] getPersistenceContextRefArray() {
             return bean.getPersistenceContextRefArray();
         }
-
 
         public PersistenceContextRefType addNewPersistenceContextRef() {
             return bean.addNewPersistenceContextRef();
         }
 
-
         public PersistenceUnitRefType[] getPersistenceUnitRefArray() {
             return bean.getPersistenceUnitRefArray();
         }
 
-
         public PersistenceUnitRefType addNewPersistenceUnitRef() {
             return bean.addNewPersistenceUnitRef();
         }
-
+       
         public String getComponentType() {
             return bean.getEjbClass().getStringValue().trim();
         }
@@ -468,81 +446,65 @@ public class AnnotatedEjbJar implements AnnotatedApp {
     public static class SessionBean implements AnnotatedApp {
         private final SessionBeanType bean;
 
-
         public SessionBean(SessionBeanType bean) {
             this.bean = bean;
         }
-
 
         public EjbLocalRefType[] getEjbLocalRefArray() {
             return bean.getEjbLocalRefArray();
         }
 
-
         public EjbLocalRefType addNewEjbLocalRef() {
             return bean.addNewEjbLocalRef();
         }
-
 
         public EjbRefType[] getEjbRefArray() {
             return bean.getEjbRefArray();
         }
 
-
         public EjbRefType addNewEjbRef() {
             return bean.addNewEjbRef();
         }
-
 
         public EnvEntryType[] getEnvEntryArray() {
             return bean.getEnvEntryArray();
         }
 
-
         public EnvEntryType addNewEnvEntry() {
             return bean.addNewEnvEntry();
         }
-
 
         public ServiceRefType[] getServiceRefArray() {
             return bean.getServiceRefArray();
         }
 
-
         public ServiceRefType addNewServiceRef() {
             return bean.addNewServiceRef();
         }
-
 
         public ResourceRefType[] getResourceRefArray() {
             return bean.getResourceRefArray();
         }
 
-
         public ResourceRefType addNewResourceRef() {
             return bean.addNewResourceRef();
         }
-
 
         public MessageDestinationRefType[] getMessageDestinationRefArray() {
             return bean.getMessageDestinationRefArray();
         }
 
-
         public MessageDestinationRefType addNewMessageDestinationRef() {
             return bean.addNewMessageDestinationRef();
         }
-
 
         public ResourceEnvRefType[] getResourceEnvRefArray() {
             return bean.getResourceEnvRefArray();
         }
 
-
         public ResourceEnvRefType addNewResourceEnvRef() {
             return bean.addNewResourceEnvRef();
         }
-
 
         public String toString() {
             return bean.xmlText();
@@ -552,46 +514,46 @@ public class AnnotatedEjbJar implements AnnotatedApp {
             throw new AssertionError("don't call this");
         }
 
-
         public LifecycleCallbackType[] getPostConstructArray() {
             return bean.getPostConstructArray();
         }
-
 
         public LifecycleCallbackType addPostConstruct() {
             return bean.addNewPostConstruct();
         }
 
-
         public LifecycleCallbackType[] getPreDestroyArray() {
             return bean.getPreDestroyArray();
         }
-
 
         public LifecycleCallbackType addPreDestroy() {
             return bean.addNewPreDestroy();
         }
 
-
         public PersistenceContextRefType[] getPersistenceContextRefArray() {
             return bean.getPersistenceContextRefArray();
         }
-
 
         public PersistenceContextRefType addNewPersistenceContextRef() {
             return bean.addNewPersistenceContextRef();
         }
 
-
         public PersistenceUnitRefType[] getPersistenceUnitRefArray() {
             return bean.getPersistenceUnitRefArray();
         }
-
 
         public PersistenceUnitRefType addNewPersistenceUnitRef() {
             return bean.addNewPersistenceUnitRef();
         }
 
+        public DataSourceType[] getDataSourceArray() {
+            return bean.getDataSourceArray();
+        }
+        
+        public DataSourceType addNewDataSource() {
+            return bean.addNewDataSource();
+        }
+        
         public String getComponentType() {
             return bean.getEjbClass().getStringValue().trim();
         }

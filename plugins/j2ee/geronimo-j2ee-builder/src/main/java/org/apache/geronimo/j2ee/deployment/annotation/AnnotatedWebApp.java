@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.xbeans.javaee6.DataSourceType;
 import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee6.EjbRefType;
 import org.apache.geronimo.xbeans.javaee6.EnvEntryType;
@@ -196,6 +197,14 @@ public class AnnotatedWebApp implements AnnotatedApp {
         return webApp.addNewPersistenceUnitRef();
     }
 
+    public DataSourceType[] getDataSourceArray() {
+        return webApp.getDataSourceArray();
+    }
+    
+    public DataSourceType addNewDataSource() {
+        return webApp.addNewDataSource();
+    }
+    
     public String getComponentType() {
         return null;
     }

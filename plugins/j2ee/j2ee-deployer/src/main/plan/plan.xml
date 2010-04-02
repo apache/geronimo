@@ -118,6 +118,9 @@
                 <name>PersistenceUnitRefBuilder</name>
             </pattern>
             <pattern>
+                <name>DataSourceBuilder</name>
+            </pattern>
+            <pattern>
                 <name>ResourceRefBuilder</name>
             </pattern>
             <pattern>
