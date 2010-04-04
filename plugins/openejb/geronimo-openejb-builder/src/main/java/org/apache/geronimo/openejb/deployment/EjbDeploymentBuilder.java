@@ -198,11 +198,11 @@ public class EjbDeploymentBuilder {
         SecurityConfiguration securityConfiguration = (SecurityConfiguration) earContext.getSecurityConfiguration();
         if (securityConfiguration != null) {
             GBeanData gbean = getEjbGBean(enterpriseBean.getEjbName());
+            SecurityBuilder securityBuilder = new SecurityBuilder();
+            Collection<Permission> allPermissions = new HashSet<Permission>();
             if (enterpriseBean instanceof RemoteBean) {
                 RemoteBean remoteBean = (RemoteBean) enterpriseBean;
 
-                SecurityBuilder securityBuilder = new SecurityBuilder();
-                Collection<Permission> allPermissions = new HashSet<Permission>();
 
                 securityBuilder.addToPermissions(allPermissions,
                         remoteBean.getEjbName(),
@@ -260,17 +260,17 @@ public class EjbDeploymentBuilder {
                             ejbModule.getClassLoader());
                 }
 
-                securityBuilder.addEjbTimeout(remoteBean, ejbModule, allPermissions);
-
-                String defaultRole = securityConfiguration.getDefaultRole();
-                securityBuilder.addComponentPermissions(defaultRole,
-                        allPermissions,
-                        ejbModule.getEjbJar().getAssemblyDescriptor(),
-                        enterpriseBean.getEjbName(),
-                        remoteBean.getSecurityRoleRef(),
-                        componentPermissions);
-
             }
+            securityBuilder.addEjbTimeout(enterpriseBean, ejbModule, allPermissions);
+
+            String defaultRole = securityConfiguration.getDefaultRole();
+            securityBuilder.addComponentPermissions(defaultRole,
+                    allPermissions,
+                    ejbModule.getEjbJar().getAssemblyDescriptor(),
+                    enterpriseBean.getEjbName(),
+                    enterpriseBean.getSecurityRoleRef(),
+                    componentPermissions);
+
             // RunAs subject
             SecurityIdentity securityIdentity = enterpriseBean.getSecurityIdentity();
             if (securityIdentity != null && securityIdentity.getRunAs() != null) {

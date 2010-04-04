@@ -493,7 +493,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
 
         // We must set all mapped name references back to null or Geronimo will blow up
-        unmapReferences(ejbJar, geronimoEjbJarType);
+//        unmapReferences(ejbJar, geronimoEjbJarType);
 
         // create a xmlbeans version of the ejb-jar.xml file, because the jndi code is coupled based on xmlbeans objects
         EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbJar);

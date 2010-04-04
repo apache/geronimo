@@ -103,9 +103,9 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
     public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         // skip ejb modules... they have alreayd been processed
-        if (module.getType() == ConfigurationModuleType.EJB) {
-            return;
-        }
+//        if (module.getType() == ConfigurationModuleType.EJB) {
+//            return;
+//        }
 
         // map the refs declared in the vendor plan, so we can match them to the spec references
         Map<String, GerEjbRefType> refMap = mapEjbRefs(plan);

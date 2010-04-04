@@ -33,16 +33,15 @@ import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 import javax.security.jacc.EJBMethodPermission;
 import javax.security.jacc.EJBRoleRefPermission;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.openejb.jee.AssemblyDescriptor;
+import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.ExcludeList;
 import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.Method;
 import org.apache.openejb.jee.MethodPermission;
 import org.apache.openejb.jee.NamedMethod;
-import org.apache.openejb.jee.RemoteBean;
 import org.apache.openejb.jee.SecurityRoleRef;
 import org.apache.openejb.jee.SessionBean;
 
@@ -279,7 +278,7 @@ public class SecurityBuilder {
         return result;
     }
 
-    public void addEjbTimeout(RemoteBean remoteBean, EjbModule ejbModule, Collection<Permission> permissions) throws DeploymentException {
+    public void addEjbTimeout(EnterpriseBean remoteBean, EjbModule ejbModule, Collection<Permission> permissions) throws DeploymentException {
         NamedMethod timeout = null;
         if (remoteBean instanceof SessionBean) {
             timeout = ((SessionBean) remoteBean).getTimeoutMethod();
