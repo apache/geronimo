@@ -2389,64 +2389,7 @@ only found in cxf
                 <module>plugingroups</module>
                 <module>assemblies</module>
             </modules>
-        </profile>
 
-        <profile>
-            <id>it</id>
-
-            <modules>
-                <module>testsupport</module>
-                <module>framework</module>
-                <module>plugins</module>
-                <module>plugingroups</module>
-                <module>assemblies</module>
-                <module>testsuite</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>all-subprojects</id>
-
-            <modules>
-                <module>testsupport</module>
-                <module>framework</module>
-                <module>plugins</module>
-                <module>plugingroups</module>
-                <module>assemblies</module>
-                <module>testsuite</module>
-            </modules>
-        </profile>
-
-        <!--
-        NOTE: This profile is used to enable plugin prefixes for easy command-line usage, as in:
-
-              mvn -Ptools geronimo:start
-        -->
-        <profile>
-            <id>tools</id>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.geronimo.buildsupport</groupId>
-                        <artifactId>geronimo-maven-plugin</artifactId>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>selenium-maven-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>explicit-repos</id>
-            <activation>
-                <property>
-                    <name>!nexus</name>
-                </property>
-            </activation>
             <repositories>
                 <repository>
                     <!-- org.ops4j routing -->
@@ -2530,6 +2473,72 @@ only found in cxf
             </repositories>
         </profile>
 
+        <profile>
+            <id>it</id>
+
+            <modules>
+                <module>testsupport</module>
+                <module>framework</module>
+                <module>plugins</module>
+                <module>plugingroups</module>
+                <module>assemblies</module>
+                <module>testsuite</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>all-subprojects</id>
+
+            <modules>
+                <module>testsupport</module>
+                <module>framework</module>
+                <module>plugins</module>
+                <module>plugingroups</module>
+                <module>assemblies</module>
+                <module>testsuite</module>
+            </modules>
+        </profile>
+
+        <!--
+        NOTE: This profile is used to enable plugin prefixes for easy command-line usage, as in:
+
+              mvn -Ptools geronimo:start
+        -->
+        <profile>
+            <id>tools</id>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>selenium-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>nexus</id>
+            <activation>
+                <property>
+                    <name>nexus</name>
+                </property>
+            </activation>
+
+            <modules>
+                <module>testsupport</module>
+                <module>framework</module>
+                <module>plugins</module>
+                <module>plugingroups</module>
+                <module>assemblies</module>
+            </modules>
+        </profile>
+
         <!--
         NOTE: The staged build is used to get around a problem with Maven
               and extension plugins.
@@ -2549,6 +2558,49 @@ only found in cxf
             <modules>
                 <module>framework</module>
             </modules>
+
+            <repositories>
+                <repository>
+                    <!-- org.ops4j routing -->
+                    <id>ops4j.snapshots</id>
+                    <name>OPS4J Snapshots Repository</name>
+                    <layout>default</layout>
+                    <url>http://repository.ops4j.org/mvn-snapshots/</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>daily</updatePolicy>
+                        <checksumPolicy>warn</checksumPolicy>
+                    </snapshots>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                </repository>
+                <repository>
+                    <!-- equinox -->
+                    <!-- org.eclipse routing -->
+                    <id>smx.svn</id>
+                    <name>Servicemix svn Repository</name>
+                    <layout>default</layout>
+                    <url>http://svn.apache.org/repos/asf/servicemix/m2-repo/</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>java.net</id>
+                    <url>http://download.java.net/maven/1/</url>
+                    <layout>legacy</layout>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
+            </repositories>
         </profile>
 
         <profile>
