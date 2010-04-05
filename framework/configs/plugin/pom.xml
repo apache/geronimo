@@ -35,16 +35,6 @@
     <description>Plugin management services including the installer.</description>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
-            <!--<artifactId>plexus-archiver</artifactId>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-          <!--<groupId>org.apache.geronimo.bundles</groupId>-->
-          <!--<artifactId>plexus-utils</artifactId>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
@@ -92,15 +82,6 @@
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.codehaus.plexus</groupId>-->
-            <!--<artifactId>plexus-container-default</artifactId>-->
-        <!--</dependency>-->
-        
-        <!--<dependency>-->
-            <!--<groupId>org.codehaus.plexus</groupId>-->
-            <!--<artifactId>plexus-component-api</artifactId>-->
-        <!--</dependency>-->
     </dependencies>
     
     <build>

@@ -264,6 +264,13 @@
                 <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
                 <version>1.1.3-SNAPSHOT</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-saaj_1.3_spec</artifactId>
+                <version>1.0.2-SNAPSHOT</version>
+            </dependency>
+
             <!--
             NOTE: The full source for this artifact is private due to Sun licensing issues.
                   To view the generated XmlBeans source please see the -src artifact in the repository:
@@ -2368,22 +2375,21 @@ only found in cxf
     </pluginRepositories>
 
     <profiles>
-        <!--<profile>-->
-        <!-- replaced by nexus profiles -->
-            <!--<id>default</id>-->
+        <profile>
+            <id>default</id>
 
-            <!--<activation>-->
-                <!--<activeByDefault>true</activeByDefault>-->
-            <!--</activation>-->
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
 
-            <!--<modules>-->
-                <!--<module>testsupport</module>-->
-                <!--<module>framework</module>-->
-                <!--<module>plugins</module>-->
-                <!--<module>plugingroups</module>-->
-                <!--<module>assemblies</module>-->
-            <!--</modules>-->
-        <!--</profile>-->
+            <modules>
+                <module>testsupport</module>
+                <module>framework</module>
+                <module>plugins</module>
+                <module>plugingroups</module>
+                <module>assemblies</module>
+            </modules>
+        </profile>
 
         <profile>
             <id>it</id>
@@ -2435,34 +2441,12 @@ only found in cxf
         </profile>
 
         <profile>
-            <id>nexus</id>
-            <activation>
-                <property>
-                    <name>nexus</name>
-                </property>
-            </activation>
-            <modules>
-                <module>testsupport</module>
-                <module>framework</module>
-                <module>plugins</module>
-                <module>plugingroups</module>
-                <module>assemblies</module>
-            </modules>
-        </profile>
-        <profile>
             <id>explicit-repos</id>
             <activation>
                 <property>
                     <name>!nexus</name>
                 </property>
             </activation>
-            <modules>
-                <module>testsupport</module>
-                <module>framework</module>
-                <module>plugins</module>
-                <module>plugingroups</module>
-                <module>assemblies</module>
-            </modules>
             <repositories>
                 <repository>
                     <!-- org.ops4j routing -->

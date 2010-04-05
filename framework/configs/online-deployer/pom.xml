@@ -189,10 +189,6 @@
                             <groupId>com.thoughtworks.xstream</groupId>
                             <artifactId>xstream</artifactId>
                         </element>
-                        <element>
-                            <groupId>org.codehaus.plexus</groupId>
-                            <artifactId>plexus-archiver</artifactId>
-                        </element>
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
                     <category>Deployment</category>
