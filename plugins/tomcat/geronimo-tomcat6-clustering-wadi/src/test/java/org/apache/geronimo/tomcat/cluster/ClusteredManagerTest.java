@@ -149,6 +149,8 @@ public class ClusteredManagerTest extends RMockTestCase {
     
     public void testInvalidateSessionReleasesUnderlyingSessionAndRemoveSessionFromManager() throws Exception {
         final org.apache.geronimo.clustering.Session underlyingSession =recordCreateUnderlyingSession();
+        context.getLoader();
+        modify().returnValue(null);
         underlyingSession.release();
         modify().perform(new Action() {
             public Object invocation(Object[] arg0, MethodHandle arg1) throws Throwable {
