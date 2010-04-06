@@ -66,6 +66,7 @@
         <module>geronimo-plugin-archetype</module>
         <module>geronimo-assembly-archetype</module>
         <module>geronimo-osgi-plugin</module>
+        <module>geronimo-property-plugin</module>
     </modules>
 
     <reporting>

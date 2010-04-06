@@ -2176,7 +2176,6 @@ only found in cxf
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <!--<version>2.4.2</version>-->
                     <configuration>
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <failIfNoTests>false</failIfNoTests>
@@ -2348,6 +2347,20 @@ only found in cxf
                         </execution>
                     </executions>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                    <artifactId>geronimo-property-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>set-property</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>set-property</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -2356,7 +2369,6 @@ only found in cxf
                 <artifactId>maven-bundle-plugin</artifactId>
             </plugin>
         </plugins>
-
     </build>
 
     <distributionManagement>

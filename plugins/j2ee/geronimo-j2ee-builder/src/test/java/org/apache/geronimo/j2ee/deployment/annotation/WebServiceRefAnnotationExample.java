@@ -19,25 +19,26 @@
 
 package org.apache.geronimo.j2ee.deployment.annotation;
 
+import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.WebServiceRefs;
 
 @WebServiceRefs ({
                      @WebServiceRef(name = "WebServiceRef10",
-                                    type = javax.xml.ws.Service.class,
-                                    value = javax.xml.ws.Service.class,
+                                    type = Service.class,
+                                    value = Service.class,
                                     wsdlLocation = "WEB-INF/wsdl/WebServiceRef10.wsdl"),
                      @WebServiceRef(name = "WebServiceRef11",
-                                    type = javax.xml.ws.Service.class,
-                                    value = javax.xml.ws.Service.class,
+                                    type = Service.class,
+                                    value = Service.class,
                                     wsdlLocation = "WEB-INF/wsdl/WebServiceRef11.wsdl",
                                     mappedName = "mappedName11")
                  })
 public class WebServiceRefAnnotationExample {
 
     @WebServiceRef(name = "WebServiceRef12",
-                   type = javax.xml.ws.Service.class,
-                   value = javax.xml.ws.Service.class,
+                   type = Service.class,
+                   value = Service.class,
                    mappedName = "mappedName12")
     String annotatedField1;
 
@@ -51,17 +52,23 @@ public class WebServiceRefAnnotationExample {
     // -- Return void
     //------------------------------------------------------------------------------------------
     @WebServiceRef(name = "WebServiceRef14",
-                   value = java.lang.Object.class,
+                   value = MyService.class,
                    wsdlLocation = "WEB-INF/wsdl/WebServiceRef14.wsdl",
                    mappedName = "mappedName14")
     public void setAnnotatedMethod1(boolean bool) {
     }
 
     @WebServiceRef(name = "WebServiceRef15",
-                   value = javax.xml.ws.Service.class,
+                   value = Service.class,
                    wsdlLocation = "WEB-INF/wsdl/WebServiceRef15.wsdl",
                    mappedName = "mappedName15")
     public void setAnnotatedMethod2(String string) {
+    }
+
+    public static class MyService extends Service {
+        public MyService() {
+            super(null, null);
+        }
     }
 
 }
