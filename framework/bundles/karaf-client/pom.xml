@@ -63,6 +63,14 @@
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-simple</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.aries.blueprint</groupId>
+                        <artifactId>org.apache.aries.blueprint</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.aries</groupId>
+                        <artifactId>org.apache.aries.util</artifactId>
+                    </exclusion>
                 </exclusions>
         </dependency>
     </dependencies>
