@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.geronimo.testsupport</groupId>
         <artifactId>testsupport</artifactId>
-        <version>2.1.6-SNAPSHOT</version>
+        <version>2.1.5-SNAPSHOT</version>
     </parent>
     
     <artifactId>testsupport-selenium</artifactId>

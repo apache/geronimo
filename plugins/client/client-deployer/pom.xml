@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>client</artifactId>
-        <version>2.1.6-SNAPSHOT</version>
+        <version>2.1.5-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
@@ -123,8 +123,8 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="default" />
-                            <config-xml-content server="offline" />
+                            <config-xml-content server="default"/>
+                            <config-xml-content server="offline"/>
                         </plugin-artifact>
                     </instance>
                 </configuration>

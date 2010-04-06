@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>axis2</artifactId>
-        <version>2.1.6-SNAPSHOT</version>
+        <version>2.1.5-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
@@ -92,8 +92,8 @@
                     </dependencies>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'tomcat6')" />
-                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'tomcat6')" />
+                            <config-xml-content server="default" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'tomcat6')"/>
+                            <config-xml-content server="offline" condition="props['org.apache.geronimo.jaxws.provider'] == 'axis2' or (props['org.apache.geronimo.jaxws.provider'] == null and webcontainerName == 'tomcat6')"/>
                         </plugin-artifact>
                     </instance>
                 </configuration>

@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>j2ee</artifactId>
-        <version>2.1.6-SNAPSHOT</version>
+        <version>2.1.5-SNAPSHOT</version>
     </parent>
     
     <groupId>org.apache.geronimo.modules</groupId>
@@ -188,18 +188,22 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.directory}/test-ear-javaee_5-unpacked.ear" />
-                                <unzip src="${project.build.directory}/test-ear-javaee_5.ear" dest="${project.build.directory}/test-ear-javaee_5-unpacked.ear" />
+                                <mkdir dir="${project.build.directory}/test-ear-javaee_5-unpacked.ear"/>
+                                <unzip src="${project.build.directory}/test-ear-javaee_5.ear"
+                                    dest="${project.build.directory}/test-ear-javaee_5-unpacked.ear"/>
 
-                                <mkdir dir="${project.build.directory}/test-ear-javaee_5-naked-unpacked.ear" />
-                                <unzip src="${project.build.directory}/test-ear-javaee_5-naked.ear" dest="${project.build.directory}/test-ear-javaee_5-naked-unpacked.ear" />
+                                <mkdir dir="${project.build.directory}/test-ear-javaee_5-naked-unpacked.ear"/>
+                                <unzip src="${project.build.directory}/test-ear-javaee_5-naked.ear"
+                                    dest="${project.build.directory}/test-ear-javaee_5-naked-unpacked.ear"/>
 
                                 <!-- are these tests needed ? -->
-                                <mkdir dir="${project.build.directory}/test-ear-j2ee_1.4-unpacked.ear" />
-                                <unzip src="${project.build.directory}/test-ear-j2ee_1.4.ear" dest="${project.build.directory}/test-ear-j2ee_1.4-unpacked.ear" />
+                                <mkdir dir="${project.build.directory}/test-ear-j2ee_1.4-unpacked.ear"/>
+                                <unzip src="${project.build.directory}/test-ear-j2ee_1.4.ear"
+                                    dest="${project.build.directory}/test-ear-j2ee_1.4-unpacked.ear"/>
 
-                                <mkdir dir="${project.build.directory}/test-ear-javaee_5-naked-unpacked.ear" />
-                                <unzip src="${project.build.directory}/test-ear-j2ee_1.4-naked.ear" dest="${project.build.directory}/test-ear-j2ee_1.4-naked-unpacked.ear" />
+                                <mkdir dir="${project.build.directory}/test-ear-javaee_5-naked-unpacked.ear"/>
+                                <unzip src="${project.build.directory}/test-ear-j2ee_1.4-naked.ear"
+                                    dest="${project.build.directory}/test-ear-j2ee_1.4-naked-unpacked.ear"/>
                             </tasks>
                         </configuration>
                     </execution>
