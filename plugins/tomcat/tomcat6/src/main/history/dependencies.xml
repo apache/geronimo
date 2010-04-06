@@ -38,6 +38,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.ext.tomcat</groupId>
+        <artifactId>shared</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.ext.tomcat</groupId>
         <artifactId>tribes</artifactId>
         <type>jar</type>
     </dependency>
@@ -60,10 +65,5 @@
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>clustering</artifactId>
         <type>pom</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-javamail_1.4_spec</artifactId>
-        <type>jar</type>
     </dependency>
 </plugin-artifact>
