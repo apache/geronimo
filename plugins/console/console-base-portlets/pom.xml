@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>console</artifactId>
-        <version>2.1.5-SNAPSHOT</version>
+        <version>2.1.5</version>
     </parent>
 
     <artifactId>console-base-portlets</artifactId>
@@ -174,9 +174,9 @@
                       <tasks>
                           <copy overwrite="true" todir="target/classes">
                               <fileset dir="src/main/resources">
-                                  <include name="*_en.properties"/>
+                                  <include name="*_en.properties" />
                               </fileset>
-                              <mapper type="glob" from="*_en.properties" to="*.properties"/>
+                              <mapper type="glob" from="*_en.properties" to="*.properties" />
                           </copy>
                       </tasks>
                   </configuration>

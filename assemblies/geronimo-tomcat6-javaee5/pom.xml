@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.assemblies</groupId>
         <artifactId>assemblies</artifactId>
-        <version>2.1.5-SNAPSHOT</version>
+        <version>2.1.5</version>
     </parent>
 
     <artifactId>geronimo-tomcat6-javaee5</artifactId>
@@ -627,16 +627,15 @@
                         <configuration>
                             <tasks>
                                 <!-- remove geronimo-framework-${version} prefix -->
-                                <mkdir dir="${project.build.directory}/assembly"/>
+                                <mkdir dir="${project.build.directory}/assembly" />
                                 <copy todir="${project.build.directory}/assembly">
                                     <fileset dir="${project.build.directory}/unpack/geronimo-framework-${version}">
                                     </fileset>
                                 </copy>
-                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" 
-                                      fork="yes" failonerror="true">
-                                   <classpath refid="maven.runtime.classpath"/>
-                                   <arg value="${project.build.directory}/assembly"/>
-                                   <arg value="gsh-wsgen.properties"/>
+                                <java classname="org.apache.geronimo.jaxws.builder.GShellCommandRegistration" fork="yes" failonerror="true">
+                                   <classpath refid="maven.runtime.classpath" />
+                                   <arg value="${project.build.directory}/assembly" />
+                                   <arg value="gsh-wsgen.properties" />
                                 </java>
                             </tasks>
                         </configuration>
@@ -650,13 +649,13 @@
                         <configuration>
                             <tasks>
                                 <!-- Flatten all schemas -->
-                                <mkdir dir="${project.build.directory}/schema"/>
+                                <mkdir dir="${project.build.directory}/schema" />
                                 <copy todir="${project.build.directory}/schema">
                                     <fileset dir="${project.build.directory}/scratch/schema">
-                                        <include name="**/*.xsd"/>
-                                        <include name="**/*.dtd"/>
+                                        <include name="**/*.xsd" />
+                                        <include name="**/*.dtd" />
                                     </fileset>
-                                    <mapper type="flatten"/>
+                                    <mapper type="flatten" />
                                 </copy>
                             </tasks>
                         </configuration>

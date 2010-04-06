@@ -15,14 +15,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jpa-tests</artifactId>
-        <version>2.1.5-SNAPSHOT</version>
+        <version>2.1.5</version>
     </parent>
 
     <artifactId>jpa-ejb</artifactId>
@@ -77,18 +76,16 @@
                                     <tasks>
                                         <path id="enhance.path.ref">
                                             <fileset dir="${project.build.outputDirectory}">
-                                                <include name="**/*.class"/>
+                                                <include name="**/*.class" />
                                             </fileset>
                                         </path>
-                                        <pathconvert property="enhance.files"
-                                           refid="enhance.path.ref"
-                                           pathsep=" "/>
+                                        <pathconvert property="enhance.files" refid="enhance.path.ref" pathsep=" " />
                                         <java classname="org.apache.openjpa.enhance.PCEnhancer">
-                                            <arg line="-p persistence.xml"/>
-                                            <arg line="${enhance.files}"/>
+                                            <arg line="-p persistence.xml" />
+                                            <arg line="${enhance.files}" />
                                             <classpath>
-                                                <path refid="maven.dependency.classpath"/>
-                                                <path refid="maven.compile.classpath"/>
+                                                <path refid="maven.dependency.classpath" />
+                                                <path refid="maven.compile.classpath" />
                                             </classpath>
                                         </java>
                                     </tasks>
