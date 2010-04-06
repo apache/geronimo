@@ -34,6 +34,7 @@ import org.apache.openejb.ClusteredRPCContainer;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.util.Duration;
+import org.apache.openejb.util.Pool;
 import org.apache.openejb.core.stateless.StatelessContainer;
 import org.apache.openejb.spi.SecurityService;
 import org.codehaus.wadi.core.manager.Manager;
@@ -50,10 +51,17 @@ public class ClusteredStatelessContainer extends StatelessContainer implements S
     private final Map<Object, NetworkConnectorTracker> deploymentIdToNetworkConnectorTracker;
 
     public ClusteredStatelessContainer(Object id, SecurityService securityService, int timeOut, int poolSize, boolean strictPooling) throws OpenEJBException {
-        super(id, securityService, new Duration(timeOut, TimeUnit.MILLISECONDS), 0, poolSize, strictPooling);
+        super(id, securityService, new Duration(timeOut, TimeUnit.MILLISECONDS), builder(poolSize, strictPooling), 5);
 
         deploymentIdToManager = new ConcurrentHashMap<Object, Manager>();
         deploymentIdToNetworkConnectorTracker = new ConcurrentHashMap<Object, NetworkConnectorTracker>();
+    }
+
+    private static Pool.Builder builder(int poolSize, boolean strictPooling) {
+        final Pool.Builder builder = new Pool.Builder();
+        builder.setPoolMax(poolSize);
+        builder.setStrictPooling(strictPooling);
+        return builder;
     }
 
     public void addSessionManager(Object deploymentId, SessionManager sessionManager) {
