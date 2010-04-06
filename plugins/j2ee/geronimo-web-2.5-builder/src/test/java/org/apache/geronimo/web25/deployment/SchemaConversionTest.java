@@ -167,6 +167,15 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
             return null;
         }
 
+        @Override
+        protected void postInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        protected void preInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+            // TODO Auto-generated method stub
+        }
     }
 
 

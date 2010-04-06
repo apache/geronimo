@@ -22,6 +22,7 @@ import static java.lang.Boolean.TRUE;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,6 +79,7 @@ import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
+import org.apache.geronimo.web25.deployment.utils.WebDeploymentValidationUtils;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiAuthModuleType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiConfigProviderType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthConfigType;
@@ -157,33 +159,31 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             // not for us
             return null;
         }
-        
+
         String specDD = null;
         WebAppType webApp = null;
-        
+
         URL specDDUrl = BundleUtils.getEntry(bundle, "WEB-INF/web.xml");
         if (specDDUrl == null) {
             webApp = WebAppType.Factory.newInstance();
         } else {
             try {
                 specDD = JarUtils.readAll(specDDUrl);
-
                 XmlObject parsed = XmlBeansUtil.parse(specDD);
-                
                 WebAppDocument webAppDoc = convertToServletSchema(parsed);
                 webApp = webAppDoc.getWebApp();
-                check(webApp);
+                WebDeploymentValidationUtils.validateWebApp(webApp);
             } catch (XmlException e) {
                 throw new DeploymentException("Error parsing web.xml for " + bundle.getSymbolicName(), e);
             } catch (Exception e) {
                 throw new DeploymentException("Error reading web.xml for " + bundle.getSymbolicName(), e);
             }
         }
-        
+
         AbstractName earName = null;
-        String targetPath = ".";   
+        String targetPath = ".";
         boolean standAlone = true;
-        
+
         Deployable deployable = new DeployableBundle(bundle);
         // parse vendor dd
         TomcatWebAppType tomcatWebApp = getTomcatWebApp(null, deployable, standAlone, targetPath, webApp);
@@ -196,7 +196,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         }
 
         idBuilder.resolve(environment, bundle.getSymbolicName(), "wab");
-        
+
         AbstractName moduleName;
         if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -214,7 +214,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         }
         return module;
     }
-    
+
     protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
         assert targetPath != null : "targetPath is null";
@@ -237,7 +237,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
             WebAppDocument webAppDoc = convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
-            check(webApp);
+            WebDeploymentValidationUtils.validateWebApp(webApp);
         } catch (XmlException e) {
             // Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
@@ -254,7 +254,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         if (webApp == null) {
             webApp = WebAppType.Factory.newInstance();
         }
-        
+
         Deployable deployable = new DeployableJarFile(moduleFile);
         // parse vendor dd
         boolean standAlone = earEnvironment == null;
@@ -335,7 +335,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                             path = deployable.getResource("WEB-INF/geronimo-tomcat.xml");
                         }
                         if (path == null) {
-                            log.warn("Web application " + targetPath + " does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");                            
+                            log.warn("Web application " + targetPath + " does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
                         } else {
                             rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
                         }
@@ -364,14 +364,18 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         return TomcatWebAppType.Factory.newInstance();
     }
 
-
-    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
-        TomcatWebAppType gerWebApp = (TomcatWebAppType) module.getVendorDD();
-        boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
-        basicInitContext(earContext, module, gerWebApp, hasSecurityRealmName);
+    @Override
+    protected void postInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.initContext(earContext, module, bundle);
         }
+    }
+
+    @Override
+    protected void preInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+        TomcatWebAppType gerWebApp = (TomcatWebAppType) module.getVendorDD();
+        boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
+        module.getEarContext().getGeneralData().put(WEB_MODULE_HAS_SECURITY_REALM, hasSecurityRealmName);
     }
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
@@ -464,7 +468,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
             Collection<String> listeners = new ArrayList<String>();
             webModuleData.setAttribute("listenerClassNames", listeners);
-            
+
             //Handle the role permissions and webservices on the servlets.
             ServletType[] servletTypes = webApp.getServletArray();
             Map<String, AbstractName> webServices = new HashMap<String, AbstractName>();
@@ -554,10 +558,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             //not truly metadata complete until MBEs have run
             if (!webApp.getMetadataComplete()) {
                 webApp.setMetadataComplete(true);
-                module.setOriginalSpecDD(getSpecDDAsString(webModule));
+                String specDeploymentPlan = getSpecDDAsString(webModule);
+                module.setOriginalSpecDD(specDeploymentPlan);
+                earContext.addFile(new URI("./WEB-INF/web.xml"), specDeploymentPlan);
             }
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
-            
+
             module.addAsChildConfiguration();
         } catch (DeploymentException de) {
             throw de;
@@ -565,7 +571,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             throw new DeploymentException("Unable to initialize GBean for web app " + module.getName(), e);
         }
     }
-    
+
     public String getSchemaNamespace() {
         return TOMCAT_NAMESPACE;
     }

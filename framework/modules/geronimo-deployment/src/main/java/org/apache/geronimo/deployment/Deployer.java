@@ -26,9 +26,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -56,7 +57,6 @@ import org.apache.geronimo.kernel.osgi.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.util.FileUtils;
-import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.main.CommandLineManifest;
@@ -180,17 +180,17 @@ public class Deployer implements GBeanLifecycle {
             return null;
         }
         // Generate the URL based on the remote deployment configuration
-        Hashtable hash = new Hashtable();
+        Map<String, String> hash = new HashMap<String, String>();
         hash.put("J2EEApplication", token.getObjectName().getKeyProperty("J2EEApplication"));
         hash.put("j2eeType", "WebModule");
         try {
             hash.put("name", Configuration.getConfigurationID(config).toString());
-            Set names = kernel.listGBeans(new AbstractNameQuery(null, hash));
+            Set<AbstractName> names = kernel.listGBeans(new AbstractNameQuery(null, hash));
             if (names.size() != 1) {
                 log.error("Unable to look up remote deploy upload URL");
                 return null;
             }
-            AbstractName module = (AbstractName) names.iterator().next();
+            AbstractName module = names.iterator().next();
             String contextPath = (String) kernel.getAttribute(module, "contextPath");
             if (null == contextPath) {
                 throw new IllegalStateException("Cannot find contextPath attribute for [" + module + "]");

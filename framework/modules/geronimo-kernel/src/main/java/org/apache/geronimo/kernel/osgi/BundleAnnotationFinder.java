@@ -38,8 +38,12 @@ public class BundleAnnotationFinder extends AbstractFinder {
     private final Bundle bundle;
 
     public BundleAnnotationFinder(PackageAdmin packageAdmin, Bundle bundle) throws Exception {
+        this(packageAdmin, bundle, BundleResourceFinder.FULL_DISCOVERY_FILTER);
+    }
+
+    public BundleAnnotationFinder(PackageAdmin packageAdmin, Bundle bundle, DiscoveryFilter discoveryFilter) throws Exception {
         this.bundle = bundle;
-        BundleResourceFinder bundleResourceFinder = new BundleResourceFinder(packageAdmin, bundle, "", ".class");
+        BundleResourceFinder bundleResourceFinder = new BundleResourceFinder(packageAdmin, bundle, "", ".class", discoveryFilter);
         bundleResourceFinder.find(new AnnotationFindingCallback());
     }
 

@@ -84,7 +84,11 @@
                             org.apache.geronimo.web25.deployment,
                             org.apache.geronimo.web25.deployment.security,
                             org.apache.geronimo.xbeans.geronimo.web,
-                            org.apache.geronimo.xbeans.geronimo.web.impl
+                            org.apache.geronimo.xbeans.geronimo.web.impl,
+                            org.apache.geronimo.web25.deployment.merge,
+                            org.apache.geronimo.web25.deployment.merge.annotation,
+                            org.apache.geronimo.web25.deployment.merge.webfragment,
+                            org.apache.geronimo.web25.deployment.utils
                         </Export-Package>
                         <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>

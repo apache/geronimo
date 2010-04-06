@@ -35,30 +35,38 @@ import org.osgi.framework.Bundle;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
- * Finds all available resources to a bundle by scanning Bundle-ClassPath header 
+ * Finds all available resources to a bundle by scanning Bundle-ClassPath header
  * of the given bundle and its fragments.
  * DynamicImport-Package header is not considered during scanning.
- * 
+ *
  * @version $Rev$ $Date$
  */
 public class BundleResourceFinder {
-   
+
+    public static final DiscoveryFilter FULL_DISCOVERY_FILTER = new DummyDiscoveryFilter();
     private final Bundle bundle;
     private final PackageAdmin packageAdmin;
     private final String prefix;
     private final String suffix;
-    
+    private DiscoveryFilter discoveryFilter;
+
     public BundleResourceFinder(PackageAdmin packageAdmin, Bundle bundle, String prefix, String suffix) {
+        this(packageAdmin, bundle, prefix, suffix, FULL_DISCOVERY_FILTER);
+    }
+
+    public BundleResourceFinder(PackageAdmin packageAdmin, Bundle bundle, String prefix, String suffix, DiscoveryFilter discoveryFilter) {
         this.packageAdmin = packageAdmin;
         this.bundle = bundle;
         this.prefix = prefix.trim();
         this.suffix = suffix.trim();
+        this.discoveryFilter = discoveryFilter;
     }
-    
-    public void find(ResourceFinderCallback callback) throws Exception {
-        scanBundleClassPath(callback, bundle);
 
-        if (packageAdmin != null) {
+    public void find(ResourceFinderCallback callback) throws Exception {
+        if (discoveryFilter.rangeDiscoveryRequired(DiscoveryRange.BUNDLE_CLASSPATH)) {
+            scanBundleClassPath(callback, bundle);
+        }
+        if (packageAdmin != null && discoveryFilter.rangeDiscoveryRequired(DiscoveryRange.FRAGMENT_BUNDLES)) {
             Bundle[] fragments = packageAdmin.getFragments(bundle);
             if (fragments != null) {
                 for (Bundle fragment : fragments) {
@@ -67,7 +75,7 @@ public class BundleResourceFinder {
             }
         }
     }
-    
+
     public Set<URL> find() {
         Set<URL> resources = new LinkedHashSet<URL>();
         try {
@@ -78,7 +86,7 @@ public class BundleResourceFinder {
         }
         return resources;
     }
-    
+
     private void scanBundleClassPath(ResourceFinderCallback callback, Bundle bundle) throws Exception {
         BundleDescription desc = new BundleDescription(bundle.getHeaders());
         List<HeaderEntry> paths = desc.getBundleClassPath();
@@ -100,8 +108,11 @@ public class BundleResourceFinder {
             }
         }
     }
-    
+
     private void scanDirectory(ResourceFinderCallback callback, Bundle bundle, String basePath) throws Exception {
+        if (!discoveryFilter.directoryDiscoveryRequired(basePath)) {
+            return;
+        }
         Enumeration e = bundle.findEntries(basePath, "*" + suffix, true);
         if (e != null) {
             while (e.hasMoreElements()) {
@@ -109,8 +120,11 @@ public class BundleResourceFinder {
             }
         }
     }
-    
-    private void scanZip(ResourceFinderCallback callback, Bundle bundle, String zipName) throws Exception {   
+
+    private void scanZip(ResourceFinderCallback callback, Bundle bundle, String zipName) throws Exception {
+        if (!discoveryFilter.zipFileDiscoveryRequired(zipName)) {
+            return;
+        }
         URL zipEntry = bundle.getEntry(zipName);
         if (zipEntry == null) {
             return;
@@ -128,7 +142,7 @@ public class BundleResourceFinder {
             e.printStackTrace();
         }
     }
-    
+
     private static class ZipEntryInputStream extends FilterInputStream {
         public ZipEntryInputStream(ZipInputStream in) {
             super(in);
@@ -138,7 +152,7 @@ public class BundleResourceFinder {
             // ((ZipInputStream) in).closeEntry();
         }
     }
-    
+
     private boolean prefixMatches(String name) {
         if (prefix.length() == 0 || prefix.equals(".") || prefix.equals("/")) {
             return true;
@@ -148,40 +162,40 @@ public class BundleResourceFinder {
             return name.startsWith(prefix);
         }
     }
-    
+
     private boolean suffixMatches(String name) {
         return (suffix.length() == 0) ? true : name.endsWith(suffix);
     }
-               
+
     private static String addSlash(String name) {
         if (!name.endsWith("/")) {
             name = name + "/";
         }
         return name;
     }
-    
+
     public interface ResourceFinderCallback {
         void foundInDirectory(Bundle bundle, String baseDir, URL url) throws Exception;
-        
+
         void foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception;
     }
-    
+
     public static class DefaultResourceFinderCallback implements ResourceFinderCallback {
 
         private Set<URL> resources;
-        
+
         public DefaultResourceFinderCallback() {
             this(new LinkedHashSet<URL>());
         }
-        
-        public DefaultResourceFinderCallback(Set<URL> resources) {  
+
+        public DefaultResourceFinderCallback(Set<URL> resources) {
             this.resources = resources;
         }
-        
+
         public Set<URL> getResources() {
             return resources;
         }
-        
+
         public void foundInDirectory(Bundle bundle, String baseDir, URL url) throws Exception {
             resources.add(url);
         }
@@ -191,6 +205,25 @@ public class BundleResourceFinder {
             URL url = new URL("jar:" + jarURL.toString() + "!/" + entry.getName());
             resources.add(url);
         }
-        
+
+    }
+
+    public static class DummyDiscoveryFilter implements DiscoveryFilter {
+
+        @Override
+        public boolean directoryDiscoveryRequired(String url) {
+            return true;
+        }
+
+        @Override
+        public boolean rangeDiscoveryRequired(DiscoveryRange discoveryRange) {
+            return true;
+        }
+
+        @Override
+        public boolean zipFileDiscoveryRequired(String url) {
+            return true;
+        }
+
     }
 }

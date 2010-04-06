@@ -17,10 +17,13 @@
 
 package org.apache.geronimo.jetty8.deployment;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.String;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,6 +98,7 @@ import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
+import org.apache.geronimo.web25.deployment.utils.WebDeploymentValidationUtils;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiAuthModuleType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiConfigProviderType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthConfigType;
@@ -128,9 +132,6 @@ import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -236,7 +237,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         AbstractName templateName = kernel.getAbstractNameFor(template);
         return new GBeanData(kernel.getGBeanData(templateName));
     }
-      
+
     public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         if (bundle == null) {
             throw new NullPointerException("bundle is null");
@@ -246,32 +247,31 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             // not for us
             return null;
         }
-        
+
         String specDD = null;
         WebAppType webApp = null;
-        
+
         URL specDDUrl = BundleUtils.getEntry(bundle, "WEB-INF/web.xml");
         if (specDDUrl == null) {
             webApp = WebAppType.Factory.newInstance();
         } else {
             try {
                 specDD = JarUtils.readAll(specDDUrl);
-
                 XmlObject parsed = XmlBeansUtil.parse(specDD);
                 WebAppDocument webAppDoc = convertToServletSchema(parsed);
                 webApp = webAppDoc.getWebApp();
-                check(webApp);
+                WebDeploymentValidationUtils.validateWebApp(webApp);
             } catch (XmlException e) {
                 throw new DeploymentException("Error parsing web.xml for " + bundle.getSymbolicName(), e);
             } catch (Exception e) {
                 throw new DeploymentException("Error reading web.xml for " + bundle.getSymbolicName(), e);
             }
         }
-        
+
         AbstractName earName = null;
-        String targetPath = ".";   
+        String targetPath = ".";
         boolean standAlone = true;
-        
+
         Deployable deployable = new DeployableBundle(bundle);
         // parse vendor dd
         JettyWebAppType jettyWebApp = getJettyWebApp(null, deployable, standAlone, targetPath, webApp);
@@ -302,7 +302,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         }
         return module;
     }
-    
+
     protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
         assert targetPath != null : "targetPath is null";
@@ -324,7 +324,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             XmlObject parsed = XmlBeansUtil.parse(specDD);
             WebAppDocument webAppDoc = convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
-            check(webApp);
+            WebDeploymentValidationUtils.validateWebApp(webApp);
         } catch (XmlException e) {
             // Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
@@ -441,13 +441,18 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         return JettyWebAppType.Factory.newInstance();
     }
 
-    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
-        JettyWebAppType gerWebApp = (JettyWebAppType) module.getVendorDD();
-        boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
-        basicInitContext(earContext, module, gerWebApp, hasSecurityRealmName);
+    @Override
+    protected void postInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.initContext(earContext, module, bundle);
         }
+    }
+
+    @Override
+    protected void preInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+        JettyWebAppType gerWebApp = (JettyWebAppType) module.getVendorDD();
+        boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
+        module.getEarContext().getGeneralData().put(WEB_MODULE_HAS_SECURITY_REALM, hasSecurityRealmName);
     }
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
@@ -470,12 +475,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             moduleContext.addGBean(webModuleData);
 
             // configure WebAppContextManager with right priority so that it starts last
-            AbstractName contextManagerName = earContext.getNaming().createChildName(moduleName, "WebAppContextManager", NameFactory.SERVICE_MODULE);            
+            AbstractName contextManagerName = earContext.getNaming().createChildName(moduleName, "WebAppContextManager", NameFactory.SERVICE_MODULE);
             GBeanData contextManagerGBean = new GBeanData(contextManagerName, WebAppContextManager.class);
             contextManagerGBean.setPriority(100);
             contextManagerGBean.setReferencePattern("webApp", moduleName);
             moduleContext.addGBean(contextManagerGBean);
-            
+
             // configure hosts and virtual-hosts
             configureHosts(earContext, jettyWebApp, webModuleData);
 
@@ -631,7 +636,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             //not truly metadata complete until MBEs have run
             if (!webApp.getMetadataComplete()) {
                 webApp.setMetadataComplete(true);
-                module.setOriginalSpecDD(getSpecDDAsString(webModule));
+                String specDeploymentPlan = getSpecDDAsString(webModule);
+                module.setOriginalSpecDD(specDeploymentPlan);
+                earContext.addFile(new URI("./WEB-INF/web.xml"), specDeploymentPlan);
             }
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
 
@@ -834,7 +841,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             }
             if (!knownServletMappings.contains(urlPattern)) {
                 knownServletMappings.add(urlPattern);
-                checkString(urlPattern);
+                if (!WebDeploymentValidationUtils.isUrlPatternValid(urlPattern)) {
+                    //TODO Better Exception message is required
+                    throw new DeploymentException("Invalid character CR(#xD) or LF(#xA) is found in mapping url");
+                }
                 Set<String> urlsForServlet = servletMappings.get(servletName);
                 if (urlsForServlet == null) {
                     urlsForServlet = new HashSet<String>();

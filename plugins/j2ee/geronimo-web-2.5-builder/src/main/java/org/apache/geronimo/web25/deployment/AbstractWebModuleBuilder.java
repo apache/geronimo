@@ -17,6 +17,33 @@
 
 package org.apache.geronimo.web25.deployment;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+
+import javax.security.auth.message.module.ServerAuthModule;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.Location;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.components.jaspi.model.AuthModuleType;
 import org.apache.geronimo.components.jaspi.model.ConfigProviderType;
@@ -63,20 +90,18 @@ import org.apache.geronimo.security.jaspi.AuthConfigProviderGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthConfigGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthContextGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
+import org.apache.geronimo.web25.deployment.merge.MergeHelper;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
 import org.apache.geronimo.web25.deployment.security.SpecSecurityBuilder;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
-import org.apache.geronimo.xbeans.javaee6.FilterMappingType;
 import org.apache.geronimo.xbeans.javaee6.FilterType;
 import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee6.ListenerType;
-import org.apache.geronimo.xbeans.javaee6.SecurityConstraintType;
 import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
 import org.apache.geronimo.xbeans.javaee6.ServletType;
 import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebResourceCollectionType;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
@@ -88,63 +113,54 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.security.auth.message.module.ServerAuthModule;
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.Location;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
+
     //are we combining all web apps into one bundle in an ear?
     //TODO eliminate this
     protected static final boolean COMBINED_BUNDLE = true;
 
     public final static NamingBuilder.Key<GBeanData> DEFAULT_JSP_SERVLET_KEY = new NamingBuilder.Key<GBeanData>() {
+
         public GBeanData get(Map context) {
             return (GBeanData) context.get(this);
         }
-
     };
+
     private static final Logger log = LoggerFactory.getLogger(AbstractWebModuleBuilder.class);
 
     private static final QName TAGLIB = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "taglib");
 
     private static final String LINE_SEP = System.getProperty("line.separator");
 
+    public static final String WEB_MODULE_HAS_SECURITY_REALM = "WEB_MODULE_HAS_SECURITY_REALM";
+
+    public static final String EXCLUDED_JAR_URLS = "EXCLUDED_JAR_URLS";
+
+    public static final String EXCLUDED_ANNOTATION_SCAN_JAR_URLS = "EXCLUDED_ANNOTATION_SCAN_JAR_URLS";
+
     protected static final AbstractNameQuery MANAGED_CONNECTION_FACTORY_PATTERN;
+
     private static final AbstractNameQuery ADMIN_OBJECT_PATTERN;
+
     protected static final AbstractNameQuery STATELESS_SESSION_BEAN_PATTERN;
+
     protected static final AbstractNameQuery STATEFUL_SESSION_BEAN_PATTERN;
+
     protected static final AbstractNameQuery ENTITY_BEAN_PATTERN;
+
     protected final Kernel kernel;
+
     protected final NamespaceDrivenBuilderCollection serviceBuilders;
+
     protected final ResourceEnvironmentSetter resourceEnvironmentSetter;
+
     protected final Collection<WebServiceBuilder> webServiceBuilder;
 
     protected final NamingBuilder namingBuilders;
+
     protected final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
 
     private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
@@ -156,7 +172,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      */
     private static final URI RELATIVE_MODULE_BASE_URI = URI.create("../");
 
-    protected AbstractWebModuleBuilder(Kernel kernel, Collection<NamespaceDrivenBuilder> serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter, Collection<WebServiceBuilder> webServiceBuilder, Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
+    protected AbstractWebModuleBuilder(Kernel kernel, Collection<NamespaceDrivenBuilder> serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter,
+            Collection<WebServiceBuilder> webServiceBuilder, Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
         this.kernel = kernel;
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
         this.namingBuilders = namingBuilders;
@@ -171,7 +188,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         STATELESS_SESSION_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATELESS_SESSION_BEAN));
         STATEFUL_SESSION_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATEFUL_SESSION_BEAN));
         ENTITY_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.ENTITY_BEAN));
-
     }
 
     public NamingBuilder getNamingBuilders() {
@@ -198,11 +214,13 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return createModule(plan, moduleFile, ".", null, null, null, null, naming, idBuilder);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming,
+            ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, targetPath, specDDUrl, environment, (String) moduleContextInfo, earName, naming, idBuilder);
     }
 
-    protected abstract Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException;
+    protected abstract Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, AbstractName earName, Naming naming,
+            ModuleIDBuilder idBuilder) throws DeploymentException;
 
     /**
      * Some servlets will have multiple url patterns.  However, webservice servlets
@@ -223,7 +241,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         for (ServletMappingType servletMapping : servletMappings) {
             String servletName = servletMapping.getServletName().getStringValue().trim();
             UrlPatternType[] urlPatterns = servletMapping.getUrlPatternArray();
-
             for (int i = 0; urlPatterns != null && (i < urlPatterns.length); i++) {
                 map.put(servletName, contextRoot + urlPatterns[i].getStringValue().trim());
             }
@@ -232,37 +249,32 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     protected String determineDefaultContextRoot(WebAppType webApp, boolean isStandAlone, JarFile moduleFile, String targetPath) {
-
         if (webApp != null && webApp.getId() != null) {
             return webApp.getId();
         }
-
         if (isStandAlone) {
             // default configId is based on the moduleFile name
             return "/" + trimPath(new File(moduleFile.getName()).getName());
         }
-
         // default configId is based on the module uri from the application.xml
         return trimPath(targetPath);
     }
 
     private String trimPath(String path) {
-
         if (path == null) {
             return null;
         }
-
         if (path.endsWith(".war")) {
             path = path.substring(0, path.length() - 4);
         }
         if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
-
         return path;
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories)
+            throws DeploymentException {
         EARContext moduleContext;
         //TODO GERONIMO-4972 find a way to create working nested bundles.
         if (true || module.isStandAlone()) {
@@ -275,19 +287,13 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             environment.addDependency(earConfigId, ImportType.ALL);
             File configurationDir = new File(earContext.getBaseDir(), module.getTargetPath());
             configurationDir.mkdirs();
-
             // construct the web app deployment context... this is the same class used by the ear context
             try {
                 File inPlaceConfigurationDir = null;
                 if (null != earContext.getInPlaceConfigurationDir()) {
                     inPlaceConfigurationDir = new File(earContext.getInPlaceConfigurationDir(), module.getTargetPath());
                 }
-                moduleContext = new EARContext(configurationDir,
-                        inPlaceConfigurationDir,
-                        environment,
-                        ConfigurationModuleType.WAR,
-                        module.getModuleName(),
-                        earContext);
+                moduleContext = new EARContext(configurationDir, inPlaceConfigurationDir, environment, ConfigurationModuleType.WAR, module.getModuleName(), earContext);
             } catch (DeploymentException e) {
                 cleanupConfigurationDir(configurationDir);
                 throw e;
@@ -295,7 +301,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
         module.setEarContext(moduleContext);
         module.setRootEarContext(earContext);
-
         try {
             ClassPathList manifestcp = new ClassPathList();
             // add the warfile's content to the configuration
@@ -315,27 +320,23 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     moduleContext.addFile(targetPath, warFile, entry);
                 }
             }
-
             // always add WEB-INF/classes to the classpath regardless of whether
             // any classes exist.  This must be searched BEFORE the WEB-INF/lib jar files,
             // per the servlet specifications.
             moduleContext.addToClassPath(module.resolve("WEB-INF/classes/").getPath());
             manifestcp.add("WEB-INF/classes/");
-
             // install the libs
             for (ZipEntry entry : libs) {
                 URI targetPath = module.resolve(entry.getName());
                 moduleContext.addInclude(targetPath, warFile, entry);
                 manifestcp.add(entry.getName());
             }
-
             // add the manifest classpath entries declared in the war to the class loader
             // we have to explicitly add these since we are unpacking the web module
             // and the url class loader will not pick up a manifest from an unpacked dir
             //GERONIMO-4972 this can't be correct for one-bundle deployments.
             moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI);
             moduleContext.getGeneralData().put(ClassPathList.class, manifestcp);
-
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
         } finally {
@@ -352,7 +353,18 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     }
 
-    protected void basicInitContext(EARContext earContext, Module module, XmlObject gerWebApp, boolean hasSecurityRealmName) throws DeploymentException {
+    protected abstract void preInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException;
+
+    protected abstract void postInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException;
+
+    @Override
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+        preInitContext(earContext, module, bundle);
+        basicInitContext(earContext, module, bundle, (XmlObject) module.getVendorDD());
+        postInitContext(earContext, module, bundle);
+    }
+
+    protected void basicInitContext(EARContext earContext, Module module, Bundle bundle, XmlObject gerWebApp) throws DeploymentException {
         WebModule webModule = (WebModule) module;
         //complete manifest classpath
         EARContext moduleContext = webModule.getEarContext();
@@ -361,11 +373,13 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         URI baseUri = URI.create(webModule.getTargetPath());
         URI resolutionUri = invertURI(baseUri);
         earContext.getCompleteManifestClassPath(webModule.getDeployable(), baseUri, resolutionUri, manifestcp, moduleLocations);
-
+        //Security Configuration Validation
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
+        boolean hasSecurityRealmName = (Boolean) module.getEarContext().getGeneralData().get(WEB_MODULE_HAS_SECURITY_REALM);
         if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0)) {
             if (!hasSecurityRealmName) {
-                throw new DeploymentException("web.xml for web app " + webModule.getName() + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
+                throw new DeploymentException("web.xml for web app " + webModule.getName()
+                        + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
             }
         }
         if (hasSecurityRealmName) {
@@ -376,12 +390,18 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         if (securityElements.length > 0 && !hasSecurityRealmName) {
             throw new DeploymentException("You have supplied a security configuration for web app " + webModule.getName() + " but no security-realm-name to allow login");
         }
+
+        //Process Naming
         getNamingBuilders().buildEnvironment(webApp, webModule.getVendorDD(), webModule.getEnvironment());
-        //this is silly
         getNamingBuilders().initContext(webApp, gerWebApp, webModule);
 
-        Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) webModule.getSpecDD(), webModule.getContextRoot());
+      //Process web fragments and annotations
+        if (!webApp.getMetadataComplete()) {
+            MergeHelper.processWebFragmentsAndAnnotations(earContext, webModule, bundle, webApp);
+        }
 
+        //Process Web Service
+        Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) webModule.getSpecDD(), webModule.getContextRoot());
         Map sharedContext = webModule.getSharedContext();
         for (Object aWebServiceBuilder : webServiceBuilder) {
             WebServiceBuilder serviceBuilder = (WebServiceBuilder) aWebServiceBuilder;
@@ -403,6 +423,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         XmlOptions options = new XmlOptions();
         QName webQName = new QName("http://java.sun.com/xml/ns/javaee", "web-app");
         options.setSaveSyntheticDocumentElement(webQName);
+        options.setSavePrettyPrint();
+        options.setSavePrettyPrintIndent(4);
         try {
             module.getSpecDD().save(writer, options);
         } catch (IOException e) {
@@ -429,13 +451,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
             String publicId = xmlDocumentProperties.getDoctypePublicId();
             boolean is22 = "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId);
-            if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId) ||
-                    is22) {
+            if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId) || is22) {
                 XmlCursor moveable = xmlObject.newCursor();
                 try {
                     moveable.toStartDoc();
                     moveable.toFirstChild();
-
                     SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
                     cursor.toStartDoc();
                     cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "web-app");
@@ -500,7 +520,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return builder.buildSpecSecurityConfig(webApp);
     }
 
-    protected void configureLocalJaspicProvider(AuthenticationWrapper authType, String contextPath, Module module, GBeanData securityFactoryData) throws DeploymentException, GBeanAlreadyExistsException {
+    protected void configureLocalJaspicProvider(AuthenticationWrapper authType, String contextPath, Module module, GBeanData securityFactoryData) throws DeploymentException,
+            GBeanAlreadyExistsException {
         EARContext moduleContext = module.getEarContext();
         GBeanData authConfigProviderData = null;
         AbstractName providerName = moduleContext.getNaming().createChildName(module.getModuleName(), "authConfigProvider", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
@@ -575,71 +596,16 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     }
 
-    protected static void check(WebAppType webApp) throws DeploymentException {
-        checkURLPattern(webApp);
-        checkMultiplicities(webApp);
-    }
-
-    private static void checkURLPattern(WebAppType webApp) throws DeploymentException {
-
-        FilterMappingType[] filterMappings = webApp.getFilterMappingArray();
-        for (FilterMappingType filterMapping : filterMappings) {
-            UrlPatternType[] urlPatterns = filterMapping.getUrlPatternArray();
-            for (int j = 0; (urlPatterns != null) && (j < urlPatterns.length); j++) {
-                checkString(urlPatterns[j].getStringValue().trim());
-            }
-        }
-
-        ServletMappingType[] servletMappings = webApp.getServletMappingArray();
-        for (ServletMappingType servletMapping : servletMappings) {
-            UrlPatternType[] urlPatterns = servletMapping.getUrlPatternArray();
-            for (int j = 0; (urlPatterns != null) && (j < urlPatterns.length); j++) {
-                checkString(urlPatterns[j].getStringValue().trim());
-            }
-        }
-
-        SecurityConstraintType[] constraints = webApp.getSecurityConstraintArray();
-        for (SecurityConstraintType constraint : constraints) {
-            WebResourceCollectionType[] collections = constraint.getWebResourceCollectionArray();
-            for (WebResourceCollectionType collection : collections) {
-                UrlPatternType[] patterns = collection.getUrlPatternArray();
-                for (UrlPatternType pattern : patterns) {
-                    checkString(pattern.getStringValue().trim());
-                }
-            }
-        }
-    }
-
-    protected static void checkString(String pattern) throws DeploymentException {
-        //j2ee_1_4.xsd explicitly requires preserving all whitespace. Do not trim.
-        if (pattern.indexOf(0x0D) >= 0) throw new DeploymentException("<url-pattern> must not contain CR(#xD)");
-        if (pattern.indexOf(0x0A) >= 0) throw new DeploymentException("<url-pattern> must not contain LF(#xA)");
-    }
-
-    private static void checkMultiplicities(WebAppType webApp) throws DeploymentException {
-        if (webApp.getSessionConfigArray().length > 1)
-            throw new DeploymentException("Multiple <session-config> elements found");
-        if (webApp.getJspConfigArray().length > 1)
-            throw new DeploymentException("Multiple <jsp-config> elements found");
-        if (webApp.getLoginConfigArray().length > 1)
-            throw new DeploymentException("Multiple <login-config> elements found");
-    }
-
     private boolean cleanupConfigurationDir(File configurationDir) {
         LinkedList<String> cannotBeDeletedList = new LinkedList<String>();
-
         if (!FileUtils.recursiveDelete(configurationDir, cannotBeDeletedList)) {
             // Output a message to help user track down file problem
-            log.warn("Unable to delete " + cannotBeDeletedList.size() +
-                    " files while recursively deleting directory "
-                    + configurationDir.getAbsolutePath() + LINE_SEP +
-                    "The first file that could not be deleted was:" + LINE_SEP + "  " +
-                    (!cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : ""));
+            log.warn("Unable to delete " + cannotBeDeletedList.size() + " files while recursively deleting directory " + configurationDir.getAbsolutePath() + LINE_SEP
+                    + "The first file that could not be deleted was:" + LINE_SEP + "  " + (!cannotBeDeletedList.isEmpty() ? cannotBeDeletedList.getFirst() : ""));
             return false;
         }
         return true;
     }
-
 
     protected ClassFinder createWebAppClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
         // Get the classloader from the module's EARContext
@@ -652,12 +618,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         // Find the list of classes from the web.xml we want to search for annotations in
         //------------------------------------------------------------------------------------
         List<Class> classes = new ArrayList<Class>();
-
         // Get all the servlets from the deployment descriptor
         ServletType[] servlets = webApp.getServletArray();
         for (ServletType servlet : servlets) {
             FullyQualifiedClassType cls = servlet.getServletClass();
-            if (cls != null) {                              // Don't try this for JSPs
+            if (cls != null) { // Don't try this for JSPs
                 Class<?> clas;
                 try {
                     clas = bundle.loadClass(cls.getStringValue());
@@ -667,7 +632,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 addClass(classes, clas);
             }
         }
-
         // Get all the listeners from the deployment descriptor
         ListenerType[] listeners = webApp.getListenerArray();
         for (ListenerType listener : listeners) {
@@ -680,7 +644,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             }
             addClass(classes, clas);
         }
-
         // Get all the filters from the deployment descriptor
         FilterType[] filters = webApp.getFilterArray();
         for (FilterType filter : filters) {
@@ -693,7 +656,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             }
             addClass(classes, clas);
         }
-
         // see https://issues.apache.org/jira/browse/GERONIMO-3421 .
         // if the user has botched her classloader config (perhaps by
         // not including a jar that her app needs) then ClassFinder
@@ -714,14 +676,13 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     }
 
-    protected void configureBasicWebModuleAttributes(WebAppType webApp, XmlObject vendorPlan, EARContext moduleContext, EARContext earContext, WebModule webModule, GBeanData webModuleData) throws DeploymentException {
+    protected void configureBasicWebModuleAttributes(WebAppType webApp, XmlObject vendorPlan, EARContext moduleContext, EARContext earContext, WebModule webModule, GBeanData webModuleData)
+            throws DeploymentException {
         Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleContext.getModuleName());
-
         //get partial jndi context from earContext.
         Map<JndiKey, Map<String, Object>> jndiContext = new HashMap<JndiKey, Map<String, Object>>(NamingBuilder.JNDI_KEY.get(earContext.getGeneralData()));
         buildingContext.put(NamingBuilder.JNDI_KEY, jndiContext);
-
         if (!webApp.getMetadataComplete()) {
             // Create a classfinder and populate it for the naming builder(s). The absence of a
             // classFinder in the module will convey whether metadata-complete is set (or not)
@@ -732,7 +693,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         //nope, persistence units can be in the war.
         //This means that you cannot use the default environment of the web builder to add configs that will be searched.
         getNamingBuilders().buildNaming(webApp, vendorPlan, webModule, buildingContext);
-
         //Combine contexts.  Note this may not work right for jaxws which has a comp/env/WebServiceContext binding
         Map<String, Object> compContext = new HashMap<String, Object>();
         if (jndiContext.get(JndiScope.comp) != null) {
@@ -744,7 +704,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         AbstractName contextSourceName = moduleContext.getNaming().createChildName(webModuleData.getAbstractName(), "ContextSource", "ContextSource");
         GBeanData contextSourceData = new GBeanData(contextSourceName, WebContextSource.class);
         contextSourceData.setAttribute("componentContext", compContext);
-        contextSourceData.setReferencePattern("ApplicationJndi", (AbstractName)earContext.getGeneralData().get(EARContext.APPLICATION_JNDI_NAME_KEY));
+        contextSourceData.setReferencePattern("ApplicationJndi", (AbstractName) earContext.getGeneralData().get(EARContext.APPLICATION_JNDI_NAME_KEY));
         contextSourceData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
         try {
             moduleContext.addGBean(contextSourceData);
@@ -752,9 +712,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("ContextSource for this webapp already present:" + webModuleData.getAbstractName(), e);
         }
         webModuleData.setReferencePattern("ContextSource", contextSourceName);
-
         Holder holder = NamingBuilder.INJECTION_KEY.get(buildingContext);
-
         webModule.getSharedContext().put(WebModule.WEB_APP_DATA, webModuleData);
         webModule.getSharedContext().put(NamingBuilder.JNDI_KEY, jndiContext);
         webModule.getSharedContext().put(NamingBuilder.INJECTION_KEY, holder);
@@ -764,22 +722,20 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         if (!webModule.isStandAlone()) {
             webModuleData.setReferencePattern("J2EEApplication", earContext.getModuleName());
         }
-
         webModuleData.setAttribute("holder", holder);
-
         //Add dependencies on managed connection factories and ejbs in this app
         //This is overkill, but allows for people not using java:comp context (even though we don't support it)
         //and sidesteps the problem of circular references between ejbs.
         if (earContext != moduleContext) {
             addGBeanDependencies(earContext, webModuleData);
         }
-
         webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
         webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
-        webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext()? null: webModule.getTargetPath());
+        webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext() ? null : webModule.getTargetPath());
     }
 
     private static class InternWrapper implements XMLStreamReader {
+
         private final XMLStreamReader delegate;
 
         private InternWrapper(XMLStreamReader delegate) {
@@ -966,5 +922,4 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             return delegate.standaloneSet();
         }
     }
-
 }
