@@ -494,6 +494,12 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            
+            <dependency>
+                <groupId>org.apache.xbean</groupId>
+                <artifactId>xbean-asm-shaded</artifactId>
+                <version>${xbeanVersion}</version>
+            </dependency>
 
             <dependency>
                 <groupId>commons-vfs</groupId>
@@ -1151,6 +1157,10 @@
                         <groupId>wsdl4j</groupId>
                         <artifactId>wsdl4j</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-asm-shaded</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1258,6 +1268,10 @@
                     <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-asm-shaded</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
