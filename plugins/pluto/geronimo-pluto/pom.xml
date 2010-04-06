@@ -52,6 +52,11 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>        
+        </dependency>
     </dependencies>
 
 </project>
