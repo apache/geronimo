@@ -101,4 +101,15 @@
     </gbean>
     
     <gbean name="RARConfigurer" class="org.apache.geronimo.connector.deployment.RARConfigurer"/>
+
+    <gbean name="DataSourceBuilder" class="org.apache.geronimo.datasource.deployment.DataSourceBuilder">
+        <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
+        <attribute name="defaultMaxSize">10</attribute>
+        <attribute name="defaultMinSize">0</attribute>
+        <attribute name="defaultBlockingTimeoutMilliseconds">5000</attribute>
+        <attribute name="defaultIdleTimeoutMinutes">15</attribute>
+        <attribute name="defaultXATransactionCaching">true</attribute>
+        <attribute name="defaultXAThreadCaching">false</attribute>
+    </gbean>
+
 </module>

@@ -96,11 +96,7 @@
             <artifactId>geronimo-system</artifactId>
             <version>${version}</version>
         </dependency>
-        
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.schema</groupId>-->
-            <!--<artifactId>geronimo-schema-j2ee_1.4</artifactId>-->
-        <!--</dependency>-->
+
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-jee</artifactId>
@@ -127,6 +123,7 @@
             <artifactId>geronimo-transaction-1_6</artifactId>
             <version>${version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-test-ddbean</artifactId>
@@ -188,6 +185,7 @@
                             org.apache.geronimo.connector.deployment,
                             org.apache.geronimo.connector.deployment.dconfigbean,
                             org.apache.geronimo.connector.deployment.jsr88,
+                            org.apache.geronimo.datasource.deployment,
                             org.apache.geronimo.xbeans.connector,
                             org.apache.geronimo.xbeans.connector.impl
                         </Export-Package>

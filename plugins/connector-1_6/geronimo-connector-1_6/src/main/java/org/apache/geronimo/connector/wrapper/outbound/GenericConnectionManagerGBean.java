@@ -23,11 +23,10 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.Hashtable;
 
-import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 import javax.security.auth.Subject;
+
 import org.apache.geronimo.connector.outbound.GenericConnectionManager;
 import org.apache.geronimo.connector.outbound.SubjectSource;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
@@ -47,10 +46,7 @@ import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceException;
-import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceRegistration;
 
 /**
@@ -60,9 +56,7 @@ import org.osgi.framework.ServiceRegistration;
 public class GenericConnectionManagerGBean extends GenericConnectionManager implements GBeanLifecycle, Serializable, Externalizable {
     private Kernel kernel;
     private AbstractName abstractName;
-    private BundleContext bundleContext;
-    private ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper;
-    private ServiceRegistration serviceRegistration;
+    private transient ConnectionFactoryRegistration connectionRegistration;
     //externalizable format version
     private static final int VERSION = 1;
 
@@ -80,9 +74,14 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         super(transactionSupport, pooling, getSubjectSource(containerManagedSecurity), connectionTracker, transactionManager, managedConnectionFactoryWrapper.getManagedConnectionFactory(), objectName, classLoader);
         this.kernel = kernel;
         this.abstractName = abstractName;
-        this.bundleContext = bundleContext;
-        this.managedConnectionFactoryWrapper = managedConnectionFactoryWrapper;
+        
         doRecovery();
+        
+        connectionRegistration = new ConnectionFactoryRegistration(this, 
+                                                                   bundleContext, 
+                                                                   abstractName, 
+                                                                   managedConnectionFactoryWrapper.getJndiName(), 
+                                                                   new String [] { managedConnectionFactoryWrapper.getConnectionFactoryInterface() });
     }
 
     public GenericConnectionManagerGBean() {
@@ -103,40 +102,11 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
     }
 
     public void doStart() throws Exception {
-        String connectionInterface = managedConnectionFactoryWrapper.getConnectionFactoryInterface();
-        String jndiName = managedConnectionFactoryWrapper.getJndiName();
-        if (jndiName == null) {
-            jndiName = abstractName.getArtifact().getGroupId() + "/" + 
-                       abstractName.getArtifact().getArtifactId() + "/" + 
-                       abstractName.getNameProperty("j2eeType") + "/" + 
-                       abstractName.getNameProperty("name");
-        }
-                
-        Hashtable properties = new Hashtable();
-        properties.put("osgi.jndi.service.name", jndiName);
-        // register ServiceFactory so that each bundle gets its own instance of the connection factory
-        serviceRegistration = bundleContext.registerService(connectionInterface, new ConnectionFactoryService(), properties);
+        connectionRegistration.register();
     }
-
-    private class ConnectionFactoryService implements ServiceFactory {
-
-        public Object getService(Bundle bundle, ServiceRegistration registration) {
-            try {
-                return createConnectionFactory();
-            } catch (ResourceException e) {
-                throw new ServiceException("Error creating connection factory", e);
-            }
-        }
-
-        public void ungetService(Bundle bundle, ServiceRegistration registration, Object service) {
-        }
-        
-    }
-    
+   
     public void doStop() throws Exception {
-        if (serviceRegistration != null) {
-            serviceRegistration.unregister();
-        }
+        connectionRegistration.unregister();
     }
     
     private static SubjectSource getSubjectSource(boolean containerManagedSecurity) {
