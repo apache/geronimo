@@ -18,8 +18,8 @@
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-   version="2.5" >
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+   version="3.0" >
 
     <display-name>Empty web application</display-name>
     <description>Empty web application</description>
@@ -36,6 +36,15 @@
              <injection-target-class>org.apache.geronimo.naming.deployment.annotation.ResourceAnnotationExample</injection-target-class>
              <injection-target-name>annotatedMethod2</injection-target-name>
         </injection-target>
+    </env-entry>
+    <env-entry>
+        <env-entry-name>org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationTest/annotatedMethod3</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <injection-target>
+             <injection-target-class>org.apache.geronimo.naming.deployment.annotation.ResourceAnnotationExample</injection-target-class>
+             <injection-target-name>annotatedMethod3</injection-target-name>
+        </injection-target>
+        <lookup-name>java:app/foo</lookup-name>
     </env-entry>
 
 </web-app>

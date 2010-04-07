@@ -374,26 +374,28 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                         if (annotation.authenticationType() == Resource.AuthenticationType.CONTAINER) {
                             ResAuthType resAuth = resourceRef.addNewResAuth();
                             resAuth.setStringValue("Container");
-                            resourceRef.setResAuth(resAuth);
                         } else if (annotation.authenticationType() == Resource.AuthenticationType.APPLICATION) {
                             ResAuthType resAuth = resourceRef.addNewResAuth();
                             resAuth.setStringValue("Application");
-                            resourceRef.setResAuth(resAuth);
                         }
 
                         // sharing scope
                         ResSharingScopeType resScope = resourceRef.addNewResSharingScope();
                         resScope.setStringValue(annotation.shareable() ? "Shareable" : "Unshareable");
-                        resourceRef.setResSharingScope(resScope);
 
                         // mappedName
                         String mappdedNameAnnotation = annotation.mappedName();
                         if (!mappdedNameAnnotation.equals("")) {
                             XsdStringType mappedName = resourceRef.addNewMappedName();
                             mappedName.setStringValue(mappdedNameAnnotation);
-                            resourceRef.setMappedName(mappedName);
                         }
 
+                        // lookup
+                        String lookup = annotation.lookup();
+                        if (!lookup.equals("")) {
+                            XsdStringType lookupName = resourceRef.addNewLookupName();
+                            lookupName.setStringValue(lookup);
+                        }
                     }
                     catch (Exception anyException) {
                         log.debug("ResourceRefBuilder: Exception caught while processing <resource-ref>");

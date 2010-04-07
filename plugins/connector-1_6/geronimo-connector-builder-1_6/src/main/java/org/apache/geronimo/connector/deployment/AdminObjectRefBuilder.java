@@ -440,7 +440,13 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             if (!mappdedNameAnnotation.equals("")) {
                 XsdStringType mappedName = resourceEnvRef.addNewMappedName();
                 mappedName.setStringValue(mappdedNameAnnotation);
-                resourceEnvRef.setMappedName(mappedName);
+            }
+            
+            // lookup
+            String lookup = annotation.lookup();
+            if (!lookup.equals("")) {
+                XsdStringType lookupName = resourceEnvRef.addNewLookupName();
+                lookupName.setStringValue(lookup);
             }
         }
 
@@ -460,7 +466,6 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 // message-destination-ref-type
                 MessageDestinationTypeType msgDestType = messageDestinationRef.addNewMessageDestinationType();
                 msgDestType.setStringValue(resourceType);
-                messageDestinationRef.setMessageDestinationType(msgDestType);
             }
             if (method != null || field != null) {
                 // injectionTarget
@@ -484,7 +489,13 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             if (!mappdedNameAnnotation.equals("")) {
                 XsdStringType mappedName = messageDestinationRef.addNewMappedName();
                 mappedName.setStringValue(mappdedNameAnnotation);
-                messageDestinationRef.setMappedName(mappedName);
+            }
+            
+            // lookup
+            String lookup = annotation.lookup();
+            if (!lookup.equals("")) {
+                XsdStringType lookupName = messageDestinationRef.addNewLookupName();
+                lookupName.setStringValue(lookup);
             }
         }
     }

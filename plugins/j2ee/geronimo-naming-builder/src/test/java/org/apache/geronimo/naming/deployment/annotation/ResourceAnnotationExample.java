@@ -67,4 +67,7 @@ public class ResourceAnnotationExample {
     public void setAnnotatedMethod2(String string) {
     }
 
+    @Resource(lookup = "java:app/foo")
+    public void setAnnotatedMethod3(String string) {
+    }
 }

@@ -230,17 +230,16 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                             configureInjectionTarget(injectionTarget, method, field);
                         }
 
+                        //------------------------------------------------------------------------------
+                        // <env-entry> optional elements:
+                        //------------------------------------------------------------------------------
+                        
                         // mappedName
                         String mappdedNameAnnotation = annotation.mappedName();
                         if (!mappdedNameAnnotation.equals("")) {
                             XsdStringType mappedName = envEntry.addNewMappedName();
                             mappedName.setStringValue(mappdedNameAnnotation);
-                            envEntry.setMappedName(mappedName);
                         }
-
-                        //------------------------------------------------------------------------------
-                        // <env-entry> optional elements:
-                        //------------------------------------------------------------------------------
 
                         // description
                         String descriptionAnnotation = annotation.description();
@@ -249,6 +248,12 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                             description.setStringValue(descriptionAnnotation);
                         }
 
+                        // lookup
+                        String lookup = annotation.lookup();
+                        if (!lookup.equals("")) {
+                            XsdStringType lookupName = envEntry.addNewLookupName();
+                            lookupName.setStringValue(lookup);
+                        }
                     }
                     catch (Exception anyException) {
                         log.debug("ResourceAnnotationHelper: Exception caught while processing <env-entry>");
