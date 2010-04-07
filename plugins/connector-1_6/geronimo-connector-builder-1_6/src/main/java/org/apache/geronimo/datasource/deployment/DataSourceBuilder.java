@@ -284,27 +284,27 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         dsDescription.setClassName(ds.getClassName().getStringValue());
         
         if (ds.isSetDescription()) {
-            dsDescription.setDescription(ds.getDescription().getStringValue());
+            dsDescription.setDescription(ds.getDescription().getStringValue().trim());
         }
         
         if (ds.isSetUrl()) {
-            dsDescription.setUrl(ds.getUrl().getStringValue());
+            dsDescription.setUrl(ds.getUrl().getStringValue().trim());
         }
         
         if (ds.isSetUser()) {
-            dsDescription.setUser(ds.getUser().getStringValue());
+            dsDescription.setUser(ds.getUser().getStringValue().trim());
         }
         
         if (ds.isSetPassword()) {
-            dsDescription.setPassword(ds.getPassword().getStringValue());
+            dsDescription.setPassword(ds.getPassword().getStringValue().trim());
         }
         
         if (ds.isSetDatabaseName()) {
-            dsDescription.setDatabaseName(ds.getDatabaseName().getStringValue());
+            dsDescription.setDatabaseName(ds.getDatabaseName().getStringValue().trim());
         }
         
         if (ds.isSetServerName()) {
-            dsDescription.setServerName(ds.getServerName().getStringValue());
+            dsDescription.setServerName(ds.getServerName().getStringValue().trim());
         }
         
         if (ds.isSetPortNumber()) {
@@ -319,7 +319,8 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         if (props != null) {
             Map<String, String> properties = new HashMap<String, String>();
             for (PropertyType prop : props) {
-                properties.put(prop.getName().getStringValue(), prop.getValue().getStringValue());
+                properties.put(prop.getName().getStringValue().trim(), 
+                               prop.getValue().getStringValue().trim());
             }
             dsDescription.setProperties(properties);
         }

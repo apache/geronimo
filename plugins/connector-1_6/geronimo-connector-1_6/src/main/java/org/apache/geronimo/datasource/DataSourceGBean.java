@@ -186,7 +186,7 @@ public class DataSourceGBean implements GBeanLifecycle, ResourceSource<ResourceE
           
     private String getOsgiJndiName() {
         if (dataSourceDescription.getProperties() != null) {
-            return dataSourceDescription.getProperties().get(ConnectionFactoryRegistration.OSGI_JNDI_SERVICE_NAME);
+            return dataSourceDescription.getProperties().remove(ConnectionFactoryRegistration.OSGI_JNDI_SERVICE_NAME);
         } else {
             return null;
         }        
