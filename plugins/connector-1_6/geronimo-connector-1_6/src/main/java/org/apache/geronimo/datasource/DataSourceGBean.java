@@ -17,13 +17,16 @@
 
 package org.apache.geronimo.datasource;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
+import javax.security.auth.Subject;
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.DataSource;
+import javax.sql.XAConnection;
 import javax.sql.XADataSource;
 
 import org.apache.geronimo.connector.outbound.GenericConnectionManager;
@@ -50,6 +53,7 @@ import org.apache.xbean.recipe.Option;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tranql.connector.CredentialExtractor;
 import org.tranql.connector.NoExceptionsAreFatalSorter;
 import org.tranql.connector.jdbc.AbstractLocalDataSourceMCF;
 import org.tranql.connector.jdbc.AbstractPooledConnectionDataSourceMCF;
@@ -87,6 +91,7 @@ public class DataSourceGBean implements GBeanLifecycle, ResourceSource<ResourceE
         
         String dsName = dataSourceDescription.getName();
         String dsClass = dataSourceDescription.getClassName();
+        String dsJndiName = getOsgiJndiName();
         
         TransactionSupport transactionSupport;
         PoolingSupport pooling;
@@ -137,7 +142,7 @@ public class DataSourceGBean implements GBeanLifecycle, ResourceSource<ResourceE
         connectionRegistration = new ConnectionFactoryRegistration(connectionManager, 
                                                                    bundleContext, 
                                                                    abstractName, 
-                                                                   getOsgiJndiName(), 
+                                                                   dsJndiName, 
                                                                    new String [] { DataSource.class.getName() });
     }
     
@@ -147,19 +152,27 @@ public class DataSourceGBean implements GBeanLifecycle, ResourceSource<ResourceE
             
         Map<String, Object> properties = new HashMap<String, Object>();
             
-        // TODO: handle "url" property somehow
-        // TODO: handle "isolationType" property somehow
-        
         // standard settings
         setProperty(properties, "description", dataSourceDescription.getDescription());
         setProperty(properties, "user", dataSourceDescription.getUser());
         setProperty(properties, "password", dataSourceDescription.getPassword());
         setProperty(properties, "databaseName", dataSourceDescription.getDatabaseName());
+        setProperty(properties, "serverName", dataSourceDescription.getServerName());
         if (dataSourceDescription.getPortNumber() != -1) {
             setProperty(properties, "portNumber", dataSourceDescription.getPortNumber());
-        }
-        setProperty(properties, "serverName", dataSourceDescription.getServerName());
+        }        
         setProperty(properties, "loginTimeout", dataSourceDescription.getLoginTimeout());
+        
+        /*
+         * XXX: Not really sure how deal with url property.
+         *      We can't really parse it so pass it as a property to data source.
+         */
+        
+        // set url property if no specific properties are set
+        if (dataSourceDescription.hasStandardProperties()) {
+            setProperty(properties, "url", dataSourceDescription.getUrl());
+        }
+        
         // other properties
         if (dataSourceDescription.getProperties() != null) {
             properties.putAll(dataSourceDescription.getProperties());
@@ -252,6 +265,21 @@ public class DataSourceGBean implements GBeanLifecycle, ResourceSource<ResourceE
         @Override
         public String getUserName() {
             return dataSourceDescription.getUser();
+        }
+        
+        @Override
+        protected XAConnection getPhysicalConnection(Subject subject, CredentialExtractor credentialExtractor) 
+            throws ResourceException {
+            XAConnection connection = super.getPhysicalConnection(subject, credentialExtractor);
+            int isolationLevel = dataSourceDescription.getIsolationLevel();
+            if (isolationLevel != -1) {
+                try {
+                    connection.getConnection().setTransactionIsolation(isolationLevel);
+                } catch (SQLException e) {
+                    throw new ResourceException("Error setting transaction isolation level for ", dataSourceDescription.getName());
+                }
+            }
+            return connection;
         }
     }
     

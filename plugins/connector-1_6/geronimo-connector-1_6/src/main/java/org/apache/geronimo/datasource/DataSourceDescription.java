@@ -40,6 +40,7 @@ public class DataSourceDescription implements Serializable {
     
     // transaction settings
     private boolean transactional = true;
+    private int isolationLevel = -1;
   
     // pool settings
     private int initialPoolSize = -1;
@@ -136,6 +137,14 @@ public class DataSourceDescription implements Serializable {
         this.transactional = transactional;
     }
 
+    public int getIsolationLevel() {
+        return isolationLevel;
+    }
+
+    public void setIsolationLevel(int isolationLevel) {
+        this.isolationLevel = isolationLevel;
+    }
+
     public Map<String, String> getProperties() {
         return properties;
     }
@@ -184,6 +193,14 @@ public class DataSourceDescription implements Serializable {
         this.maxStatements = maxStatements;
     }
     
+    public boolean hasStandardProperties() {
+        return (databaseName != null
+                || password != null
+                || user != null
+                || portNumber != -1
+                || !(serverName != null && serverName.equals("localhost")));
+    }
+    
     public boolean hasPoolingProperties() {
         return (maxPoolSize != -1
                 || minPoolSize != -1
@@ -191,5 +208,5 @@ public class DataSourceDescription implements Serializable {
                 || initialPoolSize != -1
                 || maxStatements != -1);
     }
-  
+          
 }

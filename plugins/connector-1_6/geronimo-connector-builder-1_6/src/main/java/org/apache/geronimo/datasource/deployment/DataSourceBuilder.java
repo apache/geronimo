@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.datasource.deployment;
 
+import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -332,7 +333,20 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         }
         
         if (ds.isSetIsolationLevel()) {
-            // dsDefinition.setIsolationLevel(ds.getIsolationLevel().intValue());
+            switch (ds.getIsolationLevel().intValue()) {
+            case IsolationLevelType.INT_TRANSACTION_READ_COMMITTED:
+                dsDescription.setIsolationLevel(Connection.TRANSACTION_READ_COMMITTED);
+                break;
+            case IsolationLevelType.INT_TRANSACTION_READ_UNCOMMITTED:
+                dsDescription.setIsolationLevel(Connection.TRANSACTION_READ_UNCOMMITTED);
+                break;
+            case IsolationLevelType.INT_TRANSACTION_REPEATABLE_READ:
+                dsDescription.setIsolationLevel(Connection.TRANSACTION_REPEATABLE_READ);
+                break;
+            case IsolationLevelType.INT_TRANSACTION_SERIALIZABLE:
+                dsDescription.setIsolationLevel(Connection.TRANSACTION_SERIALIZABLE);
+                break;
+            }
         }
         
         // pool properties
