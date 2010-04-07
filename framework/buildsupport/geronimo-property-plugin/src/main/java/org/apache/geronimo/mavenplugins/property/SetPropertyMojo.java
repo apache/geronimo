@@ -52,6 +52,11 @@ public class SetPropertyMojo extends AbstractLogEnabled implements Mojo {
     protected String propertyValuePrefix;
     
     /**
+     * @parameter default-value = "true"
+     */
+    protected boolean listFiles;
+    
+    /**
      * @parameter
      */
     protected Dependency[] classpath;
@@ -102,7 +107,13 @@ public class SetPropertyMojo extends AbstractLogEnabled implements Mojo {
                 if (!file.exists()) {
                     getLog().warn("File " + file + " does not exist");
                 }
-                buffer.append(file.getAbsolutePath());
+                
+                if (listFiles) {
+                    buffer.append(file.getAbsolutePath());
+                } else {
+                    buffer.append(file.getParentFile().getAbsolutePath());
+                }
+                
                 if (i + 1 < classpath.length) {
                     buffer.append(File.pathSeparator);
                 }
