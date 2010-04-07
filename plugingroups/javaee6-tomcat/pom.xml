@@ -72,12 +72,12 @@
             <!--<type>car</type>-->
         <!--</dependency>-->
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.plugingroups</groupId>-->
-            <!--<artifactId>ejb</artifactId>-->
-            <!--<version>${version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.plugingroups</groupId>
+            <artifactId>ejb</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>

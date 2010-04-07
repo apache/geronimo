@@ -38,6 +38,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
+        <artifactId>ejb</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>jms</artifactId>
         <type>car</type>
     </dependency>
