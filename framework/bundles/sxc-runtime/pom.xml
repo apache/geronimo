@@ -101,9 +101,8 @@
                 <!--<version>2.0.1-SNAPSHOT</version>-->
                 <configuration>
                     <instructions>
-                        <Export-Package>com.envoisolutions.sxc.runtime*;version="0.7.2",*</Export-Package>
+                        <Export-Package>com.envoisolutions.sxc.util*;version="0.7.2"</Export-Package>
                         <!--<Import-Package>com.sun.jdmk.comm;resolution:=optional,javax.jms;resolution:=optional,javax.mail.*;resolution:=optional,org.slf4j.helpers;resolution:=optional,*</Import-Package>-->
-                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>
                 </configuration>
             </plugin>
