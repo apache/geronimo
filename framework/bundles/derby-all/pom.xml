@@ -29,36 +29,41 @@
 
     <groupId>org.apache.geronimo.bundles</groupId>
     <artifactId>derby-all</artifactId>
-    <version>${derbyVersion}${bundleVersion}</version>
+    <version>${pkgVersion}${bundleVersion}</version>
     <packaging>bundle</packaging>
-    <name>Apache Geronimo Bundles: Derby-${derbyVersion}</name>
+    <name>Apache Geronimo Bundles: Derby-${pkgVersion}${bundleVersion}</name>
     <description>
         This bundle simply wraps Derby
     </description>
 
+    <properties>
+        <pkgGroupId>org.apache.derby</pkgGroupId>
+        <pkgVersion>10.5.3.0_1</pkgVersion>
+    </properties>
+
     <dependencies>
         <dependency>
-            <groupId>org.apache.derby</groupId>
+            <groupId>${pkgGroupId}</groupId>
             <artifactId>derby</artifactId>
-            <version>${derbyVersion}</version>
+            <version>${pkgVersion}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.apache.derby</groupId>
+            <groupId>${pkgGroupId}</groupId>
             <artifactId>derbynet</artifactId>
-            <version>${derbyVersion}</version>
+            <version>${pkgVersion}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.apache.derby</groupId>
+            <groupId>${pkgGroupId}</groupId>
             <artifactId>derbytools</artifactId>
-            <version>${derbyVersion}</version>
+            <version>${pkgVersion}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.apache.derby</groupId>
+            <groupId>${pkgGroupId}</groupId>
             <artifactId>derbyclient</artifactId>
-            <version>${derbyVersion}</version>
+            <version>${pkgVersion}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -75,7 +80,7 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                            org.apache.derby*;version="10.4.2.0";-split-package:=merge-first
+                            org.apache.derby*;version="${pkgVersion}";-split-package:=merge-first
                         </Export-Package>
                         <Import-Package>
                             javax.servlet*;resolution:=optional,
