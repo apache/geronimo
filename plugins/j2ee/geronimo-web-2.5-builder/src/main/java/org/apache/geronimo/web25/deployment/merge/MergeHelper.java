@@ -183,12 +183,13 @@ public class MergeHelper {
 
     @SuppressWarnings("unchecked")
     public static void mergeAnnotations(Bundle bundle, WebAppType webApp, MergeContext mergeContext, final String prefix) throws DeploymentException {
+        final boolean isJarFile = prefix.endsWith(".jar");
         try {
             BundleAnnotationFinder bundleAnnotationFinder = new BundleAnnotationFinder(null, bundle, new DiscoveryFilter() {
 
                 @Override
                 public boolean directoryDiscoveryRequired(String url) {
-                    return false;
+                    return !isJarFile;
                 }
 
                 @Override
@@ -198,7 +199,7 @@ public class MergeHelper {
 
                 @Override
                 public boolean zipFileDiscoveryRequired(String url) {
-                    return url.equals(prefix);
+                    return isJarFile ? url.equals(prefix) : false;
                 }
             });
             List<Class> webServlets = bundleAnnotationFinder.findAnnotatedClasses(WebServlet.class);
@@ -236,8 +237,8 @@ public class MergeHelper {
             return true;
         }
         if (mergeItem.isFromWebFragment() && !mergeItem.getValue().equals(value)) {
-            throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage(parentElementName, KeyElementName, keyName, valueElementName, (String) mergeItem.getValue(), mergeItem
-                    .getBelongedURL(), value, mergeContext.getCurrentJarUrl()));
+            throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage(parentElementName, KeyElementName, keyName, valueElementName, (String) mergeItem.getValue(),
+                    mergeItem.getBelongedURL(), value, mergeContext.getCurrentJarUrl()));
         }
         return false;
     }
@@ -326,7 +327,7 @@ public class MergeHelper {
         WEB_FILTER_ANNOTATION_MERGE_HANDLER.postProcessWebXmlElement(webApp, mergeContext);
         WEB_LISTENER_ANNOTATION_MERGE_HANDLER.postProcessWebXmlElement(webApp, mergeContext);
         //Merge the annotations found in WEB-INF/classes folder
-        mergeAnnotations(bundle, webApp, mergeContext, "./WEB-INF/classes");
+        mergeAnnotations(bundle, webApp, mergeContext, "/WEB-INF/classes");
         mergeContext.clearup();
     }
 
