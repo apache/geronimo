@@ -22,6 +22,21 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.felix.gogo</groupId>
+        <artifactId>org.apache.felix.gogo.commands</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.felix.gogo</groupId>
+        <artifactId>org.apache.felix.gogo.runtime</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.felix.karaf.shell</groupId>
+        <artifactId>org.apache.felix.karaf.shell.console</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>jaxb-impl</artifactId>
         <type>jar</type>

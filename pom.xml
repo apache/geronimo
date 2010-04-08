@@ -138,7 +138,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-osgi-registry</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
@@ -149,13 +149,13 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-ejb_3.1_spec</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-interceptor_1.1_spec</artifactId>
-                <version>1.0.0-beta</version>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -167,19 +167,19 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jacc_1.1_spec</artifactId>
-                <version>1.0.3-SNAPSHOT</version>
+                <artifactId>geronimo-jacc_1.4_spec</artifactId>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jaspic_1.0_spec</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -196,7 +196,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.javamail</groupId>
                 <artifactId>geronimo-javamail_1.4_mail</artifactId>
-                <version>1.8-SNAPSHOT</version>
+                <version>1.0.8-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -238,7 +238,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jpa_2.0_spec</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.0.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -494,7 +494,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-asm-shaded</artifactId>
@@ -1333,7 +1333,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-stax-api_1.2_spec</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>

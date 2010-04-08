@@ -66,4 +66,9 @@
         <artifactId>geronimo-jms_1.1_spec</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.tranql</groupId>
+        <artifactId>tranql-connector</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>
