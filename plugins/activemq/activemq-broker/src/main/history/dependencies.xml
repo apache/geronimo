@@ -76,9 +76,4 @@
         <artifactId>spring-core</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-web</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>
