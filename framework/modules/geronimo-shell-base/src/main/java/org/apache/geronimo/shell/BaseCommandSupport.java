@@ -36,23 +36,23 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
 
     private PrintWriter printWriter = null;
     private BufferedReader lineReader = null;
-    
-    
+
+
     /**
      * Create printWriter and lineReader for the session
      *
      */
-    private void init(){    
-        
+    private void init(){
+
         if (printWriter == null)
             printWriter = new PrintWriter(session.getConsole(), true);
 
         if (lineReader == null)
             lineReader = new BufferedReader(new InputStreamReader(session.getKeyboard()));
     }
-    
-    
-    
+
+
+
     /**
      * Print an end-of-line marker.
      *
@@ -119,5 +119,15 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
     public void flushConsole() throws IOException {
         init();
         printWriter.flush();
+    }
+
+    @Override
+    public String readPassword() throws IOException {
+       return readLine();
+    }
+
+    @Override
+    public String readPassword(String prompt) throws IOException {
+        return readLine(prompt);
     }
 }

@@ -44,13 +44,17 @@ public class StreamConsoleReader implements ConsoleReader {
     private boolean jlineConsoleEnabled = true;
 
     public StreamConsoleReader(InputStream in, PrintStream out) {
+        this(in, new PrintWriter(out, true));
+    }
+
+    public StreamConsoleReader(InputStream in, PrintWriter out) {
         try {
-            jlineConsoleReader = new jline.ConsoleReader(in, new PrintWriter(out, true));
+            jlineConsoleReader = new jline.ConsoleReader(in, out);
         } catch (IOException e) {
             logger.warn("Fail to create jline console, some features like password mask will be disabled", e);
             jlineConsoleEnabled = false;
             keyboard = new BufferedReader(new InputStreamReader(in));
-            console = new PrintWriter(out, true);
+            console = out;
         }
     }
 
