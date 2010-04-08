@@ -142,7 +142,7 @@ public class CommandRedeploy extends AbstractCommand {
             }
             if (args.length >= 3 && args[0].equalsIgnoreCase("--targets")) // case of cluster redeployment
             {
-                List modules = new ArrayList();
+                List<TargetModuleID> modules = new ArrayList<TargetModuleID>();
                 boolean multipleTargets;
                 File test = null;
                 File test1 = null;
@@ -201,18 +201,19 @@ public class CommandRedeploy extends AbstractCommand {
 
                 List<String> targets = Arrays.asList(distributeCommandArgs.getTargets());
                 if (targets.size() > 0) {
-                    Target[] tlist = identifyTargets(targets, mgr); // before starting undeployment and deployment verify the correctness of target argument
+                    //Target[] tlist = identifyTargets(targets, mgr);
+                    // before starting undeployment and deployment verify the correctness of target argument
                 }
                 if (modules.size() == 0) {
                     String moduleId = guessModuleId(modules, connection, consoleReader, plan, module, allModules);
                     modules.addAll(DeployUtils.identifyTargetModuleIDs(allModules, moduleId, false));
                 }
 
-                TargetModuleID[] ids = (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
-                boolean multiple = isMultipleTargets(ids);
+                TargetModuleID[] ids = modules.toArray(new TargetModuleID[modules.size()]);
+                //boolean multiple = isMultipleTargets(ids);
                 po = mgr.undeploy(ids);
                 waitForProgress(consoleReader, po);
-                TargetModuleID[] done = po.getResultTargetModuleIDs();
+                //TargetModuleID[] done = po.getResultTargetModuleIDs();
 
                 if (targets.size() > 0) {
                     Target[] tlist = identifyTargets(targets, mgr);
@@ -280,7 +281,7 @@ public class CommandRedeploy extends AbstractCommand {
                     throw new DeploymentException("Operation failed: " + po.getDeploymentStatus().getMessage());
                 }
             } else { // case of local redeployment
-                List modules = new ArrayList();
+                List<TargetModuleID> modules = new ArrayList<TargetModuleID>();
                 File module = null;
                 File plan = null;
                 File test = new File(args[0]); // Guess whether the first argument is a module or a plan
@@ -365,7 +366,7 @@ public class CommandRedeploy extends AbstractCommand {
                     plan = plan.getAbsoluteFile();
                 }
                 // Now that we've sorted out all the arguments, do the work
-                TargetModuleID[] ids = (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
+                TargetModuleID[] ids = modules.toArray(new TargetModuleID[modules.size()]);
                 boolean multiple = isMultipleTargets(ids);
                 po = mgr.redeploy(ids, module, plan);
                 waitForProgress(consoleReader, po);

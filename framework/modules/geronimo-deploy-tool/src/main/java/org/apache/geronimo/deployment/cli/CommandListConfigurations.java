@@ -28,8 +28,8 @@ import java.util.TreeSet;
 
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.geronimo.cli.deployer.CommandArgs;

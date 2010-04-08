@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import java.io.PrintWriter;
-
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;

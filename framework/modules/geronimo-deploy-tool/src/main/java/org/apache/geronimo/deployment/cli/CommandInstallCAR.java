@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 
-import org.apache.geronimo.cli.deployer.BaseCommandArgs;
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;

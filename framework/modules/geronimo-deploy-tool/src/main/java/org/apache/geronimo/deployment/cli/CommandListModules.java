@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import java.io.PrintWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;

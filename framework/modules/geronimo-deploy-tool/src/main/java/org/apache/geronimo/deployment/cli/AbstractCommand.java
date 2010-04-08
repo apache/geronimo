@@ -18,7 +18,6 @@
 package org.apache.geronimo.deployment.cli;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -92,7 +91,7 @@ public abstract class AbstractCommand implements DeployCommand {
     }
 
     protected static boolean isMultipleTargets(TargetModuleID[] ids) {
-        Set set = new HashSet();
+        Set<String> set = new HashSet<String>();
         for (int i = 0; i < ids.length; i++) {
             TargetModuleID id = ids[i];
             set.add(id.getTarget().getName());
@@ -100,11 +99,11 @@ public abstract class AbstractCommand implements DeployCommand {
         return set.size() > 1;
     }
 
-    protected static Target[] identifyTargets(List targetNames, final DeploymentManager mgr) throws DeploymentException {
+    protected static Target[] identifyTargets(List<String> targetNames, final DeploymentManager mgr) throws DeploymentException {
         //TODO consider if nicknames that match multiple servers should be allowed.  Also if regexps should be used in matching
         Target[] tlist = new Target[targetNames.size()];
         Target[] all = mgr.getTargets();
-        Set found = new HashSet();
+        Set<String> found = new HashSet<String>();
         for (int i = 0; i < tlist.length; i++) {
             for (int j = 0; j < all.length; j++) {
                 Target server = all[j];

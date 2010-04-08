@@ -14,36 +14,44 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.deployment.cli;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.Writer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract interface for an interface between command components
  * and a console.
  */
 public class StreamConsoleReader implements ConsoleReader {
-    // the standard streams to write to
+
+    private static final Logger logger = LoggerFactory.getLogger(StreamConsoleReader.class);
+
     protected BufferedReader keyboard;
+
     protected PrintWriter console;
 
-    public StreamConsoleReader(InputStream in, PrintWriter out) {
-        keyboard = new BufferedReader(new InputStreamReader(in));
-        console = out;
-    }
+    private jline.ConsoleReader jlineConsoleReader;
 
-    public StreamConsoleReader(InputStream in, OutputStream out) {
-        this(in, new PrintWriter(new OutputStreamWriter(out)));
-    }
+    private boolean jlineConsoleEnabled = true;
 
-    public StreamConsoleReader(InputStream in, Writer out) {
-        this(in, new PrintWriter(out, true));
+    public StreamConsoleReader(InputStream in, PrintStream out) {
+        try {
+            jlineConsoleReader = new jline.ConsoleReader(in, new PrintWriter(out, true));
+        } catch (IOException e) {
+            logger.warn("Fail to create jline console, some features like password mask will be disabled", e);
+            jlineConsoleEnabled = false;
+            keyboard = new BufferedReader(new InputStreamReader(in));
+            console = new PrintWriter(out, true);
+        }
     }
 
     /**
@@ -51,8 +59,13 @@ public class StreamConsoleReader implements ConsoleReader {
      *
      * @exception IOException
      */
+    @Override
     public void printNewline() throws IOException {
-        console.println();
+        if (jlineConsoleEnabled) {
+            jlineConsoleReader.printNewline();
+        } else {
+            console.println();
+        }
     }
 
     /**
@@ -62,8 +75,13 @@ public class StreamConsoleReader implements ConsoleReader {
      *
      * @exception IOException
      */
+    @Override
     public void printString(String s) throws IOException {
-        console.print(s);
+        if (jlineConsoleEnabled) {
+            jlineConsoleReader.printString(s);
+        } else {
+            console.print(s);
+        }
     }
 
     /**
@@ -73,10 +91,15 @@ public class StreamConsoleReader implements ConsoleReader {
      *
      * @exception IOException
      */
+    @Override
     public void println(String s) throws IOException {
-        console.println(s);
+        if (jlineConsoleEnabled) {
+            jlineConsoleReader.printNewline();
+            jlineConsoleReader.printString(s);
+        } else {
+            console.println(s);
+        }
     }
-
 
     /**
      * Read a line from the console.
@@ -84,10 +107,14 @@ public class StreamConsoleReader implements ConsoleReader {
      * @return The next line from the console.
      * @exception IOException
      */
+    @Override
     public String readLine() throws IOException {
-        return keyboard.readLine();
+        if (jlineConsoleEnabled) {
+            return jlineConsoleReader.readLine();
+        } else {
+            return keyboard.readLine();
+        }
     }
-
 
     /**
      * Read a line from the console with a prompt.
@@ -97,20 +124,48 @@ public class StreamConsoleReader implements ConsoleReader {
      * @return The next line from the console.
      * @exception IOException
      */
+    @Override
     public String readLine(String prompt) throws IOException {
-        printString(prompt);
-        flushConsole();
-        return readLine();
+        if (jlineConsoleEnabled) {
+            return jlineConsoleReader.readLine(prompt);
+        } else {
+            printString(prompt);
+            flushConsole();
+            return keyboard.readLine();
+        }
     }
-
 
     /**
      * Flush any pending writes to the console.
      *
      * @exception IOException
      */
+    @Override
     public void flushConsole() throws IOException {
-        console.flush();
+        if (jlineConsoleEnabled) {
+            jlineConsoleReader.flushConsole();
+        } else {
+            console.flush();
+        }
+    }
+
+    @Override
+    public String readPassword() throws IOException {
+        if (jlineConsoleEnabled) {
+            return jlineConsoleReader.readLine('*');
+        } else {
+            return keyboard.readLine();
+        }
+    }
+
+    @Override
+    public String readPassword(String prompt) throws IOException {
+        if (jlineConsoleEnabled) {
+            return jlineConsoleReader.readLine(prompt, '*');
+        } else {
+            printString(prompt);
+            flushConsole();
+            return keyboard.readLine();
+        }
     }
 }
-

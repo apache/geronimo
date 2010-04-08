@@ -18,7 +18,6 @@
 package org.apache.geronimo.deployment.cli;
 
 import java.io.File;
-import java.io.PrintWriter;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 

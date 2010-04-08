@@ -170,8 +170,8 @@ public class ConfigIDExtractor {
      *
      * @throws DeploymentException If no TargetModuleIDs have that module.
      */
-    public static Collection identifyTargetModuleIDs(TargetModuleID[] allModules, String name, boolean fromPlan) throws DeploymentException {
-        List list = new LinkedList();
+    public static Collection<TargetModuleID> identifyTargetModuleIDs(TargetModuleID[] allModules, String name, boolean fromPlan) throws DeploymentException {
+        List<TargetModuleID> list = new LinkedList<TargetModuleID>();
         int pos;
         if((pos = name.indexOf('|')) > -1) {
             String target = name.substring(0, pos);

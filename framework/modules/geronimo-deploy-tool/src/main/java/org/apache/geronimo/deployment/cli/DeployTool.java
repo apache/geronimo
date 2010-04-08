@@ -21,9 +21,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -31,7 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
-
 
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.cli.deployer.CommandFileCommandMetaData;
@@ -112,15 +108,14 @@ public class DeployTool implements Main {
         this.kernel = kernel;
         this.deploymentFactory = deploymentFactory;
     }
-    
+
     public int execute(Object opaque) {
         if (! (opaque instanceof DeployerCLParser)) {
             throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + DeployerCLParser.class + "]");
         }
         DeployerCLParser parser = (DeployerCLParser) opaque;
-        
-        PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out), true);
-        InputStream in = System.in;
+
+        ConsoleReader consoleReader = new StreamConsoleReader(System.in, System.out);
 
         CommandMetaData commandMetaData = parser.getCommandMetaData();
         CommandArgs commandArgs = parser.getCommandArgs();
@@ -129,7 +124,7 @@ public class DeployTool implements Main {
             String arg = commandArgs.getArgs()[0];
             File source = new File(arg);
             if(!source.exists() || !source.canRead() || source.isDirectory()) {
-                processException(out, new DeploymentSyntaxException("Cannot read command file "+source.getAbsolutePath()));
+                processException(new DeploymentSyntaxException("Cannot read command file "+source.getAbsolutePath()));
             } else {
                 try {
                     BufferedReader commands = new BufferedReader(new FileReader(source));
@@ -148,53 +143,58 @@ public class DeployTool implements Main {
                     }
                     failed = oneFailed;
                 } catch (IOException e) {
-                    processException(out, new DeploymentException("Unable to read command file", e));
+                    processException(new DeploymentException("Unable to read command file", e));
                 } finally {
                     try {
                         con.close();
                     } catch (DeploymentException e) {
-                        processException(out, e);
+                        processException(e);
                     }
                 }
             }
         } else {
             DeployCommand dc = commands.get(commandMetaData);
             if(dc == null) {
-                out.println();
-                processException(out, new DeploymentSyntaxException("No such command: '"+commandMetaData+"'"));
+                try {
+                    consoleReader.printNewline();
+                } catch (IOException e) {
+                }
+                processException(new DeploymentSyntaxException("No such command: '"+commandMetaData+"'"));
             } else {
                 try {
-                    if(con == null) {
-                        con = new ServerConnection(parser, out, in, kernel, deploymentFactory);
+                    if (con == null) {
+                        con = new ServerConnection(parser, consoleReader, kernel, deploymentFactory);
                     }
                     try {
-                        dc.execute(new StreamConsoleReader(in, out), con, commandArgs);
+                        dc.execute(consoleReader, con, commandArgs);
                     } catch (DeploymentSyntaxException e) {
-                        processException(out, e);
+                        processException( e);
                     } catch (DeploymentException e) {
-                        processException(out, e);
+                        processException(e);
                     } finally {
                         if(!multipleCommands) {
                             try {
                                 con.close();
                             } catch(DeploymentException e) {
-                                processException(out, e);
+                                processException(e);
                             }
                         }
                     }
                 } catch(DeploymentException e) {
-                    processException(out, e);
+                    processException(e);
                 }
             }
         }
-        out.flush();
-        System.out.flush();
+        try {
+            consoleReader.flushConsole();
+        } catch (IOException e) {
+        }
         return failed ? 1 : 0;
     }
 
     public static String[] splitCommand(String line) {
         String[] chunks = line.split("\"");
-        List list = new LinkedList();
+        List<String> list = new LinkedList<String>();
         for (int i = 0; i < chunks.length; i++) {
             String chunk = chunks[i];
             if(i % 2 == 1) { // it's in quotes
@@ -203,16 +203,16 @@ public class DeployTool implements Main {
                 list.addAll(Arrays.asList(chunk.split("\\s")));
             }
         }
-        for (Iterator it = list.iterator(); it.hasNext();) {
-            String test = (String) it.next();
+        for (Iterator<String> it = list.iterator(); it.hasNext();) {
+            String test = it.next();
             if(test.trim().equals("")) {
                 it.remove();
             }
         }
-        return (String[]) list.toArray(new String[list.size()]);
+        return list.toArray(new String[list.size()]);
     }
 
-    private void processException(PrintWriter out, Exception e) {
+    private void processException(Exception e) {
         failed = true;
         log.error("Error: ", e);
     }

@@ -14,7 +14,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.deployment.cli;
+
 import java.io.IOException;
 
 /**
@@ -22,6 +24,7 @@ import java.io.IOException;
  * and a console.
  */
 public interface ConsoleReader {
+
     /**
      * Print an end-of-line marker.
      *
@@ -47,7 +50,6 @@ public interface ConsoleReader {
      */
     void println(String s) throws IOException;
 
-
     /**
      * Read a line from the console.
      *
@@ -55,7 +57,6 @@ public interface ConsoleReader {
      * @exception IOException
      */
     String readLine() throws IOException;
-
 
     /**
      * Read a line from the console with a prompt.
@@ -67,12 +68,23 @@ public interface ConsoleReader {
      */
     String readLine(String prompt) throws IOException;
 
-
     /**
      * Flush any pending writes to the console.
      *
      * @exception IOException
      */
     void flushConsole() throws IOException;
-}
 
+    /**
+     * Read a line from the console without echo
+     * @return
+     */
+    String readPassword() throws IOException;
+
+    /**
+     * Read a line from the console without echo
+     * @param prompt The prompt string used for the reading.
+     * @return
+     */
+    String readPassword(String prompt) throws IOException;
+}

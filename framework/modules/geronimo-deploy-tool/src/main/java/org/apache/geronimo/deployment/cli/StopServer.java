@@ -33,8 +33,8 @@ import javax.management.remote.JMXServiceURL;
 import javax.management.remote.rmi.RMIConnectorServer;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 
-import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.cli.shutdown.ShutdownCLParser;
+import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -49,14 +49,14 @@ public class StopServer implements Main, GBeanLifecycle {
 
 	public static final String DEFAULT_PORT = "1099"; // 1099 is used by java.rmi.registry.Registry
 
-	private String host;	
+	private String host;
 	private Integer port;
 	private String user;
-	private String password;	
+	private String password;
 	private boolean secure;
 
     private final Bundle bundle;
-    private String[] args;
+
     String KEYSTORE_TRUSTSTORE_PASSWORD_FILE = "org.apache.geronimo.keyStoreTrustStorePasswordFile";
     String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION = "/var/security/keystores/geronimo-default";
     String GERONIMO_HOME = "org.apache.geronimo.home.dir";
@@ -77,16 +77,16 @@ public class StopServer implements Main, GBeanLifecycle {
         if (port == null) {
             port = new Integer(DEFAULT_PORT);
         }
-        
+
         host = parser.getHost();
         if (host == null) {
             host = "localhost";
         }
 
         secure = parser.isSecure();
-        
+
         if(secure){
-        
+
           try {
                 Properties props = new Properties();
 
@@ -116,13 +116,13 @@ public class StopServer implements Main, GBeanLifecycle {
                 System.out.println("Unable to set KeyStorePassword and TrustStorePassword");
                 e.printStackTrace();
             }
-        
+
         }
-        
+
         user = parser.getUser();
-        
+
         password = parser.getPassword();
-        
+
         if (user == null && password == null) {
             String uri = DeployUtils.getConnectionURI(host, port, secure);
             try {
@@ -138,19 +138,19 @@ public class StopServer implements Main, GBeanLifecycle {
 
         if (user == null || password == null) {
             try {
-                InputPrompt prompt = new InputPrompt(System.in, System.out);
+                ConsoleReader consoleReader = new StreamConsoleReader(System.in, System.out);
                 if (user == null) {
-                    user = prompt.getInput("Username: ");
+                    user = consoleReader.readLine("Username: ");
                 }
                 if (password == null) {
-                    password = prompt.getPassword("Password: ");
+                    password = new String(consoleReader.readPassword("Password: "));
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 System.out.println("Unable to prompt for login.");
                 return 1;
             }
         }
-        
+
         System.out.print("Locating server on " + host + ":" + port + "... ");
         MBeanServerConnection conn = null;
         try {
@@ -160,20 +160,20 @@ public class StopServer implements Main, GBeanLifecycle {
             return 1;
         }
         if (conn != null) {
-            System.out.println("Server found.");            
+            System.out.println("Server found.");
             try {
                 shutdown(conn);
             } catch (Exception e) {
                 System.err.println("Error shutting down the server");
                 e.printStackTrace();
                 return 2;
-            }            
+            }
         }
         return 0;
     }
 
     public MBeanServerConnection getMBeanServerConnection() throws Exception {
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put(JMXConnector.CREDENTIALS, new String[] { user, password });
         String connectorName = "/JMXConnector";
         if (secure) {
@@ -184,17 +184,17 @@ public class StopServer implements Main, GBeanLifecycle {
         JMXServiceURL address = new JMXServiceURL(
                 "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + connectorName);
         JMXConnector jmxConnector = JMXConnectorFactory.connect(address, map);
-        return jmxConnector.getMBeanServerConnection();       
+        return jmxConnector.getMBeanServerConnection();
     }
-    
-    public void shutdown(MBeanServerConnection mbServerConnection) throws Exception {			
-        Set<ObjectName> objectNameSet = 
+
+    public void shutdown(MBeanServerConnection mbServerConnection) throws Exception {
+        Set<ObjectName> objectNameSet =
             mbServerConnection.queryNames(new ObjectName("osgi.core:type=framework,*"), null);
         if (objectNameSet.isEmpty()) {
             throw new Exception("Framework mbean not found");
         } else if (objectNameSet.size() == 1) {
             System.out.println("Server shutdown started");
-            mbServerConnection.invoke(objectNameSet.iterator().next(), "stopBundle", 
+            mbServerConnection.invoke(objectNameSet.iterator().next(), "stopBundle",
                                       new Object[] { 0 }, new String[] { long.class.getName() });
             System.out.println("Server shutdown completed");
         } else {
@@ -227,5 +227,5 @@ public class StopServer implements Main, GBeanLifecycle {
     public void doStop() throws Exception {
         // TODO: unregister Main service?
     }
-    
+
 }

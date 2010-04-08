@@ -20,10 +20,6 @@ package org.apache.geronimo.deployment.cli;
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.BufferedReader;
-
 /**
  * An abstraction of various CLI deployer commands.
  *
