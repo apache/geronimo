@@ -61,8 +61,7 @@
                         <Export-Package>
                             org.codehaus.wadi.group*;version="2.1.2"
                         </Export-Package>
-                        <Import-Package>org*;resolution:=optional,javax*;resolution:=optional,*</Import-Package>
-                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                        <Import-Package>org*;resolution:=optional,*</Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
