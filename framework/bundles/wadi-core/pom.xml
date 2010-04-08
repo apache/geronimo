@@ -63,8 +63,7 @@
                             org.codehaus.wadi.location*;version="2.1.2",
                             org.codehaus.wadi.replication*;version="2.1.2",
                             org.codehaus.wadi.servicespace*;version="2.1.2",
-                            org.codehaus.wadi.web*;version="2.1.2",
-                            org.codehaus.wadi.web.impl*;version="2.1.2"
+                            org.codehaus.wadi.web*;version="2.1.2"
                         </Export-Package>
                         <Import-Package>org*;resolution:=optional,javax*;resolution:=optional,*</Import-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
