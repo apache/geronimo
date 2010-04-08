@@ -66,4 +66,9 @@
         <artifactId>xbean-spring</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

@@ -63,7 +63,7 @@
     </profiles>
 
     <properties>
-        <activemqVersion>5.3.0</activemqVersion>
+        <activemqVersion>5.3.1</activemqVersion>
     </properties>
 
     <dependencyManagement>
@@ -84,6 +84,14 @@
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.osgi</groupId>
+                        <artifactId>spring-osgi-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.osgi</groupId>
+                        <artifactId>spring-osgi-io</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

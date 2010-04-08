@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<plugin-artifact xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3" xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2">
+<plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
     <module-id>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>activemq-webconsole-tomcat</artifactId>
@@ -9,6 +9,16 @@
     <dependency>
         <groupId>aopalliance</groupId>
         <artifactId>aopalliance</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -29,6 +39,16 @@
     <dependency>
         <groupId>jivesoftware</groupId>
         <artifactId>smackx</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>net.sf.josql</groupId>
+        <artifactId>gentlyweb-utils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>net.sf.josql</groupId>
+        <artifactId>josql</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -90,6 +110,16 @@
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>tomcat6</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.velocity</groupId>
+        <artifactId>velocity</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.fusesource.commonman</groupId>
+        <artifactId>commons-management</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.springframework</groupId>
