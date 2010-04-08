@@ -39,6 +39,7 @@ public class SecurityValve extends ValveBase {
     private final IdentityService identityService;
 
     public SecurityValve(Authenticator authenticator, Authorizer authorizer, IdentityService identityService) {
+        super(true);
         this.authenticator = authenticator;
         this.authorizer = authorizer;
         this.identityService = identityService;

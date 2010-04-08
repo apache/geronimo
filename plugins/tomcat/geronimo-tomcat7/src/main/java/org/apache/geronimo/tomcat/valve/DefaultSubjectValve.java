@@ -35,6 +35,7 @@ public class DefaultSubjectValve extends ValveBase {
     private final Subject defaultSubject;
 
     public DefaultSubjectValve(Subject defaultSubject) {
+        super(true);
         this.defaultSubject = defaultSubject;
     }
 

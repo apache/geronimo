@@ -494,6 +494,10 @@ public class GeronimoStandardContext extends StandardContext {
 
     private class SystemMethodValve extends ValveBase {
 
+        public SystemMethodValve(){
+            super(true);
+        }
+
         public void invoke(Request request, Response response) throws IOException, ServletException {
             if (request == null && response == null) {
                 try {

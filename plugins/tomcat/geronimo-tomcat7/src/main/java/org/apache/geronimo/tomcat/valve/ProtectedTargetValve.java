@@ -28,12 +28,13 @@ import org.apache.tomcat.util.buf.MessageBytes;
 
 /**
  * Valve that prevents access to OSGI-INF and OSGI-OPT directories.
- * 
+ *
  * @version $Rev$ $Date$
  */
 public class ProtectedTargetValve extends ValveBase {
-    
+
     public ProtectedTargetValve() {
+        super(true);
     }
 
     public void invoke(Request request, Response response) throws IOException, ServletException {
@@ -48,10 +49,10 @@ public class ProtectedTargetValve extends ValveBase {
                 return;
             }
         }
-                     
-        getNext().invoke(request, response);        
+
+        getNext().invoke(request, response);
     }
-    
+
     private void notFound(HttpServletResponse response) {
         try {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -61,4 +62,6 @@ public class ProtectedTargetValve extends ValveBase {
             // Ignore
         }
     }
+
+
 }
