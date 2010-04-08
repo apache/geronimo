@@ -39,7 +39,7 @@ import org.apache.geronimo.xbeans.javaee6.WebAppType;
 public class WebListenerAnnotationMergeHandler implements AnnotationMergeHandler {
 
     public static final Class<?>[] SUPPORTED_WEBLISTENER_INTERFACES = { ServletContextListener.class, ServletContextAttributeListener.class, ServletRequestListener.class,
-            ServletRequestAttributeListener.class, HttpSessionListener.class, HttpSessionAttributeListener.class };
+            ServletRequestAttributeListener.class, HttpSessionListener.class, HttpSessionAttributeListener.class, javax.servlet.AsyncListener.class };
 
     @Override
     public void merge(Class<?>[] classes, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
@@ -76,7 +76,6 @@ public class WebListenerAnnotationMergeHandler implements AnnotationMergeHandler
     @Override
     public void postProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
         // TODO Auto-generated method stub
-
     }
 
     /* (non-Javadoc)
@@ -85,6 +84,5 @@ public class WebListenerAnnotationMergeHandler implements AnnotationMergeHandler
     @Override
     public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
         // TODO Auto-generated method stub
-
     }
 }
