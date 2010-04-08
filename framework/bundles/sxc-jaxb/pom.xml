@@ -80,8 +80,13 @@
                 <configuration>
                     <instructions>
                         <Export-Package>com.envoisolutions.sxc*;version="0.7.2"</Export-Package>
-                        <Import-Package>com.envoisolutions.sxc.builder*;resolution:=optional,com.envoisolutions.sxc.compiler*;resolution:=optional,com.sun.codemodel*;resolution:=optional,com.sun.xml.fastinfoset*;resolution:=optional,com.sun.xml.txw2*;resolution:=optional,org.jvnet.fastinfoset*;resolution:=optional,org.jvnet.staxex*;resolution:=optional,sun.misc*;resolution:=optional,*</Import-Package>
-                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
+                        <Import-Package>
+                            com.envoisolutions.sxc.builder*;resolution:=optional,
+                            com.envoisolutions.sxc.compiler*;resolution:=optional,
+                            com.sun.codemodel*;resolution:=optional,
+                            sun.misc*;resolution:=optional,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
