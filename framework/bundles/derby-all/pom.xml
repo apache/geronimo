@@ -75,7 +75,7 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                            org.apache.derby*;version="10.4.2.0"
+                            org.apache.derby*;version="10.4.2.0";-split-package:=merge-first
                         </Export-Package>
                         <Import-Package>
                             javax.servlet*;resolution:=optional,
