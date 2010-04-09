@@ -52,6 +52,12 @@
         <!-- needed by geronimo-jaxrpc_1.1_spec -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-saaj_1.3_spec</artifactId>
+        </dependency>
+
+        <!-- needed by geronimo-jaxrpc_1.1_spec -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_3.0_spec</artifactId>
         </dependency>
 

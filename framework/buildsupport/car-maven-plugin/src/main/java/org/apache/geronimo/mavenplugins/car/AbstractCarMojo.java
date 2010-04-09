@@ -645,8 +645,6 @@ public abstract class AbstractCarMojo
                        "org.osgi.util.tracker;version=1.4.0," +
                        "javax.accessibility," +
                        "javax.activity," +
-                       "javax.annotation;version=1.0," +
-                       "javax.annotation.processing;version=1.0," +
                        "javax.crypto," +
                        "javax.crypto.interfaces," +
                        "javax.crypto.spec," +

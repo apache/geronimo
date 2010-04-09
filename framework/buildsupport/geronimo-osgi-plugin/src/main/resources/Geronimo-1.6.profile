@@ -1,9 +1,6 @@
 org.osgi.framework.system.packages = \
  javax.accessibility, \
- javax.activation;version=1.1, \
  javax.activity, \
- javax.annotation;version=1.0, \
- javax.annotation.processing;version=1.0, \
  javax.crypto, \
  javax.crypto.interfaces, \
  javax.crypto.spec, \
@@ -89,7 +86,6 @@ org.osgi.framework.system.packages = \
  javax.xml.datatype, \
  javax.xml.namespace;version=1.0, \
  javax.xml.parsers, \
- javax.xml.soap;version=1.3, \
  javax.xml.transform, \
  javax.xml.transform.dom, \
  javax.xml.transform.sax, \
