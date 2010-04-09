@@ -20,9 +20,11 @@ import java.util.Properties;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
@@ -39,33 +41,38 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev$ $Date$
  */
+@GBean
 public class EjbDaemonGBean implements GBeanLifecycle {
-    
+
     private static final Logger log = LoggerFactory.getLogger(EjbDaemonGBean.class);
-    
-    private Kernel kernel;
-    private AbstractName name;
-    private BundleContext bundleContext;
+
+    private final Kernel kernel;
+    private final AbstractName name;
+    private final BundleContext bundleContext;
+    private final ClassLoader classLoader;
     private ServiceTracker tracker;
-    
-    private String host;
-    private int port;
-    private int threads;
     private ServiceManager serviceManager;
 
-    private String multicastHost;
-    private String clusterName;
-    private int multicastPort;
-    private boolean enableMulticast;
+    public EjbDaemonGBean(@ParamAttribute(name = "host") String host,
+                          @ParamAttribute(name = "port") int port,
+                          @ParamAttribute(name = "threads") int threads,
+                          @ParamAttribute(name = "clusterName") String clusterName,
+                          @ParamAttribute(name = "multicastHost") String multicastHost,
+                          @ParamAttribute(name = "multicastPort") int multicastPort,
+                          @ParamAttribute(name = "enableMulticast") boolean enableMulticast,
 
-    public EjbDaemonGBean(Kernel kernel, AbstractName name, final BundleContext bundleContext) {
-        System.setProperty("openejb.nobanner","true");
+                          @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+                          @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName name,
+                          @ParamSpecial(type = SpecialAttributeType.bundleContext) final BundleContext bundleContext,
+                          @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) throws Exception {
+        System.setProperty("openejb.nobanner", "true");
         this.kernel = kernel;
         this.name = name;
         this.bundleContext = bundleContext;
-        
+        this.classLoader = classLoader;
+
         serviceManager = ServiceManager.getManager();
-        
+
         tracker = new ServiceTracker(bundleContext, ServerService.class.getName(), new ServiceTrackerCustomizer() {
 
             public Object addingService(ServiceReference reference) {
@@ -77,69 +84,10 @@ public class EjbDaemonGBean implements GBeanLifecycle {
             }
 
             public void removedService(ServiceReference reference, Object obj) {
-                removeServerService( (AbstractName) obj);
+                removeServerService((AbstractName) obj);
             }
-            
+
         });
-    }
-
-    public String getClusterName() {
-        return clusterName;
-    }
-
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public int getThreads() {
-        return threads;
-    }
-
-    public void setThreads(int threads) {
-        this.threads = threads;
-    }
-
-    public boolean isEnableMulticast() {
-        return enableMulticast;
-    }
-
-    public void setEnableMulticast(boolean enableMulticast) {
-        this.enableMulticast = enableMulticast;
-    }
-
-    public String getMulticastHost() {
-        return multicastHost;
-    }
-
-    public void setMulticastHost(String multicastHost) {
-        this.multicastHost = multicastHost;
-    }
-
-    public int getMulticastPort() {
-        return multicastPort;
-    }
-
-    public void setMulticastPort(int multicastPort) {
-        this.multicastPort = multicastPort;
-    }
-
-    public void doStart() throws Exception {
         Properties properties = SystemInstance.get().getProperties();
         properties.setProperty("ejbd.bind", host);
         properties.setProperty("ejbd.port", Integer.toString(port));
@@ -153,11 +101,20 @@ public class EjbDaemonGBean implements GBeanLifecycle {
         properties.setProperty("multicast.port", Integer.toString(multicastPort));
         properties.setProperty("multicast.disabled", Boolean.toString(!enableMulticast));
         properties.setProperty("multicast.group", clusterName);
-        
-        serviceManager.init();
-        serviceManager.start(false);
-        
+
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            serviceManager.init();
+            serviceManager.start(false);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCl);
+        }
+
         tracker.open();
+    }
+
+    public void doStart() throws Exception {
     }
 
     public void doStop() throws Exception {
@@ -166,6 +123,11 @@ public class EjbDaemonGBean implements GBeanLifecycle {
     }
 
     public void doFail() {
+        try {
+            doStop();
+        } catch (Exception e) {
+            log.info("exception failing", e);
+        }
     }
 
     private AbstractName addServerService(ServerService service) {
@@ -175,27 +137,27 @@ public class EjbDaemonGBean implements GBeanLifecycle {
         try {
             kernel.loadGBean(connectorData, bundleContext);
             kernel.startRecursiveGBean(beanName);
-        
-            ServerServiceGBean connectorGBean = (ServerServiceGBean)kernel.getGBean(beanName);
+
+            ServerServiceGBean connectorGBean = (ServerServiceGBean) kernel.getGBean(beanName);
             connectorGBean.setServerService(service);
-            
+
             return beanName;
         } catch (Exception e) {
             log.warn("Failed to create gbean for ServerService", e);
             return null;
         }
     }
-    
+
     private AbstractName getUnqiueName(String gbeanName) {
         AbstractName beanName = kernel.getNaming().createRootName(name.getArtifact(), gbeanName, "NetworkConnector");
         int i = 1;
-        while (kernel.isLoaded(beanName) ) {
+        while (kernel.isLoaded(beanName)) {
             beanName = kernel.getNaming().createRootName(name.getArtifact(), gbeanName + "-" + i, "NetworkConnector");
             i++;
         }
         return beanName;
     }
-    
+
     private void removeServerService(AbstractName gbeanName) {
         try {
             if (kernel.getGBeanState(gbeanName) == State.RUNNING_INDEX) {
@@ -206,30 +168,6 @@ public class EjbDaemonGBean implements GBeanLifecycle {
             // Bean is no longer loaded
         }
     }
-    
-    public static final GBeanInfo GBEAN_INFO;
 
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("OpenEJB Daemon", EjbDaemonGBean.class);
-        infoBuilder.addAttribute("host", String.class, true);
-        infoBuilder.addAttribute("port", int.class, true);
-        infoBuilder.addAttribute("clusterName", String.class, true);
-        infoBuilder.addAttribute("multicastHost", String.class, true);
-        infoBuilder.addAttribute("multicastPort", int.class, true);
-        infoBuilder.addAttribute("enableMulticast", boolean.class, true);
-        infoBuilder.addAttribute("threads", int.class, true);
-        
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-        infoBuilder.addAttribute("abstractName", AbstractName.class, false, false);
-        infoBuilder.addAttribute("bundleContext", BundleContext.class, false);
-        
-        infoBuilder.setConstructor(new String[]{"kernel", "abstractName", "bundleContext"});
 
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-    
 }
