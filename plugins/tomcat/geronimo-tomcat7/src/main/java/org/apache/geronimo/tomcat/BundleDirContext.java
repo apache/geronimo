@@ -1429,12 +1429,15 @@ public class BundleDirContext implements DirContext {
 
     protected Object doLookup(String name) throws NamingException {
         name = getName(name);
-        // XXX: lookup on directory should return BundleDirContext?
         URL url = BundleUtils.getEntry(bundle, name);
         if (url == null) {
             throw new NamingException(sm.getString("resources.notFound", name));
         }
-        return new URLResource(url);
+        if (url.toString().endsWith("/")) {
+            return new BundleDirContext(bundle, name);
+        } else {
+            return new URLResource(url);
+        }
     }
 
     private String getName(String name) {
