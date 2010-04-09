@@ -41,9 +41,4 @@
         <artifactId>geronimo-saaj_1.3_spec</artifactId>
         <type>jar</type>
     </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-servlet_3.0_spec</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>

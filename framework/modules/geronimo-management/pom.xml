@@ -49,6 +49,18 @@
             <version>${version}</version>
         </dependency>
 
+        <!-- needed by geronimo-jaxrpc_1.1_spec -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+        </dependency>
+
+        <!-- needed by geronimo-ejb_3.1_spec -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
+        </dependency>
+
         <!-- needed by geronimo-j2ee-management_1.1_spec -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
