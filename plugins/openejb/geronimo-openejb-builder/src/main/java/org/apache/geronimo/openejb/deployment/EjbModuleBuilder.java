@@ -255,7 +255,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
             unknownXmlObject = (XmlObject) plan;
         } else if (plan != null) {
             try {
-                unknownXmlObject = XmlBeansUtil.parse(((File) plan).toURL(), XmlUtil.class.getClassLoader());
+                unknownXmlObject = XmlBeansUtil.parse(((File) plan).toURI().toURL(), XmlUtil.class.getClassLoader());
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
@@ -445,10 +445,10 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
     }
 
     private void installModule(Module module, EARContext earContext) throws DeploymentException {
-        EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
+        EarData earData = EarData.KEY.get(earContext.getGeneralData());
         if (earData == null) {
             earData = new EarData();
-            earContext.getGeneralData().put(EarData.class, earData);
+            earContext.getGeneralData().put(EarData.KEY, earData);
         }
         earData.addEjbModule((EjbModule) module);
 
@@ -525,7 +525,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         ModuleList moduleLocations = (ModuleList) module.getRootEarContext().getGeneralData().get(ModuleList.class);
         URI baseUri = URI.create(module.getTargetPath());
         moduleContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, URI.create("."), manifestcp, moduleLocations);
-        moduleContext.getGeneralData().put(ClassPathList.class, manifestcp);
+        moduleContext.getGeneralData().put(EARContext.CLASS_PATH_LIST_KEY, manifestcp);
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
@@ -538,7 +538,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
     }
 
     private EjbJarInfo getEjbJarInfo(EARContext earContext, EjbModule ejbModule, Bundle bundle) throws DeploymentException {
-        EarData earData = (EarData) earContext.getGeneralData().get(EarData.class);
+        EarData earData = EarData.KEY.get(earContext.getGeneralData());
         if (earData.getEjbJars().isEmpty()) {
 
             ClassLoader bundleLoader = new BundleClassLoader(bundle);
@@ -912,6 +912,14 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
     }
 
     public static class EarData {
+        public static final EARContext.Key<EarData> KEY = new EARContext.Key<EarData>() {
+
+            @Override
+            public EarData get(Map<EARContext.Key, Object> context) {
+                return (EarData) context.get(this);
+            }
+        };
+
         private final Map<String, EjbModule> ejbModules = new TreeMap<String, EjbModule>();
         private final Map<String, EjbJarInfo> ejbJars = new TreeMap<String, EjbJarInfo>();
 

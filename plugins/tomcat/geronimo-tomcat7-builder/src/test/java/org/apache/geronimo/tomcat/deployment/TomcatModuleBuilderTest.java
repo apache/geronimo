@@ -55,6 +55,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.UnpackedJarFile;
 import org.apache.geronimo.security.SecurityNames;
+import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.testsupport.TestSupport;
@@ -141,7 +142,7 @@ public class TomcatModuleBuilderTest extends TestSupport {
 //        jaccBeanData.setAttribute("principalRoleMap", new HashMap());
         jaccBeanData.setAttribute("roleDesignates", new HashMap());
         earContext.addGBean(jaccBeanData);
-        earContext.getGeneralData().put(TomcatModuleBuilder.ROLE_MAPPER_DATA_NAME, jaccBeanName);
+        earContext.getGeneralData().put(GeronimoSecurityBuilderImpl.ROLE_MAPPER_DATA_NAME, jaccBeanName);
         module.setEarContext(earContext);
         module.setRootEarContext(earContext);
         builder.initContext(earContext, module, bundle);

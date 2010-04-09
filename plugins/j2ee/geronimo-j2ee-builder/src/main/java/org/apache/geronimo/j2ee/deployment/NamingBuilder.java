@@ -38,9 +38,9 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
     XmlObject[] NO_REFS = new XmlObject[] {};
     String ENV = "env/";
 
-    Key<Map<JndiKey, Map<String, Object>>> JNDI_KEY = new Key<Map<JndiKey, Map<String, Object>>>() {
+    EARContext.Key<Map<JndiKey, Map<String, Object>>> JNDI_KEY = new EARContext.Key<Map<JndiKey, Map<String, Object>>>() {
 
-        public Map<JndiKey, Map<String, Object>> get(Map context) {
+        public Map<JndiKey, Map<String, Object>> get(Map<EARContext.Key, Object> context) {
             Map<JndiKey, Map<String, Object>> result = (Map<JndiKey, Map<String, Object>>) context.get(this);
             if (result == null) {
                 result = new HashMap<JndiKey, Map<String, Object>>();
@@ -49,9 +49,9 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
             return result;
         }
     };
-    Key<Holder> INJECTION_KEY = new Key<Holder>() {
+    EARContext.Key<Holder> INJECTION_KEY = new EARContext.Key<Holder>() {
 
-        public Holder get(Map context) {
+        public Holder get(Map<EARContext.Key, Object> context) {
             Holder result = (Holder) context.get(this);
             if (result == null) {
                 result = new Holder();
@@ -60,9 +60,9 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
             return result;
         }
     };
-    Key<AbstractName> GBEAN_NAME_KEY = new Key<AbstractName>() {
+    EARContext.Key<AbstractName> GBEAN_NAME_KEY = new EARContext.Key<AbstractName>() {
 
-        public AbstractName get(Map context) {
+        public AbstractName get(Map<EARContext.Key, Object> context) {
             return (AbstractName) context.get(this);
         }
     };
@@ -71,17 +71,11 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
 
     void initContext(XmlObject specDD, XmlObject plan, Module module) throws DeploymentException;
     
-    void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException;
+    void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException;
 
     /**
      * Returns sort order priority.  Lower numbers indicate higher priority.
      */
     int getPriority();
-    
-    public interface Key<T> {
-        T get(Map context);
-    }
-
-
 
 }

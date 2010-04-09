@@ -117,29 +117,45 @@ import org.xml.sax.SAXException;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
+    private static final Logger log = LoggerFactory.getLogger(AbstractWebModuleBuilder.class);
 
     //are we combining all web apps into one bundle in an ear?
     //TODO eliminate this
     protected static final boolean COMBINED_BUNDLE = true;
 
-    public final static NamingBuilder.Key<GBeanData> DEFAULT_JSP_SERVLET_KEY = new NamingBuilder.Key<GBeanData>() {
-
-        public GBeanData get(Map context) {
+    public final static EARContext.Key<GBeanData> DEFAULT_JSP_SERVLET_KEY = new EARContext.Key<GBeanData>() {
+        public GBeanData get(Map<EARContext.Key, Object> context) {
             return (GBeanData) context.get(this);
         }
     };
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractWebModuleBuilder.class);
+    public static final EARContext.Key<Boolean> WEB_MODULE_HAS_SECURITY_REALM = new EARContext.Key<Boolean>() {
+
+        @Override
+        public Boolean get(Map<EARContext.Key, Object> context) {
+            return (Boolean) context.get(this);
+        }
+    };
+
+    public static final EARContext.Key<List<String>> EXCLUDED_JAR_URLS = new EARContext.Key<List<String>>() {
+
+        @Override
+        public List<String> get(Map<EARContext.Key, Object> context) {
+            return (List<String>) context.get(this);
+        }
+    };
+
+    public static final EARContext.Key<Boolean> EXCLUDED_ANNOTATION_SCAN_JAR_URLS = new EARContext.Key<Boolean>() {
+
+        @Override
+        public Boolean get(Map<EARContext.Key, Object> context) {
+            return (Boolean) context.get(this);
+        }
+    };
 
     private static final QName TAGLIB = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "taglib");
 
     private static final String LINE_SEP = System.getProperty("line.separator");
-
-    public static final String WEB_MODULE_HAS_SECURITY_REALM = "WEB_MODULE_HAS_SECURITY_REALM";
-
-    public static final String EXCLUDED_JAR_URLS = "EXCLUDED_JAR_URLS";
-
-    public static final String EXCLUDED_ANNOTATION_SCAN_JAR_URLS = "EXCLUDED_ANNOTATION_SCAN_JAR_URLS";
 
     protected static final AbstractNameQuery MANAGED_CONNECTION_FACTORY_PATTERN;
 
@@ -336,7 +352,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // and the url class loader will not pick up a manifest from an unpacked dir
             //GERONIMO-4972 this can't be correct for one-bundle deployments.
             moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI);
-            moduleContext.getGeneralData().put(ClassPathList.class, manifestcp);
+            moduleContext.getGeneralData().put(EARContext.CLASS_PATH_LIST_KEY, manifestcp);
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
         } finally {
@@ -368,8 +384,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         WebModule webModule = (WebModule) module;
         //complete manifest classpath
         EARContext moduleContext = webModule.getEarContext();
-        ClassPathList manifestcp = (ClassPathList) moduleContext.getGeneralData().get(ClassPathList.class);
-        ModuleList moduleLocations = (ModuleList) webModule.getRootEarContext().getGeneralData().get(ModuleList.class);
+        ClassPathList manifestcp = EARContext.CLASS_PATH_LIST_KEY.get(moduleContext.getGeneralData());
+        ModuleList moduleLocations = EARContext.MODULE_LIST_KEY.get(webModule.getRootEarContext().getGeneralData());
         URI baseUri = URI.create(webModule.getTargetPath());
         URI resolutionUri = invertURI(baseUri);
         earContext.getCompleteManifestClassPath(webModule.getDeployable(), baseUri, resolutionUri, manifestcp, moduleLocations);
@@ -678,7 +694,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     protected void configureBasicWebModuleAttributes(WebAppType webApp, XmlObject vendorPlan, EARContext moduleContext, EARContext earContext, WebModule webModule, GBeanData webModuleData)
             throws DeploymentException {
-        Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
+        Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleContext.getModuleName());
         //get partial jndi context from earContext.
         Map<JndiKey, Map<String, Object>> jndiContext = new HashMap<JndiKey, Map<String, Object>>(NamingBuilder.JNDI_KEY.get(earContext.getGeneralData()));
@@ -704,7 +720,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         AbstractName contextSourceName = moduleContext.getNaming().createChildName(webModuleData.getAbstractName(), "ContextSource", "ContextSource");
         GBeanData contextSourceData = new GBeanData(contextSourceName, WebContextSource.class);
         contextSourceData.setAttribute("componentContext", compContext);
-        contextSourceData.setReferencePattern("ApplicationJndi", (AbstractName) earContext.getGeneralData().get(EARContext.APPLICATION_JNDI_NAME_KEY));
+        contextSourceData.setReferencePattern("ApplicationJndi", EARContext.APPLICATION_JNDI_NAME_KEY.get(earContext.getGeneralData()));
         contextSourceData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
         try {
             moduleContext.addGBean(contextSourceData);

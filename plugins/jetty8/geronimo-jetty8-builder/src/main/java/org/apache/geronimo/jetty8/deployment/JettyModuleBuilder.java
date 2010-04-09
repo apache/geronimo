@@ -93,6 +93,7 @@ import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.schema.ElementConverter;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
@@ -140,7 +141,6 @@ import org.slf4j.LoggerFactory;
 @GBean(j2eeType=NameFactory.MODULE_BUILDER)
 public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(JettyModuleBuilder.class);
-    static final String ROLE_MAPPER_DATA_NAME = "roleMapperDataName";
 
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     private static final Map<String, ElementConverter> GERONIMO_SCHEMA_CONVERSIONS = new HashMap<String, ElementConverter>();
@@ -668,7 +668,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         }
         String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
         webModuleData.setAttribute("securityRealmName", securityRealmName);
-        webModuleData.setReferencePattern("RunAsSource", (AbstractNameQuery)earContext.getGeneralData().get(ROLE_MAPPER_DATA_NAME));
+        webModuleData.setReferencePattern("RunAsSource", GeronimoSecurityBuilderImpl.ROLE_MAPPER_DATA_NAME.get(earContext.getGeneralData()));
 
         /**
          * TODO - go back to commented version when possible.

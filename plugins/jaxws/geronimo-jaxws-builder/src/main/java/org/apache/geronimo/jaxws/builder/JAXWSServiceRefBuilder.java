@@ -29,6 +29,7 @@ import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.HandlerChainsUtils;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -71,16 +72,15 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
     public void buildNaming(XmlObject specDD,
             XmlObject plan,
             Module module,
-            Map componentContext) throws DeploymentException {
+            Map<EARContext.Key, Object> componentContext) throws DeploymentException {
         List<ServiceRefType> serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), JEE_CONVERTER, ServiceRefType.class, ServiceRefType.type);
         XmlObject[] gerServiceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
-        Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
+        Map<String, GerServiceRefType> serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
 
         for (ServiceRefType serviceRef : serviceRefsUntyped) {
             String name = getStringValue(serviceRef.getServiceRefName());
             addInjections(name, serviceRef.getInjectionTargetArray(), componentContext);
-            GerServiceRefType serviceRefType = (GerServiceRefType) serviceRefMap.get(name);
-            serviceRefMap.remove(name);
+            GerServiceRefType serviceRefType = serviceRefMap.remove(name);
             buildNaming(serviceRef, serviceRefType, module, componentContext);
         }
 
@@ -103,7 +103,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         buildNaming(serviceRefType, gerServiceRefType, module, componentContext);
     }
 
-    public void buildNaming(ServiceRefType serviceRef, GerServiceRefType gerServiceRef, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(ServiceRefType serviceRef, GerServiceRefType gerServiceRef, Module module, Map<EARContext.Key, Object> componentContext) throws DeploymentException {
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         String name = getStringValue(serviceRef.getServiceRefName());
 
@@ -172,8 +172,8 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
                                          QName serviceQName, URI wsdlURI, Class serviceReferenceType,
                                          Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException;
 
-    private static Map mapServiceRefs(XmlObject[] refs) {
-        Map refMap = new HashMap();
+    private static Map<String, GerServiceRefType> mapServiceRefs(XmlObject[] refs) {
+        Map<String, GerServiceRefType> refMap = new HashMap<String, GerServiceRefType>();
         if (refs != null) {
             for (int i = 0; i < refs.length; i++) {
                 GerServiceRefType ref = (GerServiceRefType) refs[i].copy()

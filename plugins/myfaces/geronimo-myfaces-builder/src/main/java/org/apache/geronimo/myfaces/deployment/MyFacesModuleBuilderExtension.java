@@ -140,7 +140,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             ((Collection<String>) value).add(CONTEXT_LISTENER_NAME);
         }
         AbstractName moduleName = moduleContext.getModuleName();
-        Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
+        Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
 
         //use the same jndi context as the web app

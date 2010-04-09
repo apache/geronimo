@@ -30,6 +30,7 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
@@ -80,7 +81,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         doStop();
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
 
         // Discover and process any @Resource annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -136,8 +137,8 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 // perform resource injection only if there is a value specified
                 // see Java EE 5 spec, section EE.5.4.1.3
                 if (value != null) {
-                    addInjections(name, envEntry.getInjectionTargetArray(), componentContext);
-                    put(name, value, getJndiContextMap(componentContext));
+                    addInjections(name, envEntry.getInjectionTargetArray(), sharedContext);
+                    put(name, value, getJndiContextMap(sharedContext));
                 }
             } catch (NumberFormatException e) {
                 throw new DeploymentException("Invalid env-entry value for name: " + name, e);

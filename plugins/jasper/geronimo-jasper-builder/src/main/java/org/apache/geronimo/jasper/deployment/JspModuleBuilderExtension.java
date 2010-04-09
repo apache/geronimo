@@ -148,7 +148,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         GBeanData webAppData = (GBeanData) sharedContext.get(WebModule.WEB_APP_DATA);
 
         AbstractName moduleName = module.getModuleName();
-        Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
+        Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
 
         //use the same jndi context as the web app

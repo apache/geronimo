@@ -29,6 +29,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
@@ -89,7 +90,7 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
     public void buildNaming(XmlObject specDD,
             XmlObject plan,
             Module module,
-            Map componentContext) throws DeploymentException {
+            Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
 
         // Discover and process any @WebServiceRef annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -125,18 +126,18 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
             Class serviceInterfaceClass = loadClass(serviceInterfaceName, bundle);
 
             InjectionTargetType[] injections = serviceRefType.getInjectionTargetArray();
-            addInjections(name, injections, componentContext);
+            addInjections(name, injections, sharedContext);
 
             if (jaxrpcClass.isAssignableFrom(serviceInterfaceClass)) {
                 // class jaxrpc handler
                 ServiceRefBuilder jaxrpcBuilder = getJAXRCPBuilder();
                 jaxrpcBuilder.buildNaming(serviceRef, gerServiceRefType,
-                        module, componentContext);
+                        module, sharedContext);
             } else if (jaxwsClass.isAssignableFrom(serviceInterfaceClass)) {
                 // calll jaxws handler
                 ServiceRefBuilder jaxwsBuilder = getJAXWSBuilder();
                 jaxwsBuilder.buildNaming(serviceRef, gerServiceRefType, module,
-                        componentContext);
+                        sharedContext);
             } else {
                 throw new DeploymentException(serviceInterfaceName
                         + " does not extend "

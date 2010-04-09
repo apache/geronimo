@@ -29,6 +29,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -49,7 +50,7 @@ public class GBeanRefBuilder extends AbstractNamingBuilder {
     private static final QName GBEAN_REF_QNAME = GerGbeanRefDocument.type.getDocumentElementName();
     private static final QNameSet GBEAN_REF_QNAME_SET = QNameSet.singleton(GBEAN_REF_QNAME);
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         if (plan == null) {
             return;
         }
@@ -89,7 +90,7 @@ public class GBeanRefBuilder extends AbstractNamingBuilder {
 
             String refName = gbeanRef.getRefName();
 
-            put(refName, new GBeanReference(module.getConfigId(), queries, gBeanType), NamingBuilder.JNDI_KEY.get(componentContext));
+            put(refName, new GBeanReference(module.getConfigId(), queries, gBeanType), NamingBuilder.JNDI_KEY.get(sharedContext));
 
         }
     }

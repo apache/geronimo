@@ -33,6 +33,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
@@ -49,7 +50,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class LifecycleMethodBuilder extends AbstractNamingBuilder {
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         // skip ejb modules... they have alreayd been processed
         if (module.getType() == ConfigurationModuleType.EJB) {
             return;
@@ -92,7 +93,7 @@ public class LifecycleMethodBuilder extends AbstractNamingBuilder {
         }
         Map<String, LifecycleMethod> postConstructs = map(postConstructMap);
         Map<String, LifecycleMethod> preDestroys = map(preDestroyMap);
-        Holder holder = NamingBuilder.INJECTION_KEY.get(componentContext);
+        Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
         holder.addPostConstructs(postConstructs);
         holder.addPreDestroys(preDestroys);
     }

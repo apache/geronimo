@@ -20,43 +20,40 @@ package org.apache.geronimo.openejb.deployment;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Arrays;
-import java.util.ArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.openejb.ClientEjbReference;
+import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefDocument;
+import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
+import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
 import org.apache.geronimo.xbeans.javaee6.EjbRefType;
 import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefDocument;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.openejb.OpenEJBException;
+import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.JndiEncBuilder;
 import org.apache.openejb.assembler.classic.JndiEncInfo;
-import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.config.JndiEncInfoBuilder;
-import org.apache.openejb.config.AppModule;
 import org.apache.openejb.core.ivm.naming.IntraVmJndiReference;
 import org.apache.openejb.jee.EjbLocalRef;
 import org.apache.openejb.jee.EjbRef;
@@ -65,6 +62,8 @@ import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.SessionBean;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Revision: 475950 $ $Date: 2006-11-16 14:18:14 -0800 (Thu, 16 Nov 2006) $
@@ -101,7 +100,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         return specDD.selectChildren(ejbRefQNameSet).length > 0 || specDD.selectChildren(ejbLocalRefQNameSet).length > 0;
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         // skip ejb modules... they have alreayd been processed
 //        if (module.getType() == ConfigurationModuleType.EJB) {
 //            return;
@@ -117,7 +116,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         // Add the refs declaraed the the spec deployment descriptor (e.g., ejb-jar.xml or web.xml)
         List<EjbRefType> ejbRefs = convert(specDD.selectChildren(ejbRefQNameSet), JEE_CONVERTER, EjbRefType.class, EjbRefType.type);
         List<EjbLocalRefType> ejbLocalRefs = convert(specDD.selectChildren(ejbLocalRefQNameSet), JEE_CONVERTER, EjbLocalRefType.class, EjbLocalRefType.type);
-        addRefs(consumer, ejbRefs, refMap, ejbLocalRefs, localRefMap, componentContext);
+        addRefs(consumer, ejbRefs, refMap, ejbLocalRefs, localRefMap, sharedContext);
 
         // Discover and process any @EJB annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -133,12 +132,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             ejbRefs.addAll(module.getAnnotatedApp().getAmbiguousEjbRefs());
 
             // add the refs
-            addRefs(consumer, ejbRefs, refMap, ejbLocalRefs, localRefMap, componentContext);
+            addRefs(consumer, ejbRefs, refMap, ejbLocalRefs, localRefMap, sharedContext);
         }
 
         Map<String, Object> map = null;
         try {
-            EjbModuleBuilder.EarData earData = (EjbModuleBuilder.EarData) module.getRootEarContext().getGeneralData().get(EjbModuleBuilder.EarData.class);
+            EjbModuleBuilder.EarData earData = EjbModuleBuilder.EarData.KEY.get(module.getRootEarContext().getGeneralData());
             Collection<EjbJarInfo> ejbJars = Collections.emptySet();
             if (earData != null) {
                 ejbJars = earData.getEjbJars();
@@ -176,7 +175,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                     value = createClientRef(value);
                 }
                 if (value instanceof Serializable) {
-                    put(name, value, getJndiContextMap(componentContext));
+                    put(name, value, getJndiContextMap(sharedContext));
                 }
             }
         }
@@ -201,7 +200,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         return value;
     }
 
-    private void addRefs(JndiConsumer jndiConsumer, List<EjbRefType> ejbRefs, Map<String, GerEjbRefType> refMap, List<EjbLocalRefType> ejbLocalRefs, Map<String, GerEjbLocalRefType> localRefMap, Map componentContext) {
+    private void addRefs(JndiConsumer jndiConsumer,
+                         List<EjbRefType> ejbRefs,
+                         Map<String, GerEjbRefType> refMap,
+                         List<EjbLocalRefType> ejbLocalRefs,
+                         Map<String, GerEjbLocalRefType> localRefMap,
+                         Map<EARContext.Key, Object> sharedContext) {
         Set<String> declaredEjbRefs = new TreeSet<String>();
         for (EjbRef ejbRef : jndiConsumer.getEjbRef()) {
             declaredEjbRefs.add(ejbRef.getName());
@@ -278,7 +282,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 }
             }
             //geronimo's handling of injection-target
-            addInjections(refName, xmlbeansRef.getInjectionTargetArray(), componentContext);
+            addInjections(refName, xmlbeansRef.getInjectionTargetArray(), sharedContext);
 
         }
 
@@ -346,7 +350,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 }
             }
             //geronimo's handling of injection-target
-            addInjections(refName, xmlbeansRef.getInjectionTargetArray(), componentContext);
+            addInjections(refName, xmlbeansRef.getInjectionTargetArray(), sharedContext);
         }
     }
 

@@ -28,8 +28,10 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -42,6 +44,7 @@ import org.apache.geronimo.xbeans.javaee6.EjbRefType;
 import org.apache.geronimo.corba.proxy.CORBAProxyReference;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 
 /**
  * Installs ejb refs that use corba transport into jndi context.
@@ -92,34 +95,34 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
 //        return false;
 //    }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         XmlObject[] ejbRefsUntyped = convert(specDD.selectChildren(ejbRefQNameSet), JEE_CONVERTER, EjbRefType.type);
         XmlObject[] gerEjbRefsUntyped = plan == null ? NO_REFS : convert(plan.selectChildren(GER_EJB_REF_QNAME_SET), OPENEJB_CONVERTER, GerEjbRefType.type);
         Map ejbRefMap = mapEjbRefs(gerEjbRefsUntyped);
-        ClassLoader cl = module.getEarContext().getClassLoader();
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
 
         for (XmlObject anEjbRefsUntyped : ejbRefsUntyped) {
             EjbRefType ejbRef = (EjbRefType) anEjbRefsUntyped;
 
             String ejbRefName = getStringValue(ejbRef.getEjbRefName());
-            addInjections(ejbRefName, ejbRef.getInjectionTargetArray(), componentContext);
+            addInjections(ejbRefName, ejbRef.getInjectionTargetArray(), sharedContext);
             GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
 
-            Reference ejbReference = addEJBRef(module, ejbRef, remoteRef, cl);
+            Reference ejbReference = addEJBRef(module, ejbRef, remoteRef, bundle);
             if (ejbReference != null) {
-                getJndiContextMap(componentContext).put(ENV + ejbRefName, ejbReference);
+                put(ejbRefName, ejbReference, JNDI_KEY.get(sharedContext));
             }
         }
     }
 
-    private Reference addEJBRef(Module module, EjbRefType ejbRef, GerEjbRefType remoteRef, ClassLoader cl) throws DeploymentException {
+    private Reference addEJBRef(Module module, EjbRefType ejbRef, GerEjbRefType remoteRef, Bundle bundle) throws DeploymentException {
         Reference ejbReference = null;
         if (remoteRef != null && remoteRef.isSetNsCorbaloc()) {
             String refName = getStringValue(ejbRef.getEjbRefName());
             String home = getStringValue(ejbRef.getHome());
             String remote = getStringValue(ejbRef.getRemote());
 
-            verifyInterfaces(refName, module.getModuleURI(), cl, remote, home);
+            verifyInterfaces(refName, module.getModuleURI(), bundle, remote, home);
 
             try {
                 // create the cssBean query
@@ -148,14 +151,14 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
         return ejbReference;
     }
 
-    private void verifyInterfaces(String refName, URI moduleURI, ClassLoader cl, String remote, String home) throws DeploymentException {
+    private void verifyInterfaces(String refName, URI moduleURI, Bundle bundle, String remote, String home) throws DeploymentException {
         try {
-            assureInterface(remote, "javax.ejb.EJBObject", "Remote", cl);
+            assureInterface(remote, "javax.ejb.EJBObject", "Remote", bundle);
         } catch (DeploymentException e) {
             throw new DeploymentException("Error processing 'remote' element for EJB Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage(), e);
         }
         try {
-            assureInterface(home, "javax.ejb.EJBHome", "Home", cl);
+            assureInterface(home, "javax.ejb.EJBHome", "Home", bundle);
         } catch (DeploymentException e) {
             throw new DeploymentException("Error processing 'home' element for EJB Reference '" + refName + "' for module '" + moduleURI + "': " + e.getMessage(), e);
         }

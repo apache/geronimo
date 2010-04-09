@@ -94,7 +94,7 @@ public class NamingBuilderCollectionTest extends TestCase {
         public void buildNaming(XmlObject specDD,
                                 XmlObject plan,
                                 Module module,
-                                Map componentContext) throws DeploymentException {
+                                Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
             this.callList.add("buildNaming");
             this.callList.add(this);
         }

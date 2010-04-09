@@ -92,7 +92,13 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
     public static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-2.0";
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
 
-    private static final String ROLE_MAPPER_DATA_NAME = "roleMapperDataName";
+    public static final EARContext.Key<AbstractNameQuery> ROLE_MAPPER_DATA_NAME = new EARContext.Key<AbstractNameQuery>() {
+
+        @Override
+        public AbstractNameQuery get(Map<EARContext.Key, Object> context) {
+            return (AbstractNameQuery) context.get(this);
+        }
+    };
 
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/loginconfig", "http://geronimo.apache.org/xml/ns/loginconfig-2.0");
@@ -214,7 +220,7 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
         if (earContext.isHasSecurity()) {
             //Be sure to only set once per app
             earContext.setHasSecurity(false);
-            AbstractNameQuery roleMapperDataName = (AbstractNameQuery)earContext.getGeneralData().get(ROLE_MAPPER_DATA_NAME);
+            AbstractNameQuery roleMapperDataName = ROLE_MAPPER_DATA_NAME.get(earContext.getGeneralData());
             if (roleMapperDataName == null) {
                 roleMapperDataName = defaultRoleMappingName;
                 EnvironmentBuilder.mergeEnvironments(earContext.getConfiguration().getEnvironment(), defaultEnvironment);

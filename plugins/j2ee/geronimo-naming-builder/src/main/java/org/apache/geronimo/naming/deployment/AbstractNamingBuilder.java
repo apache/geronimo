@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.Injection;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
@@ -148,7 +149,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         scope.put(key, value);
     }
     
-    protected Object lookupJndiContextMap(Map sharedContext, String key) {
+    protected Object lookupJndiContextMap(Map<EARContext.Key, Object> sharedContext, String key) {
         JndiKey jndiKey;
         if (key.startsWith("java:")) {
             int pos = key.indexOf("/", 5);
@@ -164,11 +165,11 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return scope.get(key);
     }
     
-    protected Map<JndiKey, Map<String, Object>> getJndiContextMap(Map sharedContext) {
+    protected Map<JndiKey, Map<String, Object>> getJndiContextMap(Map<EARContext.Key, Object> sharedContext) {
         return NamingBuilder.JNDI_KEY.get(sharedContext);
     }
 
-    protected AbstractName getGBeanName(Map sharedContext) {
+    protected AbstractName getGBeanName(Map<EARContext.Key, Object> sharedContext) {
         return GBEAN_NAME_KEY.get(sharedContext);
     }
 
@@ -304,7 +305,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
 
-    protected void addInjections(String jndiName, InjectionTargetType[] injectionTargetArray, Map sharedContext) {
+    protected void addInjections(String jndiName, InjectionTargetType[] injectionTargetArray, Map<EARContext.Key, Object> sharedContext) {
         Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
         for (InjectionTargetType injectionTarget : injectionTargetArray) {
             String targetName = injectionTarget.getInjectionTargetName().getStringValue().trim();

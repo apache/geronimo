@@ -30,7 +30,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.AbstractBuilderCollection;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.xmlbeans.XmlObject;
@@ -57,16 +56,16 @@ public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBui
         }
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             if (EARConfigBuilder.createPlanMode.get().booleanValue()) {
                 try {
-                    namingBuilder.buildNaming(specDD, plan, module, componentContext);
+                    namingBuilder.buildNaming(specDD, plan, module, sharedContext);
                 } catch (Exception e) {
                     // ignore exceptions & continue processing with rest of the builders
                 }
             } else {
-                namingBuilder.buildNaming(specDD, plan, module, componentContext);
+                namingBuilder.buildNaming(specDD, plan, module, sharedContext);
             }
         }
     }

@@ -634,10 +634,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         //Share the ejb info with the ear.
         //TODO this might be too much, but I don't want to impose a dependency on geronimo-openejb to get
         //EjbModuleBuilder.EarData.class
-        Map<Object, Object> generalData = earContext.getGeneralData();
-        for (Map.Entry<Object, Object> entry : generalData.entrySet()) {
-            Object key = entry.getKey();
-            if (key instanceof Class && ((Class) key).getName().equals("org.apache.geronimo.openejb.deployment.EjbModuleBuilder$EarData")) {
+        Map<EARContext.Key, Object> generalData = earContext.getGeneralData();
+        for (Map.Entry<EARContext.Key, Object> entry : generalData.entrySet()) {
+            EARContext.Key key = entry.getKey();
+            if (key.getClass().getName().startsWith("org.apache.geronimo.openejb.deployment.EjbModuleBuilder$EarData")) {
                 appClientDeploymentContext.getGeneralData().put(key, entry.getValue());
                 break;
             }
@@ -684,7 +684,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 AbstractName jndiContextName = earContext.getNaming().createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.class);
                 try {
-                    Map<NamingBuilder.Key, Object> buildingContext = new HashMap<NamingBuilder.Key, Object>();
+                    Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
                     buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, jndiContextName);
                     Configuration localConfiguration = appClientDeploymentContext.getConfiguration();
                     Configuration remoteConfiguration = earContext.getConfiguration();

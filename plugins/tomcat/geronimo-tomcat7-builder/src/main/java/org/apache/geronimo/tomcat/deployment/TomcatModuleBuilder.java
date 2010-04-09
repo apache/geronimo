@@ -67,6 +67,7 @@ import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.tomcat.LifecycleListenerGBean;
@@ -103,7 +104,6 @@ import org.slf4j.LoggerFactory;
 public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBeanLifecycle {
 
     private static final Logger log = LoggerFactory.getLogger(TomcatModuleBuilder.class);
-    static final String ROLE_MAPPER_DATA_NAME = "roleMapperDataName";
 
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
@@ -527,7 +527,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 SecurityHolder securityHolder = new SecurityHolder();
                 String securityRealmName = tomcatWebApp.getSecurityRealmName().trim();
 
-                webModuleData.setReferencePattern("RunAsSource", (AbstractNameQuery)earContext.getGeneralData().get(ROLE_MAPPER_DATA_NAME));
+                webModuleData.setReferencePattern("RunAsSource", GeronimoSecurityBuilderImpl.ROLE_MAPPER_DATA_NAME.get(earContext.getGeneralData()));
                 webModuleData.setReferencePattern("ConfigurationFactory", new AbstractNameQuery(null, Collections.singletonMap("name", securityRealmName), ConfigurationFactory.class.getName()));
 
                 /**

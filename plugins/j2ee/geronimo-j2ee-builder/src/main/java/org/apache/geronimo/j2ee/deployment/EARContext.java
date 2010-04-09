@@ -21,7 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.ResourceContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -35,7 +37,6 @@ import org.osgi.framework.BundleContext;
  * @version $Rev:386276 $ $Date$
  */
 public class EARContext extends DeploymentContext {
-    public static final String APPLICATION_JNDI_NAME_KEY = "AppplicationJndiName";
 
     private final AbstractNameQuery serverName;
     private final AbstractNameQuery transactionManagerObjectName;
@@ -48,7 +49,7 @@ public class EARContext extends DeploymentContext {
 
     private final Map  messageDestinations;
 
-    private final Map<Object,Object> generalData = new HashMap<Object,Object>();
+    private final Map<Key,Object> generalData = new HashMap<Key,Object>();
 
     public EARContext(File baseDir,
                       File inPlaceConfigurationDir,
@@ -198,7 +199,7 @@ public class EARContext extends DeploymentContext {
         return messageDestinations;
     }
 
-    public Map<Object,Object> getGeneralData() {
+    public Map<Key,Object> getGeneralData() {
         return generalData;
     }
 
@@ -209,4 +210,32 @@ public class EARContext extends DeploymentContext {
     public void setHasSecurity(boolean hasSecurity) {
         this.hasSecurity = hasSecurity;
     }
+
+    public static interface Key<T> {
+        T get(Map<Key, Object> context);
+    }
+
+    public static final Key<ClassPathList> CLASS_PATH_LIST_KEY = new Key<ClassPathList>() {
+
+        @Override
+        public ClassPathList get(Map<Key, Object> context) {
+            return (ClassPathList) context.get(this);
+        }
+    };
+    public static final Key<ModuleList> MODULE_LIST_KEY = new Key<ModuleList>() {
+
+        @Override
+        public ModuleList get(Map<Key, Object> context) {
+            return (ModuleList) context.get(this);
+        }
+    };
+
+    public static final Key<AbstractName> APPLICATION_JNDI_NAME_KEY = new Key<AbstractName>() {
+
+        @Override
+        public AbstractName get(Map<Key, Object> context) {
+            return (AbstractName) context.get(this);
+        }
+    };
+
 }

@@ -554,7 +554,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             );
             applicationInfo.setEarContext(earContext);
             applicationInfo.setRootEarContext(earContext);
-            earContext.getGeneralData().put(ModuleList.class, applicationInfo.getModuleLocations());
+            earContext.getGeneralData().put(EARContext.MODULE_LIST_KEY, applicationInfo.getModuleLocations());
 
             // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
             ModuleList moduleLocations = applicationInfo.getModuleLocations();
@@ -581,7 +581,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         earContext.addFile(URI.create(entry.getName()), earFile, entry);
                     }
                 }
-                earContext.getGeneralData().put(ClassPathList.class, libClasspath);
+                earContext.getGeneralData().put(EARContext.CLASS_PATH_LIST_KEY, libClasspath);
             }
 
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
