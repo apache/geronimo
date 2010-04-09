@@ -14,11 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.geronimo.corba.security.config.css;
+package org.apache.geronimo.corba.deployment.security.config.css;
 
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.geronimo.corba.security.config.css.CSSASMechConfig;
+import org.apache.geronimo.corba.security.config.css.CSSCompoundSecMechConfig;
+import org.apache.geronimo.corba.security.config.css.CSSCompoundSecMechListConfig;
+import org.apache.geronimo.corba.security.config.css.CSSConfig;
+import org.apache.geronimo.corba.security.config.css.CSSGSSUPMechConfigDynamic;
+import org.apache.geronimo.corba.security.config.css.CSSGSSUPMechConfigStatic;
+import org.apache.geronimo.corba.security.config.css.CSSNULLASMechConfig;
+import org.apache.geronimo.corba.security.config.css.CSSNULLTransportConfig;
+import org.apache.geronimo.corba.security.config.css.CSSSASITTAbsent;
+import org.apache.geronimo.corba.security.config.css.CSSSASITTAnonymous;
+import org.apache.geronimo.corba.security.config.css.CSSSASITTPrincipalNameDynamic;
+import org.apache.geronimo.corba.security.config.css.CSSSASITTPrincipalNameStatic;
+import org.apache.geronimo.corba.security.config.css.CSSSASMechConfig;
+import org.apache.geronimo.corba.security.config.css.CSSSSLTransportConfig;
+import org.apache.geronimo.corba.security.config.css.CSSTransportMechConfig;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.omg.CSIIOP.CompositeDelegation;
@@ -50,25 +66,30 @@ import org.apache.geronimo.corba.xbeans.csiv2.css.CSSSSLType;
 import org.apache.geronimo.corba.xbeans.csiv2.css.CSSSasMechType;
 import org.apache.geronimo.corba.xbeans.csiv2.css.CSSCssDocument;
 import org.apache.geronimo.corba.xbeans.csiv2.tss.TSSAssociationOption;
+import org.osgi.framework.Bundle;
 
 
 /**
  * @version $Revision: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
  */
+@GBean(j2eeType = "XmlAttributeBuilder")
 public class CSSConfigEditor implements XmlAttributeBuilder {
     private static final String NAMESPACE = CSSCssDocument.type.getDocumentElementName().getNamespaceURI();
 
+    @Override
     public String getNamespace() {
         return NAMESPACE;
     }
 
-    public Object getValue(XmlObject xmlObject, String type, ClassLoader cl) throws DeploymentException {
+    @Override
+    public Object getValue(XmlObject xmlObject, String type, Bundle bundle) throws DeploymentException {
 
         CSSCssType css;
         if (xmlObject instanceof CSSCssType) {
             css = (CSSCssType) xmlObject;
+        } else {
+            css = (CSSCssType) xmlObject.copy().changeType(CSSCssType.type);
         }
-        css = (CSSCssType) xmlObject.copy().changeType(CSSCssType.type);
         try {
             XmlBeansUtil.validateDD(css);
         } catch (XmlException e) {
@@ -83,14 +104,14 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
 
             CSSCompoundSecMechType[] mechList = css.getCompoundSecMechTypeList().getCompoundSecMechArray();
             for (int i = 0; i < mechList.length; i++) {
-                mechListConfig.add(extractCompoundSecMech(mechList[i], cl));
+                mechListConfig.add(extractCompoundSecMech(mechList[i], bundle));
             }
         }
 
         return cssConfig;
     }
 
-    protected static CSSCompoundSecMechConfig extractCompoundSecMech(CSSCompoundSecMechType mechType, ClassLoader cl) throws DeploymentException {
+    protected static CSSCompoundSecMechConfig extractCompoundSecMech(CSSCompoundSecMechType mechType, Bundle bundle) throws DeploymentException {
 
         CSSCompoundSecMechConfig result = new CSSCompoundSecMechConfig();
 
@@ -110,7 +131,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
             result.setAs_mech(new CSSNULLASMechConfig());
         }
 
-        result.setSas_mech(extractSASMech(mechType.getSasMech(), cl));
+        result.setSas_mech(extractSASMech(mechType.getSasMech(), bundle));
 
         return result;
     }
@@ -132,7 +153,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
         return new CSSGSSUPMechConfigDynamic(gssupType.getDomain());
     }
 
-    protected static CSSSASMechConfig extractSASMech(CSSSasMechType sasMechType, ClassLoader cl) throws DeploymentException {
+    protected static CSSSASMechConfig extractSASMech(CSSSasMechType sasMechType, Bundle bundle) throws DeploymentException {
         CSSSASMechConfig result = new CSSSASMechConfig();
 
         if (sasMechType == null) {
@@ -149,7 +170,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
             String principalClassName = principal.getPrincipalClass();
             Class principalClass = null;
             try {
-                principalClass = ClassLoading.loadClass(principalClassName, cl);
+                principalClass = ClassLoading.loadClass(principalClassName, bundle);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load principal class", e);
             }
@@ -193,18 +214,6 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
             }
         }
         return result;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(CSSConfigEditor.class, "XmlAttributeBuilder");
-        infoBuilder.addInterface(XmlAttributeBuilder.class);
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

@@ -33,7 +33,7 @@
 
     <gbean name="DyanmicStubClassLoader" class="org.apache.geronimo.corba.util.DynamicStubClassLoaderGBean"/>
 
-    <gbean name="ORBConfigAdapter" class="org.apache.geronimo.yoko.ORBConfigAdapterGBean"/>
+    <gbean name="ORBConfigAdapter" class="org.apache.geronimo.yoko.ORBConfigAdapter"/>
 
     <gbean name="NameServerRef" class="org.apache.geronimo.corba.NameServiceGBean">
         <reference name="ServerInfo">

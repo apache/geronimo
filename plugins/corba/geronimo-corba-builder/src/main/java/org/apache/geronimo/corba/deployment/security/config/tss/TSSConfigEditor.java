@@ -14,11 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.geronimo.corba.security.config.tss;
+package org.apache.geronimo.corba.deployment.security.config.tss;
 
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.geronimo.corba.security.config.tss.TSSASMechConfig;
+import org.apache.geronimo.corba.security.config.tss.TSSCompoundSecMechConfig;
+import org.apache.geronimo.corba.security.config.tss.TSSCompoundSecMechListConfig;
+import org.apache.geronimo.corba.security.config.tss.TSSConfig;
+import org.apache.geronimo.corba.security.config.tss.TSSGSSExportedNameConfig;
+import org.apache.geronimo.corba.security.config.tss.TSSGSSUPMechConfig;
+import org.apache.geronimo.corba.security.config.tss.TSSGeneralNameConfig;
+import org.apache.geronimo.corba.security.config.tss.TSSITTAbsent;
+import org.apache.geronimo.corba.security.config.tss.TSSITTAnonymous;
+import org.apache.geronimo.corba.security.config.tss.TSSITTDistinguishedName;
+import org.apache.geronimo.corba.security.config.tss.TSSITTPrincipalNameGSSUP;
+import org.apache.geronimo.corba.security.config.tss.TSSITTX509CertChain;
+import org.apache.geronimo.corba.security.config.tss.TSSNULLASMechConfig;
+import org.apache.geronimo.corba.security.config.tss.TSSNULLTransportConfig;
+import org.apache.geronimo.corba.security.config.tss.TSSSASMechConfig;
+import org.apache.geronimo.corba.security.config.tss.TSSSSLTransportConfig;
+import org.apache.geronimo.corba.security.config.tss.TSSTransportMechConfig;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.common.DeploymentException;
@@ -48,6 +66,7 @@ import org.apache.geronimo.corba.xbeans.csiv2.tss.TSSSSLType;
 import org.apache.geronimo.corba.xbeans.csiv2.tss.TSSSasMechType;
 import org.apache.geronimo.corba.xbeans.csiv2.tss.TSSTssDocument;
 import org.apache.geronimo.corba.xbeans.csiv2.tss.TSSTssType;
+import org.osgi.framework.Bundle;
 
 
 /**
@@ -55,6 +74,7 @@ import org.apache.geronimo.corba.xbeans.csiv2.tss.TSSTssType;
  *
  * @version $Revision: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
  */
+@GBean(j2eeType = "XmlAttributeBuilder")
 public class TSSConfigEditor implements XmlAttributeBuilder {
 
     private static final String NAMESPACE = TSSTssDocument.type.getDocumentElementName().getNamespaceURI();
@@ -71,7 +91,8 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
      * @throws org.apache.geronimo.common.propertyeditor.PropertyEditorException
      *          An IOException occured.
      */
-    public Object getValue(XmlObject xmlObject, String type, ClassLoader cl) throws DeploymentException {
+    @Override
+    public Object getValue(XmlObject xmlObject, String type, Bundle bundle) throws DeploymentException {
         TSSTssType tss;
         if (xmlObject instanceof TSSTssType) {
             tss = (TSSTssType) xmlObject;
@@ -103,7 +124,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
 
             TSSCompoundSecMechType[] mechList = tss.getCompoundSecMechTypeList().getCompoundSecMechArray();
             for (int i = 0; i < mechList.length; i++) {
-                TSSCompoundSecMechConfig cMech = extractCompoundSecMech(mechList[i], cl);
+                TSSCompoundSecMechConfig cMech = extractCompoundSecMech(mechList[i], bundle);
                 cMech.setTransport_mech(tssConfig.getTransport_mech());
                 mechListConfig.add(cMech);
             }
@@ -124,7 +145,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
         return sslConfig;
     }
 
-    protected static TSSCompoundSecMechConfig extractCompoundSecMech(TSSCompoundSecMechType mech, ClassLoader cl) throws DeploymentException {
+    protected static TSSCompoundSecMechConfig extractCompoundSecMech(TSSCompoundSecMechType mech, Bundle bundle) throws DeploymentException {
 
         TSSCompoundSecMechConfig result = new TSSCompoundSecMechConfig();
 
@@ -135,7 +156,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
         }
 
         if (mech.isSetSasMech()) {
-            result.setSas_mech(extractSASMech(mech.getSasMech(), cl));
+            result.setSas_mech(extractSASMech(mech.getSasMech(), bundle));
         }
 
         return result;
@@ -151,7 +172,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
         return gssupConfig;
     }
 
-    protected static TSSSASMechConfig extractSASMech(TSSSasMechType sasMech, ClassLoader cl) throws DeploymentException {
+    protected static TSSSASMechConfig extractSASMech(TSSSasMechType sasMech, Bundle bundle) throws DeploymentException {
 
         TSSSASMechConfig sasMechConfig = new TSSSASMechConfig();
 
@@ -182,7 +203,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
                 String principalClassName = ittPrincipalNameGSSUP.getPrincipalClass();
                 Class principalClass;
                 try {
-                    principalClass = ClassLoading.loadClass(principalClassName, cl);
+                    principalClass = ClassLoading.loadClass(principalClassName, bundle);
                 } catch (ClassNotFoundException e) {
                     throw new DeploymentException("Could not load principal class", e);
                 }
@@ -249,18 +270,6 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
             }
         }
         return result;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TSSConfigEditor.class, "XmlAttributeBuilder");
-        infoBuilder.addInterface(XmlAttributeBuilder.class);
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

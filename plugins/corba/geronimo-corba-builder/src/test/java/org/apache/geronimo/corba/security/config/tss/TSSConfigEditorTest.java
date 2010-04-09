@@ -17,6 +17,7 @@
 package org.apache.geronimo.corba.security.config.tss;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.corba.deployment.security.config.tss.TSSConfigEditor;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;

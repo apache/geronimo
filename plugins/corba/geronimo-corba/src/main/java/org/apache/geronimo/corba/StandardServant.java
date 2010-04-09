@@ -21,6 +21,7 @@ import java.rmi.AccessException;
 import java.rmi.MarshalException;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.Map;
@@ -120,10 +121,10 @@ public class StandardServant extends Servant implements InvokeHandler {
 
         // create ReadOnlyContext
         Map componentContext = new HashMap(2);
-        componentContext.put("ORB", orb);
-        componentContext.put("HandleDelegate", new CORBAHandleDelegate());
+        componentContext.put("comp/ORB", orb);
+        componentContext.put("comp/HandleDelegate", new CORBAHandleDelegate());
         try {
-            enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
+            enc = EnterpriseNamingContext.livenReferences(componentContext, null, null, null, "comp");
         } catch (NamingException e) {
             throw new RuntimeException("Error creating standard servant naming context", e);
         }

@@ -43,6 +43,22 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openejb</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.yoko</groupId>

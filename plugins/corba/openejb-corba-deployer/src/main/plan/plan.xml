@@ -21,8 +21,8 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
 
-    <gbean name="CSSAttributeBuilder" class="org.apache.geronimo.corba.security.config.css.CSSConfigEditor"/>
-    <gbean name="TSSAttributeBuilder" class="org.apache.geronimo.corba.security.config.tss.TSSConfigEditor"/>
+    <gbean name="CSSAttributeBuilder" class="org.apache.geronimo.corba.deployment.security.config.css.CSSConfigEditor"/>
+    <gbean name="TSSAttributeBuilder" class="org.apache.geronimo.corba.deployment.security.config.tss.TSSConfigEditor"/>
 
     <gbean name="OpenEjbCorbaRefBuilder" class="org.apache.geronimo.corba.deployment.OpenEjbCorbaRefBuilder">
         <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>

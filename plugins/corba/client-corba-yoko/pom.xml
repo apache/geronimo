@@ -143,8 +143,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.bcel</groupId>
-            <artifactId>bcel</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.bcel</artifactId>
         </dependency>
 
         <dependency>

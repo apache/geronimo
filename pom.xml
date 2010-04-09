@@ -869,46 +869,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.yoko</groupId>
-                <artifactId>yoko-core</artifactId>
-                <version>1.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.yoko</groupId>
-                        <artifactId>yoko-rmi-spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.yoko</groupId>
-                        <artifactId>yoko-spec-corba</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.yoko</groupId>
-                <artifactId>yoko-spec-corba</artifactId>
-                <version>1.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.yoko</groupId>
-                <artifactId>yoko-rmi-spec</artifactId>
-                <version>1.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.yoko</groupId>
-                <artifactId>yoko-rmi-impl</artifactId>
-                <version>1.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.yoko</groupId>
-                        <artifactId>yoko-rmi-spec</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.5</version>

@@ -22,6 +22,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.corba.CORBABean;
@@ -47,6 +49,7 @@ import org.omg.CORBA.Policy;
  * CORBA support.
  * @version $Revision: 497125 $ $Date: 2007-01-17 10:51:30 -0800 (Wed, 17 Jan 2007) $
  */
+@GBean(j2eeType = NameFactory.ORB_CONFIG)
 public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
 
     private final Logger log = LoggerFactory.getLogger(ORBConfigAdapter.class);

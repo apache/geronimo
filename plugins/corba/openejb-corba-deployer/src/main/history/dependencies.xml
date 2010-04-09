@@ -11,7 +11,7 @@
         <artifactId>j2ee-deployer</artifactId>
         <type>car</type>
     </dependency>
-    <dependency start="true">
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>openejb-deployer</artifactId>
         <type>car</type>

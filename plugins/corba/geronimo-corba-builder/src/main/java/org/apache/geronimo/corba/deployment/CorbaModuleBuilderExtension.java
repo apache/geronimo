@@ -16,20 +16,19 @@
  */
 package org.apache.geronimo.corba.deployment;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.jar.JarFile;
-import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.corba.TSSLinkGBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -39,24 +38,21 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.openejb.deployment.EjbModule;
-import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
-
-import org.apache.openejb.jee.oejb2.GeronimoEjbJarType; 
-import org.apache.openejb.jee.oejb2.TssLinkType; 
-
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbTssLinkType;
+import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
+import org.apache.openejb.jee.oejb2.GeronimoEjbJarType;
+import org.apache.openejb.jee.oejb2.TssLinkType;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -82,16 +78,24 @@ public class CorbaModuleBuilderExtension implements ModuleBuilderExtension, GBea
         this.defaultEnvironment = defaultEnvironment;
     }
 
+    @Override
     public void doStart() throws Exception {
         XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
     }
 
+    @Override
     public void doStop() {
         XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
     }
 
+    @Override
     public void doFail() {
         doStop();
+    }
+
+    @Override
+    public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder moduleIDBuilder) throws DeploymentException {
+        //TODO what goes here?
     }
 
     /**
@@ -114,6 +118,7 @@ public class CorbaModuleBuilderExtension implements ModuleBuilderExtension, GBea
      * 
      * @exception DeploymentException
      */
+    @Override
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         if (module.getType() != ConfigurationModuleType.EJB) {
             return;
@@ -135,10 +140,12 @@ public class CorbaModuleBuilderExtension implements ModuleBuilderExtension, GBea
         }        
     }
 
+    @Override
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    @Override
+    public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
     }
 
     /**
@@ -148,14 +155,15 @@ public class CorbaModuleBuilderExtension implements ModuleBuilderExtension, GBea
      * 
      * @param earContext The earContext of the module deployment.
      * @param module     The module being deployed.
-     * @param cl         The module class loader instance.
+     * @param bundle         The module class loader instance.
      * @param repository The repository.
      * 
      * @exception DeploymentException
      *                   Thrown if any of the tss-link information cannot
      *                   be resolved (missing ejb or TSSBean).
      */
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+    @Override
+    public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
 
         if (module.getType() != ConfigurationModuleType.EJB) {
             return;
@@ -220,7 +228,7 @@ public class CorbaModuleBuilderExtension implements ModuleBuilderExtension, GBea
      * the abstract name for that EJB.  The EJB must be part
      * of the current module bean set to be resolveable.
      * 
-     * @param context   The ear context used for resolution.
+     * @param earContext   The ear context used for resolution.
      * @param ejbModule The EJBModule we're currently processing.
      * @param name      The name of the target EJB.
      * 
