@@ -46,11 +46,27 @@ public class TomcatInstanceManager implements InstanceManager {
     }
 
     public Object newInstance(String fqcn, ClassLoader classLoader) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
-        return holder.newInstance(fqcn, classLoader, context);
+        try {
+            return holder.newInstance(fqcn, classLoader, context);
+        } catch (IllegalAccessException e) {
+            throw e;
+        } catch (InstantiationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw (InstantiationException) new InstantiationException().initCause(e);
+        }
     }
-	
+
     public Object newInstance(String className) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
-        return holder.newInstance(className, classLoader, context);
+        try {
+            return holder.newInstance(className, classLoader, context);
+        } catch (IllegalAccessException e) {
+            throw e;
+        } catch (InstantiationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw (InstantiationException) new InstantiationException().initCause(e);
+        }
     }
 
     public void destroyInstance(Object o) throws IllegalAccessException, InvocationTargetException {
@@ -60,8 +76,12 @@ public class TomcatInstanceManager implements InstanceManager {
             throw new InvocationTargetException(e, "Attempted to destroy instance");
         }
     }
-    
-    public void newInstance(Object o) throws IllegalAccessException,  InvocationTargetException, NamingException {
-	throw new UnsupportedOperationException("separate instantiation and injection is not supported");
+
+    public void newInstance(Object o) throws IllegalAccessException, InvocationTargetException, NamingException {
+        //Spec 4.4.3.5 from my understanding, there are two scenario that current method is invoked,
+        //a.  The users use create*** method to create Servlet/Filter/Listener to create the instance, then use add***(String name, ***  instance)
+        //b. The users create the instances by themselves, then use add***(String name, *** instance)
+        //For a, we should have done the resource injections, for b, we are not need to do the resource injections
+        //Correct me if I miss anything !
     }
 }
