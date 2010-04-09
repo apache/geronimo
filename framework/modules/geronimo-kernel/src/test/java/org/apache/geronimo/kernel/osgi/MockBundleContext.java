@@ -67,11 +67,12 @@ public class MockBundleContext implements BundleContext {
         this.classLoader = null;
         configurationDatas = new HashMap<Artifact, ConfigurationData>();
         locations = new HashMap<String, Artifact>();
+        bundles.put(bundle.getBundleId(), bundle);
     }
 
     public MockBundleContext(ClassLoader classLoader, String location, Map<Artifact, ConfigurationData> configurationDatas, Map<String, Artifact> locationToArtifact) {
-        this.bundle = new MockBundle(classLoader, location, counter++);
-        bundles.put(counter, this.bundle);
+        this.bundle = new MockBundle(classLoader, location, counter);
+        bundles.put(counter++, this.bundle);
         this.classLoader = classLoader;
         ((MockBundle)bundle).setBundleContext(this);
         this.configurationDatas = configurationDatas == null? new HashMap<Artifact, ConfigurationData>(): configurationDatas;
@@ -100,8 +101,8 @@ public class MockBundleContext implements BundleContext {
         while (location.startsWith("/")) {
             location = location.substring(1);
         }
-        MockBundle bundle = new MockBundle(classLoader, location, counter++);
-        bundles.put(counter, bundle);
+        MockBundle bundle = new MockBundle(classLoader, location, counter);
+        bundles.put(counter++, bundle);
         //activate it.
         Artifact configId = getArtifactByLocation(location);
         ConfigurationData configurationData = configurationDatas.get(configId);

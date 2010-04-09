@@ -834,8 +834,10 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.system.sharedlib," +
                         "org.apache.geronimo.system.threads," +
                         "org.apache.geronimo.system.util," +
-                        "org.apache.geronimo.mavenplugins.car" +
-                       "");
+                        "org.apache.geronimo.mavenplugins.car," +
+                        "org.apache.felix.karaf.jaas.boot;version=\"1.5.0\"," +
+                        "org.apache.yoko.rmispec.util"
+                );
                         /*
 
                         "org.apache.log4j;version=\"1.2.12\"," +

@@ -123,7 +123,7 @@ public class MockBundle implements Bundle {
     }
 
     public String getSymbolicName() {
-        return null;
+        return location;
     }
 
     public Class loadClass(String s) throws ClassNotFoundException {

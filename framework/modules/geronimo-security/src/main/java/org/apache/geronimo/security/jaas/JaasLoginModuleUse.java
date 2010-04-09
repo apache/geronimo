@@ -25,11 +25,13 @@ import java.util.Set;
 
 import javax.security.auth.login.AppConfigurationEntry;
 
+import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.security.SecurityNames;
+import org.osgi.framework.Bundle;
 
 
 /**
@@ -78,7 +80,7 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
         this.controlFlag = controlFlag;
     }
 
-    public void configure(Set<String> domainNames, List<AppConfigurationEntry> loginModuleConfigurations, String realmName, Kernel kernel, ServerInfo serverInfo, ClassLoader classLoader) throws ClassNotFoundException {
+    public void configure(Set<String> domainNames, List<AppConfigurationEntry> loginModuleConfigurations, String realmName, Kernel kernel, ServerInfo serverInfo, Bundle bundle) throws ClassNotFoundException {
         Map<String, ?> suppliedOptions = loginModule.getOptions();
         Map<String, Object> options;
         if (suppliedOptions != null) {
@@ -93,19 +95,20 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
             options.put(SERVERINFO_LM_OPTION, serverInfo);
         }
         if (!options.containsKey(CLASSLOADER_LM_OPTION)) {
-            options.put(CLASSLOADER_LM_OPTION, classLoader);
+            options.put(CLASSLOADER_LM_OPTION, bundle);
         }
         AppConfigurationEntry entry;
-        Class loginModuleClass;
-        loginModuleClass = classLoader.loadClass(loginModule.getLoginModuleClass());
-        options.put(WrappingLoginModule.CLASS_OPTION, loginModuleClass);
         if (loginModule.isWrapPrincipals()) {
+            Class loginModuleClass = bundle.loadClass(loginModule.getLoginModuleClass());
+            options.put(WrappingLoginModule.CLASS_OPTION, loginModuleClass);
             options.put(WrappingLoginModule.DOMAIN_OPTION, loginModule.getLoginDomainName());
             options.put(WrappingLoginModule.REALM_OPTION, realmName);
-            entry = new AppConfigurationEntry(WrappingLoginModule.class.getName(), controlFlag.getFlag(), options);
+            options.put(ProxyLoginModule.PROPERTY_MODULE, WrappingLoginModule.class.getName());
         } else {
-            entry = new AppConfigurationEntry(ClassOptionLoginModule.class.getName(), controlFlag.getFlag(), options);
+            options.put(ProxyLoginModule.PROPERTY_MODULE, loginModule.getLoginModuleClass());
         }
+        options.put(ProxyLoginModule.PROPERTY_BUNDLE, Long.toString(bundle.getBundleId()));
+        entry = new AppConfigurationEntry(ProxyLoginModule.class.getName(), controlFlag.getFlag(), options);
         if (loginModule.getLoginDomainName() != null) {
             if (domainNames.contains(loginModule.getLoginDomainName())) {
                 throw new IllegalStateException("Error in realm: one security realm cannot contain multiple login modules for the same login domain");
@@ -116,7 +119,7 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
         loginModuleConfigurations.add(entry);
 
         if (next != null) {
-            next.configure(domainNames, loginModuleConfigurations, realmName, kernel, serverInfo, classLoader);
+            next.configure(domainNames, loginModuleConfigurations, realmName, kernel, serverInfo, bundle);
         }
     }
 

@@ -47,6 +47,7 @@ import javax.security.auth.spi.LoginModule;
 import javax.sql.DataSource;
 
 import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -183,7 +184,7 @@ public class SQLLoginModule implements LoginModule {
             if (options.get(PASSWORD) != null) {
                 properties.put("password", options.get(PASSWORD));
             }
-            ClassLoader cl = (ClassLoader) options.get(JaasLoginModuleUse.CLASSLOADER_LM_OPTION);
+            Bundle cl = (Bundle) options.get(JaasLoginModuleUse.CLASSLOADER_LM_OPTION);
             try {
                 driver = (Driver) cl.loadClass((String) options.get(DRIVER)).newInstance();
             } catch (ClassNotFoundException e) {

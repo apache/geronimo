@@ -31,8 +31,11 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import junit.framework.TestCase;
+import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
+import org.osgi.framework.BundleContext;
 
 
 /**
@@ -40,7 +43,10 @@ import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
  */
 public class NoLoginModuleReuseTest extends TestCase {
 
+    private BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
+
     public void testNoLoginModuleReuse() throws Exception {
+        ProxyLoginModule.init(bundleContext);
         doTest(true, "realm1");
         doTest(false, "realm2");
     }
@@ -53,7 +59,7 @@ public class NoLoginModuleReuseTest extends TestCase {
                 wrapPrincipals,
                 true,
                 null,
-                getClass().getClassLoader(),
+                bundleContext.getBundle(),
                 null);
         GeronimoLoginConfiguration loginConfig = new GeronimoLoginConfiguration(Collections.<ConfigurationEntryFactory>singleton(realm), false);
         doLogin(loginConfig, realmName);

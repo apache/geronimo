@@ -27,8 +27,11 @@ import java.util.Collections;
 
 import javax.security.auth.Subject;
 
+import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.osgi.MockBundle;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.jaas.DirectConfigurationEntry;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
@@ -38,11 +41,13 @@ import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
  */
 public class SimpleCredentialStoreImplTest extends AbstractTest {
+    private Bundle bundle = new MockBundle(getClass().getClassLoader(), "", 1);
     protected AbstractName clientLM;
     protected AbstractName clientCE;
     protected AbstractName testCE;
@@ -50,6 +55,7 @@ public class SimpleCredentialStoreImplTest extends AbstractTest {
     private GenericSecurityRealm gsr;
 
     public void setUp() throws Exception {
+        ProxyLoginModule.init(new MockBundleContext(bundle));
         needServerInfo = true;
         needLoginConfiguration = false;
         super.setUp();
@@ -61,7 +67,7 @@ public class SimpleCredentialStoreImplTest extends AbstractTest {
 
         JaasLoginModuleUse lmu = new JaasLoginModuleUse(lm, null, LoginModuleControlFlag.REQUIRED);
 
-        gsr = new GenericSecurityRealm("properties-realm", lmu, false, true, (ServerInfo) kernel.getGBean(serverInfo), getClass().getClassLoader(), kernel);
+        gsr = new GenericSecurityRealm("properties-realm", lmu, false, true, (ServerInfo) kernel.getGBean(serverInfo), bundle, kernel);
 
     }
 

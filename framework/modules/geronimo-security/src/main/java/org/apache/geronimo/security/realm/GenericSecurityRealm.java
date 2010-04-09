@@ -37,6 +37,7 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.SingleLoginConfiguration;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.osgi.framework.Bundle;
 
 
 /**
@@ -71,7 +72,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
 
     private final boolean global;
     private final ServerInfo serverInfo;
-    private final ClassLoader classLoader;
+    private final Bundle bundle;
     private final Kernel kernel;
     private final Configuration configuration;
 
@@ -80,7 +81,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
                                 @ParamAttribute(name="wrapPrincipals")boolean wrapPrincipals,
                                 @ParamAttribute(name="global")boolean global,
                                 @ParamReference(name="ServerInfo")ServerInfo serverInfo,
-                                @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                                @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
                                 @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel
     ) throws ClassNotFoundException {
         this.realmName = realmName;
@@ -88,7 +89,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         this.loginModuleUse = loginModuleUse;
         this.global = global;
         this.serverInfo = serverInfo;
-        this.classLoader = classLoader;
+        this.bundle = bundle;
         this.kernel = kernel;
 
         refresh();
@@ -139,7 +140,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
 
         if (loginModuleUse != null) {
             try {
-                loginModuleUse.configure(domainNames, loginModuleConfigurations, realmName, kernel, serverInfo, classLoader);
+                loginModuleUse.configure(domainNames, loginModuleConfigurations, realmName, kernel, serverInfo, bundle);
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException("can not configure realm", e);
             }

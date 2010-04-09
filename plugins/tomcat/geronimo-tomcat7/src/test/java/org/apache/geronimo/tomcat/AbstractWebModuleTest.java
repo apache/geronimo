@@ -21,6 +21,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransac
 import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.j2ee.jndi.WebContextSource;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.osgi.MockBundle;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.security.SecurityServiceImpl;
@@ -159,7 +160,8 @@ public abstract class AbstractWebModuleTest extends TestSupport {
 
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
         principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, serverInfo,  cl, null);
+        Bundle bundle = new MockBundle(cl, "", -1);
+        realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, serverInfo, bundle, null);
     }
 
 
