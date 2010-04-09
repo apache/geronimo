@@ -95,6 +95,12 @@
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.felix.karaf.jaas</groupId>
+            <artifactId>org.apache.felix.karaf.jaas.boot</artifactId>
+            <version>1.5.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

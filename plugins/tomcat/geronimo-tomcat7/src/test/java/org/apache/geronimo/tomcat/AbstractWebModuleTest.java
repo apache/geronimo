@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.tomcat;
 
+import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.j2ee.jndi.ContextSource;
@@ -161,6 +162,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
         principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         Bundle bundle = new MockBundle(cl, "", -1);
+        ProxyLoginModule.init(new MockBundleContext(bundle));
         realm = new GenericSecurityRealm(domainName, loginModuleUse, true, true, serverInfo, bundle, null);
     }
 
