@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
+import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
@@ -39,7 +40,7 @@ import org.apache.geronimo.security.realm.GenericSecurityRealm;
  * @version $Rev$ $Date$
  */
 public class TimeoutTest extends AbstractTest {
-    
+
     protected AbstractName testCE;
     protected AbstractName testRealm;
     protected AbstractName clientLM;
@@ -54,7 +55,7 @@ public class TimeoutTest extends AbstractTest {
         GBeanData gbean;
 
         // Create all the parts
-
+        ProxyLoginModule.init(bundleContext);
         gbean = buildGBeanData    ("name", "PropertiesLoginModule", LoginModuleGBean.class);
         testCE = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");

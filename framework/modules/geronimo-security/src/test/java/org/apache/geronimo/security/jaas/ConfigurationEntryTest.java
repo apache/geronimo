@@ -25,10 +25,10 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
+import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.security.AbstractTest;
@@ -37,14 +37,13 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
  * @version $Rev$ $Date$
  */
 public class ConfigurationEntryTest extends AbstractTest {
-    
+
 //    protected Kernel kernel;
     protected AbstractName serverInfo;
     protected AbstractName loginConfiguration;
@@ -55,13 +54,13 @@ public class ConfigurationEntryTest extends AbstractTest {
 
     public void test() throws Exception {
         File auditlog = new File(BASEDIR, "target/login-audit.log");
-        
+
         if (auditlog.exists()) {
             auditlog.delete();
         }
-        
-        assertEquals("Audit file wasn't cleared", 0, auditlog.length());
 
+        assertEquals("Audit file wasn't cleared", 0, auditlog.length());
+        ProxyLoginModule.init(bundleContext);
         // First try with explicit configuration entry
         LoginContext context = ContextManager.login("properties-realm", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
 

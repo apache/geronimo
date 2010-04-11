@@ -45,7 +45,6 @@ import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.realm.providers.CertificateCallback;
 import org.apache.geronimo.security.realm.providers.CertificateChainCallback;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 
 
