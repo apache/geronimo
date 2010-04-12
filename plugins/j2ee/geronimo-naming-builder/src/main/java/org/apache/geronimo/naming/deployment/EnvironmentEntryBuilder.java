@@ -35,6 +35,8 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.naming.reference.ClassReference;
+import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.naming.reference.KernelReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEnvEntryDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEnvEntryType;
@@ -46,6 +48,7 @@ import org.apache.geronimo.xbeans.javaee6.JndiNameType;
 import org.apache.geronimo.xbeans.javaee6.XsdStringType;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,55 +98,80 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
             }
         }
 
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
         List<EnvEntryType> envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), JEE_CONVERTER, EnvEntryType.class, EnvEntryType.type);
         XmlObject[] gerEnvEntryUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ENV_ENTRY_QNAME_SET);
         Map<String, String> envEntryMap = mapEnvEntries(gerEnvEntryUntyped);
         for (EnvEntryType envEntry: envEntriesUntyped) {
             String name = getStringValue(envEntry.getEnvEntryName());
             String type = getStringValue(envEntry.getEnvEntryType());
-            String text = envEntryMap.remove(name);
-            if (text == null) {
-                text = getStringValue(envEntry.getEnvEntryValue());
-            }
+            
+            Class typeClass;
             try {
-                Object value;
-                if (text == null) {
+                typeClass = bundle.loadClass(type);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Could not env-entry type class " + type, e);
+            }
+            
+            Object value = null;
+            
+            String strValue = envEntryMap.remove(name);
+            if (strValue == null) {
+                strValue = getStringValue(envEntry.getEnvEntryValue());
+                if (strValue == null) {
+                    String lookupName = getStringValue(envEntry.getLookupName());
+                    if (lookupName != null) {
+                        value = new JndiReference(lookupName);
+                    }
+                }
+            }
+            
+            if (value == null) {
+                if (strValue == null) {
                     if ("org.apache.geronimo.kernel.Kernel".equals(type)) {
                         value = new KernelReference();
-                    } else {
-                        value = null;
                     }
-                } else if ("java.lang.String".equals(type)) {
-                    value = text;
-                } else if ("java.lang.Character".equals(type)) {
-                    value = text.charAt(0);
-                } else if ("java.lang.Boolean".equals(type)) {
-                    value = Boolean.valueOf(text);
-                } else if ("java.lang.Byte".equals(type)) {
-                    value = Byte.valueOf(text);
-                } else if ("java.lang.Short".equals(type)) {
-                    value = Short.valueOf(text);
-                } else if ("java.lang.Integer".equals(type)) {
-                    value = Integer.valueOf(text);
-                } else if ("java.lang.Long".equals(type)) {
-                    value = Long.valueOf(text);
-                } else if ("java.lang.Float".equals(type)) {
-                    value = Float.valueOf(text);
-                } else if ("java.lang.Double".equals(type)) {
-                    value = Double.valueOf(text);
                 } else {
-                    throw new DeploymentException("unrecognized type: " + type);
+                    try {
+                        if (String.class.equals(typeClass)) {
+                            value = strValue;
+                        } else if (Character.class.equals(typeClass)) {
+                            value = strValue.charAt(0);
+                        } else if (Boolean.class.equals(typeClass)) {
+                            value = Boolean.valueOf(strValue);
+                        } else if (Byte.class.equals(typeClass)) {
+                            value = Byte.valueOf(strValue);
+                        } else if (Short.class.equals(typeClass)) {
+                            value = Short.valueOf(strValue);
+                        } else if (Integer.class.equals(typeClass)) {
+                            value = Integer.valueOf(strValue);
+                        } else if (Long.class.equals(typeClass)) {
+                            value = Long.valueOf(strValue);
+                        } else if (Float.class.equals(typeClass)) {
+                            value = Float.valueOf(strValue);
+                        } else if (Double.class.equals(typeClass)) {
+                            value = Double.valueOf(strValue);
+                        } else if (Class.class.equals(typeClass)) {
+                            value = new ClassReference(strValue);
+                        } else if (typeClass.isEnum()) {
+                            value = Enum.valueOf(typeClass, strValue);
+                        } else {
+                            throw new DeploymentException("Unrecognized env-entry type: " + type);
+                        }
+                    } catch (NumberFormatException e) {
+                        throw new DeploymentException("Invalid env-entry value for name: " + name, e);
+                    }
                 }
-                // perform resource injection only if there is a value specified
-                // see Java EE 5 spec, section EE.5.4.1.3
-                if (value != null) {
-                    addInjections(name, envEntry.getInjectionTargetArray(), sharedContext);
-                    put(name, value, getJndiContextMap(sharedContext));
-                }
-            } catch (NumberFormatException e) {
-                throw new DeploymentException("Invalid env-entry value for name: " + name, e);
+            }
+            
+            // perform resource injection only if there is a value specified
+            // see Java EE 5 spec, section EE.5.4.1.3
+            if (value != null) {
+                addInjections(name, envEntry.getInjectionTargetArray(), sharedContext);
+                put(name, value, getJndiContextMap(sharedContext));
             }
         }
+        
         if (!envEntryMap.isEmpty()) {
             throw new DeploymentException("Unknown env-entry elements in geronimo plan: " + envEntryMap);
         }
@@ -177,16 +205,18 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
 
         public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) {
             String resourceName = getResourceName(annotation, method, field);
-            String resourceType = getResourceType(annotation, method, field);
-            if (resourceType.equals("java.lang.String") ||
-                    resourceType.equals("java.lang.Character") ||
-                    resourceType.equals("java.lang.Integer") ||
-                    resourceType.equals("java.lang.Boolean") ||
-                    resourceType.equals("java.lang.Double") ||
-                    resourceType.equals("java.lang.Byte") ||
-                    resourceType.equals("java.lang.Short") ||
-                    resourceType.equals("java.lang.Long") ||
-                    resourceType.equals("java.lang.Float")) {
+            Class resourceType = getResourceTypeClass(annotation, method, field);
+            if (resourceType.equals(String.class) ||
+                    resourceType.equals(Character.class) ||
+                    resourceType.equals(Integer.class) ||
+                    resourceType.equals(Boolean.class) ||
+                    resourceType.equals(Double.class) ||
+                    resourceType.equals(Byte.class) ||
+                    resourceType.equals(Short.class) ||
+                    resourceType.equals(Long.class) ||
+                    resourceType.equals(Float.class) ||
+                    resourceType.equals(Class.class) ||
+                    resourceType.isEnum()) {
 
                 log.debug("addResource(): <env-entry> found");
 
@@ -220,10 +250,10 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                         JndiNameType envEntryName = envEntry.addNewEnvEntryName();
                         envEntryName.setStringValue(resourceName);
 
-                        if (!resourceType.equals("")) {
+                        if (!resourceType.equals(Object.class)) {
                             // env-entry-type
                             EnvEntryTypeValuesType envEntryType = envEntry.addNewEnvEntryType();
-                            envEntryType.setStringValue(resourceType);
+                            envEntryType.setStringValue(resourceType.getCanonicalName());
                         }                         
                         if (method != null || field != null) {
                             // injectionTarget

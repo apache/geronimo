@@ -17,11 +17,16 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.naming.Context;
 import javax.naming.NameClassPair;
@@ -29,11 +34,24 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.j2ee.jndi.JndiScope;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
+
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.ConnectorModule;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
+import org.apache.geronimo.kernel.Jsr77Naming;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.mock.MockConfigurationManager;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$
@@ -96,7 +114,20 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             "<env-entry-type>java.lang.Boolean</env-entry-type>" +
             "<env-entry-value>TRUE</env-entry-value>" +
             "</env-entry>" +
+            
+            "<env-entry>" +
+            "<env-entry-name>class</env-entry-name>" +
+            "<env-entry-type>java.lang.Class</env-entry-type>" +
+            "<env-entry-value>java.net.URI</env-entry-value>" +
+            "</env-entry>" +
+            
+            "<env-entry>" +
+            "<env-entry-name>enum</env-entry-name>" +
+            "<env-entry-type>java.util.concurrent.TimeUnit</env-entry-type>" +
+            "<env-entry-value>NANOSECONDS</env-entry-value>" +
+            "</env-entry>" +
             "</tmp>";
+    
     private static final String TEST_PLAN = "<tmp xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
             "<env-entry>" +
             "<env-entry-name>string</env-entry-name>" +
@@ -142,8 +173,47 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             "<env-entry-name>boolean</env-entry-name>" +
             "<env-entry-value>FALSE</env-entry-value>" +
             "</env-entry>" +
+            
+            "<env-entry>" +
+            "<env-entry-name>class</env-entry-name>" +
+            "<env-entry-type>java.lang.Class</env-entry-type>" +
+            "<env-entry-value>java.net.URL</env-entry-value>" +
+            "</env-entry>" +
+            
+            "<env-entry>" +
+            "<env-entry-name>enum</env-entry-name>" +
+            "<env-entry-type>java.util.concurrent.TimeUnit</env-entry-type>" +
+            "<env-entry-value>SECONDS</env-entry-value>" +
+            "</env-entry>" +
             "</tmp>";
 
+    private Module module;
+    
+    protected void setUp() throws Exception {
+        Artifact artifact = new Artifact("foo", "bar", "1.0", "car");
+        Map<String, Artifact> locations = new HashMap<String, Artifact>();
+        locations.put(null, artifact);
+        BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, locations);
+        Artifact id = new Artifact("test", "test", "", "car");
+        module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, "foo", null, null, null, null);
+        ConfigurationManager configurationManager = new MockConfigurationManager();
+        EARContext earContext = new EARContext(new File("foo"),
+            null,
+            new Environment(artifact),
+            ConfigurationModuleType.EAR,
+            new Jsr77Naming(),
+            configurationManager,
+            bundleContext,
+            null,
+            null,
+            null,
+            null,
+            null);
+        earContext.initializeConfiguration();
+        module.setEarContext(earContext);
+        module.setRootEarContext(earContext);
+    }
+            
     public void testEnvEntries() throws Exception {
 
         String stringVal = "Hello World";
@@ -164,14 +234,14 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         } finally {
             cursor.dispose();
         }
-        environmentEntryBuilder.buildNaming(doc, null, null, componentContext);
-        Context context = EnterpriseNamingContext.livenReferences(NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp), null, null, null, "comp/");
+        environmentEntryBuilder.buildNaming(doc, null, module, componentContext);
+        Context context = EnterpriseNamingContext.livenReferences(NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp), null, null, getClass().getClassLoader(), "comp/");
         Set actual = new HashSet();
         for (NamingEnumeration e = context.listBindings("comp/env"); e.hasMore();) {
             NameClassPair pair = (NameClassPair) e.next();
             actual.add(pair.getName());
         }
-        Set expected = new HashSet(Arrays.asList(new String[]{"string", "char", "byte", "short", "int", "long", "float", "double", "boolean"}));
+        Set expected = new HashSet(Arrays.asList(new String[]{"string", "char", "byte", "short", "int", "long", "float", "double", "boolean", "class", "enum"}));
         assertEquals(expected, actual);
         assertEquals(stringVal, context.lookup("comp/env/string"));
         assertEquals(charVal, context.lookup("comp/env/char"));
@@ -182,6 +252,8 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         assertEquals(floatVal, context.lookup("comp/env/float"));
         assertEquals(doubleVal, context.lookup("comp/env/double"));
         assertEquals(booleanVal, context.lookup("comp/env/boolean"));
+        assertEquals(URI.class, context.lookup("comp/env/class"));
+        assertEquals(TimeUnit.NANOSECONDS, context.lookup("comp/env/enum"));
     }
 
     public void testEnvEntriesOverride() throws Exception {
@@ -212,14 +284,14 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         } finally {
             cursor.dispose();
         }
-        environmentEntryBuilder.buildNaming(doc, plan, null, componentContext);
-        Context context = EnterpriseNamingContext.livenReferences(NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp), null, null, null, "comp/");
+        environmentEntryBuilder.buildNaming(doc, plan, module, componentContext);
+        Context context = EnterpriseNamingContext.livenReferences(NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp), null, null, getClass().getClassLoader(), "comp/");
         Set actual = new HashSet();
         for (NamingEnumeration e = context.listBindings("comp/env"); e.hasMore();) {
             NameClassPair pair = (NameClassPair) e.next();
             actual.add(pair.getName());
         }
-        Set expected = new HashSet(Arrays.asList(new String[]{"string", "char", "byte", "short", "int", "long", "float", "double", "boolean"}));
+        Set expected = new HashSet(Arrays.asList(new String[]{"string", "char", "byte", "short", "int", "long", "float", "double", "boolean", "class", "enum"}));
         assertEquals(expected, actual);
         assertEquals(stringVal, context.lookup("comp/env/string"));
         assertEquals(charVal, context.lookup("comp/env/char"));
@@ -230,6 +302,8 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         assertEquals(floatVal, context.lookup("comp/env/float"));
         assertEquals(doubleVal, context.lookup("comp/env/double"));
         assertEquals(booleanVal, context.lookup("comp/env/boolean"));
+        assertEquals(URL.class, context.lookup("comp/env/class"));
+        assertEquals(TimeUnit.SECONDS, context.lookup("comp/env/enum"));
     }
 
     public void testEmptyEnvironment() throws NamingException {
@@ -237,5 +311,4 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         Context env = (Context) context.lookup("comp/env");
         assertNotNull(env);
     }
-
 }

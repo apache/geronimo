@@ -179,7 +179,7 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
             return getName(annotation.name(), method, field);
         }
 
-        protected static String getResourceType(Resource annotation, Method method, Field field) {
+        protected static Class getResourceTypeClass(Resource annotation, Method method, Field field) {
             //------------------------------------------------------------------------------------------
             // Resource type:
             // -- When annotation is applied on a class:    Type must be provided (cannot be inferred)
@@ -188,15 +188,19 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
             // -- When annotation is applied on a field:    Type is the field type (or as provided on
             //                                              the annotation)
             //------------------------------------------------------------------------------------------
-            String resourceType = annotation.type().getCanonicalName();
-            if (resourceType.equals("") || resourceType.equals(Object.class.getName())) {
+            Class resourceType = annotation.type();
+            if (resourceType.equals(Object.class)) {
                 if (method != null) {
-                    resourceType = method.getParameterTypes()[0].getCanonicalName();
+                    resourceType = method.getParameterTypes()[0];
                 } else if (field != null) {
-                    resourceType = field.getType().getName();
+                    resourceType = field.getType();
                 }
             }
             return resourceType;
+        }
+        
+        protected static String getResourceType(Resource annotation, Method method, Field field) {
+            return getResourceTypeClass(annotation, method, field).getCanonicalName();
         }
     }
 
