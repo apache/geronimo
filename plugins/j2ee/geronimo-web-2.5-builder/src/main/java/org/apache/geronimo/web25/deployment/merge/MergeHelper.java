@@ -272,6 +272,7 @@ public class MergeHelper {
     public static void processWebFragmentsAndAnnotations(EARContext earContext, Module module, Bundle bundle, WebAppType webApp) throws DeploymentException {
         BundleResourceFinder bundleResourceFinder = new BundleResourceFinder(null, bundle, "META-INF/", "web-fragment.xml");
         final Map<String, WebFragmentDocument> jarUrlWebFragmentDocumentMap = new LinkedHashMap<String, WebFragmentDocument>();
+        final String validJarNamePrefix = module.isStandAlone() ? "WEB-INF" : module.getName() + "/WEB-INF";
         try {
             bundleResourceFinder.find(new ResourceFinderCallback() {
 
@@ -282,8 +283,7 @@ public class MergeHelper {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Found web-fragment.xml in jarName = [" + jarName + "] jarURL = [" + bundle.getEntry(jarName) + "]");
                     }
-                    //TODO Should be confirm the jarName url style while the war is hosted in the ear
-                    if (jarName.indexOf("WEB-INF") == 0 && jarName.endsWith(".jar")) {
+                    if (jarName.startsWith(validJarNamePrefix) && jarName.endsWith(".jar")) {
                         WebFragmentDocument webFragmentDocument = (WebFragmentDocument) XmlBeansUtil.parse(in);
                         //Hopefully, XmlBeansUtil should help to check most of errors against the schema files, like none null servlet-name etc.
                         XmlBeansUtil.validateDD(webFragmentDocument);
