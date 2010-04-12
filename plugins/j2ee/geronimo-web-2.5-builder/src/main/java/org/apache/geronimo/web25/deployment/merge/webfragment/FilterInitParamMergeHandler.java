@@ -53,11 +53,14 @@ public class FilterInitParamMergeHandler implements SubMergeHandler<FilterType, 
                 case WEB_XML:
                     continue;
                 case WEB_FRAGMENT:
-                    if (!existedParamValue.getParamValue().getStringValue().equals(paramValue.getParamValue().getStringValue())) {
-                        throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage("filter " + filterName, "param-name", paramValue.getParamName().getStringValue(), "param-value",
-                                existedParamValue.getParamValue().getStringValue(), existedMergeItem.getBelongedURL(), paramValue.getParamValue().getStringValue(), mergeContext.getCurrentJarUrl()));
+                    if (existedParamValue.getParamValue().getStringValue().equals(paramValue.getParamValue().getStringValue())
+                            || existedMergeItem.getBelongedURL().equals(mergeContext.getCurrentJarUrl())) {
+                        break;
+                    } else {
+                        throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage("filter " + filterName, "param-name", paramValue.getParamName().getStringValue(),
+                                "param-value", existedParamValue.getParamValue().getStringValue(), existedMergeItem.getBelongedURL(), paramValue.getParamValue().getStringValue(), mergeContext
+                                        .getCurrentJarUrl()));
                     }
-                    break;
                 case ANNOTATION:
                     //Spec 8.1.n.iii Init params for servlets and filters defined via annotations, will be
                     //overridden in the descriptor if the name of the init param exactly matches
@@ -70,7 +73,6 @@ public class FilterInitParamMergeHandler implements SubMergeHandler<FilterType, 
                 }
             }
         }
-
     }
 
     @Override

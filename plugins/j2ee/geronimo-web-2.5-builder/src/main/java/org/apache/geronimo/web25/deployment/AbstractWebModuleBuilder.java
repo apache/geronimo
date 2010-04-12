@@ -153,6 +153,14 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     };
 
+    public static final EARContext.Key<Float> INITIAL_WEB_XML_SCHEMA_VERSION = new EARContext.Key<Float>() {
+
+        @Override
+        public Float get(Map<EARContext.Key, Object> context) {
+            return (Float) context.get(this);
+        }
+    };
+
     private static final QName TAGLIB = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "taglib");
 
     private static final String LINE_SEP = System.getProperty("line.separator");
@@ -411,8 +419,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         getNamingBuilders().buildEnvironment(webApp, webModule.getVendorDD(), webModule.getEnvironment());
         getNamingBuilders().initContext(webApp, gerWebApp, webModule);
 
-      //Process web fragments and annotations
-        if (!webApp.getMetadataComplete()) {
+        identifySpecDDSchemaVersion(earContext, module);
+        //Process web fragments and annotations
+        if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f && !webApp.getMetadataComplete()) {
             MergeHelper.processWebFragmentsAndAnnotations(earContext, webModule, bundle, webApp);
         }
 
@@ -529,6 +538,54 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
         XmlBeansUtil.validateDD(xmlObject);
         return (WebAppDocument) xmlObject;
+    }
+
+    /**
+     * Identify the spec DD schema version, and save it in the EARContext
+     * @param xmlObject
+     * @param earContext
+     */
+    private void identifySpecDDSchemaVersion(EARContext earContext, Module module) throws DeploymentException {
+        String originalSpecDD = module.getOriginalSpecDD();
+        float schemaVersion = 0f;
+        if (originalSpecDD == null) {
+            schemaVersion = 3.0f;
+        } else {
+            XmlCursor cursor = null;
+            try {
+                cursor = XmlBeansUtil.parse(originalSpecDD).newCursor();
+                cursor.toStartDoc();
+                cursor.toFirstChild();
+                String nameSpaceURI = cursor.getName().getNamespaceURI();
+                if (nameSpaceURI != null && nameSpaceURI.length() > 0) {
+                    String version = cursor.getAttributeText(new QName("", "version"));
+                    if (version != null) {
+                        schemaVersion = Float.parseFloat(version);
+                    }
+                } else {
+                    XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
+                    String publicId = xmlDocumentProperties.getDoctypePublicId();
+                    if ("-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) {
+                        schemaVersion = 2.2f;
+                    } else if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId)) {
+                        schemaVersion = 2.3f;
+                    }
+                }
+            } catch (Exception e) {
+                throw new DeploymentException(e);
+            } finally {
+                if (cursor != null) {
+                    try {
+                        cursor.dispose();
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        }
+        if (schemaVersion == 0f) {
+            throw new DeploymentException("Unrecongnized schema version in web.xml file");
+        }
+        earContext.getGeneralData().put(INITIAL_WEB_XML_SCHEMA_VERSION, schemaVersion);
     }
 
     protected ComponentPermissions buildSpecSecurityConfig(WebAppType webApp) {

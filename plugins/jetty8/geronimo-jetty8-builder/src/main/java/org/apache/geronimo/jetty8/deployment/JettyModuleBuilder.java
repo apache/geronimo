@@ -636,9 +636,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             //not truly metadata complete until MBEs have run
             if (!webApp.getMetadataComplete()) {
                 webApp.setMetadataComplete(true);
-                String specDeploymentPlan = getSpecDDAsString(webModule);
-                module.setOriginalSpecDD(specDeploymentPlan);
-                earContext.addFile(new URI("./WEB-INF/web.xml"), specDeploymentPlan);
+                if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f) {
+                    String specDeploymentPlan = getSpecDDAsString(webModule);
+                    module.setOriginalSpecDD(specDeploymentPlan);
+                    earContext.addFile(new URI("./WEB-INF/web.xml"), specDeploymentPlan);
+                }
             }
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
 
