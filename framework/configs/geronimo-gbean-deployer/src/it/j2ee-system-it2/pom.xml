@@ -30,7 +30,7 @@
 
     <groupId>org.apache.geronimo.buildsupport.it</groupId>
     <artifactId>j2ee-system-it2</artifactId>
-    <name>Geronimo Configs :: J2EE System</name>
+    <name>Geronimo Configs :: J2EE System it2</name>
     <packaging>car</packaging>
 
     <dependencies>
