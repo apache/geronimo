@@ -45,6 +45,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
+import org.apache.geronimo.j2ee.deployment.EARContext.Key;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
@@ -67,6 +68,14 @@ import org.osgi.framework.Bundle;
  */
 public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     private static final QName PERSISTENCE_QNAME = PersistenceDocument.type.getDocumentElementName();
+
+    public static final EARContext.Key<List<URL>> PERSISTENCE_URL_LIST_KEY = new EARContext.Key<List<URL>>() {
+
+        @Override
+        public List<URL> get(Map<Key, Object> context) {
+            return (List<URL>) context.get(this);
+        }
+    };
 
     private final Environment defaultEnvironment;
     private final String defaultPersistenceProviderClassName;
@@ -124,7 +133,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             String rootBase = rootBaseFile.toURI().normalize().toString();
             URI moduleBaseURI = moduleContext.getBaseDir().toURI();
             Map rootGeneralData = module.getRootEarContext().getGeneralData();
-            ClassPathList manifestcp = (ClassPathList) module.getEarContext().getGeneralData().get(ClassPathList.class);
+            ClassPathList manifestcp = EARContext.CLASS_PATH_LIST_KEY.get(rootGeneralData);
             if (manifestcp == null) {
                 manifestcp = new ClassPathList();
                 manifestcp.add(module.getTargetPath());
@@ -137,10 +146,10 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                 urls[i++] = url;
             }
             ResourceFinder finder = new ResourceFinder("", null, urls);
-            List<URL> knownPersistenceUrls = (List<URL>) rootGeneralData.get(PersistenceUnitBuilder.class.getName());
+            List<URL> knownPersistenceUrls = PERSISTENCE_URL_LIST_KEY.get(rootGeneralData);
             if (knownPersistenceUrls == null) {
                 knownPersistenceUrls = new ArrayList<URL>();
-                rootGeneralData.put(PersistenceUnitBuilder.class.getName(), knownPersistenceUrls);
+                rootGeneralData.put(PERSISTENCE_URL_LIST_KEY, knownPersistenceUrls);
             }
             List<URL> persistenceUrls = finder.findAll("META-INF/persistence.xml");
             persistenceUrls.removeAll(knownPersistenceUrls);

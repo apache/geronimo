@@ -565,7 +565,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             } catch (IOException e) {
                 throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName(), e);
             }
-            ClassPathList libClasspath = (ClassPathList) earContext.getGeneralData().get(ClassPathList.class);
+            ClassPathList libClasspath = EARContext.CLASS_PATH_LIST_KEY.get(earContext.getGeneralData());
             if (libClasspath != null) {
                 for (String libEntryPath : libClasspath) {
                     try {
@@ -634,7 +634,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         //Share the ejb info with the ear.
         //TODO this might be too much, but I don't want to impose a dependency on geronimo-openejb to get
         //EjbModuleBuilder.EarData.class
-        Map<EARContext.Key, Object> generalData = earContext.getGeneralData();
         for (Map.Entry<EARContext.Key, Object> entry : generalData.entrySet()) {
             EARContext.Key key = entry.getKey();
             if (key.getClass().getName().startsWith("org.apache.geronimo.openejb.deployment.EjbModuleBuilder$EarData")) {
