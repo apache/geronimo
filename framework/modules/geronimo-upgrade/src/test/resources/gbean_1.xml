@@ -18,7 +18,7 @@
 
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
   configId="hello"
-  parentId="geronimo/j2ee-security/2.1.5/car">
+  parentId="geronimo/j2ee-security/2.1.6-SNAPSHOT/car">
 
 
     <gbean name="hello-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm">
@@ -27,10 +27,10 @@
             <name>hello-login-chain</name>
         </reference>
         <reference name="ServerInfo">
-            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-system/2.1.5/car,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name>
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-system/2.1.6-SNAPSHOT/car,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name>
         </reference>
         <reference name="LoginService">
-            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-security/2.1.5/car,J2EEServer=geronimo,j2eeType=JaasLoginService,name=JaasLoginService</gbean-name>
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-security/2.1.6-SNAPSHOT/car,J2EEServer=geronimo,j2eeType=JaasLoginService,name=JaasLoginService</gbean-name>
         </reference>
     </gbean>
 
