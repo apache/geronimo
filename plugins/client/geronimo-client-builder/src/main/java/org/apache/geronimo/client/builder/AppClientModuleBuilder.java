@@ -634,6 +634,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         //Share the ejb info with the ear.
         //TODO this might be too much, but I don't want to impose a dependency on geronimo-openejb to get
         //EjbModuleBuilder.EarData.class
+        Map<EARContext.Key, Object> generalData = earContext.getGeneralData();
         for (Map.Entry<EARContext.Key, Object> entry : generalData.entrySet()) {
             EARContext.Key key = entry.getKey();
             if (key.getClass().getName().startsWith("org.apache.geronimo.openejb.deployment.EjbModuleBuilder$EarData")) {
