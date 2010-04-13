@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
 public class ConfigManagerPortlet extends BasePortlet {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigManagerPortlet.class);
-    
+
     private static final String START_ACTION = "start";
 
     private static final String STOP_ACTION = "stop";
@@ -76,7 +76,7 @@ public class ConfigManagerPortlet extends BasePortlet {
     private static final String CONFIG_INIT_PARAM = "config-type";
 
     private static final String SHOW_DEPENDENCIES_COOKIE = "org.apache.geronimo.configmanager.showDependencies";
-    
+
     private Kernel kernel;
 
     private PortletRequestDispatcher normalView;
@@ -84,9 +84,9 @@ public class ConfigManagerPortlet extends BasePortlet {
     private PortletRequestDispatcher maximizedView;
 
     private PortletRequestDispatcher helpView;
-    
+
     private boolean showDisplayName;
-    
+
     private String moduleType;
 
     private static List<String> loadChildren(Kernel kernel, String configName) {
@@ -203,14 +203,14 @@ public class ConfigManagerPortlet extends BasePortlet {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
         }
-              
+
         String cookies = renderRequest.getProperty("cookie");
-        boolean showDependencies = (cookies != null && cookies.indexOf(SHOW_DEPENDENCIES_COOKIE + "=true") > 0);        
-        
+        boolean showDependencies = (cookies != null && cookies.indexOf(SHOW_DEPENDENCIES_COOKIE + "=true") > 0);
+
         List<ModuleDetails> moduleDetails = new ArrayList<ModuleDetails>();
         ConfigurationManager configManager = PortletManager.getConfigurationManager();
         List<ConfigurationInfo> infos = configManager.listConfigurations();
-        for (ConfigurationInfo info : infos) {           
+        for (ConfigurationInfo info : infos) {
             if (ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType)) {
 
                 if (info.getType().getValue() == ConfigurationModuleType.WAR.getValue()) {
@@ -219,7 +219,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                         AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
                         boolean loaded = loadModule(configManager, configObjName);
 
-                        WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());                        
+                        WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());
 
                         if (webModule != null) {
                             details.getContextPaths().add(webModule.getContextPath());
@@ -229,7 +229,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                         if (showDependencies) {
                             addDependencies(details, configObjName);
                         }
-                        
+
                         if (loaded) {
                             unloadModule(configManager, configObjName);
                         }
@@ -249,7 +249,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                                 if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()) {
                                     ModuleDetails childDetails = new ModuleDetails(info.getConfigID(), child.getModuleType(), info.getState());
                                     childDetails.setComponentName(child.getId().toString());
-                                    WebModule webModule = getWebModule(config, child);                                    
+                                    WebModule webModule = getWebModule(config, child);
                                     if (webModule != null) {
                                         childDetails.getContextPaths().add(webModule.getContextPath());
                                         childDetails.setDisplayName(webModule.getDisplayName());
@@ -289,7 +289,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                                         details.getContextPaths().add(webModule.getContextPath());
                                     }
                                 }
-                            }                                            
+                            }
                         }
                     } else if (info.getType().equals(ConfigurationModuleType.CAR)) {
                         Configuration config = configManager.getConfiguration(info.getConfigID());
@@ -357,12 +357,12 @@ public class ConfigManagerPortlet extends BasePortlet {
             AbstractName childName = new AbstractName(config.getAbstractName().getArtifact(), query1);
             return (WebModule)kernel.getGBean(childName);
         } catch(Exception h){
-            // No gbean found, will not happen 
+            // No gbean found, will not happen
             // Except if module not started, ignored
         }
         return null;
     }
-    
+
     private boolean loadModule(ConfigurationManager configManager, AbstractName configObjName) {
         if(!kernel.isLoaded(configObjName)) {
             try {
@@ -384,7 +384,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         }
         return false;
     }
-    
+
     private void addDependencies(ModuleDetails details, AbstractName configObjName) {
         DependencyManager depMgr = kernel.getDependencyManager();
         Set<AbstractName> parents = depMgr.getParents(configObjName);
@@ -401,21 +401,22 @@ public class ConfigManagerPortlet extends BasePortlet {
         Collections.sort(details.getParents());
         Collections.sort(details.getChildren());
     }
-    
+
     private void unloadModule(ConfigurationManager configManager, AbstractName configObjName) {
         try {
             configManager.unloadConfiguration(configObjName.getArtifact());
         } catch (NoSuchConfigException e) {
-            // Should not occur
-            e.printStackTrace();
-        }        
+            logger.error("Fail to unload module " + configObjName, e);
+        }  catch (LifecycleException e) {
+            logger.error("Fail to unload module " + configObjName, e);
+        }
     }
-    
-    private boolean showWebInfo() {        
+
+    private boolean showWebInfo() {
         return ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType) ||
                ConfigurationModuleType.EAR.getName().equalsIgnoreCase(moduleType);
-    }    
-    
+    }
+
     protected void doHelp(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
@@ -496,27 +497,27 @@ public class ConfigManagerPortlet extends BasePortlet {
         public List<Artifact> getChildren() {
             return children;
         }
-        
+
         public List<String> getContextPaths() {
             return contextPaths;
-        }     
-        
+        }
+
         public String getComponentName(){
             return componentName;
         }
-        
+
         public void setComponentName(String name){
             componentName = name;
-        }       
-        
+        }
+
         public String getDisplayName(){
             return displayName;
         }
-        
+
         public void setDisplayName(String name){
             displayName = name;
         }
-        
+
         public void setClientAppServerSide(boolean clientAppServerSide) {
             this.clientAppServerSide = clientAppServerSide;
         }

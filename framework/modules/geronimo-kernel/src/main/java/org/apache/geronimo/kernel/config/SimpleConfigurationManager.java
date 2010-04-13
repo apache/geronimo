@@ -43,10 +43,11 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -348,26 +349,6 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 actuallyLoaded = new LinkedHashMap<Artifact, Configuration>(resolvedParents.size());
             }
             try {
-//                for (Artifact configurationId : resolvedParents) {
-//
-//                    monitor.loading(configurationId);
-//                    String bundleId = locateBundle(configurationId, monitor);
-//                    try {
-//                        Bundle parent = bundleContext.installBundle(bundleId);
-//                        if (parent.getSymbolicName() != null) {
-//                            try {
-//                                parent.start();
-//                                bundles.put(configurationId, parent);
-//                            } catch (BundleException e) {
-//                                log.info("failed to start bundle: " + parent, e);
-//                            }
-//                        }
-//                    } catch (BundleException e) {
-//                        log.info("failed to install bundle " + configurationId + ", message: " + e.getMessage());
-//                    }
-//                    monitor.succeeded(configurationId);
-//
-//                }
                 // update the status of the loaded configurations
                 Configuration configuration = load(configurationData, resolvedParents, actuallyLoaded);
                 actuallyLoaded.put(configurationData.getId(), configuration);
@@ -849,11 +830,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return results;
     }
 
-    public synchronized LifecycleResults unloadConfiguration(Artifact id) throws NoSuchConfigException {
+    public synchronized LifecycleResults unloadConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
         return unloadConfiguration(id, NullLifecycleMonitor.INSTANCE);
     }
 
-    public synchronized LifecycleResults unloadConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException {
+    public synchronized LifecycleResults unloadConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         if (!id.isResolved()) {
             throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
         }
@@ -885,6 +866,21 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
             // clean up the model
             removeConfigurationFromModel(configurationId);
+
+            try {
+                Bundle bundle = bundles.remove(configurationId);
+                if (bundle != null) {
+                    if (BundleUtils.canStop(bundle)) {
+                        bundle.stop(Bundle.STOP_TRANSIENT);
+                    }
+                    if (BundleUtils.canUninstall(bundle)) {
+                        bundle.uninstall();
+                    }
+                }
+            } catch (BundleException e) {
+                monitor.finished();
+                throw new LifecycleException("unload", configurationId, e);
+            }
         }
         monitor.finished();
         return results;
@@ -1389,7 +1385,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return configuration.getDependencyNode().getParents();
     }
 
-    public synchronized void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException {
+    public synchronized void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException, LifecycleException {
         if (!configurationId.isResolved()) {
             throw new IllegalArgumentException("Artifact " + configurationId + " is not fully resolved");
         }
@@ -1403,6 +1399,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
 
         uninstall(configurationId);
+
         for (ConfigurationStore store : getStoreList()) {
             if (store.containsConfiguration(configurationId)) {
                 store.uninstall(configurationId);

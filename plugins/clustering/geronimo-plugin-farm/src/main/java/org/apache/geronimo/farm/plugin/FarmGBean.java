@@ -39,6 +39,7 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.system.plugin.DownloadResults;
@@ -247,6 +248,8 @@ public class FarmGBean implements NodeListener, org.apache.geronimo.system.plugi
         } catch (IOException e) {
             downloadResults.setFailure(e);
         } catch (NoSuchConfigException e) {
+            downloadResults.setFailure(e);
+        } catch (LifecycleException e) {
             downloadResults.setFailure(e);
         }
         return downloadResults;

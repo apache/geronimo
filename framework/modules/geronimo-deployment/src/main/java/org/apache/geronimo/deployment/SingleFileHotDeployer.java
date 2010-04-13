@@ -34,6 +34,7 @@ import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -116,6 +117,8 @@ public class SingleFileHotDeployer {
             try {
                 configurationManager.unloadConfiguration(existingConfigurationId);
             } catch (NoSuchConfigException e) {
+                throw new DeploymentException("Unable to unload existing configuration " + existingConfigurationId);
+            } catch (LifecycleException e) {
                 throw new DeploymentException("Unable to unload existing configuration " + existingConfigurationId);
             }
         }

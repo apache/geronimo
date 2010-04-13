@@ -168,11 +168,11 @@ public class DeploymentConfigurationManager extends SimpleConfigurationManager {
     // UNLOAD
     //
 
-    public synchronized LifecycleResults unloadConfiguration(Artifact id) throws NoSuchConfigException {
+    public synchronized LifecycleResults unloadConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
         return super.unloadConfiguration(id);
     }
 
-    public synchronized LifecycleResults unloadConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException {
+    public synchronized LifecycleResults unloadConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         return super.unloadConfiguration(id, monitor);
     }
 

@@ -53,7 +53,7 @@ import org.osgi.framework.Bundle;
  * classes needed by the GBeanDatas in the configuration.  Once the
  * configuration has been loaded, it's ClassLoader is available so the
  * GBeanDatas can be loaded and inspected.  But the GBean instances are not
- * instantiated and started until the configuration is started. 
+ * instantiated and started until the configuration is started.
  *
  * @version $Rev$ $Date$
  */
@@ -275,8 +275,9 @@ public interface ConfigurationManager extends ConfigurationSource {
      * @return the results of the operation
      *
      * @throws NoSuchConfigException if the configuration is not loaded
+     * @throws LifecycleException
      */
-    LifecycleResults unloadConfiguration(Artifact configurationId) throws NoSuchConfigException;
+    LifecycleResults unloadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException;
 
     /**
      * Stops and unloads the configuration.  This causes all contained gbeans
@@ -293,8 +294,9 @@ public interface ConfigurationManager extends ConfigurationSource {
      * @return the results of the operation
      *
      * @throws NoSuchConfigException if the configuration is not loaded
+     * @throws LifecycleException
      */
-    LifecycleResults unloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException;
+    LifecycleResults unloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException;
 
     /**
      * Loads and starts all of the gbeans contained within the configuration.
@@ -480,11 +482,12 @@ public interface ConfigurationManager extends ConfigurationSource {
      *
      * @param configurationId the configuration identifier, which must be fully
      *                        resolved (isResolved() == true)
-     * 
+     *
      * @throws IOException if there was a problem removing the configuration
      * @throws NoSuchConfigException if the configuration is not loaded
+     * @throws LifecycleException
      */
-    void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException;
+    void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException, LifecycleException;
 
     /**
      * Gets the common ArtifactResolver in case the caller wants to use this

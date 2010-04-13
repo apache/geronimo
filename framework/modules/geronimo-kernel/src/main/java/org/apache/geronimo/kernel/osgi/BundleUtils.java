@@ -37,22 +37,30 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * @version $Rev$ $Date$
  */
 public class BundleUtils {
-   
+
     public static boolean canStart(Bundle bundle) {
-        return (bundle.getState() != Bundle.STARTING)  && (!isFragment(bundle));
+        return (bundle.getState() != Bundle.UNINSTALLED) && (bundle.getState() != Bundle.STARTING) && (!isFragment(bundle));
     }
-    
+
+    public static boolean canStop(Bundle bundle) {
+        return (bundle.getState() != Bundle.UNINSTALLED) && (bundle.getState() != Bundle.STOPPING) && (!isFragment(bundle));
+    }
+
+    public static boolean canUninstall(Bundle bundle) {
+        return bundle.getState() != Bundle.UNINSTALLED;
+    }
+
     public static boolean isFragment(Bundle bundle) {
         Dictionary headers = bundle.getHeaders();
         return (headers != null && headers.get(Constants.FRAGMENT_HOST) != null);
     }
-    
+
     /**
      * Returns bundle (if any) associated with current thread's context classloader.
-     * 
-     * @param unwrap if true and if the bundle associated with the context classloader is a 
-     *        {@link DelegatingBundle}, this function will return the main application bundle 
-     *        backing with the {@link DelegatingBundle}. Otherwise, the bundle associated with 
+     *
+     * @param unwrap if true and if the bundle associated with the context classloader is a
+     *        {@link DelegatingBundle}, this function will return the main application bundle
+     *        backing with the {@link DelegatingBundle}. Otherwise, the bundle associated with
      *        the context classloader is returned as is. See {@link BundleClassLoader#getBundle(boolean)}
      *        for more information.
      * @return The bundle associated with the current thread's context classloader. Might be null.
@@ -60,18 +68,18 @@ public class BundleUtils {
     public static Bundle getContextBundle(boolean unwrap) {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         if (classLoader instanceof BundleClassLoader) {
-            return ((BundleClassLoader) classLoader).getBundle(unwrap);        
+            return ((BundleClassLoader) classLoader).getBundle(unwrap);
         } else if (classLoader instanceof BundleReference) {
             return ((BundleReference) classLoader).getBundle();
         } else {
             return null;
         }
     }
-    
+
     /**
      * Works like {@link Bundle#getEntryPaths(String)} but also returns paths
      * in attached fragment bundles.
-     * 
+     *
      * @param bundle
      * @param name
      * @return
@@ -92,11 +100,11 @@ public class BundleUtils {
         }
         return Collections.enumeration(paths);
     }
-    
+
     /**
      * Works like {@link Bundle#getEntry(String)} but also checks
      * attached fragment bundles for the given entry.
-     * 
+     *
      * @param bundle
      * @param name
      * @return
@@ -105,7 +113,7 @@ public class BundleUtils {
         if (name.equals("/")) {
             return bundle.getEntry(name);
         } else if (name.endsWith("/")) {
-             name = name.substring(0, name.length() - 1);       
+            name = name.substring(0, name.length() - 1);
         }
         String path;
         String pattern;
@@ -127,20 +135,19 @@ public class BundleUtils {
             return null;
         }
     }
-    
+
     public static LinkedHashSet<Bundle> getWiredBundles(Bundle bundle) {
         ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
-        PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);        
+        PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
         try {
             return getWiredBundles(packageAdmin, bundle);
         } finally {
             bundle.getBundleContext().ungetService(reference);
         }
     }
-    
+
     public static LinkedHashSet<Bundle> getWiredBundles(PackageAdmin packageAdmin, Bundle bundle) {
         BundleDescription description = new BundleDescription(bundle.getHeaders());
-        
         // handle static wire via Import-Package
         List<BundleDescription.ImportPackage> imports = description.getExternalImports();
         LinkedHashSet<Bundle> wiredBundles = new LinkedHashSet<Bundle>();
@@ -151,23 +158,21 @@ public class BundleUtils {
                 wiredBundles.add(wiredBundle);
             }
         }
-                
         // handle dynamic wire via DynamicImport-Package
         if (!description.getDynamicImportPackage().isEmpty()) {
             for (Bundle b : bundle.getBundleContext().getBundles()) {
                 if (!wiredBundles.contains(b)) {
                     ExportedPackage[] exports = packageAdmin.getExportedPackages(b);
-                    Bundle wiredBundle = getWiredBundle(bundle, exports); 
+                    Bundle wiredBundle = getWiredBundle(bundle, exports);
                     if (wiredBundle != null) {
                         wiredBundles.add(wiredBundle);
                     }
                 }
             }
         }
-        
         return wiredBundles;
     }
-    
+
     private static Bundle getWiredBundle(Bundle bundle, ExportedPackage[] exports) {
         if (exports != null) {
             for (ExportedPackage exportedPackage : exports) {
@@ -183,5 +188,4 @@ public class BundleUtils {
         }
         return null;
     }
-
 }
