@@ -373,15 +373,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         
         return dsDescription;
     }
-    
-    private static String getJndiName(String name) {
-        if (name.startsWith("java:")) {
-            return name;
-        } else {
-            return "java:comp/env/" + name;
-        }
-    }
-    
+        
     public QNameSet getPlanQNameSet() {
         return QNameSet.EMPTY; 
     }

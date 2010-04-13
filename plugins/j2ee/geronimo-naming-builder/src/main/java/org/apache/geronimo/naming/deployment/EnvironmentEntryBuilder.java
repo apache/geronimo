@@ -121,6 +121,9 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 if (strValue == null) {
                     String lookupName = getStringValue(envEntry.getLookupName());
                     if (lookupName != null) {
+                        if (lookupName.equals(getJndiName(name))) {
+                            throw new DeploymentException("env-entry lookup name refers to itself");
+                        }
                         value = new JndiReference(lookupName);
                     }
                 }

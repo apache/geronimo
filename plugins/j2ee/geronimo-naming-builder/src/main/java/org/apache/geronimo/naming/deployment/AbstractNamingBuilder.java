@@ -169,6 +169,14 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return NamingBuilder.JNDI_KEY.get(sharedContext);
     }
 
+    protected String getJndiName(String name) {
+        if (name.indexOf(':') != -1) {   
+            return "java:comp/env/" + name;
+        } else {
+            return name;
+        }
+    }
+    
     protected AbstractName getGBeanName(Map<EARContext.Key, Object> sharedContext) {
         return GBEAN_NAME_KEY.get(sharedContext);
     }

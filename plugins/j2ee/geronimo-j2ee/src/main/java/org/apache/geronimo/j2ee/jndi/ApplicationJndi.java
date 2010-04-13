@@ -53,7 +53,7 @@ public class ApplicationJndi implements GBeanLifecycle {
         this.globalAdditions = EnterpriseNamingContext.livenReferences(globalContextSegment, null, kernel, classLoader, JndiScope.global.name() + "/");
         this.globalContext = globalContext;
         this.globalContext.federateContext(this.globalAdditions);
-        this.applicationContext = EnterpriseNamingContext.livenReferences(applicationContext, null, kernel, classLoader, JndiScope.application.name() + "/");
+        this.applicationContext = EnterpriseNamingContext.livenReferences(applicationContext, null, kernel, classLoader, JndiScope.app.name() + "/");
     }
 
     public Context getApplicationContext() {

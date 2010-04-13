@@ -24,5 +24,5 @@ package org.apache.geronimo.j2ee.jndi;
  * @version $Rev$ $Date$
  */
 public enum JndiScope implements JndiKey {
-    global, application, module, comp
+    global, app, module, comp
 }

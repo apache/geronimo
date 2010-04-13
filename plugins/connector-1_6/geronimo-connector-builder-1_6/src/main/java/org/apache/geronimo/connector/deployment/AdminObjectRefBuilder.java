@@ -19,6 +19,7 @@ package org.apache.geronimo.connector.deployment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
+import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.naming.reference.ResourceReferenceFactory;
 import org.apache.geronimo.naming.reference.UserTransactionReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationDocument;
@@ -114,9 +116,8 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         XmlObject[] gerResourceEnvRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map<String, GerResourceEnvRefType> refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
-        int initialGerRefSize = refMap.size();
         Map<String, Map<String, GerMessageDestinationType>> messageDestinations = module.getRootEarContext().getMessageDestinations();
-
+        
         // Discover and process any @Resource annotations (if !metadata-complete)
         if (module.getClassFinder() != null) {
 
@@ -129,42 +130,42 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
         }
 
-        List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
-        int unresolvedRefSize = resourceEnvRefsUntyped.size();
-        Bundle bundle = module.getEarContext().getDeploymentBundle();
+        List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);        
+        List<String> unresolvedRefs = new ArrayList<String>();  
         for (ResourceEnvRefType resourceEnvRef : resourceEnvRefsUntyped) {
-            String name = resourceEnvRef.getResourceEnvRefName().getStringValue().trim();
-            if (lookupJndiContextMap(componentContext, ENV + name) != null) {
+            String name = getStringValue(resourceEnvRef.getResourceEnvRefName());
+            if (lookupJndiContextMap(componentContext, name) != null) {
                 // some other builder handled this entry already
                 continue;
             }
             addInjections(name, resourceEnvRef.getInjectionTargetArray(), componentContext);
-            String type = resourceEnvRef.getResourceEnvRefType().getStringValue().trim();
-            Class iface;
-            try {
-                iface = bundle.loadClass(type);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("could not load class " + type, e);
-            }
-            GerResourceEnvRefType gerResourceEnvRef = refMap.get(name);
-            refMap.remove(name);
-            try {
-                String refType = getStringValue(resourceEnvRef.getResourceEnvRefType());
-                if (refType.equals("javax.transaction.UserTransaction")) {
-                    Reference ref = new UserTransactionReference();
-                    put(name, ref, getJndiContextMap(componentContext));
-                } else {
-                    AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
-                    ResourceReferenceFactory<RuntimeException> ref = buildAdminObjectReference(module, containerId, iface);
-                    put(name, ref, getJndiContextMap(componentContext));
+            String type = getStringValue(resourceEnvRef.getResourceEnvRefType());
+            GerResourceEnvRefType gerResourceEnvRef = refMap.remove(name);
+            
+            Object value = null;
+            if (gerResourceEnvRef == null) {
+                String lookupName = getStringValue(resourceEnvRef.getLookupName());
+                if (lookupName != null) {
+                    if (lookupName.equals(getJndiName(name))) {
+                        throw new DeploymentException("resource-env-ref lookup name refers to itself");
+                    }
+                    value = new JndiReference(lookupName);
                 }
-            } catch (UnresolvedReferenceException e) {
-                throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")", e);
             }
+            
+            if (value == null) {
+                value = buildResourceReference(module, name, type, gerResourceEnvRef);
+            }
+            
+            if (value == null) {
+                unresolvedRefs.add(name);
+            } else {
+                put(name, value, getJndiContextMap(componentContext));
+            }            
         }
         
-        if (refMap.size() > 0 && ((initialGerRefSize - unresolvedRefSize) != refMap.size())) {
-            log.warn("Failed to build reference to Admin object reference "+refMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
+        if (unresolvedRefs.size() > 0) {
+            log.warn("Failed to build reference to resource env reference " + unresolvedRefs + " defined in plan file. The corresponding entry in Geronimo deployment descriptor is missing.");
         }
         
         //message-destination-refs
@@ -191,44 +192,95 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 }
                 type = getStringValue(targets[0].getInjectionTargetClass());
                 if (type == null) {
-                    throw new DeploymentException("no type for message destination ref in injection target: " + targets[0]);
+                    throw new DeploymentException("No type for message-destination-ref in injection target: " + targets[0]);
                 }
             }
-            Class iface;
-            try {
-                iface = bundle.loadClass(type);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("could not load class " + type, e);
-            }
-            String moduleURI = null;
+
             GerMessageDestinationType destination = getMessageDestination(linkName, messageDestinations);
-            if (destination != null) {
-                if (destination.isSetAdminObjectLink()) {
-                    if (destination.isSetAdminObjectModule()) {
-                        moduleURI = destination.getAdminObjectModule().trim();
+            
+            Object value = null;
+            if (destination == null) {
+                String lookupName = getStringValue(messageDestinationRef.getLookupName());
+                if (lookupName != null) {
+                    if (lookupName.equals(getJndiName(name))) {
+                        throw new DeploymentException("message-destination-ref lookup name refers to itself");
                     }
-                    linkName = destination.getAdminObjectLink().trim();
-                }
-            } else {
-                //well, we know for sure an admin object is not going to be defined in a modules that can have a message-destination
-                int pos = linkName.indexOf('#');
-                if (pos > -1) {
-                    //AMM -- the following line causes blowups; e.g. to look in DayTrader EJB module for a RA -- why is that?!?
-                    //moduleURI = linkName.substring(0, pos);
-                    linkName = linkName.substring(pos + 1);
+                    value = new JndiReference(lookupName);
                 }
             }
-
-            //try to resolve ref based only matching resource-ref-name
-            //throws exception if it can't locate ref.
-            AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
-            ResourceReferenceFactory<RuntimeException> ref = buildAdminObjectReference(module, containerId, iface);
-            put(name, ref, getJndiContextMap(componentContext));
-
+            
+            if (value == null) {
+                value = buildMessageReference(module, linkName, type, destination);
+            }
+            
+            if (value != null) {
+                put(name, value, getJndiContextMap(componentContext));
+            }
         }
 
     }
 
+    private Object buildResourceReference(Module module, String name, String type, GerResourceEnvRefType gerResourceEnvRef) 
+        throws DeploymentException {
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
+    
+        Class iface;
+        try {
+            iface = bundle.loadClass(type);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not load resource-env-ref entry class " + type, e);
+        }
+    
+        if (type.equals("javax.transaction.UserTransaction")) {
+            return new UserTransactionReference();
+        } else {
+            try {
+                AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
+                ResourceReferenceFactory<RuntimeException> ref = buildAdminObjectReference(module, containerId, iface);
+                return ref;
+            } catch (UnresolvedReferenceException e) {
+                throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")", e);
+            }
+        } 
+    }
+    
+    private Object buildMessageReference(Module module, String linkName, String type, GerMessageDestinationType destination) 
+        throws DeploymentException {
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
+        
+        Class iface;
+        try {
+            iface = bundle.loadClass(type);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not load message-destination-ref entry type class " + type, e);
+        }
+        
+        String moduleURI = null;
+        
+        if (destination != null) {
+            if (destination.isSetAdminObjectLink()) {
+                if (destination.isSetAdminObjectModule()) {
+                    moduleURI = destination.getAdminObjectModule().trim();
+                }
+                linkName = destination.getAdminObjectLink().trim();
+            }
+        } else {
+            //well, we know for sure an admin object is not going to be defined in a modules that can have a message-destination
+            int pos = linkName.indexOf('#');
+            if (pos > -1) {
+                //AMM -- the following line causes blowups; e.g. to look in DayTrader EJB module for a RA -- why is that?!?
+                //moduleURI = linkName.substring(0, pos);
+                linkName = linkName.substring(pos + 1);
+            }
+        }
+
+        //try to resolve ref based only matching resource-ref-name
+        //throws exception if it can't locate ref.
+        AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
+        ResourceReferenceFactory<RuntimeException> ref = buildAdminObjectReference(module, containerId, iface);
+        return ref;
+    }
+    
     public static GerMessageDestinationType getMessageDestination(String messageDestinationLink, Map<String, Map<String, GerMessageDestinationType>> messageDestinations) throws DeploymentException {
         GerMessageDestinationType destination = null;
         int pos = messageDestinationLink.indexOf('#');

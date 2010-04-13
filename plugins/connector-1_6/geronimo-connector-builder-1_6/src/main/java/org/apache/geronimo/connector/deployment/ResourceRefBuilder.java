@@ -54,6 +54,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.naming.reference.ORBReference;
 import org.apache.geronimo.naming.reference.ResourceReferenceFactory;
 import org.apache.geronimo.naming.reference.URLReference;
@@ -85,7 +86,6 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
     private static final QNameSet GER_RESOURCE_REF_QNAME_SET = QNameSet.singleton(GER_RESOURCE_REF_QNAME);
     private static final String JAXR_CONNECTION_FACTORY_CLASS = "javax.xml.registry.ConnectionFactory";
     private static final String JAVAX_MAIL_SESSION_CLASS = "javax.mail.Session";
-
 
     private final QNameSet resourceRefQNameSet;
     private final Environment corbaEnvironment;
@@ -119,115 +119,131 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
         List<ResourceRefType> resourceRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), J2EE_CONVERTER, ResourceRefType.class, ResourceRefType.type);
         XmlObject[] gerResourceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
-        Map refMap = mapResourceRefs(gerResourceRefsUntyped);
-        List unresolvedRefs = new ArrayList();
-        Bundle bundle = module.getEarContext().getDeploymentBundle();
+        Map<String, GerResourceRefType> refMap = mapResourceRefs(gerResourceRefsUntyped);
+        List<String> unresolvedRefs = new ArrayList<String>();        
         for (ResourceRefType resourceRef : resourceRefsUntyped) {
-            String name = resourceRef.getResRefName().getStringValue().trim();
-            if (lookupJndiContextMap(componentContext, ENV + name) != null) {
+            String name = getStringValue(resourceRef.getResRefName());            
+            if (lookupJndiContextMap(componentContext, name) != null) {
                 // some other builder handled this entry already
                 continue;
-            }
+            }            
             addInjections(name, resourceRef.getInjectionTargetArray(), componentContext);
-            String type = resourceRef.getResType().getStringValue().trim();
-            GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(name);
+            String type = getStringValue(resourceRef.getResType());
+            GerResourceRefType gerResourceRef = refMap.get(name);
             log.debug("trying to resolve " + name + ", type " + type + ", resourceRef " + gerResourceRef);
-            if(!refMap.containsKey(name)){
+            
+            Object value = null;
+            if (gerResourceRef == null) {
+                String lookupName = getStringValue(resourceRef.getLookupName());
+                if (lookupName != null) {
+                    if (lookupName.equals(getJndiName(name))) {
+                        throw new DeploymentException("resource-ref lookup name refers to itself");
+                    }
+                    value = new JndiReference(lookupName);
+                }
+            }
+            
+            if (value == null) {
+                value = buildReference(module, name, type, gerResourceRef);
+            }
+            
+            if (value == null) {
                 unresolvedRefs.add(name);
-            } 
-            Class iface;
-            try {
-                iface = bundle.loadClass(type);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("could not load class " + type, e);
-            }
-            if (iface == URL.class) {
-                if (gerResourceRef == null || !gerResourceRef.isSetUrl()) {
-                    throw new DeploymentException("No url supplied to resolve: " + name);
-                }
-                String url = gerResourceRef.getUrl().trim();
-                //TODO expose jsr-77 objects for these guys
-                try {
-                    //check for malformed URL
-                    new URL(url);
-                } catch (MalformedURLException e) {
-                    throw new DeploymentException("Could not convert " + url + " to URL", e);
-                }
-                put(name, new URLReference(url), getJndiContextMap(componentContext));
-                unresolvedRefs.remove(name);
-            } else if (ORB.class.isAssignableFrom(iface)) {
-                CorbaGBeanNameSource corbaGBeanNameSource = (CorbaGBeanNameSource) corbaGBeanNameSourceCollection.getElement();
-                if (corbaGBeanNameSource == null) {
-                    throw new DeploymentException("No orb setup but there is a orb reference");
-                }
-                AbstractNameQuery corbaName = corbaGBeanNameSource.getCorbaGBeanName();
-                if (corbaName != null) {
-                    Artifact[] moduleId = module.getConfigId();
-                    Map context = getJndiContextMap(componentContext);
-                    context.put(ENV + name, new ORBReference(moduleId, corbaName));
-                    unresolvedRefs.remove(name);
-                    EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), corbaEnvironment);
-                }
             } else {
-                //determine jsr-77 type from interface
-                String j2eeType;
-
-
-                if (JAVAX_MAIL_SESSION_CLASS.equals(type)) {
-                    j2eeType = NameFactory.JAVA_MAIL_RESOURCE;
-                } else if (JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
-                    j2eeType = NameFactory.JAXR_CONNECTION_FACTORY;
-                } else {
-                    j2eeType = NameFactory.JCA_CONNECTION_FACTORY;
-                }
-                try {
-                    AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, null, gerResourceRef);
-
-                    module.getEarContext().findGBean(containerId);
-
-                    Object ref = new ResourceReferenceFactory<ResourceException>(module.getConfigId(), containerId, iface);
-                    put(name, ref, getJndiContextMap(componentContext));
-                    // we thought that this might be an unresolved
-                    // name because it wasn't in the refMap, but now
-                    // we've found it so we can take it out of the
-                    // unresolvedRefs list
-                    unresolvedRefs.remove(name);
-                } catch (GBeanNotFoundException e) {
-
-                    StringBuffer errorMessage = new StringBuffer("Unable to resolve resource reference '");
-                    errorMessage.append(name);
-                    errorMessage.append("' (");
-                    if (e.hasMatches()) {
-                        errorMessage.append("Found multiple matching resources.  Try being more specific in a resource-ref mapping in your Geronimo deployment plan.\n");
-                        for (AbstractName match : e.getMatches()) {
-                            errorMessage.append(match).append("\n");
-                        }
-                    } else if (gerResourceRef == null) {
-                        errorMessage.append("Could not auto-map to resource.  Try adding a resource-ref mapping to your Geronimo deployment plan.");
-                    } else if (gerResourceRef.isSetResourceLink()) {
-                        errorMessage.append("Could not find resource '");
-                        errorMessage.append(gerResourceRef.getResourceLink());
-                        errorMessage.append("'.  Perhaps it has not yet been configured, or your application does not have a dependency declared for that resource module?");
-                    } else {
-                        errorMessage.append("Could not find the resource specified in your Geronimo deployment plan:");
-                        errorMessage.append(gerResourceRef.getPattern());
-                    }
-                    errorMessage.append("\nSearch conducted in current module and dependencies:\n");
-                    for (Dependency dependency : module.getEnvironment().getDependencies()) {
-                        errorMessage.append(dependency).append("\n");
-                    }
-                    errorMessage.append(")");
-
-                    throw new DeploymentException(errorMessage.toString());
-                }
+                put(name, value, getJndiContextMap(componentContext));
             }
+            
         }
 
         if (unresolvedRefs.size() > 0) {
-            log.warn("Failed to build reference to resource reference "+ unresolvedRefs +" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
+            log.warn("Failed to build reference to resource reference " + unresolvedRefs + " defined in plan file. The corresponding entry in Geronimo deployment descriptor is missing.");
         }
     }
 
+    private Object buildReference(Module module, String name, String type, GerResourceRefType gerResourceRef) 
+        throws DeploymentException {
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
+        
+        Class iface;
+        try {
+            iface = bundle.loadClass(type);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Could not resource-ref entry class " + type, e);
+        }
+        
+        if (iface == URL.class) {
+            if (gerResourceRef == null || !gerResourceRef.isSetUrl()) {
+                throw new DeploymentException("No url supplied to resolve: " + name);
+            }
+            String url = gerResourceRef.getUrl().trim();
+            //TODO expose jsr-77 objects for these guys
+            try {
+                //check for malformed URL
+                new URL(url);
+            } catch (MalformedURLException e) {
+                throw new DeploymentException("Could not convert " + url + " to URL", e);
+            }
+            return new URLReference(url);
+        } else if (ORB.class.isAssignableFrom(iface)) {
+            CorbaGBeanNameSource corbaGBeanNameSource = (CorbaGBeanNameSource) corbaGBeanNameSourceCollection.getElement();
+            if (corbaGBeanNameSource == null) {
+                throw new DeploymentException("No orb setup but there is a orb reference");
+            }
+            AbstractNameQuery corbaName = corbaGBeanNameSource.getCorbaGBeanName();
+            if (corbaName != null) {
+                Artifact[] moduleId = module.getConfigId();
+                EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), corbaEnvironment);
+                return new ORBReference(moduleId, corbaName);
+            }
+        } else {
+            //determine jsr-77 type from interface
+            String j2eeType;
+
+            if (JAVAX_MAIL_SESSION_CLASS.equals(type)) {
+                j2eeType = NameFactory.JAVA_MAIL_RESOURCE;
+            } else if (JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
+                j2eeType = NameFactory.JAXR_CONNECTION_FACTORY;
+            } else {
+                j2eeType = NameFactory.JCA_CONNECTION_FACTORY;
+            }
+            try {
+                AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, null, gerResourceRef);
+
+                module.getEarContext().findGBean(containerId);
+
+                return new ResourceReferenceFactory<ResourceException>(module.getConfigId(), containerId, iface);
+            } catch (GBeanNotFoundException e) {
+                StringBuffer errorMessage = new StringBuffer("Unable to resolve resource reference '");
+                errorMessage.append(name);
+                errorMessage.append("' (");
+                if (e.hasMatches()) {
+                    errorMessage.append("Found multiple matching resources.  Try being more specific in a resource-ref mapping in your Geronimo deployment plan.\n");
+                    for (AbstractName match : e.getMatches()) {
+                        errorMessage.append(match).append("\n");
+                    }
+                } else if (gerResourceRef == null) {
+                    errorMessage.append("Could not auto-map to resource.  Try adding a resource-ref mapping to your Geronimo deployment plan.");
+                } else if (gerResourceRef.isSetResourceLink()) {
+                    errorMessage.append("Could not find resource '");
+                    errorMessage.append(gerResourceRef.getResourceLink());
+                    errorMessage.append("'.  Perhaps it has not yet been configured, or your application does not have a dependency declared for that resource module?");
+                } else {
+                    errorMessage.append("Could not find the resource specified in your Geronimo deployment plan:");
+                    errorMessage.append(gerResourceRef.getPattern());
+                }
+                errorMessage.append("\nSearch conducted in current module and dependencies:\n");
+                for (Dependency dependency : module.getEnvironment().getDependencies()) {
+                    errorMessage.append(dependency).append("\n");
+                }
+                errorMessage.append(")");
+
+                throw new DeploymentException(errorMessage.toString());
+            }
+        }
+        
+        return null;
+    }
+    
     public void setResourceEnvironment(ResourceEnvironmentBuilder builder, XmlObject[] resourceRefs, GerResourceRefType[] gerResourceRefs) throws DeploymentException {
         List<ResourceRefType> resourceRefList = convert(resourceRefs, J2EE_CONVERTER, ResourceRefType.class, ResourceRefType.type);
         Map refMap = mapResourceRefs(gerResourceRefs);

@@ -600,6 +600,9 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 }
             }
 
+            Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(earContext.getGeneralData());
+            contexts.put(JndiScope.app, new HashMap<String, Object>());
+            
             // give each module a chance to populate the earContext now that a classloader is available
             Bundle bundle = earContext.getDeploymentBundle();
             for (Module module : applicationInfo.getModules()) {
@@ -679,10 +682,10 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 EARConfigBuilder.appInfo.set(applicationInfo);
                 throw new DeploymentException();
             }
-            Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(earContext.getGeneralData());
+            
             GBeanData appContexts = new GBeanData(appJndiName, ApplicationJndi.class);
             appContexts.setAttribute("globalContextSegment", contexts.get(JndiScope.global));
-            appContexts.setAttribute("applicationContextMap", contexts.get(JndiScope.application));
+            appContexts.setAttribute("applicationContextMap", contexts.get(JndiScope.app));
             appContexts.setReferencePattern("GlobalContext", globalContextAbstractName);
             earContext.addGBean(appContexts);
 

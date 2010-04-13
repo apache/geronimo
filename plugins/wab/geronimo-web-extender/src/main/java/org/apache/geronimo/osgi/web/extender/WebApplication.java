@@ -200,10 +200,13 @@ public class WebApplication implements Runnable {
                         bundle);
                 webModule.setEarContext(deploymentContext);
                 webModule.setRootEarContext(deploymentContext);
-
+                
                 deploymentContext.flush();
                 deploymentContext.initializeConfiguration();
 
+                Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(deploymentContext.getGeneralData());
+                contexts.put(JndiScope.app, new HashMap<String, Object>());
+                
                 webModuleBuilder.initContext(deploymentContext, webModule, bundle);
 
                 AbstractName appJndiName = naming.createChildName(deploymentContext.getModuleName(), "ApplicationJndi", "ApplicationJndi");
@@ -211,10 +214,9 @@ public class WebApplication implements Runnable {
 
                 webModuleBuilder.addGBeans(deploymentContext, webModule, bundle, extender.getRepositories());
 
-                Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(deploymentContext.getGeneralData());
                 GBeanData appContexts = new GBeanData(appJndiName, ApplicationJndi.class);
                 appContexts.setAttribute("globalContextSegment", contexts.get(JndiScope.global));
-                appContexts.setAttribute("applicationContextMap", contexts.get(JndiScope.application));
+                appContexts.setAttribute("applicationContextMap", contexts.get(JndiScope.app));
                 appContexts.setReferencePattern("GlobalContext", extender.getGlobalContextAbstractName());
                 deploymentContext.addGBean(appContexts);
 
