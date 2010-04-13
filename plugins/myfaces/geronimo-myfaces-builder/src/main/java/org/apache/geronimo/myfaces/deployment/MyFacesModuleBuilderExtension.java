@@ -81,8 +81,8 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     private final NamingBuilder namingBuilders;
     private static final String CONTEXT_LISTENER_NAME = StartupServletContextListener.class.getName();
     private static final String FACES_SERVLET_NAME = FacesServlet.class.getName();
-    private static final String SCHEMA_LOCATION_URL = "http://java.sun.com/xml/ns/javaee/web-facesconfig_1_2.xsd";
-    private static final String VERSION = "1.2";
+    private static final String SCHEMA_LOCATION_URL = "http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd";
+    private static final String VERSION = "2.0";
 
 
     public MyFacesModuleBuilderExtension(Environment defaultEnvironment, AbstractNameQuery providerFactoryNameQuery, NamingBuilder namingBuilders) {
@@ -94,7 +94,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         mergeEnvironment(module);
     }
-    
+
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         mergeEnvironment(module);
     }
@@ -110,9 +110,9 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             return;
         }
 
-        EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);  
+        EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
     }
-    
+
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
     }
 
@@ -301,27 +301,25 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         try {
             cursor.toStartDoc();
             cursor.toFirstChild();
-            if (SchemaConversionUtils.JAVAEE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
-                //do nothing
-            } else if (SchemaConversionUtils.J2EE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
+            String nameSpaceURI = cursor.getName().getNamespaceURI();
+            if (SchemaConversionUtils.JAVAEE_NAMESPACE.equals(nameSpaceURI) || SchemaConversionUtils.J2EE_NAMESPACE.equals(nameSpaceURI)) {
                 SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, SCHEMA_LOCATION_URL, VERSION);
             } else {
-            // otherwise assume DTD
+                // otherwise assume DTD
                 SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, SCHEMA_LOCATION_URL, VERSION);
             }
-        }
-        finally {
+        } finally {
             cursor.dispose();
         }
         XmlObject result = xmlObject.changeType(FacesConfigDocument.type);
         if (result != null) {
             XmlBeansUtil.validateDD(result);
-            log.debug("convertToFacesConfigSchema(): Exit 2" );
-            return(FacesConfigDocument) result;
+            log.debug("convertToFacesConfigSchema(): Exit 2");
+            return (FacesConfigDocument) result;
         }
         XmlBeansUtil.validateDD(xmlObject);
-        log.debug("convertToFacesConfigSchema(): Exit 3" );
-        return(FacesConfigDocument) xmlObject;
+        log.debug("convertToFacesConfigSchema(): Exit 3");
+        return (FacesConfigDocument) xmlObject;
     }
 
     public static final GBeanInfo GBEAN_INFO;
