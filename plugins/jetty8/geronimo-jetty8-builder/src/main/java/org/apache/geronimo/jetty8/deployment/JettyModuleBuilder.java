@@ -86,6 +86,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.osgi.BundleUtils;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -296,7 +297,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         // Create the AnnotatedApp interface for the WebModule
         AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
 
-        WebModule module = new WebModule(standAlone, moduleName, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextPath, JETTY_NAMESPACE, annotatedWebApp);
+        String name = getModuleName(webApp);
+        if (name == null) {
+            name = bundle.getSymbolicName();
+        }
+        
+        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextPath, JETTY_NAMESPACE, annotatedWebApp);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, bundle, naming, idBuilder);
         }
@@ -378,7 +384,16 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         // Create the AnnotatedApp interface for the WebModule
         AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
 
-        WebModule module = new WebModule(standAlone, moduleName, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextRoot, JETTY_NAMESPACE, annotatedWebApp);
+        String name = getModuleName(webApp);
+        if (name == null) {
+            if (standAlone) {
+                name = FileUtils.removeExtension(new File(moduleFile.getName()).getName(), ".war");
+            } else {
+                name = FileUtils.removeExtension(targetPath, ".war");
+            }
+        }
+        
+        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextRoot, JETTY_NAMESPACE, annotatedWebApp);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
         }

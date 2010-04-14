@@ -36,7 +36,6 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
     int NORMAL_PRIORITY = 50;
     
     XmlObject[] NO_REFS = new XmlObject[] {};
-    String ENV = "env/";
 
     EARContext.Key<Map<JndiKey, Map<String, Object>>> JNDI_KEY = new EARContext.Key<Map<JndiKey, Map<String, Object>>>() {
 

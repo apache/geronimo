@@ -205,7 +205,9 @@ public class WebApplication implements Runnable {
                 deploymentContext.initializeConfiguration();
 
                 Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(deploymentContext.getGeneralData());
-                contexts.put(JndiScope.app, new HashMap<String, Object>());
+                Map<String, Object> app = new HashMap<String, Object>();
+                app.put("app/AppName", webModule.getName());
+                contexts.put(JndiScope.app, app);
                 
                 webModuleBuilder.initContext(deploymentContext, webModule, bundle);
 

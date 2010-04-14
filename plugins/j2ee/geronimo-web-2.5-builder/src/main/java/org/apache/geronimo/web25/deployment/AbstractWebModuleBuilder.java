@@ -297,6 +297,14 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return path;
     }
 
+    protected String getModuleName(WebAppType webApp) {
+        if (webApp.sizeOfModuleNameArray() > 0) {
+            return webApp.getModuleNameArray()[0].getStringValue().trim();        
+        } else {
+            return null;
+        }
+    }
+    
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories)
             throws DeploymentException {
         EARContext moduleContext;

@@ -381,7 +381,16 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         // Create the AnnotatedApp interface for the AppClientModule
         AnnotatedApplicationClient annotatedApplicationClient = new AnnotatedApplicationClient(appClient, mainClass);
 
-        AppClientModule module = new AppClientModule(standAlone, moduleName, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, resourceModules, annotatedApplicationClient);
+        String name = null;
+        if (appClient.isSetModuleName()) {
+            name = appClient.getModuleName().getStringValue().trim();
+        } else if (standAlone) {
+            name = FileUtils.removeExtension(new File(moduleFile.getName()).getName(), ".jar");
+        } else {
+            name = FileUtils.removeExtension(targetPath, ".jar");
+        }
+        
+        AppClientModule module = new AppClientModule(standAlone, moduleName, name, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, resourceModules, annotatedApplicationClient);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, clientEnvironment, null, earName, naming, idBuilder);
         }
@@ -389,6 +398,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             ApplicationInfo appInfo = new ApplicationInfo(ConfigurationModuleType.CAR,
                     serverEnvironment,
                     earName,
+                    name,
                     null,
                     null,
                     null,

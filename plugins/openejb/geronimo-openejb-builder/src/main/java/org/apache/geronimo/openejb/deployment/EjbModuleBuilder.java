@@ -322,7 +322,16 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbJar);
         AnnotatedEjbJar annotatedEjbJar = new AnnotatedEjbJar(ejbJarType);
 
-        EjbModule module = new EjbModule(ejbModule, standAlone, moduleName, environment, moduleFile, targetPath, "", annotatedEjbJar);
+        String name = null;
+        if (ejbJarType.isSetModuleName()) {
+            name = ejbJarType.getModuleName().getStringValue().trim();
+        } else if (standAlone) {
+            name = FileUtils.removeExtension(new File(moduleFile.getName()).getName(), ".jar");
+        } else {
+            name = FileUtils.removeExtension(targetPath, ".jar");
+        }
+                
+        EjbModule module = new EjbModule(ejbModule, standAlone, moduleName, name, environment, moduleFile, targetPath, "", annotatedEjbJar);
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {

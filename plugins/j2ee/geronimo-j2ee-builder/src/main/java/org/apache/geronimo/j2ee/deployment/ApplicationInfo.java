@@ -30,13 +30,22 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Revision$ $Date$
  */
 public class ApplicationInfo extends Module<XmlObject, XmlObject> {
+    
     private ConfigurationModuleType type;
     private LinkedHashSet<Module> modules;
     private ModuleList moduleLocations;
 
-
-    public ApplicationInfo(ConfigurationModuleType type, Environment environment, AbstractName baseName, JarFile earFile, XmlObject specDD, XmlObject vendorDD, LinkedHashSet<Module> modules, ModuleList moduleLocations, String originalSpecDD) {
-        super(true, baseName, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, null);
+    public ApplicationInfo(ConfigurationModuleType type, 
+                           Environment environment, 
+                           AbstractName baseName, 
+                           String name, 
+                           JarFile earFile, 
+                           XmlObject specDD, 
+                           XmlObject vendorDD, 
+                           LinkedHashSet<Module> modules, 
+                           ModuleList moduleLocations, 
+                           String originalSpecDD) {
+        super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, null);
         assert type != null;
         assert environment != null;
         assert modules != null;

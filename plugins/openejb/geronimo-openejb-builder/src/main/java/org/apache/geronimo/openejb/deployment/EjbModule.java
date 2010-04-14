@@ -41,8 +41,17 @@ public class EjbModule extends EJBModule {
     private final org.apache.openejb.config.EjbModule ejbModule;
     private final ConfigurationFactory.Chain preAutoConfigDeployer;
 
-    public EjbModule(org.apache.openejb.config.EjbModule ejbModule, boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, String ejbJarXml, AnnotatedApp annoatedApp) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, null, null, ejbJarXml, annoatedApp);
+    public EjbModule(org.apache.openejb.config.EjbModule ejbModule, 
+                     boolean standAlone, 
+                     AbstractName moduleName, 
+                     String name, 
+                     Environment environment, 
+                     JarFile moduleFile, 
+                     String targetPath, 
+                     String ejbJarXml, 
+                     AnnotatedApp annoatedApp) {
+        super(standAlone, moduleName, name, environment, moduleFile, 
+              targetPath, null, null, ejbJarXml, annoatedApp);
         this.ejbModule = ejbModule;
         
         preAutoConfigDeployer = new ConfigurationFactory.Chain();

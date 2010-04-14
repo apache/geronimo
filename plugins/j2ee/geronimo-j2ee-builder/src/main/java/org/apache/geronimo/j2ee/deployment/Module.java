@@ -57,11 +57,32 @@ public abstract class Module<T, U> {
 
     protected final Map sharedContext = new HashMap();
 
-    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, T specDD, U vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp) {
-        this(standAlone, moduleName, environment, new DeployableJarFile(moduleFile), targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedApp);
+    protected Module(boolean standAlone, 
+                     AbstractName moduleName, 
+                     String name, 
+                     Environment environment, 
+                     JarFile moduleFile, 
+                     String targetPath, 
+                     T specDD, 
+                     U vendorDD, 
+                     String originalSpecDD, 
+                     String namespace, 
+                     AnnotatedApp annotatedApp) {
+        this(standAlone, moduleName, name, environment, new DeployableJarFile(moduleFile), 
+             targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedApp);
     }
 
-    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, Deployable deployable, String targetPath, T specDD, U vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp) {
+    protected Module(boolean standAlone, 
+                     AbstractName moduleName,
+                     String name, 
+                     Environment environment, 
+                     Deployable deployable, 
+                     String targetPath, 
+                     T specDD, 
+                     U vendorDD, 
+                     String originalSpecDD, 
+                     String namespace, 
+                     AnnotatedApp annotatedApp) {
         assert targetPath != null: "targetPath is null";
         assert moduleName != null: "moduleName is null";
 
@@ -74,13 +95,13 @@ public abstract class Module<T, U> {
         this.vendorDD = vendorDD;
         this.originalSpecDD = originalSpecDD;
         this.namespace = namespace;
-
+        
         if (standAlone) {
-            name = environment.getConfigId().toString();
-            moduleURI = URI.create("");
+            this.name = (name == null) ? environment.getConfigId().toString() : name;
+            this.moduleURI = URI.create("");
         } else {
-            name = targetPath;
-            moduleURI = URI.create(targetPath);
+            this.name = (name == null) ? targetPath : name;
+            this.moduleURI = URI.create(targetPath);
         }
 
         targetPathURI = URI.create(targetPath + "/");

@@ -33,12 +33,36 @@ public class WebModule extends Module<XmlObject, XmlObject> {
     private final String contextRoot;
     public static final String WEB_APP_DATA = "WEB_APP_DATA";
 
-    public WebModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, String namespace, AnnotatedWebApp annotatedWebApp) {
-        this(standAlone, moduleName, environment, new DeployableJarFile(moduleFile), targetPath, specDD, vendorDD, originalSpecDD, contextRoot, namespace, annotatedWebApp);
+    public WebModule(boolean standAlone, 
+                     AbstractName moduleName, 
+                     String name, 
+                     Environment environment, 
+                     JarFile moduleFile, 
+                     String targetPath, 
+                     XmlObject specDD, 
+                     XmlObject vendorDD, 
+                     String originalSpecDD, 
+                     String contextRoot, 
+                     String namespace, 
+                     AnnotatedWebApp annotatedWebApp) {
+        this(standAlone, moduleName, name, environment, new DeployableJarFile(moduleFile), 
+             targetPath, specDD, vendorDD, originalSpecDD, contextRoot, namespace, annotatedWebApp);
     }
     
-    public WebModule(boolean standAlone, AbstractName moduleName, Environment environment, Deployable deployable, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, String namespace, AnnotatedWebApp annotatedWebApp) {
-        super(standAlone, moduleName, environment, deployable, targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedWebApp );
+    public WebModule(boolean standAlone, 
+                     AbstractName moduleName, 
+                     String name, 
+                     Environment environment, 
+                     Deployable deployable, 
+                     String targetPath, 
+                     XmlObject specDD, 
+                     XmlObject vendorDD, 
+                     String originalSpecDD, 
+                     String contextRoot, 
+                     String namespace, 
+                     AnnotatedWebApp annotatedWebApp) {
+        super(standAlone, moduleName, name, environment, deployable, 
+              targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedWebApp );
         this.contextRoot = contextRoot;
     }
 

@@ -16,13 +16,9 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.jar.JarFile;
 
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApplicationClient;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -41,9 +37,22 @@ public class AppClientModule extends Module<XmlObject, XmlObject> {
     private final String mainClassName;
     private final Collection<ConnectorModule> resourceModules;
 
-
-    public AppClientModule(boolean standAlone, AbstractName moduleName, AbstractName appClientName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, String mainClassName, XmlObject vendorDD, String originalSpecDD, Collection<ConnectorModule> resourceModules, AnnotatedApplicationClient annotatedAppClient ) {
-        super(standAlone, moduleName, clientEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, annotatedAppClient );
+    public AppClientModule(boolean standAlone, 
+                           AbstractName moduleName, 
+                           String name, 
+                           AbstractName appClientName, 
+                           Environment serverEnvironment, 
+                           Environment clientEnvironment, 
+                           JarFile moduleFile, 
+                           String targetPath, 
+                           XmlObject specDD, 
+                           String mainClassName, 
+                           XmlObject vendorDD, 
+                           String originalSpecDD, 
+                           Collection<ConnectorModule> resourceModules, 
+                           AnnotatedApplicationClient annotatedAppClient ) {
+        super(standAlone, moduleName, name, clientEnvironment, moduleFile, targetPath, 
+              specDD, vendorDD, originalSpecDD, null, annotatedAppClient );
         this.serverEnvironment = serverEnvironment;
         this.appClientName = appClientName;
         this.mainClassName = mainClassName;
@@ -73,10 +82,6 @@ public class AppClientModule extends Module<XmlObject, XmlObject> {
     public String getMainClassName() {
         return mainClassName;
     }
-
-//    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
-//        context.addClass(location, fqcn, bytes);
-//    }
 
     public Collection<ConnectorModule> getResourceModules() {
         return resourceModules;

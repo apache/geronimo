@@ -34,10 +34,10 @@ public class EARConfigBuilder5UnpackedTest
 
         earFile = JarUtils.createJarFile(resolveFile("target/test-ear-javaee_5-unpacked.ear"));
         locations.put(null, new Artifact("org.apache.geronimo.testsupport", "test-ear-javaee_5", "3.0-SNAPSHOT", "ear"));
-        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, "ejb.jar/", null, null, null, null);
+        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, null, "ejb.jar/", null, null, null, null);
         webConfigBuilder.contextRoot = contextRoot;
-        webConfigBuilder.webModule = new WebModule(false, webModuleName, null, (JarFile)null, "war.war/", null, null, null, contextRoot, WEB_NAMESPACE, null);
-        connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, "rar.rar/", null, null, null, null);
+        webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, (JarFile)null, "war.war/", null, null, null, contextRoot, WEB_NAMESPACE, null);
+        connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, null, "rar.rar/", null, null, null, null);
     }
 
     protected void tearDown() throws Exception {

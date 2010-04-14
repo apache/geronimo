@@ -107,6 +107,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.osgi.BundleAnnotationFinder;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.management.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
@@ -375,10 +376,18 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
         boolean standAlone = earEnvironment == null;
         AnnotatedApp annotatedApp = null;
-        return new ConnectorModule<ConnectorBase, XmlObject>(standAlone, moduleName, environment, moduleFile, targetPath, connector, gerConnector, specDD, annotatedApp);
+        
+        String name = null;
+        if (connector != null && connector.getModuleName() != null) {
+            name = connector.getModuleName();
+        } else if (standAlone) {
+            name = FileUtils.removeExtension(new File(moduleFile.getName()).getName(), ".rar");
+        } else {
+            name = FileUtils.removeExtension(targetPath, ".rar");
+        }
 
+        return new ConnectorModule<ConnectorBase, XmlObject>(standAlone, moduleName, name, environment, moduleFile, targetPath, connector, gerConnector, specDD, annotatedApp);
     }
-
 
 //    static XmlObject convertToConnectorSchema(XmlObject xmlObject) throws XmlException {
 //        XmlCursor cursor = xmlObject.newCursor();

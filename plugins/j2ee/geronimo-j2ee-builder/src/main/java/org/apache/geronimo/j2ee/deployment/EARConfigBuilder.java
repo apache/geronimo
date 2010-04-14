@@ -340,6 +340,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         return new ApplicationInfo(module.getType(),
                 module.getEnvironment(),
                 module.getModuleName(),
+                module.getName(),
                 jarFile,
                 null,
                 null,
@@ -434,9 +435,19 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             throw new DeploymentException(e);
         }
 
+        String applicationName = null;
+        if (application != null && application.isSetApplicationName()) {
+            applicationName = application.getApplicationName().getStringValue().trim();            
+        } else if (earFile != null) {
+            applicationName = FileUtils.removeExtension(new File(earFile.getName()).getName(), ".ear");
+        } else {
+            applicationName = artifact.toString();
+        }
+        
         return new ApplicationInfo(ConfigurationModuleType.EAR,
                 environment,
                 earName,
+                applicationName,
                 earFile,
                 application,
                 gerApplication,
@@ -601,7 +612,9 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             }
 
             Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(earContext.getGeneralData());
-            contexts.put(JndiScope.app, new HashMap<String, Object>());
+            Map<String, Object> app = new HashMap<String, Object>();
+            app.put("app/AppName", applicationInfo.getName());
+            contexts.put(JndiScope.app, app);
             
             // give each module a chance to populate the earContext now that a classloader is available
             Bundle bundle = earContext.getDeploymentBundle();

@@ -16,32 +16,35 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.jar.JarFile;
 
-import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ConnectorModule<T, U> extends Module<T, U> {
-    public ConnectorModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, T specDD, U vendorDD, String originalSpecDD, AnnotatedApp annotatedApp ) {
-        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null, annotatedApp );
+    
+    public ConnectorModule(boolean standAlone, 
+                           AbstractName moduleName, 
+                           String name, 
+                           Environment environment, 
+                           JarFile moduleFile, 
+                           String targetPath, 
+                           T specDD, 
+                           U vendorDD, 
+                           String originalSpecDD, 
+                           AnnotatedApp annotatedApp) {
+        super(standAlone, moduleName, name, environment, moduleFile, 
+              targetPath, specDD, vendorDD, originalSpecDD, null, annotatedApp );
     }
 
     public ConfigurationModuleType getType() {
         return ConfigurationModuleType.RAR;
     }
 
-//    public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
-//        context.addClass(location, fqcn, bytes);
-//    }
 }
 

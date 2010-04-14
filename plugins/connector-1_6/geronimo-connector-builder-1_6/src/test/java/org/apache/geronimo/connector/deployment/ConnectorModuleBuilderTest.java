@@ -385,7 +385,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                 AbstractName moduleAbstractName = earContext.getModuleName();
                 earContext.close();
 
-                verifyDeployment(configurationData, oldCl, moduleAbstractName, resourceAdapterName, is15, moduleName);
+                verifyDeployment(configurationData, oldCl, moduleAbstractName, resourceAdapterName, is15, module.getName());
             } finally {
                 module.close();
                 FileUtils.recursiveDelete(tempDir);
