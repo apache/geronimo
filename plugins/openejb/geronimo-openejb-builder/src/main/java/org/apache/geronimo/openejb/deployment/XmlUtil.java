@@ -132,7 +132,7 @@ public final class XmlUtil {
             cursor = xmlObject.newCursor();
             cursor.toStartDoc();
             cursor.toFirstChild();
-            SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
+            // SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
             OpenejbGeronimoEjbJarType geronimoOpenejb = (OpenejbGeronimoEjbJarType) SchemaConversionUtils.fixGeronimoSchema(xmlObject, OPENEJBJAR_QNAME, OpenejbGeronimoEjbJarType.type);
             return geronimoOpenejb;
         } catch (Throwable e) {
