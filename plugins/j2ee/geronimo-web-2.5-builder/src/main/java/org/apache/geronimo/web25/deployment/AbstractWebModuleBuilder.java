@@ -763,6 +763,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleContext.getModuleName());
         //get partial jndi context from earContext.
         Map<JndiKey, Map<String, Object>> jndiContext = new HashMap<JndiKey, Map<String, Object>>(NamingBuilder.JNDI_KEY.get(earContext.getGeneralData()));
+        getJndiContext(jndiContext, JndiScope.module).put("module/ModuleName", webModule.getName());
         buildingContext.put(NamingBuilder.JNDI_KEY, jndiContext);
         if (!webApp.getMetadataComplete()) {
             // Create a classfinder and populate it for the naming builder(s). The absence of a
@@ -815,6 +816,15 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext() ? null : webModule.getTargetPath());
     }
 
+    private static Map<String, Object> getJndiContext(Map<JndiKey, Map<String, Object>> contexts, JndiScope scope) {
+        Map<String, Object> context = contexts.get(scope);
+        if (context == null) {
+            context = new HashMap<String, Object>();
+            contexts.put(scope, context);
+        }
+        return context;
+    }
+    
     private static class InternWrapper implements XMLStreamReader {
 
         private final XMLStreamReader delegate;

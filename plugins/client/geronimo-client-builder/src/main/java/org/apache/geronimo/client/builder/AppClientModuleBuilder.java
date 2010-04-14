@@ -68,6 +68,7 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApplicationClient;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
@@ -233,7 +234,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
     }
 
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        return createModule(plan, moduleFile, "app-client", null, null, null, naming, idBuilder);
+        return createModule(plan, moduleFile, "app-client.jar", null, null, null, naming, idBuilder);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -707,6 +708,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     }
                     Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(earContext.getGeneralData());
                     Map<JndiKey, Map<String, Object>> clientContexts = new HashMap<JndiKey, Map<String, Object>>(contexts);
+                    getJndiContext(clientContexts, JndiScope.module).put("module/ModuleName", module.getName());
                     buildingContext.put(NamingBuilder.JNDI_KEY, clientContexts);
                     namingBuilders.buildNaming(appClient, geronimoAppClient, appClientModule, buildingContext);
 
@@ -805,7 +807,15 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         }
     }
 
-
+    private static Map<String, Object> getJndiContext(Map<JndiKey, Map<String, Object>> contexts, JndiScope scope) {
+        Map<String, Object> context = contexts.get(scope);
+        if (context == null) {
+            context = new HashMap<String, Object>();
+            contexts.put(scope, context);
+        }
+        return context;
+    }
+    
     private ClassFinder createAppClientClassFinder(ApplicationClientType appClient, AppClientModule appClientModule) throws DeploymentException {
 
         //------------------------------------------------------------------------------------

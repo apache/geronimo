@@ -99,12 +99,14 @@
                         <artifactId>webservices-common</artifactId>
                         <type>car</type>
                     </dependency>
+<!--
                     <dependency>
                         <groupId>${pom.groupId}</groupId>
                         <artifactId>axis</artifactId>
                         <type>car</type>
                         <import>classes</import>
                     </dependency>
+-->
                 </dependencies>
             </environment>
         </xml-attribute>

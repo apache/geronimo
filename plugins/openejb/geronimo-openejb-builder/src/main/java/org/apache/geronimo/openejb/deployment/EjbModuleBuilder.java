@@ -759,10 +759,10 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
 
         // add enc
         Map<JndiKey, Map<String, Object>> jndiContext = NamingBuilder.JNDI_KEY.get(earContext.getGeneralData());
+        getJndiContext(jndiContext, JndiScope.module).put("module/ModuleName", module.getName());        
         ejbModule.getSharedContext().put(NamingBuilder.JNDI_KEY, jndiContext);
         ejbDeploymentBuilder.buildEnc();
         Map<String, Object> moduleContext = jndiContext.remove(JndiScope.module);
-
 
         Set<GBeanData> gBeanDatas = earContext.getConfiguration().findGBeanDatas(Collections.singleton(new AbstractNameQuery(PersistenceUnitGBean.class.getName())));
         LinkResolver<String> linkResolver = new UniqueDefaultLinkResolver<String>();
@@ -830,6 +830,15 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         }
     }
 
+    private static Map<String, Object> getJndiContext(Map<JndiKey, Map<String, Object>> contexts, JndiScope scope) {
+        Map<String, Object> context = contexts.get(scope);
+        if (context == null) {
+            context = new HashMap<String, Object>();
+            contexts.put(scope, context);
+        }
+        return context;
+    }
+    
     private void setMdbContainerIds(EARContext earContext, EjbModule ejbModule, GBeanData ejbModuleGBeanData) throws DeploymentException {
         Object altDD = ejbModule.getEjbModule().getAltDDs().get("openejb-jar.xml");
         if (!(altDD instanceof OpenejbJarType)) {
