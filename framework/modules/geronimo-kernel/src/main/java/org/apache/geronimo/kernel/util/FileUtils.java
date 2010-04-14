@@ -354,6 +354,14 @@ public class FileUtils {
         }
     }
 
+    public static String removeExtension(String name, String extension) {
+        if (name.endsWith(extension)) {
+            return name.substring(0, name.length() - extension.length());
+        } else {
+            return name;
+        }
+    }
+    
     private FileUtils() {
     }
 }
