@@ -20,7 +20,6 @@ package org.apache.geronimo.openejb.deployment;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 
@@ -39,6 +38,7 @@ import org.apache.geronimo.kernel.repository.ClassLoadingRule;
 import org.apache.geronimo.kernel.repository.ClassLoadingRules;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbEjbJarDocument;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -125,27 +125,38 @@ public final class XmlUtil {
         // marshal to xml
 
         String xml = marshal(root);
-
+        XmlCursor cursor = null;
         try {
             XmlObject xmlObject = XmlBeansUtil.parse(xml);
-
+            //TODO Convert persistence version to 2.0, might be removed once OpenEJB begins to use latest JPA version
+            cursor = xmlObject.newCursor();
+            cursor.toStartDoc();
+            cursor.toFirstChild();
+            SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
             OpenejbGeronimoEjbJarType geronimoOpenejb = (OpenejbGeronimoEjbJarType) SchemaConversionUtils.fixGeronimoSchema(xmlObject, OPENEJBJAR_QNAME, OpenejbGeronimoEjbJarType.type);
             return geronimoOpenejb;
         } catch (Throwable e) {
             String filePath = "<error: could not be written>";
+            FileOutputStream out = null;
             try {
                 File tempFile = File.createTempFile("openejb-jar-", ".xml");
-                try {
-                    FileOutputStream out = new FileOutputStream(tempFile);
-                    out.write(xml.getBytes());
-                    out.close();
-                } catch (Exception weTried) {
-                }
+                out = new FileOutputStream(tempFile);
+                out.write(xml.getBytes());
+                out.close();
                 filePath = tempFile.getAbsolutePath();
-            } catch (IOException notImportant) {
+            } catch (Exception notImportant) {
+            } finally {
+                IOUtils.close(out);
             }
 
             throw new DeploymentException("Error parsing geronimo-openejb.xml with xmlbeans.  For debug purposes, XML content written to: "+filePath, e);
+        } finally {
+            if (cursor != null) {
+                try {
+                    cursor.dispose();
+                } catch (Exception e) {
+                }
+            }
         }
     }
 
@@ -162,18 +173,18 @@ public final class XmlUtil {
                     environment.addDependency(dependency);
                 }
             }
-            
+
             environment.setSuppressDefaultEnvironment(environmentType.isSuppressDefaultEnvironment());
 
             ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
             classLoadingRules.setInverseClassLoading(environmentType.isInverseClassloading());
-            
+
             if (environmentType.getHiddenClasses() != null) {
                 ClassLoadingRule hiddenRule = classLoadingRules.getHiddenRule();
                 List<String> filter = environmentType.getHiddenClasses().getFilter();
                 hiddenRule.setClassPrefixes(new HashSet<String>(filter));
             }
-            
+
             if (environmentType.getNonOverridableClasses() != null) {
                 ClassLoadingRule nonOverrideableRule = classLoadingRules.getNonOverrideableRule();
                 List<String> filter = environmentType.getNonOverridableClasses().getFilter();
