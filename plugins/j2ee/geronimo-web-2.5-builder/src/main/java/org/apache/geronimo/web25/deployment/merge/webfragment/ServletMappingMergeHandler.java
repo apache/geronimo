@@ -72,9 +72,9 @@ public class ServletMappingMergeHandler implements WebFragmentMergeHandler<WebFr
 
     @Override
     public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (ServletMappingType filterMapping : webApp.getServletMappingArray()) {
-            String filterName = filterMapping.getServletName().getStringValue();
-            context.setAttribute(createServletMappingKey(filterName), filterMapping);
+        for (ServletMappingType servletMapping : webApp.getServletMappingArray()) {
+            String filterName = servletMapping.getServletName().getStringValue();
+            context.setAttribute(createServletMappingKey(filterName), servletMapping);
         }
         for (SubMergeHandler<ServletMappingType, ServletMappingType> subMergeHandler : subMergeHandlers) {
             subMergeHandler.preProcessWebXmlElement(webApp, context);

@@ -75,7 +75,7 @@ public class URLPattern {
             return pattern;
         } else {
             HashSet<String> bucket = new HashSet<String>();
-            StringBuffer result = new StringBuffer(pattern);
+            StringBuilder result = new StringBuilder(pattern);
 
             // Collect a set of qualifying patterns, depending on the type of this pattern.
             for (URLPattern p : patterns) {

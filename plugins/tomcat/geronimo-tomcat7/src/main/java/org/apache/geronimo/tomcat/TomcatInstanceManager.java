@@ -59,6 +59,9 @@ public class TomcatInstanceManager implements InstanceManager {
 
     public Object newInstance(String className) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
         try {
+            //TODO Specification 13.4.1 p125
+            //The @ServletSecurity annotation is not applied to the url-patterns of a ServletRegistration created using the addServlet(String, Servlet)  method of the ServletContext interface,
+            //unless the Servlet was constructed by the createServlet method of the ServletContext interface.
             return holder.newInstance(className, classLoader, context);
         } catch (IllegalAccessException e) {
             throw e;

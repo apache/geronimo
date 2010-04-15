@@ -428,12 +428,13 @@ public class FormAuthenticator implements Authenticator {
                 (SavedRequest) session.getNote(Constants.FORM_REQUEST_NOTE);
         if (saved == null)
             return (null);
-        StringBuffer sb = new StringBuffer(saved.getRequestURI());
         if (saved.getQueryString() != null) {
+            StringBuilder sb = new StringBuilder(saved.getRequestURI());
             sb.append('?');
             sb.append(saved.getQueryString());
+            return sb.toString();
         }
-        return (sb.toString());
+        return saved.getRequestURI();
 
     }
 

@@ -20,16 +20,16 @@
 
 package org.apache.geronimo.tomcat.security.jacc;
 
-import org.apache.catalina.connector.Request;
-import org.apache.catalina.Realm;
-import org.apache.geronimo.tomcat.security.Authorizer;
-import org.apache.geronimo.tomcat.security.AuthResult;
-import org.apache.geronimo.tomcat.security.UserIdentity;
-
-import javax.security.jacc.WebUserDataPermission;
-import javax.security.jacc.WebResourcePermission;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
+
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebUserDataPermission;
+
+import org.apache.catalina.connector.Request;
+import org.apache.geronimo.tomcat.security.AuthResult;
+import org.apache.geronimo.tomcat.security.Authorizer;
+import org.apache.geronimo.tomcat.security.UserIdentity;
 
 /**
  * @version $Rev$ $Date$

@@ -299,12 +299,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     protected String getModuleName(WebAppType webApp) {
         if (webApp.sizeOfModuleNameArray() > 0) {
-            return webApp.getModuleNameArray()[0].getStringValue().trim();        
+            return webApp.getModuleNameArray()[0].getStringValue().trim();
         } else {
             return null;
         }
     }
-    
+
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories)
             throws DeploymentException {
         EARContext moduleContext;
@@ -436,8 +436,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         //Process Web Service
         Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) webModule.getSpecDD(), webModule.getContextRoot());
         Map sharedContext = webModule.getSharedContext();
-        for (Object aWebServiceBuilder : webServiceBuilder) {
-            WebServiceBuilder serviceBuilder = (WebServiceBuilder) aWebServiceBuilder;
+        for (WebServiceBuilder serviceBuilder : webServiceBuilder) {
             serviceBuilder.findWebServices(webModule, false, servletNameToPathMap, webModule.getEnvironment(), sharedContext);
         }
         serviceBuilders.build(gerWebApp, earContext, webModule.getEarContext());
@@ -824,7 +823,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
         return context;
     }
-    
+
     private static class InternWrapper implements XMLStreamReader {
 
         private final XMLStreamReader delegate;

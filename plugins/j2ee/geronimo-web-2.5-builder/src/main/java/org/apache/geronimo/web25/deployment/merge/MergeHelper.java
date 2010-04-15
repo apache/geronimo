@@ -45,6 +45,7 @@ import org.apache.geronimo.kernel.osgi.DiscoveryRange;
 import org.apache.geronimo.kernel.osgi.BundleResourceFinder.ResourceFinderCallback;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web25.deployment.merge.annotation.AnnotationMergeHandler;
+import org.apache.geronimo.web25.deployment.merge.annotation.ServletSecurityAnnotationMergeHandler;
 import org.apache.geronimo.web25.deployment.merge.annotation.WebFilterAnnotationMergeHandler;
 import org.apache.geronimo.web25.deployment.merge.annotation.WebListenerAnnotationMergeHandler;
 import org.apache.geronimo.web25.deployment.merge.annotation.WebServletAnnotationMergeHandler;
@@ -112,6 +113,8 @@ public class MergeHelper {
     private static final AnnotationMergeHandler WEB_LISTENER_ANNOTATION_MERGE_HANDLER = new WebListenerAnnotationMergeHandler();
 
     private static final AnnotationMergeHandler WEB_SERVLET_ANNOTATION_MERGE_HANDLER = new WebServletAnnotationMergeHandler();
+
+    private static final AnnotationMergeHandler SERVLET_SECURITY_ANNOTATION_MERGE_HANDLER = new ServletSecurityAnnotationMergeHandler();
 
     /**
      * If absolute-ordering is found in the web.xml file, our steps :
@@ -303,6 +306,7 @@ public class MergeHelper {
         WEB_SERVLET_ANNOTATION_MERGE_HANDLER.preProcessWebXmlElement(webApp, mergeContext);
         WEB_FILTER_ANNOTATION_MERGE_HANDLER.preProcessWebXmlElement(webApp, mergeContext);
         WEB_LISTENER_ANNOTATION_MERGE_HANDLER.preProcessWebXmlElement(webApp, mergeContext);
+        SERVLET_SECURITY_ANNOTATION_MERGE_HANDLER.preProcessWebXmlElement(webApp, mergeContext);
         //Pre-process each web fragment
         for (WebFragmentMergeHandler<WebFragmentType, WebAppType> webFragmentMergeHandler : WEB_FRAGMENT_MERGE_HANDLERS) {
             webFragmentMergeHandler.preProcessWebXmlElement(webApp, mergeContext);
@@ -322,12 +326,13 @@ public class MergeHelper {
         for (WebFragmentMergeHandler<WebFragmentType, WebAppType> webFragmentMergeHandler : WEB_FRAGMENT_MERGE_HANDLERS) {
             webFragmentMergeHandler.postProcessWebXmlElement(webApp, mergeContext);
         }
+        //Merge the annotations found in WEB-INF/classes folder
+        mergeAnnotations(bundle, webApp, mergeContext, "/WEB-INF/classes");
         //Post-process for annotations
         WEB_SERVLET_ANNOTATION_MERGE_HANDLER.postProcessWebXmlElement(webApp, mergeContext);
         WEB_FILTER_ANNOTATION_MERGE_HANDLER.postProcessWebXmlElement(webApp, mergeContext);
         WEB_LISTENER_ANNOTATION_MERGE_HANDLER.postProcessWebXmlElement(webApp, mergeContext);
-        //Merge the annotations found in WEB-INF/classes folder
-        mergeAnnotations(bundle, webApp, mergeContext, "/WEB-INF/classes");
+        SERVLET_SECURITY_ANNOTATION_MERGE_HANDLER.postProcessWebXmlElement(webApp, mergeContext);
         mergeContext.clearup();
     }
 
