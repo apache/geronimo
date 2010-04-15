@@ -50,6 +50,7 @@ import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.StatefulDeploymentGBean;
 import org.apache.geronimo.openejb.StatelessDeploymentGBean;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
+import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
@@ -71,14 +72,12 @@ import org.apache.openejb.jee.SessionType;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
-
 import org.osgi.framework.Bundle;
 
 /**
  * Handles building ejb deployment gbeans.
  */
 public class EjbDeploymentBuilder {
-    private static final String ROLE_MAPPER_DATA_NAME = "roleMapperDataName";
 
     private final EARContext earContext;
     private final EjbModule ejbModule;
@@ -281,7 +280,7 @@ public class EjbDeploymentBuilder {
             }
 
             gbean.setAttribute("securityEnabled", true);
-            gbean.setReferencePattern("RunAsSource", (AbstractNameQuery)earContext.getGeneralData().get(ROLE_MAPPER_DATA_NAME));
+            gbean.setReferencePattern("RunAsSource", GeronimoSecurityBuilderImpl.ROLE_MAPPER_DATA_NAME.get(earContext.getGeneralData()));
         }
     }
 
