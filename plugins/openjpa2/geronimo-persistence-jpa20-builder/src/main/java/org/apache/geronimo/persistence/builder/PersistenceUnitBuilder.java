@@ -30,7 +30,6 @@ import java.util.Properties;
 import java.util.jar.JarFile;
 
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.DeployableBundle;
@@ -45,7 +44,6 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
-import org.apache.geronimo.j2ee.deployment.EARContext.Key;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
@@ -67,15 +65,21 @@ import org.osgi.framework.Bundle;
  * @version $Rev$ $Date$
  */
 public class PersistenceUnitBuilder implements ModuleBuilderExtension {
-    private static final QName PERSISTENCE_QNAME = PersistenceDocument.type.getDocumentElementName();
 
-    public static final EARContext.Key<List<URL>> PERSISTENCE_URL_LIST_KEY = new EARContext.Key<List<URL>>() {
+    private static final EARContext.Key<List<URL>> PERSISTENCE_URL_LIST_KEY = new EARContext.Key<List<URL>>() {
 
         @Override
-        public List<URL> get(Map<Key, Object> context) {
-            return (List<URL>) context.get(this);
+        public List<URL> get(Map<EARContext.Key, Object> keyObjectMap) {
+            List<URL> list = (List<URL>) keyObjectMap.get(this);
+            if (list == null) {
+                list = new ArrayList<URL>();
+                keyObjectMap.put(this, list);
+            }
+            return list;
         }
     };
+
+    private static final QName PERSISTENCE_QNAME = PersistenceDocument.type.getDocumentElementName();
 
     private final Environment defaultEnvironment;
     private final String defaultPersistenceProviderClassName;
@@ -133,7 +137,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             String rootBase = rootBaseFile.toURI().normalize().toString();
             URI moduleBaseURI = moduleContext.getBaseDir().toURI();
             Map rootGeneralData = module.getRootEarContext().getGeneralData();
-            ClassPathList manifestcp = EARContext.CLASS_PATH_LIST_KEY.get(rootGeneralData);
+            ClassPathList manifestcp = EARContext.CLASS_PATH_LIST_KEY.get(module.getEarContext().getGeneralData());
             if (manifestcp == null) {
                 manifestcp = new ClassPathList();
                 manifestcp.add(module.getTargetPath());
@@ -147,10 +151,6 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             }
             ResourceFinder finder = new ResourceFinder("", null, urls);
             List<URL> knownPersistenceUrls = PERSISTENCE_URL_LIST_KEY.get(rootGeneralData);
-            if (knownPersistenceUrls == null) {
-                knownPersistenceUrls = new ArrayList<URL>();
-                rootGeneralData.put(PERSISTENCE_URL_LIST_KEY, knownPersistenceUrls);
-            }
             List<URL> persistenceUrls = finder.findAll("META-INF/persistence.xml");
             persistenceUrls.removeAll(knownPersistenceUrls);
             if (raws.length > 0 || persistenceUrls.size() > 0) {
