@@ -16,14 +16,20 @@
   */
 package org.apache.geronimo.yoko;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
+import javax.rmi.CORBA.UtilDelegate;
+import org.apache.geronimo.corba.util.UtilDelegateImpl;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.corba.CORBABean;
@@ -50,12 +56,9 @@ import org.omg.CORBA.Policy;
  * @version $Revision: 497125 $ $Date: 2007-01-17 10:51:30 -0800 (Wed, 17 Jan 2007) $
  */
 @GBean(j2eeType = NameFactory.ORB_CONFIG)
-public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
+public class ORBConfigAdapter implements ConfigAdapter {
 
     private final Logger log = LoggerFactory.getLogger(ORBConfigAdapter.class);
-
-    public ORBConfigAdapter() {
-    }
 
     /**
      * Start the config adapter GBean.  This is basically
@@ -64,9 +67,9 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
      * this makes the ORB hookups for the RMI over IIOP
      * support.
      *
-     * @exception Exception
+     * @exception Exception due to class loading problems or narrow not working
      */
-    public void doStart() throws Exception {
+    public ORBConfigAdapter(@ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle) throws Exception {
         // define the default ORB for ORB.init();
         System.setProperty("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
         System.setProperty("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
@@ -78,28 +81,19 @@ public class ORBConfigAdapter implements GBeanLifecycle, ConfigAdapter {
         System.setProperty("javax.rmi.CORBA.UtilClass", "org.apache.geronimo.corba.util.UtilDelegateImpl");
         // this tells the openejb UtilDelegateImpl which implementation to delegate non-overridden
         // operations to.
-        System.setProperty("org.apache.geronimo.corba.UtilDelegateClass", "org.apache.yoko.rmi.impl.UtilImpl");
-        // this allows us to hook RMI stub invocation/serialization events. 
+//        System.setProperty("org.apache.geronimo.corba.UtilDelegateClass", "org.apache.yoko.rmi.impl.UtilImpl");
+        // this allows us to hook RMI stub invocation/serialization events.
+        UtilDelegateImpl.setDelegateClass(bundle.loadClass("org.apache.yoko.rmi.impl.UtilImpl").asSubclass(UtilDelegate.class));
         System.setProperty("org.apache.yoko.rmi.RMIStubInitializerClass", "org.apache.geronimo.yoko.RMIStubHandlerFactory");
 
         // ok, now we have a potential classloading problem because of where our util delegates are located.
         // by forcing these classes to load now using our class loader, we can ensure things are properly initialized
-        Class clazz = this.getClass().getClassLoader().loadClass("javax.rmi.PortableRemoteObject");
+        Class clazz = bundle.loadClass("javax.rmi.PortableRemoteObject");
         Method m = clazz.getMethod("narrow", Object.class, Class.class);
         m.invoke(null, new Object(), Object.class);
 
 
         log.debug("Started  Yoko ORBConfigAdapter");
-    }
-
-    public void doStop() throws Exception {
-        // nothing really required here.
-        log.debug("Stopped Yoko ORBConfigAdapter");
-    }
-
-    public void doFail() {
-        // nothing much to do.
-        log.warn("Failed Yoko ORBConfigAdapter");
     }
 
     /**

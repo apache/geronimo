@@ -27,7 +27,7 @@
         </dependency>
     </gbean>
 
-    <gbean name="ORBConfigAdapter" class="org.apache.geronimo.yoko.ORBConfigAdapterGBean"/>
+    <gbean name="ORBConfigAdapter" class="org.apache.geronimo.yoko.ORBConfigAdapter"/>
 
     <gbean name="NameServer" class="org.apache.geronimo.corba.NameServiceGBean">
         <reference name="ServerInfo">

@@ -65,19 +65,25 @@ public final class UtilDelegateImpl implements UtilDelegate {
 
     private final Logger log = LoggerFactory.getLogger(UtilDelegateImpl.class);
     private final UtilDelegate delegate;
+    private static Class<? extends UtilDelegate> delegateClass;
     private static ClassLoader classLoader;
 
     private final static String DELEGATE_NAME = "org.apache.geronimo.corba.UtilDelegateClass";
 
     public UtilDelegateImpl() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        String value = System.getProperty(DELEGATE_NAME);
-        if (value == null) {
-            log.error("No delegate specfied via " + DELEGATE_NAME);
-            throw new IllegalStateException("The property " + DELEGATE_NAME + " must be defined!");
-        }
+//        String value = System.getProperty(DELEGATE_NAME);
+//        if (value == null) {
+//            log.error("No delegate specfied via " + DELEGATE_NAME);
+//            throw new IllegalStateException("The property " + DELEGATE_NAME + " must be defined!");
+//        }
+//
+//        if (log.isDebugEnabled()) log.debug("Set delegate " + value);
+//        delegate = (UtilDelegate) Class.forName(value).newInstance();
+        delegate = delegateClass.newInstance();
+    }
 
-        if (log.isDebugEnabled()) log.debug("Set delegate " + value);
-        delegate = (UtilDelegate) Class.forName(value).newInstance();
+    public static void setDelegateClass(Class<? extends UtilDelegate> delegateClass) {
+        UtilDelegateImpl.delegateClass = delegateClass;
     }
 
     static void setClassLoader(ClassLoader classLoader) {

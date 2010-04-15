@@ -382,6 +382,16 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.yoko</groupId>
+        <artifactId>yoko-rmi-spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.yoko</groupId>
+        <artifactId>yoko-spec-corba</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.eclipse</groupId>
         <artifactId>osgi</artifactId>
         <type>jar</type>
@@ -404,6 +414,16 @@
     <dependency>
         <groupId>org.ops4j.pax.url</groupId>
         <artifactId>pax-url-wrap</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.compendium</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

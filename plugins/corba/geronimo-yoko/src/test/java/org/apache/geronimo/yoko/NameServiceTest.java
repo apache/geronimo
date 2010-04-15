@@ -21,6 +21,8 @@ import java.util.Properties;
 import org.apache.geronimo.corba.NameService;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.kernel.osgi.MockBundle;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -49,10 +51,9 @@ public class NameServiceTest extends TestCase {
 
         String tmpDir = System.getProperty("java.io.tmpdir");
         ServerInfo serverInfo = new BasicServerInfo(tmpDir);
-
-        ORBConfigAdapter adapter = new ORBConfigAdapter();
+        Bundle bundle = new MockBundle(getClass().getClassLoader(), "", 0);
+        ORBConfigAdapter adapter = new ORBConfigAdapter(bundle);
         // make sure all system properties are initialized.
-        adapter.doStart();
         nameService = new NameService(serverInfo, adapter, "localhost", 8050);
         nameService.doStart();
 

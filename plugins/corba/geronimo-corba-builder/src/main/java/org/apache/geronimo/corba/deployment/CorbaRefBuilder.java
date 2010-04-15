@@ -20,6 +20,10 @@ package org.apache.geronimo.corba.deployment;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -39,13 +43,15 @@ import org.apache.geronimo.gbean.SingleElementCollection;
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class CorbaRefBuilder extends AbstractNamingBuilder {
 
-    private final SingleElementCollection corbaGBeanNameSourceCollection;
+    private final SingleElementCollection<CorbaGBeanNameSource> corbaGBeanNameSourceCollection;
 
-    public CorbaRefBuilder(Environment defaultEnvironment, Collection corbaGBeanNameSource) {
+    public CorbaRefBuilder(@ParamAttribute(name = "defaultEnvironment")Environment defaultEnvironment, 
+                           @ParamReference(name="CorbaGBeanNameSource")Collection<CorbaGBeanNameSource> corbaGBeanNameSource) {
         super(defaultEnvironment);
-        this.corbaGBeanNameSourceCollection = new SingleElementCollection(corbaGBeanNameSource);
+        this.corbaGBeanNameSourceCollection = new SingleElementCollection<CorbaGBeanNameSource>(corbaGBeanNameSource);
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
@@ -55,16 +61,15 @@ public class CorbaRefBuilder extends AbstractNamingBuilder {
 //        return false;
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         if (matchesDefaultEnvironment(module.getEnvironment())) {
-            CorbaGBeanNameSource corbaGBeanNameSource = (CorbaGBeanNameSource) corbaGBeanNameSourceCollection.getElement();
+            CorbaGBeanNameSource corbaGBeanNameSource = corbaGBeanNameSourceCollection.getElement();
             if (corbaGBeanNameSource != null) {
                 AbstractNameQuery corbaName = corbaGBeanNameSource.getCorbaGBeanName();
                 if (corbaName != null) {
                     Artifact[] moduleId = module.getConfigId();
-                    Map context = getJndiContextMap(componentContext);
-                    context.put("ORB", new ORBReference(moduleId, corbaName));
-                    context.put("HandleDelegate", new HandleDelegateReference(moduleId, corbaName));
+                    put("env/ORB", new ORBReference(moduleId, corbaName), JNDI_KEY.get(sharedContext));
+                    put("env/HandleDelegate", new HandleDelegateReference(moduleId, corbaName), JNDI_KEY.get(sharedContext));
                 }
             }
         }
@@ -76,20 +81,6 @@ public class CorbaRefBuilder extends AbstractNamingBuilder {
 
     public QNameSet getPlanQNameSet() {
         return QNameSet.EMPTY;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(CorbaRefBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.addReference("CorbaGBeanNameSource", CorbaGBeanNameSource.class);
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "CorbaGBeanNameSource"});
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

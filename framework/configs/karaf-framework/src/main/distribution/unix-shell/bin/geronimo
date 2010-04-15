@@ -225,6 +225,10 @@ setupDefaults() {
             CLASSPATH="$CLASSPATH:$file"
         fi
     done
+
+    EXT_DIRS="$KARAF_HOME/lib/ext:$JAVA_HOME/lib/ext"
+    ENDORSED_DIRS="$KARAF_HOME/lib/endorsed:$JAVA_HOME/lib/endorsed"
+
     DEFAULT_JAVA_DEBUG_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"
 
     ##
@@ -284,8 +288,20 @@ run() {
         KARAF_HOME=`cygpath --path --windows "$KARAF_HOME"`
         KARAF_BASE=`cygpath --path --windows "$KARAF_BASE"`
         CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
+        EXT_DIRS=`cygpath --path --windows "$EXT_DIRS"`
+        ENDORSED_DIRS=`cygpath --path --windows "$ENDORSED_DIRS"`
     fi
-    exec $JAVA $JAVA_OPTS -Dorg.apache.geronimo.home.dir="$KARAF_HOME" -Dkaraf.home="$KARAF_HOME" -Dkaraf.base="$KARAF_BASE" -Djava.util.logging.config.file=$KARAF_BASE/etc/java.util.logging.properties $OPTS -classpath "$CLASSPATH" org.apache.geronimo.cli.daemon.DaemonCLI "$@"
+    exec $JAVA $JAVA_OPTS \
+        -Dorg.apache.geronimo.home.dir="$KARAF_HOME" \
+        -Dkaraf.home="$KARAF_HOME" \
+        -Dkaraf.base="$KARAF_BASE" \
+        -Djava.util.logging.config.file=$KARAF_BASE/etc/java.util.logging.properties \
+        -Djava.endorsed.dirs="$ENDORSED_DIRS" \
+        -Djava.ext.dirs="$EXT_DIRS" \
+        $OPTS \
+        -classpath "$CLASSPATH" \
+        org.apache.geronimo.cli.daemon.DaemonCLI \
+        "$@"
 }
 
 main() {

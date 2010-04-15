@@ -28,6 +28,8 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -52,6 +54,7 @@ import org.osgi.framework.Bundle;
  *  
  * @version $Revision$ $Date$
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
 
     private static final QName GER_EJB_REF_QNAME = GerEjbRefDocument.type.getDocumentElementName();
@@ -63,7 +66,8 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
 
     private final QNameSet ejbRefQNameSet;
 
-    public OpenEjbCorbaRefBuilder(Environment defaultEnvironment, String[] eeNamespaces) throws URISyntaxException {
+    public OpenEjbCorbaRefBuilder(@ParamAttribute(name = "defaultEnvironment")Environment defaultEnvironment,
+                                  @ParamAttribute(name = "eeNamespaces")String[] eeNamespaces) throws URISyntaxException {
         super(defaultEnvironment, new String[0], null, -1);
         ejbRefQNameSet = buildQNameSet(eeNamespaces, "ejb-ref");
     }
@@ -173,23 +177,6 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
             }
         }
         return refMap;
-    }
-
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbCorbaRefBuilder.class, NameFactory.MODULE_BUILDER); //TODO decide what type this should be
-        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

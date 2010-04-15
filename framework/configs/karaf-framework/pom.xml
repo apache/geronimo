@@ -45,7 +45,7 @@
         <felix.compendium.version>1.2.0</felix.compendium.version>
         <felix.configadmin.version>1.2.4</felix.configadmin.version>
         <felix.fileinstall.version>2.0.8</felix.fileinstall.version>
-        <felix.framework.version>2.0.4</felix.framework.version>
+        <felix.framework.version>2.1.0-SNAPSHOT</felix.framework.version>
         <felix.gogo.version>0.2.2</felix.gogo.version>
         <felix.osgi.version>1.4.0</felix.osgi.version>
         <felix.plugin.version>2.0.1</felix.plugin.version>
@@ -467,6 +467,17 @@
             <artifactId>geronimo-shell-base</artifactId>
             <version>${version}</version>
         </dependency>
+        <!-- endorsed -->
+        <dependency>
+            <groupId>org.apache.yoko</groupId>
+            <artifactId>yoko-spec-corba</artifactId>
+            <version>1.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.yoko</groupId>
+            <artifactId>yoko-rmi-spec</artifactId>
+            <version>1.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <build>
         <!--<resources>-->
@@ -628,6 +639,18 @@
                                     <artifactId>commons-cli</artifactId>
                                     <outputDirectory>target/dependencies/lib</outputDirectory>
                                     <destFileName>commons-cli.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.yoko</groupId>
+                                    <artifactId>yoko-spec-corba</artifactId>
+                                    <outputDirectory>target/dependencies/lib/endorsed</outputDirectory>
+                                    <destFileName>yoko-spec-corba.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.yoko</groupId>
+                                    <artifactId>yoko-rmi-spec</artifactId>
+                                    <outputDirectory>target/dependencies/lib/endorsed</outputDirectory>
+                                    <destFileName>yoko-rmi-spec.jar</destFileName>
                                 </artifactItem>
                                 <!--<artifactItem>-->
                                     <!--<groupId>org.apache.xbean</groupId>-->

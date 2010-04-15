@@ -76,10 +76,10 @@
             <artifactId>yoko-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.yoko</groupId>
-            <artifactId>yoko-spec-corba</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.yoko</groupId>-->
+            <!--<artifactId>yoko-spec-corba</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.yoko</groupId>
@@ -87,8 +87,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.bcel</groupId>
-            <artifactId>bcel</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.bcel</artifactId>
         </dependency>
 
         <dependency>

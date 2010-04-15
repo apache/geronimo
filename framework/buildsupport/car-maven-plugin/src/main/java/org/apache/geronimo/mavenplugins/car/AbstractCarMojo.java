@@ -790,6 +790,7 @@ public abstract class AbstractCarMojo
                         "net.sf.cglib.proxy," +
                         "net.sf.cglib.reflect," +
                         "sun.misc," +
+                        "sun.reflect," +
                         "org.apache.commons.jexl;version=\"1.1\"," +
                         "org.apache.commons.jexl.context;version=\"1.1\"," +
                         "org.apache.commons.jexl.resolver;version=\"1.1\"," +
@@ -836,6 +837,8 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.system.util," +
                         "org.apache.geronimo.mavenplugins.car," +
                         "org.apache.felix.karaf.jaas.boot;version=\"1.5.0\"," +
+                        "org.apache.yoko," +
+                        "org.apache.yoko.osgi," +
                         "org.apache.yoko.rmispec.util"
                 );
                         /*

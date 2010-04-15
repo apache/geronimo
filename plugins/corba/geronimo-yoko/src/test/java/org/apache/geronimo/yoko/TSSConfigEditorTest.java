@@ -69,7 +69,7 @@ public class TSSConfigEditorTest extends TestCase {
         Bundle bundle = new MockBundleContext(getClass().getClassLoader(), "", null, null).getBundle();
         Naming naming = new Jsr77Naming();
         AbstractName testName = naming.createRootName(new Artifact("test", "stuff", "", "ear"), "gbean", NameFactory.CORBA_SERVICE);
-        ConfigAdapter configAdapter = new org.apache.geronimo.yoko.ORBConfigAdapter();
+        ConfigAdapter configAdapter = new org.apache.geronimo.yoko.ORBConfigAdapter(bundle);
         CORBABean corbaBean = new CORBABean(testName, configAdapter, "localhost", 8050, getClass().getClassLoader(), null, null);
         XmlObject xmlObject = getXmlObject(TEST_XML4);
         TSSConfigEditor editor = new TSSConfigEditor();
