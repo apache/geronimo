@@ -127,8 +127,6 @@ public final class XmlUtil {
         String xml = marshal(root);
         try {
             XmlObject xmlObject = XmlBeansUtil.parse(xml);
-            //TODO Convert persistence version to 2.0, might be removed once OpenEJB begins to use latest JPA version
-            convertPersistenceSchemaVersion(xmlObject);
             OpenejbGeronimoEjbJarType geronimoOpenejb = (OpenejbGeronimoEjbJarType) SchemaConversionUtils.fixGeronimoSchema(xmlObject, OPENEJBJAR_QNAME, OpenejbGeronimoEjbJarType.type);
             return geronimoOpenejb;
         } catch (Throwable e) {
@@ -387,31 +385,4 @@ public final class XmlUtil {
         return false;
     }
 
-    private static void convertPersistenceSchemaVersion(XmlObject xmlObject) {
-        XmlCursor cursor = null;
-        try {
-            cursor = xmlObject.newCursor();
-            cursor.toStartDoc();
-            if (cursor.toFirstChild()) {
-                do {
-                    QName name = cursor.getName();
-                    if (name.getLocalPart().equals("persistence")) {
-                        XmlCursor end = cursor.newCursor();
-                        end.toEndToken();
-                        cursor.push();
-                        SchemaConversionUtils.convertSchemaVersion(cursor, end, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
-                        end.dispose();
-                        cursor.pop();
-                    }
-                } while (cursor.toNextSibling());
-            }
-        } finally {
-            if (cursor != null) {
-                try {
-                    cursor.dispose();
-                } catch (Exception e) {
-                }
-            }
-        }
-    }
 }

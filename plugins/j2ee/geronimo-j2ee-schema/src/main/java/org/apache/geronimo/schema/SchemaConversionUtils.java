@@ -60,7 +60,7 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.put("environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("client-environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("server-environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-        GERONIMO_SCHEMA_CONVERSIONS.put("persistence", new NamespaceElementConverter(JPA_PERSISTENCE_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("persistence", new PersistenceElementConverter("2.0"));
     }
 
     private SchemaConversionUtils() {
