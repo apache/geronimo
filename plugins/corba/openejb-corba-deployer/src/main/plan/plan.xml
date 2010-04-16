@@ -32,6 +32,7 @@
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
                         <artifactId>j2ee-corba-yoko</artifactId>
+                        <version>${version}</version>
                         <type>car</type>
                     </dependency>
                 </dependencies>
@@ -47,6 +48,7 @@
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
                         <artifactId>client-corba-yoko</artifactId>
+                        <version>${version}</version>
                         <type>car</type>
                     </dependency>
                 </dependencies>
@@ -61,6 +63,7 @@
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
                         <artifactId>j2ee-corba-yoko</artifactId>
+                        <version>${version}</version>
                         <type>car</type>
                     </dependency>
                 </dependencies>
@@ -78,6 +81,7 @@
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
                         <artifactId>client-corba-yoko</artifactId>
+                        <version>${version}</version>
                         <type>car</type>
                     </dependency>
                 </dependencies>
@@ -95,6 +99,7 @@
                     <dependency>
                         <groupId>org.apache.geronimo.configs</groupId>
                         <artifactId>j2ee-corba-yoko</artifactId>
+                        <version>${version}</version>
                         <type>car</type>
                     </dependency>
                 </dependencies>
