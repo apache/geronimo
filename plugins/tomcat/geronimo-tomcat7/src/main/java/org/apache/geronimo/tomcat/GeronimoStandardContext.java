@@ -567,4 +567,10 @@ public class GeronimoStandardContext extends StandardContext {
     public String getPolicyContextId() {
         return policyContextId;
     }
+
+    @Override
+    public String getBasePath() {
+        //TODO Override setDocBase with an empty block to avoid NullPointerException
+        return null;
+    }
 }
