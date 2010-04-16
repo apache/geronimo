@@ -92,6 +92,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     private final WebManager manager;
     private static boolean first = true;
     private final BundleContext bundleContext;
+    private final ClassLoader classLoader;
 
     /**
      * GBean constructor (invoked dynamically when the gbean is declared in a plan)
@@ -116,7 +117,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         if (engineGBean == null && server == null) throw new IllegalArgumentException("Server and EngineGBean cannot both be null.");
 
         this.bundleContext = bundleContext;
-
+        this.classLoader = classLoader;
         // Register a stream handler factory for the JNDI protocol
         URLStreamHandlerFactory streamHandlerFactory =
             new DirContextURLStreamHandlerFactory();
@@ -339,7 +340,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     }
 
     public void addConnector(Connector connector) {
-        embedded.addConnector(connector);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(classLoader);
+            embedded.addConnector(connector);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     public void removeConnector(Connector connector) {
