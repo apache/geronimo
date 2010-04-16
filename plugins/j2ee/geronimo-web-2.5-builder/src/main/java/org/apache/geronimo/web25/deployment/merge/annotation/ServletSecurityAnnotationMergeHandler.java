@@ -31,6 +31,7 @@ import javax.servlet.annotation.ServletSecurity.TransportGuarantee;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.webfragment.ServletMappingMergeHandler;
+import org.apache.geronimo.web25.deployment.security.HTTPMethods;
 import org.apache.geronimo.xbeans.javaee6.AuthConstraintType;
 import org.apache.geronimo.xbeans.javaee6.SecurityConstraintType;
 import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
@@ -48,18 +49,6 @@ import org.slf4j.LoggerFactory;
 public class ServletSecurityAnnotationMergeHandler implements AnnotationMergeHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ServletSecurityAnnotationMergeHandler.class);
-
-    public static final Set<String> SUPPORTED_HTTP_METHODS = new HashSet<String>();
-    static {
-        SUPPORTED_HTTP_METHODS.add("OPTIONS");
-        SUPPORTED_HTTP_METHODS.add("GET");
-        SUPPORTED_HTTP_METHODS.add("HEAD");
-        SUPPORTED_HTTP_METHODS.add("POST");
-        SUPPORTED_HTTP_METHODS.add("PUT");
-        SUPPORTED_HTTP_METHODS.add("DELETE");
-        SUPPORTED_HTTP_METHODS.add("TRACE");
-        SUPPORTED_HTTP_METHODS.add("CONNECT");
-    }
 
     @Override
     public void merge(Class<?>[] classes, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
@@ -177,18 +166,12 @@ public class ServletSecurityAnnotationMergeHandler implements AnnotationMergeHan
         return securityConstraint;
     }
 
-    private void addSecurityConstraintHttpMethod(SecurityConstraintType securityConstraint, String httpMethod) {
-        WebResourceCollectionType webResourceCollection = securityConstraint.getWebResourceCollectionArray().length == 0 ? securityConstraint.addNewWebResourceCollection() : securityConstraint
-                .getWebResourceCollectionArray(0);
-        webResourceCollection.addNewHttpMethod().setStringValue(httpMethod);
-    }
-
     private String normalizeHTTPMethod(String servletClassName, String httpMethod) throws DeploymentException {
         if (httpMethod == null || httpMethod.isEmpty()) {
             throw new DeploymentException("HTTP protocol method could not be null or empty string in the ServletSecurity anntation of the class " + servletClassName);
         }
         httpMethod = httpMethod.toUpperCase();
-        if (!SUPPORTED_HTTP_METHODS.contains(httpMethod)) {
+        if (!HTTPMethods.SUPPORTED_HTTP_METHODS.contains(httpMethod)) {
             throw new DeploymentException("Invalid HTTP protocol method " + httpMethod + " in the ServletSecurity annotation of the class " + servletClassName);
         }
         return httpMethod;
