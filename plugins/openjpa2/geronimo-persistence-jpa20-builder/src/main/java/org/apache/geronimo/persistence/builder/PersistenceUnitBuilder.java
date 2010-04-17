@@ -228,23 +228,23 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     }
 
     protected PersistenceDocument.Persistence convertToPersistenceUnit(XmlObject xmlObject) throws XmlException {
-        XmlCursor cursor = null;
-        try {
-            cursor = xmlObject.newCursor();
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
+//        XmlCursor cursor = null;
+//        try {
+//            cursor = xmlObject.newCursor();
+//            cursor.toStartDoc();
+//            cursor.toFirstChild();
+//            SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
             XmlObject result = xmlObject.changeType(PersistenceDocument.Persistence.type);
             XmlBeansUtil.validateDD(result);
             return (PersistenceDocument.Persistence) result;
-        } finally {
-            if (cursor != null) {
-                try {
-                    cursor.dispose();
-                } catch (Exception e) {
-                }
-            }
-        }
+//        } finally {
+//            if (cursor != null) {
+//                try {
+//                    cursor.dispose();
+//                } catch (Exception e) {
+//                }
+//            }
+//        }
     }
 
     private void buildPersistenceUnits(PersistenceDocument.Persistence persistence, Map<String, PersistenceDocument.Persistence.PersistenceUnit> overrides, Module module, String persistenceModulePath) throws DeploymentException {
@@ -267,12 +267,12 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
         AbstractName abstractName;
         if (persistenceModulePath == null || persistenceModulePath.length() == 0) {
-            abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
+            abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), persistenceUnitName, NameFactory.PERSISTENCE_UNIT);
         } else {
             abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), persistenceModulePath, NameFactory.PERSISTENCE_UNIT_MODULE);
-            abstractName = moduleContext.getNaming().createChildName(abstractName, moduleContext.getConfigID(), persistenceUnitName, PersistenceUnitGBean.GBEAN_INFO.getJ2eeType());
+            abstractName = moduleContext.getNaming().createChildName(abstractName, moduleContext.getConfigID(), persistenceUnitName, NameFactory.PERSISTENCE_UNIT);
         }
-        GBeanData gbeanData = new GBeanData(abstractName, PersistenceUnitGBean.GBEAN_INFO);
+        GBeanData gbeanData = new GBeanData(abstractName, PersistenceUnitGBean.class);
         try {
             moduleContext.addGBean(gbeanData);
         } catch (GBeanAlreadyExistsException e) {

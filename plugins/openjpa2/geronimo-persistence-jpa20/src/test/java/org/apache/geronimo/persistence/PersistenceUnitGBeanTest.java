@@ -24,15 +24,16 @@ import javax.persistence.SharedCacheMode;
 import javax.persistence.ValidationMode;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.kernel.osgi.MockBundle;
 
 /**
  * @version $Rev$ $Date$
  */
 public class PersistenceUnitGBeanTest extends TestCase {
 
-    public void testNoArgConstructor() throws Exception {
-        new PersistenceUnitGBean();
-    }
+//    public void testNoArgConstructor() throws Exception {
+//        new PersistenceUnitGBean();
+//    }
     
     public void testNonNullJavaFileUrls() throws Exception {
         PersistenceUnitGBean gbean = new PersistenceUnitGBean("foo",
@@ -42,21 +43,21 @@ public class PersistenceUnitGBeanTest extends TestCase {
                 null,
                 null,
                 null,
-                "/foo/bar/Root",
+                "/",
                 null,
                 true,
                 null,
                 null,
                 null,
-                new File("/foo/bar/Root").toURL(),
                 "2.0",
                 SharedCacheMode.NONE,
                 ValidationMode.AUTO,
+                new MockBundle(getClass().getClassLoader(), "", 0L),
                 getClass().getClassLoader());
         assertNotNull(gbean.getManagedClassNames());
         assertNotNull(gbean.getProperties());
         assertNotNull(gbean.getJarFileUrls());
-        assertNotNull(gbean.getPersistenceUnitRootUrl());
+//        assertNotNull(gbean.getPersistenceUnitRootUrl());
         assertNotNull(gbean.getPersistenceProviderClassName());
     }
 }

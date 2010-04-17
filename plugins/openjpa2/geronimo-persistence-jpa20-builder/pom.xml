@@ -47,6 +47,7 @@
             <artifactId>geronimo-persistence-jpa20</artifactId>
             <version>${version}</version>
         </dependency>
+        
     </dependencies>
 
 </project>
