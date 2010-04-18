@@ -31,7 +31,6 @@ import javax.servlet.annotation.ServletSecurity.TransportGuarantee;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.webfragment.ServletMappingMergeHandler;
-import org.apache.geronimo.web25.deployment.security.HTTPMethods;
 import org.apache.geronimo.xbeans.javaee6.AuthConstraintType;
 import org.apache.geronimo.xbeans.javaee6.SecurityConstraintType;
 import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
@@ -169,10 +168,6 @@ public class ServletSecurityAnnotationMergeHandler implements AnnotationMergeHan
     private String normalizeHTTPMethod(String servletClassName, String httpMethod) throws DeploymentException {
         if (httpMethod == null || httpMethod.isEmpty()) {
             throw new DeploymentException("HTTP protocol method could not be null or empty string in the ServletSecurity anntation of the class " + servletClassName);
-        }
-        httpMethod = httpMethod.toUpperCase();
-        if (!HTTPMethods.SUPPORTED_HTTP_METHODS.contains(httpMethod)) {
-            throw new DeploymentException("Invalid HTTP protocol method " + httpMethod + " in the ServletSecurity annotation of the class " + servletClassName);
         }
         return httpMethod;
     }

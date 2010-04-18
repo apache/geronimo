@@ -20,7 +20,6 @@
 
 package org.apache.geronimo.web25.deployment.security;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.regex.Pattern;
@@ -31,20 +30,6 @@ import java.util.regex.Pattern;
  * @version $Rev$ $Date$
  */
 public class HTTPMethods {
-
-    public static final Set<String> SUPPORTED_HTTP_METHODS;
-    static {
-        Set<String> supportedHttpMethods = new HashSet<String>();
-        supportedHttpMethods.add("OPTIONS");
-        supportedHttpMethods.add("GET");
-        supportedHttpMethods.add("HEAD");
-        supportedHttpMethods.add("POST");
-        supportedHttpMethods.add("PUT");
-        supportedHttpMethods.add("DELETE");
-        supportedHttpMethods.add("TRACE");
-        //supportedHttpMethods.add("CONNECT");
-        SUPPORTED_HTTP_METHODS = Collections.unmodifiableSet(supportedHttpMethods);
-    }
 
     private static final Pattern TOKEN_PATTERN = Pattern.compile("[!-~&&[^\\(\\)\\<\\>@,;:\\\\\"/\\[\\]\\?=\\{\\}]]*");
 

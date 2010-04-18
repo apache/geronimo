@@ -118,8 +118,10 @@ public class SpecSecurityBuilder {
                     }
 
                     String[] httpMethodTypeArray = webResourceCollectionType.getHttpMethodArray();
-                    String[] omissionHttpMethods = webResourceCollectionType.getHttpMethodOmissionArray();
-                    if (httpMethodTypeArray.length > 0) {
+                    if (httpMethodTypeArray.length == 0) {
+                        pattern.addMethod("");
+                        allPattern.addMethod("");
+                    } else {
                         for (String aHttpMethodTypeArray : httpMethodTypeArray) {
                             String method = (aHttpMethodTypeArray == null ? null : aHttpMethodTypeArray.trim());
                             if (method != null) {
@@ -127,23 +129,7 @@ public class SpecSecurityBuilder {
                                 allPattern.addMethod(method);
                             }
                         }
-                    } else if (omissionHttpMethods.length > 0) {
-                        Set<String> httpMethods = new HashSet<String>(HTTPMethods.SUPPORTED_HTTP_METHODS);
-                        for (String omissionHttpMethod : omissionHttpMethods) {
-                            String nomalizedOmissionHttpMethod = omissionHttpMethod == null ? null : omissionHttpMethod.trim().toUpperCase();
-                            if (nomalizedOmissionHttpMethod != null) {
-                                httpMethods.remove(nomalizedOmissionHttpMethod);
-                            }
-                        }
-                        for (String httpMethod : httpMethods) {
-                            pattern.addMethod(httpMethod);
-                            allPattern.addMethod(httpMethod);
-                        }
-                    } else {
-                        pattern.addMethod("");
-                        allPattern.addMethod("");
                     }
-
                     if (currentPatterns == rolesPatterns) {
                         RoleNameType[] roleNameTypeArray = securityConstraintType.getAuthConstraint().getRoleNameArray();
                         for (RoleNameType roleNameType : roleNameTypeArray) {
