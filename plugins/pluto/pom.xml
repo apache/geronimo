@@ -43,7 +43,7 @@
     </modules>
 
     <properties>
-        <plutoVersion>2.0.1-SNAPSHOT</plutoVersion>
+        <plutoVersion>2.0.1</plutoVersion>
     </properties>
 
     <dependencyManagement>
