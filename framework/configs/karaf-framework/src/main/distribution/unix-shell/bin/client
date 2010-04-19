@@ -1,296 +1,207 @@
 #!/bin/sh
 #
-#    Licensed to the Apache Software Foundation (ASF) under one or more
-#    contributor license agreements.  See the NOTICE file distributed with
-#    this work for additional information regarding copyright ownership.
-#    The ASF licenses this file to You under the Apache License, Version 2.0
-#    (the "License"); you may not use this file except in compliance with
-#    the License.  You may obtain a copy of the License at
-#
-#       http://www.apache.org/licenses/LICENSE-2.0
-#
-#    Unless required by applicable law or agreed to in writing, software
-#    distributed under the License is distributed on an "AS IS" BASIS,
-#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#    See the License for the specific language governing permissions and
-#    limitations under the License.
-#
-# $Id: karaf 979 2005-11-30 22:50:55Z bsnyder $
-#
+#  Licensed to the Apache Software Foundation (ASF) under one or more
+#  contributor license agreements.  See the NOTICE file distributed with
+#  this work for additional information regarding copyright ownership.
+#  The ASF licenses this file to You under the Apache License, Version 2.0
+#  (the "License"); you may not use this file except in compliance with
+#  the License.  You may obtain a copy of the License at
+# 
+#      http://www.apache.org/licenses/LICENSE-2.0
+# 
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
 
-DIRNAME=`dirname $0`
-PROGNAME=`basename $0`
+# --------------------------------------------------------------------
+# $Rev: 575171 $ $Date: 2007-09-13 01:15:48 -0400 (Thu, 13 Sep 2007) $
+# --------------------------------------------------------------------
 
+# -----------------------------------------------------------------------------
+# Client Script for the Geronimo Server
 #
-# Check/Set up some easily accessible MIN/MAX params for JVM mem usage
+# You should not have to edit this file.  If you wish to have environment
+# variables set each time you run this script refer to the information
+# on the setenv.sh script that is called by this script below. 
 #
+# Invocation Syntax:
+#
+#   client [general options] app client module name [app client arguments]
+#
+#   For detailed command usage information, just run client without any 
+#   arguments.
+#
+# Environment Variable Prequisites:
+#
+#   GERONIMO_HOME   (Optional) May point at your Geronimo top-level directory.
+#                   If not specified, it will default to the parent directory
+#                   of the location of this script.
+#
+#   GERONIMO_OPTS   (Optional) Java runtime options.
+#
+#   GERONIMO_TMPDIR (Optional) Directory path location of temporary directory
+#                   the JVM should use (java.io.tmpdir). Defaults to var/temp
+#                   (resolved to server instance directory).
+#
+#   JAVA_HOME       Points to your Java Development Kit installation.
+#                   JAVA_HOME doesn't need to be set if JRE_HOME is set.
+#                   It is mandatory either JAVA_HOME or JRE_HOME are set.
+#
+#   JRE_HOME        Points to your Java Runtime Environment installation.
+#                   Set this if you wish to run Geronimo using the JRE 
+#                   instead of the JDK. Defaults to JAVA_HOME if empty.
+#                   It is mandatory either JAVA_HOME or JRE_HOME are set.
+#
+#   JAVA_OPTS       (Optional) Java runtime options.
+#
+# Troubleshooting execution of this script file:
+#
+#  GERONIMO_ENV_INFO    (Optional) Environment variable that when set to
+#                       "on" (the default) outputs the 
+#                       values of GERONIMO_HOME, 
+#                       GERONIMO_TMPDIR, JAVA_HOME, JRE_HOME before
+#                       the command is issued. Set to "off" if you
+#                       do want to see this information.
+#
+# Scripts called by this script:
+# 
+#   $GERONIMO_HOME/bin/setenv.sh
+#                   (Optional) This script file is called if it is present.
+#                   Its contents may set one or more of the above environment
+#                   variables.  It is preferable (to simplify migration to
+#                   future Geronimo releases) to set environment variables
+#                   in this file rather than modifying Geronimo's script files.
+#
+#   $GERONIMO_HOME/bin/setjavaenv.sh
+#                   This batch file is called to set environment variables
+#                   relating to the java or jdb executable to invoke.
+#                   This file should not need to be modified.
+#
+# Exit Codes:
+#
+#  0 - Success
+#  1 - Error
+# -----------------------------------------------------------------------------
 
-if [ "x$JAVA_MIN_MEM" = "x" ]; then
-    JAVA_MIN_MEM=128M
-    export JAVA_MIN_MEM
+# OS specific support.  $var _must_ be set to either true or false.
+cygwin=false
+os400=false
+case "`uname`" in
+CYGWIN*) cygwin=true;;
+OS400*) os400=true;;
+esac
+
+# resolve links - $0 may be a softlink
+PRG="$0"
+
+while [ -h "$PRG" ]; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
+done
+
+# Get standard environment variables
+PRGDIR=`dirname "$PRG"`
+
+# Only set GERONIMO_HOME if not already set
+[ -z "$GERONIMO_HOME" ] && GERONIMO_HOME=`cd "$PRGDIR/.." ; pwd`
+
+if [ -r "$GERONIMO_HOME"/bin/setenv.sh ]; then
+  . "$GERONIMO_HOME"/bin/setenv.sh
 fi
 
-if [ "x$JAVA_MAX_MEM" = "x" ]; then
-    JAVA_MAX_MEM=512M
-    export JAVA_MAX_MEM
+# For Cygwin, ensure paths are in UNIX format before anything is touched
+if $cygwin; then
+  [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
+  [ -n "$JRE_HOME" ] && JRE_HOME=`cygpath --unix "$JRE_HOME"`
+  [ -n "$GERONIMO_HOME" ] && GERONIMO_HOME=`cygpath --unix "$GERONIMO_HOME"`
 fi
 
-warn() {
-    echo "${PROGNAME}: $*"
-}
+# For OS400
+if $os400; then
+  # Set job priority to standard for interactive (interactive - 6) by using
+  # the interactive priority - 6, the helper threads that respond to requests
+  # will be running at the same priority as interactive jobs.
+  COMMAND='chgjob job('$JOBNAME') runpty(6)'
+  system $COMMAND
 
-die() {
-    warn "$*"
+  # Enable multi threading
+  export QIBM_MULTI_THREADED=Y
+fi
+
+# Get standard Java environment variables
+# (based upon Tomcat's setclasspath.sh but renamed since Geronimo's classpath 
+# is set in the JAR manifest)
+if $os400; then
+  # -r will Only work on the os400 if the files are:
+  # 1. owned by the user
+  # 2. owned by the PRIMARY group of the user
+  # this will not work if the user belongs in secondary groups
+  BASEDIR="$GERONIMO_HOME"
+  . "$GERONIMO_HOME"/bin/setjavaenv.sh 
+else
+  if [ -r "$GERONIMO_HOME"/bin/setjavaenv.sh ]; then
+    BASEDIR="$GERONIMO_HOME"
+    . "$GERONIMO_HOME"/bin/setjavaenv.sh
+  else
+    echo "Cannot find $GERONIMO_HOME/bin/setjavaenv.sh"
+    echo "This file is needed to run this program"
     exit 1
-}
+  fi
+fi
 
-maybeSource() {
-    file="$1"
-    if [ -f "$file" ] ; then
-        . $file
-    fi
-}
+if [ -z "$GERONIMO_TMPDIR" ] ; then
+  # Define the java.io.tmpdir to use for Geronimo
+  GERONIMO_TMPDIR=var/temp
+fi
 
-detectOS() {
-    # OS specific support (must be 'true' or 'false').
-    cygwin=false;
-    darwin=false;
-    aix=false;
-    os400=false;
-    case "`uname`" in
-        CYGWIN*)
-            cygwin=true
-            ;;
-        Darwin*)
-            darwin=true
-            ;;
-        AIX*)
-            aix=true
-            ;;
-        OS400*)
-            os400=true
-            ;;
-    esac
-    # For AIX, set an environment variable
-    if $aix; then
-         export LDR_CNTRL=MAXDATA=0xB0000000@DSA
-         export IBM_JAVA_HEAPDUMP_TEXT=true
-         echo $LDR_CNTRL
-    fi
-}
+# Classpath: Add the jars in the lib dir
+for file in $GERONIMO_HOME/lib/*.jar
+do
+  if [ -z "$CLASSPATH" ]; then
+    CLASSPATH="$file"
+  else
+    CLASSPATH="$CLASSPATH:$file"
+  fi
+done
 
-unlimitFD() {
-    # Use the maximum available, or set MAX_FD != -1 to use that
-    if [ "x$MAX_FD" = "x" ]; then
-        MAX_FD="maximum"
-    fi
+# Extension dirs
+EXT_DIRS="$GERONIMO_HOME/lib/ext:$JRE_HOME/lib/ext"
+# Endorsed dirs
+ENDORSED_DIRS="$GERONIMO_HOME/lib/endorsed:$JRE_HOME/lib/endorsed"
 
-    # Increase the maximum file descriptors if we can
-    if [ "$os400" = "false" ] && [ "$cygwin" = "false" ]; then
-        MAX_FD_LIMIT=`ulimit -H -n`
-        if [ "$MAX_FD_LIMIT" != 'unlimited' ]; then 
-            if [ $? -eq 0 ]; then
-                if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ]; then
-                    # use the system max
-                    MAX_FD="$MAX_FD_LIMIT"
-                fi
+# For Cygwin, switch paths to Windows format before running java
+if $cygwin; then
+  JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
+  JRE_HOME=`cygpath --absolute --windows "$JRE_HOME"`
+  GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
+  GERONIMO_TMPDIR=`cygpath --windows "$GERONIMO_TMPDIR"`
+  CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
+  EXT_DIRS=`cygpath --path --windows "$EXT_DIRS"`
+  ENDORSED_DIRS=`cygpath --path --windows "$ENDORSED_DIRS"`
+fi
 
-                ulimit -n $MAX_FD > /dev/null
-                # echo "ulimit -n" `ulimit -n`
-                if [ $? -ne 0 ]; then
-                    warn "Could not set maximum file descriptor limit: $MAX_FD"
-                fi
-            else
-                warn "Could not query system maximum file descriptor limit: $MAX_FD_LIMIT"
-            fi
-        fi
-    fi
-}
+# ----- Execute The Requested Command -----------------------------------------
+if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
+  echo "Using GERONIMO_HOME:   $GERONIMO_HOME"
+  echo "Using GERONIMO_TMPDIR: $GERONIMO_TMPDIR"
+  echo "Using JRE_HOME:        $JRE_HOME"
+fi
 
-locateHome() {
-    if [ "x$KARAF_HOME" != "x" ]; then
-        warn "Ignoring predefined value for KARAF_HOME"
-    fi
-    
-    # In POSIX shells, CDPATH may cause cd to write to stdout
-    (unset CDPATH) >/dev/null 2>&1 && unset CDPATH
-
-    KARAF_HOME=`cd $DIRNAME/..; pwd`
-    if [ ! -d "$KARAF_HOME" ]; then
-        die "KARAF_HOME is not valid: $KARAF_HOME"
-    fi
-}
-
-locateBase() {
-    if [ "x$KARAF_BASE" != "x" ]; then
-        if [ ! -d "$KARAF_BASE" ]; then
-            die "KARAF_BASE is not valid: $KARAF_BASE"
-        fi
-    else
-        KARAF_BASE=$KARAF_HOME
-    fi
-}
-
-setupNativePath() {
-    # Support for loading native libraries
-    LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$KARAF_BASE/lib:$KARAF_HOME/lib"
-
-    # For Cygwin, set PATH from LD_LIBRARY_PATH
-    if $cygwin; then
-        LD_LIBRARY_PATH=`cygpath --path --windows "$LD_LIBRARY_PATH"`
-        PATH="$PATH;$LD_LIBRARY_PATH"
-        export PATH
-    fi
-    export LD_LIBRARY_PATH
-}
-
-locateJava() {
-    # Setup the Java Virtual Machine
-    if $cygwin ; then
-        [ -n "$JAVA" ] && JAVA=`cygpath --unix "$JAVA"`
-        [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
-    fi
-
-    if [ "x$JAVA" = "x" ]; then
-        if [ "x$JAVA_HOME" = "x" ] && [ "$darwin" = "true" ]; then
-            JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
-        fi
-        if [ "x$JAVA_HOME" != "x" ]; then
-            if [ ! -d "$JAVA_HOME" ]; then
-                die "JAVA_HOME is not valid: $JAVA_HOME"
-            fi
-            JAVA="$JAVA_HOME/bin/java"
-        else
-            warn "JAVA_HOME not set; results may vary"
-            JAVA="java"
-        fi
-    fi
-}
-
-detectJVM() {
-   #echo "`$JAVA -version`"
-   # This service should call `java -version`,
-   # read stdout, and look for hints
-   if $JAVA -version 2>&1 | grep "^IBM" ; then
-       JVM_VENDOR="IBM"
-   # on OS/400, java -version does not contain IBM explicitly
-   elif $os400; then
-       JVM_VENDOR="IBM"
-   else
-       JVM_VENDOR="SUN"
-   fi
-   # echo "JVM vendor is $JVM_VENDOR"
-}
-
-setupDebugOptions() {
-    if [ "x$JAVA_OPTS" = "x" ]; then
-        JAVA_OPTS="$DEFAULT_JAVA_OPTS"
-    fi
-    export JAVA_OPTS
-
-    # Set Debug options if enabled
-    if [ "x$KARAF_DEBUG" != "x" ]; then
-        # Use the defaults if JAVA_DEBUG_OPTS was not set
-        if [ "x$JAVA_DEBUG_OPTS" = "x" ]; then
-            JAVA_DEBUG_OPTS="$DEFAULT_JAVA_DEBUG_OPTS"
-        fi
-
-        JAVA_OPTS="$JAVA_DEBUG_OPTS $JAVA_OPTS"
-        warn "Enabling Java debug options: $JAVA_DEBUG_OPTS"
-    fi
-}
-
-setupDefaults() {
-    DEFAULT_JAVA_OPTS="-Xms$JAVA_MIN_MEM -Xmx$JAVA_MAX_MEM "
-
-    #Set the JVM_VENDOR specific JVM flags
-    if [ "$JVM_VENDOR" = "SUN" ]; then
-        DEFAULT_JAVA_OPTS="-server $DEFAULT_JAVA_OPTS -Dcom.sun.management.jmxremote"
-    elif [ "$JVM_VENDOR" = "IBM" ]; then
-        if $os400; then
-            DEFAULT_JAVA_OPTS="$DEFAULT_JAVA_OPTS"
-        elif $aix; then
-            DEFAULT_JAVA_OPTS="-Xverify:none -Xlp $DEFAULT_JAVA_OPTS"
-        else
-            DEFAULT_JAVA_OPTS="-Xverify:none $DEFAULT_JAVA_OPTS"
-        fi
-    fi
-
-    # Add the jars in the lib dir
-    for file in $KARAF_HOME/lib/*.jar
-    do
-        if [ -z "$CLASSPATH" ]; then
-            CLASSPATH="$file"
-        else
-            CLASSPATH="$CLASSPATH:$file"
-        fi
-    done
-    DEFAULT_JAVA_DEBUG_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"
-
-    ##
-    ## TODO: Move to conf/profiler/yourkit.{sh|cmd}
-    ##
-    # Uncomment to enable YourKit profiling
-    #DEFAULT_JAVA_DEBUG_OPTS="-Xrunyjpagent"
-}
-
-init() {
-    # Determine if there is special OS handling we must perform
-    detectOS
-
-    # Unlimit the number of file descriptors if possible
-    unlimitFD
-
-    # Locate the Karaf home directory
-    locateHome
-
-    # Locate the Karaf base directory
-    locateBase
-
-    # Setup the native library path
-    setupNativePath
-
-    # Locate the Java VM to execute
-    locateJava
-
-    # Determine the JVM vendor
-    detectJVM
-
-    # Setup default options
-    setupDefaults
-
-    # Install debug options
-    setupDebugOptions
-
-}
-
-run() {
-    OPTS="-Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=true"
-    case "$1" in
-        'console')
-            shift
-            ;;
-        'server')
-            OPTS="-Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=true"
-            shift
-            ;;
-        'client')
-            OPTS="-Dkaraf.startLocalConsole=true -Dkaraf.startRemoteShell=false"
-            shift
-            ;;
-    esac
-
-    if $cygwin; then
-        KARAF_HOME=`cygpath --path --windows "$KARAF_HOME"`
-        KARAF_BASE=`cygpath --path --windows "$KARAF_BASE"`
-        CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
-    fi
-    exec $JAVA $JAVA_OPTS -Dorg.apache.geronimo.home.dir="$KARAF_HOME" -Dkaraf.home="$KARAF_HOME" -Dkaraf.base="$KARAF_BASE" -Djava.util.logging.config.file=$KARAF_BASE/etc/java.util.logging.properties $OPTS -classpath "$CLASSPATH" org.apache.geronimo.cli.client.ClientCLI "$@"
-}
-
-main() {
-    init
-    run "$@"
-}
-
-main "$@"
+exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
+  -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false \
+  -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+  -Dkaraf.home="$GERONIMO_HOME" \
+  -Dkaraf.base="$GERONIMO_HOME" \
+  -Djava.util.logging.config.file=$GERONIMO_HOME/etc/java.util.logging.properties \
+  -Djava.endorsed.dirs="$ENDORSED_DIRS" \
+  -Djava.ext.dirs="$EXT_DIRS" \
+  -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
+  -classpath "$CLASSPATH" \
+  org.apache.geronimo.cli.client.ClientCLI "$@"

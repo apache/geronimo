@@ -20,24 +20,20 @@
 # --------------------------------------------------------------------
 
 # --------------------------------------------------------------------
-# Shutdown script file for Geronimo.
+# Startup script file for Geronimo that starts Geronimo in the background.
 #
-# This script calls the geronimo.sh script passing "stop" as the
+# This script calls the geronimo.sh script passing "start" as the
 # first argument followed by the arguments supplied by the caller.
 #
-# This script is based upon Tomcat's shutdown file to enable
-# those familiar with Tomcat to easily stop Geronimo.
+# This script is based upon Tomcat's startup file to enable
+# those familiar with Tomcat to quickly get started with Geronimo.
 # 
 # Alternatively you can use the more comprehensive geronimo.sh file 
 # directly.
 #
 # Invocation Syntax:
 #
-#   shutdown [geronimo stop command args] 
-#
-#   Invoke the shutdown file without any arguments for information
-#   on arguments for the geronimo.sh stop command that is invoked
-#   by this script.
+#   startup [geronimo_args ...]
 #
 # Environment Variable Prequisites:
 #
@@ -45,6 +41,12 @@
 #   on environment variables etc.
 #
 # --------------------------------------------------------------------
+
+os400=false
+case "`uname`" in
+CYGWIN*) cygwin=true;;
+OS400*) os400=true;;
+esac
 
 # resolve links - $0 may be a softlink
 PRG="$0"
@@ -63,10 +65,18 @@ PRGDIR=`dirname "$PRG"`
 EXECUTABLE=geronimo
 
 # Check that target executable exists
-if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
-  echo "Cannot find $PRGDIR/$EXECUTABLE"
-  echo "This file is needed to run this program"
-  exit 1
-fi
+if $os400; then
+  # -x will Only work on the os400 if the files are: 
+  # 1. owned by the user
+  # 2. owned by the PRIMARY group of the user
+  # this will not work if the user belongs in secondary groups
+  eval
+else
+  if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
+    echo "Cannot find $PRGDIR/$EXECUTABLE"
+    echo "This file is needed to run this program"
+    exit 1
+  fi
+fi 
 
-exec "$PRGDIR"/"$EXECUTABLE" stop "$@"
+exec "$PRGDIR"/"$EXECUTABLE" start "$@"
