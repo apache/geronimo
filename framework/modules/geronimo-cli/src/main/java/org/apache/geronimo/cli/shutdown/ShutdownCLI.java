@@ -48,13 +48,6 @@ public class ShutdownCLI extends AbstractCLI {
         boot.setWaitForStop(false);
         boot.setUniqueStorage(true);
         boot.setStartBundles(Arrays.asList(
-                "org.apache.servicemix.bundles/org.apache.servicemix.bundles.jline//jar",
-                "org.apache.servicemix.bundles/org.apache.servicemix.bundles.ant//jar",
-                "org.apache.geronimo.specs/geronimo-javaee-deployment_1.1MR3_spec//jar",
-                "org.apache.geronimo.framework/geronimo-deploy-config//jar",
-                "org.apache.geronimo.framework/geronimo-plugin//jar",
-                "org.apache.geronimo.framework/geronimo-deploy-jsr88//jar",
-                "org.apache.geronimo.framework/geronimo-deploy-tool//jar",                                
                 "org.apache.geronimo.framework/shutdown//car"));
         boot.setLog4jConfigFile("var/log/server-log4j.properties");
         return boot;
