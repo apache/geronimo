@@ -57,5 +57,10 @@
         <module>wadi-group</module>
         <module>wadi-tribes</module>
         <module>woodstox</module>
+        <module>scannotation</module>
+        <module>openwebbeans-impl</module>
+        <module>openwebbeans-spi</module>
+        <module>openwebbeans-web</module>
+        <module>openwebbeans-jsf</module>
     </modules>
 </project>
