@@ -37,10 +37,15 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
 
     private boolean secure;
     private String discoveryURI = "ejb:ejbd://{bind}:{port}";
-    private String multicastHost;
     private String clusterName;
+    private String multicastHost;
     private int multicastPort;
     private boolean enableMulticast;
+    private String multipointHost;
+    private int multipointPort;
+    private boolean enableMultipoint;
+    private long heartRate;
+    private int maxMissedHeartbeats;
 
     public EjbDaemonGBean() {
         System.setProperty("openejb.nobanner","true");
@@ -127,6 +132,46 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         this.secure = secure;
     }
 
+    public String getMultipointHost() {
+        return multipointHost;
+    }
+
+    public void setMultipointHost(String multipointHost) {
+        this.multipointHost = multipointHost;
+    }
+
+    public int getMultipointPort() {
+        return multipointPort;
+    }
+
+    public void setMultipointPort(int multipointPort) {
+        this.multipointPort = multipointPort;
+    }
+
+    public boolean isEnableMultipoint() {
+        return enableMultipoint;
+    }
+
+    public void setEnableMultipoint(boolean enableMultipoint) {
+        this.enableMultipoint = enableMultipoint;
+    }
+
+    public long getHeartRate() {
+        return heartRate;
+    }
+
+    public void setHeartRate(long heartRate) {
+        this.heartRate = heartRate;
+    }
+
+    public int getMaxMissedHeartbeats() {
+        return maxMissedHeartbeats;
+    }
+
+    public void setMaxMissedHeartbeats(int maxMissedHeartbeats) {
+        this.maxMissedHeartbeats = maxMissedHeartbeats;
+    }
+
     public void doStart() throws Exception {
         Properties properties = SystemInstance.get().getProperties();
         properties.setProperty("ejbd.bind", host);
@@ -135,6 +180,14 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         properties.setProperty("multicast.port", Integer.toString(multicastPort));
         properties.setProperty("multicast.disabled", Boolean.toString(!enableMulticast));
         properties.setProperty("multicast.group", clusterName);
+        properties.setProperty("multicast.heart_rate", Long.toString(heartRate));
+        properties.setProperty("multicast.max_missed_heartbeats", Integer.toString(maxMissedHeartbeats));
+        properties.setProperty("multipoint.bind", multipointHost);
+        properties.setProperty("multipoint.port", Integer.toString(multipointPort));
+        properties.setProperty("multipoint.disabled", Boolean.toString(!enableMultipoint));
+        properties.setProperty("multipoint.group", clusterName);
+        properties.setProperty("multipoint.heart_rate", Long.toString(heartRate));
+        properties.setProperty("multipoint.max_missed_heartbeats", Integer.toString(maxMissedHeartbeats));
         properties.setProperty("ejbd.discovery", discoveryURI);
         properties.setProperty("ejbd.secure", secure + "");
         properties.setProperty("ejbds.disabled", "true");
@@ -161,9 +214,14 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         infoBuilder.addAttribute("host", String.class, true);
         infoBuilder.addAttribute("port", int.class, true);
         infoBuilder.addAttribute("clusterName", String.class, true);
+        infoBuilder.addAttribute("heartRate", long.class, true);
+        infoBuilder.addAttribute("maxMissedHeartbeats", int.class, true);
         infoBuilder.addAttribute("multicastHost", String.class, true);
         infoBuilder.addAttribute("multicastPort", int.class, true);
         infoBuilder.addAttribute("enableMulticast", boolean.class, true);
+        infoBuilder.addAttribute("multipointHost", String.class, true);
+        infoBuilder.addAttribute("multipointPort", int.class, true);
+        infoBuilder.addAttribute("enableMultipoint", boolean.class, true);
         infoBuilder.addAttribute("threads", int.class, true);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

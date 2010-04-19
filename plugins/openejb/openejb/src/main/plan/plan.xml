@@ -92,8 +92,13 @@
         <attribute name="threads">200</attribute>
         <attribute name="multicastPort">${PlanOpenEJBMulticastPort}</attribute>
         <attribute name="multicastHost">${PlanOpenEJBMulticastHostname}</attribute>
-        <attribute name="clusterName">cluster1</attribute>
         <attribute name="enableMulticast">true</attribute>
+        <attribute name="multipointPort">${PlanOpenEJBMultipointPort}</attribute>
+        <attribute name="multipointHost">${PlanOpenEJBMultipointHostname}</attribute>
+        <attribute name="enableMultipoint">false</attribute>
+        <attribute name="clusterName">cluster1</attribute>
+        <attribute name="heartRate">500</attribute>
+        <attribute name="maxMissedHeartbeats">10</attribute>
         <attribute name="discoveryURI">ejb:ejbd://${PlanServerHostname}:${PlanOpenEJBPort}</attribute>
         <attribute name="secure">false</attribute>
         <dependency>

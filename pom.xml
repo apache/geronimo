@@ -108,6 +108,8 @@
         <PlanOpenEJBPort>4201</PlanOpenEJBPort>
         <PlanOpenEJBMulticastPort>6142</PlanOpenEJBMulticastPort>
         <PlanOpenEJBMulticastHostname>239.255.3.2</PlanOpenEJBMulticastHostname>
+        <PlanOpenEJBMultipointPort>4212</PlanOpenEJBMultipointPort>
+        <PlanOpenEJBMultipointHostname>localhost</PlanOpenEJBMultipointHostname>
         <PlanNamingPort>1099</PlanNamingPort>
         <PlanActiveMQPort>61616</PlanActiveMQPort>
         <PlanCOSNamingHost>localhost</PlanCOSNamingHost>
