@@ -17,64 +17,70 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.web25.deployment.security;
 
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebUserDataPermission;
-import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyContextException;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebRoleRefPermission;
+import javax.security.jacc.WebUserDataPermission;
 
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.javaee6.RoleNameType;
 import org.apache.geronimo.xbeans.javaee6.SecurityConstraintType;
+import org.apache.geronimo.xbeans.javaee6.SecurityRoleRefType;
+import org.apache.geronimo.xbeans.javaee6.SecurityRoleType;
+import org.apache.geronimo.xbeans.javaee6.ServletType;
 import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.geronimo.xbeans.javaee6.WebResourceCollectionType;
-import org.apache.geronimo.xbeans.javaee6.SecurityRoleType;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.SecurityRoleRefType;
 
 /**
  * @version $Rev$ $Date$
  */
 public class SpecSecurityBuilder {
-    private final Set<String> securityRoles = new HashSet<String>();
-    private final Map<String, URLPattern> uncheckedPatterns = new HashMap<String, URLPattern>();
-    private final Map<UncheckedItem, HTTPMethods> uncheckedResourcePatterns = new HashMap<UncheckedItem, HTTPMethods>();
-    private final Map<UncheckedItem, HTTPMethods> uncheckedUserPatterns = new HashMap<UncheckedItem, HTTPMethods>();
-    private final Map<String, URLPattern> excludedPatterns = new HashMap<String, URLPattern>();
-    private final Map<String, URLPattern> rolesPatterns = new HashMap<String, URLPattern>();
-    private final Set<URLPattern> allSet = new HashSet<URLPattern>();   // == allMap.values()
-    private final Map<String, URLPattern> allMap = new HashMap<String, URLPattern>();   //uncheckedPatterns union excludedPatterns union rolesPatterns.
-//    private boolean useExcluded = false;
-    private boolean useExcluded = true;
 
+    private final Set<String> securityRoles = new HashSet<String>();
+
+    private final Map<String, URLPattern> uncheckedPatterns = new HashMap<String, URLPattern>();
+
+    private final Map<UncheckedItem, HTTPMethods> uncheckedResourcePatterns = new HashMap<UncheckedItem, HTTPMethods>();
+
+    private final Map<UncheckedItem, HTTPMethods> uncheckedUserPatterns = new HashMap<UncheckedItem, HTTPMethods>();
+
+    private final Map<String, URLPattern> excludedPatterns = new HashMap<String, URLPattern>();
+
+    private final Map<String, URLPattern> rolesPatterns = new HashMap<String, URLPattern>();
+
+    private final Set<URLPattern> allSet = new HashSet<URLPattern>();
+
+    private final Map<String, URLPattern> allMap = new HashMap<String, URLPattern>(); //uncheckedPatterns union excludedPatterns union rolesPatterns.
+
+    //Currently, we always enable the useExcluded feature
+    //private boolean useExcluded = true;
     private final RecordingPolicyConfiguration policyConfiguration = new RecordingPolicyConfiguration(true);
 
     public ComponentPermissions buildSpecSecurityConfig(WebAppType webApp) {
         collectRoleNames(webApp.getSecurityRoleArray());
-        //role refs
         try {
-            for (ServletType servletType: webApp.getServletArray()) {
-               processRoleRefPermissions(servletType);
+            for (ServletType servletType : webApp.getServletArray()) {
+                processRoleRefPermissions(servletType);
             }
             //add the role-ref permissions for unmapped jsps
             addUnmappedJSPPermissions();
-
             analyzeSecurityConstraints(webApp.getSecurityConstraintArray());
-//        if (!useExcluded) {
+            //Currently, we always enable the useExcluded feature
             removeExcludedDups();
-//        }
             return buildComponentPermissions();
         } catch (PolicyContextException e) {
             throw new IllegalStateException("Should not happen", e);
@@ -93,42 +99,40 @@ public class SpecSecurityBuilder {
             } else {
                 currentPatterns = uncheckedPatterns;
             }
-
             String transport = "";
             if (securityConstraintType.isSetUserDataConstraint()) {
                 transport = securityConstraintType.getUserDataConstraint().getTransportGuarantee().getStringValue().trim().toUpperCase();
             }
-
             WebResourceCollectionType[] webResourceCollectionTypeArray = securityConstraintType.getWebResourceCollectionArray();
             for (WebResourceCollectionType webResourceCollectionType : webResourceCollectionTypeArray) {
-                UrlPatternType[] urlPatternTypeArray = webResourceCollectionType.getUrlPatternArray();
-                for (UrlPatternType urlPatternType : urlPatternTypeArray) {
+                //Calculate HTTP methods list
+                List<String> httpMethods = new ArrayList<String>();
+                if (webResourceCollectionType.getHttpMethodArray().length > 0) {
+                    for (String httpMethod : webResourceCollectionType.getHttpMethodArray()) {
+                        if (httpMethod != null) {
+                            httpMethods.add(httpMethod.trim());
+                        }
+                    }
+                } else {
+                    httpMethods.add("");
+                }
+                for (UrlPatternType urlPatternType : webResourceCollectionType.getUrlPatternArray()) {
                     String url = urlPatternType.getStringValue().trim();
                     URLPattern pattern = currentPatterns.get(url);
                     if (pattern == null) {
                         pattern = new URLPattern(url);
                         currentPatterns.put(url, pattern);
                     }
-
                     URLPattern allPattern = allMap.get(url);
                     if (allPattern == null) {
                         allPattern = new URLPattern(url);
                         allSet.add(allPattern);
                         allMap.put(url, allPattern);
                     }
-
-                    String[] httpMethodTypeArray = webResourceCollectionType.getHttpMethodArray();
-                    if (httpMethodTypeArray.length == 0) {
-                        pattern.addMethod("");
-                        allPattern.addMethod("");
-                    } else {
-                        for (String aHttpMethodTypeArray : httpMethodTypeArray) {
-                            String method = (aHttpMethodTypeArray == null ? null : aHttpMethodTypeArray.trim());
-                            if (method != null) {
-                                pattern.addMethod(method);
-                                allPattern.addMethod(method);
-                            }
-                        }
+                    //Add HTTP methods to those url patterns
+                    for (String httpMethod : httpMethods) {
+                        pattern.addMethod(httpMethod);
+                        allPattern.addMethod(httpMethod);
                     }
                     if (currentPatterns == rolesPatterns) {
                         RoleNameType[] roleNameTypeArray = securityConstraintType.getAuthConstraint().getRoleNameArray();
@@ -141,7 +145,6 @@ public class SpecSecurityBuilder {
                             }
                         }
                     }
-
                     pattern.setTransport(transport);
                 }
             }
@@ -149,7 +152,7 @@ public class SpecSecurityBuilder {
     }
 
     public void removeExcludedDups() {
-        for (Map.Entry<String, URLPattern> excluded: excludedPatterns.entrySet()) {
+        for (Map.Entry<String, URLPattern> excluded : excludedPatterns.entrySet()) {
             String url = excluded.getKey();
             URLPattern pattern = excluded.getValue();
             removeExcluded(url, pattern, uncheckedPatterns);
@@ -167,41 +170,31 @@ public class SpecSecurityBuilder {
     }
 
     public ComponentPermissions buildComponentPermissions() throws PolicyContextException {
-
-        if (useExcluded) {
-            for (URLPattern pattern : excludedPatterns.values()) {
-                String name = pattern.getQualifiedPattern(allSet);
-                String actions = pattern.getMethods();
-
-                policyConfiguration.addToExcludedPolicy(new WebResourcePermission(name, actions));
-                policyConfiguration.addToExcludedPolicy(new WebUserDataPermission(name, actions));
-            }
+        //Currently, we always enable excluded configuration
+        for (URLPattern pattern : excludedPatterns.values()) {
+            String name = pattern.getQualifiedPattern(allSet);
+            String actions = pattern.getMethods();
+            policyConfiguration.addToExcludedPolicy(new WebResourcePermission(name, actions));
+            policyConfiguration.addToExcludedPolicy(new WebUserDataPermission(name, actions));
         }
-
         for (URLPattern pattern : rolesPatterns.values()) {
             String name = pattern.getQualifiedPattern(allSet);
             String actions = pattern.getMethods();
             WebResourcePermission permission = new WebResourcePermission(name, actions);
-
             for (String roleName : pattern.getRoles()) {
                 policyConfiguration.addToRole(roleName, permission);
             }
             HTTPMethods methods = pattern.getHTTPMethods();
             int transportType = pattern.getTransport();
-
             addOrUpdatePattern(uncheckedUserPatterns, name, methods, transportType);
         }
-
         for (URLPattern pattern : uncheckedPatterns.values()) {
             String name = pattern.getQualifiedPattern(allSet);
             HTTPMethods methods = pattern.getHTTPMethods();
-
             addOrUpdatePattern(uncheckedResourcePatterns, name, methods, URLPattern.NA);
-
             int transportType = pattern.getTransport();
             addOrUpdatePattern(uncheckedUserPatterns, name, methods, transportType);
         }
-
         /**
          * A <code>WebResourcePermission</code> and a <code>WebUserDataPermission</code> must be instantiated for
          * each <tt>url-pattern</tt> in the deployment descriptor and the default pattern "/", that is not combined
@@ -214,40 +207,31 @@ public class SpecSecurityBuilder {
         for (URLPattern pattern : allSet) {
             String name = pattern.getQualifiedPattern(allSet);
             HTTPMethods methods = pattern.getComplementedHTTPMethods();
-
             if (methods.isNone()) {
                 continue;
             }
-
             addOrUpdatePattern(uncheckedResourcePatterns, name, methods, URLPattern.NA);
             addOrUpdatePattern(uncheckedUserPatterns, name, methods, URLPattern.NA);
         }
-
         URLPattern pattern = new URLPattern("/");
         if (!allSet.contains(pattern)) {
             String name = pattern.getQualifiedPattern(allSet);
             HTTPMethods methods = pattern.getComplementedHTTPMethods();
-
             addOrUpdatePattern(uncheckedResourcePatterns, name, methods, URLPattern.NA);
             addOrUpdatePattern(uncheckedUserPatterns, name, methods, URLPattern.NA);
         }
-
         //Create the uncheckedPermissions for WebResourcePermissions
         for (UncheckedItem item : uncheckedResourcePatterns.keySet()) {
             HTTPMethods methods = uncheckedResourcePatterns.get(item);
             String actions = URLPattern.getMethodsWithTransport(methods, item.getTransportType());
-
             policyConfiguration.addToUncheckedPolicy(new WebResourcePermission(item.getName(), actions));
         }
         //Create the uncheckedPermissions for WebUserDataPermissions
         for (UncheckedItem item : uncheckedUserPatterns.keySet()) {
             HTTPMethods methods = uncheckedUserPatterns.get(item);
             String actions = URLPattern.getMethodsWithTransport(methods, item.getTransportType());
-
             policyConfiguration.addToUncheckedPolicy(new WebUserDataPermission(item.getName(), actions));
         }
-
-//        System.out.println(policyConfiguration.getAudit());
         return policyConfiguration.getComponentPermissions();
     }
 
@@ -258,7 +242,6 @@ public class SpecSecurityBuilder {
             patternMap.put(item, existingActions.add(actions));
             return;
         }
-
         patternMap.put(item, new HTTPMethods(actions, false));
     }
 
@@ -298,14 +281,15 @@ public class SpecSecurityBuilder {
         }
     }
 
-
     private static class RecordingPolicyConfiguration implements PolicyConfiguration {
+
         private final PermissionCollection excludedPermissions = new Permissions();
+
         private final PermissionCollection uncheckedPermissions = new Permissions();
+
         private final Map<String, PermissionCollection> rolePermissions = new HashMap<String, PermissionCollection>();
 
         private final StringBuilder audit;
-
 
         private RecordingPolicyConfiguration(boolean audit) {
             if (audit) {
@@ -395,6 +379,5 @@ public class SpecSecurityBuilder {
             }
             return audit.toString();
         }
-
     }
 }
