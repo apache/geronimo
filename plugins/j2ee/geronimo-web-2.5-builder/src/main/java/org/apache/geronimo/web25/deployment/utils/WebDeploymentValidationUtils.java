@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.web25.deployment.utils;
 
+import java.util.regex.Pattern;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.javaee6.FilterMappingType;
 import org.apache.geronimo.xbeans.javaee6.SecurityConstraintType;
@@ -30,9 +32,15 @@ import org.apache.geronimo.xbeans.javaee6.WebResourceCollectionType;
  */
 public class WebDeploymentValidationUtils {
 
-    public static boolean isUrlPatternValid(String urlPattern) {
+    private static final Pattern HTTP_METHOD_PATTERN = Pattern.compile("[!-~&&[^\\(\\)\\<\\>@,;:\\\\\"/\\[\\]\\?=\\{\\}]]*");
+
+    public static boolean isValidUrlPattern(String urlPattern) {
         //j2ee_1_4.xsd explicitly requires preserving all whitespace. Do not trim.
         return urlPattern.indexOf(0x0D) < 0 && urlPattern.indexOf(0x0A) < 0;
+    }
+
+    public static boolean isValidHTTPMethod(String httpMethod) {
+        return HTTP_METHOD_PATTERN.matcher(httpMethod).matches();
     }
 
     public static void validateWebApp(WebAppType webApp) throws DeploymentException {
@@ -44,7 +52,7 @@ public class WebDeploymentValidationUtils {
         FilterMappingType[] filterMappings = webApp.getFilterMappingArray();
         for (FilterMappingType filterMapping : filterMappings) {
             for (UrlPatternType urlPattern : filterMapping.getUrlPatternArray()) {
-                if (!isUrlPatternValid(urlPattern.getStringValue().trim())) {
+                if (!isValidUrlPattern(urlPattern.getStringValue().trim())) {
                     throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterMapping.getFilterName().getStringValue(), urlPattern
                             .getStringValue(), "web.xml"));
                 }
@@ -53,7 +61,7 @@ public class WebDeploymentValidationUtils {
         ServletMappingType[] servletMappings = webApp.getServletMappingArray();
         for (ServletMappingType servletMapping : servletMappings) {
             for (UrlPatternType urlPattern : servletMapping.getUrlPatternArray()) {
-                if (!isUrlPatternValid(urlPattern.getStringValue().trim())) {
+                if (!isValidUrlPattern(urlPattern.getStringValue().trim())) {
                     throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletMapping.getServletName().getStringValue(), urlPattern
                             .getStringValue(), "web.xml"));
                 }
@@ -65,7 +73,7 @@ public class WebDeploymentValidationUtils {
             for (WebResourceCollectionType collection : collections) {
                 UrlPatternType[] patterns = collection.getUrlPatternArray();
                 for (UrlPatternType pattern : patterns) {
-                    if (!isUrlPatternValid(pattern.getStringValue().trim())) {
+                    if (!isValidUrlPattern(pattern.getStringValue().trim())) {
                         throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("security-constraint", collection.getWebResourceName().getStringValue(), pattern
                                 .getStringValue(), "web.xml"));
                     }

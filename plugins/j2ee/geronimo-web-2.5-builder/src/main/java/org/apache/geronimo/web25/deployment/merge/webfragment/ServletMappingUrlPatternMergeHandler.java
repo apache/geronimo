@@ -35,7 +35,7 @@ public class ServletMappingUrlPatternMergeHandler implements SubMergeHandler<Ser
         String servletName = servletMapping.getServletName().getStringValue();
         for (UrlPatternType urlPattern : servletMapping.getUrlPatternArray()) {
             String urlPatternStr = urlPattern.getStringValue();
-            if (!WebDeploymentValidationUtils.isUrlPatternValid(urlPatternStr)) {
+            if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
                 throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletName, urlPatternStr, "web-fragment.xml located in "
                         + mergeContext.getCurrentJarUrl()));
             }
@@ -51,7 +51,7 @@ public class ServletMappingUrlPatternMergeHandler implements SubMergeHandler<Ser
             String servletMappingUrlPatternKey = createServletMappingUrlPatternKey(servletName, urlPatternStr);
             if (!mergeContext.containsAttribute(servletMappingUrlPatternKey)) {
                 UrlPatternType newUrlPattern = (UrlPatternType) targetServletMapping.addNewUrlPattern().set(urlPattern);
-                if (!WebDeploymentValidationUtils.isUrlPatternValid(urlPatternStr)) {
+                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
                     throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletName, urlPatternStr, "web-fragment.xml located in "
                             + mergeContext.getCurrentJarUrl()));
                 }
@@ -70,7 +70,7 @@ public class ServletMappingUrlPatternMergeHandler implements SubMergeHandler<Ser
             String servletName = servletMapping.getServletName().getStringValue();
             for (UrlPatternType urlPattern : servletMapping.getUrlPatternArray()) {
                 String urlPatternStr = urlPattern.getStringValue();
-                if (!WebDeploymentValidationUtils.isUrlPatternValid(urlPatternStr)) {
+                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
                     throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletName, urlPatternStr, "web.xml"));
                 }
                 context.setAttribute(createServletMappingUrlPatternKey(servletName, urlPatternStr), urlPattern);

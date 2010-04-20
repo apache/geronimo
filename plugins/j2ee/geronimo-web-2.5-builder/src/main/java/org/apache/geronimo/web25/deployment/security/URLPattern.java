@@ -36,7 +36,7 @@ public class URLPattern {
 
     private final URLPatternCheck type;
     private final String pattern;
-    private final HTTPMethods httpMethods = new HTTPMethods();
+    private final HTTPMethods httpMethods;
     private int transport;
     private final HashSet<String> roles = new HashSet<String>();
 
@@ -46,10 +46,11 @@ public class URLPattern {
      * @param pat the URL pattern that this instance is to collect information on
      * @see "JSR 115, section 3.1.3" Translating Servlet Deployment Descriptors
      */
-    public URLPattern(String pat) {
-        if (pat == null) throw new java.lang.IllegalArgumentException("URL pattern cannot be null");
-        if (pat.length() == 0) throw new java.lang.IllegalArgumentException("URL pattern cannot be empty");
-
+    public URLPattern(String pat, Set<String> methods, boolean isHttpMethodExcluded) {
+        if (pat == null)
+            throw new java.lang.IllegalArgumentException("URL pattern cannot be null");
+        if (pat.length() == 0)
+            throw new java.lang.IllegalArgumentException("URL pattern cannot be empty");
         if (pat.equals("/") || pat.equals("/*")) {
             type = DEFAULT;
             pat = "/";
@@ -61,6 +62,7 @@ public class URLPattern {
             type = EXACT;
         }
         pattern = pat;
+        httpMethods = new HTTPMethods(methods, isHttpMethodExcluded);
     }
 
     /**
@@ -74,33 +76,33 @@ public class URLPattern {
         if (type == EXACT) {
             return pattern;
         } else {
-            HashSet<String> bucket = new HashSet<String>();
+            //HashSet<String> bucket = new HashSet<String>();
             StringBuilder result = new StringBuilder(pattern);
-
             // Collect a set of qualifying patterns, depending on the type of this pattern.
             for (URLPattern p : patterns) {
                 if (type.check(this, p)) {
-                    bucket.add(p.pattern);
+                    //bucket.add(p.pattern);
+                    result.append(':');
+                    result.append(p.pattern);
                 }
             }
-
             // append the set of qualifying patterns
-            for (String aBucket : bucket) {
+            /*for (String aBucket : bucket) {
                 result.append(':');
                 result.append(aBucket);
-            }
+            }*/
             return result.toString();
         }
     }
 
     /**
-     * Add a method to the union of HTTP methods associated with this URL pattern.  An empty string is short hand for
+     * Add a method to the union of HTTP methods associated with this URL pattern.  An empty Set  is short hand for
      * the set of all HTTP methods.
      *
-     * @param method the HTTP method to be added to the set.
+     * @param method the HTTP methods to be added to the set.
      */
-    public void addMethod(String method) {
-        httpMethods.add(method);
+    public void addMethods(Set<String> methods, boolean isExcluded) {
+        httpMethods.add(methods, isExcluded);
     }
 
     public boolean removeMethods(URLPattern other) {

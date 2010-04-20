@@ -21,30 +21,16 @@
 package org.apache.geronimo.web25.deployment.security;
 
 import java.net.URL;
-import java.util.Collection;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.jar.JarFile;
-import java.security.PermissionCollection;
 import java.security.Permission;
-
+import java.security.PermissionCollection;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
+
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
+import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
@@ -86,7 +72,7 @@ public class SpecSecurityParsingTest extends TestCase {
         assertFalse(implies(new WebResourcePermission("/Test", ""), permissions, null));
         assertFalse(implies(new WebResourcePermission("/Test", "!"), permissions, null));
     }
-    
+
     public void testExcludedConstraint() throws Exception {
         URL srcXml = classLoader.getResource("security/web3.xml");
         WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
@@ -161,6 +147,18 @@ public class SpecSecurityParsingTest extends TestCase {
         assertTrue(implies(p, permissions, null));
         p = new WebUserDataPermission("/bar", "GET");
         assertTrue(implies(p, permissions, "user"));
+        assertTrue(implies(p, permissions, null));
+    }
+
+    public void testHTTPOmissionMethodsConstraint() throws Exception {
+        URL srcXml = classLoader.getResource("security/web6.xml");
+        WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
+        WebAppType webAppType = webAppDoc.getWebApp();
+        SpecSecurityBuilder builder = new SpecSecurityBuilder();
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
+        Permission p = new WebResourcePermission("/app/*", "GET");
+        assertFalse(implies(p, permissions, null));
+        p = new WebResourcePermission("/app/home", "POST");
         assertTrue(implies(p, permissions, null));
     }
 

@@ -22,10 +22,9 @@ package org.apache.geronimo.web25.deployment.security;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,8 +65,6 @@ public class SpecSecurityBuilder {
 
     private final Map<String, URLPattern> allMap = new HashMap<String, URLPattern>(); //uncheckedPatterns union excludedPatterns union rolesPatterns.
 
-    //Currently, we always enable the useExcluded feature
-    //private boolean useExcluded = true;
     private final RecordingPolicyConfiguration policyConfiguration = new RecordingPolicyConfiguration(true);
 
     public ComponentPermissions buildSpecSecurityConfig(WebAppType webApp) {
@@ -79,7 +76,6 @@ public class SpecSecurityBuilder {
             //add the role-ref permissions for unmapped jsps
             addUnmappedJSPPermissions();
             analyzeSecurityConstraints(webApp.getSecurityConstraintArray());
-            //Currently, we always enable the useExcluded feature
             removeExcludedDups();
             return buildComponentPermissions();
         } catch (PolicyContextException e) {
@@ -106,33 +102,40 @@ public class SpecSecurityBuilder {
             WebResourceCollectionType[] webResourceCollectionTypeArray = securityConstraintType.getWebResourceCollectionArray();
             for (WebResourceCollectionType webResourceCollectionType : webResourceCollectionTypeArray) {
                 //Calculate HTTP methods list
-                List<String> httpMethods = new ArrayList<String>();
+                Set<String> httpMethods = new HashSet<String>();
+                //While using HTTP omission methods and empty methods (which means all methods) as the configurations, isExcluded value is true
+                //While using HTTP methods as the configurations, isExcluded value is false
+                boolean isExcludedList = true;
                 if (webResourceCollectionType.getHttpMethodArray().length > 0) {
+                    isExcludedList = false;
                     for (String httpMethod : webResourceCollectionType.getHttpMethodArray()) {
                         if (httpMethod != null) {
                             httpMethods.add(httpMethod.trim());
                         }
                     }
-                } else {
-                    httpMethods.add("");
+                } else if (webResourceCollectionType.getHttpMethodOmissionArray().length > 0) {
+                    for (String httpMethodOmission : webResourceCollectionType.getHttpMethodOmissionArray()) {
+                        if (httpMethodOmission != null) {
+                            httpMethods.add(httpMethodOmission.trim());
+                        }
+                    }
                 }
                 for (UrlPatternType urlPatternType : webResourceCollectionType.getUrlPatternArray()) {
                     String url = urlPatternType.getStringValue().trim();
                     URLPattern pattern = currentPatterns.get(url);
                     if (pattern == null) {
-                        pattern = new URLPattern(url);
+                        pattern = new URLPattern(url, httpMethods, isExcludedList);
                         currentPatterns.put(url, pattern);
+                    } else {
+                        pattern.addMethods(httpMethods, isExcludedList);
                     }
                     URLPattern allPattern = allMap.get(url);
                     if (allPattern == null) {
-                        allPattern = new URLPattern(url);
+                        allPattern = new URLPattern(url, httpMethods, isExcludedList);
                         allSet.add(allPattern);
                         allMap.put(url, allPattern);
-                    }
-                    //Add HTTP methods to those url patterns
-                    for (String httpMethod : httpMethods) {
-                        pattern.addMethod(httpMethod);
-                        allPattern.addMethod(httpMethod);
+                    } else {
+                        allPattern.addMethods(httpMethods, isExcludedList);
                     }
                     if (currentPatterns == rolesPatterns) {
                         RoleNameType[] roleNameTypeArray = securityConstraintType.getAuthConstraint().getRoleNameArray();
@@ -170,7 +173,6 @@ public class SpecSecurityBuilder {
     }
 
     public ComponentPermissions buildComponentPermissions() throws PolicyContextException {
-        //Currently, we always enable excluded configuration
         for (URLPattern pattern : excludedPatterns.values()) {
             String name = pattern.getQualifiedPattern(allSet);
             String actions = pattern.getMethods();
@@ -213,8 +215,9 @@ public class SpecSecurityBuilder {
             addOrUpdatePattern(uncheckedResourcePatterns, name, methods, URLPattern.NA);
             addOrUpdatePattern(uncheckedUserPatterns, name, methods, URLPattern.NA);
         }
-        URLPattern pattern = new URLPattern("/");
-        if (!allSet.contains(pattern)) {
+
+        if (!allMap.containsKey("/")) {
+            URLPattern pattern = new URLPattern("/", Collections.EMPTY_SET, false);
             String name = pattern.getQualifiedPattern(allSet);
             HTTPMethods methods = pattern.getComplementedHTTPMethods();
             addOrUpdatePattern(uncheckedResourcePatterns, name, methods, URLPattern.NA);
@@ -240,9 +243,9 @@ public class SpecSecurityBuilder {
         HTTPMethods existingActions = patternMap.get(item);
         if (existingActions != null) {
             patternMap.put(item, existingActions.add(actions));
-            return;
+        } else {
+            patternMap.put(item, new HTTPMethods(actions, false));
         }
-        patternMap.put(item, new HTTPMethods(actions, false));
     }
 
     protected void processRoleRefPermissions(ServletType servletType) throws PolicyContextException {

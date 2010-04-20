@@ -39,11 +39,13 @@ public class SecurityConstraintMergeHandler implements WebFragmentMergeHandler<W
             for (WebResourceCollectionType webResourceCollection : securityConstraint.getWebResourceCollectionArray()) {
                 for (UrlPatternType pattern : webResourceCollection.getUrlPatternArray()) {
                     String urlPattern = pattern.getStringValue();
-                    if (!WebDeploymentValidationUtils.isUrlPatternValid(urlPattern)) {
+                    if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
                         throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("security-constraint", webResourceCollection.getWebResourceName().getStringValue(),
                                 urlPattern, "web-fragment.xml located in " + mergeContext.getCurrentJarUrl()));
                     }
                 }
+                validateHTTPMethods(webResourceCollection.getHttpMethodArray(), mergeContext.getCurrentJarUrl());
+                validateHTTPMethods(webResourceCollection.getHttpMethodOmissionArray(), mergeContext.getCurrentJarUrl());
             }
             webApp.addNewSecurityConstraint().set(securityConstraint);
         }
@@ -59,11 +61,21 @@ public class SecurityConstraintMergeHandler implements WebFragmentMergeHandler<W
             for (WebResourceCollectionType webResourceCollection : securityConstraint.getWebResourceCollectionArray()) {
                 for (UrlPatternType pattern : webResourceCollection.getUrlPatternArray()) {
                     String urlPattern = pattern.getStringValue();
-                    if (!WebDeploymentValidationUtils.isUrlPatternValid(urlPattern)) {
+                    if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
                         throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("security-constraint", webResourceCollection.getWebResourceName().getStringValue(),
                                 urlPattern, "web.xml "));
                     }
                 }
+                validateHTTPMethods(webResourceCollection.getHttpMethodArray(), "web.xml");
+                validateHTTPMethods(webResourceCollection.getHttpMethodOmissionArray(), "web.xml");
+            }
+        }
+    }
+
+    private void validateHTTPMethods(String[] httpMethods, String source) throws DeploymentException {
+        for (String httpMethod : httpMethods) {
+            if (!WebDeploymentValidationUtils.isValidHTTPMethod(httpMethod)) {
+                throw new DeploymentException("Invalid HTTP method value is found in " + source);
             }
         }
     }

@@ -35,7 +35,7 @@ public class FilterMappingUrlPatternMergeHandler implements SubMergeHandler<Filt
         String filterName = filterMapping.getFilterName().getStringValue();
         for (UrlPatternType urlPattern : filterMapping.getUrlPatternArray()) {
             String urlPatternStr = urlPattern.getStringValue();
-            if (!WebDeploymentValidationUtils.isUrlPatternValid(urlPatternStr)) {
+            if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
                 throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterName, urlPatternStr, "web-fragment.xml located in "
                         + mergeContext.getCurrentJarUrl()));
             }
@@ -51,7 +51,7 @@ public class FilterMappingUrlPatternMergeHandler implements SubMergeHandler<Filt
             String filterMappingUrlPatternKey = createFilterMappingUrlPatternKey(filterName, urlPatternStr);
             if (!mergeContext.containsAttribute(filterMappingUrlPatternKey)) {
                 UrlPatternType newUrlPattern = (UrlPatternType) targetFilterMapping.addNewUrlPattern().set(urlPattern);
-                if (!WebDeploymentValidationUtils.isUrlPatternValid(urlPatternStr)) {
+                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
                     throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterName, urlPatternStr, "web-fragment.xml located in "
                             + mergeContext.getCurrentJarUrl()));
                 }
@@ -70,7 +70,7 @@ public class FilterMappingUrlPatternMergeHandler implements SubMergeHandler<Filt
             String filterName = filterMapping.getFilterName().getStringValue();
             for (UrlPatternType urlPattern : filterMapping.getUrlPatternArray()) {
                 String urlPatternStr = urlPattern.getStringValue();
-                if (!WebDeploymentValidationUtils.isUrlPatternValid(urlPatternStr)) {
+                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
                     throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterName, urlPatternStr, "web.xml"));
                 }
                 context.setAttribute(createFilterMappingUrlPatternKey(filterName, urlPatternStr), urlPattern);

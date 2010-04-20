@@ -17,12 +17,10 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.web25.deployment.security;
 
-import java.util.Set;
 import java.util.HashSet;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 /**
  * Tracks sets of HTTP actions for use while computing permissions during web deployment.
@@ -31,13 +29,13 @@ import java.util.regex.Pattern;
  */
 public class HTTPMethods {
 
-    private static final Pattern TOKEN_PATTERN = Pattern.compile("[!-~&&[^\\(\\)\\<\\>@,;:\\\\\"/\\[\\]\\?=\\{\\}]]*");
-
     private final Set<String> methods = new HashSet<String>();
+
     private boolean isExcluded = false;
 
-
-    public HTTPMethods() {
+    public HTTPMethods(Set<String> httpMethods, boolean isExcluded) {
+        this.isExcluded = isExcluded;
+        methods.addAll(httpMethods);
     }
 
     public HTTPMethods(HTTPMethods httpMethods, boolean complemented) {
@@ -45,40 +43,59 @@ public class HTTPMethods {
         methods.addAll(httpMethods.methods);
     }
 
-    public void add(String httpMethod) {
-        if (isExcluded) {
-            checkToken(httpMethod);
-            methods.remove(httpMethod);
-        } else if (httpMethod == null || httpMethod.length() == 0) {
-            isExcluded = true;
+    /**
+     * Generally speaking, add method is to perform a union action between the caller and the parameters
+     * @param httpMethods
+     * @param addedMethodsExcluded
+     */
+    public void add(Set<String> httpMethods, boolean addedMethodsExcluded) {
+        //JACC 3.1.3.2 Combining HTTP Methods
+        //An empty list combines with any other list to yield the empty list.
+        if (isExcluded && httpMethods.isEmpty()) {
+            return;
+        }
+        if (httpMethods.size() == 0) {
+            isExcluded = addedMethodsExcluded;
             methods.clear();
+            return;
+        }
+        //JACC 3.1.3.2 Combing HTTP Methods
+        //Lists of http-method elements combine to yield a list of http-method elements containing the union (without duplicates) of the http-method elements that occur in the individual lists.
+        //Lists of http-method-omission elements combine to yield a list containing only the http-method-omission elements that occur in all of the individual lists (i.e., the intersection).
+        //A list of http-method-omission elements combines with a list of http-method elements to yield the list of http-method-omission elements minus any elements whose method name occurs in the http-method list
+        if (isExcluded) {
+            if (addedMethodsExcluded) {
+                //ExceptionList + ExceptionList
+                methods.retainAll(httpMethods);
+            } else {
+                //ExceptionList + List
+                methods.removeAll(httpMethods);
+            }
         } else {
-            checkToken(httpMethod);
-            methods.add(httpMethod);
+            if (addedMethodsExcluded) {
+                //List + ExceptionList
+                Set<String> tempHttpMethods = new HashSet<String>(httpMethods);
+                tempHttpMethods.removeAll(methods);
+                methods.clear();
+                methods.addAll(tempHttpMethods);
+                isExcluded = true;
+            } else {
+                //List + List
+                methods.addAll(httpMethods);
+            }
         }
     }
 
     public HTTPMethods add(HTTPMethods httpMethods) {
-        if (isExcluded) {
-            if (httpMethods.isExcluded) {
-                methods.retainAll(httpMethods.methods);
-            } else {
-                methods.removeAll(httpMethods.methods);
-            }
-        } else {
-            if (httpMethods.isExcluded) {
-                isExcluded = true;
-                Set<String> toRemove = new HashSet<String>(methods);
-                methods.clear();
-                methods.addAll(httpMethods.methods);
-                methods.removeAll(toRemove);
-            } else {
-                methods.addAll(httpMethods.methods);
-            }
-        }
+        add(httpMethods.methods, httpMethods.isExcluded);
         return this;
     }
 
+    /**
+     * Remove methods is only used while we wish to remove those configurations in role/unchecked constraints, which are also configured in excluded constraints
+     * @param httpMethods
+     * @return
+     */
     public HTTPMethods remove(HTTPMethods httpMethods) {
         if (isExcluded) {
             if (httpMethods.isExcluded) {
@@ -116,7 +133,7 @@ public class HTTPMethods {
         return getHttpMethodsBuffer(!isExcluded).toString();
     }
 
-    private StringBuilder getHttpMethodsBuffer( boolean excluded) {
+    private StringBuilder getHttpMethodsBuffer(boolean excluded) {
         StringBuilder buffer = new StringBuilder();
         if (excluded) {
             buffer.append("!");
@@ -132,13 +149,6 @@ public class HTTPMethods {
         }
         return buffer;
     }
-
-    private void checkToken(String method) {
-        if (!TOKEN_PATTERN.matcher(method).matches()) {
-            throw new IllegalArgumentException("Invalid HTTPMethodSpec");
-        }
-    }
-
 
     public boolean isNone() {
         return !isExcluded && methods.isEmpty();
