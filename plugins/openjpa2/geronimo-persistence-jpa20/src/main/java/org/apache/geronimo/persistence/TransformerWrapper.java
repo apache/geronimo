@@ -36,9 +36,9 @@ public class TransformerWrapper implements ClassFileTransformer {
     }
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (loader != classLoader) {
-            return null;
-        }
+//        if (loader != classLoader) {
+//            return null;
+//        }
         try {
             return classTransformer.transform(loader, className, classBeingRedefined,  protectionDomain, classfileBuffer);
         } catch (IllegalClassFormatException e) {

@@ -443,6 +443,13 @@
             <artifactId>geronimo-shell-base</artifactId>
             <version>${version}</version>
         </dependency>
+        <!--agent -->
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-transformer</artifactId>
+            <version>${version}</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- endorsed -->
         <dependency>
             <groupId>org.apache.yoko</groupId>
@@ -628,12 +635,12 @@
                                     <outputDirectory>target/dependencies/lib/endorsed</outputDirectory>
                                     <destFileName>yoko-rmi-spec.jar</destFileName>
                                 </artifactItem>
-                                <!--<artifactItem>-->
-                                    <!--<groupId>org.apache.xbean</groupId>-->
-                                    <!--<artifactId>xbean-naming</artifactId>-->
-                                    <!--<outputDirectory>target/dependencies/lib</outputDirectory>-->
-                                    <!--<destFileName>xbean-naming.jar</destFileName>-->
-                                <!--</artifactItem>                                -->
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.framework</groupId>
+                                    <artifactId>geronimo-transformer</artifactId>
+                                    <outputDirectory>target/dependencies/lib/agent</outputDirectory>
+                                    <destFileName>transformer.jar</destFileName>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>

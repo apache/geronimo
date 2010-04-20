@@ -835,6 +835,7 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.system.sharedlib," +
                         "org.apache.geronimo.system.threads," +
                         "org.apache.geronimo.system.util," +
+                        "org.apache.geronimo.transformer," +
                         "org.apache.geronimo.mavenplugins.car," +
                         "org.apache.felix.karaf.jaas.boot;version=\"1.5.0\"," +
                         "org.apache.yoko," +

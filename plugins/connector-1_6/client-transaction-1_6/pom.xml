@@ -64,17 +64,6 @@
             <version>${version}</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.modules</groupId>-->
-            <!--<artifactId>geronimo-persistence-jpa20</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-transformer</artifactId>-->
-            <!--<version>${version}</version>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>

@@ -77,11 +77,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-transformer</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-client</artifactId>
         <type>jar</type>

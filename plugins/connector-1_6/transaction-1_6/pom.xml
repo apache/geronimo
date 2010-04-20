@@ -93,12 +93,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-transformer</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.howl</artifactId>
         </dependency>
