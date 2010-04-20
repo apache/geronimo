@@ -858,7 +858,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             }
             if (!knownServletMappings.contains(urlPattern)) {
                 knownServletMappings.add(urlPattern);
-                if (!WebDeploymentValidationUtils.isUrlPatternValid(urlPattern)) {
+                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
                     //TODO Better Exception message is required
                     throw new DeploymentException("Invalid character CR(#xD) or LF(#xA) is found in mapping url");
                 }
