@@ -1955,6 +1955,12 @@ only found in cxf
             </dependency>
 
             <dependency>
+                <groupId>org.apache.aries</groupId>
+                <artifactId>org.apache.aries.util</artifactId>
+                <version>0.1-incubating-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.aries.jndi</groupId>
                 <artifactId>org.apache.aries.jndi.core</artifactId>
                 <version>0.1-incubating-SNAPSHOT</version>
@@ -1964,6 +1970,24 @@ only found in cxf
                 <groupId>org.apache.aries.jndi</groupId>
                 <artifactId>org.apache.aries.jndi.url</artifactId>
                 <version>0.1-incubating-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.aries.jmx</groupId>
+                <artifactId>org.apache.aries.jmx</artifactId>
+                <version>0.1-incubating-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.aries.jmx</groupId>
+                <artifactId>org.apache.aries.jmx.blueprint</artifactId>
+                <version>0.1-incubating-SNAPSHOT</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>

@@ -27,16 +27,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.aries.jmx</groupId>
-        <artifactId>org.apache.aries.jmx</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.aries.jmx</groupId>
-        <artifactId>org.apache.aries.jmx.blueprint</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.felix</groupId>
         <artifactId>org.apache.felix.bundlerepository</artifactId>
         <type>jar</type>

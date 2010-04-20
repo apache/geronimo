@@ -86,6 +86,21 @@
             <artifactId>xbean-naming</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.aries.blueprint</groupId>
+            <artifactId>org.apache.aries.blueprint</artifactId>
+        </dependency>
+
+        <!-- aries jmx integration -->
+        <dependency>
+            <groupId>org.apache.aries.jmx</groupId>
+            <artifactId>org.apache.aries.jmx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.aries.jmx</groupId>
+            <artifactId>org.apache.aries.jmx.blueprint</artifactId>
+        </dependency>
+
         <!-- aries jndi integration -->
         <dependency>
             <groupId>org.apache.aries.jndi</groupId>
