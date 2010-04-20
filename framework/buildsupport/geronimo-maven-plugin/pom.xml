@@ -55,6 +55,11 @@
             <artifactId>slf4j-gossip</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+
         <!-- Support for SurefireReporter -->
         <dependency>
             <groupId>org.apache.maven.surefire</groupId>

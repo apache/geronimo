@@ -267,6 +267,9 @@ public class StartServerMojo
         setSystemProperty(java, "java.io.tmpdir", "var/temp");
         setSystemProperty(java, "java.endorsed.dirs", prefixSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
         setSystemProperty(java, "java.ext.dirs", prefixSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
+        // set console properties
+        setSystemProperty(java, "karaf.startLocalConsole", "false");
+        setSystemProperty(java, "karaf.startRemoteShell", "true");
 
         if (quiet) {
             java.createArg().setValue("--quiet");
