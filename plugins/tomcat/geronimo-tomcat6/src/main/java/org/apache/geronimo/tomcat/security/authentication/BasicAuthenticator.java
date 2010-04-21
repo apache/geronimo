@@ -22,6 +22,7 @@ package org.apache.geronimo.tomcat.security.authentication;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.connector.Request;
@@ -137,6 +138,6 @@ public class BasicAuthenticator implements Authenticator {
     }
 
     public String getAuthType() {
-        return "BASIC";
+        return HttpServletRequest.BASIC_AUTH;
     }
 }

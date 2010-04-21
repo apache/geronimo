@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Enumeration;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.RequestDispatcher;
@@ -205,7 +206,7 @@ public class FormAuthenticator implements Authenticator {
     }
 
     public String getAuthType() {
-        return "FORM";
+        return HttpServletRequest.FORM_AUTH;
     }
 
     /**

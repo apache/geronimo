@@ -25,6 +25,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.StringTokenizer;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.connector.Request;
@@ -107,7 +108,7 @@ public class DigestAuthenticator implements Authenticator {
     }
 
     public String getAuthType() {
-        return "DIGEST";
+        return HttpServletRequest.DIGEST_AUTH;
     }
 
     /**
