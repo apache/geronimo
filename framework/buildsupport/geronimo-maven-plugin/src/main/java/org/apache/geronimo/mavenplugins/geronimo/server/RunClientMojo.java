@@ -22,6 +22,8 @@ package org.apache.geronimo.mavenplugins.geronimo.server;
 import java.io.File;
 
 import org.apache.tools.ant.taskdefs.Java;
+import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.Path;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -99,7 +101,12 @@ public class RunClientMojo extends ReportingMojoSupport
         log.info("Starting Geronimo client...");
 
         Java java = (Java)createTask("java");
-        java.setJar(new File(geronimoHome, "bin/client.jar"));
+        java.setClassname("org.apache.geronimo.cli.client.ClientCLI");
+        Path path = java.createClasspath();
+        File libDir = new File(geronimoHome, "lib");
+        FileSet fileSet = new FileSet();
+        fileSet.setDir(libDir);
+        path.addFileset(fileSet);
         java.setDir(geronimoHome);
         java.setFailonerror(true);
         java.setFork(true);
@@ -123,10 +130,16 @@ public class RunClientMojo extends ReportingMojoSupport
 
         // Set the properties which we pass to the JVM from the startup script
         setSystemProperty(java, "org.apache.geronimo.home.dir", geronimoHome);
+        setSystemProperty(java, "karaf.home", geronimoHome);
+        setSystemProperty(java, "karaf.base", geronimoHome);
+        // Use relative path
         setSystemProperty(java, "java.io.tmpdir", "var/temp");
         setSystemProperty(java, "java.endorsed.dirs", prefixSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
         setSystemProperty(java, "java.ext.dirs", prefixSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
-
+        // set console properties
+        setSystemProperty(java, "karaf.startLocalConsole", "false");
+        setSystemProperty(java, "karaf.startRemoteShell", "false");
+        
         java.createArg().setValue(moduleId);
 
         for (int i=0;arg != null && i<arg.length;i++) {

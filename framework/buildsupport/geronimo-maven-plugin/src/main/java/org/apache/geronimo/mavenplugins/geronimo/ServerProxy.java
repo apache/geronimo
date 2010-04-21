@@ -29,6 +29,7 @@ import javax.management.remote.JMXServiceURL;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
 
 //
 // FIXME: It should be possible to query state with-out any Geronimo classes,
@@ -212,7 +213,14 @@ public class ServerProxy
 
     public void shutdown() {
         try {
-            invoke("shutdown");
+            Set<ObjectName> objectNameSet =
+                mbeanConnection.queryNames(new ObjectName("osgi.core:type=framework,*"), null);
+            if (objectNameSet.isEmpty()) {
+                throw new Exception("Framework mbean not found");
+            } else if (objectNameSet.size() == 1) {
+                mbeanConnection.invoke(objectNameSet.iterator().next(), "stopBundle",
+                                          new Object[] { 0 }, new String[] { long.class.getName() });
+            }
         }
         catch (Exception e) {
             log.warn("Unable to shutdown the server", e);
