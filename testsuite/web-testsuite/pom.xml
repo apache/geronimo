@@ -44,21 +44,17 @@
          - JSTL
     </description>
 
-    <profiles>
-        <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
-            <modules>
-                <module>test-2.1-jsps</module>
-                <module>test-2.5-servlets</module>
-                <module>test-jetty</module>
-                <module>test-myfaces</module>
-                <module>test-tomcat</module>
-                <module>test-web-forward</module>
-                <module>test-web-references</module>
-                <module>test-tld</module>
-            </modules>
-        </profile>
-    </profiles>
+    <modules>
+        <module>test-2.1-jsps</module>
+        <module>test-2.5-servlets</module>
+        <module>test-tld</module>
+<!--
+        <module>test-jetty</module>
+        <module>test-myfaces</module>
+        <module>test-tomcat</module>
+        <module>test-web-forward</module>
+        <module>test-web-references</module>
+-->
+    </modules>
 
 </project>

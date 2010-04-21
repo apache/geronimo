@@ -70,19 +70,16 @@
             <artifactId>slf4j-gossip</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
-        <!--
-        <extensions>
-            <extension>
-                <groupId>org.apache.geronimo.testsupport</groupId>
-                <artifactId>testsupport-packaging</artifactId>
-                <version>${version}</version>
-            </extension>
-        </extensions>
-        -->
-
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -119,18 +116,6 @@
                     </configuration>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.apache.geronimo.buildsupport</groupId>
-                    <artifactId>geronimo-maven-plugin</artifactId>
-                    <configuration>
-                        <reporters>
-                            <reporter
-                                    implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
-                                <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                            </reporter>
-                        </reporters>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -161,20 +146,19 @@
         </site>
     </distributionManagement>
 
-    <!--<pluginRepositories>-->
-    <!--<pluginRepository>-->
-    <!--<id>codehaus</id>-->
-    <!--<name>Codehaus Release Repository</name>-->
-    <!--<url>http://repository.codehaus.org</url>-->
-    <!--<layout>default</layout>-->
-    <!--<snapshots>-->
-    <!--<enabled>false</enabled>-->
-    <!--</snapshots>-->
-    <!--<releases>-->
-    <!--<enabled>true</enabled>-->
-    <!--</releases>-->
-    <!--</pluginRepository>-->
-    <!--</pluginRepositories>-->
+    <modules>
+        <module>commands-testsuite</module>
+<!--
+        <module>concurrent-testsuite</module>
+        <module>console-testsuite</module>
+        <module>corba-testsuite</module>
+        <module>deployment-testsuite</module>
+        <module>enterprise-testsuite</module>
+        <module>security-testsuite</module>
+-->
+        <module>web-testsuite</module>
+        <module>webservices-testsuite</module>
+    </modules>
 
     <profiles>
         <profile>
@@ -184,38 +168,11 @@
                     <plugins>
                         <plugin>
                             <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>shitty-maven-plugin</artifactId>
-                            <inherited>false</inherited>
-                            <configuration>
-                                <projects>
-                                    <fileset>
-                                        <directory>${project.basedir}</directory>
-                                        <includes>
-                                            <include>${shittyTestIncludes}</include>
-                                        </includes>
-                                        <excludes>
-                                            <exclude>${shittyTestExcludes}</exclude>
-                                        </excludes>
-                                    </fileset>
-                                </projects>
-                            </configuration>
-                            <executions>
-                                <execution>
-                                    <goals>
-                                        <goal>clean</goal>
-                                        <goal>install</goal>
-                                        <goal>test</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
                             <artifactId>selenium-maven-plugin</artifactId>
                             <inherited>false</inherited>
                             <executions>
                                 <execution>
-                                    <id>start</id>
+                                    <id>start-selenium</id>
                                     <phase>pre-integration-test</phase>
                                     <goals>
                                         <goal>start-server</goal>
@@ -232,7 +189,7 @@
                                     </configuration>
                                 </execution>
                                 <execution>
-                                    <id>stop</id>
+                                    <id>stop-selenium</id>
                                     <phase>post-integration-test</phase>
                                     <goals>
                                         <goal>stop-server</goal>
@@ -241,47 +198,45 @@
                             </executions>
                         </plugin>
 
-                        <!--
-                        NOTE: This horrible looking configuration sets up the surefire plugin to
-                              not run tests durring the 'test' phase, but instead during the
-                              'integration-test' phase.
-                        -->
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-plugin</artifactId>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <version>2.5</version>
                             <configuration>
-                                <skip>true</skip>
+                                <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                                <forkMode>once</forkMode>
+                                <argLine>-enableassertions</argLine>
+                                <failIfNoTests>false</failIfNoTests>
+                                <workingDirectory>${project.build.directory}</workingDirectory>
+                                <includes>
+                                    <include>**/Test*.java</include>
+                                    <include>**/*Test.java</include>
+                                </includes>
                             </configuration>
                             <executions>
                                 <execution>
-                                    <id>test</id>
-                                    <phase>test</phase>
+                                    <id>integration-test</id>
                                     <goals>
-                                        <goal>test</goal>
+                                        <goal>integration-test</goal>
                                     </goals>
-                                    <configuration>
-                                        <skip>true</skip>
-                                    </configuration>
                                 </execution>
                                 <execution>
-                                    <id>integration</id>
-                                    <phase>integration-test</phase>
+                                    <id>verify</id>
+                                    <phase>install</phase>
                                     <goals>
-                                        <goal>test</goal>
+                                        <goal>verify</goal>
                                     </goals>
-                                    <configuration>
-                                        <skip>false</skip>
-                                    </configuration>
                                 </execution>
                             </executions>
                         </plugin>
+
                         <plugin>
                             <groupId>org.apache.geronimo.buildsupport</groupId>
                             <artifactId>geronimo-maven-plugin</artifactId>
                             <inherited>false</inherited>
                             <executions>
                                 <execution>
-                                    <id>start</id>
+                                    <id>start-geronimo</id>
                                     <phase>pre-integration-test</phase>
                                     <goals>
                                         <goal>start-server</goal>
@@ -302,8 +257,8 @@
                                     </configuration>
                                 </execution>
                                 <execution>
-                                    <id>stop</id>
-                                    <phase>install</phase>
+                                    <id>stop-geronimo</id>
+                                    <phase>verify</phase>
                                     <goals>
                                         <goal>stop-server</goal>
                                     </goals>
@@ -313,6 +268,16 @@
 
                     </plugins>
                 </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
 
@@ -386,22 +351,6 @@
             <properties>
                 <browser>${browserPath}</browser>
             </properties>
-        </profile>
-
-        <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
-            <modules>
-                <module>commands-testsuite</module>
-                <module>concurrent-testsuite</module>
-                <module>console-testsuite</module>
-                <module>corba-testsuite</module>
-                <module>deployment-testsuite</module>
-                <module>enterprise-testsuite</module>
-                <module>security-testsuite</module>
-                <module>web-testsuite</module>
-                <module>webservices-testsuite</module>
-            </modules>
         </profile>
     </profiles>
 

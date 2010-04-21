@@ -43,39 +43,41 @@
             <version>${version}</version>
         </dependency>
     </dependencies> 
-    
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <configuration>
-                        <suiteXmlFiles>
-                            <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
-                        </suiteXmlFiles>
-                        <systemProperties>
-                            <property>
-                                <name>geronimoVersion</name>
-                                <value>${version}</value>
-                            </property>
-                        </systemProperties>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
     <profiles>
         <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
-            <modules>
-                <module>deploy</module>
-                <module>gshell</module>
-                <module>jaxws</module>
-                <module>shutdown</module>
-            </modules>
+            <id>it</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <configuration>
+                                <suiteXmlFiles>
+                                    <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
+                                </suiteXmlFiles>
+                                <systemProperties>
+                                    <property>
+                                        <name>geronimoVersion</name>
+                                        <value>${version}</value>
+                                    </property>
+                                </systemProperties>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
         </profile>
     </profiles>
+
+    <modules>
+        <module>deploy</module>
+<!--
+        <module>gshell</module>
+        <module>jaxws</module>
+-->
+        <module>shutdown</module>
+    </modules>
+
 </project>

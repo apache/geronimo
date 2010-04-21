@@ -21,7 +21,7 @@
       <dep:groupId>${pom.groupId}</dep:groupId>
       <dep:artifactId>${pom.artifactId}</dep:artifactId>
       <dep:version>${version}</dep:version>
-      <dep:type>car</dep:type>
+      <dep:type>war</dep:type>
     </dep:moduleId>
   </dep:environment>
   <context-root>/jsp21</context-root>

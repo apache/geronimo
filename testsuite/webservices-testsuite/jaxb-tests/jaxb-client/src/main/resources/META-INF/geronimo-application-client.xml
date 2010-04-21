@@ -24,7 +24,7 @@
       <dep:groupId>JEE5</dep:groupId>
       <dep:artifactId>JAXBClient</dep:artifactId>
       <dep:version>1.1</dep:version>
-      <dep:type>car</dep:type>
+      <dep:type>jar</dep:type>
     </dep:moduleId>
    </dep:client-environment>
 
@@ -33,7 +33,7 @@
       <dep:groupId>JEE5</dep:groupId>
       <dep:artifactId>JAXBClientServer</dep:artifactId>
       <dep:version>1.1</dep:version>
-      <dep:type>car</dep:type>
+      <dep:type>jar</dep:type>
     </dep:moduleId>
    </dep:server-environment>
 

@@ -27,7 +27,7 @@
             <groupId>JEE5</groupId>
             <artifactId>StaxEJB</artifactId>
             <version>1.1</version>
-            <type>car</type>
+            <type>jar</type>
         </moduleId>
    </environment>
 

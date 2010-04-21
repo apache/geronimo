@@ -60,44 +60,48 @@
             <version>${version}</version>
         </dependency>
 
-	    <dependency>
-	        <groupId>org.apache.geronimo.specs</groupId>
-	        <artifactId>geronimo-stax-api_1.2_spec</artifactId>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.2_spec</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>geronimo-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy-ejb</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.jar</moduleArchive>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>undeploy-ejb-as-moduleId</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>JEE5/StaxEJB/1.1/car</moduleId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>it</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>deploy-wars</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.jar</moduleArchive>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>undeploy-war-as-moduleId</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>JEE5/StaxEJB/1.1/jar</moduleId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
 

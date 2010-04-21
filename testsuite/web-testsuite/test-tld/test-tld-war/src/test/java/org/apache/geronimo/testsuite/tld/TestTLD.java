@@ -28,7 +28,10 @@ public class TestTLD extends SeleniumTestSupport {
     public void testTaglibs() throws Exception {
         selenium.open("/tld/testTaglibs.jsp");
         waitForPageLoad();
-        assertEquals("HelloHelloTestTag", selenium.getText("xpath=/html/body"));
+        String text = selenium.getText("xpath=/html/body");
+        assertTrue("'Hello' not found", text.contains("Hello"));
+        assertTrue("'TestTag' not found", text.contains("TestTag"));
+        assertTrue("'Listener initialized' not found", text.contains("Listener initialized: true"));
     }
 
 }

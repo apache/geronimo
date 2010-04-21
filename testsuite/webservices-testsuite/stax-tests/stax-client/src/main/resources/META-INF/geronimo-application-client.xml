@@ -24,7 +24,7 @@
       <dep:groupId>JEE5</dep:groupId>
       <dep:artifactId>StaxClient</dep:artifactId>
       <dep:version>1.1</dep:version>
-      <dep:type>car</dep:type>
+      <dep:type>jar</dep:type>
     </dep:moduleId>
    </dep:client-environment>
 
@@ -33,7 +33,7 @@
       <dep:groupId>JEE5</dep:groupId>
       <dep:artifactId>StaxClientServer</dep:artifactId>
       <dep:version>1.1</dep:version>
-      <dep:type>car</dep:type>
+      <dep:type>jar</dep:type>
     </dep:moduleId>
    </dep:server-environment>
 

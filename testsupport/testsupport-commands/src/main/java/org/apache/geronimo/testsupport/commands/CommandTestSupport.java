@@ -117,11 +117,7 @@ public class CommandTestSupport {
         if (isWindows()) {
             return geronimoHome + "/bin/" + command + ".bat";            
         } else {
-            if (GSH.equals(command)) {
-                return geronimoHome + "/bin/" + command;
-            } else {
-                return geronimoHome + "/bin/" + command + ".sh";
-            }
+            return geronimoHome + "/bin/" + command;
         }     
     }
         
