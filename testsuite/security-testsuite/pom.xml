@@ -43,7 +43,7 @@
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
                     <configuration>
                         <suiteXmlFiles>
                             <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
@@ -54,14 +54,8 @@
         </pluginManagement>
     </build>
 
-    <profiles>
-        <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
-            <modules>
-                <module>test-security</module>
-            </modules>
-        </profile>
-    </profiles>
+    <modules>
+        <module>test-security</module>
+    </modules>
 
 </project>

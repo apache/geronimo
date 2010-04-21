@@ -34,6 +34,7 @@ public class TestSecurity extends SeleniumTestSupport {
         waitForPageLoad();
         assertEquals("hello world.", selenium.getText("xpath=/html"));
         selenium.deleteAllVisibleCookies();
+        selenium.refresh();
     }
 
     @Test
@@ -68,6 +69,7 @@ public class TestSecurity extends SeleniumTestSupport {
     
     private void testFailure(String username, String password) throws Exception {
         selenium.open("/demo/protect/hello.html");
+        waitForPageLoad();
         if (username != null) {
             selenium.type("j_username", username);
         }

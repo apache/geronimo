@@ -24,8 +24,15 @@
 
 <suite name="Suite1" verbose="5">
     <test name="security-testsuite.security">
+<!--
         <packages>
             <package name="org.apache.geronimo.testsuite.security"/>
         </packages>
+-->
+        <classes>
+            <class name="org.apache.geronimo.testsuite.security.TestConsoleSecurity"/>
+            <class name="org.apache.geronimo.testsuite.security.TestJMXSecurity"/>
+            <class name="org.apache.geronimo.testsuite.security.TestSecurity"/>
+        </classes>
     </test>
 </suite>

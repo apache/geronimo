@@ -154,8 +154,8 @@
         <module>corba-testsuite</module>
         <module>deployment-testsuite</module>
         <module>enterprise-testsuite</module>
-        <module>security-testsuite</module>
 -->
+        <module>security-testsuite</module>
         <module>web-testsuite</module>
         <module>webservices-testsuite</module>
     </modules>
@@ -272,10 +272,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.geronimo.buildsupport</groupId>
-                        <artifactId>geronimo-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>
