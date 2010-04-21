@@ -106,9 +106,9 @@
                 </reference>
             </gbean>
             <gbean name="test-cms-credentials"
-                   class="org.apache.geronimo.connector.outbound.security.PasswordCredentialLoginModuleWrapperGBean">
+                   class="org.apache.geronimo.connector.wrapper.outbound.security.PasswordCredentialLoginModuleWrapper">
                 <attribute name="loginModuleClass">
-                    org.apache.geronimo.connector.outbound.security.CallerIdentityPasswordCredentialLoginModule
+                    org.apache.geronimo.connector.wrapper.outbound.security.CallerIdentityPasswordCredentialLoginModule
                 </attribute>
                 <reference name="ManagedConnectionFactoryWrapper">
                     <name>cmsds</name>

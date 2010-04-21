@@ -37,16 +37,11 @@
     <description>
         Geronimo deployment testsuite.
     </description>
-    <profiles>
-        <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
-            <modules>
-                <module>deployment-tests</module>
-                <module>jca-cms-tests</module>
-                <module>manifestcp-tests</module>
-            </modules>
-        </profile>
-    </profiles>
+
+    <modules>
+        <module>deployment-tests</module>
+        <module>jca-cms-tests</module>
+        <module>manifestcp-tests</module>
+    </modules>
 
 </project>

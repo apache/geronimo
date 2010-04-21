@@ -79,35 +79,43 @@
                     </modules>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>geronimo-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy-ears</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>undeploy-ear-as-module</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>it</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>deploy-ears</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>undeploy-ear-as-moduleId</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
