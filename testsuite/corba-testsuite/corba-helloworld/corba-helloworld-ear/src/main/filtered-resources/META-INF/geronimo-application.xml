@@ -108,7 +108,7 @@
                     </dep:dependency>
                     <dep:dependency>
                         <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-                        <dep:artifactId>client-transaction</dep:artifactId>
+                        <dep:artifactId>client-transaction-1_6</dep:artifactId>
                         <dep:version>${version}</dep:version>
                         <dep:type>car</dep:type>
                     </dep:dependency>
