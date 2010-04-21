@@ -31,7 +31,7 @@
     </parent>
 
     <artifactId>web-references-war</artifactId>
-    <name>Geronimo Test Suite :: Test Web References :: WAR</name>
+    <name>Geronimo TestSuite :: Test Web References :: WAR</name>
     <packaging>war</packaging>
 
     <description>
@@ -70,7 +70,7 @@
             <artifactId>geronimo-ejb_3.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-\
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>

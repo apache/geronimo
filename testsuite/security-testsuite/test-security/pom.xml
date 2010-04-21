@@ -31,7 +31,7 @@
     </parent>
 
     <artifactId>test-security</artifactId>
-    <name>Geronimo TestSuite :: Web Testsuite :: Test Security</name>
+    <name>Geronimo TestSuite :: Security Testsuite :: Test Security</name>
     <packaging>war</packaging>
 
     <description>

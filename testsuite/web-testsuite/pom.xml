@@ -49,12 +49,38 @@
         <module>test-2.5-servlets</module>
         <module>test-tld</module>
 <!--
-        <module>test-jetty</module>
         <module>test-myfaces</module>
-        <module>test-tomcat</module>
         <module>test-web-forward</module>
         <module>test-web-references</module>
 -->
     </modules>
+
+    <profiles>
+        <profile>
+            <id>testsuite-with-jetty</id>
+            <activation>
+                <property>
+                    <name>assemblyId</name>
+                    <value>jetty</value>
+                </property>
+            </activation>
+            <modules>
+                <module>test-jetty</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>testsuite-with-tomcat</id>
+            <activation>
+                <property>
+                    <name>assemblyId</name>
+                    <value>tomcat</value>
+                </property>
+            </activation>
+            <modules>
+                <module>test-tomcat</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

@@ -278,32 +278,6 @@
         </profile>
 
         <profile>
-            <id>testsuite-with-jetty</id>
-            <activation>
-                <property>
-                    <name>assemblyId</name>
-                    <value>jetty</value>
-                </property>
-            </activation>
-            <properties>
-                <shittyTestExcludes>**/*tomcat*/pom.xml</shittyTestExcludes>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>testsuite-with-tomcat</id>
-            <activation>
-                <property>
-                    <name>assemblyId</name>
-                    <value>tomcat</value>
-                </property>
-            </activation>
-            <properties>
-                <shittyTestExcludes>**/*jetty*/pom.xml</shittyTestExcludes>
-            </properties>
-        </profile>
-
-        <profile>
             <id>headless</id>
             <build>
                 <pluginManagement>

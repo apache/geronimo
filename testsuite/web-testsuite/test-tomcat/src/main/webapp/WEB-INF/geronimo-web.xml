@@ -26,7 +26,7 @@
             <sys:groupId>${pom.groupId}</sys:groupId>
             <sys:artifactId>${pom.artifactId}</sys:artifactId>
             <sys:version>${version}</sys:version>
-            <sys:type>car</sys:type>
+            <sys:type>war</sys:type>
         </sys:moduleId>
     </sys:environment>
     <context-root>/TomcatWeb</context-root>
