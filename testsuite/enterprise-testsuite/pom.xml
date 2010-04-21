@@ -46,18 +46,14 @@
         - JavaMail
     </description>
 
-    <profiles>
-        <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
-            <modules>
-                <module>ejb-tests</module>
-                <module>jms-tests</module>
-                <module>jpa-tests</module>
-                <module>sec-client-tests</module>
-                <module>sec-tests</module>
-            </modules>
-        </profile>
-    </profiles>
+    <modules>
+<!--
+        <module>ejb-tests</module>
+        <module>jms-tests</module>
+        <module>sec-tests</module>
+-->
+        <module>jpa-tests</module>
+        <module>sec-client-tests</module>
+    </modules>
 
 </project>

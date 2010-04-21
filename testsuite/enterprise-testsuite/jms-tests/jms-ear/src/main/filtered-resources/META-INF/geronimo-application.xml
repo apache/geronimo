@@ -68,6 +68,7 @@
         <external-path xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
             <dep:groupId>org.apache.geronimo.modules</dep:groupId>
             <dep:artifactId>geronimo-activemq-ra</dep:artifactId>
+            <dep:version>${version}</dep:version>
             <dep:type>rar</dep:type>
         </external-path>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">

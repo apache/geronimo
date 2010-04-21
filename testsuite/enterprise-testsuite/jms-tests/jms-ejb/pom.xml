@@ -30,7 +30,7 @@
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.geronimo.testsuite</groupId>
+    <name>Geronimo TestSuite :: Enterprise Testsuite :: JMS EJB</name>
     <artifactId>jms-ejb</artifactId>
     <packaging>ejb</packaging>
 
@@ -38,7 +38,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.5.0</version>
         </dependency>
 
         <dependency>
@@ -50,20 +49,18 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jms_1.1_spec</artifactId>
-            <version>1.1.1</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jta_1.1_spec</artifactId>
-            <version>1.1.1</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-annotation_1.1_spec</artifactId>
-            <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

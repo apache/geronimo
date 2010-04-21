@@ -149,11 +149,11 @@
     <modules>
         <module>commands-testsuite</module>
         <module>corba-testsuite</module>
+        <module>enterprise-testsuite</module>
 <!--
         <module>concurrent-testsuite</module>
         <module>console-testsuite</module>
         <module>deployment-testsuite</module>
-        <module>enterprise-testsuite</module>
 -->
         <module>security-testsuite</module>
         <module>web-testsuite</module>

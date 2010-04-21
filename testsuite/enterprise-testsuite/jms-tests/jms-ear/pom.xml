@@ -67,7 +67,6 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.1_spec</artifactId>
-            <version>1.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -97,16 +96,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
-                </configuration>
-            </plugin>
-
             <!-- "ear" packaging doesn't compile test classes -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -132,75 +121,59 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>geronimo-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>undeploy</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
-        <profiles>
+    <profiles>
         <profile>
-            <!-- use to start up selenium when running a single test against an already-started server -->
-            <id>standalone</id>
+            <id>it</id>
             <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <configuration>
+                                <suiteXmlFiles>
+                                    <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
+                                </suiteXmlFiles>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>selenium-maven-plugin</artifactId>
-                        <inherited>false</inherited>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>start</id>
+                                <id>deploy-ears</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
-                                    <goal>start-server</goal>
+                                    <goal>deploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <logOutput>true</logOutput>
-                                    <background>true</background>
-                                    <systemProperties>
-                                        <property>
-                                            <name>browser</name>
-                                            <value>${browser}</value>
-                                        </property>
-                                    </systemProperties>
+                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>stop</id>
+                                <id>undeploy-ear-as-moduleId</id>
                                 <phase>post-integration-test</phase>
                                 <goals>
-                                    <goal>stop-server</goal>
+                                    <goal>undeploy-module</goal>
                                 </goals>
+                                <configuration>
+                                    <moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>

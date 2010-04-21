@@ -58,7 +58,7 @@
             <artifactId>geronimo-ejb_3.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-\
+
         <!-- the enhancer seems to need xerces -->
         <dependency>
             <groupId>xerces</groupId>
