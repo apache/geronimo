@@ -28,6 +28,7 @@ import java.util.Locale;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Session;
@@ -205,7 +206,7 @@ public class FormAuthenticator implements Authenticator {
     }
 
     public String getAuthType() {
-        return "FORM";
+        return HttpServletRequest.FORM_AUTH;
     }
 
     /**

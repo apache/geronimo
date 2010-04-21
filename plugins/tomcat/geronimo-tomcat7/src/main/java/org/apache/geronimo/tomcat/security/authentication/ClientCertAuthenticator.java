@@ -23,6 +23,7 @@ package org.apache.geronimo.tomcat.security.authentication;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Globals;
@@ -95,6 +96,6 @@ public class ClientCertAuthenticator implements Authenticator {
     }
 
     public String getAuthType() {
-        return "CLIENT-CERT";
+        return HttpServletRequest.CLIENT_CERT_AUTH;
     }
 }
