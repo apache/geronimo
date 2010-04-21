@@ -195,7 +195,7 @@ public class StartServerMojo
         }
 
         // Load the Java programming language agent for JPA
-        File javaAgentJar = new File(geronimoHome, "bin/jpa.jar");
+        File javaAgentJar = new File(geronimoHome, "lib/agent/transformer.jar");
         if (javaAgentJar.exists()) {
             java.createJvmarg().setValue("-javaagent:" + javaAgentJar.getCanonicalPath());
         }

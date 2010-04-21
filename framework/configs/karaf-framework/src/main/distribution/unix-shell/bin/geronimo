@@ -290,7 +290,7 @@ if [ "$1" = "jpda" ] ; then
 fi
 
 # Setup the Java programming language agent
-JAVA_AGENT_JAR="$GERONIMO_HOME/bin/jpa.jar"
+JAVA_AGENT_JAR="$GERONIMO_HOME/lib/agent/transformer.jar"
 
 if [ "$1" = "debug" ] ; then
   if $os400; then
