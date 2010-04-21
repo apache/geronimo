@@ -16,7 +16,6 @@
   */
 package org.apache.geronimo.yoko;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -24,14 +23,6 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.rmi.CORBA.UtilDelegate;
-import org.apache.geronimo.corba.util.UtilDelegateImpl;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.osgi.framework.Bundle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.corba.CORBABean;
 import org.apache.geronimo.corba.CSSBean;
 import org.apache.geronimo.corba.NameService;
@@ -41,13 +32,20 @@ import org.apache.geronimo.corba.security.config.ConfigException;
 import org.apache.geronimo.corba.security.config.tss.TSSConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSSSLTransportConfig;
 import org.apache.geronimo.corba.security.config.tss.TSSTransportMechConfig;
-import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.corba.util.UtilDelegateImpl;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.yoko.orb.CosNaming.tnaming.TransientNameService;
 import org.apache.yoko.orb.CosNaming.tnaming.TransientServiceException;
 import org.apache.yoko.orb.OB.ZERO_PORT_POLICY_ID;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Policy;
+import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -71,26 +69,26 @@ public class ORBConfigAdapter implements ConfigAdapter {
      */
     public ORBConfigAdapter(@ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle) throws Exception {
         // define the default ORB for ORB.init();
-        System.setProperty("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
-        System.setProperty("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
+//        System.setProperty("org.omg.CORBA.ORBClass", "org.apache.yoko.orb.CORBA.ORB");
+//        System.setProperty("org.omg.CORBA.ORBSingletonClass", "org.apache.yoko.orb.CORBA.ORBSingleton");
 
         // redirect the RMI implementation to use the Yoko ORB.
-        System.setProperty("javax.rmi.CORBA.PortableRemoteObjectClass", "org.apache.yoko.rmi.impl.PortableRemoteObjectImpl");
-        System.setProperty("javax.rmi.CORBA.StubClass", "org.apache.yoko.rmi.impl.StubImpl");
+//        System.setProperty("javax.rmi.CORBA.PortableRemoteObjectClass", "org.apache.yoko.rmi.impl.PortableRemoteObjectImpl");
+//        System.setProperty("javax.rmi.CORBA.StubClass", "org.apache.yoko.rmi.impl.StubImpl");
         // this hooks the util class and allows us to override certain functions
-        System.setProperty("javax.rmi.CORBA.UtilClass", "org.apache.geronimo.corba.util.UtilDelegateImpl");
+//        System.setProperty("javax.rmi.CORBA.UtilClass", "org.apache.geronimo.corba.util.UtilDelegateImpl");
         // this tells the openejb UtilDelegateImpl which implementation to delegate non-overridden
         // operations to.
 //        System.setProperty("org.apache.geronimo.corba.UtilDelegateClass", "org.apache.yoko.rmi.impl.UtilImpl");
         // this allows us to hook RMI stub invocation/serialization events.
-        UtilDelegateImpl.setDelegateClass(bundle.loadClass("org.apache.yoko.rmi.impl.UtilImpl").asSubclass(UtilDelegate.class));
-        System.setProperty("org.apache.yoko.rmi.RMIStubInitializerClass", "org.apache.geronimo.yoko.RMIStubHandlerFactory");
+//        UtilDelegateImpl.setDelegateClass(bundle.loadClass("org.apache.yoko.rmi.impl.UtilImpl").asSubclass(UtilDelegate.class));
+//        System.setProperty("org.apache.yoko.rmi.RMIStubInitializerClass", "org.apache.geronimo.yoko.RMIStubHandlerFactory");
 
         // ok, now we have a potential classloading problem because of where our util delegates are located.
         // by forcing these classes to load now using our class loader, we can ensure things are properly initialized
-        Class clazz = bundle.loadClass("javax.rmi.PortableRemoteObject");
-        Method m = clazz.getMethod("narrow", Object.class, Class.class);
-        m.invoke(null, new Object(), Object.class);
+//        Class clazz = bundle.loadClass("javax.rmi.PortableRemoteObject");
+//        Method m = clazz.getMethod("narrow", Object.class, Class.class);
+//        m.invoke(null, new Object(), Object.class);
 
 
         log.debug("Started  Yoko ORBConfigAdapter");
