@@ -131,18 +131,6 @@
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>juli</artifactId>
                     </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-ejb_3.1_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-servlet_3.0_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jpa_2.0_spec</artifactId>
-                    </exclusion>
                     <exclusion>        
                         <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-javamail_1.4_spec</artifactId>
@@ -159,14 +147,6 @@
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>juli</artifactId>
                     </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-ejb_3.1_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-servlet_3.0_spec</artifactId>
-                    </exclusion>
                  </exclusions>
             </dependency>
             <dependency>
@@ -178,15 +158,7 @@
                         <groupId>${tomcatGroupId}</groupId>
                         <artifactId>juli</artifactId>
                     </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-ejb_3.1_spec</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-servlet_3.0_spec</artifactId>
-                    </exclusion>
-                 </exclusions>
+                </exclusions>
             </dependency>
 
             <dependency>
