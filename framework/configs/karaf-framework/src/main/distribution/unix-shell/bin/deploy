@@ -194,7 +194,7 @@ if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
   echo "Using JRE_HOME:        $JRE_HOME"
 fi
 
-exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
+"$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
   -Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=false \
   -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
   -Dkaraf.home="$GERONIMO_HOME" \
@@ -205,3 +205,11 @@ exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
   -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
   -classpath "$CLASSPATH" \
   org.apache.geronimo.cli.deployer.DeployerCLI "$@"
+
+# Remember the exit status
+status=$?
+
+# Reset tty
+stty echo > /dev/null 2>&1
+
+exit $status

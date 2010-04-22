@@ -409,6 +409,9 @@ elif [ "$1" = "stop" ] ; then
     -classpath "$CLASSPATH" \
     org.apache.geronimo.cli.shutdown.ShutdownCLI "$@"
 
+  # Reset tty
+  stty echo > /dev/null 2>&1
+
   if [ $FORCE -eq 1 ]; then
     if [ ! -z "$GERONIMO_PID" ]; then
        echo "Killing: `cat $GERONIMO_PID`"
