@@ -21,6 +21,8 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 import javax.persistence.spi.ClassTransformer;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleReference;
 
 /**
  * @version $Rev$ $Date$
@@ -28,23 +30,24 @@ import javax.persistence.spi.ClassTransformer;
 public class TransformerWrapper implements ClassFileTransformer {
 
     private final ClassTransformer classTransformer;
-    private final ClassLoader classLoader;
+    private final Bundle bundle;
 
-    public TransformerWrapper(ClassTransformer classTransformer, ClassLoader classLoader) {
+    public TransformerWrapper(ClassTransformer classTransformer, Bundle bundle) {
         this.classTransformer = classTransformer;
-        this.classLoader = classLoader;
+        this.bundle = bundle;
     }
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-//        if (loader != classLoader) {
-//            return null;
-//        }
-        try {
-            return classTransformer.transform(loader, className, classBeingRedefined,  protectionDomain, classfileBuffer);
-        } catch (IllegalClassFormatException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            return null;
+        if (loader instanceof BundleReference && ((BundleReference) loader).getBundle() == bundle) {
+            try {
+                return classTransformer.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+            } catch (IllegalClassFormatException e) {
+                throw e;
+            } catch (RuntimeException e) {
+                return null;
+            }
         }
+        return null;
+
     }
 }

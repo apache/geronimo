@@ -39,7 +39,6 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.resource.ResourceException;
 import javax.sql.DataSource;
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.SingleElementCollection;
@@ -131,7 +130,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                 persistenceXMLSchemaVersion,
                 sharedCacheMode,
                 validationMode,
-                classLoader);
+                classLoader, bundle);
         try {
             Class clazz = classLoader.loadClass(persistenceProviderClassName);
             PersistenceProvider persistenceProvider = (PersistenceProvider) clazz.newInstance();
@@ -257,6 +256,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         private final String persistenceXMLSchemaVersion;
         private final SharedCacheMode sharedCacheMode;
         private final ValidationMode validationMode;
+        private final Bundle bundle;
 
 
         public PersistenceUnitInfoImpl(String persistenceUnitName,
@@ -273,7 +273,8 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                                        String persistenceXMLSchemaVersion,
                                        SharedCacheMode sharedCacheMode,
                                        ValidationMode validationMode,
-                                       ClassLoader classLoader) {
+                                       ClassLoader classLoader,
+                                       Bundle bundle) {
 
             this.persistenceUnitName = persistenceUnitName;
             this.persistenceProviderClassName = persistenceProviderClassName;
@@ -296,6 +297,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
             // This classloader can only be used during PersistenceProvider.createContainerEntityManagerFactory() calls
             // Possible that it could be cleaned up sooner, but for now it's destroyed when the PUGBean is stopped
             this.tempClassLoader = new TemporaryClassLoader(classLoader);
+            this.bundle = bundle;
         }
 
         @Override
@@ -360,7 +362,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
 
         @Override
         public void addTransformer(ClassTransformer classTransformer) {
-            TransformerWrapper transformer = new TransformerWrapper(classTransformer, classLoader);
+            TransformerWrapper transformer = new TransformerWrapper(classTransformer, bundle);
             transformers.add(transformer);
             TransformerAgent.addTransformer(transformer);
         }
