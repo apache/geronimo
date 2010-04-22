@@ -43,14 +43,5 @@
         <module>openwebbeans-deployer</module>
     </modules>
     
-    <dependencyManagement>
-        <dependencies>
-	    <dependency>
-	        <groupId>org.apache.openwebbeans</groupId>
-		<artifactId>openwebbeans-impl</artifactId>
-		<version>1.0.0-incubating-SNAPSHOT</version>
-	    </dependency>
-	</dependencies>
-    </dependencyManagement>
 
 </project>

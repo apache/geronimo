@@ -34,6 +34,7 @@
     <name>Geronimo Plugins, OpenWebBeans :: Core</name>
     
     <dependencies>
+    
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee</artifactId>
@@ -46,10 +47,105 @@
             <version>${version}</version>
         </dependency>
         
-        <dependency>
-            <groupId>org.apache.openwebbeans</groupId>
-            <artifactId>openwebbeans-impl</artifactId>
+         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-atinject_1.0_spec</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jcdi_1.0_spec</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-interceptor_1.1_spec</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-el_2.2_spec</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+        </dependency>        
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsp_2.2_spec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-api</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-annotation_1.1_spec</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-validation_1.0_spec</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.dom4j</artifactId>
+            <version>1.6.1_3-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
+            <version>3.7.ga_1-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
+             <groupId>org.apache.geronimo.bundles</groupId>
+             <artifactId>scannotation</artifactId>
+            <version>1.0.2_1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+             <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>openwebbeans-spi</artifactId>
+            <version>1.0.0-SNAPSHOT_1-SNAPSHOT</version>            
+        </dependency>         
+    
+        <dependency>
+             <groupId>org.apache.geronimo.bundles</groupId>
+             <artifactId>openwebbeans-impl</artifactId>
+            <version>1.0.0-SNAPSHOT_1-SNAPSHOT</version>
+        </dependency>
+
+       
+
+        <dependency>
+             <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>openwebbeans-web</artifactId>
+            <version>1.0.0-SNAPSHOT_1-SNAPSHOT</version>            
+        </dependency>  
+
+
+        
+        <dependency>
+             <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>openwebbeans-jsf</artifactId>
+            <version>1.0.0-SNAPSHOT_1-SNAPSHOT</version>            
+        </dependency>
+
     </dependencies>
+    
 
 </project>

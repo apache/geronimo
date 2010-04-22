@@ -58,10 +58,6 @@
             <version>${version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.openwebbeans</groupId>
-            <artifactId>openwebbeans-impl</artifactId>
-        </dependency>
 
     </dependencies>
 
