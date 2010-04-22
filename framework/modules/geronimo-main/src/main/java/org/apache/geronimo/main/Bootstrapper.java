@@ -184,11 +184,6 @@ public class Bootstrapper {
             karafMain.destroy(await);
         } catch (Exception e) {
             e.printStackTrace();           
-        } finally {
-            if (uniqueStorage) {
-                String dir = System.getProperty(Constants.FRAMEWORK_STORAGE);
-                recursiveDelete(new File(dir));                
-            }
         }
     }
                 
@@ -272,12 +267,18 @@ public class Bootstrapper {
     }
     
     private String getStorageDirectory() throws IOException {
-        File storage;
+        final File storage;
         if (uniqueStorage) {
             File var = new File(getServer(), "var");
             File tmpFile = File.createTempFile("appclient-", "", var);
             storage = new File(var, tmpFile.getName() + "-cache");
             tmpFile.delete();
+            // register shutdown hook to remove the instance's cache directory
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    recursiveDelete(storage);
+                }
+            });
         } else {
             storage = new File(getServer(), "var/cache");
         }
