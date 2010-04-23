@@ -53,7 +53,15 @@
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>axis</artifactId>
+            <artifactId>cxf-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>cxf</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -66,23 +74,23 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>geronimo-uddi-server</artifactId>
-            <version>${version}</version>
+            <groupId>org.apache.juddi</groupId>
+            <artifactId>juddiv3-war</artifactId>
             <type>war</type>
             <scope>provided</scope>
         </dependency>
-
+        
         <dependency>
-            <groupId>org.apache.juddi</groupId>
-            <artifactId>juddi</artifactId>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.juddi</groupId>
-            <artifactId>juddi-ws</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jetty8</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>
@@ -101,13 +109,13 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${jettyDeployer}</deploymentConfig>
+                        <deploymentConfig>${cxfDeployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <category>Web Services</category>
                     <module>
-                        <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>geronimo-uddi-server</artifactId>
-                        <version>${version}</version>
+                        <groupId>org.apache.juddi</groupId>
+                        <artifactId>juddiv3-war</artifactId>
                         <type>war</type>
                     </module>
                 </configuration>

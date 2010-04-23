@@ -32,7 +32,7 @@
     <artifactId>uddi-tomcat</artifactId>
     <name>Geronimo Plugins, UDDI Server :: Tomcat</name>
     <packaging>car</packaging>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -49,10 +49,17 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>cxf-deployer</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>axis</artifactId>
+            <artifactId>cxf</artifactId>
             <version>${version}</version>
             <type>car</type>
         </dependency>
@@ -63,25 +70,20 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>geronimo-uddi-server</artifactId>
-            <version>${version}</version>
+            <groupId>org.apache.juddi</groupId>
+            <artifactId>juddiv3-war</artifactId>
             <type>war</type>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.juddi</groupId>
-            <artifactId>juddi</artifactId>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>tomcat7</artifactId>
+            <version>${version}</version>
+            <type>car</type>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.juddi</groupId>
-            <artifactId>juddi-ws</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>
@@ -89,7 +91,7 @@
             <type>car</type>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -100,18 +102,18 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${tomcatDeployer}</deploymentConfig>
+                        <deploymentConfig>${cxfDeployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <category>Web Services</category>
                     <module>
-                        <groupId>org.apache.geronimo.plugins</groupId>
-                        <artifactId>geronimo-uddi-server</artifactId>
-                        <version>${version}</version>
+                        <groupId>org.apache.juddi</groupId>
+                        <artifactId>juddiv3-war</artifactId>
                         <type>war</type>
                     </module>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

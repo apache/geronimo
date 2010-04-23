@@ -8,7 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>axis</artifactId>
+        <artifactId>cxf</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -17,18 +17,13 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>uddi-db</artifactId>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>tomcat7</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.juddi</groupId>
-        <artifactId>juddi</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.juddi</groupId>
-        <artifactId>juddi-ws</artifactId>
-        <type>jar</type>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>uddi-db</artifactId>
+        <type>car</type>
     </dependency>
 </plugin-artifact>

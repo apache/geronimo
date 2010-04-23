@@ -139,7 +139,7 @@
                     </module>
                     <instance>
                         <plugin-artifact>
-                            <copy-file relative-to="server" dest-dir="var">var/derby</copy-file>
+                            <copy-file relative-to="server" dest-dir="var/derby">var/derby/</copy-file>
                         </plugin-artifact>
                     </instance>
                 </configuration>

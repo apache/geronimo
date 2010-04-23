@@ -40,6 +40,21 @@
                         </single-pool>
                     </connectionmanager>
                 </connectiondefinition-instance>
+                <connectiondefinition-instance>
+                    <name>jdbc/NoTxJuddiDB</name>
+                    <config-property-setting name="UserName"></config-property-setting>
+                    <config-property-setting name="Password"></config-property-setting>
+                    <config-property-setting name="DatabaseName">UddiDatabase</config-property-setting>
+                    <config-property-setting name="CreateDatabase">false</config-property-setting>
+                    <connectionmanager>
+                        <no-transaction/>
+                        <single-pool>
+                            <max-size>100</max-size>
+                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                            <match-one/>
+                        </single-pool>
+                    </connectionmanager>
+                </connectiondefinition-instance>
             </connection-definition>
         </outbound-resourceadapter>
     </resourceadapter>
