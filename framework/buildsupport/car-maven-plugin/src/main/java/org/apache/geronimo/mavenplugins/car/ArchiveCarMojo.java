@@ -20,8 +20,11 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -34,8 +37,13 @@ import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.model.License;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.codehaus.plexus.archiver.ArchiverException;
+import org.codehaus.plexus.archiver.UnArchiver;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.archiver.jar.JarArchiver.FilesetManifestConfig;
+import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.archiver.manager.NoSuchArchiverException;
+import org.codehaus.plexus.util.FileUtils;
 import org.osgi.framework.Constants;
 
 /**
@@ -67,6 +75,15 @@ public class ArchiveCarMojo
      * @readonly
      */
     private JarArchiver jarArchiver = null;
+    
+    /**
+     * The Jar archiver.
+     *
+     * @parameter expression="${component.org.codehaus.plexus.archiver.manager.ArchiverManager}"
+     * @required
+     * @readonly
+     */
+    private ArchiverManager archiverManager = null;
 
     /**
      * The module base directory.
@@ -192,7 +209,7 @@ public class ArchiveCarMojo
     private File createArchive() throws MojoExecutionException {
         File archiveFile = getArchiveFile(outputDirectory, finalName, null);
 
-        MavenArchiver archiver = new MavenArchiver();
+        GeronimoArchiver archiver = new GeronimoArchiver(archiverManager);
         archiver.setArchiver(jarArchiver);
         archiver.setOutputFile(archiveFile);
 
@@ -201,7 +218,7 @@ public class ArchiveCarMojo
             File artifactDirectory = getArtifactInRepositoryDir();
 
             if (artifactDirectory.exists()) {
-                archiver.getArchiver().addArchivedFileSet(artifactDirectory);
+                archiver.addArchivedFileSet(artifactDirectory);
             }
 
             // Include the optional classes.resources
@@ -299,10 +316,62 @@ public class ArchiveCarMojo
             archiver.createArchive(project, archive);
 
             return archiveFile;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new MojoExecutionException("Failed to create archive", e);
+        } finally {
+            archiver.cleanup();
         }
     }
+    
+    private static class GeronimoArchiver extends MavenArchiver {
+        
+        private ArchiverManager archiverManager;
+        private List<File> tmpDirs = new ArrayList<File>();
+        
+        public GeronimoArchiver(ArchiverManager archiverManager) {
+            this.archiverManager = archiverManager;
+        }
+        
+        public void addArchivedFileSet(File archiveFile) throws ArchiverException {
+            UnArchiver unArchiver;
+            try {
+                unArchiver = archiverManager.getUnArchiver(archiveFile);
+            } catch (NoSuchArchiverException e) {
+                throw new ArchiverException(
+                        "Error adding archived file-set. UnArchiver not found for: " + archiveFile,
+                        e);
+            }
 
+            File tempDir = FileUtils.createTempFile("archived-file-set.", ".tmp", null);
+
+            tempDir.mkdirs();
+
+            tmpDirs.add(tempDir); 
+            
+            unArchiver.setSourceFile(archiveFile);
+            unArchiver.setDestDirectory(tempDir);
+
+            try {
+                unArchiver.extract();
+            } catch (IOException e) {
+                throw new ArchiverException("Error adding archived file-set. Failed to extract: "
+                                            + archiveFile, e);
+            }
+
+            getArchiver().addDirectory(tempDir, null, null, null);
+        }
+        
+        public void cleanup() {
+            for (File dir : tmpDirs) {
+                try {
+                    FileUtils.deleteDirectory(dir);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            tmpDirs.clear();        
+        }
+        
+    }
+    
 }
