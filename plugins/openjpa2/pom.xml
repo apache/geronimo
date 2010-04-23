@@ -37,16 +37,11 @@
     </description>
 
 <!-- These are in the geronimo-parent PM for now
-    <properties>
-        <openjpaVersion>2.0.0-beta3</openjpaVersion>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.apache.openjpa</groupId>
                 <artifactId>openjpa</artifactId>
-                <version>${openjpaVersion}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.openjpa</groupId>
@@ -114,19 +109,16 @@
             <dependency>
                 <groupId>org.apache.openjpa</groupId>-
                 <artifactId>openjpa-persistence-jdbc</artifactId>
-                <version>${openjpaVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jpa_2.0_spec</artifactId>
-                <version>1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-validation_1.0_spec</artifactId>
-                <version>1.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
