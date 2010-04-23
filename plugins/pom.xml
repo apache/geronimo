@@ -180,7 +180,7 @@
         <!--<module>plancreator</module>-->
         <module>webservices</module>
         <!--<module>ca-helper</module>-->
-        <!--<module>uddi</module>-->
+        <module>uddi</module>
         <!--<module>mejb</module>-->
         <!--<module>monitoring</module>-->
         <!--<module>remote-deploy</module>-->
