@@ -39,8 +39,6 @@
         <module>geronimo-web</module>
         <module>geronimo-web-extender</module>
         <module>web-extender</module>
-        <module>web-tomcat-server</module>
-        <module>web-jetty-server</module>
     </modules>
 
     <dependencyManagement>
@@ -52,5 +50,15 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>mini-servers</id>
+            <modules>
+                <module>web-tomcat-server</module>
+                <module>web-jetty-server</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
