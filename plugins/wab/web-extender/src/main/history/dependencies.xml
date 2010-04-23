@@ -7,11 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.aries.blueprint</groupId>
-        <artifactId>org.apache.aries.blueprint</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.aries.web</groupId>
         <artifactId>org.apache.aries.web.urlhandler</artifactId>
         <type>jar</type>

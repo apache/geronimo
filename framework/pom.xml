@@ -246,7 +246,7 @@
     <!--<scope>test</scope>-->
     <!--</dependency>-->
     <!--</dependencies>-->
-
+                                                                                           k,
     <profiles>
         <profile>
             <id>default</id>
@@ -256,7 +256,6 @@
             </activation>
 
             <modules>
-                <module>bundles</module>
                 <module>modules</module>
                 <module>buildsupport</module>
                 <module>configs</module>
