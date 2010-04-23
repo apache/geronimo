@@ -21,41 +21,25 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+    
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>testsuite</artifactId>
+        <artifactId>appname-tests</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
-    <artifactId>enterprise-testsuite</artifactId>
-    <name>Geronimo TestSuite :: Enterprise Testsuite</name>
-    <packaging>pom</packaging>
-    
-    <description>
-        Enterprise tier testsuite. Should contain tests for:
-        - EJB
-        - JMS
-        - JCA
-        - JACC
-        - JAF
-        - JTA
-        - JPA
-        - JavaMail
-    </description>
 
-    <modules>
-<!--
-        <module>ejb-tests</module>
-        <module>jms-tests</module>
-        <module>sec-tests</module>
--->
-        <module>jpa-tests</module>
-        <module>sec-client-tests</module>
-        <module>datasource-test</module>
-        <module>appname-tests</module>
-    </modules>
+    <artifactId>appname-war</artifactId>
+    <name>Geronimo TestSuite :: Enterprise Testsuite :: AppName - WAR</name>
+    <packaging>war</packaging>
+
+     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>
