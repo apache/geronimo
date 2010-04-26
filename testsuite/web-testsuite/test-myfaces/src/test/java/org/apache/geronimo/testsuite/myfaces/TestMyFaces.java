@@ -23,14 +23,23 @@ package org.apache.geronimo.testsuite.myfaces;
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
 import org.testng.annotations.Test;
 
-public class TestMyFaces extends SeleniumTestSupport
-{
+public class TestMyFaces extends SeleniumTestSupport {
 
     @Test
     public void testManagedBean() throws Exception {
         selenium.open("/myfaces");
         waitForPageLoad();
         assertEquals("0.99 Please enter your nameHelloUpdate greeting", selenium.getBodyText());
+    }
+    
+    @Test
+    public void testPress() throws Exception {
+        selenium.open("/myfaces");
+        waitForPageLoad();
+        selenium.type("form:input1", "Bart Simpson");
+        selenium.click("form:button1");
+        waitForPageLoad();
+        assertEquals("Hello Bart Simpson. We hope you enjoy Apache MyFaces", selenium.getText("xpath=/html/body/h2"));
     }
     
 }
