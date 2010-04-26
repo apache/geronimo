@@ -34,33 +34,25 @@
     </description>
 
     <modules>
-        <module>activemq-broker</module>
         <module>activemq-broker-blueprint</module>
         <module>geronimo-activemq-ra</module>
         <module>activemq-ra</module>
-        <module>geronimo-activemq</module>
         <module>geronimo-activemq-blueprint</module>
         <module>geronimo-activemq-management</module>
-        <module>activemq-portlets</module>
+        <!--<module>activemq-portlets</module>-->
         <!--<module>activemq-console-jetty</module>-->
         <!--<module>activemq-console-tomcat</module>-->
         <!--<module>activemq-webconsole-jetty</module>-->
         <!--<module>activemq-webconsole-tomcat</module>-->
         <!--<module>activemq-webconsole</module>-->
-        <module>activemq-jetty-server</module>
+        <!--<module>activemq-server</module>-->
     </modules>
 
     <profiles>
         <profile>
-            <id>it</id>
+            <id>mini-servers</id>
             <modules>
-                <module>activemq-server</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>all-subprojects</id>
-            <modules>
-                <module>activemq-server</module>
+                <module>activemq-jetty-server</module>
             </modules>
         </profile>
     </profiles>
