@@ -18,12 +18,9 @@
  */
 package org.apache.geronimo.testsuite.testset;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.apache.geronimo.testsupport.HttpUtils;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.testng.annotations.Test;
 
@@ -47,30 +44,9 @@ public class WebJAXBTest extends TestSupport {
         String warName = System.getProperty("webAppName");
         assertNotNull(warName);
         URL url = new URL(baseURL + warName + address);
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        connection.setConnectTimeout(30 * 1000);
-        connection.setReadTimeout(30 * 1000);
-        try {
-            BufferedReader reader = 
-                new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-            assertTrue("Implementation", 
-                       find(reader, "com.sun.xml.bind.v2.runtime.JAXBContextImpl"));
-        } finally {
-            connection.disconnect();
-        }
+        String reply = HttpUtils.doGET(url);     
+        assertTrue("Implementation", 
+                   reply.contains("com.sun.xml.bind.v2.runtime.JAXBContextImpl"));
     }
-
-    private boolean find(BufferedReader reader, String text) 
-        throws IOException {
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line);
-            if (line.indexOf(text) != -1) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+  
 }

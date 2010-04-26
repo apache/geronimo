@@ -19,30 +19,25 @@
 
 package org.apache.geronimo.testsuite.jpa;
 
+import java.net.URL;
+
+import org.apache.geronimo.testsupport.HttpUtils;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
 /**
- * ???
- *
  * @version $Rev$ $Date$
  */
-@Test
-public class JPATest
-    extends SeleniumTestSupport
-{
+public class JPATest extends TestSupport {
+
     @Test
     public void testIndexContent() throws Exception {
-        selenium.open("/jpa/servlet");
-        waitForPageLoad();
-        //assertEquals("Hello J2EE 1.4", selenium.getTitle());
-        assertEquals("TestServlet\n" +
-                "Test EJB container managed entity manager test OK: true\n" +
-                "Test EJB app managed entity manager factory test OK: true\n" +
-                "Test servlet container managed entity manager test OK: true\n" +
-                "Test servlet app managed entity manager factory test OK: true\n" +
-                "commit OK", selenium.getText("xpath=/html/body"));
-
+        URL url = new URL("http://localhost:8080/jpa/servlet");
+        String reply = HttpUtils.doGET(url);
+        assertTrue("EJB container managed", reply.contains("Test EJB container managed entity manager test OK: true"));
+        assertTrue("EJB app managed", reply.contains("Test EJB app managed entity manager factory test OK: true"));
+        assertTrue("Servlet container managed", reply.contains("Test servlet container managed entity manager test OK: true"));
+        assertTrue("Serlvet app managed", reply.contains("Test servlet app managed entity manager factory test OK: true"));
+        assertTrue("Commit", reply.contains("commit OK"));
     }
 }
-

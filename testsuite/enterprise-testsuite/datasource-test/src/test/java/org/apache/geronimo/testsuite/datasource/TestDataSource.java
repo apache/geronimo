@@ -19,12 +19,9 @@
 
 package org.apache.geronimo.testsuite.datasource;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.apache.geronimo.testsupport.HttpUtils;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.testng.annotations.Test;
 
@@ -41,29 +38,9 @@ public class TestDataSource extends TestSupport {
         String warName = System.getProperty("webAppName");
         assertNotNull(warName);
         URL url = new URL(baseURL + warName + address);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setConnectTimeout(30 * 1000);
-        connection.setReadTimeout(30 * 1000);
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection
-                    .getInputStream()));
-            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-            assertTrue("Contact1", find(reader, "Joe Smith 111 111-"));
-            assertTrue("Contact2", find(reader, "Jane Doe 222 222-"));
-        } finally {
-            connection.disconnect();
-        }
-    }
-
-    private boolean find(BufferedReader reader, String text) throws IOException {
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line);
-            if (line.indexOf(text) != -1) {
-                return true;
-            }
-        }
-        return false;
+        String reply = HttpUtils.doGET(url);
+        assertTrue("Contact1", reply.contains("Joe Smith 111 111-"));
+        assertTrue("Contact2", reply.contains("Jane Doe 222 222-"));
     }
 
 }
