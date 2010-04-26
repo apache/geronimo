@@ -275,7 +275,6 @@
             </activation>
 
             <modules>
-                <module>bundles</module>
                 <module>buildsupport</module>
                 <module>modules</module>
             </modules>
