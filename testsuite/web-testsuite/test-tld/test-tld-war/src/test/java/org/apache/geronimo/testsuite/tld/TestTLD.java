@@ -19,19 +19,21 @@
 
 package org.apache.geronimo.testsuite.tld;
 
-import org.apache.geronimo.testsupport.SeleniumTestSupport;
+import java.net.URL;
+
+import org.apache.geronimo.testsupport.HttpUtils;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.testng.annotations.Test;
 
-public class TestTLD extends SeleniumTestSupport {
+public class TestTLD extends TestSupport {
 
     @Test
     public void testTaglibs() throws Exception {
-        selenium.open("/tld/testTaglibs.jsp");
-        waitForPageLoad();
-        String text = selenium.getText("xpath=/html/body");
-        assertTrue("'Hello' not found", text.contains("Hello"));
-        assertTrue("'TestTag' not found", text.contains("TestTag"));
-        assertTrue("'Listener initialized' not found", text.contains("Listener initialized: true"));
+        URL url = new URL("http://localhost:8080/tld/testTaglibs.jsp");
+        String reply = HttpUtils.doGET(url);
+        assertTrue("'Hello' not found", reply.contains("Hello"));
+        assertTrue("'TestTag' not found", reply.contains("TestTag"));
+        assertTrue("'Listener initialized' not found", reply.contains("Listener initialized: true"));
     }
 
 }

@@ -19,41 +19,40 @@
 
 package org.apache.geronimo.testsuite.jsps;
 
+import java.net.URL;
 
-import org.apache.geronimo.testsupport.SeleniumTestSupport;
+import org.apache.geronimo.testsupport.HttpUtils;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.testng.annotations.Test;
 
-public class TestJsps extends SeleniumTestSupport
-{
+public class TestJsps extends TestSupport {
 
     @Test
     public void testDeferral() throws Exception {
-        selenium.open("/jsp21/testDeferral.jsp");
-        waitForPageLoad();
-        
-        //throw new Exception(selenium.getText("xpath=/html/body"));
-        assertEquals("OneTwo", selenium.getText("xpath=/html/body"));
+        URL url = new URL("http://localhost:8080/jsp21/testDeferral.jsp");
+        String reply = HttpUtils.doGET(url);
+        assertTrue("testDeferral", reply.contains("OneTwo"));
     }
 
     @Test
     public void testScopes() throws Exception {
-        selenium.open("/jsp21/testScopes.jsp");
-        waitForPageLoad();
-        assertEquals("value1 value2 value3 value4", selenium.getText("xpath=/html/body"));
+        URL url = new URL("http://localhost:8080/jsp21/testScopes.jsp");
+        String reply = HttpUtils.doGET(url);
+        assertTrue("testScopes", reply.contains("value1 value2 value3 value4"));
     }
 
     @Test
     public void testTaglibs() throws Exception {
-        selenium.open("/jsp21/testTaglibs.jsp");
-        waitForPageLoad();
-        assertEquals("Hello", selenium.getText("xpath=/html/body"));
+        URL url = new URL("http://localhost:8080/jsp21/testTaglibs.jsp");
+        String reply = HttpUtils.doGET(url);
+        assertTrue("testTagLibs", reply.contains("Hello"));
     }
 
     @Test
     public void testTrimWhitespace() throws Exception {
-        selenium.open("/jsp21/testTrimWhitespace.jsp");
-        waitForPageLoad();
-        assertEquals("source html of this page should not contain empty lines", selenium.getText("xpath=/html/body"));
+        URL url = new URL("http://localhost:8080/jsp21/testTrimWhitespace.jsp");
+        String reply = HttpUtils.doGET(url);
+        assertTrue("testTrimWhitespace", reply.contains("source html of this page should not contain empty lines"));
     }
 
 }
