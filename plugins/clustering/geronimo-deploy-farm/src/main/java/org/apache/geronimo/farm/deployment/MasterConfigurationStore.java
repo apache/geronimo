@@ -281,13 +281,14 @@ public class MasterConfigurationStore implements ConfigurationStore {
         return gbean;
     }
 
-    protected AbstractName buildControllerName(Artifact configId,
-            NodeInfo nodeInfo) {
-    	Map nameMap= new Hashtable();
-    	nameMap.put("nodeName", nodeInfo.getName());
-    	nameMap.put("appName", configId.getArtifactId());
-    	return new AbstractName(configId, nameMap);
-       // return new AbstractName(configId, Collections.singletonMap("nodeName", nodeInfo.getName()));
+    protected AbstractName buildControllerName(Artifact configId, NodeInfo nodeInfo) {
+        Map nameMap = new Hashtable();
+        nameMap.put("nodeName", nodeInfo.getName());
+        nameMap.put("artifactId", configId.getArtifactId());
+        nameMap.put("groupId", configId.getGroupId());
+        nameMap.put("version", "" + configId.getVersion().getMajorVersion() + configId.getVersion().getMinorVersion());
+        nameMap.put("type", configId.getType());
+        return new AbstractName(configId, nameMap);
     }
 
     public static final String GBEAN_J2EE_TYPE = "ConfigurationStore";

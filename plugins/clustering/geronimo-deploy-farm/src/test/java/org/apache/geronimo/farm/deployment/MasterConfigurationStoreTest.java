@@ -75,11 +75,13 @@ public class MasterConfigurationStoreTest extends RMockTestCase {
         storeClient = (ClusterConfigurationStoreClient) mock(ClusterConfigurationStoreClient.class);
         kernel.getAbstractNameFor(clusterInfo);
         configId = new Artifact("groupId", "artifactId", "2.0", "car");
-        Map nameMap= new Hashtable();
-    	nameMap.put("name", "ClusterInfo");
-    	nameMap.put("appName", configId.getArtifactId());
-        clusterInfoName= new AbstractName(configId,nameMap);
-       // clusterInfoName = new AbstractName(configId, Collections.singletonMap("name", "ClusterInfo"));
+        Map nameMap = new Hashtable();
+        nameMap.put("name", "ClusterInfo");
+        nameMap.put("artifactId", configId.getArtifactId());
+        nameMap.put("groupId", configId.getGroupId());
+        nameMap.put("version", "" + configId.getVersion().getMajorVersion() + configId.getVersion().getMinorVersion());
+        nameMap.put("type", configId.getType());
+        clusterInfoName = new AbstractName(configId, nameMap);
         modify().returnValue(clusterInfoName);
         
         delegate = (ConfigurationStore) mock(ConfigurationStore.class);
