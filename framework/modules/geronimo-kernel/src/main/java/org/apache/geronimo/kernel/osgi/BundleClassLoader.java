@@ -169,4 +169,21 @@ public class BundleClassLoader extends ClassLoader implements BundleReference {
     public Bundle getBundle() {
         return getBundle(true);
     }
+    
+    @Override
+    public int hashCode() {
+        return bundle.hashCode();
+    }
+ 
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (other == null || !other.getClass().equals(getClass())) {
+            return false;
+        }
+        BundleClassLoader otherBundleClassLoader = (BundleClassLoader) other;
+        return this.bundle == otherBundleClassLoader.bundle;
+    }
 }
