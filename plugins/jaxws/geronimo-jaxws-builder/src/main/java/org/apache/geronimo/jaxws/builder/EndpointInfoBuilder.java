@@ -447,7 +447,7 @@ public class EndpointInfoBuilder {
         if (catalogURL == null) {
             File f = this.module.getEarContext().getTargetFile(URI.create(name));
             if (f.exists()) {
-                catalogURL = f.toURL();
+                catalogURL = f.toURI().toURL();
             }
         }
         return catalogURL;

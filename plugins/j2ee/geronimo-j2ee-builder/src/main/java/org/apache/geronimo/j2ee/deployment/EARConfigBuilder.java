@@ -376,7 +376,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             XmlObject rawPlan;
             try {
                 if (planFile != null) {
-                    rawPlan = XmlBeansUtil.parse(planFile.toURL(), getClass().getClassLoader());
+                    rawPlan = XmlBeansUtil.parse(planFile.toURI().toURL(), getClass().getClassLoader());
                     gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, APPLICATION_QNAME, GerApplicationType.type);
                     if (gerApplication == null) {
                         return null;

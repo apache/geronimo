@@ -132,7 +132,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
             portInfo.setLocation("/axis2/" + serviceName);
             
             File wsdlFile = new File(RESOURCE_PATH + wsdl);
-            portInfo.setWsdlFile(wsdlFile.toURL().toString());
+            portInfo.setWsdlFile(wsdlFile.toURI().toURL().toString());
 
             try {
                 Axis2Request req = new Axis2Request(504,

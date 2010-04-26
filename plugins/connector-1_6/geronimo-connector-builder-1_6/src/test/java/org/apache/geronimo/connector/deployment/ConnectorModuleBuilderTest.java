@@ -345,9 +345,6 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             File rarFile = action.getRARFile();
 
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-//            ClassLoader cl = new URLClassLoader(new URL[]{rarFile.toURL()}, oldCl);
-
-//            Thread.currentThread().setContextClassLoader(cl);
 
             JarFile rarJarFile = JarUtils.createJarFile(rarFile);
             AbstractName earName = null;

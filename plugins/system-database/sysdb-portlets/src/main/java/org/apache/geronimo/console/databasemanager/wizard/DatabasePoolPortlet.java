@@ -1228,7 +1228,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 for (ListableRepository repo : repos) {
                     File url = repo.getLocation(artifact);
                     if (url != null) {
-                        list.add(url.toURL());
+                        list.add(url.toURI().toURL());
                     }
                 }
             }

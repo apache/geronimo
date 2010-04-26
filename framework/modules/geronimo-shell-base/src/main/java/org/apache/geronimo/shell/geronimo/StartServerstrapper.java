@@ -247,7 +247,7 @@ public class StartServerstrapper extends Bootstrapper{
             parts[3] = fileLocation.getName().substring(fileLocation.getName().lastIndexOf('.') + 1);
             
             String mvnLocation = getMvnLocation(parts);
-            Bundle b = context.installBundle(mvnLocation, fileLocation.toURL().openStream());
+            Bundle b = context.installBundle(mvnLocation, fileLocation.toURI().toURL().openStream());
             if (b != null) {
                 b.start(Bundle.START_TRANSIENT);
             }

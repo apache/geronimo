@@ -420,7 +420,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                     rawPlan = (XmlObject) plan;
                 } else {
                     if (plan != null) {
-                        rawPlan = XmlBeansUtil.parse(((File) plan).toURL(), getClass().getClassLoader());
+                        rawPlan = XmlBeansUtil.parse(((File) plan).toURI().toURL(), getClass().getClassLoader());
                     } else {
                         URL path = deployable.getResource("WEB-INF/geronimo-web.xml");
                         if (path == null) {

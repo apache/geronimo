@@ -32,7 +32,7 @@ public class DeployableFactory {
     public static DeployableObject createDeployable(Bundle bundle) throws DDBeanCreateException {
         if (bundle.getResource("META-INF/application.xml") != null) {
             // EAR file
-//            return new ApplicationDeployable(moduleFile.toURL());
+//            return new ApplicationDeployable(bundle);
             throw new UnsupportedOperationException();
         } else if (bundle.getResource("META-INF/application-client.xml") != null) {
             // Application Client

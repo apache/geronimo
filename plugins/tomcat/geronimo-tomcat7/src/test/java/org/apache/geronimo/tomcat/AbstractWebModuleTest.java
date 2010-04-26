@@ -126,7 +126,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
     protected TomcatWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, RealmGBean realm, SecurityHolder securityHolder) throws Exception {
         ApplicationPolicyConfigurationManager jacc = setUpJACC(roleDesignates, principalRoleMap, componentPermissions, POLICY_CONTEXT_ID);
         securityHolder.setConfigurationFactory(this.realm);
-        URL configurationBaseURL = new File(BASEDIR, "src/test/resources/deployables/war3/WEB-INF/web.xml").toURL();
+        URL configurationBaseURL = new File(BASEDIR, "src/test/resources/deployables/war3/WEB-INF/web.xml").toURI().toURL();
         return setUpInsecureAppContext("war3",
                 configurationBaseURL,
                 securityHolder,

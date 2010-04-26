@@ -50,7 +50,7 @@ public class ClassLoaderTest extends TestSupport {
 
     public void setUp() throws Exception {
         super.setUp();
-        URL url = new File(BASEDIR, "src/test/resources/deployables/cltest/").toURL();
+        URL url = new File(BASEDIR, "src/test/resources/deployables/cltest/").toURI().toURL();
         urls = new URL[]{url};
         clRules.setInverseClassLoading(false);
         clRules.getHiddenRule().setClassPrefixes(HIDDEN);

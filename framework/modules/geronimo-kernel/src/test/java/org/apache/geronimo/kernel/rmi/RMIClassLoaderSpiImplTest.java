@@ -40,7 +40,7 @@ public class RMIClassLoaderSpiImplTest extends TestCase {
     protected void setUp() throws Exception {
         File dir = new File(System.getProperty("user.home"));
 
-        baseURL = dir.toURL().toString();
+        baseURL = dir.toURI().toURL().toString();
         if (baseURL.endsWith("/")) {
             baseURL = baseURL.substring(0, baseURL.length() - 1);
         }

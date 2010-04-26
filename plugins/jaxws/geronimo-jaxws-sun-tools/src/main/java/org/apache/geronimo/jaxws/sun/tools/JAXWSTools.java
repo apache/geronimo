@@ -104,7 +104,7 @@ public class JAXWSTools {
     public static URL[] toURL(File[] jars) throws MalformedURLException {
         URL [] urls = new URL[jars.length];
         for (int i = 0; i < jars.length; i++) {
-            urls[i] = jars[i].toURL();
+            urls[i] = jars[i].toURI().toURL();
         }
         return urls;
     }

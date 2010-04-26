@@ -68,7 +68,7 @@ public class ParsingTest
     }
 
     private Map parse(File schema1) throws IOException, XmlException, DeploymentException, URISyntaxException {
-        XmlObject xmlObject = XmlBeansUtil.parse(schema1.toURL(), getClass().getClassLoader());
+        XmlObject xmlObject = XmlBeansUtil.parse(schema1.toURI().toURL(), getClass().getClassLoader());
         Collection errors = new ArrayList();
         XmlOptions xmlOptions = new XmlOptions();
         xmlOptions.setErrorListener(errors);

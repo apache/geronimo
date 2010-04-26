@@ -324,7 +324,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                     ListableRepository repo = repos[i];
                     File file = repo.getLocation(one);
                     if (file != null) {
-                        loader = new URLClassLoader(new URL[]{file.toURL()}, loader);
+                        loader = new URLClassLoader(new URL[]{file.toURI().toURL()}, loader);
                         break;
                     }
                 }

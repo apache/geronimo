@@ -59,7 +59,7 @@ public class Weblogic81Utils {
         File state = new File(domainDir, "SerializedSystemIni.dat");
         if(!state.canRead()) throw new IllegalArgumentException("Cannot find serialized state in domain directory");
         try {
-            ClassLoader loader = new URLClassLoader(securityJar.exists() ? new URL[]{weblogicJar.toURL(), securityJar.toURL()} : new URL[]{weblogicJar.toURL()}, Weblogic81Utils.class.getClassLoader());
+            ClassLoader loader = new URLClassLoader(securityJar.exists() ? new URL[]{weblogicJar.toURI().toURL(), securityJar.toURI().toURL()} : new URL[]{weblogicJar.toURI().toURL()}, Weblogic81Utils.class.getClassLoader());
             initialize(loader, state);
         } catch (Exception e) {
             throw (RuntimeException)new IllegalArgumentException("Unable to initialize encryption routines from provided arguments").initCause(e);
