@@ -41,7 +41,7 @@
         <module>geronimo-yoko</module>
         <module>j2ee-corba-yoko</module>
         <module>openejb-corba-deployer</module>
-  </modules>
+    </modules>
 
     <profiles>
         <profile>
@@ -51,6 +51,7 @@
             </modules>
         </profile>
     </profiles>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

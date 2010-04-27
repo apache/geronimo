@@ -64,13 +64,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- duplicated in corba -->
-            <dependency>
-                <groupId>org.apache.yoko</groupId>
-                <artifactId>yoko-spec-corba</artifactId>
-                <version>1.1-SNAPSHOT</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
