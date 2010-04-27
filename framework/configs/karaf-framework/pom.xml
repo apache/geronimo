@@ -41,7 +41,7 @@
         <depends.maven.plugin.version>1.0</depends.maven.plugin.version>
         <easymock.version>2.4</easymock.version>
         <equinox.version>3.5.1.v20090827</equinox.version>
-        <felix.bundlerepository.version>1.5.0-SNAPSHOT</felix.bundlerepository.version>
+        <felix.bundlerepository.version>1.6.0</felix.bundlerepository.version>
         <felix.compendium.version>1.2.0</felix.compendium.version>
         <felix.configadmin.version>1.2.4</felix.configadmin.version>
         <felix.fileinstall.version>2.0.8</felix.fileinstall.version>
@@ -104,6 +104,14 @@
                         <groupId>net.sf.kxml</groupId>
                         <artifactId>kxml2</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>org.osgi.core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>org.osgi.compendium</artifactId>
+                    </exclusion>
                </exclusions>
             </dependency>
 
@@ -115,6 +123,10 @@
                     <exclusion>
                         <groupId>commons-codec</groupId>
                         <artifactId>commons-codec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.felix</groupId>
+                        <artifactId>org.osgi.compendium</artifactId>
                     </exclusion>
                </exclusions>
             </dependency>
@@ -366,10 +378,6 @@
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jline</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
