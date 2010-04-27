@@ -30,6 +30,12 @@ import javax.net.ssl.SSLContext;
  */
 public interface KeystoreManager {
     /**
+     * Dummy method to add the keystore created through Java provided
+     * Keytool.exe as gbeans in geronimo.
+     */
+    public void initializeKeystores();
+    
+    /**
      * Gets the names of the keystores available in the server.
      */
     public KeystoreInstance[] getKeystores();

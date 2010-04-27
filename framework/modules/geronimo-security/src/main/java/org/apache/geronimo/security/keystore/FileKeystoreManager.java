@@ -112,7 +112,9 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
 
     public void doFail() {
     }
-
+    public void initializeKeystores() {
+        getKeystores();
+    }
     public String[] listKeystoreFiles() {
         File[] files = directory.listFiles();
         List list = new ArrayList();
