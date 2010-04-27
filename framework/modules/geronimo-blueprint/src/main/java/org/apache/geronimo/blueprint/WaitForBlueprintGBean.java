@@ -25,6 +25,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.Priority;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -40,6 +41,7 @@ import org.osgi.service.blueprint.container.BlueprintListener;
  */
 
 @GBean
+@Priority(priority = 2)
 public class WaitForBlueprintGBean {
     private volatile BlueprintEvent event;
     private CountDownLatch latch = new CountDownLatch(1);

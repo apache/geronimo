@@ -50,6 +50,12 @@
             <type>car</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-blueprint</artifactId>
+            <version>${version}</version>
+        </dependency>
+
         <!-- thread pool has management interface -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

@@ -20,6 +20,8 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
+    <gbean name="WaitForBlueprint" class="org.apache.geronimo.blueprint.WaitForBlueprintGBean"/>
+
     <gbean name="RMIRegistry" class="org.apache.geronimo.kernel.rmi.RMIRegistryService">
         <attribute name="port">${PlanNamingPort}</attribute>
         <attribute name="host">${ServerHostname}</attribute>
