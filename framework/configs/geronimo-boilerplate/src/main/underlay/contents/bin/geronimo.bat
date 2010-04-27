@@ -242,6 +242,7 @@ echo   -v   --verbose     INFO log level
 echo   -vv  --veryverbose DEBUG log level
 echo        --override    Override configurations. USE WITH CAUTION!
 echo        --help        Detailed help.
+echo   -s   --secure      Enable Geronimo for 2 way secure JMX communication.
 echo.
 echo args for stop command:
 echo        --user        Admin user

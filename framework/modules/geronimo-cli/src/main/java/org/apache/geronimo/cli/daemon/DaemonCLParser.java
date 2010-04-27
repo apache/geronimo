@@ -38,12 +38,19 @@ public class DaemonCLParser extends BaseCLParser {
     private final static String ARGUMENT_MODULE_OVERRIDE_SHORTFORM = "o";
     private final static String ARGUMENT_MODULE_OVERRIDE = "override";
     
+    private final static String ARGUMENT_SECURE_SHORTFORM="s";
+    private final static String ARGUMENT_SECURE="secure";
     public DaemonCLParser(OutputStream out) {
         super(out);
         addProgressOptions();
         addOverride();
+        addSecure();
     }
 
+    public boolean isSecure()
+    {
+        return commandLine.hasOption(ARGUMENT_SECURE_SHORTFORM);
+    }
     public boolean isNoProgress() {
         return commandLine.hasOption(ARGUMENT_NO_PROGRESS_SHORTFORM);
     }
@@ -78,6 +85,12 @@ public class DaemonCLParser extends BaseCLParser {
                 + "this are assumed to be module names.");
         Option option = optionBuilder.create(ARGUMENT_MODULE_OVERRIDE_SHORTFORM);
         options.addOption(option);
+    }
+    protected void addSecure() {
+        options.addOption(ARGUMENT_SECURE_SHORTFORM,
+                ARGUMENT_SECURE,
+                false,
+                "Use secure channel to communicate with the server.  Unsecured channel is used by default.");
     }
 
     protected void addProgressOptions() {
