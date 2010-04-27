@@ -1934,6 +1934,12 @@ only found in cxf
             </dependency>
 
             <dependency>
+                <groupId>org.apache.felix.karaf.jaas</groupId>
+                <artifactId>org.apache.felix.karaf.jaas.boot</artifactId>
+                <version>1.5.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.aries</groupId>
                 <artifactId>org.apache.aries.util</artifactId>
                 <version>0.1-incubating-SNAPSHOT</version>

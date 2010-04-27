@@ -139,7 +139,8 @@ org.osgi.framework.system.packages = \
  org.xml.sax.helpers
 
 org.osgi.framework.system.packages.extra = \
- sun.misc
+ sun.misc,\
+ org.apache.felix.karaf.jaas.boot;version=1.5.0
 
 org.osgi.framework.bootdelegation = \
  javax.*,\
