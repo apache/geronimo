@@ -52,7 +52,7 @@ import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.osgi.BundleClassLoader;
+import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 
 /**

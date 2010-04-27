@@ -18,7 +18,7 @@ package org.apache.geronimo.deployment;
 
 import java.net.URL;
 
-import org.apache.geronimo.kernel.osgi.BundleUtils;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 
 /**

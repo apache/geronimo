@@ -25,7 +25,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.*;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.osgi.BundleClassLoader;
+import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.logging.SystemLog;

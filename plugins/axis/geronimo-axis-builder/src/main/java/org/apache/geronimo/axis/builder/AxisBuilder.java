@@ -86,7 +86,7 @@ import org.apache.geronimo.webservices.builder.PortInfo;
 import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 import org.apache.geronimo.webservices.builder.WSDescriptorParser;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.osgi.BundleClassLoader;
+import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.osgi.framework.Bundle;

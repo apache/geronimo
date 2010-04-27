@@ -18,8 +18,8 @@ package org.apache.geronimo.obr;
 
 import java.util.List;
 
-import org.apache.geronimo.kernel.osgi.BundleDescription;
-import org.apache.geronimo.kernel.osgi.VersionRange;
+import org.apache.xbean.osgi.bundle.util.BundleDescription;
+import org.apache.xbean.osgi.bundle.util.VersionRange;
 import org.apache.geronimo.obr.model.Capability;
 import org.apache.geronimo.obr.model.P;
 import org.apache.geronimo.obr.model.Require;

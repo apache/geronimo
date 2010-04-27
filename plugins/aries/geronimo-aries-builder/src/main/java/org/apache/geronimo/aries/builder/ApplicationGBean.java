@@ -38,7 +38,7 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.osgi.BundleUtils;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;

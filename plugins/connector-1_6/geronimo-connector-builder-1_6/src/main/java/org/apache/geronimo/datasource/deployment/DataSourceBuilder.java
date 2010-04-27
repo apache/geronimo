@@ -42,7 +42,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.osgi.BundleAnnotationFinder;
+import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.reference.ResourceReferenceFactory;
 import org.apache.geronimo.xbeans.javaee6.DataSourceType;

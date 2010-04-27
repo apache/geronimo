@@ -35,7 +35,7 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.osgi.BundleUtils;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -347,6 +347,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             boolean newLoad = actuallyLoaded == null;
             if (actuallyLoaded == null) {
                 actuallyLoaded = new LinkedHashMap<Artifact, Configuration>(resolvedParents.size());
+                loadedConfigurations.set(actuallyLoaded);
             }
             try {
                 // update the status of the loaded configurations
@@ -403,14 +404,14 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
 //        ClassLoaderHolder classLoaderHolder = buildClassLoaders(configurationData, loadedConfigurations, dependencyNode, configurationResolver);
 
-        List<Configuration> allServiceParents = buildAllServiceParents(null, dependencyNode);
+        List<Configuration> allServiceParents = buildAllServiceParents(loadedConfigurations, dependencyNode);
 
         Configuration configuration = new Configuration(configurationData, dependencyNode, allServiceParents, null, configurationResolver, this);
         configuration.doStart();
         //TODO why???
         resolvedParentIds.add(configuration.getId());
 
-        Map<Artifact, Configuration> moreLoadedConfigurations = new LinkedHashMap<Artifact, Configuration>(loadedConfigurations);
+        Map<Artifact, Configuration> moreLoadedConfigurations = loadedConfigurations;//new LinkedHashMap<Artifact, Configuration>(loadedConfigurations);
         moreLoadedConfigurations.put(dependencyNode.getId(), configuration);
         for (Map.Entry<String, ConfigurationData> childEntry : configurationData.getChildConfigurations().entrySet()) {
             ConfigurationResolver childResolver = configurationResolver.createChildResolver(childEntry.getKey());
@@ -460,9 +461,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         Configuration parent;
 
         //TODO OSGI track loaded configurations in thread local ???
-//        if (loadedConfigurations.containsKey(resolvedArtifact)) {
-//            parent = loadedConfigurations.get(resolvedArtifact);
-//        } else
+        if (loadedConfigurations.containsKey(resolvedArtifact)) {
+            parent = loadedConfigurations.get(resolvedArtifact);
+        } else
         if (isLoaded(resolvedArtifact)) {
             parent = getConfiguration(resolvedArtifact);
         } else {

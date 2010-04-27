@@ -131,4 +131,9 @@
         <artifactId>org.apache.servicemix.bundles.xmlresolver</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-bundleutils</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

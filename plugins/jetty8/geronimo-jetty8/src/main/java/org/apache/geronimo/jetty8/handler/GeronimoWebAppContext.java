@@ -43,7 +43,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceRegistration;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
-import org.apache.geronimo.kernel.osgi.BundleUtils;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.geronimo.osgi.web.WebApplicationConstants;
 import org.apache.geronimo.osgi.web.WebApplicationUtils;
 

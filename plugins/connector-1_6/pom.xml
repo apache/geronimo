@@ -54,12 +54,66 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <!-- imports of other plugins -->
+            <dependency>
+                <groupId>org.apache.geronimo.framework</groupId>
+                <artifactId>framework</artifactId>
+                <version>${version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>j2ee</artifactId>
+                <version>${version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- internal dependencies -->
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>client-transaction-1_6</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>connector-deployer-1_6</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>transaction-1_6</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-connector-1_6</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-connector-builder-1_6</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.modules</groupId>
+                <artifactId>geronimo-transaction-1_6</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <!-- external dependencies -->
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector</artifactId>
                 <version>1.6-SNAPSHOT</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.xbean</groupId>
+                <artifactId>xbean-finder</artifactId>
+                <version>3.7-SNAPSHOT</version>
+            </dependency>
+       
             <dependency>
                 <groupId>org.apache.aries.transaction</groupId>
                 <artifactId>org.apache.aries.transaction.blueprint</artifactId>

@@ -28,10 +28,10 @@ import java.util.zip.ZipEntry;
 
 import javax.servlet.ServletContext;
 
-import org.apache.geronimo.kernel.osgi.BundleResourceFinder;
-import org.apache.geronimo.kernel.osgi.BundleUtils;
-import org.apache.geronimo.kernel.osgi.BundleResourceFinder.ResourceFinderCallback;
-import org.apache.geronimo.kernel.osgi.jar.BundleJarFile;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
+import org.apache.xbean.osgi.bundle.util.jar.BundleJarFile;
 import org.apache.jasper.JasperException;
 import org.apache.jasper.compiler.JarResource;
 import org.apache.jasper.compiler.TldLocation;

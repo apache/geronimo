@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.faces.context.ExternalContext;
 
-import org.apache.geronimo.kernel.osgi.BundleUtils;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.myfaces.config.annotation.LifecycleProvider;
 import org.apache.myfaces.config.annotation.LifecycleProviderFactory;
 import org.osgi.framework.Bundle;

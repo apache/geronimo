@@ -26,7 +26,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableBundle;
 import org.apache.geronimo.j2ee.deployment.WebModule;
-import org.apache.geronimo.kernel.osgi.BundleResourceFinder;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;

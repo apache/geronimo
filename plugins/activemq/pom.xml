@@ -45,7 +45,6 @@
         <!--<module>activemq-webconsole-jetty</module>-->
         <!--<module>activemq-webconsole-tomcat</module>-->
         <!--<module>activemq-webconsole</module>-->
-        <!--<module>activemq-server</module>-->
     </modules>
 
     <profiles>
@@ -53,6 +52,18 @@
             <id>mini-servers</id>
             <modules>
                 <module>activemq-jetty-server</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>mini-servers</id>
+            <modules>
+                <module>activemq-jetty-server</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>activemq-server</module>
             </modules>
         </profile>
     </profiles>
