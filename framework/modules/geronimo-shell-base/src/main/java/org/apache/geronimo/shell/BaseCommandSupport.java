@@ -137,12 +137,23 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
     
     public Kernel getKernel() {
         ServiceReference reference = bundleContext.getServiceReference(Kernel.class.getName());
-        Kernel kernel = getService(Kernel.class, reference);
+        Kernel kernel = null;
+        if (reference != null) {
+            kernel = getService(Kernel.class, reference);
+        }
         return kernel;
     }
     
+    public boolean isEmbedded() {
+        return isEmbedded(getKernel());
+    }
+    
     public boolean isEmbedded(Kernel kernel) {
-        Set deamon = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.main.EmbeddedDaemon"));
-        return !deamon.isEmpty();
+        if (kernel != null) {
+            Set deamon = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.main.EmbeddedDaemon"));
+            return !deamon.isEmpty();
+        } else {
+            return false;
+        }        
     }
 }

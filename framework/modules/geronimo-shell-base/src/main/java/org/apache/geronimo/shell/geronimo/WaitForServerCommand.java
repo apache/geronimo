@@ -40,18 +40,18 @@ public class WaitForServerCommand extends ConnectCommand {
     int timeout = 60;
 
     private class TimingTimerTask extends TimerTask {
-        protected TimingTimerTask() {
-            super();
-        }
-
         @Override
         public void run() {
             timedOut = true;
         }
-
     }
 
     protected Object doExecute() throws Exception {
+        if (isEmbedded()) {
+            // do nothing in embedded mode
+            return null;
+        }
+        
         Timer timer = new Timer(true);
 
         TimerTask timeoutTask = new TimingTimerTask();

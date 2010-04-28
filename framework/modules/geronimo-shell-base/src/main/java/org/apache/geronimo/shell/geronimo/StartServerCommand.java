@@ -19,14 +19,17 @@
 
 package org.apache.geronimo.shell.geronimo;
 
-import java.util.Arrays;
+import java.io.File;
 import java.util.List;
 
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.apache.geronimo.cli.CLParserException;
-import org.apache.geronimo.cli.daemon.DaemonCLParser;
-import org.apache.geronimo.main.Bootstrapper;
+import org.apache.tools.ant.ExitStatusException;
+import org.apache.tools.ant.taskdefs.Java;
+import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.Environment.Variable;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -58,40 +61,146 @@ public class StartServerCommand extends BaseJavaCommand {
 
      @Override
      protected Object doExecute() throws Exception {
-      // If we are not backgrounding, then add a nice message for the user when ctrl-c gets hit
-         if (!background) {
-             Runtime.getRuntime().addShutdownHook(new Thread(){
-                 public void run(){
-                     println("Shutting down Server...");
-                   }
-             });
+         if (isEmbedded()) {
+             // do nothing in embedded mode
+             return null;
          }
-        
-        DaemonCLParser parser = getCLParser();
-        try {
-            parser.parse(null);
-        } catch (CLParserException e) {
-            System.err.println(e.getMessage());
-            parser.displayHelp();
-        }
+         
+         ant = new AntBuilder(log);
 
-        Bootstrapper boot = createBootstrapper();
-        boot.execute(parser);
-        
-        return null;
+         if (geronimoHome == null) {
+             geronimoHome = this.bundleContext.getProperty("org.apache.geronimo.home.dir");
+         }
 
-     }
+         log.debug("Geronimo home: " + geronimoHome);
 
-     protected Bootstrapper createBootstrapper() {
-          Bootstrapper boot = new StartServerstrapper(bundleContext,session.getConsole());
-          boot.setWaitForStop(false);
-          boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/j2ee-system//car"));
-          boot.setLog4jConfigFile("var/log/server-log4j.properties");
-          return (Bootstrapper) boot;
-     }
+         // Set the properties which we pass to the JVM from the startup script
+         properties.put("org.apache.geronimo.home.dir", geronimoHome);
+         properties.put("karaf.home", geronimoHome);
+         properties.put("karaf.base", geronimoHome);
+         // Use relative path
+         properties.put("java.io.tmpdir", "var/temp");// Use relative path
+         properties.put("java.endorsed.dirs", prefixSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
+         properties.put("java.ext.dirs", prefixSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
+         // set console properties
+         properties.put("karaf.startLocalConsole", "false");
+         properties.put("karaf.startRemoteShell", "true");
+         properties.put("karaf.lock", "false");
+                 
+           // Setup default java flags
+         if (getJavaAgentJar() != null && getJavaAgentJar().exists()) {
+             javaFlags.add("-javaagent:" + getJavaAgentJar().getCanonicalPath());
+         }
+                  
+         //init properties
+         if (propertyFrom != null) {
+             for(String nameValue : propertyFrom){
+                 addPropertyFrom(nameValue, null);
+             }
+         }
+         if (gPropertyFrom != null) {
+             for(String nameValue : gPropertyFrom){
+                 addPropertyFrom(nameValue, "org.apache.geronimo");
+             }
+         }
 
-     protected DaemonCLParser getCLParser() {
-          return new DaemonCLParser(System.out);
+         final ServerProxy server = new ServerProxy(hostname, port, username, password, secure);
+         
+         ProcessLauncher launcher = new ProcessLauncher(log, "Geronimo Server", background,session.getConsole()) {
+             @Override
+             protected void process() throws Exception {
+                 try {
+                     Java javaTask = (Java) ant.createTask("java");
+                     javaTask.setClassname("org.apache.geronimo.cli.daemon.DaemonCLI");
+                     Path path = javaTask.createClasspath();
+                     File libDir = new File(geronimoHome, "lib");
+                     FileSet fileSet = new FileSet();
+                     fileSet.setDir(libDir);
+                     path.addFileset(fileSet);
+                     javaTask.setDir(new File(geronimoHome));
+                     javaTask.setFailonerror(true);
+                     javaTask.setFork(true);
+                     
+                     if (timeout > 0) {
+                         log.info("Timeout after: " + timeout + " seconds");
+                         javaTask.setTimeout((long) timeout);
+                     }
+
+                     if (logFile != null) {
+                         log.info("Redirecting output to: " + logFile);
+                         File output = new File(logFile);
+                         output.mkdirs();
+                         javaTask.setOutput(output);
+                     }
+
+                     if (javaVirtualMachine != null) {
+                         if (!(new File(javaVirtualMachine).exists())) {
+                             throw new Exception("Java virtual machine is not valid: " + javaVirtualMachine);
+                         }
+
+                         log.info("Using Java virtual machine: " + javaVirtualMachine);
+                         javaTask.setJvm(javaVirtualMachine);
+                     }
+
+                     if (javaFlags != null) {
+                         for (String javaFlag : javaFlags) {
+                             javaTask.createJvmarg().setValue(javaFlag);
+                         }
+                     }
+                     
+                     for (String i : properties.keySet()) {
+                         Variable sysp = new Variable();
+                         sysp.setKey(i);
+                         sysp.setValue(properties.get(i));
+                         javaTask.addSysproperty(sysp);
+                     }
+
+                     if (quiet) {
+                         javaTask.createArg().setValue("--quiet");
+                     } else {
+                         javaTask.createArg().setValue("--long");
+                     }
+                     
+                     if (verbose) {
+                         javaTask.createArg().setValue("--verbose");
+                     }
+                     
+                     if (startModules != null) {
+                         javaTask.createArg().setValue("--override");
+                         for (String module : startModules) {
+                             javaTask.createArg().setValue(module);
+                         }
+                     }
+                     
+                     javaTask.execute();
+                 } catch (ExitStatusException e) {
+                     String tmp = "";
+                     log.info(tmp);
+
+                     if (e.getStatus() != 0) {
+                         log.warn(tmp);
+                     }
+
+                     tmp = "Process exited with status: " + e.getStatus();
+
+                     throw e;
+                 }
+             }
+             
+             @Override
+             protected boolean verifier() {
+                 if (server.isFullyStarted()) {
+                     server.closeConnection();
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+         };
+
+         launcher.launch();
+
+         return null;
      }
 
 }

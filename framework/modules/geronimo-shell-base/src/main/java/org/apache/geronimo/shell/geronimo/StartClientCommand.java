@@ -73,13 +73,13 @@ public class StartClientCommand extends BaseJavaCommand {
         }
                  
         //init properties
-        if(propertyFrom!=null){
-            for(String nameValue:propertyFrom){
+        if (propertyFrom != null) {
+            for(String nameValue : propertyFrom){
                 addPropertyFrom(nameValue, null);
             }
         }
-        if(gPropertyFrom!=null){
-            for(String nameValue:gPropertyFrom){
+        if (gPropertyFrom != null) {
+            for(String nameValue : gPropertyFrom){
                 addPropertyFrom(nameValue, "org.apache.geronimo");
             }
         }

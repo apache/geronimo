@@ -160,8 +160,10 @@ public class Bootstrapper {
             System.setProperty(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, 
                                String.valueOf(defaultStartLevel));       
                       
-            System.setProperty(org.apache.felix.karaf.main.Main.PROPERTY_USE_LOCK, 
-                               (uniqueStorage) ? "false" : "true");
+            if (System.getProperty(org.apache.felix.karaf.main.Main.PROPERTY_USE_LOCK) == null) {
+                System.setProperty(org.apache.felix.karaf.main.Main.PROPERTY_USE_LOCK, 
+                                   (uniqueStorage) ? "false" : "true");
+            }
             
         } catch (IOException e) {
             e.printStackTrace();
