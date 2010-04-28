@@ -27,7 +27,10 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.tools.ant.ExitStatusException;
 import org.apache.tools.ant.taskdefs.Java;
+import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Environment.Variable;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -52,29 +55,23 @@ public class StartClientCommand extends BaseJavaCommand {
 
         log.debug("Geronimo home: " + geronimoHome);
 
-        // Setup the default properties required to boot the server
+        // Set the properties which we pass to the JVM from the startup script
         properties.put("org.apache.geronimo.home.dir", geronimoHome);
+        properties.put("karaf.home", geronimoHome);
+        properties.put("karaf.base", geronimoHome);
+        // Use relative path
         properties.put("java.io.tmpdir", "var/temp");// Use relative path
-        properties.put("java.endorsed.dirs", prefixSystemPath("java.endorsed.dirs", new File(geronimoHome,
-                "lib/endorsed")));
+        properties.put("java.endorsed.dirs", prefixSystemPath("java.endorsed.dirs", new File(geronimoHome, "lib/endorsed")));
         properties.put("java.ext.dirs", prefixSystemPath("java.ext.dirs", new File(geronimoHome, "lib/ext")));
-
-        // processScripts();
-        
+        // set console properties
+        properties.put("karaf.startLocalConsole", "false");
+        properties.put("karaf.startRemoteShell", "false");
+                
           // Setup default java flags
         if (getJavaAgentJar() != null && getJavaAgentJar().exists()) {
             javaFlags.add("-javaagent:" + getJavaAgentJar().getCanonicalPath());
         }
-         
-        
-        // If we are not backgrounding, then add a nice message for the user when ctrl-c gets hit
-        if (!background) {
-            Runtime.getRuntime().addShutdownHook(new Thread(){
-                public void run(){
-                    println("Shutting down Server...");
-                  }
-            });
-        }
+                 
         //init properties
         if(propertyFrom!=null){
             for(String nameValue:propertyFrom){
@@ -92,11 +89,16 @@ public class StartClientCommand extends BaseJavaCommand {
             protected void process() throws Exception {
                 try {
                     Java javaTask = (Java) ant.createTask("java");
-                    //TODO: build client.jar and put it in the right place
-                    javaTask.setJar(new File(geronimoHome + "/bin/client.jar"));
+                    javaTask.setClassname("org.apache.geronimo.cli.client.ClientCLI");
+                    Path path = javaTask.createClasspath();
+                    File libDir = new File(geronimoHome, "lib");
+                    FileSet fileSet = new FileSet();
+                    fileSet.setDir(libDir);
+                    path.addFileset(fileSet);
                     javaTask.setDir(new File(geronimoHome));
-                    javaTask.setFork(true);
                     javaTask.setFailonerror(true);
+                    javaTask.setFork(true);
+                    
                     if (timeout > 0) {
                         log.info("Timeout after: " + timeout + " seconds");
                         javaTask.setTimeout((long) timeout);
@@ -119,16 +121,11 @@ public class StartClientCommand extends BaseJavaCommand {
                     }
 
                     if (javaFlags != null) {
-                        String javaFlag = "";
-                        for (String s : javaFlags) {
-                            javaFlag.concat(s);
+                        for (String javaFlag : javaFlags) {
+                            javaTask.createJvmarg().setValue(javaFlag);
                         }
-                        javaTask.setJvmargs(javaFlag);
                     }
-
-                    if (verbose) {
-                        javaTask.setArgs("--verbose");
-                    }
+                    
                     for (String i : properties.keySet()) {
                         Variable sysp = new Variable();
                         sysp.setKey(i);
@@ -136,18 +133,20 @@ public class StartClientCommand extends BaseJavaCommand {
                         javaTask.addSysproperty(sysp);
                     }
 
-                    javaTask.setArgs(moduleName);
+                    if (verbose) {
+                        javaTask.createArg().setValue("--verbose");
+                    }
+                    
+                    javaTask.createArg().setValue(moduleName);
 
                     if (moduleArguments != null) {
                         for (String m : moduleArguments) {
-                            javaTask.setArgs(m);
+                            javaTask.createArg().setValue(m);
                         }
                     }
+                    
                     javaTask.execute();
-
-                }
-
-                catch (ExitStatusException e) {
+                } catch (ExitStatusException e) {
                     String tmp = "";
                     log.info(tmp);
 
@@ -155,7 +154,7 @@ public class StartClientCommand extends BaseJavaCommand {
                         log.warn(tmp);
                     }
 
-                    tmp = "Process exited with status: "+e.getStatus();
+                    tmp = "Process exited with status: " + e.getStatus();
 
                     throw e;
                 }

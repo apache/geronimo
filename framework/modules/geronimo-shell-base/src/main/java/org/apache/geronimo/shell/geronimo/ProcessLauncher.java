@@ -54,18 +54,14 @@ public class ProcessLauncher {
     
     PrintStream out;
 
-    public ProcessLauncher(Logger log, String name, boolean background,PrintStream out) {
+    public ProcessLauncher(Logger log, String name, boolean background, PrintStream out) {
         this.background = background;
         this.log = log;
         this.name = name;
-        this.out=out;
+        this.out = out;
     }
 
-    private class Inner extends Thread {
-        Inner() {
-            super();
-        }
-
+    private class Inner implements Runnable {
         public void run() {
             try {
                 process();
@@ -76,15 +72,10 @@ public class ProcessLauncher {
     }
 
     private class TimingTimerTask extends TimerTask {
-        protected TimingTimerTask() {
-            super();
-        }
-
         @Override
         public void run() {
             timedOut = true;
         }
-
     }
 
     public void launch() throws Exception {
@@ -139,7 +130,7 @@ public class ProcessLauncher {
         //System.console().flush();
 
         if (!background) {
-            log.debug("Waiting for "+name+" to shutdown...");
+            log.debug("Waiting for " + name + " to shutdown...");
 
             t.join();
 

@@ -20,22 +20,20 @@
 package org.apache.geronimo.shell.geronimo;
 
 import java.io.File;
-import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.felix.gogo.commands.Option;
 import org.apache.geronimo.shell.BaseCommandSupport;
+
 /**
  * @version $Rev$ $Date$
  */
-public class BaseJavaCommand extends BaseCommandSupport {
+public abstract class BaseJavaCommand extends BaseCommandSupport {
 
     AntBuilder ant;
-
-    // @Option(required=true, name = "shellInfo")
-    // ShellInfo shellInfo;
 
     @Option(name = "-H", aliases = { "--home" }, description = "Use a specific Geronimo home directory")
     String geronimoHome;
@@ -89,10 +87,10 @@ public class BaseJavaCommand extends BaseCommandSupport {
     List<String> gPropertyFrom;
 
     @Option(name = "-J", aliases = { "--javaopt" }, description = "Set a JVM flag")
-    List<String> javaFlags;
+    List<String> javaFlags = new ArrayList<String>();
 
     protected File getJavaAgentJar() {
-        File file = new File(geronimoHome, "bin/jpa.jar");
+        File file = new File(geronimoHome, "lib/agent/transformer.jar");
 
         if (javaAgent != null) {
             if (javaAgent.toLowerCase() == "none") {
@@ -109,44 +107,6 @@ public class BaseJavaCommand extends BaseCommandSupport {
 
         return file;
     }
-/*
- * No need of rc.d
- * definely need java6 and totally change the way server started
- */
-    /**
-     * Process custom rc.d scripts.
-     
-    protected void processScripts() {
-        //
-        // FIXME: Make the base directory configurable
-        //
-        
-        File basedir = new File(geronimoHome, "etc/rc.d");
-        if (!basedir.exists()) {
-            log.debug("Skipping script processing; missing base directory: "+basedir);
-            return;
-        }
-        
-        // Use the target commands name (not the alias name)
-        String name = context.info.name;
-        
-        def scanner = ant.fileScanner {
-            fileset(dir: basedir) {
-                include(name: "${name},*.groovy");
-            }
-        }
-        
-        Binding binding = new Binding([command: this, log: log, io: io]);
-        GroovyShell shell = new GroovyShell(binding);
-        
-        for (file in scanner) {
-            log.debug("Evaluating script: "+file);
-            
-            // Use InputStream method to avoid classname problems from the file's name
-            shell.evaluate(file.newInputStream());
-        }
-    }
-    */
     
     protected String prefixSystemPath(final String name, final File file) {
         assert name != null;
@@ -161,17 +121,4 @@ public class BaseJavaCommand extends BaseCommandSupport {
         return path;
     }
 
-    @Override
-    protected Object doExecute() throws Exception {
-        // TODO Auto-generated method stub
-        return null;
-    }
-}
-
-interface ShellInfo {
-    File getHomeDir();
-
-    InetAddress getLocalHost();
-
-    String getUserName();
 }

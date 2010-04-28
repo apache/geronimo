@@ -24,9 +24,13 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Set;
 
 import org.apache.felix.karaf.shell.console.OsgiCommandSupport;
 import org.apache.geronimo.deployment.cli.ConsoleReader;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.Kernel;
+import org.osgi.framework.ServiceReference;
 
 /**
  * @version $Rev$ $Date$
@@ -129,5 +133,16 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
     @Override
     public String readPassword(String prompt) throws IOException {
         return readLine(prompt);
+    }
+    
+    public Kernel getKernel() {
+        ServiceReference reference = bundleContext.getServiceReference(Kernel.class.getName());
+        Kernel kernel = getService(Kernel.class, reference);
+        return kernel;
+    }
+    
+    public boolean isEmbedded(Kernel kernel) {
+        Set deamon = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.main.EmbeddedDaemon"));
+        return !deamon.isEmpty();
     }
 }

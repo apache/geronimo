@@ -17,21 +17,24 @@
  * under the License.
  */
 
-
-
 package org.apache.geronimo.shell.deploy;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.apache.geronimo.deployment.cli.OfflineServerConnection;
+import org.apache.geronimo.deployment.cli.OnlineServerConnection;
 import org.apache.geronimo.deployment.cli.ServerConnection;
 import org.apache.geronimo.deployment.cli.ServerConnection.UsernamePasswordHandler;
 import org.apache.geronimo.deployment.plugin.factories.BaseDeploymentFactory;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.cli.deployer.ConnectionParamsImpl;
-import org.apache.geronimo.kernel.basic.BasicKernel;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.shell.BaseCommandSupport;
 
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.command.CommandSession;
 
 /**
@@ -134,14 +137,21 @@ public class ConnectCommand extends BaseCommandSupport {
      * @exception Exception
      */
     protected ServerConnection openConnection(boolean quiet) throws Exception {
-        if (!quiet) {
-            println("Connecting to Geronimo server: " + hostname + ":" + port);
+        Kernel kernel = getKernel();
+        
+        ServerConnection connection;
+        
+        if (isEmbedded(kernel)) {
+            connection = new OfflineServerConnection(kernel, false);
+        } else {
+            if (!quiet) {
+                println("Connecting to Geronimo server: " + hostname + ":" + port);
+            }
+        
+            BaseDeploymentFactory deploymentFactory = new BaseDeploymentFactory();
+            ConnectionParamsImpl connectionParams = new ConnectionParamsImpl(null, hostname, port, null, username, password, false, false, false, secure);
+            connection = new OnlineServerConnection(connectionParams, new ShellUserPasswordHandler(session), deploymentFactory);
         }
-
-        BasicKernel kernel = new BasicKernel("Geronimo deployer", getBundleContext());
-        BaseDeploymentFactory deploymentFactory = new BaseDeploymentFactory();
-        ConnectionParamsImpl connectionParams = new ConnectionParamsImpl(null, hostname, port, null, username, password, false, false, false, secure);
-        ServerConnection connection = new ServerConnection(connectionParams, new ShellUserPasswordHandler(session), kernel, deploymentFactory);
 
         // Disconnect previous connection if any
         disconnect();
@@ -154,7 +164,6 @@ public class ConnectCommand extends BaseCommandSupport {
 
         return connection;
     }
-
 
     /**
      * Simple password handler for the gogo shell.

@@ -163,7 +163,11 @@ public class DeployTool implements Main {
             } else {
                 try {
                     if (con == null) {
-                        con = new ServerConnection(parser, consoleReader, kernel, deploymentFactory);
+                        if (parser.isOffline()) {
+                            con = new OfflineServerConnection(kernel, true);
+                        } else {
+                            con = new OnlineServerConnection(parser, consoleReader, deploymentFactory);
+                        }
                     }
                     try {
                         dc.execute(consoleReader, con, commandArgs);

@@ -27,6 +27,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.apache.geronimo.deployment.cli.ServerConnection;
 import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
 import org.apache.geronimo.shell.deploy.ConnectCommand;
+
 /**
  * @version $Rev$ $Date$
  */

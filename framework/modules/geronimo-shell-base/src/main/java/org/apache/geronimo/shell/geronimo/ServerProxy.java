@@ -242,7 +242,17 @@ public class ServerProxy
     }
 
     public void shutdown() throws Exception {
-        invoke("shutdown");
+        MBeanServerConnection connection = getConnection();
+        Set<ObjectName> objectNameSet =
+            connection.queryNames(new ObjectName("osgi.core:type=framework,*"), null);
+        if (objectNameSet.isEmpty()) {
+            throw new Exception("Framework mbean not found");
+        } else if (objectNameSet.size() == 1) {
+            connection.invoke(objectNameSet.iterator().next(), "stopBundle",
+                              new Object[] { 0 }, new String[] { long.class.getName() });
+        } else {
+            throw new Exception("Found multiple framework mbeans");
+        }
     }
 
     //

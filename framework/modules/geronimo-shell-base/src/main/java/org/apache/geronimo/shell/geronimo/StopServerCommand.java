@@ -19,11 +19,12 @@
 
 package org.apache.geronimo.shell.geronimo;
 
-
-
 import org.apache.felix.gogo.commands.Command;
+import org.apache.geronimo.deployment.cli.ServerConnection;
+import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.shell.deploy.ConnectCommand;
-import org.osgi.framework.Bundle;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -32,25 +33,23 @@ public class StopServerCommand extends ConnectCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        //TODO: to stop remote server 
         println("Stopping Geronimo server...");
-        Bundle[] bundles = bundleContext.getBundles();
-        for(Bundle bundle:bundles){
-            if(bundle.getLocation().equals("mvn:org.apache.geronimo.framework/j2ee-system/3.0-SNAPSHOT/car")){
-                try {
-                    bundle.stop();
-                    println("Shutdown request has been issued");
-                    super.disconnect();
-                }
-                catch (Exception e) {
-                    log.debug("Failed to request shutdown:", e);
-                    println("Unable to shutdown the server: "+e.getMessage());
-                }
-                
-                break;
+        Kernel kernel = getKernel();
+        try {
+            if (isEmbedded(kernel)) {
+                bundleContext.getBundle(0).stop();
+            } else {
+                ServerConnection connection = connect();
+                ServerProxy server = 
+                    new ServerProxy(((RemoteDeploymentManager)connection.getDeploymentManager()).getJMXConnector());
+                server.shutdown();
             }
+            println("Shutdown request has been issued");
+        } catch (Exception e) {
+            println("Unable to shutdown the server: " + e.getMessage());
+        } finally {
+            disconnect();
         }
-        
         
         return null;
     }
