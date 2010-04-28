@@ -57,8 +57,6 @@
 
         <!-- This property is required by the car:package mojo -->
         <geronimoVersion>${version}</geronimoVersion>
-        <!-- Additional version modifier added to all bundlized jars -->
-        <bundleVersion>_1-SNAPSHOT</bundleVersion>
 
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
         <warnOnDependencyChange>true</warnOnDependencyChange>
