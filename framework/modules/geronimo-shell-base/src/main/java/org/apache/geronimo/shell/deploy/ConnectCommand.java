@@ -176,8 +176,7 @@ public class ConnectCommand extends BaseCommandSupport {
         }
 
         public String getPassword() throws IOException {
-            // NB:  this is unmasked currently.
-            return readLine("Password: ");
+            return readPassword("Password: ");
         }
 
         public String getUsername() throws IOException {

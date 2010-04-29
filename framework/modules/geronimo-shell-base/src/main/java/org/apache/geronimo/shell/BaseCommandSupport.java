@@ -17,13 +17,9 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.shell;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Set;
 
 import org.apache.felix.karaf.shell.console.OsgiCommandSupport;
@@ -38,35 +34,14 @@ import org.osgi.framework.ServiceReference;
 
 public abstract class BaseCommandSupport extends OsgiCommandSupport implements ConsoleReader {
 
-    private PrintWriter printWriter = null;
-    private BufferedReader lineReader = null;
-
-
-    /**
-     * Create printWriter and lineReader for the session
-     *
-     */
-    private void init(){
-
-        if (printWriter == null)
-            printWriter = new PrintWriter(session.getConsole(), true);
-
-        if (lineReader == null)
-            lineReader = new BufferedReader(new InputStreamReader(session.getKeyboard()));
-    }
-
-
-
     /**
      * Print an end-of-line marker.
      *
      * @exception IOException
      */
     public void printNewline() throws IOException {
-        init();
-        printWriter.println();
+        session.getConsole().println();
     }
-
 
     /**
      * Write a line of output to the command shell session.
@@ -74,8 +49,7 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
      * @param data   The line to write.
      */
     public void println(String data) {
-        init();
-        printWriter.println(data);
+        session.getConsole().println(data);
     }
 
 
@@ -85,10 +59,8 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
      * @param data   The line to write.
      */
     public void printString(String data) {
-        init();
-        printWriter.print(data);
+        session.getConsole().print(data);
     }
-
 
     /**
      * Read a line of output from the command shell session.
@@ -97,10 +69,8 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
      * @exception IOException
      */
     public String readLine() throws IOException {
-        init();
-        return lineReader.readLine();
+        return readLine(null, '\0');
     }
-
 
     /**
      * Utility method for issuing shell prompts.
@@ -109,11 +79,41 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
      *
      * @return The string return result.
      */
-    public String readLine(String prompt) throws IOException {
-        printString(prompt);
-        return readLine();
+    public String readLine(String msg) throws IOException {
+        return readLine(msg, '\0');
     }
-
+    
+    private String readLine(String msg, char mask) throws IOException {
+        StringBuffer sb = new StringBuffer();
+        if (msg != null) {
+            session.getConsole().print(msg);
+            session.getConsole().flush();
+        }
+        for (;;) {
+            int c = session.getKeyboard().read();
+            if (c < 0) {
+                return null;
+            }
+            if (c == 8 || c == 127) {
+                int size = sb.length();
+                if (size == 0) {
+                    continue;
+                }
+                session.getConsole().print("\b \b");
+                session.getConsole().flush();               
+                sb.delete(size - 1, size);
+            } else if (c == '\r' || c == '\n') {  
+                session.getConsole().println();
+                session.getConsole().flush();
+                break;
+            } else {
+                session.getConsole().print(mask == '\0' ? (char)c : mask);
+                session.getConsole().flush();
+                sb.append((char) c);
+            }
+        }
+        return sb.toString();
+    }
 
     /**
      * Flush any pending writes to the console.
@@ -121,18 +121,17 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
      * @exception IOException
      */
     public void flushConsole() throws IOException {
-        init();
-        printWriter.flush();
+        session.getConsole().flush();
     }
 
     @Override
     public String readPassword() throws IOException {
-       return readLine();
+       return readLine(null, '*');
     }
 
     @Override
     public String readPassword(String prompt) throws IOException {
-        return readLine(prompt);
+        return readLine(prompt, '*');
     }
     
     public Kernel getKernel() {
@@ -154,6 +153,6 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
             return !deamon.isEmpty();
         } else {
             return false;
-        }        
+        }  
     }
 }
