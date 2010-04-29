@@ -19,7 +19,6 @@
 
 package org.apache.geronimo.shell.deploy;
 
-import java.io.PrintWriter;
 import java.util.Arrays;
 
 import org.apache.felix.gogo.commands.Argument;
@@ -27,9 +26,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.geronimo.cli.deployer.InstallLibraryCommandArgs;
 import org.apache.geronimo.deployment.cli.CommandInstallLibrary;
-import org.apache.geronimo.deployment.cli.ConsoleReader;
 import org.apache.geronimo.deployment.cli.ServerConnection;
-import org.apache.geronimo.deployment.cli.StreamConsoleReader;
 
 /**
  * @version $Rev$ $Date$
@@ -49,12 +46,10 @@ public class InstallLibraryCommand extends ConnectCommand {
 
         CommandInstallLibrary command = new CommandInstallLibrary();
 
-        ConsoleReader consoleReader = new StreamConsoleReader(session.getKeyboard(),new PrintWriter(session.getConsole(),true));
-
         InstallLibraryCommandArgs args = new InstallLibraryCommandArgsImpl(Arrays.asList(libraryFile).toArray(
                 new String[1]), groupId);
 
-        command.execute(consoleReader, connection, args);
+        command.execute(this, connection, args);
         return null;
     }
 

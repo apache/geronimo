@@ -19,16 +19,13 @@
 
 package org.apache.geronimo.shell.deploy;
 
-import java.io.PrintWriter;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.geronimo.cli.deployer.BaseCommandArgs;
 import org.apache.geronimo.deployment.cli.AbstractCommand;
 import org.apache.geronimo.deployment.cli.CommandStart;
-import org.apache.geronimo.deployment.cli.ConsoleReader;
 import org.apache.geronimo.deployment.cli.ServerConnection;
-import org.apache.geronimo.deployment.cli.StreamConsoleReader;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -44,11 +41,9 @@ public class StartModuleCommand extends ConnectCommand {
 
         AbstractCommand command = new CommandStart();
 
-        ConsoleReader consoleReader = new StreamConsoleReader(session.getKeyboard(),new PrintWriter(session.getConsole(),true));
-
         BaseCommandArgs args = new BaseCommandArgs(moduleNames.split(" "));
 
-        command.execute(consoleReader, connection, args);
+        command.execute(this, connection, args);
 
         return null;
     }

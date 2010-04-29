@@ -21,13 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -37,43 +32,27 @@ import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
-import javax.security.auth.login.FailedLoginException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.deployment.spi.ModuleConfigurer;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.deployment.plugin.local.AbstractDeployCommand;
 import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
 import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
 import org.apache.geronimo.deployment.plugin.remote.RemoteDeployUtil;
+import org.apache.geronimo.deployment.spi.ModuleConfigurer;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Dependency;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.kernel.InvalidGBeanException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.system.jmx.KernelDelegate;
-import org.apache.geronimo.system.plugin.DownloadPoller;
-import org.apache.geronimo.system.plugin.DownloadResults;
-import org.apache.geronimo.system.plugin.PluginInstaller;
-import org.apache.geronimo.system.plugin.PluginRepositoryList;
-import org.apache.geronimo.system.plugin.ServerArchiver;
-//import org.apache.geronimo.system.plugin.plexus.archiver.ArchiverException;
-import org.apache.geronimo.system.plugin.model.PluginListType;
-import org.apache.geronimo.system.plugin.model.PluginType;
-import org.apache.geronimo.system.plugin.model.AttributesType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Connects to a Kernel in a remote VM (may or many not be on the same machine).
  *
  * @version $Rev$ $Date$
  */
-public class RemoteDeploymentManager extends JMXDeploymentManager implements GeronimoDeploymentManager, ServerArchiver {
+public class RemoteDeploymentManager extends ExtendedDeploymentManager {
     private static final Logger log = LoggerFactory.getLogger(RemoteDeploymentManager.class);
 
     private JMXConnector jmxConnector;
@@ -133,7 +112,13 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
             throw (IllegalStateException) new IllegalStateException("Unable to close connection").initCause(e);
         }
     }
+    
+    @Override
+    protected <T> T getImplementation(AbstractName name, Class<T> clazz) {
+        return kernel.getProxyManager().createProxy(name, clazz);
+    }
 
+    @Override
     protected DistributeCommand createDistributeCommand(Target[] targetList, File moduleArchive, File deploymentPlan) {
         if (isSameMachine) {
             return super.createDistributeCommand(targetList, moduleArchive, deploymentPlan);
@@ -143,6 +128,7 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
     }
 
+    @Override
     protected DistributeCommand createDistributeCommand(Target[] targetList, ModuleType moduleType, InputStream moduleArchive, InputStream deploymentPlan) {
         if (isSameMachine) {
             return super.createDistributeCommand(targetList, moduleType, moduleArchive, deploymentPlan);
@@ -152,6 +138,7 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
     }
 
+    @Override
     protected RedeployCommand createRedeployCommand(TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
         if (isSameMachine) {
             return super.createRedeployCommand(moduleIDList, moduleArchive, deploymentPlan);
@@ -161,6 +148,7 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
     }
 
+    @Override
     protected RedeployCommand createRedeployCommand(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
         if (isSameMachine) {
             return super.createRedeployCommand(moduleIDList, moduleArchive, deploymentPlan);
@@ -170,73 +158,9 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
         }
     }
 
-     public <T> T getImplementation(Class<T> clazz) {
-         try {
-             return kernel.getGBean(clazz);
-         } catch (GBeanNotFoundException e) {
-             throw new IllegalStateException("No implementation for " + clazz.getName(), e);
-         }
-     }
-
-
-
-    public PluginListType listPlugins(URL mavenRepository) throws FailedLoginException, IOException {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            return installer.listPlugins(mavenRepository);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-    
-    public boolean validatePlugin(PluginType plugin) throws MissingDependencyException {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            return installer.validatePlugin(plugin);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-    public Dependency[] checkPrerequisites(PluginType plugin) {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            return installer.checkPrerequisites(plugin);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-
-    public DownloadResults install(PluginListType configsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password) {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            return installer.install(configsToInstall, defaultRepository, restrictToDefaultRepository, username, password);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-    public void install(PluginListType configsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password, DownloadPoller poller) {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            installer.install(configsToInstall, defaultRepository, restrictToDefaultRepository, username, password, poller);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-    public Object startInstall(PluginListType configsToInstall, String defaultRepository, boolean restrictToDefaultRepository, String username, String password) {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            return installer.startInstall(configsToInstall, defaultRepository, restrictToDefaultRepository, username, password);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
+    @Override
     public Object startInstall(File carFile, String defaultRepository, boolean restrictToDefaultRepository, String username, String password) {
-        File[] args = new File[]{carFile};
+        File[] args = new File[] {carFile};
         if (!isSameMachine) {
             AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null,
                     null, null, false) {
@@ -251,92 +175,14 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
             progress.setCommandContext(commandContext);
             RemoteDeployUtil.uploadFilesToServer(args, progress);
         }
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            // make sure to pass args[0] as RemoteDeployUtil.uploadFilesToServer will update
-            // the args argument with the filenames returned from the server
-            return installer.startInstall(args[0], defaultRepository, restrictToDefaultRepository, username, password);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
+        // make sure to pass args[0] as RemoteDeployUtil.uploadFilesToServer will update
+        // the args argument with the filenames returned from the server
+        return super.startInstall(args[0], defaultRepository, restrictToDefaultRepository, username, password);
     }
 
-    public DownloadResults checkOnInstall(Object key) {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            return installer.checkOnInstall(key);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-    public DownloadResults checkOnInstall(Object key, boolean remove) {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            return installer.checkOnInstall(key, remove);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-    private PluginInstaller getPluginInstaller() {
-        return getImplementation(PluginInstaller.class);
-    }
-    private ServerArchiver getServerArchiver() {
-        return getImplementation(ServerArchiver.class);
-    }
-
-    //not likely to be useful remotely
-    public PluginListType createPluginListForRepositories(String repo) throws NoSuchStoreException {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            return installer.createPluginListForRepositories(repo);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-    public Map getInstalledPlugins() {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            return installer.getInstalledPlugins();
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-    public PluginType getPluginMetadata(Artifact configId) {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            return installer.getPluginMetadata(configId);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-    public void updatePluginMetadata(PluginType metadata) {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            installer.updatePluginMetadata(metadata);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-    public URL[] getRepositories() {
-        List<URL> list = new ArrayList<URL>();
-        Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(PluginRepositoryList.class.getName()));
-        for (AbstractName name : set) {
-            PluginRepositoryList repo = (PluginRepositoryList) kernel.getProxyManager().createProxy(name,
-                    PluginRepositoryList.class);
-            list.addAll(repo.getRepositories());
-            kernel.getProxyManager().destroyProxy(repo);
-        }
-        return list.toArray(new URL[list.size()]);
-    }
-
+    @Override
     public Artifact installLibrary(File libFile, String groupId) throws IOException {
-        File[] args = new File[]{libFile};
+        File[] args = new File[] {libFile};
         if(!isSameMachine) {
             AbstractDeployCommand progress = new AbstractDeployCommand(CommandType.DISTRIBUTE, kernel, null, null, null, null, null, false) {
                 public void run() {
@@ -350,44 +196,9 @@ public class RemoteDeploymentManager extends JMXDeploymentManager implements Ger
             progress.setCommandContext(commandContext);
             RemoteDeployUtil.uploadFilesToServer(args, progress);
         }
-        Set<AbstractName> set = kernel.listGBeans(new AbstractNameQuery(PluginInstaller.class.getName()));
-        for (AbstractName name : set) {
-            PluginInstaller installer = (PluginInstaller) kernel.getProxyManager().createProxy(name, PluginInstaller.class);
-            // make sure to pass args[0] as RemoteDeployUtil.uploadFilesToServer will update
-            // the args argument with the filenames returned from the server
-            Artifact artifact = installer.installLibrary(args[0], groupId);
-            kernel.getProxyManager().destroyProxy(installer);
-            return artifact;
-        }
-        return null;
-    }
-
-    public DownloadResults installPluginList(String targetRepositoryPath, String relativeTargetServerPath, PluginListType pluginList) throws Exception {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            return installer.installPluginList(targetRepositoryPath, relativeTargetServerPath, pluginList);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-    public void mergeOverrides(String server, AttributesType overrides) throws InvalidGBeanException, IOException {
-        PluginInstaller installer = getPluginInstaller();
-        try {
-            installer.mergeOverrides(server, overrides);
-        } finally {
-            kernel.getProxyManager().destroyProxy(installer);
-        }
-    }
-
-    public File archive(String sourcePath, String destPath, Artifact artifact) throws //ArchiverException,
-             IOException {
-        ServerArchiver archiver = getServerArchiver();
-        try {
-            return archiver.archive(sourcePath, destPath, artifact);
-        } finally {
-            kernel.getProxyManager().destroyProxy(archiver);
-        }
+        // make sure to pass args[0] as RemoteDeployUtil.uploadFilesToServer will update
+        // the args argument with the filenames returned from the server
+        return super.installLibrary(args[0], groupId);
     }
 
     public static final GBeanInfo GBEAN_INFO;

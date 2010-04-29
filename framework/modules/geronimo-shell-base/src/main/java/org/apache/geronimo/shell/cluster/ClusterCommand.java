@@ -17,12 +17,7 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.shell.cluster;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
 
 import java.util.Map;
 
@@ -31,23 +26,19 @@ import javax.enterprise.deploy.spi.DeploymentManager;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-
 import org.apache.geronimo.deployment.cli.CommandInstallCAR;
 import org.apache.geronimo.deployment.cli.ServerConnection;
-import org.apache.geronimo.deployment.cli.CommandListConfigurations;
-import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
+import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.shell.deploy.ConnectCommand;
-import org.apache.geronimo.system.plugin.Farm;
 import org.apache.geronimo.system.plugin.DownloadResults;
-
-import org.osgi.service.command.CommandSession;
+import org.apache.geronimo.system.plugin.Farm;
 
 /**
  * @version $Rev$ $Date$
  */
-
 @Command(scope = "geronimo", name = "cluster", description = "administer cluster")
 public class ClusterCommand extends ConnectCommand {
+    
     @Option(name="-c", aliases={"--cluster"}, description="Cluster to perform action on")
     String clusterName;
 
@@ -71,7 +62,7 @@ public class ClusterCommand extends ConnectCommand {
     protected Object doExecute(ServerConnection connection) throws Exception {
 
         DeploymentManager deploymentManager = connection.getDeploymentManager();
-        Farm farm = (Farm)((RemoteDeploymentManager)deploymentManager).getImplementation(Farm.class);
+        Farm farm = (Farm)((GeronimoDeploymentManager)deploymentManager).getImplementation(Farm.class);
         Map<String, DownloadResults> results;
         if (action == "add") {
             if (clusterName != null && pluginList != null && plugin != null) {

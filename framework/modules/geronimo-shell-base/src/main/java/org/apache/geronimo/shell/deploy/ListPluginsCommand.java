@@ -19,18 +19,16 @@
 
 package org.apache.geronimo.shell.deploy;
 
-import java.io.PrintWriter;
 import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.geronimo.deployment.cli.CommandListConfigurations;
-import org.apache.geronimo.deployment.cli.ConsoleReader;
 import org.apache.geronimo.deployment.cli.ServerConnection;
-import org.apache.geronimo.deployment.cli.StreamConsoleReader;
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.system.plugin.model.PluginListType;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -54,20 +52,20 @@ public class ListPluginsCommand extends ConnectCommand {
         ServerConnection connection = connect();
 
         CommandListConfigurations command = new CommandListConfigurations();
-        ConsoleReader consoleReader = new StreamConsoleReader(session.getKeyboard(),new PrintWriter(session.getConsole(),true));
+
         String repo = null;
         PluginListType plugins = null;
 
         if (mavenRepoURL != null) {
             plugins = command.getPluginCategories(mavenRepoURL, (GeronimoDeploymentManager) connection
-                    .getDeploymentManager(), consoleReader);
+                    .getDeploymentManager(), this);
             repo = mavenRepoURL;
         } else {
             println("Listing configurations from Geronimo server");
 
             repo = (String) session.get("PluginRepository");
             if (refreshRepo || repo == null) {
-                repo = command.getRepository(consoleReader, (GeronimoDeploymentManager) connection
+                repo = command.getRepository(this, (GeronimoDeploymentManager) connection
                         .getDeploymentManager());
                 session.put("PluginRepository", repo);
             }
@@ -75,7 +73,7 @@ public class ListPluginsCommand extends ConnectCommand {
             plugins = (PluginListType) session.get("AvailablePlugins");
             if (refreshList || plugins == null) {
                 plugins = command.getPluginCategories(repo, (GeronimoDeploymentManager) connection
-                        .getDeploymentManager(), consoleReader);
+                        .getDeploymentManager(), this);
                 session.put("AvailablePlugins", plugins);
             }
         }
@@ -83,13 +81,13 @@ public class ListPluginsCommand extends ConnectCommand {
         if (plugins != null) {
             if (pluginArtifacts != null) {
                 command.installPlugins((GeronimoDeploymentManager) connection.getDeploymentManager(), pluginArtifacts,
-                        plugins, repo, consoleReader, connection);
+                        plugins, repo, this, connection);
             } else {
-                PluginListType pluginsToInstall = command.getInstallList(plugins, consoleReader, repo);
+                PluginListType pluginsToInstall = command.getInstallList(plugins, this, repo);
 
                 if (pluginsToInstall != null) {
                     command.installPlugins((GeronimoDeploymentManager) connection.getDeploymentManager(),
-                            pluginsToInstall, repo, consoleReader, connection);
+                            pluginsToInstall, repo, this, connection);
                 }
             }
         }

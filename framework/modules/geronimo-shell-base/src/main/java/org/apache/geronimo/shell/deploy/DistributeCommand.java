@@ -19,7 +19,6 @@
 
 package org.apache.geronimo.shell.deploy;
 
-import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,9 +27,8 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.geronimo.cli.deployer.DistributeCommandArgs;
 import org.apache.geronimo.deployment.cli.CommandDistribute;
-import org.apache.geronimo.deployment.cli.ConsoleReader;
 import org.apache.geronimo.deployment.cli.ServerConnection;
-import org.apache.geronimo.deployment.cli.StreamConsoleReader;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -54,7 +52,6 @@ public class DistributeCommand extends ConnectCommand {
         ServerConnection connection = connect();
 
         CommandDistribute command = new CommandDistribute();
-        ConsoleReader consoleReader = new StreamConsoleReader(session.getKeyboard(),new PrintWriter(session.getConsole(),true));
 
         List<String> commandArgs = new LinkedList<String>();
         commandArgs.add(module);
@@ -66,7 +63,7 @@ public class DistributeCommand extends ConnectCommand {
         DistributeCommandArgs args = new DistributeCommandArgsImpl(commandArgs.toArray(new String[commandArgs.size()]),
                 (targets == null ? new String[0] : targets.split(";")), inPlace);
 
-        command.execute(consoleReader, connection, args);
+        command.execute(this, connection, args);
         return null;
     }
 

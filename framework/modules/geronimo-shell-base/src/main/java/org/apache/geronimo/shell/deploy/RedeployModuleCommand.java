@@ -19,7 +19,6 @@
 
 package org.apache.geronimo.shell.deploy;
 
-import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,9 +27,8 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.geronimo.cli.deployer.BaseCommandArgs;
 import org.apache.geronimo.deployment.cli.AbstractCommand;
 import org.apache.geronimo.deployment.cli.CommandRedeploy;
-import org.apache.geronimo.deployment.cli.ConsoleReader;
 import org.apache.geronimo.deployment.cli.ServerConnection;
-import org.apache.geronimo.deployment.cli.StreamConsoleReader;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -52,8 +50,6 @@ public class RedeployModuleCommand extends ConnectCommand {
 
         AbstractCommand command = new CommandRedeploy();
 
-        ConsoleReader consoleReader = new StreamConsoleReader(session.getKeyboard(),new PrintWriter(session.getConsole(),true));
-
         List<String> commandArgs = new LinkedList<String>();
 
         if (moduleName != null) {
@@ -70,7 +66,7 @@ public class RedeployModuleCommand extends ConnectCommand {
 
         BaseCommandArgs args = new BaseCommandArgs(commandArgs.toArray(new String[commandArgs.size()]));
 
-        command.execute(consoleReader, connection, args);
+        command.execute(this, connection, args);
         return null;
     }
 

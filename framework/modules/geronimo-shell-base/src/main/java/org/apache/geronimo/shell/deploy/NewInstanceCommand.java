@@ -19,17 +19,14 @@
 
 package org.apache.geronimo.shell.deploy;
 
-import java.io.PrintWriter;
-
 import javax.enterprise.deploy.spi.DeploymentManager;
-
-import jline.ConsoleReader;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.geronimo.deployment.cli.ServerConnection;
-import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
+import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
 import org.apache.geronimo.system.plugin.NewServerInstance;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -43,13 +40,9 @@ public class NewInstanceCommand extends ConnectCommand {
     protected Object doExecute() throws Exception {
         ServerConnection connection = connect();
 
-        ConsoleReader consoleReader = new ConsoleReader(session.getKeyboard(),new PrintWriter(session.getConsole(),true));
-        String repo = null;
-        String plugins = null;
-
         DeploymentManager deploymentManager = connection.getDeploymentManager();
-        NewServerInstance newServerInstance = (NewServerInstance) ((RemoteDeploymentManager) deploymentManager)
-                .getImplementation(NewServerInstance.class);
+        NewServerInstance newServerInstance = 
+            (NewServerInstance) ((GeronimoDeploymentManager) deploymentManager).getImplementation(NewServerInstance.class);
         newServerInstance.newServerInstance(serverName);
         println("Server created");
         return null;

@@ -19,15 +19,12 @@
 
 package org.apache.geronimo.shell.deploy;
 
-import java.io.PrintWriter;
-
 import org.apache.felix.gogo.commands.Command;
 import org.apache.geronimo.cli.deployer.BaseCommandArgs;
 import org.apache.geronimo.deployment.cli.AbstractCommand;
 import org.apache.geronimo.deployment.cli.CommandListTargets;
-import org.apache.geronimo.deployment.cli.ConsoleReader;
 import org.apache.geronimo.deployment.cli.ServerConnection;
-import org.apache.geronimo.deployment.cli.StreamConsoleReader;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -39,10 +36,10 @@ public class ListTargetsCommand extends ConnectCommand {
         ServerConnection connection = connect();
 
         AbstractCommand command = new CommandListTargets();
-        ConsoleReader consoleReader = new StreamConsoleReader(session.getKeyboard(),new PrintWriter(session.getConsole(),true));
+
         BaseCommandArgs args = new BaseCommandArgs(new String[1]);
 
-        command.execute(consoleReader, connection, args);
+        command.execute(this, connection, args);
         return null;
     }
 }

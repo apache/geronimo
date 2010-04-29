@@ -212,10 +212,11 @@ public class Bootstrapper {
             String[] parts = location.split("/");
             
             File fileLocation = getBundleLocation(parts);
-            if (location == null) {
+            if (fileLocation == null) {
                 System.err.println("Artifact " + location + " not found");
                 continue;
             }
+            
             parts[2] = fileLocation.getParentFile().getName();
             parts[3] = fileLocation.getName().substring(fileLocation.getName().lastIndexOf('.') + 1);
             

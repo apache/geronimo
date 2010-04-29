@@ -34,8 +34,10 @@ import org.apache.geronimo.kernel.Kernel;
  *
  * @version $Rev$ $Date$
  */
-public class LocalDeploymentManager extends JMXDeploymentManager {
+public class LocalDeploymentManager extends ExtendedDeploymentManager {
+    
     private static final Logger log = LoggerFactory.getLogger(LocalDeploymentManager.class);
+    
     private static final AbstractNameQuery CONFIGURER_QUERY = new AbstractNameQuery(ModuleConfigurer.class.getName());
 
     public LocalDeploymentManager(Kernel kernel) throws IOException {
