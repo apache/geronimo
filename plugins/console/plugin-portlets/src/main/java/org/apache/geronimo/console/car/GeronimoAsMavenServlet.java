@@ -186,7 +186,7 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         // Step 2: check if it's in a repository
         Set<AbstractName> repos = kernel.listGBeans(new AbstractNameQuery(Repository.class.getName()));
         for (AbstractName name : repos) {
-            Repository repo = (Repository) kernel.getProxyManager().createProxy(name, Repository.class);
+            Repository repo = getGBean(kernel, name, Repository.class);
             if(repo.contains(configId)) {
                 File path = repo.getLocation(configId);
                 if(!path.exists()) throw new IllegalStateException("Can't find file '"+path.getAbsolutePath()+"' though repository said there's an artifact there!");
@@ -226,7 +226,20 @@ public class GeronimoAsMavenServlet extends HttpServlet {
         if(names.size() == 0) {
             return null;
         }
-        return (PluginInstaller) kernel.getProxyManager().createProxy((AbstractName) names.iterator().next(), PluginInstaller.class);
+        return getGBean(kernel, names.iterator().next(), PluginInstaller.class);
+    }
+
+    private <T> T getGBean(Kernel kernel, AbstractName name, Class<T> clazz) {
+        boolean createProxy = false;
+        if (createProxy) {
+            return kernel.getProxyManager().createProxy(name, clazz);
+        } else {
+            try {
+                return clazz.cast(kernel.getGBean(name));
+            } catch (GBeanNotFoundException e) {
+                throw new IllegalStateException("No implementation for " + clazz.getName(), e);
+            }
+        }
     }
 
     private void generateMavenFile(Kernel kernel, PrintWriter writer, String groupId, String artifactId, boolean reply) throws ParserConfigurationException, TransformerException {
