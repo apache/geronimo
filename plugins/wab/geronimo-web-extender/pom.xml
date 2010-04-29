@@ -41,7 +41,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-web</artifactId>
+            <artifactId>geronimo-wab</artifactId>
             <version>${version}</version>
         </dependency>
 

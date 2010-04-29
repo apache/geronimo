@@ -36,7 +36,7 @@
     </description>
 
     <modules>
-        <module>geronimo-web</module>
+        <module>geronimo-wab</module>
         <module>geronimo-web-extender</module>
         <module>web-extender</module>
     </modules>

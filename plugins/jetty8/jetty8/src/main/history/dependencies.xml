@@ -38,7 +38,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-web</artifactId>
+        <artifactId>geronimo-wab</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

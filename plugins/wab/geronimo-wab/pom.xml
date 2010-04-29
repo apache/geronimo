@@ -29,9 +29,9 @@
     </parent>
 
     <groupId>org.apache.geronimo.modules</groupId>
-    <artifactId>geronimo-web</artifactId>
+    <artifactId>geronimo-wab</artifactId>
     <packaging>bundle</packaging>
-    <name>Geronimo Plugins, WAB :: Web</name>
+    <name>Geronimo Plugins, WAB :: WAB</name>
 
     <dependencies>
         <dependency>
