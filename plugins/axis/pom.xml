@@ -55,7 +55,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>axis</artifactId>
-                <version>1.4_1-SNAPSHOT</version>
+                <version>1.4_1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ws.scout</groupId>
