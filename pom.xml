@@ -2377,21 +2377,6 @@ only found in cxf
                     </releases>
                 </repository>
 
-                <!-- Added temporarily. Will be removed once the artifacts 
-                     are published to maven central. -->
-                <repository>
-                    <id>geronimo-schemas</id>
-                    <name>geronimo-schemas</name>
-                    <layout>default</layout>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-027</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-
                 <repository>
                     <!-- org.ops4j routing -->
                     <id>ops4j.snapshots</id>
