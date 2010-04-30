@@ -1,120 +1,34 @@
-=========================================================================
-==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
-==  Version 2.0, in this case for the Apache Geronimo distribution.    ==
-=========================================================================
-
-Apache Geronimo 
+Apache Geronimo
 Copyright 2003-2009 The Apache Software Foundation
 
 This product includes software developed by
 The Apache Software Foundation (http://www.apache.org/).
 
+Portions of the Web Console were orginally developed by International
+Business Machines Corporation and are licensed to the Apache Software
+Foundation under the "Software Grant and Corporate Contribution
+License Agreement", informally known as the "IBM Console CLA".
 
-=========================================================================
-==  Apache Geronimo Dojo Notice                                        ==
-=========================================================================
+Portions of the ASN1 codec implementation in
+framework/modules/geronimo-crypto/ were developed by the Bouncy Castle
+project (http://www.bouncycastle.org/).
 
-Portions of the Geronimo Dojo plugins were developed by the Dojo
-Foundation.
-
-Copyright (c) 2005-2008, The Dojo Foundation
-All rights reserved.
-
-
-=========================================================================
-==  Apache Geronimo Web Console Notice                                 ==
-=========================================================================
-
-Portions of the Web Console were orginally developed by International 
-Business Machines Corporation and are licensed to the Apache Software 
-Foundation under the "Software Grant and Corporate Contribution License 
-Agreement", informally known as the "IBM Console CLA".
-
-
-Portions of the Web Console were developed by the Apache Pluto community.
-
-Apache Pluto Project
-Copyright 2003-2008 The Apache Software Foundation.
-
-
-=========================================================================
-==  Apache Geronimo OpenEJB Notice                                     ==
-=========================================================================
-
-Portions of the Geronimo OpenEJB and Corba plugins were developed by the
-Apache OpenEJB community.
-
-Apache OpenEJB Project
-Copyright 1999-2008 The Apache Software Foundation
-
-
-=========================================================================
-==  Bouncy Castle Notice                                               ==
-=========================================================================
-
-This product includes software (the ASN1 codec implementation in 
-geronimo-crypto) developed by the Bouncy Castle project. 
-(http://www.bouncycastle.org/)
-
-Copyright (c) 2000-2005 
+Copyright (c) 2000-2005
 The Legion Of The Bouncy Castle (http://www.bouncycastle.org)
 
-=========================================================================
-==  Apache Geronimo Webservices Builder Notices                        ==
-=========================================================================
-For soap_encoding_1_1.xsd -
+ORB Portions of this software were developed at IONA Technologies.
 
-W3C SOFTWARE NOTICE AND LICENSE
-Copyright © 1994-2002 World Wide Web Consortium, (Massachusetts Institute of Technology, Institut National de Recherche en Informatique et en Automatique, Keio University). All Rights Reserved. http://www.w3.org/Consortium/Legal/
+Object Management Group (OMG) classes used by the orb.
+The original classes are available from www.org.omg.
 
-This W3C work (including software, documents, or other related items) is being provided by the copyright holders under the following license. By obtaining, using and/or copying this work, you (the licensee) agree that you have read, understood, and will comply with the following terms and conditions:
+The RMI over IIOP implementation were developed at Trifork Technologies.
 
-Permission to use, copy, modify, and distribute this software and its documentation, with or without modification,  for any purpose and without fee or royalty is hereby granted, provided that you include the following on ALL copies of the software and documentation or portions thereof, including modifications, that you make:
+Copyright 2004-2009 Tranql project committers
+This product includes software developed at
+Tranql (http://tranql.codehaus.org/).
 
-   1. The full text of this NOTICE in a location viewable to users of the redistributed or derivative work.
-   2. Any pre-existing intellectual property disclaimers, notices, or terms and conditions. If none exist, a short notice of the following form (hypertext is preferred, text is permitted) should be used within the body of any redistributed or derivative code: "Copyright © [$date-of-software] World Wide Web Consortium, (Massachusetts Institute of Technology, Institut National de Recherche en Informatique et en Automatique, Keio University). All Rights Reserved. http://www.w3.org/Consortium/Legal/"
-   3. Notice of any changes or modifications to the W3C files, including the date changes were made. (We recommend you provide URIs to the location from which the code is derived.)
-
-THIS SOFTWARE AND DOCUMENTATION IS PROVIDED "AS IS," AND COPYRIGHT HOLDERS MAKE NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, WARRANTIES OF MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE USE OF THE SOFTWARE OR DOCUMENTATION WILL NOT INFRINGE ANY THIRD PARTY PATENTS, COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.
-
-COPYRIGHT HOLDERS WILL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF ANY USE OF THE SOFTWARE OR DOCUMENTATION.
-
-The name and trademarks of copyright holders may NOT be used in advertising or publicity pertaining to the software without specific, written prior permission. Title to copyright in this software and any associated documentation will at all times remain with copyright holders.
-
-
-For wsdl.xsd -
-
-Copyright 2001-2003 International Business Machines Corporation, Microsoft Corporation. All rights reserved.
-
-
-#########################################################################
-## APACHE GERONIMO DEPENDENCIES                                        ##
-#########################################################################
-
-A binary distribution of Apache Geronimo, or an Apache Geronimo server 
-which is built from source, includes a number of dependent packages 
-with separate copyright notices and license terms. The following notices
-apply to these dependencies.
-
-=========================================================================
-==  Apache ActiveMQ Notice                                             ==
-=========================================================================
-
-Copyright 2005-2009 The Apache Software Foundation
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
-
-
-=========================================================================
-==  Apache Ant Notice                                                  ==
-=========================================================================
-
-Apache Ant
-Copyright 1999-2008 The Apache Software Foundation
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
+This product includes software developed by the Protocol Buffers
+project (http://code.google.com/apis/protocolbuffers).
 
 This product includes also software developed by :
   - the W3C consortium (http://www.w3c.org) ,
@@ -124,166 +38,42 @@ The <sync> task is based on code Copyright (c) 2002, Landmark
 Graphics Corp that has been kindly donated to the Apache Software
 Foundation.
 
+Portions of this software were originally based on the following:
+  - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
+  - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
+  - voluntary contributions made by Paul Eng on behalf of the
+    Apache Software Foundation that were originally developed at iClick, Inc.,
+    software copyright (c) 1999.
 
-=========================================================================
-==  Apache Axiom Notice                                                ==
-=========================================================================
 
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
 Portions Copyright 2006 International Business Machines Corp.
+Portions Copyright 2005-2007 WSO2, Inc.
 
+This product also includes schemas and specification developed by:
+- the W3C consortium (http://www.w3c.org)
 
-=========================================================================
-==  Apache Commons BeanUtils Notice                                    ==
-=========================================================================
+This product also includes WS-* schemas developed by International
+Business Machines Corporation, Microsoft Corporation, BEA Systems,
+TIBCO Software, SAP AG, Sonic Software, and VeriSign
 
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
-Portions Copyright 2006 International Business Machines Corp.
+This product also includes a WSDL developed by salesforce.com
+- Copyright 1999-2006 salesforce.com, inc.
 
+Portions of the included xmlbeans library were originally based on the following:
+- software copyright (c) 2000-2003, BEA Systems, <http://www.bea.com/>.
 
-=========================================================================
-==  Apache Commons BeanUtils                                           ==
-=========================================================================
+This product also includes schemas and specification developed by:
+      - the W3C consortium (http://www.w3c.org)
+      (http://www.w3.org/XML/1998/namespace)
 
-Copyright (c) 1999-2003 The Apache Software Foundation.  All rights
-reserved.
-
-
-=========================================================================
-==  Apache Commons CLI Notice                                          ==
-=========================================================================
-
-This product includes software developed by the Apache Software
-Foundation (http://www.apache.org/).
-
-Copyright (c) 1999-2001 The Apache Software Foundation.  All rights
-reserved.
-
-
-=========================================================================
-==  Apache Commons Daemon Procrun Notice                               ==
-=========================================================================
-
-This product includes software developed by the Apache Software
-Foundation (http://www.apache.org/).
-
-Copyright (c) 1999-2008 The Apache Software Foundation.  All rights
-reserved.
-
-
-=========================================================================
-==  Apache Commons Lang Notice                                         ==
-=========================================================================
-
-This product includes software developed by the Apache Software
-Foundation (http://www.apache.org/).
-
-Copyright (c) 2002-2003 The Apache Software Foundation.  All rights
-reserved.
-
-
-=========================================================================
-==  Apache Commons XML Resolver                                        ==
-=========================================================================
-
-This product includes software developed by the Apache Software
-Foundation (http://www.apache.org/).
-
-Copyright (c) 2001-2003 The Apache Software Foundation.  All rights
-reserved.
-
-
-=========================================================================
-==  Apache CXF                                                         ==
-=========================================================================
-
-Apache CXF
-Copyright 2006-2008 Apache Software Foundation
-
-This product includes software developed at
-Apache Software Foundation (http://www.apache.org/).
-
-This product includes/uses software, Web Services Metadata 2.0 (http://geronimo.apache.org/specs/geronimo-ws-metadata_2.0_spec),
-developed by Apache Software Foundation  (http://www.apache.org)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, AOP alliance (http://aopalliance.sourceforge.net)
-License: Public Domain 
-
-This product includes/uses software, Logging (http://jakarta.apache.org/commons/${pom.artifactId.substring(8)}/),
-developed by The Apache Software Foundation  (http://jakarta.apache.org)
-License: The Apache Software License, Version 2.0  (/LICENSE.txt)
-
-This product includes/uses software, Woodstox (http://woodstox.codehaus.org),
-developed by Codehaus  (http://www.codehaus.org/)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, Activation 1.1 (http://geronimo.apache.org/specs/geronimo-activation_1.1_spec),
-developed by Apache Software Foundation  (http://www.apache.org)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, Spring Framework: Core (http://www.springframework.org),
-developed by Spring Framework  (http://www.springframework.org/)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, Lang (http://jakarta.apache.org/commons/${pom.artifactId.substring(8)}/),
-developed by The Apache Software Foundation  (http://jakarta.apache.org)
-License: The Apache Software License, Version 2.0  (/LICENSE.txt)
-
-This product includes/uses software, StAX API (http://stax.codehaus.org/)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, WSDL4J (http://sf.net/projects/wsdl4j)
-License: CPL  (http://www.opensource.org/licenses/cpl1.0.txt)
-
-This product includes/uses software, Neethi,
-developed by The Apache Software Foundation  (http://www.apache.org/)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, Java Architecture for XML Binding (JAXB API),
-developed by Sun Microsystems  (http://www.sun.com/)
-License: COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0  (http://www.sun.com/cddl/cddl.html)
-
-This product includes/uses software, XmlSchema (http://ws.apache.org/commons/XmlSchema),
-developed by Apache Software Foundation  (http://www.apache.org/)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, XML Commons Resolver Component (http://xml.apache.org/commons/components/resolver/),
-developed by Apache Software Foundation  (http://www.apache.org/)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, Apache CXF Common Utilities (http://cwiki.apache.org/CXF),
-developed by Apache Software Foundation  (http://www.apache.org/)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, Spring Framework: Beans (http://www.springframework.org),
-developed by Spring Framework  (http://www.springframework.org/)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, Annotation 1.0 (http://geronimo.apache.org/specs/geronimo-annotation_1.0_spec),
-developed by Apache Software Foundation  (http://www.apache.org)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, Apache CXF Common Schemas (http://cwiki.apache.org/CXF/cxf-common-schemas),
-developed by Apache Software Foundation  (http://www.apache.org/)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-This product includes/uses software, Spring Framework: Context (http://www.springframework.org),
-developed by Spring Framework  (http://www.springframework.org/)
-License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
-
-
-=========================================================================
-==  Apache Derby Notice                                                ==
-=========================================================================
-
-Apache Derby
-Copyright 2004-2008 The Apache Software Foundation
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
+This product also includes WS-* schemas developed by International
+   Business Machines Corporation, Microsoft Corporation, BEA Systems,
+   TIBCO Software, SAP AG, Sonic Software, and VeriSign
+   (http://schemas.xmlsoap.org/wsdl/2003-02-11.xsd)
+   (http://schemas.xmlsoap.org/ws/2004/08/addressing/)
+   (http://schemas.xmlsoap.org/wsdl/http)
+   (http://schemas.xmlsoap.org/ws/2005/02/rm/wsrm.xsd)
+   (http://www.w3.org/2005/08/addressing/ws-addr.xsd)
 
 Portions of Derby were originally developed by
 International Business Machines Corporation and are
@@ -296,102 +86,34 @@ and are placed here unaltered.
 
 (C) Copyright 1997,2004 International Business Machines Corporation.  All rights reserved.
 
-(C) Copyright IBM Corp. 2003. 
+(C) Copyright IBM Corp. 2003.
 
-The portion of the functionTests under 'nist' was originally 
-developed by the National Institute of Standards and Technology (NIST), 
+The portion of the functionTests under 'nist' was originally
+developed by the National Institute of Standards and Technology (NIST),
 an agency of the United States Department of Commerce, and adapted by
 International Business Machines Corporation in accordance with the NIST
 Software Acknowledgment and Redistribution document at
 http://www.itl.nist.gov/div897/ctg/sql_form.htm
 
+* OpenJPA includes software written by Miroslav Nachev.
 
-=========================================================================
-==  Apache Geronimo Gshell Notice                                      ==
-=========================================================================
+* OpenJPA uses test code written by Charles Tillman.
 
-Apache Geronimo
-Copyright 2007 The Apache Software Foundation
+XMLSec was originally based on software copyright (c) 2001, Institute for
+Data Communications Systems, <http://www.nue.et-inf.uni-siegen.de/>.
 
+The development of XMLSec was partly funded by the European
+Commission in the <WebSig> project in the ISIS Programme.
 
-=========================================================================
-==  Apache MyFaces Notice                                              ==
-=========================================================================
+This product also includes software developed by :
 
-This software includes Sun's web-facesconfig.dtd files 
-(see http://java.sun.com/dtd/).
+  - IBM Corporation (http://www.ibm.com),
+      WSDL4J was the initial code contribution for the Apache Woden
+      project and some of the WSDL4J design and code has been reused.
+  - The W3C Consortium (http://www.w3c.org),
+      Common W3C XML Schema and DTD files are packaged with Apache Woden.
 
-
-=========================================================================
-==  Apache OpenEJB Notice                                              ==
-=========================================================================
-
-Apache OpenEJB
-Copyright 1999-2009 The Apache OpenEJB development community
-
-
-=========================================================================
-==  Apache OpenJPA Notice                                              ==
-=========================================================================
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
-
-COPYRIGHT NOTICES
-
-* OpenJPA includes software developed by the SERP project
-    Copyright (c) 2002-2006, A. Abram White. All rights reserved.
-
-* OpenJPA is bundled with the binaries from the JPA specification, by
-    Sun Microsystems and licensed under the CDDL 1.0. The source code is
-    available at: https://glassfish.dev.java.net/source/browse/glassfish/
-
-
-=========================================================================
-==  Apache Pluto                                                       ==
-=========================================================================
-
-This product includes software developed by the Apache Software
-Foundation (http://www.apache.org/).
-
-Copyright 2003-2008 The Apache Software Foundation.
-
-
-=========================================================================
-==  Apache Scout                                                       ==
-=========================================================================
-
-This product includes software developed by the Apache Software
-Foundation (http://www.apache.org/).
-
-Copyright 2001-2004 The Apache Software Foundation.
-
-
-=========================================================================
-==  Apache Tomcat Notice                                               ==
-=========================================================================
-
-Java compilation software for JSP pages is provided by Eclipse, 
-which is open source software.  The orginal software and 
-related infomation is available at
-http://www.eclipse.org.
-
-
-=========================================================================
-==  Apache WS Commons Notice                                           ==
-=========================================================================
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
 Portions Copyright 2006 International Business Machines Corp.
-
-
-=========================================================================
-==  Apache XmlBeans Notice                                             ==
-=========================================================================
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
 
 Portions of this software were originally based on the following:
   - software copyright (c) 2000-2003, BEA Systems, <http://www.bea.com/>.
@@ -415,318 +137,69 @@ software also includes:
  - JSR-173 Streaming API for XML from http://sourceforge.net/projects/xmlpullparser/,
    Copyright 2005 BEA under the terms of the Apache Software License 2.0
 
-
-=========================================================================
-==  Apache Yoko Notice                                                 ==
-=========================================================================
-
-Apache Yoko Project
-Copyright 1999-2008 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-ORB Portions of this software were developed at IONA Technologies.
-   
-Object Management Group (OMG) classes used by the orb.
-The original classes are available from www.org.omg.
-
-The RMI over IIOP implementation were developed at Trifork Technologies.
-
-
-=========================================================================
-==  ASM Notice                                                         ==
-=========================================================================
-
-Copyright (c) 2000-2005 INRIA, France Telecom
-All rights reserved.
-
-=========================================================================
-==  AspectJ Notice                                                     ==
-=========================================================================
-
-This product includes software developed by
-  the Eclipse Foundation (http://www.eclipse.org/).
-
-AspectJ source code can be obtained from the AspectJ web site
-  http://www.eclipse.org/aspectj/
-
-
-=========================================================================
-==  Backport Util Concurrent Notice                                    ==
-=========================================================================
-
-The backport-util-concurrent software has been released to the public domain, 
-as explained at: http://creativecommons.org/licenses/publicdomain.
-
-Acknowledgements: backport-util-concurrent is based in large part on the public 
-domain sources from: 
-1) JSR166, 
-2) package dl.util.concurrent,
-3) Doug Lea's "collections" package.
-
-
-=========================================================================
-==  Castor Notice                                                      ==
-=========================================================================
-
-Copyright 2004-2005 Werner Guttmann
-
-This product includes software developed by the Exolab project.
-((http://www.exolab.org/)
-
-Copyright 1999-2004 (C) Intalio Inc., and others. All Rights Reserved..
-
-
-=========================================================================
-==  Dojo Notice                                                        ==
-=========================================================================
-
-Copyright (c) 2004-2008, The Dojo Foundation, All Rights Reserved
-
-
-=========================================================================
-==  Howl Notice                                                        ==
-=========================================================================
-
-Copyright (c) 2004, Bull S.A.
-All rights reserved.
-
-
-=========================================================================
-==  JDBM Notice                                                        ==
-=========================================================================
-
-This product includes software developed by the JDBM Project 
-(http://jdbm.sourceforge.net/).
-
-Copyright 2000 (C) Cees de Groot. All Rights Reserved.
-Contributions are Copyright (C) 2000 by their associated contributors.
-
-
-=========================================================================
-==  JDOM Notice                                                        ==
-=========================================================================
-
-This product includes software developed by the JDOM Project 
-(http://www.jdom.org/).
-
-Copyright (C) 2000-2004 Jason Hunter & Brett McLaughlin.
- All rights reserved.
-
-
-=========================================================================
-==  Jetty Notice                                                       ==
-=========================================================================
-
-==============================================================
- Jetty Web Container 
- Copyright 1995-2008 Mort Bay Consulting Pty Ltd
-==============================================================
-
-This product includes software developed at The Apache Software Foundation
-(http://www.apache.org/).
-
-The UnixCrypt.java code ~Implements the one way cryptography used by
-Unix systems for simple password protection.  Copyright 1996 Aki Yoshida,
-modified April 2001  by Iris Van den Broeke, Daniel Deville.
-
-The default JSP implementation is provided by the Glassfish JSP engine
-from project Glassfish http://glassfish.dev.java.net.  Copyright 2005
-Sun Microsystems, Inc. and portions Copyright Apache Software Foundation.
-
-Some portions of the code are Copyright:
-  2006 Tim Vernum 
-  1999 Jason Gilbert.
-
-=========================================================================
-==  JLine Notice                                                       ==
-=========================================================================
-
-Copyright (c) 2002-2006, Marc Prud'hommeaux <mwp1@cornell.edu>
-All rights reserved.
-
-
-=========================================================================
-==  SAAJ Notice                                                        ==
-=========================================================================
-
-=========================================================================
-==  OGNL Notice                                                        ==
-=========================================================================
-
-This product includes software developed by the OpenSymphony Group 
-(http://www.opensymphony.com/).
-
-Copyright (c) 2001-2004 The OpenSymphony Group. All rights reserved.
-
-=========================================================================
-==  Plexus Notice                                                      ==
-=========================================================================
-
-This product includes software developed by the Plexus project
-(http://plexus.codehaus.org/)
-
-The source code for the Plexus project can be downloaded from:
-
-http://plexus.codehaus.org/source-repository.html
-
-
-=========================================================================
-==  Serp Notice                                                        ==
-=========================================================================
-
-Copyright (c) 2002, A. Abram White
-All rights reserved.
-
-
-=========================================================================
-==  SL4J Notice                                                        ==
-=========================================================================
-
-Copyright (c) 2004-2005 SLF4J.ORG
-Copyright (c) 2004-2005 QOS.ch
-All rights reserved.
-
-
-=========================================================================
-==  Sun CDDL Notice                                                    ==
-=========================================================================
-
-This product includes software developed for the JAXB Reference 
-Implementation project. (https://jaxb.dev.java.net/)
-
-This product includes software developed for Java API for XML Web Services
-project (JAX-WS) (https://jax-ws.dev.java.net/)
-
-This product includes software developed for StAX-Ex Project 
-(https://stax-ex.dev.java.net/)
-
-This product includes software developed for XML Stream Buffer Project
-(https://xmlstreambuffer.dev.java.net/)
-
-This product includes software developed for the Java Server Pages Tag 
-Library project (https://jstl.dev.java.net/)
+This product includes software developed by the Simple XML Compiler (SXC)
+project (http://sxc.codehaus.org/project-info.html)
+
+This product includes software developed for the JAXB Reference
+Implementation project. (https://jaxb.dev.java.net/).  Apache Geronimo elects
+to include this software in this distribution under the CDDL license.
 
 This product includes software developed for SOAP with Attachments
-API for Java (SAAJ). The software is available from the GlassFish project 
-(https://saaj.dev.java.net/)
+API for Java (SAAJ). The software is available from the GlassFish project
+(https://saaj.dev.java.net/).  Apache Geronimo elects to include this
+software in this distribution under the CDDL license.
 
+This product includes software developed for Java API for XML Web Services
+project (JAX-WS) (https://jax-ws.dev.java.net/).  Apache Geronimo elects
+to include this software in this distribution under the CDDL license.
 
-=========================================================================
-==  WADI Notice                                                        ==
-=========================================================================
+This product includes software developed for the Java Server Pages Tag
+Library project (https://jstl.dev.java.net/).   Apache Geronimo elects
+to include this software in this distribution under the CDDL license.
 
-This product includes software developed by the WADI project
-(http://wadi.codehaus.org/)
+This product includes schema files developed for the Glassfish Java EE
+reference implementation (http://java.sun.com/xml/ns/j2ee/).
+Apache Geronimo elects to include this software in this distribution
+under the CDDL license.  The following schemas are included:
 
-
-=========================================================================
-==  Spring Notice                                                      ==
-=========================================================================
-
-This product also includes software developed by Spring Framework
-Project (http://www.springframework.org)
-
-This product includes software developed by
-the Apache Software Foundation (http://www.apache.org).
-
-This product also includes software developed by
-Clinton Begin (http://www.ibatis.com).
-
-The end-user documentation included with a redistribution, if any,
-must include the following acknowledgement:
-
-"This product includes software developed by the Spring Framework
-Project (http://www.springframework.org)."
-
-Alternately, this acknowledgement may appear in the software itself,
-if and wherever such third-party acknowledgements normally appear.
-
-The names "Spring" and "Spring Framework" must not be used to
-endorse or promote products derived from this software without
-prior written permission. For written permission, please contact
-rod.johnson@interface21.com or juergen.hoeller@interface21.com.
-
-
-=========================================================================
-==  W3C DOM Notice                                                     ==
-=========================================================================
-
-Copyright (c) 2000 World Wide Web Consortium, (Massachusetts Institute
-of Technology, Institut National de Recherche en Informatique et en
-Automatique, Keio University). All Rights Reserved.
-
-The DOM bindings are published under the W3C Software Copyright Notice
-and License. The software license requires "Notice of any changes or
-modifications to the W3C files, including the date changes were made."
-Consequently, modified versions of the DOM bindings must document that
-they do not conform to the W3C standard; in the case of the IDL
-binding, the pragma prefix can no longer be 'w3c.org'; in the case of
-the Java binding, the package names can no longer be in the 'org.w3c'
-package.
-
-Note: The original version of the W3C Software Copyright Notice and
-License could be found at
-http://www.w3.org/Consortium/Legal/copyright-software-19980720
-
-Copyright (c) 1994-2000 World Wide Web Consortium, (Massachusetts
-Institute of Technology, Institut National de Recherche en
-Informatique et en Automatique, Keio University). All Rights
-Reserved. http://www.w3.org/Consortium/Legal/
-
-
-=========================================================================
-==  Woodstox Notice                                                    ==
-=========================================================================
-
-This product currently only contains code developed by authors
-of specific components, as identified by the source code files.
-
-Since product implements StAX API, it has dependencies to StAX API
-classes.
-
-For additional credits (generally to people who reported problems)
-see CREDITS file.
-
-
-=========================================================================
-==  W3C Software Notice                                                ==
-=========================================================================
-
-Copyright (c) 1994-2002 World Wide Web Consortium, (Massachusetts
-Institute of Technology, Institut National de Recherche en
-Informatique et en Automatique, Keio University). All Rights
-Reserved. http://www.w3.org/Consortium/Legal/
-
-
-=========================================================================
-==  WSDL4J Notice                                                      ==
-=========================================================================
-
-The Program includes all or portions of the following software which is 
-subject to the Common Public License ("CPL Code").  This software 
-consists of voluntary contributions made by many individuals on behalf of
-the WSDL4J project.
-
-You may download the source version of the WSDL4J component at 
-http://sourceforge.net/projects/wsdl4j
-
-
-=========================================================================
-==  XPP3 Notice                                                        ==
-=========================================================================
-
-This product includes software developed by the Indiana University 
-  Extreme! Lab (http://www.extreme.indiana.edu/).
-
-Copyright (c) 2002 Extreme! Lab, Indiana University. All rights reserved.
-
-
-=========================================================================
-==  XStream Notice                                                     ==
-=========================================================================
-
-Copyright (c) 2003-2006, Joe Walnes
-All rights reserved.
+===========================
+  application-client_1_4.xsd
+  application_1_4.xsd
+  connector_1_5.xsd
+  datatypes.dtd
+  ejb-jar_2_1.xsd
+  j2ee_1_4.xsd
+  j2ee_jaxrpc_mapping_1_1.xsd
+  j2ee_web_services_1_1.xsd
+  j2ee_web_services_client_1_1.xsd
+  jsp_2_0.xsd
+  web-app_2_4.xsd
+  web-jsptaglibrary_2_0.xsd
+  application-client_5.xsd
+  application_5.xsd
+  ejb-jar_3_0.xsd
+  handler-chain.xsd
+  javaee_5.xsd
+  javaee_web_services_1_2.xsd
+  javaee_web_services_client_1_2.xsd
+  jsp_2_1.xsd
+  persistence_1_0.xsd
+  web-app_2_5.xsd
+  web-facelettaglibrary_2_0.xsd
+  web-facesconfig_2_0.xsd
+  web-partialresponse_2_0.xsd
+  web-jsptaglibrary_2_1.xsd
+  application_6.xsd
+  application-client_6.xsd
+  connector_1_6.xsd
+  ejb-jar_3_1.xsd
+  javaee_6.xsd
+  javaee_web_services_1_3.xsd
+  javaee_web_services_client_1_3.xsd
+  jsp_2_2.xsd
+  persistence_2_0.xsd
+  web-app_3_0.xsd
+  web-common_3_0.xsd
+  web-fragment_3_0.xsd
+===========================
 
