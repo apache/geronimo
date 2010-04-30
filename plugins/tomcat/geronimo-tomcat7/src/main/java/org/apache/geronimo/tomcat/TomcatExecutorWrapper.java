@@ -58,6 +58,7 @@ public class TomcatExecutorWrapper extends LifecycleBase implements org.apache.c
 
     @Override
     public void execute(Runnable runnable, long timeout, TimeUnit unit) {
+        executor.execute(runnable);
         // FIXME Figure out how to implement it
     }
 }
