@@ -25,6 +25,39 @@ limitations under the License.
 
 <body id="admin-console" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" rightmargin="0">
 
+
+<script type="text/javascript" src="/dojo/dojo/dojo.js" djConfig="parseOnLoad: true">
+
+</script>
+
+
+<script>
+<%-- we have to use dojo.hash to maintain the hash change history because browser does not 
+recogonize a hash change when users click back/forward button.--%>
+
+dojo.require("dojo.hash");
+dojo.require("dojox.collections.Dictionary");
+
+var hash_iframeSrc_map= new dojox.collections.Dictionary;
+
+
+function onHashChange(current_hash) {
+
+    if(current_hash&&!hash_iframeSrc_map.containsKey(current_hash)){
+
+        hash_iframeSrc_map.add(current_hash,document.getElementById("portletsFrame").src);
+
+    } else {
+        document.getElementById("portletsFrame").src=""+hash_iframeSrc_map.entry(current_hash).value;
+    }
+}
+
+dojo.subscribe("/dojo/hashchange", this, this.onHashChange);
+
+
+</script>
+
+
 <script language="JavaScript">
 
 <%-- When there's hash in current page url

@@ -63,7 +63,6 @@ limitations under the License.
 <%=generator.generateLinks(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif")%>
 </div>
 
-<script type="text/javascript" src="/dojo/dojo/dojo.js" djConfig="parseOnLoad: true"></script>
 
 <script type="text/javascript">
 
@@ -176,6 +175,7 @@ function load() {
     
         document.getElementById("portletsFrame").src = iframeHref+"?formId="+formID;
         setTimeout('returnToTop()', 30);
+
      }
      
     function returnToTop(){
