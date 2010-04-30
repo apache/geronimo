@@ -206,8 +206,9 @@ public class ApplicationInstaller implements GBeanLifecycle {
     
     private static String getVersion(Version version) {
         String str = version.getMajor() + "." + version.getMinor() + "." + version.getMinor();
-        if (version.getQualifier() != null) {
-            str += "-" + version.getQualifier();
+        String qualifier = version.getQualifier();
+        if (qualifier != null && qualifier.trim().length() > 0) {
+            str += "-" + version.getQualifier().trim();
         }
         return str;
     }
