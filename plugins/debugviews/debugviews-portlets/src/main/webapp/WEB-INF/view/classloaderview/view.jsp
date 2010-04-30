@@ -213,5 +213,5 @@
     </script>
 </button>
 <br />
-<div id = "dojotree">
+<div id = "dojotree" style="height: 800px;overflow: auto;">
 </div>
