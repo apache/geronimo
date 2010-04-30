@@ -22,6 +22,7 @@ package org.apache.geronimo.security.jaspi;
 
 import javax.security.auth.message.config.AuthConfigFactory;
 
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
@@ -31,6 +32,7 @@ import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
  *
  * @version $Rev$ $Date$
  */
+@GBean
 public class AuthConfigFactoryGBean {
 
     public AuthConfigFactoryGBean(@ParamAttribute(name = "authConfigFactoryClassName") final String authConfigFactoryClassName,

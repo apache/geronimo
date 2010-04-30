@@ -20,28 +20,15 @@
 
 package org.apache.geronimo.security.jaspi;
 
-import java.io.IOException;
 import java.io.StringReader;
 
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.message.AuthException;
 import javax.security.auth.message.config.AuthConfigFactory;
-import javax.security.auth.message.config.AuthConfigProvider;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 
-import org.apache.geronimo.components.jaspi.ClassLoaderLookup;
-import org.apache.geronimo.components.jaspi.ConstantClassLoaderLookup;
-import org.apache.geronimo.components.jaspi.model.JaspiUtil;
-import org.apache.geronimo.components.jaspi.model.JaspiXmlUtil;
-import org.apache.geronimo.components.jaspi.model.ClientAuthContextType;
+import org.apache.geronimo.components.jaspi.ConfigException;
+import org.apache.geronimo.components.jaspi.JaspicUtil;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.xml.sax.SAXException;
 
 /**
  * Holds a bit of xml configuring an AuthConfigProvider, [Client|Server][AuthConfig|AuthContext|AuthModule]
@@ -56,14 +43,9 @@ public class ClientAuthContextGBean implements GBeanLifecycle {
     private final String registrationID;
 
     public ClientAuthContextGBean(
-            @ParamAttribute(name = "config") String config,
-            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) throws AuthException, JAXBException, IOException, ParserConfigurationException, SAXException, XMLStreamException {
-        ClassLoaderLookup classLoaderLookup = new ConstantClassLoaderLookup(classLoader);
-
-        AuthConfigFactory authConfigFactory = AuthConfigFactory.getFactory();
-        ClientAuthContextType clientAuthContextType = JaspiXmlUtil.loadClientAuthContext(new StringReader(config));
-        AuthConfigProvider authConfigProvider = JaspiUtil.wrapClientAuthContext(clientAuthContextType, true, classLoaderLookup);
-        registrationID = authConfigFactory.registerConfigProvider(authConfigProvider, clientAuthContextType.getMessageLayer(), clientAuthContextType.getAppContext(), null);
+            @ParamAttribute(name = "config") String config
+    ) throws ConfigException {
+        registrationID = JaspicUtil.registerClientAuthContext(new StringReader(config), true);
     }
 
 
