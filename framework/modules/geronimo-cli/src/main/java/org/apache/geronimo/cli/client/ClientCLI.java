@@ -46,7 +46,7 @@ public class ClientCLI extends AbstractCLI {
     protected Bootstrapper createBootstrapper() {
         Bootstrapper boot = super.createBootstrapper();
         boot.setWaitForStop(false);
-        boot.setUniqueStorage(true);
+        boot.setUniqueInstance(true);
         boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/client-system//car"));
         boot.setLog4jConfigFile("var/log/client-log4j.properties");
         return boot;
