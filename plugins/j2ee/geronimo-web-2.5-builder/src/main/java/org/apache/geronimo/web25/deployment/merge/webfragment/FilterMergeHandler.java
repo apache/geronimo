@@ -19,6 +19,7 @@ package org.apache.geronimo.web25.deployment.merge.webfragment;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.xbeans.javaee6.FilterType;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
+<plugin-artifact xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3" xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2">
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jetty8</artifactId>
@@ -33,12 +33,22 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-j2ee-schema</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jetty8</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-wab</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-web</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

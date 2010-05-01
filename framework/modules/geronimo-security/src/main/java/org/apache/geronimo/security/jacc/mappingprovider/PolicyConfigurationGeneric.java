@@ -82,9 +82,9 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
     public void addToRole(String roleName, PermissionCollection permissions) throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
-        Enumeration e = permissions.elements();
+        Enumeration<Permission> e = permissions.elements();
         while (e.hasMoreElements()) {
-            addToRole(roleName, (Permission) e.nextElement());
+            addToRole(roleName, e.nextElement());
         }
     }
 
@@ -102,9 +102,9 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
     public void addToUncheckedPolicy(PermissionCollection permissions) throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
-        Enumeration e = permissions.elements();
+        Enumeration<Permission> e = permissions.elements();
         while (e.hasMoreElements()) {
-            addToUncheckedPolicy((Permission) e.nextElement());
+            addToUncheckedPolicy(e.nextElement());
         }
     }
 
@@ -119,9 +119,9 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
     public void addToExcludedPolicy(PermissionCollection permissions) throws PolicyContextException {
         if (state != OPEN) throw new UnsupportedOperationException("Not in an open state");
 
-        Enumeration e = permissions.elements();
+        Enumeration<Permission> e = permissions.elements();
         while (e.hasMoreElements()) {
-            addToExcludedPolicy((Permission) e.nextElement());
+            addToExcludedPolicy(e.nextElement());
         }
     }
 
@@ -175,8 +175,8 @@ public class PolicyConfigurationGeneric implements GeronimoPolicyConfiguration {
             for (String role : roleSet) {
                 Permissions permissions = rolePermissionsMap.get(role);
                 if (permissions == null) continue;
-                for (Enumeration rolePermissions = permissions.elements(); rolePermissions.hasMoreElements();) {
-                    principalPermissions.add((Permission) rolePermissions.nextElement());
+                for (Enumeration<Permission> rolePermissions = permissions.elements(); rolePermissions.hasMoreElements();) {
+                    principalPermissions.add(rolePermissions.nextElement());
                 }
             }
 

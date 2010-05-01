@@ -16,6 +16,17 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
+import java.security.Principal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.transaction.TransactionManager;
+
 import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
@@ -46,17 +57,8 @@ import org.apache.geronimo.tomcat.connector.ConnectorGBean;
 import org.apache.geronimo.tomcat.connector.Http11ConnectorGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.web.WebAttributeName;
 import org.osgi.framework.Bundle;
-
-import javax.transaction.TransactionManager;
-import java.io.File;
-import java.net.URI;
-import java.net.URL;
-import java.security.Principal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -86,39 +88,44 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,
                 cl,
                 null);
-        TomcatWebAppContext app = new TomcatWebAppContext(cl,
-                bundle,
-                null,
-                "/test",
-                null,
-                "",
-                securityHolder,
-                null,
-                null,
-                null,
-                transactionManager,
-                connectionTrackingCoordinator,
-                container,
-                runAsSource,
-                securityHolder == null? null: securityHolder.getConfigurationFactory(),
-                tomcatRealm,
-                null,
-                valveChain,
-                null,
-                null,
-                null,
-                false,
-                null,
-                false,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                contextSource,
-                null,
-                null);
+        Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
+        deploymentAttributes.put(WebAttributeName.META_COMPLETE.name(), Boolean.TRUE);
+        deploymentAttributes.put(WebAttributeName.SCHEMA_VERSION.name(), 3.0f);
+        TomcatWebAppContext app = new TomcatWebAppContext(cl, //classLoader
+                bundle, //bundle
+                null,   //objectName
+                "/test",    //contextPath
+                null,   //originalSpecDD
+                "", //modulePath
+                securityHolder, //securityHolder
+                null,   //virtualServer
+                null,   //unshareableResources
+                null,   //applicationManagedSecurityResources
+                transactionManager, //transactionManager
+                connectionTrackingCoordinator,  //trackedConnectionAssociator
+                container,  //container
+                runAsSource,    //runAsSource
+                securityHolder == null? null: securityHolder.getConfigurationFactory(), //configurationFactory
+                tomcatRealm,    //tomcatRealm
+                null,   //clusteredValveRetriever
+                valveChain, //tomcatValveChain
+                null,   //lifecycleListenerChain
+                null,   //cluster
+                null,   //managerRetriever
+                false,  //crossContext
+                null,   //workDir
+                false,  //disableCookies
+                null,   //displayName
+                null,   //webServices
+                null,   //holder
+                null,   //contextCustomizer
+                null,   //server
+                null,   //application
+                contextSource,  //contextSource
+                (ApplicationPolicyConfigurationManager)runAsSource,   //applicationPolicyConfigurationManager
+                null,   //listenerClassNames
+                deploymentAttributes, //Map<String, String> deploymentAttributes
+                null);  //kernel
         app.doStart();
         return app;
     }

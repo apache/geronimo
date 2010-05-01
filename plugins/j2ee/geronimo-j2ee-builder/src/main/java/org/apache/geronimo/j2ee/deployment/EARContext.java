@@ -64,13 +64,13 @@ public class EARContext extends DeploymentContext {
                       AbstractNameQuery connectionTrackerObjectName,
                       AbstractNameQuery corbaGBeanObjectName
     ) throws DeploymentException {
-        this(baseDir, 
-             inPlaceConfigurationDir, 
-             environment, 
-             moduleType, 
-             naming, 
-             configurationManager, 
-             bundleContext, 
+        this(baseDir,
+             inPlaceConfigurationDir,
+             environment,
+             moduleType,
+             naming,
+             configurationManager,
+             bundleContext,
              serverName,
              baseName,
              transactionManagerObjectName,
@@ -78,7 +78,7 @@ public class EARContext extends DeploymentContext {
              corbaGBeanObjectName,
              new HashMap());
     }
-    
+
     public EARContext(File baseDir,
                       File inPlaceConfigurationDir,
                       Environment environment,
@@ -128,7 +128,7 @@ public class EARContext extends DeploymentContext {
         this.messageDestinations  = new HashMap();
     }
 
-    // For sub-classes only     
+    // For sub-classes only
     protected EARContext(File baseDir,
                          File inPlaceConfigurationDir,
                          Environment environment,
@@ -143,7 +143,7 @@ public class EARContext extends DeploymentContext {
                          AbstractNameQuery connectionTrackerObjectName,
                          AbstractNameQuery corbaGBeanObjectName,
                          Map messageDestinations) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, 
+        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming,
               configurationManager, resourceContext, bundleContext);
 
         this.serverName = serverName;
@@ -152,7 +152,7 @@ public class EARContext extends DeploymentContext {
         this.corbaGBeanObjectName = corbaGBeanObjectName;
         this.messageDestinations = messageDestinations;
     }
-    
+
     public AbstractNameQuery getServerName() {
         return serverName;
     }
@@ -238,4 +238,11 @@ public class EARContext extends DeploymentContext {
         }
     };
 
+    public static final Key<AbstractName> JACC_MANAGER_NAME_KEY = new Key<AbstractName>() {
+
+        @Override
+        public AbstractName get(Map<Key, Object> context) {
+            return (AbstractName) context.get(this);
+        }
+    };
 }

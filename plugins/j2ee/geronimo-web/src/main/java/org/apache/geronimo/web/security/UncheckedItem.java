@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.web25.deployment.security;
+package org.apache.geronimo.web.security;
 
 /**
  * @version $Rev$ $Date$

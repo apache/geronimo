@@ -17,9 +17,13 @@
 
 package org.apache.geronimo.web25.deployment.merge;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -30,6 +34,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 
+import javax.servlet.ServletContainerInitializer;
+import javax.servlet.annotation.HandlesTypes;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.annotation.WebServlet;
@@ -38,11 +44,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.xbean.finder.BundleAnnotationFinder;
-import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
-import org.apache.xbean.osgi.bundle.util.DiscoveryFilter;
-import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
-import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web25.deployment.merge.annotation.AnnotationMergeHandler;
 import org.apache.geronimo.web25.deployment.merge.annotation.ServletSecurityAnnotationMergeHandler;
@@ -86,6 +88,14 @@ import org.apache.geronimo.xbeans.javaee6.OrderingType;
 import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.geronimo.xbeans.javaee6.WebFragmentDocument;
 import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.xbean.finder.BundleAnnotationFinder;
+import org.apache.xbean.osgi.bundle.util.BundleClassFinder;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
+import org.apache.xbean.osgi.bundle.util.ClassDiscoveryFilter;
+import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
+import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
+import org.apache.xmlbeans.XmlException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -172,8 +182,7 @@ public class MergeHelper {
             }
             // EXCLUDED_JAR_URLS is required for TLD scanning, ServletContainerInitializer scanning and ServletContextListeners.
             // So does it mean that we always need to scan web-fragment.xml whatever meta-complete is set with true or false.
-            List<String> excludedURLs = new ArrayList<String>();
-            earContext.getGeneralData().put(AbstractWebModuleBuilder.EXCLUDED_JAR_URLS, excludedURLs);
+            Set<String> excludedURLs = AbstractWebModuleBuilder.EXCLUDED_JAR_URLS.get(earContext.getGeneralData());
             //Add left named web-fragment.xml file URLs to the EXCLUDED_JAR_URLS List
             for (String foundedWebFragementName : webFragmentEntryMap.keySet()) {
                 if (!expliciteConfiguredWebFragmentNames.contains(foundedWebFragementName)) {
@@ -188,7 +197,7 @@ public class MergeHelper {
     public static void mergeAnnotations(Bundle bundle, WebAppType webApp, MergeContext mergeContext, final String prefix) throws DeploymentException {
         final boolean isJarFile = prefix.endsWith(".jar");
         try {
-            BundleAnnotationFinder bundleAnnotationFinder = new BundleAnnotationFinder(null, bundle, new DiscoveryFilter() {
+            BundleAnnotationFinder bundleAnnotationFinder = new BundleAnnotationFinder(null, bundle, new ResourceDiscoveryFilter() {
 
                 @Override
                 public boolean directoryDiscoveryRequired(String url) {
@@ -248,11 +257,9 @@ public class MergeHelper {
 
     public static void processServletContainerInitializer(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         //ServletContainerInitializer
-        //TODO A possible solution might be create ServletContainerInitializer GBean for each found ServletContainerInitializer,
-        //The GBean would contain all the matched classes according the configuration of HandlesTypes annotation
-        //then check the specific API of Tomcat/Jetty, which could be used to regiester them to the servlet container
-        //That is for web application scope, how about the server scope ?
         ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
+        final Set<String> excludedJarNames = AbstractWebModuleBuilder.EXCLUDED_JAR_URLS.get(earContext.getGeneralData());
+        final Set<String> servletContainerInitializers = new HashSet<String>();
         try {
             PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
             BundleResourceFinder resourceFinder = new BundleResourceFinder(packageAdmin, bundle, "META-INF/services", "javax.servlet.ServletContainerInitializer");
@@ -263,8 +270,78 @@ public class MergeHelper {
                 }
 
                 public void foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception {
+                    if (!excludedJarNames.contains(jarName)) {
+                        BufferedReader bufferedReader = null;
+                        try {
+                            bufferedReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+                            String servletContainerInitializer = null;
+                            while ((servletContainerInitializer = bufferedReader.readLine()) != null) {
+                                servletContainerInitializer = servletContainerInitializer.trim();
+                                if (!servletContainerInitializer.isEmpty()) {
+                                    servletContainerInitializers.add(servletContainerInitializer);
+                                }
+                            }
+                        } catch (IOException e) {
+                            logger.warn("Fail to scan META-INF/services/javax.servlet.ServletContainerInitializer", e);
+                        } finally {
+                            IOUtils.close(bufferedReader);
+                        }
+                    }
                 }
             });
+            //TODO we might need to change to ASM
+            BundleClassFinder bundleClassFinder = new BundleClassFinder(packageAdmin, bundle, new ClassDiscoveryFilter() {
+
+                @Override
+                public boolean directoryDiscoveryRequired(String directory) {
+                    return true;
+                }
+
+                @Override
+                public boolean jarFileDiscoveryRequired(String jarUrl) {
+                    return !excludedJarNames.contains(jarUrl);
+                }
+
+                @Override
+                public boolean packageDiscoveryRequired(String packageName) {
+                    return true;
+                }
+
+                @Override
+                public boolean rangeDiscoveryRequired(DiscoveryRange discoveryRange) {
+                    return discoveryRange.equals(DiscoveryRange.BUNDLE_CLASSPATH);
+                }
+            });
+            Map<String, Set<String>> servletContainerInitializerClassNamesMap = new HashMap<String, Set<String>>();
+            List<Class> allAvailbleClasses = bundleClassFinder.loadClasses(bundleClassFinder.find());
+            for (String servletContainerInitializer : servletContainerInitializers) {
+                Class<?> servletContainerInitializerClass = null;
+                try {
+                    servletContainerInitializerClass = bundle.loadClass(servletContainerInitializer);
+                } catch (Exception e) {
+                    logger.warn("Fail to load ServletContainerInitializer class " + servletContainerInitializer, e);
+                }
+                if (!ServletContainerInitializer.class.isAssignableFrom(servletContainerInitializerClass)) {
+                    logger.warn("Class " + servletContainerInitializer + " does not implement ServletContainerInitializer interface, ignored");
+                    continue;
+                }
+                HandlesTypes handlesTypes = servletContainerInitializerClass.getAnnotation(HandlesTypes.class);
+                if (handlesTypes == null || handlesTypes.value().length == 0) {
+                    servletContainerInitializerClassNamesMap.put(servletContainerInitializer, null);
+                    continue;
+                }
+                Set<String> acceptedClassNames = new HashSet<String>();
+                for (Class candidateClass : allAvailbleClasses) {
+                    for (Class expectedClass : handlesTypes.value()) {
+                        if (expectedClass.isAssignableFrom(candidateClass)) {
+                            acceptedClassNames.add(candidateClass.getName());
+                            break;
+                        }
+                    }
+                }
+                servletContainerInitializerClassNamesMap.put(servletContainerInitializer, acceptedClassNames.size() > 0 ? acceptedClassNames : null);
+            }
+            earContext.getGeneralData().put(AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS, servletContainerInitializerClassNamesMap);
         } catch (Exception e) {
             throw new DeploymentException("Fail to scan javax.servlet.ServletContainerInitializer", e);
         } finally {
@@ -273,32 +350,48 @@ public class MergeHelper {
     }
 
     public static void processWebFragmentsAndAnnotations(EARContext earContext, Module module, Bundle bundle, WebAppType webApp) throws DeploymentException {
-        BundleResourceFinder bundleResourceFinder = new BundleResourceFinder(null, bundle, "META-INF/", "web-fragment.xml");
         final Map<String, WebFragmentDocument> jarUrlWebFragmentDocumentMap = new LinkedHashMap<String, WebFragmentDocument>();
-        final String validJarNamePrefix = module.isStandAlone() ? "WEB-INF" : module.getName() + "/WEB-INF";
-        try {
-            bundleResourceFinder.find(new ResourceFinderCallback() {
-
-                public void foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception {
-                }
-
-                public void foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Found web-fragment.xml in jarName = [" + jarName + "] jarURL = [" + bundle.getEntry(jarName) + "]");
-                    }
-                    if (jarName.startsWith(validJarNamePrefix) && jarName.endsWith(".jar")) {
-                        WebFragmentDocument webFragmentDocument = (WebFragmentDocument) XmlBeansUtil.parse(in);
+        final String validJarNamePrefix = module.isStandAlone() ? "WEB-INF/lib" : module.getName() + "/WEB-INF/lib";
+        for (Enumeration<String> enumeration = bundle.getEntryPaths(validJarNamePrefix); enumeration.hasMoreElements();) {
+            String url = enumeration.nextElement();
+            if (url.endsWith(".jar")) {
+                URL webFragmentUrl = bundle.getEntry(url + "/META-INF/web-fragment.xml");
+                WebFragmentDocument webFragmentDocument = null;
+                if (webFragmentUrl != null) {
+                    InputStream in = null;
+                    try {
+                        in = webFragmentUrl.openStream();
+                        webFragmentDocument = (WebFragmentDocument) XmlBeansUtil.parse(in);
                         //Hopefully, XmlBeansUtil should help to check most of errors against the schema files, like none null servlet-name etc.
                         XmlBeansUtil.validateDD(webFragmentDocument);
-                        jarUrlWebFragmentDocumentMap.put(jarName, webFragmentDocument);
+                    } catch (IOException e) {
+                        logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
+                        throw new DeploymentException("Fail to scan web-fragment.xml files", e);
+                    } catch (XmlException e) {
+                        logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
+                        throw new DeploymentException("Fail to scan web-fragment.xml files", e);
+                    } finally {
+                        IOUtils.close(in);
                     }
+                } else {
+                    webFragmentDocument = WebFragmentDocument.Factory.newInstance();
+                    webFragmentDocument.setWebFragment(WebFragmentType.Factory.newInstance());
                 }
-            });
-        } catch (Exception e) {
-            logger.error("Fail to scan web-fragment.xml files", e);
-            throw new DeploymentException("Fail to scan web-fragment.xml files", e);
+                jarUrlWebFragmentDocumentMap.put(url, webFragmentDocument);
+            }
         }
         WebFragmentEntry[] webFragmentEntries = sortWebFragments(earContext, module, bundle, webApp, jarUrlWebFragmentDocumentMap);
+        //Save ORDERED_LIBS Attribute
+        List<String> orderedLibs = new ArrayList<String>();
+        for (WebFragmentEntry webFragmentEntry : webFragmentEntries) {
+            String jarURL = webFragmentEntry.getJarURL();
+            int iBeginIndex = jarURL.indexOf("WEB-INF/");
+            if (iBeginIndex > 0) {
+                orderedLibs.add(jarURL.substring(iBeginIndex + 8));
+            }
+        }
+        earContext.getGeneralData().put(AbstractWebModuleBuilder.ORDERED_LIBS, orderedLibs);
+        //
         MergeContext mergeContext = new MergeContext();
         mergeContext.setEarContext(earContext);
         mergeContext.setBundle(bundle);

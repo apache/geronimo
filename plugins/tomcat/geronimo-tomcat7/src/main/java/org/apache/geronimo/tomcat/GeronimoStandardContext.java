@@ -18,25 +18,31 @@ package org.apache.geronimo.tomcat;
 
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.Servlet;
+import javax.servlet.ServletContainerInitializer;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.apache.catalina.Container;
+import org.apache.catalina.ContainerListener;
+import org.apache.catalina.Globals;
+import org.apache.catalina.InstanceListener;
+import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Loader;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
-import org.apache.catalina.InstanceListener;
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.ContainerListener;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.core.StandardContext;
@@ -49,15 +55,18 @@ import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.RunAsSource;
+import org.apache.geronimo.tomcat.core.GeronimoApplicationContext;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.UserTransactionBeforeAfter;
 import org.apache.geronimo.tomcat.listener.DispatchListener;
+import org.apache.geronimo.tomcat.listener.JACCSecurityLifecycleListener;
 import org.apache.geronimo.tomcat.listener.RunAsInstanceListener;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
 import org.apache.geronimo.tomcat.valve.ProtectedTargetValve;
+import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
@@ -112,27 +121,69 @@ public class GeronimoStandardContext extends StandardContext {
 
         //try to make sure this mbean properties match those of the TomcatWebAppContext
         if (ctx instanceof TomcatWebAppContext) {
-            TomcatWebAppContext tctx = (TomcatWebAppContext) ctx;
-            setJavaVMs(tctx.getJavaVMs());
-            setServer(tctx.getServer());
-            setJ2EEApplication(tctx.getJ2EEApplication());
-            setJ2EEServer(tctx.getJ2EEServer());
+            TomcatWebAppContext tomcatWebAppContext = (TomcatWebAppContext) ctx;
+            setJavaVMs(tomcatWebAppContext.getJavaVMs());
+            setServer(tomcatWebAppContext.getServer());
+            setJ2EEApplication(tomcatWebAppContext.getJ2EEApplication());
+            setJ2EEServer(tomcatWebAppContext.getJ2EEServer());
             //install jasper injection support if required
-            if (tctx.getRuntimeCustomizer() != null) {
+            if (tomcatWebAppContext.getRuntimeCustomizer() != null) {
                 Map<String, Object> servletContext = new HashMap<String, Object>();
                 Map<Class, Object> customizerContext = new HashMap<Class, Object>();
                 customizerContext.put(Map.class, servletContext);
                 customizerContext.put(javax.naming.Context.class, enc);
-                tctx.getRuntimeCustomizer().customize(customizerContext);
+                tomcatWebAppContext.getRuntimeCustomizer().customize(customizerContext);
                 for (Map.Entry<String, Object> entry: servletContext.entrySet()) {
                     getServletContext().setAttribute(entry.getKey(), entry.getValue());
                 }
             }
-            if (tctx.getSecurityHolder() != null) {
-                configurationFactory = tctx.getSecurityHolder().getConfigurationFactory();
+            if (tomcatWebAppContext.getSecurityHolder() != null) {
+                configurationFactory = tomcatWebAppContext.getSecurityHolder().getConfigurationFactory();
+
+                //Add JACCSecurityLifecycleListener, it will calculate the security configurations when web module is initialized
+                addJACCSecurityLifecycleListener(tomcatWebAppContext);
             }
 
-            getServletContext().setAttribute(InstanceManager.class.getName(), ctx.getInstanceManager());
+            ServletContext servletContext = getServletContext();
+            servletContext.setAttribute(InstanceManager.class.getName(), ctx.getInstanceManager());
+
+            //Set some attributes passed from the deployment process
+            List<String> orderedLists = (List<String>) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.ORDERED_LIBS.name());
+            if (orderedLists != null) {
+                servletContext.setAttribute(ServletContext.ORDERED_LIBS, Collections.unmodifiableList(orderedLists));
+            }
+            //Set ServletContainerInitializer
+            Map<String, Set<String>> servletContainerInitializerClassNamesMap = (Map<String, Set<String>>) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.SERVLET_CONTAINER_INITIALIZERS
+                    .name());
+            Bundle bundle = tomcatWebAppContext.getBundle();
+            if (servletContainerInitializerClassNamesMap != null) {
+                for (Map.Entry<String, Set<String>> entry : servletContainerInitializerClassNamesMap.entrySet()) {
+                    String servletContainerInitializerClassName = entry.getKey();
+                    Set<String> classNames = entry.getValue();
+                    try {
+                        ServletContainerInitializer servletContainerInitializer = (ServletContainerInitializer) bundle.loadClass(servletContainerInitializerClassName).newInstance();
+                        if (classNames == null || classNames.size() == 0) {
+                            addServletContainerInitializer(servletContainerInitializer, null);
+                        } else {
+                            Set<Class<?>> classSet = new HashSet<Class<?>>();
+                            for (String cls : classNames) {
+                                try {
+                                    classSet.add(bundle.loadClass(cls));
+                                } catch (ClassNotFoundException e) {
+                                    logger.warn("Fail to load class " + cls + " interested by ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                                }
+                            }
+                            addServletContainerInitializer(servletContainerInitializer, classSet);
+                        }
+                    } catch (IllegalAccessException e) {
+                        logger.error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                    } catch (InstantiationException e) {
+                        logger.error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                    } catch (ClassNotFoundException e) {
+                        logger.error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                    }
+                }
+            }
         }
 
         int index = 0;
@@ -235,6 +286,13 @@ public class GeronimoStandardContext extends StandardContext {
         if (runAsSource != null) {
             this.addInstanceListener(RunAsInstanceListener.class.getName());
         }
+    }
+
+    private void addJACCSecurityLifecycleListener(TomcatWebAppContext tomcatWebAppContext) throws DeploymentException {
+        float schemaVersion = (Float) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.SCHEMA_VERSION.name());
+        boolean metaComplete = (Boolean) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.META_COMPLETE.name());
+        addLifecycleListener(new JACCSecurityLifecycleListener(bundle, schemaVersion >= 2.5f && !metaComplete, tomcatWebAppContext.getApplicationPolicyConfigurationManager(), tomcatWebAppContext
+                .getSecurityHolder().getPolicyContextID()));
     }
 
     private final Object instanceListenersLock = new Object();
@@ -490,6 +548,21 @@ public class GeronimoStandardContext extends StandardContext {
         };
 
         super.setLoader(loader);
+    }
+
+
+    @Override
+    public ServletContext getServletContext() {
+        if (context == null) {
+            context = new GeronimoApplicationContext(this);
+            if (getAltDDName() != null)
+                context.setAttribute(Globals.ALT_DD_ATTR, getAltDDName());
+        }
+        return super.getServletContext();
+    }
+
+    public ServletContext getInternalServletContext() {
+        return context;
     }
 
     private class SystemMethodValve extends ValveBase {

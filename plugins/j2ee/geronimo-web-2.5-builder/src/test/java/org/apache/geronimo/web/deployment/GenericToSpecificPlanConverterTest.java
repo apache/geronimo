@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.schema.ElementConverter;
 import org.apache.geronimo.schema.NamespaceElementConverter;

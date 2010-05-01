@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.web25.deployment.security;
+package org.apache.geronimo.web.security;
 
 import java.net.URL;
 
@@ -35,12 +35,10 @@ public class SecurityConfigTest extends TestSupport {
     private XmlOptions options = new XmlOptions();
 
     public void testNoSecConstraint() throws Exception {
-        URL srcXml = classLoader.getResource("deployables/war3/WEB-INF/web.xml");
+        URL srcXml = classLoader.getResource("security/web-nosecurity.xml");
         WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
         WebAppType webApp = webAppDoc.getWebApp();
-        SpecSecurityBuilder builder = new SpecSecurityBuilder();
-        ComponentPermissions componentPermissions = builder.buildSpecSecurityConfig(webApp);
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp);
+        ComponentPermissions componentPermissions = builder.buildSpecSecurityConfig();
     }
-
-
 }

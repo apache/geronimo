@@ -17,13 +17,11 @@
 
 package org.apache.geronimo.tomcat;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,8 +33,6 @@ import javax.naming.directory.DirContext;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
-import org.apache.tomcat.InstanceManager;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Manager;
@@ -44,16 +40,14 @@ import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.ha.CatalinaCluster;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -66,9 +60,9 @@ import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
-import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
+import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
@@ -76,8 +70,10 @@ import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
 import org.apache.naming.resources.DirContextURLStreamHandler;
-
+import org.apache.tomcat.InstanceManager;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -124,6 +120,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final RuntimeCustomizer contextCustomizer;
     private final Collection<String> listeners;
     private String displayName;
+    private Map<String, Object> deploymentAttributes;
+    private ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
 
     // JSR 77
     private final String j2EEServer;
@@ -167,7 +165,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamReference(name = "J2EEServer") J2EEServer server,
             @ParamReference(name = "J2EEApplication") J2EEApplication application,
             @ParamReference(name = "ContextSource") ContextSource contextSource,
+            @ParamReference(name = "applicationPolicyConfigurationManager") ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager,
             @ParamAttribute(name = "listenerClassNames") Collection<String> listenerClassNames,
+            @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes,
             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel)
             throws Exception {
         assert classLoader != null;
@@ -184,6 +184,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
 
         this.objectName = objectName;
+        this.deploymentAttributes = deploymentAttributes;
 //        URI root;
 ////        TODO is there a simpler way to do this?
 //        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
@@ -207,6 +208,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
+        this.applicationPolicyConfigurationManager = applicationPolicyConfigurationManager;
 
         this.server = server;
         if (securityHolder != null) {
@@ -255,7 +257,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         } else {
             listenerChain = null;
         }
-        
+
         //Add the cluster
         if (cluster != null) {
             catalinaCluster = (CatalinaCluster) cluster.getInternalObject();
@@ -307,6 +309,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             }
         }
         return webServices;
+    }
+
+    public ApplicationPolicyConfigurationManager getApplicationPolicyConfigurationManager() {
+        return applicationPolicyConfigurationManager;
     }
 
     public String getObjectName() {
@@ -475,7 +481,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public Collection<String> getListeners() {
         return listeners;
     }
-    
+
     public String getDisplayName() {
         return displayName;
     }
@@ -484,6 +490,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.displayName = displayName;
     }
 
+    public Object getDeploymentAttribute(String name) {
+        return deploymentAttributes.get(name);
+    }
     /**
      * ObjectName must match this pattern: <p/>
      * domain:j2eeType=WebModule,name=MyName,J2EEServer=MyServer,J2EEApplication=MyApplication

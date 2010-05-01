@@ -47,8 +47,8 @@ public class DistributableMergeHandler implements WebFragmentMergeHandler<WebFra
             }
         } else {
             if (distributableInWebXml) {
-                for (int i = 0; i < webApp.getDistributableArray().length; i++) {
-                    webApp.removeDistributable(i);
+                for (int i = 0, iLoopSize = webApp.getDistributableArray().length; i < iLoopSize; i++) {
+                    webApp.removeDistributable(0);
                 }
             }
         }

@@ -21,9 +21,9 @@
 package org.apache.geronimo.web25.deployment.security;
 
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiAuthModuleType;
-import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthContextType;
-import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthConfigType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiConfigProviderType;
+import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthConfigType;
+import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthContextType;
 
 /**
  * Wrapper interface for jetty and tomcat Authentication elemens.  Need jaxb :-)

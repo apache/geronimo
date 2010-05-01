@@ -84,7 +84,6 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
@@ -129,6 +128,7 @@ import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.geronimo.xbeans.javaee6.WelcomeFileListType;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -259,7 +259,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             try {
                 specDD = JarUtils.readAll(specDDUrl);
                 XmlObject parsed = XmlBeansUtil.parse(specDD);
-                WebAppDocument webAppDoc = convertToServletSchema(parsed);
+                WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
                 webApp = webAppDoc.getWebApp();
                 WebDeploymentValidationUtils.validateWebApp(webApp);
             } catch (XmlException e) {
@@ -301,7 +301,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         if (name == null) {
             name = bundle.getSymbolicName();
         }
-        
+
         WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextPath, JETTY_NAMESPACE, annotatedWebApp);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, bundle, naming, idBuilder);
@@ -328,7 +328,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             // we found web.xml, if it won't parse that's an error.
             XmlObject parsed = XmlBeansUtil.parse(specDD);
-            WebAppDocument webAppDoc = convertToServletSchema(parsed);
+            WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
             webApp = webAppDoc.getWebApp();
             WebDeploymentValidationUtils.validateWebApp(webApp);
         } catch (XmlException e) {
@@ -392,7 +392,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 name = FileUtils.removeExtension(targetPath, ".war");
             }
         }
-        
+
         WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextRoot, JETTY_NAMESPACE, annotatedWebApp);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
@@ -635,7 +635,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             addServlets(moduleName, webModule, servletTypes, servletMappings, moduleContext);
 
             if (jettyWebApp.isSetSecurityRealmName()) {
-                configureSecurityRealm(earContext, webApp, jettyWebApp, webModuleData);
+                configureSecurityRealm(earContext, webApp, jettyWebApp, bundle, webModuleData);
             }
 
             //See Jetty-386, GERONIMO-3738
@@ -677,7 +677,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 //        moduleContext.addGBean(beanData);
     }
 
-    private void configureSecurityRealm(EARContext earContext, WebAppType webApp, JettyWebAppType jettyWebApp, GBeanData webModuleData) throws DeploymentException {
+    private void configureSecurityRealm(EARContext earContext, WebAppType webApp, JettyWebAppType jettyWebApp, Bundle bundle, GBeanData webModuleData) throws DeploymentException {
         AbstractName moduleName = webModuleData.getAbstractName();
         if (earContext.getSecurityConfiguration() == null) {
             throw new DeploymentException(
@@ -694,9 +694,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         //String policyContextID = webModuleName.getCanonicalName();
         webModuleData.setAttribute("policyContextID", policyContextID);
 
-        ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp);
 
+        ComponentPermissions componentPermissions = buildSpecSecurityConfig(earContext, webApp, bundle);
         earContext.addSecurityContext(policyContextID, componentPermissions);
+
     }
 
     private void addDefaultServletsGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, Set knownServletMappings) throws GBeanNotFoundException, GBeanAlreadyExistsException {

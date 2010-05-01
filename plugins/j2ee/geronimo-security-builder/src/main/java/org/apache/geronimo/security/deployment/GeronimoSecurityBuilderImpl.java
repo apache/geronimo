@@ -144,7 +144,7 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
     }
 
     //MBE methods
-    public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {        
+    public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
     }
 
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -230,10 +230,10 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
             jaccBeanData.setReferencePattern("PrincipalRoleMapper", roleMapperDataName);
             try {
                 earContext.addGBean(jaccBeanData);
+                earContext.getGeneralData().put(EARContext.JACC_MANAGER_NAME_KEY, jaccBeanData.getAbstractName());
             } catch (GBeanAlreadyExistsException e) {
                 throw new DeploymentException("JACC manager gbean already present", e);
             }
-//            earContext.setJaccManagerName(jaccBeanData.getAbstractName());
         }
     }
 

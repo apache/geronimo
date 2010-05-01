@@ -27,10 +27,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -84,15 +86,14 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jaspi.AuthConfigProviderGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthConfigGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthContextGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
+import org.apache.geronimo.web.security.SpecSecurityBuilder;
 import org.apache.geronimo.web25.deployment.merge.MergeHelper;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
-import org.apache.geronimo.web25.deployment.security.SpecSecurityBuilder;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.geronimo.xbeans.javaee6.FilterType;
 import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
@@ -100,12 +101,10 @@ import org.apache.geronimo.xbeans.javaee6.ListenerType;
 import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
 import org.apache.geronimo.xbeans.javaee6.ServletType;
 import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
 import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.osgi.framework.Bundle;
@@ -137,19 +136,24 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     };
 
-    public static final EARContext.Key<List<String>> EXCLUDED_JAR_URLS = new EARContext.Key<List<String>>() {
+    public static final EARContext.Key<Set<String>> EXCLUDED_JAR_URLS = new EARContext.Key<Set<String>>() {
 
         @Override
-        public List<String> get(Map<EARContext.Key, Object> context) {
-            return (List<String>) context.get(this);
+        public Set<String> get(Map<EARContext.Key, Object> context) {
+            Set<String> excludedJarUrls = (Set<String>) context.get(this);
+            if (excludedJarUrls == null) {
+                excludedJarUrls = new HashSet<String>();
+                context.put(this, excludedJarUrls);
+            }
+            return excludedJarUrls;
         }
     };
 
-    public static final EARContext.Key<Boolean> EXCLUDED_ANNOTATION_SCAN_JAR_URLS = new EARContext.Key<Boolean>() {
+    public static final EARContext.Key<Map<String, Set<String>>> SERVLET_CONTAINER_INITIALIZERS = new EARContext.Key<Map<String, Set<String>>>() {
 
         @Override
-        public Boolean get(Map<EARContext.Key, Object> context) {
-            return (Boolean) context.get(this);
+        public Map<String, Set<String>> get(Map<EARContext.Key, Object> context) {
+            return (Map<String, Set<String>>) context.get(this);
         }
     };
 
@@ -161,7 +165,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     };
 
-    private static final QName TAGLIB = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "taglib");
+    public static final EARContext.Key<List<String>> ORDERED_LIBS = new EARContext.Key<List<String>> () {
+        @Override
+        public List<String> get(Map<EARContext.Key, Object> context) {
+            return (List<String>) context.get(this);
+        }
+    };
 
     private static final String LINE_SEP = System.getProperty("line.separator");
 
@@ -427,11 +436,21 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         getNamingBuilders().buildEnvironment(webApp, webModule.getVendorDD(), webModule.getEnvironment());
         getNamingBuilders().initContext(webApp, gerWebApp, webModule);
 
-        identifySpecDDSchemaVersion(earContext, module);
+        float originalSpecDDVersion;
+        String originalSpecDD = module.getOriginalSpecDD();
+        if (originalSpecDD == null) {
+            originalSpecDDVersion = 3.0f;
+        } else {
+            originalSpecDDVersion = identifySpecDDSchemaVersion(originalSpecDD);
+        }
+        earContext.getGeneralData().put(INITIAL_WEB_XML_SCHEMA_VERSION, originalSpecDDVersion);
         //Process web fragments and annotations
         if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f && !webApp.getMetadataComplete()) {
             MergeHelper.processWebFragmentsAndAnnotations(earContext, webModule, bundle, webApp);
         }
+        //TODO From my understanding, whether we scan ServletContainerInitializer has nothing to do with meta-complete/web.xml schema version
+        //Might need double-check !
+        MergeHelper.processServletContainerInitializer(earContext, webModule, bundle);
 
         //Process Web Service
         Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) webModule.getSpecDD(), webModule.getContextRoot());
@@ -465,139 +484,50 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return writer.toString();
     }
 
-    protected WebAppDocument convertToServletSchema(XmlObject xmlObject) throws XmlException {
-        String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd";
-        String version = "3.0";
-        XmlCursor cursor = xmlObject.newCursor();
-        try {
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            String nameSpaceURI = cursor.getName().getNamespaceURI();
-            if ("http://java.sun.com/xml/ns/javaee".equals(nameSpaceURI) || "http://java.sun.com/xml/ns/j2ee".equals(nameSpaceURI)) {
-                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
-                XmlObject result = xmlObject.changeType(WebAppDocument.type);
-                XmlBeansUtil.validateDD(result);
-                return (WebAppDocument) result;
-            }
-            //otherwise assume DTD
-            XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
-            String publicId = xmlDocumentProperties.getDoctypePublicId();
-            boolean is22 = "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId);
-            if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId) || is22) {
-                XmlCursor moveable = xmlObject.newCursor();
-                try {
-                    moveable.toStartDoc();
-                    moveable.toFirstChild();
-                    SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
-                    cursor.toStartDoc();
-                    cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "web-app");
-                    cursor.toFirstChild();
-                    SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                    SchemaConversionUtils.convertToJNDIEnvironmentRefsGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                    cursor.push();
-                    if (cursor.toNextSibling(TAGLIB)) {
-                        cursor.toPrevSibling();
-                        moveable.toCursor(cursor);
-                        cursor.beginElement("jsp-config", SchemaConversionUtils.JAVAEE_NAMESPACE);
-                        while (moveable.toNextSibling(TAGLIB)) {
-                            moveable.moveXml(cursor);
-                        }
-                    }
-                    cursor.pop();
-                    do {
-                        String name = cursor.getName().getLocalPart();
-                        if ("filter".equals(name) || "servlet".equals(name) || "context-param".equals(name)) {
-                            cursor.push();
-                            cursor.toFirstChild();
-                            SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                            while (cursor.toNextSibling(SchemaConversionUtils.JAVAEE_NAMESPACE, "init-param")) {
-                                cursor.push();
-                                cursor.toFirstChild();
-                                SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                                cursor.pop();
-                            }
-                            cursor.pop();
-                            cursor.push();
-                            if (cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "jsp-file")) {
-                                String jspFile = cursor.getTextValue();
-                                if (!jspFile.startsWith("/")) {
-                                    if (is22) {
-                                        cursor.setTextValue("/" + jspFile);
-                                    } else {
-                                        throw new XmlException("jsp-file does not start with / and this is not a 2.2 web app: " + jspFile);
-                                    }
-                                }
-                            }
-                            cursor.pop();
-                        }
-                    } while (cursor.toNextSibling());
-                } finally {
-                    moveable.dispose();
-                }
-            }
-        } finally {
-            cursor.dispose();
-        }
-        XmlObject result = xmlObject.changeType(WebAppDocument.type);
-        if (result != null) {
-            XmlBeansUtil.validateDD(result);
-            return (WebAppDocument) result;
-        }
-        XmlBeansUtil.validateDD(xmlObject);
-        return (WebAppDocument) xmlObject;
-    }
-
     /**
      * Identify the spec DD schema version, and save it in the EARContext
      * @param xmlObject
      * @param earContext
      */
-    private void identifySpecDDSchemaVersion(EARContext earContext, Module module) throws DeploymentException {
-        String originalSpecDD = module.getOriginalSpecDD();
+    private float identifySpecDDSchemaVersion(String originalSpecDD) {
         float schemaVersion = 0f;
-        if (originalSpecDD == null) {
-            schemaVersion = 3.0f;
-        } else {
-            XmlCursor cursor = null;
-            try {
-                cursor = XmlBeansUtil.parse(originalSpecDD).newCursor();
-                cursor.toStartDoc();
-                cursor.toFirstChild();
-                String nameSpaceURI = cursor.getName().getNamespaceURI();
-                if (nameSpaceURI != null && nameSpaceURI.length() > 0) {
-                    String version = cursor.getAttributeText(new QName("", "version"));
-                    if (version != null) {
-                        schemaVersion = Float.parseFloat(version);
-                    }
-                } else {
-                    XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
-                    String publicId = xmlDocumentProperties.getDoctypePublicId();
-                    if ("-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) {
-                        schemaVersion = 2.2f;
-                    } else if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId)) {
-                        schemaVersion = 2.3f;
-                    }
+        XmlCursor cursor = null;
+        try {
+            cursor = XmlBeansUtil.parse(originalSpecDD).newCursor();
+            cursor.toStartDoc();
+            cursor.toFirstChild();
+            String nameSpaceURI = cursor.getName().getNamespaceURI();
+            if (nameSpaceURI != null && nameSpaceURI.length() > 0) {
+                String version = cursor.getAttributeText(new QName("", "version"));
+                if (version != null) {
+                    schemaVersion = Float.parseFloat(version);
                 }
-            } catch (Exception e) {
-                throw new DeploymentException(e);
-            } finally {
-                if (cursor != null) {
-                    try {
-                        cursor.dispose();
-                    } catch (Exception e) {
-                    }
+            } else {
+                XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
+                String publicId = xmlDocumentProperties.getDoctypePublicId();
+                if ("-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) {
+                    schemaVersion = 2.2f;
+                } else if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId)) {
+                    schemaVersion = 2.3f;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Fail to identify web.xml schema version", e);
+            //Should never happen, as we have checked the deployment plan  in the previous code
+        } finally {
+            if (cursor != null) {
+                try {
+                    cursor.dispose();
+                } catch (Exception e) {
                 }
             }
         }
-        if (schemaVersion == 0f) {
-            throw new DeploymentException("Unrecongnized schema version in web.xml file");
-        }
-        earContext.getGeneralData().put(INITIAL_WEB_XML_SCHEMA_VERSION, schemaVersion);
+        return schemaVersion;
     }
 
-    protected ComponentPermissions buildSpecSecurityConfig(WebAppType webApp) {
-        SpecSecurityBuilder builder = new SpecSecurityBuilder();
-        return builder.buildSpecSecurityConfig(webApp);
+    protected ComponentPermissions buildSpecSecurityConfig(EARContext earContext, WebAppType webApp, Bundle bundle) {
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp, bundle, INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f && !webApp.getMetadataComplete());
+        return builder.buildSpecSecurityConfig();
     }
 
     protected void configureLocalJaspicProvider(AuthenticationWrapper authType, String contextPath, Module module, GBeanData securityFactoryData) throws DeploymentException,

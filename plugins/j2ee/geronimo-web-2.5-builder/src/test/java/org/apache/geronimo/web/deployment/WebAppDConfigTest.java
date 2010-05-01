@@ -26,6 +26,7 @@ import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.deployment.tools.loader.WebDeployable;
 import org.apache.geronimo.kernel.osgi.MockBundle;
 import org.osgi.framework.Bundle;

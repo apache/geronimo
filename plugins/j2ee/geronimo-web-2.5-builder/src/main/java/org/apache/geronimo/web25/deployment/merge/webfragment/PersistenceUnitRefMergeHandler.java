@@ -22,8 +22,8 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.PersistenceUnitRefType;
 import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
+import org.apache.geronimo.xbeans.javaee6.PersistenceUnitRefType;
 import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
 

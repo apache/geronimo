@@ -33,8 +33,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.security.SecurityNames;
-import org.apache.geronimo.security.credentialstore.CredentialStore;
-import org.apache.geronimo.security.deploy.SubjectInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -43,8 +41,10 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ru
 
     private final Map<String, PolicyConfiguration> contextIdToPolicyConfigurationMap = new HashMap<String, PolicyConfiguration>();
     private final PrincipalRoleMapper principalRoleMapper;
+    private ClassLoader classLoader;
 
     public ApplicationPolicyConfigurationManager(Map<String, ComponentPermissions> contextIdToPermissionsMap, PrincipalRoleMapper principalRoleMapper, ClassLoader cl) throws PolicyContextException, ClassNotFoundException, LoginException {
+        this.classLoader = cl;
         this.principalRoleMapper = principalRoleMapper;
         Thread currentThread = Thread.currentThread();
         ClassLoader oldClassLoader = currentThread.getContextClassLoader();
@@ -67,8 +67,8 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ru
             for (Map.Entry<String, PermissionCollection> roleEntry : componentPermissions.getRolePermissions().entrySet()) {
                 String roleName = roleEntry.getKey();
                 PermissionCollection rolePermissions = roleEntry.getValue();
-                for (Enumeration permissions = rolePermissions.elements(); permissions.hasMoreElements();) {
-                    Permission permission = (Permission) permissions.nextElement();
+                for (Enumeration<Permission> permissions = rolePermissions.elements(); permissions.hasMoreElements();) {
+                    Permission permission = permissions.nextElement();
                     policyConfiguration.addToRole(roleName, permission);
 
                 }
@@ -123,6 +123,62 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ru
 
     public void doFail() {
 
+    }
+
+    public void updateApplicationPolicyConfiguration(Map<String, ComponentPermissions> contextIdToPermissionsMap) throws PolicyContextException, ClassNotFoundException, LoginException {
+        PolicyConfigurationFactory policyConfigurationFactory;
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(classLoader);
+            policyConfigurationFactory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
+        //Remove those contextId that we want to update, is this required ?
+        for (String contextId : contextIdToPermissionsMap.keySet()) {
+            contextIdToPolicyConfigurationMap.remove(contextId);
+        }
+        if (principalRoleMapper != null) {
+            principalRoleMapper.uninstall(contextIdToPermissionsMap.keySet());
+        }
+        //
+        for (Map.Entry<String, ComponentPermissions> entry : contextIdToPermissionsMap.entrySet()) {
+            String contextID = entry.getKey();
+            ComponentPermissions componentPermissions = entry.getValue();
+            //Clean existing PolicyConfiguration and set its state to "OPEN"
+            PolicyConfiguration policyConfiguration = policyConfigurationFactory.getPolicyConfiguration(contextID, true);
+            contextIdToPolicyConfigurationMap.put(contextID, policyConfiguration);
+            policyConfiguration.addToExcludedPolicy(componentPermissions.getExcludedPermissions());
+            policyConfiguration.addToUncheckedPolicy(componentPermissions.getUncheckedPermissions());
+            for (Map.Entry<String, PermissionCollection> roleEntry : componentPermissions.getRolePermissions().entrySet()) {
+                String roleName = roleEntry.getKey();
+                PermissionCollection rolePermissions = roleEntry.getValue();
+                for (Enumeration<Permission> permissions = rolePermissions.elements(); permissions.hasMoreElements();) {
+                    Permission permission = permissions.nextElement();
+                    policyConfiguration.addToRole(roleName, permission);
+                }
+            }
+        }
+        if (principalRoleMapper != null) {
+            principalRoleMapper.install(contextIdToPermissionsMap.keySet());
+        }
+        //link everything together, seems that we do nothing in the linkConfiguration method
+        /*
+        for (PolicyConfiguration policyConfiguration : contextIdToPolicyConfigurationMap.values()) {
+            for (PolicyConfiguration policyConfiguration2 : contextIdToPolicyConfigurationMap.values()) {
+                if (policyConfiguration != policyConfiguration2) {
+                    policyConfiguration.linkConfiguration(policyConfiguration2);
+                }
+            }
+        }
+        */
+        //commit
+        for (String contextId : contextIdToPermissionsMap.keySet()) {
+            contextIdToPolicyConfigurationMap.get(contextId).commit();
+        }
+        //refresh policy
+        Policy policy = Policy.getPolicy();
+        policy.refresh();
     }
 
     public static final GBeanInfo GBEAN_INFO;

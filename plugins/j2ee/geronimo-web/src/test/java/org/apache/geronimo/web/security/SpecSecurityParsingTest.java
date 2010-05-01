@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.geronimo.web25.deployment.security;
+package org.apache.geronimo.web.security;
 
 import java.net.URL;
 import java.security.Permission;
@@ -46,8 +46,8 @@ public class SpecSecurityParsingTest extends TestCase {
         URL srcXml = classLoader.getResource("security/web1.xml");
         WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
         WebAppType webAppType = webAppDoc.getWebApp();
-        SpecSecurityBuilder builder = new SpecSecurityBuilder();
-        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppType);
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         PermissionCollection unchecked = permissions.getUncheckedPermissions();
         assertTrue(unchecked.implies(new WebResourcePermission("/login.do", "!")));
         assertTrue(unchecked.implies(new WebResourcePermission("/foo", "!")));
@@ -65,8 +65,8 @@ public class SpecSecurityParsingTest extends TestCase {
         URL srcXml = classLoader.getResource("security/web2.xml");
         WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
         WebAppType webAppType = webAppDoc.getWebApp();
-        SpecSecurityBuilder builder = new SpecSecurityBuilder();
-        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppType);
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         Permission p = new WebResourcePermission("/Test/Foo", "GET,POST");
         assertTrue(implies(p, permissions, "Admin"));
         assertFalse(implies(new WebResourcePermission("/Test", ""), permissions, null));
@@ -77,8 +77,8 @@ public class SpecSecurityParsingTest extends TestCase {
         URL srcXml = classLoader.getResource("security/web3.xml");
         WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
         WebAppType webAppType = webAppDoc.getWebApp();
-        SpecSecurityBuilder builder = new SpecSecurityBuilder();
-        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppType);
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         Permission p = new WebResourcePermission("/Test/Foo", "GET,POST");
         assertTrue(implies(p, permissions, "Admin"));
         assertFalse(implies(p, permissions, null));
@@ -105,8 +105,8 @@ public class SpecSecurityParsingTest extends TestCase {
         URL srcXml = classLoader.getResource("security/web4.xml");
         WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
         WebAppType webAppType = webAppDoc.getWebApp();
-        SpecSecurityBuilder builder = new SpecSecurityBuilder();
-        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppType);
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         // test excluding longer path than allowed
         Permission p = new WebResourcePermission("/Foo/Baz", "GET");
         assertTrue(implies(p, permissions, "Admin"));
@@ -136,8 +136,8 @@ public class SpecSecurityParsingTest extends TestCase {
         URL srcXml = classLoader.getResource("security/web5.xml");
         WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
         WebAppType webAppType = webAppDoc.getWebApp();
-        SpecSecurityBuilder builder = new SpecSecurityBuilder();
-        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppType);
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         // test excluding longer path than allowed
         Permission p = new WebResourcePermission("/foo/Baz", "GET");
         assertFalse(implies(p, permissions, "user"));
@@ -154,8 +154,8 @@ public class SpecSecurityParsingTest extends TestCase {
         URL srcXml = classLoader.getResource("security/web6.xml");
         WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
         WebAppType webAppType = webAppDoc.getWebApp();
-        SpecSecurityBuilder builder = new SpecSecurityBuilder();
-        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType);
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppType);
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         Permission p = new WebResourcePermission("/app/*", "GET");
         assertFalse(implies(p, permissions, null));
         p = new WebResourcePermission("/app/home", "POST");

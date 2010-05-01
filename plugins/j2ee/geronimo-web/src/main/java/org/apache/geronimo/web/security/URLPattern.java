@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.web25.deployment.security;
+package org.apache.geronimo.web.security;
 
 import java.util.Collection;
 import java.util.HashSet;

@@ -19,6 +19,7 @@ package org.apache.geronimo.web.deployment;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBean;

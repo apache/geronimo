@@ -26,8 +26,8 @@ import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
-import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.deployment.dconfigbean.DConfigBeanSupport;
+import org.apache.geronimo.deployment.service.jsr88.EnvironmentData;
 import org.apache.geronimo.naming.deployment.ENCHelper;
 import org.apache.geronimo.naming.deployment.jsr88.EjbLocalRef;
 import org.apache.geronimo.naming.deployment.jsr88.EjbRef;

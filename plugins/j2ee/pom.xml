@@ -42,6 +42,7 @@
         <module>geronimo-naming-builder</module>
         <module>geronimo-security-builder</module>
         <module>geronimo-test-ddbean</module>
+        <module>geronimo-web</module>
         <module>geronimo-web-2.5-builder</module>
         <module>j2ee-server</module>
         <module>jsr88-ear-configurer</module>

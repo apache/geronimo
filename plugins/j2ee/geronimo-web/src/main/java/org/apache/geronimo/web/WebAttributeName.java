@@ -15,14 +15,11 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.web25.deployment.security;
-
+package org.apache.geronimo.web;
 
 /**
  * @version $Rev$ $Date$
  */
-public abstract class URLPatternCheck {
-    public abstract boolean check(URLPattern base, URLPattern test);
-
-    public abstract boolean matches(String base, String test);
+public enum WebAttributeName {
+    META_COMPLETE, ORDERED_LIBS, SCHEMA_VERSION, SERVLET_CONTAINER_INITIALIZERS;
 }

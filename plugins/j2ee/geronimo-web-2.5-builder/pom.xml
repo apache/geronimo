@@ -35,6 +35,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-web</artifactId>
+            <version>${version}</version>
+        </dependency>
+
+        <dependency>
             <!-- g-schema-jee_5 comes via g-j2ee-builder from this -->
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
@@ -58,6 +64,7 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_3.0_spec</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
