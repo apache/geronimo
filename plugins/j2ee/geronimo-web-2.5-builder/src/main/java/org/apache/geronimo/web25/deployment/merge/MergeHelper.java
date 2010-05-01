@@ -190,7 +190,9 @@ public class MergeHelper {
                 }
             }
         }
-        return orderedWebFragments.toArray(new WebFragmentEntry[0]);
+        WebFragmentEntry[] webFragmentEntries = orderedWebFragments.toArray(new WebFragmentEntry[0]);
+        saveOrderedLibAttribute(earContext, webFragmentEntries);
+        return webFragmentEntries;
     }
 
     @SuppressWarnings("unchecked")
@@ -381,16 +383,6 @@ public class MergeHelper {
             }
         }
         WebFragmentEntry[] webFragmentEntries = sortWebFragments(earContext, module, bundle, webApp, jarUrlWebFragmentDocumentMap);
-        //Save ORDERED_LIBS Attribute
-        List<String> orderedLibs = new ArrayList<String>();
-        for (WebFragmentEntry webFragmentEntry : webFragmentEntries) {
-            String jarURL = webFragmentEntry.getJarURL();
-            int iBeginIndex = jarURL.indexOf("WEB-INF/");
-            if (iBeginIndex > 0) {
-                orderedLibs.add(jarURL.substring(iBeginIndex + 8));
-            }
-        }
-        earContext.getGeneralData().put(AbstractWebModuleBuilder.ORDERED_LIBS, orderedLibs);
         //
         MergeContext mergeContext = new MergeContext();
         mergeContext.setEarContext(earContext);
@@ -433,8 +425,17 @@ public class MergeHelper {
             throws DeploymentException {
         Map<String, WebFragmentOrderEntry> webFragmentOrderEntryMap = new LinkedHashMap<String, WebFragmentOrderEntry>();
         //Step 1 : Create WebFragmentOrderEntry for sorting web fragments easily
+        boolean relativeSortRequired = false;
         for (String webFragmentName : webFragmentEntryMap.keySet()) {
-            webFragmentOrderEntryMap.put(webFragmentName, WebFragmentOrderEntry.create(webFragmentEntryMap.get(webFragmentName)));
+            WebFragmentEntry webFragmentEntry = webFragmentEntryMap.get(webFragmentName);
+            if (!relativeSortRequired) {
+                relativeSortRequired = webFragmentEntry.getWebFragment().getOrderingArray().length > 0;
+            }
+            webFragmentOrderEntryMap.put(webFragmentName, WebFragmentOrderEntry.create(webFragmentEntry));
+        }
+        //If none of the web-fragment.xml defines the order element, the order of jar files are unknown
+        if (!relativeSortRequired) {
+            return webFragmentOrderEntryMap.values().toArray(new WebFragmentEntry[0]);
         }
         //Step 2 : Initialize the list by before/after others configurations, also, convert the before configurations to corresponding after configurations
         //TODO Is the reference like A before others and B before A allowed ?
@@ -468,6 +469,7 @@ public class MergeHelper {
         for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryList) {
             webFragmentTypes[iIndex++] = webFragmentOrderEntry.webFragmentEntry;
         }
+        saveOrderedLibAttribute(earContext, webFragmentTypes);
         return webFragmentTypes;
     }
 
@@ -572,6 +574,19 @@ public class MergeHelper {
             WebFragmentOrderEntry webFragmentOrderEntry = webFragmentOrderEntries.remove(iShouldAfterIndex);
             webFragmentOrderEntries.add(iShouldBeforeIndex + 1, webFragmentOrderEntry);
         }
+    }
+
+    private static void saveOrderedLibAttribute(EARContext earContext, WebFragmentEntry[] webFragmentEntries) {
+        //Save ORDERED_LIBS Attribute
+        List<String> orderedLibs = new ArrayList<String>();
+        for (WebFragmentEntry webFragmentEntry : webFragmentEntries) {
+            String jarURL = webFragmentEntry.getJarURL();
+            int iBeginIndex = jarURL.indexOf("WEB-INF/");
+            if (iBeginIndex > 0) {
+                orderedLibs.add(jarURL.substring(iBeginIndex + 8));
+            }
+        }
+        earContext.getGeneralData().put(AbstractWebModuleBuilder.ORDERED_LIBS, orderedLibs);
     }
 
     private static class WebFragmentOrderEntry {
