@@ -486,8 +486,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     /**
      * Identify the spec DD schema version, and save it in the EARContext
-     * @param xmlObject
-     * @param earContext
+     * @param earContext earContext deployment target
+     * @param module module containing source info
      */
     private float identifySpecDDSchemaVersion(String originalSpecDD) {
         float schemaVersion = 0f;
