@@ -63,13 +63,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.plugins</groupId>
-                <artifactId>j2ee</artifactId>
-                <version>${version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
 
             <!-- internal dependencies -->
             <dependency>
@@ -107,11 +100,6 @@
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector</artifactId>
                 <version>1.6-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xbean</groupId>
-                <artifactId>xbean-finder</artifactId>
-                <version>3.7-SNAPSHOT</version>
             </dependency>
        
             <dependency>
