@@ -20,6 +20,7 @@ package org.apache.geronimo.tomcat.core;
 import javax.servlet.Servlet;
 import javax.servlet.ServletRegistration.Dynamic;
 
+import org.apache.catalina.LifecycleState;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.ApplicationContext;
 import org.apache.geronimo.tomcat.GeronimoStandardContext;
@@ -59,7 +60,7 @@ public class GeronimoApplicationContext extends ApplicationContext {
 
     @Override
     public void declareRoles(String... roles) {
-        if(context.isInitialized()) {
+        if (!context.getState().equals(LifecycleState.STARTING_PREP)) {
             throw new IllegalStateException("declareRoles is not allowed to invoke after the ServletContext is initialized");
         }
         specSecurityBuilder.declareRoles(roles);

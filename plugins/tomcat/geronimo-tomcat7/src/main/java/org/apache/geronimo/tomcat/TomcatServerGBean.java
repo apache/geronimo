@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.tomcat;
 
 import java.io.File;
@@ -41,7 +40,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.catalina.Executor;
-import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Server;
 import org.apache.catalina.Service;
@@ -63,15 +61,20 @@ import org.xml.sax.SAXException;
 /**
  * @version $Rev$ $Date$
  */
-
 @GBean
 public class TomcatServerGBean implements GBeanLifecycle {
+
     public static final XMLInputFactory XMLINPUT_FACTORY = XMLInputFactory.newInstance();
+
     public static final JAXBContext SERVER_CONTEXT;
+
     private static final String DEFAULT_CATALINA_HOME = "var/catalina";
-    public static final Map<Connector,String> ConnectorName=new HashMap<Connector,String>();
-    public static final List<LifecycleListener> LifecycleListeners=new ArrayList<LifecycleListener>();
-    public static final Map<String,Executor> executors=new HashMap<String,Executor>();
+
+    public static final Map<Connector, String> ConnectorName = new HashMap<Connector, String>();
+
+    public static final List<LifecycleListener> LifecycleListeners = new ArrayList<LifecycleListener>();
+
+    public static final Map<String, Executor> executors = new HashMap<String, Executor>();
     static {
         try {
             SERVER_CONTEXT = JAXBContext.newInstance(ServerType.class);
@@ -82,33 +85,34 @@ public class TomcatServerGBean implements GBeanLifecycle {
 
     //server.xml as a string
     private final String serverConfig;
+
     private final ClassLoader classLoader;
+
     private final ServerInfo serverInfo;
+
     private final Server server;
+
     private TomcatServerConfigManager tomcatServerConfigManager;
 
     public TomcatServerGBean(@ParamAttribute(name = "serverConfig") String serverConfig,
-                             @ParamAttribute(name = "serverConfigLocation") String serverConfigLocation,
-                             @ParamAttribute(name = "catalinaHome") String catalinaHome,
-                             @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
-                             @ParamReference(name = "AttributeManager", namingType = "AttributeStore") PluginAttributeStore attributeStore,
-                             @ParamReference(name = "MBeanServerReference") MBeanServerReference mbeanServerReference,
-                             @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
-                             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws Exception {
+                                                       @ParamAttribute(name = "serverConfigLocation") String serverConfigLocation,
+                                                       @ParamAttribute(name = "catalinaHome") String catalinaHome,
+                                                       @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
+                                                       @ParamReference(name = "AttributeManager", namingType = "AttributeStore") PluginAttributeStore attributeStore,
+                                                       @ParamReference(name = "MBeanServerReference") MBeanServerReference mbeanServerReference,
+                                                       @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                                                       @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws Exception {
         this.serverConfig = serverConfig;
         this.serverInfo = serverInfo;
         this.classLoader = classLoader;
-
         if (mbeanServerReference != null) {
             Registry.getRegistry(null, null).setMBeanServer(mbeanServerReference.getMBeanServer());
         }
-
-        if (catalinaHome == null){
+        if (catalinaHome == null) {
             catalinaHome = DEFAULT_CATALINA_HOME;
         }
         System.setProperty("catalina.home", serverInfo.resolveServerPath(catalinaHome));
         System.setProperty("catalina.base", serverInfo.resolveServerPath(catalinaHome));
-
         if (serverConfig == null) {
             File serverConfigFile = serverInfo.resolveServer(serverConfigLocation);
             this.tomcatServerConfigManager = new TomcatServerConfigManager(serverConfigFile);
@@ -121,12 +125,10 @@ public class TomcatServerGBean implements GBeanLifecycle {
             }
             serverConfig = b.toString();
         }
-
         if (attributeStore != null) {
             serverConfig = attributeStore.substitute(serverConfig);
         }
         Reader in = new StringReader(serverConfig);
-
         try {
             ServerType serverType = loadServerType(in);
             server = serverType.build(classLoader, kernel);
@@ -147,15 +149,16 @@ public class TomcatServerGBean implements GBeanLifecycle {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(classLoader);
-            server.initialize();
-            ((Lifecycle) server).start();
+            server.init();
+            server.start();
         } finally {
             Thread.currentThread().setContextClassLoader(cl);
         }
     }
 
     public void doStop() throws Exception {
-        ((Lifecycle)server).stop();
+        server.stop();
+        server.destroy();
     }
 
     public void doFail() {
@@ -170,17 +173,16 @@ public class TomcatServerGBean implements GBeanLifecycle {
         Service service;
         if (serviceName == null) {
             Service[] services = server.findServices();
-            if (services == null || services.length == 0) throw new IllegalStateException("No services in server");
-
-            if (services.length > 1) throw new IllegalStateException("More than one service in server.  Provide name of desired server" + Arrays.asList(services));
+            if (services == null || services.length == 0)
+                throw new IllegalStateException("No services in server");
+            if (services.length > 1)
+                throw new IllegalStateException("More than one service in server.  Provide name of desired server" + Arrays.asList(services));
             service = services[0];
-
         } else {
             service = server.findService(serviceName);
         }
         return service;
     }
-
 
     public TomcatServerConfigManager getTomcatServerConfigManager() {
         return tomcatServerConfigManager;

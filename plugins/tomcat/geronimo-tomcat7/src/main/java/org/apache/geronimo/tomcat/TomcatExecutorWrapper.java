@@ -61,4 +61,12 @@ public class TomcatExecutorWrapper extends LifecycleBase implements org.apache.c
         executor.execute(runnable);
         // FIXME Figure out how to implement it
     }
+
+    @Override
+    protected void destroyInternal() throws LifecycleException {
+    }
+
+    @Override
+    protected void initInternal() throws LifecycleException {
+    }
 }

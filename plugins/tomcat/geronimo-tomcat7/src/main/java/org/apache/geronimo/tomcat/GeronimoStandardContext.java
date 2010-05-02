@@ -397,9 +397,9 @@ public class GeronimoStandardContext extends StandardContext {
         }
     }
 
-    public void init() throws Exception {
+    protected void initInternal()  throws LifecycleException {
         String docBase = getDocBase();
-        super.init();
+        super.initInternal();
         setDocBase(docBase);
     }
 
