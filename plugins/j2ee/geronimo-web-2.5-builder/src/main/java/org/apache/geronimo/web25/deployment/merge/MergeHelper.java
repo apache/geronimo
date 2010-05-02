@@ -354,35 +354,41 @@ public class MergeHelper {
     public static void processWebFragmentsAndAnnotations(EARContext earContext, Module module, Bundle bundle, WebAppType webApp) throws DeploymentException {
         final Map<String, WebFragmentDocument> jarUrlWebFragmentDocumentMap = new LinkedHashMap<String, WebFragmentDocument>();
         final String validJarNamePrefix = module.isStandAlone() ? "WEB-INF/lib" : module.getName() + "/WEB-INF/lib";
-        for (Enumeration<String> enumeration = bundle.getEntryPaths(validJarNamePrefix); enumeration.hasMoreElements();) {
-            String url = enumeration.nextElement();
-            if (url.endsWith(".jar")) {
-                URL webFragmentUrl = bundle.getEntry(url + "/META-INF/web-fragment.xml");
-                WebFragmentDocument webFragmentDocument = null;
-                if (webFragmentUrl != null) {
-                    InputStream in = null;
-                    try {
-                        in = webFragmentUrl.openStream();
-                        webFragmentDocument = (WebFragmentDocument) XmlBeansUtil.parse(in);
-                        //Hopefully, XmlBeansUtil should help to check most of errors against the schema files, like none null servlet-name etc.
-                        XmlBeansUtil.validateDD(webFragmentDocument);
-                    } catch (IOException e) {
-                        logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
-                        throw new DeploymentException("Fail to scan web-fragment.xml files", e);
-                    } catch (XmlException e) {
-                        logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
-                        throw new DeploymentException("Fail to scan web-fragment.xml files", e);
-                    } finally {
-                        IOUtils.close(in);
+        WebFragmentEntry[] webFragmentEntries = null;
+        Enumeration<String> enumeration = bundle.getEntryPaths(validJarNamePrefix);
+        if (enumeration != null) {
+            while (enumeration.hasMoreElements()) {
+                String url = enumeration.nextElement();
+                if (url.endsWith(".jar")) {
+                    URL webFragmentUrl = bundle.getEntry(url + "/META-INF/web-fragment.xml");
+                    WebFragmentDocument webFragmentDocument = null;
+                    if (webFragmentUrl != null) {
+                        InputStream in = null;
+                        try {
+                            in = webFragmentUrl.openStream();
+                            webFragmentDocument = (WebFragmentDocument) XmlBeansUtil.parse(in);
+                            //Hopefully, XmlBeansUtil should help to check most of errors against the schema files, like none null servlet-name etc.
+                            XmlBeansUtil.validateDD(webFragmentDocument);
+                        } catch (IOException e) {
+                            logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
+                            throw new DeploymentException("Fail to scan web-fragment.xml files", e);
+                        } catch (XmlException e) {
+                            logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
+                            throw new DeploymentException("Fail to scan web-fragment.xml files", e);
+                        } finally {
+                            IOUtils.close(in);
+                        }
+                    } else {
+                        webFragmentDocument = WebFragmentDocument.Factory.newInstance();
+                        webFragmentDocument.setWebFragment(WebFragmentType.Factory.newInstance());
                     }
-                } else {
-                    webFragmentDocument = WebFragmentDocument.Factory.newInstance();
-                    webFragmentDocument.setWebFragment(WebFragmentType.Factory.newInstance());
+                    jarUrlWebFragmentDocumentMap.put(url, webFragmentDocument);
                 }
-                jarUrlWebFragmentDocumentMap.put(url, webFragmentDocument);
             }
+            webFragmentEntries = sortWebFragments(earContext, module, bundle, webApp, jarUrlWebFragmentDocumentMap);
+        } else {
+            webFragmentEntries = new WebFragmentEntry[0];
         }
-        WebFragmentEntry[] webFragmentEntries = sortWebFragments(earContext, module, bundle, webApp, jarUrlWebFragmentDocumentMap);
         //
         MergeContext mergeContext = new MergeContext();
         mergeContext.setEarContext(earContext);
