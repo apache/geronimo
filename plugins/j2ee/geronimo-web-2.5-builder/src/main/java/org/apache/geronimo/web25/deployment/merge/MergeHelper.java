@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -441,33 +442,43 @@ public class MergeHelper {
         }
         //If none of the web-fragment.xml defines the order element, the order of jar files are unknown
         if (!relativeSortRequired) {
-            return webFragmentOrderEntryMap.values().toArray(new WebFragmentEntry[0]);
-        }
-        //Step 2 : Initialize the list by before/after others configurations, also, convert the before configurations to corresponding after configurations
-        //TODO Is the reference like A before others and B before A allowed ?
-        LinkedList<WebFragmentOrderEntry> webFragmentOrderEntryList = new LinkedList<WebFragmentOrderEntry>();
-        for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryMap.values()) {
-            for (String beforeEntryName : webFragmentOrderEntry.beforeEntryNames) {
-                webFragmentOrderEntryMap.get(beforeEntryName).afterEntryNames.add(webFragmentOrderEntry.name);
+            WebFragmentEntry[] webFragmentTypes = new WebFragmentEntry[webFragmentOrderEntryMap.size()];
+            int iIndex = 0;
+            for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryMap.values()) {
+                webFragmentTypes[iIndex++] = webFragmentOrderEntry.webFragmentEntry;
             }
-            if (webFragmentOrderEntry.afterDefined && webFragmentOrderEntry.afterOthers) {
-                webFragmentOrderEntryList.addLast(webFragmentOrderEntry);
-            } else {
-                webFragmentOrderEntryList.addFirst(webFragmentOrderEntry);
+            //TODO really not save?
+//            saveOrderedLibAttribute(earContext, webFragmentTypes);
+            return webFragmentTypes;
+        }
+        LinkedList<WebFragmentOrderEntry> webFragmentOrderEntryList = null;
+        if (relativeSortRequired) {
+            //Step 2 : Initialize the list by before/after others configurations, also, convert the before configurations to corresponding after configurations
+            //TODO Is the reference like A before others and B before A allowed ?
+            webFragmentOrderEntryList = new LinkedList<WebFragmentOrderEntry>();
+            for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryMap.values()) {
+                for (String beforeEntryName : webFragmentOrderEntry.beforeEntryNames) {
+                    webFragmentOrderEntryMap.get(beforeEntryName).afterEntryNames.add(webFragmentOrderEntry.name);
+                }
+                if (webFragmentOrderEntry.afterDefined && webFragmentOrderEntry.afterOthers) {
+                    webFragmentOrderEntryList.addLast(webFragmentOrderEntry);
+                } else {
+                    webFragmentOrderEntryList.addFirst(webFragmentOrderEntry);
+                }
             }
-        }
-        //Step 3: Detect Circus references
-        // a. A -> A
-        // b. A -> B -> A
-        // c. A -> B ->  C -> A
-        for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryList) {
-            detectCircusAfterDependency(webFragmentOrderEntry, webFragmentOrderEntry, webFragmentOrderEntryMap, new HashSet<String>());
-        }
-        //Step 4: Sort the webFragment depending on the after configurations
-        //TODO The Sort algorithm might need to improve.
-        for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryMap.values()) {
-            for (String afterEntryName : webFragmentOrderEntry.afterEntryNames) {
-                swap(webFragmentOrderEntry.name, afterEntryName, webFragmentOrderEntryList);
+            //Step 3: Detect Circus references
+            // a. A -> A
+            // b. A -> B -> A
+            // c. A -> B ->  C -> A
+            for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryList) {
+                detectCircusAfterDependency(webFragmentOrderEntry, webFragmentOrderEntry, webFragmentOrderEntryMap, new HashSet<String>());
+            }
+            //Step 4: Sort the webFragment depending on the after configurations
+            //TODO The Sort algorithm might need to improve.
+            for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryMap.values()) {
+                for (String afterEntryName : webFragmentOrderEntry.afterEntryNames) {
+                    swap(webFragmentOrderEntry.name, afterEntryName, webFragmentOrderEntryList);
+                }
             }
         }
         WebFragmentEntry[] webFragmentTypes = new WebFragmentEntry[webFragmentOrderEntryList.size()];
