@@ -89,6 +89,8 @@ public class HttpUtils {
 
             out.flush();
             out.close();
+        } else {
+            conn.connect();
         }
 
         InputStream is = null;
