@@ -27,10 +27,10 @@
     </parent>
 
     <groupId>org.apache.geronimo.framework</groupId>
-    <artifactId>geronimo-shell-base</artifactId>
+    <artifactId>geronimo-shell</artifactId>
     <packaging>bundle</packaging>
     <version>3.0-SNAPSHOT</version>
-    <name>Geronimo Framework, Modules :: Shell Commands</name>
+    <name>Geronimo Framework, Modules :: Shell</name>
 
     <dependencies>
         <dependency>
@@ -38,23 +38,21 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-cli</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-deploy-tool</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.felix.karaf.shell</groupId>
-            <artifactId>org.apache.felix.karaf.shell.console</artifactId>
-        </dependency>
-
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.apache.felix.karaf.branding;version="${pom.version}"
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

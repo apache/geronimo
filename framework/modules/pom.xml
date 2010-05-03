@@ -58,10 +58,11 @@
         <module>geronimo-kernel</module>
         <module>geronimo-plugin</module>
         <module>geronimo-deploy-tool</module>
+        <module>geronimo-shell</module>
         <module>geronimo-shell-base</module>
         <module>geronimo-blueprint</module>
         <module>geronimo-obr</module>
-  </modules>
+    </modules>
 
     <profiles>
         <profile>

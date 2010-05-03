@@ -451,6 +451,11 @@
             <artifactId>geronimo-shell-base</artifactId>
             <version>${version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-shell</artifactId>
+            <version>${version}</version>
+        </dependency>
         <!--agent -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
