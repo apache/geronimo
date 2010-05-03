@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.security.auth.login.LoginException;
+import javax.security.jacc.PolicyContextException;
 import javax.transaction.TransactionManager;
 
 import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
@@ -142,12 +144,19 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null);
     }
 
-    private ApplicationPolicyConfigurationManager setUpJACC(Map<String, SubjectInfo> roleDesignates, Map<Principal, Set<String>> principalRoleMap, ComponentPermissions componentPermissions, String policyContextId) throws Exception {
+    private ApplicationPolicyConfigurationManager setUpJACC(Map<String, SubjectInfo> roleDesignates, Map<Principal, Set<String>> principalRoleMap, ComponentPermissions componentPermissions,
+            String policyContextId) throws Exception {
         setUpSecurityService();
         PrincipalRoleMapper roleMapper = new ApplicationPrincipalRoleConfigurationManager(principalRoleMap, null, roleDesignates, null);
         Map<String, ComponentPermissions> contextIDToPermissionsMap = new HashMap<String, ComponentPermissions>();
         contextIDToPermissionsMap.put(policyContextId, componentPermissions);
-        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, roleMapper, cl);
+        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, roleMapper, cl) {
+
+            @Override
+            public void updateApplicationPolicyConfiguration(Map<String, ComponentPermissions> arg0) throws PolicyContextException, ClassNotFoundException, LoginException {
+                //JACCSecurity Test build the ComponnentPermissions manually, use an empty update method to prevent JACCSecurityListener to update the permissions
+            }
+        };
         jacc.doStart();
         return jacc;
     }

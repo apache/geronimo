@@ -51,11 +51,15 @@ public class JACCSecurityLifecycleListener implements LifecycleListener {
 
     private ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
 
-    public JACCSecurityLifecycleListener(Bundle bundle, boolean annotationScanRequired, ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager, String contextId) {
+    private String deploymentDescriptor;
+
+    public JACCSecurityLifecycleListener(Bundle bundle, String deploymentDescriptor, boolean annotationScanRequired, ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager,
+            String contextId) {
         this.bundle = bundle;
         this.contextId = contextId;
         this.annotationScanRequired = annotationScanRequired;
         this.applicationPolicyConfigurationManager = applicationPolicyConfigurationManager;
+        this.deploymentDescriptor = deploymentDescriptor;
     }
 
     @Override
@@ -63,7 +67,7 @@ public class JACCSecurityLifecycleListener implements LifecycleListener {
         String lifecycleEventType = lifecycleEvent.getType();
         if (lifecycleEventType.equals(Lifecycle.BEFORE_START_EVENT)) {
             //Initialize SpecSecurityBuilder
-            SpecSecurityBuilder specSecurityBuilder = new SpecSecurityBuilder(bundle, annotationScanRequired);
+            SpecSecurityBuilder specSecurityBuilder = new SpecSecurityBuilder(bundle, deploymentDescriptor, annotationScanRequired);
             GeronimoStandardContext standardContext = (GeronimoStandardContext) lifecycleEvent.getSource();
             GeronimoApplicationContext applicationContext = (GeronimoApplicationContext) standardContext.getInternalServletContext();
             applicationContext.setSpecSecurityBuilder(specSecurityBuilder);

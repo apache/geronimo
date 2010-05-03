@@ -21,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -34,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.annotation.HandlesTypes;
@@ -360,31 +360,34 @@ public class MergeHelper {
         if (enumeration != null) {
             while (enumeration.hasMoreElements()) {
                 String url = enumeration.nextElement();
-                if (url.endsWith(".jar")) {
-                    URL webFragmentUrl = bundle.getEntry(url + "/META-INF/web-fragment.xml");
-                    WebFragmentDocument webFragmentDocument = null;
-                    if (webFragmentUrl != null) {
-                        InputStream in = null;
-                        try {
-                            in = webFragmentUrl.openStream();
-                            webFragmentDocument = (WebFragmentDocument) XmlBeansUtil.parse(in);
-                            //Hopefully, XmlBeansUtil should help to check most of errors against the schema files, like none null servlet-name etc.
-                            XmlBeansUtil.validateDD(webFragmentDocument);
-                        } catch (IOException e) {
-                            logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
-                            throw new DeploymentException("Fail to scan web-fragment.xml files", e);
-                        } catch (XmlException e) {
-                            logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
-                            throw new DeploymentException("Fail to scan web-fragment.xml files", e);
-                        } finally {
-                            IOUtils.close(in);
-                        }
-                    } else {
-                        webFragmentDocument = WebFragmentDocument.Factory.newInstance();
-                        webFragmentDocument.setWebFragment(WebFragmentType.Factory.newInstance());
-                    }
-                    jarUrlWebFragmentDocumentMap.put(url, webFragmentDocument);
+                if (!url.endsWith(".jar")) {
+                    continue;
                 }
+                WebFragmentDocument webFragmentDocument = null;
+                ZipInputStream in = null;
+                try {
+                    in = new ZipInputStream(bundle.getEntry(url).openStream());
+                    ZipEntry entry;
+                    while ((entry = in.getNextEntry()) != null) {
+                        if (entry.getName().equals("META-INF/web-fragment.xml")) {
+                            webFragmentDocument = (WebFragmentDocument) XmlBeansUtil.parse(in);
+                            break;
+                        }
+                    }
+                } catch (IOException e) {
+                    logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
+                    throw new DeploymentException("Fail to scan web-fragment.xml files", e);
+                } catch (XmlException e) {
+                    logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
+                    throw new DeploymentException("Fail to scan web-fragment.xml files", e);
+                } finally {
+                    IOUtils.close(in);
+                }
+                if (webFragmentDocument == null) {
+                    webFragmentDocument = WebFragmentDocument.Factory.newInstance();
+                    webFragmentDocument.setWebFragment(WebFragmentType.Factory.newInstance());
+                }
+                jarUrlWebFragmentDocumentMap.put(url, webFragmentDocument);
             }
             webFragmentEntries = sortWebFragments(earContext, module, bundle, webApp, jarUrlWebFragmentDocumentMap);
         } else {
@@ -448,7 +451,7 @@ public class MergeHelper {
                 webFragmentTypes[iIndex++] = webFragmentOrderEntry.webFragmentEntry;
             }
             //TODO really not save?
-//            saveOrderedLibAttribute(earContext, webFragmentTypes);
+            //            saveOrderedLibAttribute(earContext, webFragmentTypes);
             return webFragmentTypes;
         }
         LinkedList<WebFragmentOrderEntry> webFragmentOrderEntryList = null;

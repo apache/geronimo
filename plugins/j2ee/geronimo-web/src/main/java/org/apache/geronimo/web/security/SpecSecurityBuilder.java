@@ -146,6 +146,25 @@ public class SpecSecurityBuilder {
         initialize();
     }
 
+    public SpecSecurityBuilder(Bundle bundle, String deploymentDescriptor, boolean annotationScanRequired) {
+        this.bundle = bundle;
+        this.annotationScanRequired = annotationScanRequired;
+        if (deploymentDescriptor == null || deploymentDescriptor.length() == 0) {
+            initialWebApp = WebAppType.Factory.newInstance();
+        } else {
+            try {
+                XmlObject parsed = XmlBeansUtil.parse(deploymentDescriptor);
+                WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
+                initialWebApp = webAppDoc.getWebApp();
+            } catch (XmlException e) {
+                throw new IllegalArgumentException("Error parsing web.xml for " + bundle.getSymbolicName(), e);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Error reading web.xml for " + bundle.getSymbolicName(), e);
+            }
+        }
+        initialize();
+    }
+
     public void declareRoles(String... roleNames) {
         //Let's go ahead to directly add the roles to the securityRoles set. The set will be used in the collectRoleNames method.
         for (String roleName : roleNames) {
