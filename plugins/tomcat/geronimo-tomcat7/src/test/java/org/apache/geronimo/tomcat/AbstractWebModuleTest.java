@@ -231,4 +231,10 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         connector.doStop();
         super.tearDown();
     }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        System.setProperty("catalina.useNaming", "false");
+    }
 }

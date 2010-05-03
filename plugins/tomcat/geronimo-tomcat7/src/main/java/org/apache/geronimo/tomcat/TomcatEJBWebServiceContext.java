@@ -59,6 +59,7 @@ public class TomcatEJBWebServiceContext extends StandardContext {
         wrapper.setName(name);
         this.addChild(wrapper);
         this.addServletMapping("/*", name);
+        setProcessTlds(false);
 
     }
 

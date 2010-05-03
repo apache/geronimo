@@ -24,11 +24,10 @@ import java.security.AccessControlContext;
 
 import javax.security.auth.Subject;
 
+import org.apache.catalina.core.StandardContext;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.tomcat.security.Authorizer;
-import org.apache.geronimo.tomcat.security.jacc.JACCAuthorizer;
 import org.apache.geronimo.tomcat.security.jacc.JACCEJBWebServiceAuthorizer;
-import org.apache.catalina.core.StandardContext;
 
 /**
  * @version $Rev$ $Date$
@@ -63,5 +62,10 @@ public class EjbWsContextConfig extends BaseGeronimoContextConfig {
 
     protected Authorizer createAuthorizer(AccessControlContext defaultAcc) {
         return new JACCEJBWebServiceAuthorizer(defaultAcc);
+    }
+
+    @Override
+    protected void webConfig() {
+        //For a EJBWsContextConfig, we no need to scan web.xml/annotations
     }
 }
