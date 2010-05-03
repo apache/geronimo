@@ -30,7 +30,7 @@ public class ServletTest extends TestSupport {
     private String baseURL = "http://localhost:8080/";
 
     @Test
-    public void testDataSource() throws Exception {
+    public void testAppNameInjection() throws Exception {
         checkReply("/AppNameServlet");
     }
 
