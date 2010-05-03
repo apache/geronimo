@@ -40,7 +40,11 @@ public class RMIClassLoaderSpiImplTest extends TestCase {
     protected void setUp() throws Exception {
         File dir = new File(System.getProperty("user.home"));
 
-        baseURL = dir.toURI().toURL().toString();
+        // NOTE:  Do not change this to use toURL().toURI().toString().
+        // This messes up Windows tests where directories can have blanks.
+        // The URL encoding gets applied twice, resulting in %20 encodings
+        // getting converted into invalid %2520 encodings
+        baseURL = dir.toURL().toString();
         if (baseURL.endsWith("/")) {
             baseURL = baseURL.substring(0, baseURL.length() - 1);
         }
