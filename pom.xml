@@ -1909,31 +1909,31 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.aries</groupId>
                 <artifactId>org.apache.aries.util</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jndi</groupId>
                 <artifactId>org.apache.aries.jndi.core</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jndi</groupId>
                 <artifactId>org.apache.aries.jndi.url</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jmx</groupId>
                 <artifactId>org.apache.aries.jmx</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jmx</groupId>
                 <artifactId>org.apache.aries.jmx.blueprint</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -1945,7 +1945,7 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -1957,7 +1957,7 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint.api</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -1969,7 +1969,7 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint.core</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -1981,7 +1981,7 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint.cm</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -2363,7 +2363,32 @@ only found in cxf
             <repositories>
 
                 <repository>
-                    <!-- org.ops4j routing -->
+                    <id>aries1</id>
+                    <name>aries1</name>
+                    <layout>default</layout>
+                    <url>https://repository.apache.org/content/repositories/orgapachearies-009</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
+
+                <repository>
+                    <id>aries2</id>
+                    <name>aries2</name>
+                    <layout>default</layout>
+                    <url>https://repository.apache.org/content/repositories/orgapachearies-004</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
+
+                <repository>
                     <id>ops4j.snapshots</id>
                     <name>OPS4J Snapshots Repository</name>
                     <layout>default</layout>
