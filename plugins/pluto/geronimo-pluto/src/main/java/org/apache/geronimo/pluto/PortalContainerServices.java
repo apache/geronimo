@@ -31,6 +31,8 @@ import org.apache.pluto.driver.services.portal.RenderConfigService;
  */
 public interface PortalContainerServices {
     
+    boolean waitForInitialization(int timeout) throws InterruptedException;
+    
     AdminConfiguration getAdminConfiguration();
     void setAdminConfiguration(AdminConfiguration adminConfiguration);
     

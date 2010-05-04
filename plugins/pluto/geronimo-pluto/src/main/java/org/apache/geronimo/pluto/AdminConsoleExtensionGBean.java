@@ -194,6 +194,8 @@ public class AdminConsoleExtensionGBean implements GBeanLifecycle {
     * @see org.apache.geronimo.gbean.GBeanLifecycle#doStart()
     */
     public synchronized void doStart() throws Exception {
+        portletContainerServices.waitForInitialization(60 * 1000);
+        
         // check to make sure that a portal driver has registered with the container services
         if (portletContainerServices.getAdminConfiguration() == null) {
             throw new RuntimeException("No portal driver has been registered with the portal container services");

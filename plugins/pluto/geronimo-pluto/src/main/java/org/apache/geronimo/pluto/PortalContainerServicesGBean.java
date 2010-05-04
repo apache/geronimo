@@ -18,6 +18,9 @@
 
 package org.apache.geronimo.pluto;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -46,7 +49,8 @@ public class PortalContainerServicesGBean implements PortalContainerServices, GB
     private DriverConfiguration driverConfiguration;
     private AdminConfiguration adminConfiguration;
 
-
+    private CountDownLatch latch = new CountDownLatch(1);
+    
     public void doStart() throws Exception {
         log.debug("Started PortalContainerServicesGBean");
     }
@@ -110,6 +114,14 @@ public class PortalContainerServicesGBean implements PortalContainerServices, GB
             log.error("Failed to get PortalContainerServices GBean from kernel", e);
         }
         return portalServices;
+    }
+    
+    public void init() {
+        latch.countDown();
+    }
+    
+    public boolean waitForInitialization(int timeout) throws InterruptedException {
+        return latch.await(timeout, TimeUnit.MILLISECONDS);
     }
 
     public static final GBeanInfo GBEAN_INFO;
