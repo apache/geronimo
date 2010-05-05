@@ -33,6 +33,11 @@ public class LoginCommand extends ConnectCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        if (isEmbedded()) {
+            println("No credentials to save in embedded mode.");
+            return null;
+        }
+        
         ServerConnection connection = connect();
 
         AbstractCommand command = new CommandLogin();

@@ -41,7 +41,7 @@ public class DisconnectCommand extends ConnectCommand {
                 // ignore
             }
 
-            // session.close();
+            session.put(SERVER_CONNECTION, null);
 
             println("Connection ended");
         } else {
