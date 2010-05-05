@@ -27,6 +27,7 @@ import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.reflect.FastClass;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -34,6 +35,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.classloader.DelegatingClassLoader;
 import org.apache.geronimo.kernel.proxy.ProxyCreationException;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
@@ -85,44 +87,48 @@ public class BasicProxyManager implements ProxyManager {
         try {
             // if the type is visible from the target's classloader use it
             // otherwise use the type's classloader
-            //TODO OSGI BUSTED
-            ClassLoader classLoader = null;
-            try {
-//                classLoader = kernel.getBundlerFor(target);
-                if (!type.equals(ClassLoading.loadClass(type.getName(), classLoader))) {
-                    classLoader = type.getClassLoader();
-                }
-            } catch (Exception ignored) {
-                classLoader = type.getClassLoader();
-            }
-
+            ClassLoader classLoader = type.getClassLoader();
+            
             // add any interface exposed by the gbean that is visible from the selected class loader
-            List types = getVisibleInterfaces(target, classLoader, true);
-            if (types == null) types = new ArrayList();
+            List<Class> types = getVisibleInterfaces(target, classLoader, true);
+            if (types == null) {
+                types = new ArrayList<Class>();
+            }
             types.add(type);
 
-            return (T) createProxyFactory((Class[]) types.toArray(new Class[types.size()]), classLoader).createProxy(target);
+            DelegatingClassLoader proxyClassLoader = new DelegatingClassLoader();
+            proxyClassLoader.addLoader(classLoader);
+            proxyClassLoader.addLoader(getClass()); // to be able to load GeronimoManagedBean
+            
+            return (T) createProxyFactory((Class[]) types.toArray(new Class[types.size()]), proxyClassLoader).createProxy(target);
         } catch (GBeanNotFoundException e) {
             throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target, e);
         }
     }
-
+    
     public Object createProxy(AbstractName target, ClassLoader classLoader) {
         if (target == null) throw new NullPointerException("target is null");
         if (classLoader == null) throw new NullPointerException("classLoader is null");
 
         try {
-            List types = getVisibleInterfaces(target, classLoader, true);
-            if (types == null) return null;
-            return createProxyFactory((Class[]) types.toArray(new Class[types.size()]), classLoader).createProxy(target);
+            List<Class> types = getVisibleInterfaces(target, classLoader, true);
+            if (types == null) {
+                return null;
+            }
+            
+            DelegatingClassLoader proxyClassLoader = new DelegatingClassLoader();
+            proxyClassLoader.addLoader(classLoader);
+            proxyClassLoader.addLoader(getClass()); // to be able to load GeronimoManagedBean
+            
+            return createProxyFactory((Class[]) types.toArray(new Class[types.size()]), proxyClassLoader).createProxy(target);
         } catch (GBeanNotFoundException e) {
             throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target, e);
         }
     }
 
-    private List getVisibleInterfaces(AbstractName target, ClassLoader classLoader, boolean shouldLog) throws GBeanNotFoundException {
+    private List<Class> getVisibleInterfaces(AbstractName target, ClassLoader classLoader, boolean shouldLog) throws GBeanNotFoundException {
         GBeanInfo info = kernel.getGBeanInfo(target);
-        Set interfaces = info.getInterfaces();
+        Set<String> interfaces = info.getInterfaces();
         if(interfaces.size() == 0) {
             if (shouldLog) {
                 log.warn("No interfaces found for " + target + " ("+target+")");
@@ -130,10 +136,10 @@ public class BasicProxyManager implements ProxyManager {
             return null;
         }
         String[] names = (String[]) interfaces.toArray(new String[0]);
-        List types = new ArrayList();
+        List<Class> types = new ArrayList<Class>();
         for (int i = 0; i < names.length; i++) {
             try {
-                Class type = classLoader.loadClass(names[i]);
+                Class<?> type = classLoader.loadClass(names[i]);
                 if (type.isInterface()) {
                     types.add(type);
                 }
