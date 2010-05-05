@@ -48,12 +48,13 @@
             <version>${version}</version>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-aries-shell</artifactId>
             <version>${version}</version>
         </dependency>
-
+-->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-aries-resolver</artifactId>

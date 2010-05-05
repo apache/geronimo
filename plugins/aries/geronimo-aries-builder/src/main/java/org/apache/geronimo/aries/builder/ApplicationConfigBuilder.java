@@ -18,12 +18,21 @@ package org.apache.geronimo.aries.builder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
+import org.apache.aries.application.ApplicationMetadata;
+import org.apache.aries.application.ApplicationMetadataFactory;
+import org.apache.aries.application.filesystem.IDirectory;
+import org.apache.aries.application.filesystem.IFile;
 import org.apache.aries.application.management.AriesApplication;
 import org.apache.aries.application.management.AriesApplicationManager;
+import org.apache.aries.application.utils.AppConstants;
 import org.apache.aries.application.utils.filesystem.FileSystem;
+import org.apache.aries.application.utils.manifest.ManifestDefaultsInjector;
+import org.apache.aries.application.utils.manifest.ManifestProcessor;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -55,8 +64,8 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
     private ApplicationInstaller installer;
 
     public ApplicationConfigBuilder(@ParamReference(name="Installer") ApplicationInstaller installer,
-                                 @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
-                                 @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) 
+                                    @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+                                    @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) 
         throws GBeanNotFoundException {
         this.installer = installer;
         this.bundleContext = bundleContext;
@@ -82,6 +91,16 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
         }
     }
            
+    private ApplicationMetadataFactory getApplicationMetadataFactory() {
+        ServiceReference ref = 
+            bundleContext.getServiceReference(ApplicationMetadataFactory.class.getName());
+        if (ref != null) {
+            return (ApplicationMetadataFactory) bundleContext.getService(ref);
+        } else {
+            return null;
+        }
+    }
+    
     public Object getDeploymentPlan(File planFile, 
                                     JarFile jarFile, 
                                     ModuleIDBuilder idBuilder) 
@@ -100,11 +119,24 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
     public Artifact getConfigurationID(Object plan, 
                                        JarFile jarFile, 
                                        ModuleIDBuilder idBuilder)
-        throws IOException, DeploymentException {
-        
-        Artifact name = new Artifact("eba", "application", "0.0.0", "jar");
-        
-        return name;
+        throws IOException, DeploymentException {        
+        ApplicationMetadataFactory factory = getApplicationMetadataFactory();        
+        IDirectory ebaFile = FileSystem.getFSRoot(new File(jarFile.getName()));        
+        IFile applicationManifestFile = ebaFile.getFile(AppConstants.APPLICATION_MF);
+        Manifest applicationManifest;
+        if (applicationManifestFile != null) {
+            InputStream in = applicationManifestFile.open();
+            try {
+                applicationManifest = ManifestProcessor.parseManifest(in);
+            } finally {
+                try { in.close(); } catch (IOException ignore) {}
+            }
+        } else {
+            applicationManifest = new Manifest();
+        }
+        ManifestDefaultsInjector.updateManifest(applicationManifest, ebaFile.getName(), ebaFile); 
+        ApplicationMetadata metadata = factory.createApplicationMetadata(applicationManifest);
+        return ApplicationInstaller.getConfigId(metadata);        
     }
     
     public DeploymentContext buildConfiguration(boolean inPlaceDeployment, 

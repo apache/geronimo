@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
+import org.apache.aries.application.ApplicationMetadata;
 import org.apache.aries.application.management.AriesApplication;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -41,7 +42,6 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -95,19 +95,21 @@ public class ApplicationInstaller implements GBeanLifecycle {
     }
     
     public DeploymentContext startInstall(AriesApplication app, ConfigurationStore targetConfigurationStore) 
-        throws ConfigurationAlreadyExistsException, DeploymentException {
+        throws ConfigurationAlreadyExistsException, IOException, DeploymentException {
                                 
-        Artifact configId = getConfigId(app);
+        Artifact configId = getConfigId(app.getApplicationMetadata());
         
-        File configDir = targetConfigurationStore.createNewConfigurationDir(configId);
+        targetConfigurationStore.createNewConfigurationDir(configId);
         
         Environment environment = new Environment();
         environment.setConfigId(configId);
         
         Naming naming = kernel.getNaming();
         AbstractName moduleName = naming.createRootName(configId, configId.toString(), "AriesApplication");
+        //Use a temporary folder to hold the extracted files for analysis use
+        File tempDirectory = FileUtils.createTempDir();
         try {
-            DeploymentContext context = new DeploymentContext(configDir,                
+            DeploymentContext context = new DeploymentContext(tempDirectory,                
                             null,
                             environment,
                             moduleName,
@@ -120,7 +122,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
             context.flush();
             context.initializeConfiguration();
                         
-            app.store(configDir);
+            app.store(tempDirectory);
                         
             AbstractName name = naming.createChildName(moduleName, "AriesApplication", "GBean");
             GBeanData data = new GBeanData(name, ApplicationGBean.class);
@@ -153,7 +155,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
         }
     }
     
-    public void install(AriesApplication app) throws ConfigurationAlreadyExistsException, DeploymentException {
+    public void install(AriesApplication app) throws ConfigurationAlreadyExistsException, IOException, DeploymentException {
         ConfigurationStore store = configurationStores.iterator().next();
         if (store == null) {
             throw new DeploymentException("No ConfigurationStore");
@@ -169,39 +171,13 @@ public class ApplicationInstaller implements GBeanLifecycle {
             throw new DeploymentException("", e);
         }
     }
-    
-    public void uninstall(AriesApplication app) {
-        Artifact configId = getConfigId(app);
-        try {            
-            Repository repository = findRepository(configId);
-            File location = repository.getLocation(configId);
             
-            configurationManager.unloadConfiguration(configId);
-            configurationManager.uninstallConfiguration(configId);
-            
-            FileUtils.recursiveDelete(location.getParentFile());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    private Repository findRepository(Artifact configId) {
-        for (Repository repository : configurationManager.getRepositories()) {
-            if (repository.contains(configId)) {
-                return repository;
-            }
-        }
-        return null;
-    }
-    
-    private static Artifact getConfigId(AriesApplication app) {
-        return createArtifact("aries-app", 
-                              app.getApplicationMetadata().getApplicationSymbolicName(), 
-                              app.getApplicationMetadata().getApplicationVersion());
+    public static Artifact getConfigId(ApplicationMetadata metadata) {
+        return createArtifact("application", metadata.getApplicationSymbolicName(), metadata.getApplicationVersion());
     }
     
     private static Artifact createArtifact(String group, String symbolicName, Version version) {
-        return new Artifact(group, symbolicName, getVersion(version), "jar");
+        return new Artifact(group, symbolicName, getVersion(version), "eba");
     }
     
     private static String getVersion(Version version) {
