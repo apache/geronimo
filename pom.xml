@@ -83,7 +83,7 @@
         <txmanagerVersion>3.0-SNAPSHOT</txmanagerVersion>
 
         <monitoringConsoleVersion>${version}</monitoringConsoleVersion>
-        <pax.logging.version>1.4.1-SNAPSHOT</pax.logging.version>
+        <pax.logging.version>1.5.0</pax.logging.version>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car
@@ -2398,21 +2398,6 @@ only found in cxf
                     </snapshots>
                     <releases>
                         <enabled>true</enabled>
-                    </releases>
-                </repository>
-
-                <repository>
-                    <id>ops4j.snapshots</id>
-                    <name>OPS4J Snapshots Repository</name>
-                    <layout>default</layout>
-                    <url>http://repository.ops4j.org/mvn-snapshots/</url>
-                    <snapshots>
-                        <enabled>true</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>warn</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>false</enabled>
                     </releases>
                 </repository>
 

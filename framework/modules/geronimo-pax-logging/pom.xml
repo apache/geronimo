@@ -63,7 +63,10 @@
                     <instructions>
                         <Embed-Dependency>pax-logging-service;inline=true</Embed-Dependency>
  
-                        <Import-Package>com.sun.jdmk.comm;resolution:=optional,
+                        <Import-Package>
+                            com.ibm.uvm.tools;resolution:=optional,
+                            com.sun.jdmk.comm;resolution:=optional,
+                            javax.jmdns;resolution:=optional,
                             javax.jms;resolution:=optional,
                             javax.mail;resolution:=optional,
                             javax.mail.internet;resolution:=optional,
@@ -75,25 +78,32 @@
                             javax.swing.table;resolution:=optional,
                             javax.swing.text;resolution:=optional,
                             javax.swing.tree;resolution:=optional,
+                            org.osgi.service.event;resolution:=optional;version="[1.0.0,2.0.0)",
+
                             javax.xml.parsers,
+                            org.apache.avalon.framework.logger;version="4.3.0",
+                            org.apache.commons.logging;version="1.1.0",
+                            org.apache.juli.logging;version="1.0.0",
                             org.knopflerfish.service.log;provider=paxlogging;version="[1.1.0,2.0.0)",
                             org.ops4j.pax.logging;version="[0.9.5,2.0.0)",
-                            org.ops4j.pax.logging.spi;provider=paxlogging;version="1.4",
+                            org.ops4j.pax.logging.avalon;version="1.5.0",
+                            org.ops4j.pax.logging.slf4j;version="1.5.0",
+                            org.ops4j.pax.logging.spi;provider=paxlogging;version="1.5.0",
                             org.osgi.framework;version="[1.0.0,2.0.0)",
                             org.osgi.service.cm;version="[1.0.0,2.0.0)",
-                            org.osgi.service.event;resolution:=optional,
                             org.osgi.service.log;version="[1.3.0,2.0.0)",
                             org.osgi.util.tracker;version="[1.3.0,2.0.0)",
+                            org.slf4j;version="1.5.0",
                             org.w3c.dom,
                             org.xml.sax,
                             org.xml.sax.helpers,
-                            *</Import-Package>
-                        <Export-Package>org.apache.geronimo.logging,org.ops4j.pax.logging.spi;provider=paxlogging;version="1.4"</Export-Package>
-                        <!--
-                        <Bundle-Activator>org.ops4j.pax.logging.internal.Activator</Bundle-Activator>
-                        -->
+                            *
+                        </Import-Package>
+                        <Export-Package>
+                            org.apache.geronimo.logging;version="${pom.version}",
+                            org.ops4j.pax.logging.spi;provider=paxlogging;version="1.5"
+                        </Export-Package>
                         <Bundle-Activator>org.apache.geronimo.logging.impl.LoggingServiceActivator</Bundle-Activator>
-                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>
                 </configuration>
             </plugin>
