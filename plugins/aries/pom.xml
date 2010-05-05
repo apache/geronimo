@@ -50,17 +50,17 @@
             <dependency>
                 <groupId>org.apache.aries.application</groupId>
                 <artifactId>org.apache.aries.application.utils</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.aries.application</groupId>
                 <artifactId>org.apache.aries.application.api</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.aries.application</groupId>
                 <artifactId>org.apache.aries.application.management</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
