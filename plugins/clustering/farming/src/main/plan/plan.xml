@@ -75,12 +75,12 @@
 
     <!-- Static Cluster Configuration -->
     <gbean name="ClusterInfo" class="org.apache.geronimo.farm.config.BasicClusterInfo">
-        <attribute name="name">${PlanClusterName}</attribute>
+        <attribute name="name">${planClusterName}</attribute>
         <reference name="NodeInfos"></reference>
     </gbean>
 
     <gbean name="NodeInfo" class="org.apache.geronimo.farm.config.BasicNodeInfo">
-          <attribute name="name">${PlanClusterNodeName}</attribute>
+          <attribute name="name">${planClusterNodeName}</attribute>
           <xml-attribute name="extendedJMXConnectorInfo">
               <ns:javabean xmlns:ns="http://geronimo.apache.org/xml/ns/deployment/javabean-1.0" class="org.apache.geronimo.farm.deployment.DeploymentExtendedJMXConnectorInfo">
                   <ns:property name="username">system</ns:property>

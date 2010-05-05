@@ -85,8 +85,8 @@
         <reference name="Server">
             <name>TomcatServer</name>
         </reference>
-    </gbean>    
-    
+    </gbean>
+
     <gbean name="connectorWrapperGBeanStarter" class="org.apache.geronimo.tomcat.connector.ConnectorWrapperGBeanStarter">
         <reference name="Server">
             <name>TomcatServer</name>
@@ -103,14 +103,14 @@
 
     <gbean name="TomcatWebConnector" class="org.apache.geronimo.tomcat.connector.Http11ConnectorGBean">
         <attribute name="name">HTTP</attribute>
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanHTTPPort}</attribute>
+        <attribute name="host">${planServerHostname}</attribute>
+        <attribute name="port">${planHTTPPort}</attribute>
         <attribute name="maxHttpHeaderSize">8192</attribute>
         <attribute name="maxThreads">150</attribute>
         <attribute name="minSpareThreads">25</attribute>
         <attribute name="maxSpareThreads">75</attribute>
         <attribute name="enableLookups">false</attribute>
-        <attribute name="redirectPort">${PlanHTTPSPort}</attribute>
+        <attribute name="redirectPort">${planHTTPSPort}</attribute>
         <attribute name="acceptCount">100</attribute>
         <attribute name="connectionTimeout">20000</attribute>
         <attribute name="disableUploadTimeout">true</attribute>
@@ -124,12 +124,12 @@
 
     <gbean name="TomcatAJPConnector" class="org.apache.geronimo.tomcat.connector.AJP13ConnectorGBean">
         <attribute name="name">AJP</attribute>
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanAJPPort}</attribute>
+        <attribute name="host">${planServerHostname}</attribute>
+        <attribute name="port">${planAJPPort}</attribute>
         <attribute name="minSpareThreads">25</attribute>
         <attribute name="maxSpareThreads">75</attribute>
         <attribute name="enableLookups">false</attribute>
-        <attribute name="redirectPort">${PlanHTTPSPort}</attribute>
+        <attribute name="redirectPort">${planHTTPSPort}</attribute>
         <reference name="TomcatContainer">
             <name>TomcatWebContainer</name>
         </reference>
@@ -140,8 +140,8 @@
 
     <gbean name="TomcatWebSSLConnector" class="org.apache.geronimo.tomcat.connector.Https11ConnectorGBean">
         <attribute name="name">HTTPS</attribute>
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanHTTPSPort}</attribute>
+        <attribute name="host">${planServerHostname}</attribute>
+        <attribute name="port">${planHTTPSPort}</attribute>
         <attribute name="maxHttpHeaderSize">8192</attribute>
         <attribute name="maxThreads">150</attribute>
         <attribute name="minSpareThreads">25</attribute>
@@ -196,7 +196,7 @@
     <gbean name="AccessLogValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.valves.AccessLogValve</attribute>
         <attribute name="initParams">
-            prefix=${PlanServerHostname}_access_log.
+            prefix=${planServerHostname}_access_log.
             suffix=.txt
             pattern=common
         </attribute>

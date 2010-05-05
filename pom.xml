@@ -103,33 +103,30 @@
         <jpaDeployer>org.apache.geronimo.configs/persistence-jpa20-deployer/${version}/car</jpaDeployer>
 
         <!-- Common plan properties -->
-        <PlanServerHostname>0.0.0.0</PlanServerHostname>
-        <PlanRemoteDeployHostname>127.0.0.1</PlanRemoteDeployHostname>
-        <PlanClientAddresses>127.0.0.1</PlanClientAddresses>
-        <PlanHTTPPort>8080</PlanHTTPPort>
-        <PlanHTTPSPort>8443</PlanHTTPSPort>
-        <PlanAJPPort>8019</PlanAJPPort>
-        <PlanOpenEJBPort>4201</PlanOpenEJBPort>
-        <PlanOpenEJBMulticastPort>6142</PlanOpenEJBMulticastPort>
-        <PlanOpenEJBMulticastHostname>239.255.3.2</PlanOpenEJBMulticastHostname>
-        <PlanNamingPort>1099</PlanNamingPort>
-        <PlanActiveMQPort>61616</PlanActiveMQPort>
-        <PlanCOSNamingHost>localhost</PlanCOSNamingHost>
-        <PlanCOSNamingPort>1050</PlanCOSNamingPort>
-        <PlanCOSSunNamingPort>1050</PlanCOSSunNamingPort>
-        <PlanORBHost>localhost</PlanORBHost>
-        <PlanORBPort>6882</PlanORBPort>
-        <PlanORBSunPort>6882</PlanORBSunPort>
-        <PlanORBSSLHost>localhost</PlanORBSSLHost>
-        <PlanORBSSLPort>2001</PlanORBSSLPort>
-        <PlanORBSunSSLPort>2001</PlanORBSunSSLPort>
-        <PlanJMXPort>9999</PlanJMXPort>
-        <PlanJMXSecurePort>9998</PlanJMXSecurePort>
+        <planServerHostname>0.0.0.0</planServerHostname>
+        <planHTTPPort>8080</planHTTPPort>
+        <planHTTPSPort>8443</planHTTPSPort>
+        <planAJPPort>8019</planAJPPort>
+        <planOpenEJBPort>4201</planOpenEJBPort>
+        <planOpenEJBMulticastPort>6142</planOpenEJBMulticastPort>
+        <planOpenEJBMulticastHostname>239.255.3.2</planOpenEJBMulticastHostname>
+        <planNamingPort>1099</planNamingPort>
+        <planActiveMQPort>61616</planActiveMQPort>
+        <planCOSNamingHost>localhost</planCOSNamingHost>
+        <planCOSNamingPort>1050</planCOSNamingPort>
+        <planORBHost>localhost</planORBHost>
+        <planORBPort>6882</planORBPort>
+        <planORBSunPort>6882</planORBSunPort>
+        <planORBSSLHost>localhost</planORBSSLHost>
+        <planORBSSLPort>2001</planORBSSLPort>
+        <planORBSunSSLPort>2001</planORBSunSSLPort>
+        <planJMXPort>9999</planJMXPort>
+        <planJMXSecurePort>9998</planJMXSecurePort>
 
         <!-- Plugins source-repository list-->
-        <PluginSrcRepoLocal>~/.m2/repository/</PluginSrcRepoLocal>
-        <PluginSrcRepoCentral>http://repo1.maven.org/maven2/</PluginSrcRepoCentral>
-        <PluginSrcRepoApacheSnapshots>http://repository.apache.org/snapshots/</PluginSrcRepoApacheSnapshots>
+        <pluginSrcRepoLocal>~/.m2/repository/</pluginSrcRepoLocal>
+        <pluginSrcRepoCentral>http://repo1.maven.org/maven2/</pluginSrcRepoCentral>
+        <pluginSrcRepoApacheSnapshots>http://repository.apache.org/snapshots/</pluginSrcRepoApacheSnapshots>
     </properties>
 
     <dependencyManagement>

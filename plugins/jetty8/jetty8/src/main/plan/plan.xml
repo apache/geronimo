@@ -62,8 +62,8 @@
     </gbean>
 
     <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty8.connector.HTTPSelectChannelConnector">
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanHTTPPort}</attribute>
+        <attribute name="host">${planServerHostname}</attribute>
+        <attribute name="port">${planHTTPPort}</attribute>
         <attribute name="headerBufferSizeBytes">8192</attribute>
         <reference name="JettyContainer">
             <name>JettyWebContainer</name>
@@ -75,8 +75,8 @@
     </gbean>
 
     <gbean name="JettyAJP13Connector" class="org.apache.geronimo.jetty8.connector.AJP13Connector">
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanAJPPort}</attribute>
+        <attribute name="host">${planServerHostname}</attribute>
+        <attribute name="port">${planAJPPort}</attribute>
         <reference name="JettyContainer">
             <name>JettyWebContainer</name>
         </reference>
@@ -89,8 +89,8 @@
     <!-- DONT USE THIS ONE -->
     <!--
         <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty8.connector.HTTPSSocketConnector">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanHTTPSPort}</attribute>
+            <attribute name="host">${planServerHostname}</attribute>
+            <attribute name="port">${planHTTPSPort}</attribute>
             <attribute name="keyStore">geronimo-default</attribute>
             <attribute name="keyAlias">geronimo</attribute>
             <attribute name="trustStore">geronimo-default</attribute>
@@ -111,8 +111,8 @@
     -->
     <!-- USE THIS ONE -->
     <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty8.connector.HTTPSSelectChannelConnector">
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanHTTPSPort}</attribute>
+        <attribute name="host">${planServerHostname}</attribute>
+        <attribute name="port">${planHTTPSPort}</attribute>
         <attribute name="headerBufferSizeBytes">8192</attribute>
         <attribute name="keyStore">geronimo-default</attribute>
         <attribute name="keyAlias">geronimo</attribute>

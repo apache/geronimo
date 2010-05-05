@@ -21,7 +21,7 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="Node" class="org.apache.geronimo.clustering.BasicLocalNode">
-        <attribute name="nodeName">${PlanNodeName}</attribute>
+        <attribute name="nodeName">${planNodeName}</attribute>
         <reference name="JMXConnector">
             <name>JMXService</name>
         </reference>

@@ -36,8 +36,8 @@
         <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
-        <attribute name="port">${PlanCOSNamingPort}</attribute>
-        <attribute name="host">${PlanCOSNamingHost}</attribute>
+        <attribute name="port">${planCOSNamingPort}</attribute>
+        <attribute name="host">${planCOSNamingHost}</attribute>
     </gbean>
 
     <gbean name="CORBASSLConfig" class="org.apache.geronimo.corba.security.config.ssl.SSLConfigGBean">
@@ -53,8 +53,8 @@
 
     <!-- connections require SSL, no client cert, client logs in with password, no identity token -->
     <gbean name="Server" class="org.apache.geronimo.corba.CORBAEjbBeanGBean">
-        <attribute name="host">${PlanORBSSLHost}</attribute>
-        <attribute name="port">${PlanORBSSLPort}</attribute>
+        <attribute name="host">${planORBSSLHost}</attribute>
+        <attribute name="port">${planORBSSLPort}</attribute>
         <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
@@ -70,7 +70,7 @@
                 <!--<tss:default-principal>-->
                     <!--<sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>-->
                 <!--</tss:default-principal>-->
-                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
+                <tss:SSL port="${planORBSSLPort}" hostname="${planORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget</tss:supports>
                     <tss:requires>Integrity Confidentiality</tss:requires>
                 </tss:SSL>
@@ -90,8 +90,8 @@
 
     <!-- orb with no security whatsoever -->
     <gbean name="UnprotectedServer" class="org.apache.geronimo.corba.CORBAEjbBeanGBean">
-        <attribute name="host">${PlanORBHost}</attribute>
-        <attribute name="port">${PlanORBPort}</attribute>
+        <attribute name="host">${planORBHost}</attribute>
+        <attribute name="port">${planORBPort}</attribute>
         <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
@@ -132,7 +132,7 @@
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
+                <tss:SSL port="${planORBSSLPort}" hostname="${planORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</tss:supports>
                     <tss:requires>Integrity Confidentiality EstablishTrustInClient</tss:requires>
                 </tss:SSL>
@@ -159,7 +159,7 @@
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
+                <tss:SSL port="${planORBSSLPort}" hostname="${planORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget</tss:supports>
                     <tss:requires>Integrity Confidentiality</tss:requires>
                 </tss:SSL>
@@ -187,7 +187,7 @@
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
+                <tss:SSL port="${planORBSSLPort}" hostname="${planORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget</tss:supports>
                     <tss:requires>Integrity Confidentiality</tss:requires>
                 </tss:SSL>
@@ -243,7 +243,7 @@
                 <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
-                <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
+                <tss:SSL port="${planORBSSLPort}" hostname="${planORBSSLHost}">
                     <tss:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</tss:supports>
                     <tss:requires>Integrity Confidentiality EstablishTrustInClient</tss:requires>
                 </tss:SSL>

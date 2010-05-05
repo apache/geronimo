@@ -23,7 +23,7 @@
     <gbean name="WaitForBlueprint" class="org.apache.geronimo.blueprint.WaitForBlueprintGBean"/>
 
     <gbean name="RMIRegistry" class="org.apache.geronimo.kernel.rmi.RMIRegistryService">
-        <attribute name="port">${PlanNamingPort}</attribute>
+        <attribute name="port">${planNamingPort}</attribute>
         <attribute name="host">${ServerHostname}</attribute>
     </gbean>
 
@@ -56,7 +56,7 @@
         <attribute name="maxPoolSize">500</attribute>
         <attribute name="poolName">DefaultThreadPool</attribute>
     </gbean>
-    
+
     <gbean name="ConfiguredEncryption" class="org.apache.geronimo.system.util.ConfiguredEncryption">
         <reference name="ServerInfo">
             <name>ServerInfo</name>

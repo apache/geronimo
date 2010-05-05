@@ -33,11 +33,6 @@
     <name>Geronimo Assemblies</name>
     <packaging>pom</packaging>
 
-    <properties>
-        <PlanJettyWebBuilderDefaultNamespace>http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0</PlanJettyWebBuilderDefaultNamespace>
-        <PlanTomcatWebBuilderDefaultNamespace>http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0</PlanTomcatWebBuilderDefaultNamespace>
-    </properties>
-
     <modules>
         <module>geronimo-framework</module>
     </modules>

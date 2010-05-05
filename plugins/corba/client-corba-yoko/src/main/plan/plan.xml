@@ -42,8 +42,8 @@
         <reference name="ConfigAdapter">
             <name>ORBConfigAdapter</name>
         </reference>
-        <attribute name="port">${PlanCOSNamingPort}</attribute>
-        <attribute name="host">${PlanCOSNamingHost}</attribute>
+        <attribute name="port">${planCOSNamingPort}</attribute>
+        <attribute name="host">${planCOSNamingHost}</attribute>
         <attribute name="local">false</attribute>
 
     </gbean>

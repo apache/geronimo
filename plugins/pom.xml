@@ -99,9 +99,9 @@
                             <geronimo-version>${geronimoVersion}</geronimo-version>
                             <jvm-version>1.6</jvm-version>
                             <!--<source-repository>http://www.geronimoplugins.com/repository/geronimo-2.1</source-repository>-->
-                            <source-repository>${PluginSrcRepoLocal}</source-repository>
-                            <source-repository>${PluginSrcRepoCentral}</source-repository>
-                            <source-repository>${PluginSrcRepoApacheSnapshots}</source-repository>
+                            <source-repository>${pluginSrcRepoLocal}</source-repository>
+                            <source-repository>${pluginSrcRepoCentral}</source-repository>
+                            <source-repository>${pluginSrcRepoApacheSnapshots}</source-repository>
                             <artifact-alias key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </commonInstance>

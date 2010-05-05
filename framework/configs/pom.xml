@@ -19,19 +19,19 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>framework</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
+
     <artifactId>configs</artifactId>
     <name>Geronimo Framework, Configs</name>
     <packaging>pom</packaging>
-    
+
     <modules>
         <module>geronimo-gbean-deployer</module>
         <module>geronimo-gbean-deployer-bootstrap</module>
@@ -51,7 +51,7 @@
         <module>jmx-security</module>
         <module>karaf-framework</module>
     </modules>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -60,7 +60,7 @@
                 <!-- Install as extention to allow 'car' packaging to be used. -->
                 <extensions>true</extensions>
                 <configuration>
-                    <systemProperties> 
+                    <systemProperties>
                         <geronimo.build.car>true</geronimo.build.car>
                     </systemProperties>
                     <archive>
@@ -81,9 +81,9 @@
                             <geronimo-version>${geronimoVersion}</geronimo-version>
                             <jvm-version>1.6</jvm-version>
                             <!--<source-repository>http://www.geronimoplugins.com/repository/geronimo-2.1</source-repository>-->
-                            <source-repository>${PluginSrcRepoLocal}</source-repository>
-                            <source-repository>${PluginSrcRepoCentral}</source-repository>
-                            <source-repository>${PluginSrcRepoApacheSnapshots}</source-repository>
+                            <source-repository>${pluginSrcRepoLocal}</source-repository>
+                            <source-repository>${pluginSrcRepoCentral}</source-repository>
+                            <source-repository>${pluginSrcRepoApacheSnapshots}</source-repository>
                             <artifact-alias key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </commonInstance>

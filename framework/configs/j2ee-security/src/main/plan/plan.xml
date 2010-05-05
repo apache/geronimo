@@ -38,9 +38,9 @@
     <!-- JMX Remoting -->
     <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
         <attribute name="protocol">rmi</attribute>
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanJMXPort}</attribute>
-        <attribute name="urlPath">/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
+        <attribute name="host">${planServerHostname}</attribute>
+        <attribute name="port">${planJMXPort}</attribute>
+        <attribute name="urlPath">/jndi/rmi://${planServerHostname}:${planNamingPort}/JMXConnector</attribute>
         <attribute name="applicationConfigName">geronimo-admin</attribute>
         <reference name="MBeanServerReference">
             <name>MBeanServerReference</name>

@@ -33,8 +33,8 @@
         <attribute name="supportReferenceable">true</attribute>
         <attribute name="checkDereferenceDifferent">true</attribute>
         <attribute name="assumeDereferenceBound">false</attribute>
-    </gbean> 
-    
+    </gbean>
+
     <gbean name="OpenEjbSystem" class="org.apache.geronimo.openejb.OpenEjbSystemGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
@@ -87,11 +87,11 @@
     </gbean>
 
     <gbean name="EJBNetworkService" class="org.apache.geronimo.openejb.EjbDaemonGBean">
-        <attribute name="port">${PlanOpenEJBPort}</attribute>
-        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${planOpenEJBPort}</attribute>
+        <attribute name="host">${planServerHostname}</attribute>
         <attribute name="threads">20</attribute>
-        <attribute name="multicastPort">${PlanOpenEJBMulticastPort}</attribute>
-        <attribute name="multicastHost">${PlanOpenEJBMulticastHostname}</attribute>
+        <attribute name="multicastPort">${planOpenEJBMulticastPort}</attribute>
+        <attribute name="multicastHost">${planOpenEJBMulticastHostname}</attribute>
         <attribute name="clusterName">cluster1</attribute>
         <attribute name="enableMulticast">true</attribute>
         <dependency>
