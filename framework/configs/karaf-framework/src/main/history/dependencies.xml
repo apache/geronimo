@@ -68,17 +68,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.felix.karaf</groupId>
-        <artifactId>org.apache.felix.karaf.client</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.felix.karaf</groupId>
         <artifactId>org.apache.felix.karaf.commons</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.felix.karaf</groupId>
-        <artifactId>org.apache.felix.karaf.main</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -379,11 +369,6 @@
     <dependency>
         <groupId>org.eclipse</groupId>
         <artifactId>osgi</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.fusesource.jansi</groupId>
-        <artifactId>jansi</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
