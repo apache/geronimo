@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.geronimo.mavenplugins.osgi.utils.BundleResolver;
 import org.apache.maven.plugin.Mojo;
@@ -104,7 +105,28 @@ public class DisplayManifestMojo extends AbstractLogEnabled implements Mojo {
         if (exportPackages != null && exportPackages.length > 0) {
             System.out.println("Exports:");
             for (ExportPackageDescription exportPackage : exportPackages) {
-                System.out.println(TAB + exportPackage); 
+                StringBuffer buf = new StringBuffer();
+                buf.append(TAB + exportPackage);
+                
+                Map attributes = exportPackage.getAttributes();
+                if (attributes != null) {
+                    attributes.remove("version");
+                    if (!attributes.isEmpty()) {
+                        buf.append(" Attributes: ").append(attributes);
+                    }
+                }
+                Map directives = exportPackage.getDirectives();
+                if (directives != null) {
+                    directives.remove("uses");
+                    directives.remove("x-equinox-ee");
+                    directives.remove("x-internal");
+                    if (!directives.isEmpty()) {
+                        buf.append(" Directives: ").append(directives);
+                    }
+                }                
+                
+                System.out.println(buf);
+                
                 String [] list = (String[])exportPackage.getDirective("uses");
                 if (list != null) {
                     System.out.println(TAB + TAB + "Uses: " + Arrays.asList(list));
@@ -119,7 +141,25 @@ public class DisplayManifestMojo extends AbstractLogEnabled implements Mojo {
         if (!imports.isEmpty()) {
             System.out.println(header);
             for (ImportPackageSpecification importPackage : imports) {
-                System.out.println(TAB + importPackage);
+                StringBuffer buf = new StringBuffer();
+                buf.append(TAB + importPackage);
+                
+                Map attributes = importPackage.getAttributes();
+                if (attributes != null) {
+                    attributes.remove("version");
+                    if (!attributes.isEmpty()) {
+                        buf.append(" Attributes: ").append(attributes);
+                    }
+                }
+                Map directives = importPackage.getDirectives();
+                if (directives != null) {
+                    directives.remove("resolution");
+                    if (!directives.isEmpty()) {
+                        buf.append(" Directives: ").append(directives);
+                    }
+                }                
+                
+                System.out.println(buf);
             }
             System.out.println();
         }
