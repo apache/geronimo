@@ -58,11 +58,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>geronimo-config-groovy-transformer</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-crypto</artifactId>
         <type>jar</type>
     </dependency>
@@ -149,11 +144,6 @@
     <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-reflect</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.codehaus.groovy</groupId>
-        <artifactId>groovy-all-minimal</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
