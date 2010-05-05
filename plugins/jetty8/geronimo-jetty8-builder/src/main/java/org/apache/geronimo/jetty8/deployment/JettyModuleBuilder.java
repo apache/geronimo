@@ -887,7 +887,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             if (authType != null) {
                 GBeanData securityFactoryData = new GBeanData(factoryName, AuthConfigProviderHandlerFactory.class);
-                securityFactoryData.setAttribute("messageLayer", "HttpServlet");
+                securityFactoryData.setAttribute("messageLayer", MESSAGE_LAYER);
                 String contextPath = (String)webModuleData.getAttribute("contextPath");
                 securityFactoryData.setAttribute("appContext", "server " + contextPath);
                 configureConfigurationFactory(jettyWebApp, null, securityFactoryData);

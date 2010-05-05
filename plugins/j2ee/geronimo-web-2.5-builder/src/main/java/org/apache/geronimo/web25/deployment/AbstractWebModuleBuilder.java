@@ -204,6 +204,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      * effect as URI.create(module.targetPath()).resolve(mcpEntry) executed in the ear configuration.
      */
     private static final URI RELATIVE_MODULE_BASE_URI = URI.create("../");
+    public static final String MESSAGE_LAYER = "HttpServlet";
 
     protected AbstractWebModuleBuilder(Kernel kernel, Collection<NamespaceDrivenBuilder> serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter,
             Collection<WebServiceBuilder> webServiceBuilder, Collection<ModuleBuilderExtension> moduleBuilderExtensions) {
@@ -486,8 +487,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     /**
      * Identify the spec DD schema version, and save it in the EARContext
-     * @param earContext earContext deployment target
-     * @param module module containing source info
+     * @param originalSpecDD text of original spec dd
      */
     private float identifySpecDDSchemaVersion(String originalSpecDD) {
         float schemaVersion = 0f;
@@ -581,8 +581,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     StringWriter out = new StringWriter();
                     JaspiXmlUtil.writeServerAuthModule(authModuleType, out);
                     authConfigProviderData.setAttribute("config", out.toString());
-                    authConfigProviderData.setAttribute("messageLayer", "Http");
-                    authConfigProviderData.setAttribute("appContext", contextPath);
+                    authConfigProviderData.setAttribute("messageLayer", MESSAGE_LAYER);
+                    authConfigProviderData.setAttribute("appContext", "server " + contextPath);
                     //TODO ??
                     authConfigProviderData.setAttribute("authenticationID", contextPath);
                 } finally {
