@@ -26,6 +26,7 @@ import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.EntityBean;
 import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.SessionBean;
+import org.apache.openejb.jee.SingletonBean;
 
 /**
  *
@@ -44,6 +45,9 @@ public class BasicEjbDeploymentGBeanNameBuilder implements EjbDeploymentGBeanNam
                     break;
                 case STATEFUL:
                     type = NameFactory.STATEFUL_SESSION_BEAN;
+                    break;
+                case SINGLETON:
+                    type = NameFactory.SINGLETON_BEAN;
                     break;
             }
         } else if (enterpriseBean instanceof EntityBean) {
