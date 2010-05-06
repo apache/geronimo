@@ -498,6 +498,12 @@
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-finder</artifactId>
                 <version>${xbeanVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -528,6 +534,12 @@
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-bundleutils</artifactId>
                 <version>${xbeanVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>

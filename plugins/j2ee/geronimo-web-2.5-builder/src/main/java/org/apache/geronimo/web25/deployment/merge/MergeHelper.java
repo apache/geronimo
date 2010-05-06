@@ -90,6 +90,7 @@ import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.geronimo.xbeans.javaee6.WebFragmentDocument;
 import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
 import org.apache.xbean.finder.BundleAnnotationFinder;
+import org.apache.xbean.finder.BundleAssignableClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
 import org.apache.xbean.osgi.bundle.util.ClassDiscoveryFilter;
@@ -292,37 +293,14 @@ public class MergeHelper {
                     }
                 }
             });
-            //TODO we might need to change to ASM
-            BundleClassFinder bundleClassFinder = new BundleClassFinder(packageAdmin, bundle, new ClassDiscoveryFilter() {
-
-                @Override
-                public boolean directoryDiscoveryRequired(String directory) {
-                    return true;
-                }
-
-                @Override
-                public boolean jarFileDiscoveryRequired(String jarUrl) {
-                    return !excludedJarNames.contains(jarUrl);
-                }
-
-                @Override
-                public boolean packageDiscoveryRequired(String packageName) {
-                    return true;
-                }
-
-                @Override
-                public boolean rangeDiscoveryRequired(DiscoveryRange discoveryRange) {
-                    return discoveryRange.equals(DiscoveryRange.BUNDLE_CLASSPATH);
-                }
-            });
             Map<String, Set<String>> servletContainerInitializerClassNamesMap = new HashMap<String, Set<String>>();
-            List<Class> allAvailbleClasses = bundleClassFinder.loadClasses(bundleClassFinder.find());
             for (String servletContainerInitializer : servletContainerInitializers) {
                 Class<?> servletContainerInitializerClass = null;
                 try {
                     servletContainerInitializerClass = bundle.loadClass(servletContainerInitializer);
                 } catch (Exception e) {
                     logger.warn("Fail to load ServletContainerInitializer class " + servletContainerInitializer, e);
+                    continue;
                 }
                 if (!ServletContainerInitializer.class.isAssignableFrom(servletContainerInitializerClass)) {
                     logger.warn("Class " + servletContainerInitializer + " does not implement ServletContainerInitializer interface, ignored");
@@ -333,15 +311,29 @@ public class MergeHelper {
                     servletContainerInitializerClassNamesMap.put(servletContainerInitializer, null);
                     continue;
                 }
-                Set<String> acceptedClassNames = new HashSet<String>();
-                for (Class candidateClass : allAvailbleClasses) {
-                    for (Class expectedClass : handlesTypes.value()) {
-                        if (expectedClass.isAssignableFrom(candidateClass)) {
-                            acceptedClassNames.add(candidateClass.getName());
-                            break;
-                        }
+                BundleClassFinder bundleClassFinder = new BundleAssignableClassFinder(packageAdmin, bundle, handlesTypes.value(), new ClassDiscoveryFilter() {
+
+                    @Override
+                    public boolean directoryDiscoveryRequired(String directory) {
+                        return true;
                     }
-                }
+
+                    @Override
+                    public boolean jarFileDiscoveryRequired(String jarUrl) {
+                        return !excludedJarNames.contains(jarUrl);
+                    }
+
+                    @Override
+                    public boolean packageDiscoveryRequired(String packageName) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean rangeDiscoveryRequired(DiscoveryRange discoveryRange) {
+                        return discoveryRange.equals(DiscoveryRange.BUNDLE_CLASSPATH);
+                    }
+                });
+                Set<String> acceptedClassNames = bundleClassFinder.find();
                 servletContainerInitializerClassNamesMap.put(servletContainerInitializer, acceptedClassNames.size() > 0 ? acceptedClassNames : null);
             }
             earContext.getGeneralData().put(AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS, servletContainerInitializerClassNamesMap);
@@ -354,7 +346,8 @@ public class MergeHelper {
 
     public static void processWebFragmentsAndAnnotations(EARContext earContext, Module module, Bundle bundle, WebAppType webApp) throws DeploymentException {
         final Map<String, WebFragmentDocument> jarUrlWebFragmentDocumentMap = new LinkedHashMap<String, WebFragmentDocument>();
-        final String validJarNamePrefix = module.isStandAlone() ? "WEB-INF/lib" : module.getName() + "/WEB-INF/lib";
+        //TODO Double check the name prefix once we have ear support
+        final String validJarNamePrefix = module.isStandAlone() ? "WEB-INF/lib" : module.getTargetPath() + "/WEB-INF/lib";
         WebFragmentEntry[] webFragmentEntries = null;
         Enumeration<String> enumeration = bundle.getEntryPaths(validJarNamePrefix);
         if (enumeration != null) {

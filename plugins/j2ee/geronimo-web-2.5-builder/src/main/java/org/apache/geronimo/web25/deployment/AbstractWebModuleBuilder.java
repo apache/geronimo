@@ -451,7 +451,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
         //TODO From my understanding, whether we scan ServletContainerInitializer has nothing to do with meta-complete/web.xml schema version
         //Might need double-check !
-        //MergeHelper.processServletContainerInitializer(earContext, webModule, bundle);
+        MergeHelper.processServletContainerInitializer(earContext, webModule, bundle);
 
         //Process Web Service
         Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) webModule.getSpecDD(), webModule.getContextRoot());
