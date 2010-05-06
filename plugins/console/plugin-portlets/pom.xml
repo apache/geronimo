@@ -58,13 +58,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-upgrade</artifactId>
-            <version>${version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security-builder</artifactId>
             <version>${version}</version>

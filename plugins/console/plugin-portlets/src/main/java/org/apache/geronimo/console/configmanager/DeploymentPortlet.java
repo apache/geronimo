@@ -51,7 +51,6 @@ import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.XmlUtil;
-import org.apache.geronimo.upgrade.Upgrade1_0To1_1;
 import org.w3c.dom.Document;
 
 /**
@@ -185,32 +184,6 @@ public class DeploymentPortlet extends BasePortlet {
                     abbrStatusMessage = getLocalizedString(actionRequest, "errorMsg01");
                     addErrorMessage(actionRequest, abbrStatusMessage, fullStatusMessage);
                     log.error(abbrStatusMessage + "\n" + fullStatusMessage);
-                    
-                    // try to provide an upgraded version of the plan
-                    try {
-                        if (planFile != null && planFile.exists()) {
-                            byte[] plan = new byte[(int) planFile.length()];
-                            fis = new FileInputStream(planFile);
-                            fis.read(plan);
-                            DocumentBuilder documentBuilder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
-                            Document doc = documentBuilder.parse(new ByteArrayInputStream(plan));
-                            // v1.1 switched from configId to moduleId
-                            String configId = doc.getDocumentElement().getAttribute("configId");
-                            if (configId != null && !("".equals(configId))) {
-                                StringWriter sw = new StringWriter();
-                                new Upgrade1_0To1_1().upgrade(new ByteArrayInputStream(plan), sw);
-                                // have to store the original and upgraded plans in the session
-                                // because the buffer size for render parameters is sometimes not
-                                // big enough
-                                actionRequest.getPortletSession().setAttribute(MIGRATED_PLAN_PARM, sw.getBuffer());
-                                actionRequest.getPortletSession().setAttribute(ORIGINAL_PLAN_PARM, new String(plan));
-                            }
-                        }
-                    } catch (Exception e) {
-                        // cannot provide a migrated plan in this case, most likely
-                        // because the deployment plan would not parse. a valid
-                        // status message has already been provided in this case
-                    }
                 }
             } finally {
                 mgr.release();
