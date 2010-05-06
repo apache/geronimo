@@ -59,7 +59,6 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.Manifest;
 import org.apache.geronimo.kernel.config.ManifestException;
-import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -72,10 +71,10 @@ import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,41 +101,42 @@ public class DeploymentContext {
     private final BundleContext bundleContext;
     protected Configuration configuration;
     private Bundle tempBundle;
+    private File tempBundleFile;
 
 
-    public DeploymentContext(File baseDir, 
-                             File inPlaceConfigurationDir, 
-                             Environment environment, 
-                             AbstractName moduleName, 
-                             ConfigurationModuleType moduleType, 
-                             Naming naming, 
-                             ConfigurationManager configurationManager, 
-                             Collection<Repository> repositories, 
+    public DeploymentContext(File baseDir,
+                             File inPlaceConfigurationDir,
+                             Environment environment,
+                             AbstractName moduleName,
+                             ConfigurationModuleType moduleType,
+                             Naming naming,
+                             ConfigurationManager configurationManager,
+                             Collection<Repository> repositories,
                              BundleContext bundleContext) throws DeploymentException {
-        this(baseDir, inPlaceConfigurationDir, environment, moduleName, moduleType, naming, 
+        this(baseDir, inPlaceConfigurationDir, environment, moduleName, moduleType, naming,
              createConfigurationManager(configurationManager, repositories, bundleContext), bundleContext);
     }
-    
-    public DeploymentContext(File baseDir, 
-                             File inPlaceConfigurationDir, 
-                             Environment environment, 
-                             AbstractName moduleName, 
-                             ConfigurationModuleType moduleType, 
-                             Naming naming, 
-                             ConfigurationManager configurationManager, 
-                             BundleContext bundleContext) throws DeploymentException {        
+
+    public DeploymentContext(File baseDir,
+                             File inPlaceConfigurationDir,
+                             Environment environment,
+                             AbstractName moduleName,
+                             ConfigurationModuleType moduleType,
+                             Naming naming,
+                             ConfigurationManager configurationManager,
+                             BundleContext bundleContext) throws DeploymentException {
         if (environment == null) throw new NullPointerException("environment is null");
         if (moduleType == null) throw new NullPointerException("type is null");
-        if (configurationManager == null) throw new NullPointerException("configurationManager is null");        
-        if (baseDir == null) throw new NullPointerException("baseDir is null");                
+        if (configurationManager == null) throw new NullPointerException("configurationManager is null");
+        if (baseDir == null) throw new NullPointerException("baseDir is null");
         if (!baseDir.exists() && !baseDir.mkdirs()) {
             throw new DeploymentException("Could not create directory for deployment context assembly: " + baseDir);
         }
         if (bundleContext == null) {
             throw new NullPointerException("no bundle context");
         }
-        
-        this.baseDir = baseDir; 
+
+        this.baseDir = baseDir;
         this.inPlaceConfigurationDir = inPlaceConfigurationDir;
         this.moduleName = moduleName;
         this.naming = naming;
@@ -144,7 +144,7 @@ public class DeploymentContext {
         this.environment = environment;
         this.configurationManager = configurationManager;
         this.bundleContext = bundleContext;
-                
+
         if (null == inPlaceConfigurationDir) {
             this.resourceContext = new CopyResourceContext(this, baseDir);
         } else {
@@ -152,20 +152,20 @@ public class DeploymentContext {
         }
     }
 
-    // For sub-classes only 
-    protected DeploymentContext(File baseDir, 
-                                File inPlaceConfigurationDir, 
-                                Environment environment, 
-                                AbstractName moduleName, 
-                                ConfigurationModuleType moduleType, 
-                                Naming naming, 
-                                ConfigurationManager configurationManager, 
+    // For sub-classes only
+    protected DeploymentContext(File baseDir,
+                                File inPlaceConfigurationDir,
+                                Environment environment,
+                                AbstractName moduleName,
+                                ConfigurationModuleType moduleType,
+                                Naming naming,
+                                ConfigurationManager configurationManager,
                                 ResourceContext resourceContext,
-                                BundleContext bundleContext) throws DeploymentException {                
+                                BundleContext bundleContext) throws DeploymentException {
         if (bundleContext == null) {
             throw new NullPointerException("no bundle context");
         }
-        this.baseDir = baseDir; 
+        this.baseDir = baseDir;
         this.inPlaceConfigurationDir = inPlaceConfigurationDir;
         this.moduleName = moduleName;
         this.naming = naming;
@@ -175,7 +175,7 @@ public class DeploymentContext {
         this.resourceContext = resourceContext;
         this.bundleContext = bundleContext;
     }
-        
+
     private static ConfigurationManager createConfigurationManager(ConfigurationManager configurationManager, Collection<Repository> repositories, BundleContext bundleContext) {
         return new DeploymentConfigurationManager(configurationManager, repositories, bundleContext);
     }
@@ -192,7 +192,7 @@ public class DeploymentContext {
         LinkedHashSet<Artifact> resolvedParentIds = null;
         try {
             ConfigurationData configurationData = new ConfigurationData(moduleType, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
-            File tempBundleFile = FileUtils.createTempFile();
+            tempBundleFile = FileUtils.createTempFile();
             createTempManifest();
             createPluginMetadata();
             JarUtils.jarDirectory(baseDir, tempBundleFile);
@@ -230,19 +230,19 @@ public class DeploymentContext {
     }
 
     private void createTempManifest() throws DeploymentException, IOException {
-        Environment env = new Environment(environment);        
+        Environment env = new Environment(environment);
         Artifact id = env.getConfigId();
         env.setConfigId(new Artifact(id.getGroupId(), id.getArtifactId() + "-DEPLOYMENT", id.getVersion(), id.getType()));
         env.addToBundleClassPath(classPath);
         env.setBundleActivator(null);
-        
+
         Manifest manifest;
         try {
             manifest = env.getManifest();
         } catch (ManifestException e) {
             throw new DeploymentException(e);
         }
-        
+
         File metaInf = new File(getConfigurationDir(), "META-INF");
         metaInf.mkdirs();
         FileWriter fw = new FileWriter(new File(metaInf, "MANIFEST.MF"));
@@ -256,9 +256,9 @@ public class DeploymentContext {
     }
 
     private File getConfigurationDir() {
-        return (inPlaceConfigurationDir == null) ? baseDir : inPlaceConfigurationDir;        
+        return (inPlaceConfigurationDir == null) ? baseDir : inPlaceConfigurationDir;
     }
-    
+
     public ConfigurationManager getConfigurationManager() {
         return configurationManager;
     }
@@ -451,7 +451,7 @@ public class DeploymentContext {
         }
     }
 
- 
+
     public void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri) throws DeploymentException {
         List<DeploymentException> problems = new ArrayList<DeploymentException>();
         ClassPathUtils.addManifestClassPath(moduleFile, moduleBaseUri, classPath, new DefaultJarFileFactory(), problems);
@@ -490,7 +490,7 @@ public class DeploymentContext {
     public URL getTargetURL(URI targetPath) {
         return resourceContext.getTargetURL(targetPath);
     }
-    
+
     public Bundle getDeploymentBundle() throws DeploymentException {
         return configuration.getBundle();
     }
@@ -519,6 +519,12 @@ public class DeploymentContext {
             try {
                 tempBundle.uninstall();
             } catch (BundleException e) {
+            }
+        }
+        if (tempBundleFile != null) {
+            try {
+                tempBundleFile.delete();
+            } catch (Exception e) {
             }
         }
     }

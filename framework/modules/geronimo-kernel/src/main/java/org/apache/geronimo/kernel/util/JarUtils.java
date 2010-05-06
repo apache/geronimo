@@ -51,8 +51,8 @@ public final class JarUtils {
 
     private static final boolean jarUrlRewrite;
     static {
-        //TODO Change the property name ?
-        jarUrlRewrite = new Boolean(System.getProperty("org.apache.geronimo.deployment.util.DeploymentUtil.jarUrlRewrite", "false"));
+        //Why not always set this with true ? Online deployer also lock the jar files
+        jarUrlRewrite = new Boolean(System.getProperty("org.apache.geronimo.kernel.util.JarUtils.jarUrlRewrite", "true"));
         try {
             DUMMY_JAR_FILE = FileUtils.createTempFile();
             new JarOutputStream(new FileOutputStream(JarUtils.DUMMY_JAR_FILE), new Manifest()).close();
@@ -253,15 +253,15 @@ public final class JarUtils {
         JarOutputStream out = null;
         try {
             out = new JarOutputStream(new FileOutputStream(destinationFile));
-            jarDirectory(sourceDirectory, "", destinationFile, out);       
+            jarDirectory(sourceDirectory, "", destinationFile, out);
         } finally {
             IOUtils.close(out);
         }
     }
 
-    private static void jarDirectory(File baseDirectory, 
-                                     String baseName, 
-                                     File destinationFile, 
+    private static void jarDirectory(File baseDirectory,
+                                     String baseName,
+                                     File destinationFile,
                                      JarOutputStream out) throws IOException {
         File[] files = baseDirectory.listFiles();
         if (null == files) {
@@ -276,7 +276,7 @@ public final class JarUtils {
             String name = baseName + file.getName();
             if (file.isDirectory()) {
                 out.putNextEntry(new ZipEntry(name + "/"));
-                out.closeEntry();            
+                out.closeEntry();
                 jarDirectory(file, name + "/", destinationFile, out);
             } else if (file.isFile()) {
                 out.putNextEntry(new ZipEntry(name));
@@ -289,11 +289,11 @@ public final class JarUtils {
                 } finally {
                     IOUtils.close(in);
                     out.closeEntry();
-                }              
+                }
             }
         }
     }
-    
+
     private static void createDirectory(File dir) throws IOException {
         if (dir != null && !dir.exists()) {
             boolean success = dir.mkdirs();

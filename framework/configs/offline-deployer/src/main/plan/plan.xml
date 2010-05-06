@@ -33,7 +33,7 @@
     <!-- System Properties -->
     <gbean name="OfflineDeployerProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
-             org.apache.geronimo.deployment.util.DeploymentUtil.jarUrlRewrite=true
+             org.apache.geronimo.kernel.util.JarUtils.jarUrlRewrite=true
         </attribute>
          <attribute name="sunSystemProperties">
              java.security.Provider=SUN
