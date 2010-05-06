@@ -46,12 +46,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>upgrade-cli</artifactId>
-            <version>${version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>offline-deployer</artifactId>
             <version>${version}</version>
             <type>car</type>
