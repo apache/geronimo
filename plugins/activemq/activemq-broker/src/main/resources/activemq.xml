@@ -161,7 +161,7 @@
         <systemUsage>
             <systemUsage>
                 <memoryUsage>
-                    <memoryUsage limit="20 mb"/>
+                    <memoryUsage limit="512 mb"/>
                 </memoryUsage>
                 <storeUsage>
                     <storeUsage limit="1 gb" name="foo"/>
