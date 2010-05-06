@@ -77,8 +77,6 @@ public class BootActivator implements BundleActivator {
             // register Main service if Main GBean present
             if (bundleContext.getServiceReference(org.apache.geronimo.main.Main.class.getName()) == null) { 
                 registerMainService(bundleContext, kernel);
-            } else {
-                System.out.println("Main service already registered");
             }
 
         } else {
@@ -110,7 +108,6 @@ public class BootActivator implements BundleActivator {
                         }                    
                     }, 
                     null);
-            System.out.println("Main service registered");
         } catch (GBeanNotFoundException e) {
             // ignore
         }
