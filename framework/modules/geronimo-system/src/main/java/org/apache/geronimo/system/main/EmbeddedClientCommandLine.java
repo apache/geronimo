@@ -16,20 +16,17 @@
  */
 package org.apache.geronimo.system.main;
 
-import java.util.Hashtable;
-
 import org.apache.geronimo.cli.client.ClientCLParser;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.main.Main;
+import org.apache.geronimo.kernel.util.Main;
 import org.osgi.framework.Bundle;
 
 /**
  * @version $Revision: 476049 $ $Date: 2006-11-17 15:35:17 +1100 (Fri, 17 Nov 2006) $
  */
-public class EmbeddedClientCommandLine extends ClientCommandLine implements Main, GBeanLifecycle {
+public class EmbeddedClientCommandLine extends ClientCommandLine implements Main {
     
     private final Kernel kernel;
     private final Bundle bundle;
@@ -73,14 +70,6 @@ public class EmbeddedClientCommandLine extends ClientCommandLine implements Main
     }
 
     public void doFail() {
-    }
-
-    public void doStart() throws Exception {
-        bundle.getBundleContext().registerService(Main.class.getName(), this, new Hashtable());
-    }
-
-    public void doStop() throws Exception {
-        // TODO: unregister Main service?
     }
     
 }

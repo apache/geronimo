@@ -20,7 +20,6 @@ package org.apache.geronimo.deployment.cli;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -38,14 +37,13 @@ import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.main.Main;
+import org.apache.geronimo.kernel.util.Main;
 import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
  */
-public class StopServer implements Main, GBeanLifecycle {
+public class StopServer implements Main {
 
 	public static final String DEFAULT_PORT = "1099"; // 1099 is used by java.rmi.registry.Registry
 
@@ -215,17 +213,6 @@ public class StopServer implements Main, GBeanLifecycle {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public void doFail() {
-    }
-
-    public void doStart() throws Exception {
-        bundle.getBundleContext().registerService(Main.class.getName(), this, new Hashtable());
-    }
-
-    public void doStop() throws Exception {
-        // TODO: unregister Main service?
     }
 
 }

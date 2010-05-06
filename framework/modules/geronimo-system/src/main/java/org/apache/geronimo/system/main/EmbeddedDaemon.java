@@ -19,7 +19,6 @@ package org.apache.geronimo.system.main;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +28,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -38,7 +36,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.main.Main;
+import org.apache.geronimo.kernel.util.Main;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +44,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev:385659 $ $Date: 2007-03-07 14:40:07 +1100 (Wed, 07 Mar 2007) $
  */
-public class EmbeddedDaemon implements Main, GBeanLifecycle {
+public class EmbeddedDaemon implements Main {
     private static final Logger log = LoggerFactory.getLogger(EmbeddedDaemon.class);
 
     protected final Kernel kernel;
@@ -229,17 +227,6 @@ public class EmbeddedDaemon implements Main, GBeanLifecycle {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
-    }
-
-    public void doFail() {
-    }
-
-    public void doStart() throws Exception {
-        bundle.getBundleContext().registerService(Main.class.getName(), this, new Hashtable());
-    }
-    
-    public void doStop() throws Exception {
-        // TODO: unregister Main service?
     }
 
 }
