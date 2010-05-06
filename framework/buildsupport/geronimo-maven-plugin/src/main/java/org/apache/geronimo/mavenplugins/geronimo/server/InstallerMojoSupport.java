@@ -123,8 +123,8 @@ public abstract class InstallerMojoSupport
             Enumeration n = zipFile.entries();
             while (n.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry)n.nextElement();
-                // look for lib/karaf.jar under a single directory                     
-                if (entry.getName().endsWith("lib/karaf.jar") && entry.getName().split("/").length == 3) {
+                // look for lib/geronimo-main.jar under a single directory                     
+                if (entry.getName().endsWith("lib/geronimo-main.jar") && entry.getName().split("/").length == 3) {
                     File file = new File(installDirectory, entry.getName());
                     dir = file.getParentFile().getParentFile();
                     break;
@@ -134,7 +134,7 @@ public abstract class InstallerMojoSupport
             zipFile.close();
         }
         catch (IOException e) {
-            throw new MojoExecutionException("Failed to determine geronimoHome while scanning archive for 'lib/karaf.jar'", e);
+            throw new MojoExecutionException("Failed to determine geronimoHome while scanning archive for 'lib/geronimo-main.jar'", e);
         }
 
         if (dir == null) {
@@ -153,9 +153,9 @@ public abstract class InstallerMojoSupport
                 geronimoHome = geronimoHome.getCanonicalFile();
                 
                 // Quick sanity check
-                File file = new File(geronimoHome, "lib/karaf.jar");
+                File file = new File(geronimoHome, "lib/geronimo-main.jar");
                 if (!file.exists()) {
-                    throw new MojoExecutionException("When geronimoHome is set, it must point to a directory that contains 'lib/karaf.jar'");
+                    throw new MojoExecutionException("When geronimoHome is set, it must point to a directory that contains 'lib/geronimo-main.jar'");
                 }
                 log.info("Using pre-installed assembly: " + geronimoHome);
 
