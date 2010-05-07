@@ -72,11 +72,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.felix.karaf</groupId>
-        <artifactId>org.apache.felix.karaf.management</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.felix.karaf.admin</groupId>
         <artifactId>org.apache.felix.karaf.admin.core</artifactId>
         <type>jar</type>
