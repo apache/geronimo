@@ -2344,6 +2344,32 @@ only found in cxf
             <repositories>
 
                 <repository>
+                    <id>jaspi</id>
+                    <name>jaspi</name>
+                    <layout>default</layout>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-012</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
+
+                <repository>
+                    <id>txmanager</id>
+                    <name>txmanager</name>
+                    <layout>default</layout>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-011</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
+
+                <repository>
                     <id>aries1</id>
                     <name>aries1</name>
                     <layout>default</layout>
