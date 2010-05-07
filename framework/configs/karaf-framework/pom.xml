@@ -53,7 +53,6 @@
         <felix.webconsole.version>2.0.0</felix.webconsole.version>
         <felix.metatype.version>1.0.2</felix.metatype.version>
         <aries.blueprint.version>0.1-incubating</aries.blueprint.version>
-        <geronimo.servlet.version>1.1.2</geronimo.servlet.version>
         <jansi.version>1.1</jansi.version>
         <jetty.bundle.version>6.1.14_1</jetty.bundle.version>
         <junit.version>3.8.2_1</junit.version>
@@ -65,9 +64,6 @@
         <pax.runner.version>1.2.1</pax.runner.version>
         <pax.url.version>1.1.2</pax.url.version>
         <pax.web.version>0.7.1</pax.web.version>
-        <servlet.api.version>2.5</servlet.api.version>
-        <!--<spring.osgi.version>1.2.0</spring.osgi.version>-->
-        <!--<spring.version>2.5.6.SEC01</spring.version>-->
         <sshd.version>0.4.0-SNAPSHOT</sshd.version>
     </properties>
 
@@ -81,12 +77,6 @@
                 <version>${felix.karaf.version}</version>
                 <scope>import</scope>
             </dependency>
-
-            <!--<dependency>-->
-                <!--<groupId>org.apache.felix</groupId>-->
-                <!--<artifactId>org.apache.felix.configadmin</artifactId>-->
-                <!--<version>${felix.configadmin.version}</version>-->
-            <!--</dependency>-->
 
             <dependency>
                 <groupId>org.apache.felix</groupId>
@@ -268,11 +258,6 @@
         <dependency>
             <groupId>org.apache.felix.karaf.shell</groupId>
             <artifactId>org.apache.felix.karaf.shell.console</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix.karaf.admin</groupId>
-            <artifactId>org.apache.felix.karaf.admin.core</artifactId>
-            <version>${felix.karaf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix.karaf.shell</groupId>
