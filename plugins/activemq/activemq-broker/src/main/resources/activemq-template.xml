@@ -35,6 +35,9 @@
             <!--<value>file://${activemq.home}/conf/credentials.properties</value>-->
             <value>${activemq.geronimo.home.url}/var/config/config-substitutions.properties</value>
          </property>
+         <property name="systemPropertiesMode">
+            <value>2</value>
+         </property>
     </bean>
 
     <broker xmlns="http://activemq.apache.org/schema/core" brokerName="${activemq.brokerName}" tmpDataDirectory="${activemq.data}/tmp_storage" useShutdownHook="false" start="false">
