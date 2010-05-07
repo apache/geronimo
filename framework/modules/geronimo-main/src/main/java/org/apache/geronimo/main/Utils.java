@@ -288,15 +288,15 @@ public class Utils {
                 for (int i = 0; i < files.length; i++) {
                     File file = files[i];
                     if (file.isDirectory()) {
-                        ok = ok && recursiveDelete(file);
+                        ok = recursiveDelete(file) && ok;
                     } else {
-                        ok = ok && file.delete();
+                        ok = file.delete() && ok;
                     }
                 }
             }
         }
         
-        ok = ok && root.delete();
+        ok = root.delete() && ok;
         
         return ok;
     }
