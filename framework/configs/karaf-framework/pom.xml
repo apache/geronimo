@@ -197,22 +197,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.felix.karaf.jaas</groupId>
-                <artifactId>org.apache.felix.karaf.jaas.modules</artifactId>
-                <version>${felix.karaf.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework.osgi</groupId>
-                        <artifactId>spring-osgi-core</artifactId>
-                    </exclusion>
-               </exclusions>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.mina</groupId>
                 <artifactId>mina-core</artifactId>
                 <version>${mina.version}</version>
@@ -325,10 +309,6 @@
         <dependency>
             <groupId>org.apache.felix.karaf.jaas</groupId>
             <artifactId>org.apache.felix.karaf.jaas.config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix.karaf.jaas</groupId>
-            <artifactId>org.apache.felix.karaf.jaas.modules</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.felix.karaf</groupId>
