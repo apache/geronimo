@@ -37,19 +37,30 @@
 
 # Make sure prerequisite environment variables are set
 if [ -z "$JAVA_HOME" -a -z "$JRE_HOME" ]; then
-  __JAVA_TEST="which java"
-  if [ -n "__JAVA_TEST" ]; then
-    _RUNJAVA="java"
+  if $darwin; then
+    if [ -d "/System/Library/Frameworks/JavaVM.framework/Home" ]; then
+      export JAVA_HOME="/System/Library/Frameworks/JavaVM.framework/Home"
+    fi
   else
-    echo ""
-    echo "ERROR:  Could not find a Java runtime."
-    echo " - Neither the JAVA_HOME nor the JRE_HOME environment variable is defined"
-    echo " - A Java implementation could not be found on the system PATH"
-    echo "At least one of these is required for this program to execute."
-    echo ""
+    JAVA_PATH=`which java 2>/dev/null`
+    if [ "x$JAVA_PATH" != "x" ]; then
+      JAVA_PATH=`dirname $JAVA_PATH 2>/dev/null`
+      JAVA_PATH=`dirname $JAVA_PATH 2>/dev/null`
+      if [ -d "$JAVA_PATH/jre" ]; then
+        JAVA_HOME="$JAVA_PATH"
+        JRE_HOME="$JAVA_PATH/jre"
+      else
+        JRE_HOME="$JAVA_PATH"
+      fi
+    fi
+  fi
+
+  if [ -z "$JAVA_HOME" -a -z "$JRE_HOME" ]; then
+    echo "Neither the JAVA_HOME nor the JRE_HOME environment variable is defined"
+    echo "At least one of these environment variable is needed to run this program"
     exit 1
   fi
-else
+fi
 
 if [ -z "$JAVA_HOME" -a "$1" = "debug" ]; then
   echo "JAVA_HOME should point to a JDK in order to run in debug mode."
@@ -101,8 +112,7 @@ if [ ! -x "$BASEDIR"/bin/setjavaenv.sh ]; then
 fi
 
 # Set standard commands for invoking Java.
-  _RUNJAVA="$JRE_HOME"/bin/java
+_RUNJAVA="$JRE_HOME"/bin/java
 if [ "$os400" != "true" ]; then
   _RUNJDB="$JAVA_HOME"/bin/jdb
-fi
 fi
