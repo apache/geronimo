@@ -1792,35 +1792,7 @@
                         <artifactId>servlet-api</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-ws-security</artifactId>
-                <version>${cxfVersion}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.soap</groupId>
-                        <artifactId>saaj-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.opensaml</groupId>
-                        <artifactId>opensaml</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xalan</groupId>
-                        <artifactId>xalan</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+            </dependency>            
 
             <dependency>
                 <groupId>org.apache.velocity</groupId>

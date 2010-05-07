@@ -70,6 +70,10 @@
                         <groupId>org.apache.cxf</groupId>
                         <artifactId>cxf-common-schemas</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -110,6 +114,10 @@
                         <groupId>commons-lang</groupId>
                         <artifactId>commons-lang</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -138,6 +146,10 @@
                         <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-javamail_1.4_spec</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -153,6 +165,10 @@
                     <exclusion>
                         <groupId>javax.jws</groupId>
                         <artifactId>jsr181-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -173,6 +189,10 @@
                     <exclusion>
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jaxb-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -201,6 +221,10 @@
                     <exclusion>
                         <groupId>com.sun.xml.bind</groupId>
                         <artifactId>jaxb-xjc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -234,6 +258,10 @@
                         <groupId>com.sun.xml.parsers</groupId>
                         <artifactId>jaxp-ri</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -258,6 +286,10 @@
                         <groupId>javax.xml.soap</groupId>
                         <artifactId>saaj-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -277,6 +309,10 @@
                     <exclusion>
                         <groupId>com.sun.xml.bind</groupId>
                         <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -323,6 +359,10 @@
                         <groupId>oro</groupId>
                         <artifactId>oro</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -347,6 +387,10 @@
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jaxb-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -354,10 +398,102 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-addr</artifactId>
                 <version>${cxfVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-tools-wsdlto-core</artifactId>
+                <version>${cxfVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-tools-validator</artifactId>
+                <version>${cxfVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
-
-	</dependencies>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-common-schemas</artifactId>
+                <version>${cxfVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-tools-wsdlto-frontend-jaxws</artifactId>
+                <version>${cxfVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-tools-wsdlto-databinding-jaxb</artifactId>
+                <version>${cxfVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-ws-security</artifactId>
+                <version>${cxfVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.soap</groupId>
+                        <artifactId>saaj-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.opensaml</groupId>
+                        <artifactId>opensaml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+	    </dependencies>
     </dependencyManagement>
 
 </project>
