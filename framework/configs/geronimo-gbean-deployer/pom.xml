@@ -45,26 +45,26 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deployment</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>plugin</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -87,7 +87,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.framework</groupId>
                                     <artifactId>geronimo-service-builder</artifactId>
-                                    <version>${version}</version>
+                                    <version>${project.version}</version>
                                 </artifactItem>
                             </artifactItems>
                             <includes>**/*.xsd</includes>
@@ -109,7 +109,7 @@
                         <dependency>
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>plugin</artifactId>
-                            <version>${version}</version>
+                            <version>${project.version}</version>
                             <type>car</type>
                             <import>classes</import>
                         </dependency>

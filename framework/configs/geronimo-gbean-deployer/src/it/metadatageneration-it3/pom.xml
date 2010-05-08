@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache.geronimo.buildsupport</groupId>
         <artifactId>buildsupport</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.geronimo.buildsupport.it</groupId>
@@ -39,19 +39,19 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-tool</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
 
             <!-- exclude transitive deps -->
             <exclusions>
@@ -119,7 +119,7 @@
                         <dependency>
                             <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>geronimo-service-builder</artifactId>
-                            <version>${version}</version>
+                            <version>${project.version}</version>
                             <start>false</start>
                         </dependency>
                     </dependencies>
