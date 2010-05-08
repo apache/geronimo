@@ -2360,7 +2360,7 @@ only found in cxf
                     <id>txmanager</id>
                     <name>txmanager</name>
                     <layout>default</layout>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-011</url>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-021</url>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>
