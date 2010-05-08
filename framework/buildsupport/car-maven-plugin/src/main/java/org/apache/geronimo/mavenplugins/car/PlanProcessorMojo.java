@@ -51,6 +51,7 @@ import org.apache.xmlbeans.XmlOptions;
  *
  * @version $Rev$ $Date$
  * @goal prepare-plan
+ * @requiresDependencyResolution runtime
  */
 public class PlanProcessorMojo
         extends AbstractCarMojo {

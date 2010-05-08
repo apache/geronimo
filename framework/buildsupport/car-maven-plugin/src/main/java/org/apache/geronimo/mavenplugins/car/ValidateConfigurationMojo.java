@@ -30,6 +30,7 @@ import org.apache.maven.plugin.MojoFailureException;
  * Check that all dependencies mentioned explicitly in the car-maven-plugin configuration are present as maven dependencies.
  *
  * @goal validate-configuration
+ * @requiresDependencyResolution compile
  *
  * @version $Rev$ $Date$
  */

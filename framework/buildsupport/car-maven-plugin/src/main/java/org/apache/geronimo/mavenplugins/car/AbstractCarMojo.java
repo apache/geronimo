@@ -403,7 +403,15 @@ public abstract class AbstractCarMojo
         DependencyType dependency = new DependencyType();
         dependency.setGroupId(artifact.getGroupId());
         dependency.setArtifactId(artifact.getArtifactId());
-        dependency.setVersion(includeVersion ? artifact.getVersionRange().getRecommendedVersion().toString() : null);
+        String version = null;
+        if (includeVersion) {
+            if (artifact.getVersionRange() == null) {
+                version = artifact.getVersion();
+            } else {
+                version = artifact.getVersionRange().getRecommendedVersion().toString();
+            }
+        }
+        dependency.setVersion(version);
         dependency.setType(artifact.getType());
         if (includeImport) {
             ImportType importType = ImportType.ALL;
@@ -950,6 +958,11 @@ public abstract class AbstractCarMojo
         ServiceLoader<FrameworkFactory> loader = ServiceLoader.load(FrameworkFactory.class);
         Framework framework = loader.iterator().next().newFramework(properties);
         framework.start();
+        //enable mvn url handling
+//        new org.ops4j.pax.url.mvn.internal.Activator().start(framework.getBundleContext());
+        //don't allow mvn urls
+        System.setProperty("geronimo.build.car", "true");
+
         return framework;
     }
 

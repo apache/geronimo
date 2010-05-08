@@ -183,14 +183,19 @@ public class PluginMetadataGeneratorMojo
                 throw new Error("Unable to resolve car plugin");
             }
 
-            Xpp3Dom dom;
+            Xpp3Dom dom = null;
             if (plugin.getExecutions().isEmpty()) {
                 dom = (Xpp3Dom) plugin.getConfiguration();
             } else {
-                if (plugin.getExecutions().size() > 1) {
-                    throw new IllegalStateException("Cannot determine correct configuration for PluginMetadataGeneratorMojo: " + plugin.getExecutionsAsMap().keySet());
+                for (PluginExecution execution: (List<PluginExecution>)plugin.getExecutions()) {
+                    if ("prepare-metadata".equals(execution.getGoals().get(0))) {
+                        dom = (Xpp3Dom) execution.getConfiguration();
+                        break;
+                    }
                 }
-                dom = (Xpp3Dom) ((PluginExecution) plugin.getExecutions().get(0)).getConfiguration();
+                if (dom == null) {
+                    throw new IllegalStateException("Cannot determine correct configuration for PluginMetadataGeneratorMojo: " + plugin.getExecutionsAsMap());
+                }
             }
             Xpp3Dom instanceDom = dom.getChild("instance");
 

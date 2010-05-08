@@ -70,7 +70,7 @@ public class ArchiveCarMojo
     /**
      * The Jar archiver.
      *
-     * @parameter expression="${component.org.codehaus.plexus.archiver.Archiver#jar}"
+     * @component role="org.codehaus.plexus.archiver.Archiver" roleHint="jar"
      * @required
      * @readonly
      */
@@ -79,7 +79,7 @@ public class ArchiveCarMojo
     /**
      * The Jar archiver.
      *
-     * @parameter expression="${component.org.codehaus.plexus.archiver.manager.ArchiverManager}"
+     * @component role="org.codehaus.plexus.archiver.manager.ArchiverManager"
      * @required
      * @readonly
      */
