@@ -38,10 +38,24 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.codehaus.groovy.maven</groupId>
+            <groupId>org.codehaus.gmaven</groupId>
             <artifactId>gmaven-mojo</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.gmaven.runtime</groupId>
+            <artifactId>gmaven-runtime-1.6</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sonatype.gossip</groupId>
+            <artifactId>gossip</artifactId>
+        </dependency>
         
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-project</artifactId>
@@ -51,18 +65,18 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.groovy.maven</groupId>
+                <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generateStubs</goal>
-                            <goal>compile</goal>
-                            <goal>generateTestStubs</goal>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>generateStubs</goal>-->
+                            <!--<goal>compile</goal>-->
+                            <!--<goal>generateTestStubs</goal>-->
+                            <!--<goal>testCompile</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
             </plugin>
 
             <plugin>

@@ -56,7 +56,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- This property is required by the car:package mojo -->
-        <geronimoVersion>${version}</geronimoVersion>
+        <geronimoVersion>${project.version}</geronimoVersion>
 
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
         <warnOnDependencyChange>true</warnOnDependencyChange>
@@ -82,25 +82,25 @@
 
         <txmanagerVersion>3.0</txmanagerVersion>
 
-        <monitoringConsoleVersion>${version}</monitoringConsoleVersion>
+        <monitoringConsoleVersion>${project.version}</monitoringConsoleVersion>
         <pax.logging.version>1.5.0</pax.logging.version>
 
         <!-- Deployers -->
-        <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car
+        <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${project.version}/car
         </gbeanDeployerBootstrap>
-        <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${version}/car</gbeanDeployer>
-        <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${version}/car</j2eeDeployer>
-        <clientDeployer>org.apache.geronimo.configs/client-deployer/${version}/car</clientDeployer>
-        <connectorDeployer>org.apache.geronimo.configs/connector-deployer-1_6/${version}/car</connectorDeployer>
-        <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${version}/car</openejbDeployer>
-        <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</openejbcorbaDeployer>
-        <axisDeployer>org.apache.geronimo.configs/axis-deployer/${version}/car</axisDeployer>
-        <cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${version}/car</cxfDeployer>
-        <axis2Deployer>org.apache.geronimo.configs/axis2-deployer/${version}/car</axis2Deployer>
-        <tomcatDeployer>org.apache.geronimo.configs/tomcat7-deployer/${version}/car</tomcatDeployer>
-        <jettyDeployer>org.apache.geronimo.configs/${jetty}-deployer/${version}/car</jettyDeployer>
-        <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${version}/car</jasperDeployer>
-        <jpaDeployer>org.apache.geronimo.configs/persistence-jpa20-deployer/${version}/car</jpaDeployer>
+        <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${project.version}/car</gbeanDeployer>
+        <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${project.version}/car</j2eeDeployer>
+        <clientDeployer>org.apache.geronimo.configs/client-deployer/${project.version}/car</clientDeployer>
+        <connectorDeployer>org.apache.geronimo.configs/connector-deployer-1_6/${project.version}/car</connectorDeployer>
+        <openejbDeployer>org.apache.geronimo.configs/openejb-deployer/${project.version}/car</openejbDeployer>
+        <openejbcorbaDeployer>org.apache.geronimo.configs/openejb-corba-deployer/${project.version}/car</openejbcorbaDeployer>
+        <axisDeployer>org.apache.geronimo.configs/axis-deployer/${project.version}/car</axisDeployer>
+        <cxfDeployer>org.apache.geronimo.configs/cxf-deployer/${project.version}/car</cxfDeployer>
+        <axis2Deployer>org.apache.geronimo.configs/axis2-deployer/${project.version}/car</axis2Deployer>
+        <tomcatDeployer>org.apache.geronimo.configs/tomcat7-deployer/${project.version}/car</tomcatDeployer>
+        <jettyDeployer>org.apache.geronimo.configs/${jetty}-deployer/${project.version}/car</jettyDeployer>
+        <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${project.version}/car</jasperDeployer>
+        <jpaDeployer>org.apache.geronimo.configs/persistence-jpa20-deployer/${project.version}/car</jpaDeployer>
 
         <!-- Common plan properties -->
         <planServerHostname>0.0.0.0</planServerHostname>
@@ -1612,29 +1612,39 @@
             </dependency>
 
             <dependency>
-                <groupId>org.codehaus.groovy.maven</groupId>
+                <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-mojo</artifactId>
-                <version>1.0-rc-2</version>
+                <version>1.2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.gmaven.runtime</groupId>
+                        <artifactId>gmaven-runtime-1.5</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-all-minimal</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
-                <groupId>org.codehaus.groovy.maven.runtime</groupId>
-                <artifactId>gmaven-runtime-default</artifactId>
-                <version>1.0-rc-2</version>
+                <groupId>org.codehaus.gmaven.runtime</groupId>
+                <artifactId>gmaven-runtime-1.6</artifactId>
+                <version>1.2</version>
             </dependency>
 
             <dependency>
-                <groupId>org.codehaus.groovy.maven.support</groupId>
-                <artifactId>slf4j-gossip</artifactId>
-                <version>1.0-rc-2</version>
+                <groupId>org.sonatype.gossip</groupId>
+                <artifactId>gossip</artifactId>
+                <version>1.2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all-minimal</artifactId>
-                <version>1.5.6</version>
+                <artifactId>groovy-all</artifactId>
+                <version>1.6.0</version>
             </dependency>
-
+            
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
@@ -1986,6 +1996,24 @@ only found in cxf
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.codehaus.gmaven</groupId>
+                    <artifactId>gmaven-plugin</artifactId>
+                    <version>1.2</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>generateStubs</goal>
+                                <goal>compile</goal>
+                                <goal>generateTestStubs</goal>
+                                <goal>testCompile</goal>
+                            </goals>
+                            <configuration>
+                                <providerSelection>1.6</providerSelection>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
 
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -2141,26 +2169,26 @@ only found in cxf
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>buildsupport-maven-plugin</artifactId>
-                    <version>${version}</version>
+                    <version>${project.version}</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>car-maven-plugin</artifactId>
-                    <version>${version}</version>
+                    <version>${project.version}</version>
                     <extensions>true</extensions>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>testsuite-maven-plugin</artifactId>
-                    <version>${version}</version>
+                    <version>${project.version}</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
-                    <version>${version}</version>
+                    <version>${project.version}</version>
 
                     <configuration>
                         <assemblies>
@@ -2168,7 +2196,7 @@ only found in cxf
                                 <id>jetty</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty8-javaee6</artifactId>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -2177,7 +2205,7 @@ only found in cxf
                                 <id>jetty-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty8-minimal</artifactId>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -2186,7 +2214,7 @@ only found in cxf
                                 <id>tomcat</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-tomcat7-javaee6</artifactId>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -2195,7 +2223,7 @@ only found in cxf
                                 <id>tomcat-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-tomcat7-minimal</artifactId>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -2204,7 +2232,7 @@ only found in cxf
                                 <id>framework</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-framework</artifactId>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>

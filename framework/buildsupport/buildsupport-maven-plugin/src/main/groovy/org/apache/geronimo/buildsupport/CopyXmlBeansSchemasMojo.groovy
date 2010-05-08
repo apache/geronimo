@@ -19,7 +19,7 @@
 
 package org.apache.geronimo.buildsupport
 
-import org.codehaus.groovy.maven.mojo.GroovyMojo
+import org.codehaus.gmaven.mojo.GroovyMojo
 
 import org.apache.maven.project.MavenProject
 
