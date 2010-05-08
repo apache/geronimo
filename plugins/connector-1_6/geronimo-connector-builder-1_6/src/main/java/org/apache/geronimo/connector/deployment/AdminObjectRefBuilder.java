@@ -138,6 +138,14 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 // some other builder handled this entry already
                 continue;
             }
+            String refType = getStringValue(resourceEnvRef.getResourceEnvRefType());
+            if (refType.equals("javax.ejb.TimerService") ||
+                refType.equals("javax.ejb.EntityContext") ||
+                refType.equals("javax.ejb.MessageDrivenContext") ||
+                refType.equals("javax.ejb.SessionContext") ||
+                refType.equals("javax.xml.ws.WebServiceContext")) {
+                continue;
+            }
             addInjections(name, resourceEnvRef.getInjectionTargetArray(), componentContext);
             String type = getStringValue(resourceEnvRef.getResourceEnvRefType());
             GerResourceEnvRefType gerResourceEnvRef = refMap.remove(name);
@@ -379,10 +387,15 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             String resourceName = getResourceName(annotation, method, field);
             String resourceType = getResourceType(annotation, method, field);
 
+            //ejb special cases
             if (resourceType.equals("javax.ejb.SessionContext")) return true;
             if (resourceType.equals("javax.ejb.MessageDrivenContext")) return true;
             if (resourceType.equals("javax.ejb.EntityContext")) return true;
             if (resourceType.equals("javax.ejb.TimerService")) return true;
+
+            //validator special cases
+            if (resourceType.equals("javax.validation.Validator")) return true;
+            if (resourceType.equals("javax.validation.ValidatorFactory")) return true;
 
             //If it already exists in xml as a message-destination-ref or resource-env-ref, we are done.
             MessageDestinationRefType[] messageDestinationRefs = annotatedApp.getMessageDestinationRefArray();
