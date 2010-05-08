@@ -80,37 +80,37 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-obr</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-plugin</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-tool</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
 
             <!-- exclude transitive deps -->
             <exclusions>
@@ -128,7 +128,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-transformer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         
         <dependency>
@@ -228,8 +228,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.groovy.maven.support</groupId>
-            <artifactId>slf4j-gossip</artifactId>
+            <groupId>org.sonatype.gossip</groupId>
+            <artifactId>gossip</artifactId>
         </dependency>
 
         <dependency>
@@ -245,13 +245,17 @@
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.felix.karaf.jaas</groupId>
             <artifactId>org.apache.felix.karaf.jaas.boot</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.url</groupId>
+            <artifactId>pax-url-mvn</artifactId>
         </dependency>
     </dependencies>
 

@@ -41,18 +41,18 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         
         <dependency>
-            <groupId>org.codehaus.groovy.maven.support</groupId>
-            <artifactId>slf4j-gossip</artifactId>
+            <groupId>org.sonatype.gossip</groupId>
+            <artifactId>gossip</artifactId>
         </dependency>
 
         <dependency>
