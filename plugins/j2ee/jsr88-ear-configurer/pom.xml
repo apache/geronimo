@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jsr88-cli</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>runtime</scope>
             <type>car</type>
         </dependency>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

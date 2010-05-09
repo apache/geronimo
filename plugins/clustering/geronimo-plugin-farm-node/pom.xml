@@ -74,13 +74,13 @@
         <dependency>
             <groupId>org.apache.geronimo.framework.plugingroups</groupId>
             <artifactId>framework</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>plugin-farm-member</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
     </dependencies>

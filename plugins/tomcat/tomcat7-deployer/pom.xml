@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>connector-deployer-1_6</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
@@ -55,7 +55,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat7</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>runtime</scope>
         </dependency>
@@ -63,13 +63,13 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-tomcat7-builder</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.modules</groupId>-->
             <!--<artifactId>geronimo-web-2.5-builder</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
         <!--</dependency>-->
     </dependencies>
 
@@ -90,12 +90,12 @@
                                <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-web-2.5-builder</artifactId>
-                                    <version>${version}</version>
+                                    <version>${project.version}</version>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.modules</groupId>
                                     <artifactId>geronimo-tomcat7-builder</artifactId>
-                                    <version>${version}</version>
+                                    <version>${project.version}</version>
                                 </artifactItem>
                             </artifactItems>
                             <includes>**/*.xsd</includes>

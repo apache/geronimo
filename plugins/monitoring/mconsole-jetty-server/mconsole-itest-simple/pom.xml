@@ -38,7 +38,7 @@
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-selenium</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         
@@ -70,7 +70,7 @@
                                 <systemProperties>
                                     <property>
                                         <name>geronimoVersion</name>
-                                        <value>${version}</value>
+                                        <value>${project.version}</value>
                                     </property>
                                 </systemProperties>
                             </configuration>

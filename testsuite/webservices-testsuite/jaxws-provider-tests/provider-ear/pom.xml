@@ -38,28 +38,28 @@
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>provider-war</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>war</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>provider-ejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>provider-test-war</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>war</type>            
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>provider-common</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>jar</type>            
         </dependency>
         
@@ -82,12 +82,12 @@
                             <groupId>org.apache.geronimo.testsuite</groupId>
                             <artifactId>provider-war</artifactId>
                             <contextRoot>/provider</contextRoot>
-                            <bundleFileName>provider-war-${version}.war</bundleFileName>
+                            <bundleFileName>provider-war-${project.version}.war</bundleFileName>
                         </webModule>
                         <ejbModule>
                             <groupId>org.apache.geronimo.testsuite</groupId>
                             <artifactId>provider-ejb</artifactId>
-                            <bundleFileName>provider-ejb-${version}.jar</bundleFileName>
+                            <bundleFileName>provider-ejb-${project.version}.jar</bundleFileName>
                         </ejbModule>
                     </modules>
                 </configuration>
@@ -130,10 +130,10 @@
                                     <groupId>org.apache.geronimo.testsuite</groupId>
                                     <artifactId>provider-test-war</artifactId>
                                     <type>war</type>
-                                    <version>${version}</version>
+                                    <version>${project.version}</version>
                                 </module>
                             </modules-->
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
+                            <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.ear</moduleArchive>
                         </configuration>
                     </execution>
                             
@@ -149,10 +149,10 @@
                                     <groupId>org.apache.geronimo.testsuite</groupId>
                                     <artifactId>provider-test-war</artifactId>
                                     <type>war</type>
-                                    <version>${version}</version>
+                                    <version>${project.version}</version>
                                 </module-->
                             </modules>
-                            <moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
+                            <moduleId>${project.groupId}/${project.artifactId}/${project.version}/ear</moduleId>
                         </configuration>
                     </execution>
                 </executions>

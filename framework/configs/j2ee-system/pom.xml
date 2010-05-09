@@ -38,31 +38,31 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 <!--
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-config-groovy-transformer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-crypto</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-obr</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Used by TemporaryClassLoader in kernel -->
@@ -150,7 +150,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-pax-logging</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -163,7 +163,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -198,22 +198,22 @@
                         <!--<element>-->
                             <!--<groupId>org.apache.geronimo.framework</groupId>-->
                             <!--<artifactId>geronimo-cli</artifactId>-->
-                            <!--<version>${version}</version>-->
+                            <!--<version>${project.version}</version>-->
                         <!--</element>-->
                         <!--<element>-->
                             <!--<groupId>org.apache.geronimo.framework</groupId>-->
                             <!--<artifactId>geronimo-crypto</artifactId>-->
-                            <!--<version>${version}</version>-->
+                            <!--<version>${project.version}</version>-->
                         <!--</element>-->
                         <!--<element>-->
                             <!--<groupId>org.apache.geronimo.framework</groupId>-->
                             <!--<artifactId>geronimo-kernel</artifactId>-->
-                            <!--<version>${version}</version>-->
+                            <!--<version>${project.version}</version>-->
                         <!--</element>-->
                         <!--<element>-->
                             <!--<groupId>org.apache.geronimo.framework</groupId>-->
                             <!--<artifactId>geronimo-config-groovy-transformer</artifactId>-->
-                            <!--<version>${version}</version>-->
+                            <!--<version>${project.version}</version>-->
                         <!--</element>-->
                         <!--<element>-->
                             <!--<groupId>org.codehaus.groovy</groupId>-->
@@ -225,7 +225,7 @@
                         <!--<element>-->
                             <!--<groupId>org.apache.geronimo.framework</groupId>-->
                             <!--<artifactId>geronimo-transformer</artifactId>-->
-                            <!--<version>${version}</version>-->
+                            <!--<version>${project.version}</version>-->
                         <!--</element>-->
                         <!--<element>-->
                             <!--<groupId>asm</groupId>-->

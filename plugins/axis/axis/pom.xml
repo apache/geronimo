@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -48,28 +48,28 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>webservices-common</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>server-security-config</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-axis</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
 <!-- openejb-axis may be needed, but does not seem to be ready yet -->
@@ -105,7 +105,7 @@
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>openejb</artifactId>
-                            <version>${version}</version>
+                            <version>${project.version}</version>
                             <type>car</type>
                             <import>classes</import>
                         </dependency>

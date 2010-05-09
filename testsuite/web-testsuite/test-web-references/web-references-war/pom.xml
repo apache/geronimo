@@ -42,7 +42,7 @@
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>web-references-ejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
             <type>ejb</type>
         </dependency>

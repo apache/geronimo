@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -49,19 +49,19 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>plugin-farm</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugins.it</groupId>
             <artifactId>clustering-test</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.plugins.it</groupId>
             <artifactId>customer-jetty</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -74,14 +74,14 @@
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
-                    <version>${version}</version>
+                    <version>${project.version}</version>
                     <configuration>
                         <assemblies>
                             <assembly>
                                 <id>node</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-plugin-farm-node</artifactId>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -89,7 +89,7 @@
                                 <id>jetty</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty8-javaee6</artifactId>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -98,7 +98,7 @@
                                 <id>jetty-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-jetty8-minimal</artifactId>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -107,7 +107,7 @@
                                 <id>tomcat</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-tomcat6-javaee5</artifactId>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -116,7 +116,7 @@
                                 <id>tomcat-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-tomcat6-minimal</artifactId>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -125,7 +125,7 @@
                                 <id>framework</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
                                 <artifactId>geronimo-framework</artifactId>
-                                <version>${version}</version>
+                                <version>${project.version}</version>
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
@@ -240,7 +240,7 @@
                             <!--</goals>-->
                             <!--<configuration>-->
                                 <!--<defaultGeronimoRepository>~/.m2/repository</defaultGeronimoRepository>-->
-                                <!--<moduleId>org.apache.geronimo.configs/plugin-farm-member/${version}/car</moduleId>-->
+                                <!--<moduleId>org.apache.geronimo.configs/plugin-farm-member/${project.version}/car</moduleId>-->
                                 <!--<port>1119</port>-->
                             <!--</configuration>-->
                         <!--</execution>-->
@@ -251,7 +251,7 @@
                                 <goal>install-plugin</goal>
                             </goals>
                             <!--<configuration>-->
-                            <!--<defaultGeronimoRepository>http://geronimo.apache.org/plugins/geronimo-${version}/</defaultGeronimoRepository>-->
+                            <!--<defaultGeronimoRepository>http://geronimo.apache.org/plugins/geronimo-${project.version}/</defaultGeronimoRepository>-->
                             <!--</configuration>-->
                         </execution>
                         <execution>

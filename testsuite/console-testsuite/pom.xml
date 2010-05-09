@@ -54,7 +54,7 @@
                                 <systemProperties>
                                     <property>
                                         <name>geronimoVersion</name>
-                                        <value>${version}</value>
+                                        <value>${project.version}</value>
                                     </property>
                                 </systemProperties>
                             </configuration>

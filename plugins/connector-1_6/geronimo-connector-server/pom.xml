@@ -41,7 +41,7 @@
                 <plugin>
                     <groupId>org.apache.geronimo.buildsupport</groupId>
                     <artifactId>geronimo-maven-plugin</artifactId>
-                    <version>${version}</version>
+                    <version>${project.version}</version>
 
                     <configuration>
                         <!--<assemblies>-->

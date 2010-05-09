@@ -46,7 +46,7 @@
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>jaxws-war</artifactId>
             <type>war</type>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -101,10 +101,10 @@
                                             <groupId>org.apache.geronimo.testsuite</groupId>
                                             <artifactId>jaxws-war</artifactId>
                                             <type>war</type>
-                                            <version>${version}</version>
+                                            <version>${project.version}</version>
                                         </module>
                                     </modules>
-                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.jar
+                                    <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.jar
                                     </moduleArchive>
                                 </configuration>
                             </execution>

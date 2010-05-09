@@ -41,86 +41,86 @@
         <dependency>
             <groupId>org.apache.geronimo.framework.plugingroups</groupId>
             <artifactId>framework</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>${jetty}-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>web-extender</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>welcome-jetty</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>upgrade-cli</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>offline-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.configs</groupId>-->
             <!--<artifactId>hot-deployer</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jsr88-ear-configurer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.configs</groupId>-->
             <!--<artifactId>jsr88-rar-configurer</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jsr88-war-configurer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.configs</groupId>-->
             <!--<artifactId>remote-deploy-jetty</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>myfaces-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.configs</groupId>-->
             <!--<artifactId>sharedlib</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
     </dependencies>

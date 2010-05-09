@@ -37,20 +37,20 @@
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.framework</groupId>-->
             <!--<artifactId>jsr88-cli</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.configs</groupId>-->
             <!--<artifactId>connector-deployer</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector-builder-1_6</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     

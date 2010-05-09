@@ -42,61 +42,61 @@
         <dependency>
             <groupId>org.apache.geronimo.framework.plugingroups</groupId>
             <artifactId>framework</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>eba-tomcat</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>console-tomcat</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>client</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.plugingroups</groupId>-->
             <!--<artifactId>clustering-tomcat</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>ejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>jms</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>webservices-axis2</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.plugingroups</groupId>-->
             <!--<artifactId>webservices-cxf</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
 
@@ -104,42 +104,42 @@
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.configs</groupId>-->
             <!--<artifactId>concurrent-deployer</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>javamail</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.configs</groupId>-->
             <!--<artifactId>uddi-tomcat</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jmx-security</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->
             <!--<artifactId>agent-car-ejb</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
         
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->
             <!--<artifactId>agent-car-jmx</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
     </dependencies>

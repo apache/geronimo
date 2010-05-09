@@ -38,19 +38,19 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-openejb-builder</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-axis</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>

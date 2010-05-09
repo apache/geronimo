@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-marshal-ejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>ejb</type>
             <scope>provided</scope>
         </dependency>

@@ -84,7 +84,7 @@
                             <source-repository>${pluginSrcRepoLocal}</source-repository>
                             <source-repository>${pluginSrcRepoCentral}</source-repository>
                             <source-repository>${pluginSrcRepoApacheSnapshots}</source-repository>
-                            <artifact-alias key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
+                            <artifact-alias key="${project.groupId}/${project.artifactId}//car">${project.groupId}/${project.artifactId}/${project.version}/car</artifact-alias>
                         </plugin-artifact>
                     </commonInstance>
                 </configuration>

@@ -40,14 +40,14 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>activemq-broker-blueprint</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-activemq-ra</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>rar</type>
             <scope>test</scope>
         </dependency>
@@ -55,7 +55,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>connector-deployer-1_6</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -75,7 +75,7 @@
                     <module>
                         <groupId>org.apache.geronimo.modules</groupId>
                         <artifactId>geronimo-activemq-ra</artifactId>
-                        <version>${version}</version>
+                        <version>${project.version}</version>
                         <type>rar</type>
                     </module>
                     <useMavenDependencies>

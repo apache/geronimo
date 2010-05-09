@@ -59,7 +59,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.framework</groupId>
                 <artifactId>framework</artifactId>
-                <version>${version}</version>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -68,32 +68,32 @@
             <dependency>
                 <groupId>org.apache.geronimo.configs</groupId>
                 <artifactId>client-transaction-1_6</artifactId>
-                <version>${version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.configs</groupId>
                 <artifactId>connector-deployer-1_6</artifactId>
-                <version>${version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.configs</groupId>
                 <artifactId>transaction-1_6</artifactId>
-                <version>${version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-connector-1_6</artifactId>
-                <version>${version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-connector-builder-1_6</artifactId>
-                <version>${version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.modules</groupId>
                 <artifactId>geronimo-transaction-1_6</artifactId>
-                <version>${version}</version>
+                <version>${project.version}</version>
             </dependency>
             <!-- external dependencies -->
             <dependency>
@@ -101,7 +101,7 @@
                 <artifactId>tranql-connector</artifactId>
                 <version>1.6-SNAPSHOT</version>
             </dependency>
-       
+
             <dependency>
                 <groupId>org.apache.aries.transaction</groupId>
                 <artifactId>org.apache.aries.transaction.blueprint</artifactId>

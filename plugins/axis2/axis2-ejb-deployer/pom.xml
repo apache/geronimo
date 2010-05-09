@@ -40,28 +40,28 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>axis2-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jaxws-ejb-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-axis2-ejb-builder</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>axis2-ejb</artifactId>
             <type>car</type>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
 

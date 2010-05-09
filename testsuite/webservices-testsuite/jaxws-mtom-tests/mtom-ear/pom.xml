@@ -38,21 +38,21 @@
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>mtom-war</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>war</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>mtom-ejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>mtom-test-war</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>war</type>
             <scope>test</scope>
         </dependency>
@@ -76,12 +76,12 @@
                             <groupId>org.apache.geronimo.testsuite</groupId>
                             <artifactId>mtom-war</artifactId>
                             <contextRoot>/mtom</contextRoot>
-                            <bundleFileName>mtom-war-${version}.war</bundleFileName>
+                            <bundleFileName>mtom-war-${project.version}.war</bundleFileName>
                         </webModule>
                         <ejbModule>
                             <groupId>org.apache.geronimo.testsuite</groupId>
                             <artifactId>mtom-ejb</artifactId>
-                            <bundleFileName>mtom-ejb-${version}.jar</bundleFileName>
+                            <bundleFileName>mtom-ejb-${project.version}.jar</bundleFileName>
                         </ejbModule>
                     </modules>
                 </configuration>
@@ -124,10 +124,10 @@
                                     <groupId>org.apache.geronimo.testsuite</groupId>
                                     <artifactId>mtom-test-war</artifactId>
                                     <type>war</type>
-                                    <version>${version}</version>
+                                    <version>${project.version}</version>
                                 </module>
                             </modules>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
+                            <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.ear</moduleArchive>
                         </configuration>
                     </execution>
                             
@@ -143,10 +143,10 @@
                                     <groupId>org.apache.geronimo.testsuite</groupId>
                                     <artifactId>mtom-test-war</artifactId>
                                     <type>war</type>
-                                    <version>${version}</version>
+                                    <version>${project.version}</version>
                                 </module>
                             </modules>
-                            <moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
+                            <moduleId>${project.groupId}/${project.artifactId}/${project.version}/ear</moduleId>
                         </configuration>
                     </execution>
                 </executions>

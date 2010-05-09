@@ -42,21 +42,21 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>test-war-j2ee_1.3</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>war</type>
         </dependency>
         
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>test-ejb-j2ee_1.3</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
         
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>test-rar-j2ee_1.3</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>rar</type>
         </dependency>
     </dependencies>

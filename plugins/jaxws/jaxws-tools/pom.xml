@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jaxws-sun-tools</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
     </dependencies>

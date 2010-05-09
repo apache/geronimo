@@ -46,20 +46,20 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-openejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-security</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -73,7 +73,7 @@
                     <systemProperties>
                         <property>
                             <name>webAppName</name>
-                            <value>${artifactId}-${version}</value>
+                            <value>${project.artifactId}-${project.version}</value>
                         </property>
                     </systemProperties>
                 </configuration>
@@ -90,7 +90,7 @@
                             <goal>deploy-module</goal>
                         </goals>
                         <configuration>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.jar</moduleArchive>
+                            <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.jar</moduleArchive>
                         </configuration>
                     </execution>
                             

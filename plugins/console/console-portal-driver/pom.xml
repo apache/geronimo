@@ -36,13 +36,13 @@
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-filter</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-core</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>pluto-support</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -76,7 +76,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

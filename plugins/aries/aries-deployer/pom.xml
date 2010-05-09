@@ -38,27 +38,27 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-system</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-aries-builder</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
 <!--
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-aries-shell</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 -->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-aries-resolver</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

@@ -38,7 +38,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>rmi-naming</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>runtime</scope>
         </dependency>

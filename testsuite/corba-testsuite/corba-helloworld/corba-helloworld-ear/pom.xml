@@ -48,21 +48,21 @@
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-helloworld-ejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-helloworld-war</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>war</type>
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-helloworld-client</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
     </dependencies>
@@ -81,17 +81,17 @@
                             <groupId>${pom.groupId}</groupId>
                             <artifactId>corba-helloworld-war</artifactId>
                             <contextRoot>/corba-helloworld</contextRoot>
-                            <bundleFileName>corba-helloworld-war-${version}.war</bundleFileName>
+                            <bundleFileName>corba-helloworld-war-${project.version}.war</bundleFileName>
                         </webModule>
                         <ejbModule>
                             <groupId>${pom.groupId}</groupId>
                             <artifactId>corba-helloworld-ejb</artifactId>
-                            <bundleFileName>corba-helloworld-ejb-${version}.jar</bundleFileName>
+                            <bundleFileName>corba-helloworld-ejb-${project.version}.jar</bundleFileName>
                         </ejbModule>
                         <jarModule>
                             <groupId>${pom.groupId}</groupId>
                             <artifactId>corba-helloworld-client</artifactId>
-                            <bundleFileName>corba-helloworld-client-${version}.jar</bundleFileName>
+                            <bundleFileName>corba-helloworld-client-${project.version}.jar</bundleFileName>
                         </jarModule>
                     </modules>
                 </configuration>
@@ -149,7 +149,7 @@
                                     <goal>start-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>org.apache.geronimo.configs/j2ee-corba-yoko/${version}/car</moduleId>
+                                    <moduleId>org.apache.geronimo.configs/j2ee-corba-yoko/${project.version}/car</moduleId>
                                 </configuration>
                             </execution>
                             <execution>
@@ -159,7 +159,7 @@
                                     <goal>start-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>org.apache.geronimo.configs/openejb-corba-deployer/${version}/car</moduleId>
+                                    <moduleId>org.apache.geronimo.configs/openejb-corba-deployer/${project.version}/car</moduleId>
                                 </configuration>
                             </execution>
 
@@ -173,7 +173,7 @@
                                     <goal>deploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
+                                    <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.ear</moduleArchive>
                                 </configuration>
                             </execution>
 
@@ -187,7 +187,7 @@
                                     <goal>run-client</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>org.apache.geronimo.testsuite/corba-helloworld-client/${version}/car</moduleId>
+                                    <moduleId>org.apache.geronimo.testsuite/corba-helloworld-client/${project.version}/car</moduleId>
                                     <logOutput>true</logOutput>
                                     <logFile>${clientLogFile}</logFile>
                                 </configuration>
@@ -203,7 +203,7 @@
                                     <goal>undeploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>${groupId}/${artifactId}/${version}/car</moduleId>
+                                    <moduleId>${project.groupId}/${project.artifactId}/${project.version}/car</moduleId>
                                 </configuration>
                             </execution>
                         </executions>

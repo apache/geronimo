@@ -77,7 +77,7 @@
                                     <goal>deploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.war</moduleArchive>
+                                    <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.war</moduleArchive>
                                 </configuration>
                             </execution>
                             <execution>
@@ -87,7 +87,7 @@
                                     <goal>undeploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleId>${groupId}/${artifactId}/${version}/war</moduleId>
+                                    <moduleId>${project.groupId}/${project.artifactId}/${project.version}/war</moduleId>
                                 </configuration>
                             </execution>
                         </executions>

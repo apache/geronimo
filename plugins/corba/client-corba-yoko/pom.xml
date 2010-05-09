@@ -38,14 +38,14 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>client-security</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
@@ -118,13 +118,13 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-corba</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-yoko</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -157,7 +157,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb-corba-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -179,7 +179,7 @@
                     <instance>
                         <plugin-artifact>
                             <config-xml-content load="false" />
-                            <artifact-alias server="client" key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
+                            <artifact-alias server="client" key="${project.groupId}/${project.artifactId}//car">${project.groupId}/${project.artifactId}/${project.version}/car</artifact-alias>
                         </plugin-artifact>
                     </instance>
                 </configuration>

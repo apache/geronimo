@@ -67,7 +67,7 @@
                     <systemProperties>
                         <property>
                             <name>webAppName</name>
-                            <value>${artifactId}-${version}</value>
+                            <value>${project.artifactId}-${project.version}</value>
                         </property>
                     </systemProperties>
                 </configuration>
@@ -84,7 +84,7 @@
                             <goal>deploy-module</goal>
                         </goals>
                         <configuration>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.war</moduleArchive>
+                            <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.war</moduleArchive>
                         </configuration>
                     </execution>
 

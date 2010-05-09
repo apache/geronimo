@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
             <artifactId>web-jetty</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
     </dependencies>
@@ -61,7 +61,7 @@
                                 <!--<artifactItem>-->
                                     <!--<groupId>org.apache.geronimo.assemblies</groupId>-->
                                     <!--<artifactId>geronimo-framework</artifactId>-->
-                                    <!--<version>${version}</version>-->
+                                    <!--<version>${project.version}</version>-->
                                     <!--<type>zip</type>-->
                                     <!--<classifier>bin</classifier>-->
                                 <!--</artifactItem>-->
@@ -85,7 +85,7 @@
                             <!--<tasks>-->
                                 <!--<mkdir dir="${project.build.directory}/assembly" />-->
                                 <!--<copy todir="${project.build.directory}/assembly">-->
-                                    <!--<fileset dir="${project.build.directory}/geronimo-framework-${version}" />-->
+                                    <!--<fileset dir="${project.build.directory}/geronimo-framework-${project.version}" />-->
                                 <!--</copy>-->
                             <!--</tasks>-->
                         <!--</configuration>-->

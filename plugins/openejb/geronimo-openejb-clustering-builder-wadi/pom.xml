@@ -35,14 +35,14 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb-clustering-wadi</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
     </dependencies>

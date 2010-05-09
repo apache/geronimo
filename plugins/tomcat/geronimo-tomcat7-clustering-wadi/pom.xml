@@ -37,13 +37,13 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>geronimo-clustering-wadi</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat7-no-ha</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
     </dependencies>

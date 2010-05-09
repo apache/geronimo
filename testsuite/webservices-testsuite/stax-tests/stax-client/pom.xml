@@ -94,7 +94,7 @@
                                     <goal>deploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleArchive>${project.build.directory}/${artifactId}-${version}.jar</moduleArchive>
+                                    <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.jar</moduleArchive>
                                 </configuration>
                             </execution>
 

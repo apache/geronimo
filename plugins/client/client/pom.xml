@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>client-system</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
@@ -54,43 +54,43 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-core</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-interceptor</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-naming</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.framework</groupId>-->
             <!--<artifactId>geronimo-crypto</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
         <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-client</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!--<dependency>-->
         <!--    <groupId>org.apache.geronimo.modules</groupId>-->
         <!--    <artifactId>geronimo-webservices</artifactId>-->
-        <!--    <version>${version}</version>-->
+        <!--    <version>${project.version}</version>-->
         <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-openejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.geronimo.configs</groupId>
@@ -140,8 +140,8 @@
                     <instance>
                         <plugin-artifact>
                             <config-xml-content load="false" />
-                            <artifact-alias server="client" key="org.apache.geronimo.configs/j2ee-server//car">org.apache.geronimo.configs/client/${version}/car</artifact-alias>
-                            <artifact-alias server="client" key="org.apache.geronimo.configs/j2ee-server/${version}/car">org.apache.geronimo.configs/client/${version}/car</artifact-alias>
+                            <artifact-alias server="client" key="org.apache.geronimo.configs/j2ee-server//car">org.apache.geronimo.configs/client/${project.version}/car</artifact-alias>
+                            <artifact-alias server="client" key="org.apache.geronimo.configs/j2ee-server/${project.version}/car">org.apache.geronimo.configs/client/${project.version}/car</artifact-alias>
                         </plugin-artifact>
                     </instance>
                 </configuration>

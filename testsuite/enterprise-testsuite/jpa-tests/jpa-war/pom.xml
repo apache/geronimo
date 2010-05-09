@@ -38,7 +38,7 @@
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>jpa-ejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <optional>true</optional>
         </dependency>
         
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-security</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         

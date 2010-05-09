@@ -39,14 +39,14 @@
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.configs</groupId>-->
             <!--<artifactId>j2ee-server</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
@@ -54,7 +54,7 @@
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.configs</groupId>-->
             <!--<artifactId>openejb-corba-deployer</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
             <!--<scope>test</scope>-->
         <!--</dependency>-->
@@ -62,13 +62,13 @@
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-corba</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-yoko</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -94,7 +94,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb-corba-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>

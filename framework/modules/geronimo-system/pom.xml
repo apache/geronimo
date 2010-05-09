@@ -42,31 +42,31 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-cli</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-crypto</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
@@ -114,7 +114,7 @@
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -151,7 +151,7 @@
 
                                 <propertyfile file="${project.build.outputDirectory}/org/apache/geronimo/system/serverinfo/geronimo-version.properties" comment="Geronimo version information (generated, do not modify)">
 
-                                    <entry key="version" value="${version}" />
+                                    <entry key="version" value="${project.version}" />
                                     <entry key="build.date" type="date" value="now" pattern="yyyy.MM.dd" />
                                     <entry key="build.time" type="date" value="now" pattern="HH:mm:ss.SSSZ" />
                                     <entry key="copyright" value="Copyright (C) 2003-${build.year}, The Apache Software Foundation" />

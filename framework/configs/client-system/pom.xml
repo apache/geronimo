@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -45,19 +45,19 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-crypto</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -113,7 +113,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-pax-logging</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -156,17 +156,17 @@
                         <!--<element>-->
                             <!--<groupId>org.apache.geronimo.framework</groupId>-->
                             <!--<artifactId>geronimo-cli</artifactId>-->
-                            <!--<version>${version}</version>-->
+                            <!--<version>${project.version}</version>-->
                         <!--</element>-->
                         <!--<element>-->
                             <!--<groupId>org.apache.geronimo.framework</groupId>-->
                             <!--<artifactId>geronimo-crypto</artifactId>-->
-                            <!--<version>${version}</version>-->
+                            <!--<version>${project.version}</version>-->
                         <!--</element>-->
                         <!--<element>-->
                             <!--<groupId>org.apache.geronimo.framework</groupId>-->
                             <!--<artifactId>geronimo-kernel</artifactId>-->
-                            <!--<version>${version}</version>-->
+                            <!--<version>${project.version}</version>-->
                         <!--</element>-->
                         <!--&lt;!&ndash;-->
                         <!--NOTE: geronimo-transformer is on the system classpath to avoid a potential deadlock. See GERONIMO-3141.-->
@@ -174,7 +174,7 @@
                         <!--&lt;!&ndash;<element>&ndash;&gt;-->
                             <!--&lt;!&ndash;<groupId>org.apache.geronimo.framework</groupId>&ndash;&gt;-->
                             <!--&lt;!&ndash;<artifactId>geronimo-transformer</artifactId>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<version>${version}</version>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<version>${project.version}</version>&ndash;&gt;-->
                         <!--&lt;!&ndash;</element>&ndash;&gt;-->
                         <!--<element>-->
                             <!--<groupId>asm</groupId>-->
@@ -224,11 +224,11 @@
                         <plugin-artifact>
                             <config-xml-content load="false"/>
                             <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-system//car">
-                                org.apache.geronimo.framework/client-system/${version}/car
+                                org.apache.geronimo.framework/client-system/${project.version}/car
                             </artifact-alias>
                             <artifact-alias server="client"
-                                            key="org.apache.geronimo.framework/j2ee-system/${version}/car">
-                                org.apache.geronimo.framework/client-system/${version}/car
+                                            key="org.apache.geronimo.framework/j2ee-system/${project.version}/car">
+                                org.apache.geronimo.framework/client-system/${project.version}/car
                             </artifact-alias>
                         </plugin-artifact>
                     </instance>

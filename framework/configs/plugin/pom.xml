@@ -38,7 +38,7 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -46,33 +46,33 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>rmi-naming</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-plugin</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- not sure about this one - provides remote access -->
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.framework</groupId>-->
             <!--<artifactId>geronimo-deploy-jsr88</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
         <!--</dependency>-->
         
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.framework</groupId>-->
             <!--<artifactId>geronimo-deploy-config</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
         <!--</dependency>-->
         <!-- needed by geronimo-deploy-config -->
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.framework</groupId>-->
             <!--<artifactId>xmlbeans</artifactId>-->
-            <!--<version>${version}</version>-->
+            <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
 
@@ -101,7 +101,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.framework</groupId>
                                     <artifactId>geronimo-system</artifactId>
-                                    <version>${version}</version>
+                                    <version>${project.version}</version>
                                 </artifactItem>
                             </artifactItems>
                             <includes>**/*.xsd</includes>
@@ -125,8 +125,8 @@
                                     <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-3.0.txt</attribute>
                                 </gbean>
                             </config-xml-content>
-                            <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli//car">org.apache.geronimo.framework/plugin/${version}/car</artifact-alias>-->
-                            <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli/${version}/car">org.apache.geronimo.framework/plugin/${version}/car</artifact-alias>-->
+                            <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli//car">org.apache.geronimo.framework/plugin/${project.version}/car</artifact-alias>-->
+                            <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli/${project.version}/car">org.apache.geronimo.framework/plugin/${project.version}/car</artifact-alias>-->
                             <copy-file dest-dir="schema">schema/xsd/</copy-file>
                             <copy-file dest-dir="var/config" relative-to="server">plugin-repositories.properties</copy-file>
                         </plugin-artifact>

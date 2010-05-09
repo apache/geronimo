@@ -33,7 +33,7 @@
     <properties>
         <!-- This property is required by the car:package mojo -->
 <!-- bug in release plugin may be worked-around by copying it here
-        <geronimoVersion>${version}</geronimoVersion> -->
+        <geronimoVersion>${project.version}</geronimoVersion> -->
     </properties>
     <dependencies>
         <dependency>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.apache.geronimo.testsupport</groupId>
             <artifactId>testsupport-common</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -102,7 +102,7 @@
                             <source-repository>${pluginSrcRepoLocal}</source-repository>
                             <source-repository>${pluginSrcRepoCentral}</source-repository>
                             <source-repository>${pluginSrcRepoApacheSnapshots}</source-repository>
-                            <artifact-alias key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
+                            <artifact-alias key="${project.groupId}/${project.artifactId}//car">${project.groupId}/${project.artifactId}/${project.version}/car</artifact-alias>
                         </plugin-artifact>
                     </commonInstance>
                 </configuration>

@@ -49,14 +49,14 @@
         <dependency>
             <groupId>org.apache.geronimo.plugins.it</groupId>
             <artifactId>sample-datasource</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>${jetty}-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -80,7 +80,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -88,7 +88,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>persistence-jpa20-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -96,28 +96,28 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>${jetty}</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
     </dependencies>
@@ -146,7 +146,7 @@
                     <module>
                         <groupId>org.apache.geronimo.samples</groupId>
                         <artifactId>customer-ear</artifactId>
-                        <version>${version}</version>
+                        <version>${project.version}</version>
                         <type>ear</type>
                     </module>
                     <useMavenDependencies>

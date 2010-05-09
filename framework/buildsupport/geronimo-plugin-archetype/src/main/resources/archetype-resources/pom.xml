@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>${groupId}</groupId>
-    <artifactId>${artifactId}</artifactId>
-    <version>${version}</version>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>${project.artifactId}</artifactId>
+    <version>${project.version}</version>
     <packaging>car</packaging>
 
     <properties>
@@ -111,7 +111,7 @@
                             <!-- a user-tweakable variable to go into var/config/config-substitutions.properties -->
                             <!--<config-substitution key="RollerContextPath">/roller</config-substitution>-->
                             <!-- artifact aliases let your module substitute for another one, e.g one db for another -->
-                            <!--<artifact-alias key="org.apache.geronimo.plugins/roller-derby-database/${version}/car">org.apache.geronimo.plugins/roller-mysql-database/${version}/car</artifact-alias>-->
+                            <!--<artifact-alias key="org.apache.geronimo.plugins/roller-derby-database/${project.version}/car">org.apache.geronimo.plugins/roller-mysql-database/${project.version}/car</artifact-alias>-->
 
                         </plugin-artifact>
                     </instance>

@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-ear</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>ear</type>
             <scope>provided</scope>
         </dependency>
@@ -47,21 +47,21 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>dojo-tomcat</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>        
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-security</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>pluto-support</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
@@ -78,12 +78,12 @@
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-core</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-filter</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         
         <dependency>
@@ -95,7 +95,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -103,7 +103,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat7-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -111,7 +111,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -120,14 +120,14 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat7</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
     </dependencies>
@@ -147,7 +147,7 @@
                     <module>
                         <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>console-ear</artifactId>
-                        <version>${version}</version>
+                        <version>${project.version}</version>
                         <type>ear</type>
                     </module>
                     <category>Administration</category>

@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>${jetty}-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
             <scope>provided</scope>
         </dependency>
@@ -52,7 +52,7 @@
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>plancreator-portlets</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>war</type>
             <scope>provided</scope>
         </dependency>
@@ -60,42 +60,42 @@
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-jetty</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>connector-deployer-1_6</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>plugin</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>openejb-deployer</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
         </dependency>
         
         <!-- for jspc. why is this needed? -->
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>car</type>
         </dependency>
     </dependencies>
@@ -115,7 +115,7 @@
                     <module>
                         <groupId>org.apache.geronimo.plugins</groupId>
                         <artifactId>plancreator-portlets</artifactId>
-                        <version>${version}</version>
+                        <version>${project.version}</version>
                         <type>war</type>
                     </module>
                     <category>Administration</category>

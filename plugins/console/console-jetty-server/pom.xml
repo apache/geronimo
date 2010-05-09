@@ -32,7 +32,7 @@
         <plugin>
           <groupId>org.apache.geronimo.buildsupport</groupId>
           <artifactId>car-maven-plugin</artifactId>
-          <version>${version}</version>
+          <version>${project.version}</version>
           <extensions>true</extensions>
         </plugin>
       </plugins>
@@ -78,19 +78,19 @@
     <dependency>
       <groupId>org.apache.geronimo.framework</groupId>
       <artifactId>karaf-framework</artifactId>
-      <version>${version}</version>
+      <version>${project.version}</version>
       <type>car</type>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.plugins</groupId>
       <artifactId>console-jetty</artifactId>
-      <version>${version}</version>
+      <version>${project.version}</version>
       <type>car</type>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.plugins</groupId>
       <artifactId>plugin-console-jetty</artifactId>
-      <version>${version}</version>
+      <version>${project.version}</version>
       <type>car</type>
     </dependency>
   </dependencies>

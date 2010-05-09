@@ -42,7 +42,7 @@
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>test-ejb-javaee_5</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
             <type>ejb</type>
         </dependency>
