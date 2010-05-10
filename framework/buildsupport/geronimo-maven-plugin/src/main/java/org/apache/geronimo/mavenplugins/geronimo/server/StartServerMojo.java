@@ -375,7 +375,7 @@ public class StartServerMojo
                     log.debug("Server query failed; ignoring", error);
                 }
 
-                Thread.sleep(1000);
+                Thread.sleep(5 * 1000);
             }
         }
         server.closeConnection();

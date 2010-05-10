@@ -211,23 +211,43 @@ public class ServerProxy
         return lastError;
     }
 
+    private ObjectName getMBean(String name) throws Exception {
+        Set<ObjectName> objectNameSet =
+            mbeanConnection.queryNames(new ObjectName(name), null);
+        if (objectNameSet.isEmpty()) {
+            throw new Exception("Mbean not found");
+        } else if (objectNameSet.size() == 1) {
+            return objectNameSet.iterator().next();
+        } else {
+            throw new Exception("Multiple mbeans found");
+        }
+    }
+    
     public void shutdown() {
         try {
-            Set<ObjectName> objectNameSet =
-                mbeanConnection.queryNames(new ObjectName("osgi.core:type=framework,*"), null);
-            if (objectNameSet.isEmpty()) {
-                throw new Exception("Framework mbean not found");
-            } else if (objectNameSet.size() == 1) {
-                mbeanConnection.invoke(objectNameSet.iterator().next(), "stopBundle",
-                                          new Object[] { 0 }, new String[] { long.class.getName() });
-            }
-        }
-        catch (Exception e) {
+            ObjectName frameworkMBean = getMBean("osgi.core:type=framework,*");
+            mbeanConnection.invoke(frameworkMBean, "stopBundle",
+                                   new Object[] { 0 }, new String[] { long.class.getName() });
+        } catch (Exception e) {
             log.warn("Unable to shutdown the server", e);
             lastError = e;
         }
     }
 
+    public void waitForStop() {    
+        // wait for first IOException
+        try {
+            while (true) {
+                ObjectName bundleStateMBean = getMBean("osgi.core:type=bundleState,*");
+                Thread.sleep(5 * 1000);
+            }
+        } catch (IOException e) {
+            // connection error means server is shutdown
+        } catch (Exception e) {
+            log.warn("Unexpected error while waiting for server shutdown", e);
+        }
+    }
+    
     //
     // Kernel invocation helpers
     //
