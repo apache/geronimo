@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.launch.Framework;
@@ -86,6 +87,7 @@ public class FrameworkLauncher {
     private ServerInfo serverInfo;    
     private File geronimoHome;
     private File geronimoBase;
+    private File cacheDirectory;
     
     private Properties configProps = null;
     private Framework framework = null;
@@ -134,8 +136,14 @@ public class FrameworkLauncher {
         defaultStartLevel = Integer.parseInt(configProps.getProperty(Constants.FRAMEWORK_BEGINNING_STARTLEVEL));
 
         configProps.setProperty(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "1");
+        
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                FrameworkLauncher.this.destroy(false);
+            }
+        });
+        
         // Start up the OSGI framework
-
         ServiceLoader<FrameworkFactory> loader = ServiceLoader.load(FrameworkFactory.class);
         FrameworkFactory factory = loader.iterator().next();
         framework = factory.newFramework(new StringMap(configProps, false));
@@ -148,10 +156,23 @@ public class FrameworkLauncher {
         startBundles(startList);        
     }
 
-    public void destroy(boolean await) throws Exception {
+    public void destroy(boolean await) {
+        try {
+            destroyFramework(await);
+        } catch (Exception e) {
+            System.err.println("Error stopping framework: " + e);
+        }
+
+        if (uniqueInstance && cacheDirectory != null) {
+            Utils.recursiveDelete(cacheDirectory);
+        }
+    }
+    
+    private void destroyFramework(boolean await) throws BundleException, InterruptedException {
         if (framework == null) {
             return;
         }
+        
         if (await) {
             while (true) {
                 FrameworkEvent event = framework.waitForStop(0);
@@ -160,39 +181,32 @@ public class FrameworkLauncher {
                 }
             }
         }
-
         if (framework.getState() == Bundle.ACTIVE) {
             framework.stop();
+            framework.waitForStop(0);
         }
     }
-
+        
     public Framework getFramework() {
         return framework;
     }
-    
+        
     private void setFrameworkStorage(Properties configProps) throws IOException {
         if (configProps.getProperty(Constants.FRAMEWORK_STORAGE) != null) {
             return;
         }
         
-        final File storage;
         if (uniqueInstance) {
             File var = new File(geronimoBase, "var");
             File tmpFile = File.createTempFile("instance-", "", var);
-            storage = new File(var, tmpFile.getName() + "-cache");
+            cacheDirectory = new File(var, tmpFile.getName() + "-cache");
             tmpFile.delete();
-            // register shutdown hook to remove the instance's cache directory
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    Utils.recursiveDelete(storage);
-                }
-            });
         } else {
-            storage = new File(geronimoBase, "var/cache");
+            cacheDirectory = new File(geronimoBase, "var/cache");
         }
                 
-        storage.mkdirs();
-        configProps.setProperty(Constants.FRAMEWORK_STORAGE, storage.getAbsolutePath());
+        cacheDirectory.mkdirs();
+        configProps.setProperty(Constants.FRAMEWORK_STORAGE, cacheDirectory.getAbsolutePath());
     }
     
     private static void processSecurityProperties(Properties m_configProps) {

@@ -45,14 +45,16 @@ public class Bootstrapper extends FrameworkLauncher {
     public int execute(Object opaque) {
         try {
             launch();
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            System.err.println("Error launching framework: " + e);
+            destroy(false);
             return -1;
         }
                               
         Main geronimoMain = getMain();        
         if (geronimoMain == null) {
             System.err.println("Main not found");
-            stop(false);
+            destroy(false);
             return -1;
         }
 
@@ -63,10 +65,10 @@ public class Bootstrapper extends FrameworkLauncher {
             ClassLoader newTCCL = geronimoMain.getClass().getClassLoader();
             Thread.currentThread().setContextClassLoader(newTCCL);
             exitCode = geronimoMain.execute(opaque);
-            stop(waitForStop);
+            destroy(waitForStop);
         } catch (Throwable e) {
-            e.printStackTrace();
-            stop(false);
+            System.err.println("Error in Main: " + e);
+            destroy(false);
         } finally {
             Thread.currentThread().setContextClassLoader(oldTCCL);
         }
@@ -76,26 +78,18 @@ public class Bootstrapper extends FrameworkLauncher {
 
     public Main getMain() {
         ServiceTracker tracker = new ServiceTracker(getFramework().getBundleContext(), Main.class.getName(), null);
-        tracker.open();
-        
+        tracker.open();        
         Main geronimoMain = null;
         try {
-            geronimoMain = (Main) tracker.waitForService(1000 * 60);
+            return (Main) tracker.waitForService(1000 * 60);
+        } catch (InterruptedException e) {            
+            // ignore
+        } finally {
             tracker.close();
-        } catch (Exception e) {            
-            e.printStackTrace();            
         }
         return geronimoMain;
     }
-        
-    public void stop(boolean await) {
-        try {
-            destroy(await);
-        } catch (Exception e) {
-            e.printStackTrace();           
-        }
-    }
-                
+                        
     @Override
     protected List<BundleInfo> loadStartupProperties(Properties startupProps, List<File> bundleDirs) {
         List<BundleInfo> startList = super.loadStartupProperties(startupProps, bundleDirs);
