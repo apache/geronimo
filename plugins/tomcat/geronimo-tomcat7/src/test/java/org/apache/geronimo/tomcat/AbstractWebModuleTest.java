@@ -86,6 +86,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
         MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), locationURI.toString(), new HashMap<Artifact, ConfigurationData>(), null);
         bundle = bundleContext.getBundle();
         ContextSource contextSource = new WebContextSource(Collections.<String, Object>emptyMap(),
+                Collections.<String, Object>emptyMap(),
                 transactionManager,
                 null,
                 cl,

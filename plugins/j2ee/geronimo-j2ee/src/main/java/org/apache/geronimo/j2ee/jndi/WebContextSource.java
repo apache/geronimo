@@ -44,15 +44,18 @@ public class WebContextSource implements ContextSource {
 
     private final Context context;
 
-    public WebContextSource(@ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
+    public WebContextSource(@ParamAttribute(name = "moduleContext") Map<String, Object> moduleContext,
+                            @ParamAttribute(name = "componentContext") Map<String, Object> componentContext,
                             @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
                             @ParamReference(name = "ApplicationJndi") ApplicationJndi applicationJndi,
                             @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
                             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws NamingException {
         GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         Set<Context> contexts = new LinkedHashSet<Context>(3);
-        Context localContext = EnterpriseNamingContext.livenReferences(componentContext, userTransaction, kernel, classLoader, "comp/");
-        contexts.add(localContext);
+        Context localCompContext = EnterpriseNamingContext.livenReferences(componentContext, userTransaction, kernel, classLoader, "comp/");
+        Context localModuleContext = EnterpriseNamingContext.livenReferences(moduleContext, null, kernel, classLoader, "module/");
+        contexts.add(localCompContext);
+        contexts.add(localModuleContext);
         if (applicationJndi != null) {
             if (applicationJndi.getApplicationContext() != null) {
                 contexts.add(applicationJndi.getApplicationContext());

@@ -142,6 +142,7 @@ public class AbstractWebModuleTest extends TestSupport {
         }
         String contextPath = "/test";
         ContextSource contextSource = new WebContextSource(Collections.<String, Object>emptyMap(),
+                Collections.<String, Object>emptyMap(),
                 transactionManager,
                 null,
                 cl,

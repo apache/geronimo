@@ -705,16 +705,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         //This means that you cannot use the default environment of the web builder to add configs that will be searched.
         getNamingBuilders().buildNaming(webApp, vendorPlan, webModule, buildingContext);
         //Combine contexts.  Note this may not work right for jaxws which has a comp/env/WebServiceContext binding
-        Map<String, Object> compContext = new HashMap<String, Object>();
-        if (jndiContext.get(JndiScope.comp) != null) {
-            compContext.putAll(jndiContext.get(JndiScope.comp));
-        }
-        if (jndiContext.get(JndiScope.module) != null) {
-            compContext.putAll(jndiContext.get(JndiScope.module));
-        }
         AbstractName contextSourceName = moduleContext.getNaming().createChildName(webModuleData.getAbstractName(), "ContextSource", "ContextSource");
         GBeanData contextSourceData = new GBeanData(contextSourceName, WebContextSource.class);
-        contextSourceData.setAttribute("componentContext", compContext);
+
+        contextSourceData.setAttribute("componentContext", jndiContext.get(JndiScope.comp));
+        contextSourceData.setAttribute("moduleContext", jndiContext.get(JndiScope.module));
         contextSourceData.setReferencePattern("ApplicationJndi", EARContext.APPLICATION_JNDI_NAME_KEY.get(earContext.getGeneralData()));
         contextSourceData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
         try {
