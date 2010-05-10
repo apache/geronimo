@@ -140,6 +140,7 @@ org.osgi.framework.system.packages = \
 
 org.osgi.framework.system.packages.extra = \
  sun.misc,\
+ sun.reflect,\
  org.apache.geronimo.transformer,\
  org.apache.felix.karaf.jaas.boot;version=1.5.0
 
