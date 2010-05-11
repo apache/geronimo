@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
 
@@ -32,6 +33,7 @@ import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.NoSuchOperationException;
 
@@ -56,6 +58,20 @@ public class CommandUnlockKeystore extends AbstractCommand {
         Kernel kernel = null;
         if (dm instanceof RemoteDeploymentManager) {
             kernel = ((RemoteDeploymentManager) dm).getKernel();
+        }
+        AbstractNameQuery anq = new AbstractNameQuery("org.apache.geronimo.management.geronimo.KeystoreManager");
+        Set<AbstractName> it = kernel.listGBeans(anq);
+        AbstractName an = (AbstractName) it.iterator().next();
+        try {
+            kernel.invoke(an, "initializeKeystores");
+        } catch (GBeanNotFoundException e1) {
+            throw new DeploymentException("Unable to find the gbean associated with initializeKeystores");
+        } catch (NoSuchOperationException e1) {
+            throw new DeploymentException("Operation initializeKeystores does not exist");
+        } catch (InternalKernelException e1) {
+            throw new DeploymentException();
+        } catch (Exception e1) {
+            throw new DeploymentException();
         }
         //This implies key store as well as private key or keys has to be unlocked
         if (args.length >= 1) {
