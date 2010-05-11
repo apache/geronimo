@@ -103,11 +103,6 @@
               <tr>
                 <td class="MediumBackground">&nbsp;</td>
                 <td colspan="4" align="center" class="MediumBackground">
-                   <script>
-                   if (document.cookie == "") {
-                     document.writeln('<font color="red"><strong><fmt:message key="console.common.password"/></strong></font><br>');
-                   }
-                   </script>
                    <input name="submit" type="submit" value="<fmt:message key="console.common.login"/>"/>
                 </td>
                 <td class="MediumBackground">&nbsp;</td>
