@@ -70,6 +70,12 @@
                                     <attribute name="host">#{ServerHostname}</attribute>
                                     <attribute name="port">#{JMXSecurePort + PortOffset}</attribute>
                                     <attribute name="urlPath">/jndi/rmi://#{ServerHostname}:#{NamingPort + PortOffset}/JMXSecureConnector</attribute>
+                                    <attribute name="algorithm">Default</attribute>
+                                    <attribute name="secureProtocol">TLS</attribute>
+                                    <attribute name="keyStore">geronimo-default</attribute>
+                                    <attribute name="keyAlias">geronimo</attribute>
+                                    <attribute name="trustStore">geronimo-default</attribute>
+                                    <attribute name="clientAuth">false</attribute>
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="JMXSecurePort">9998</config-substitution>

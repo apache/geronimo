@@ -22,9 +22,14 @@
 
     <gbean name="Node" class="org.apache.geronimo.clustering.BasicLocalNode">
         <attribute name="nodeName">${planNodeName}</attribute>
-        <reference name="JMXConnector">
-            <name>JMXService</name>
-        </reference>
+        <references name="JMXConnector">
+            <pattern>
+                <name>JMXService</name>
+            </pattern>
+            <pattern>
+                <name>JMXSecureConnector</name>
+            </pattern>
+        </references>
     </gbean>
 
 </module>
