@@ -17,14 +17,23 @@
 package org.apache.geronimo.tomcat;
 
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
+import javax.naming.directory.DirContext;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.Servlet;
@@ -34,6 +43,7 @@ import javax.servlet.ServletException;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.ContainerListener;
+import org.apache.catalina.Engine;
 import org.apache.catalina.Globals;
 import org.apache.catalina.InstanceListener;
 import org.apache.catalina.Lifecycle;
@@ -51,6 +61,8 @@ import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
@@ -70,6 +82,7 @@ import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
+import org.apache.naming.resources.FileDirContext;
 import org.apache.tomcat.InstanceManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceRegistration;
@@ -81,11 +94,10 @@ import org.osgi.framework.ServiceRegistration;
 public class GeronimoStandardContext extends StandardContext {
 
     private static final long serialVersionUID = 3834587716552831032L;
-    private static final boolean allowLinking;
 
-    static {
-        allowLinking = new Boolean(System.getProperty("org.apache.geronimo.tomcat.GeronimoStandardContext.allowLinking", "false"));
-    }
+    private static final boolean allowLinking = Boolean.getBoolean("org.apache.geronimo.tomcat.GeronimoStandardContext.allowLinking");
+
+    private static final boolean FLUSH_STATIC_RESOURCES_ON_STARTUP = Boolean.getBoolean("org.apache.geronimo.tomcat.GeronimoStandardContext.flushStaticResourcesOnStartup");
 
     private Subject defaultSubject = null;
     private RunAsSource runAsSource = RunAsSource.NULL;
@@ -113,7 +125,7 @@ public class GeronimoStandardContext extends StandardContext {
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
         bundle = ctx.getBundle();
 
-        setResources(new BundleDirContext(ctx.getBundle(), ctx.getModulePath()));
+        setResources(createDirContext(ctx));
 
         // Create ReadOnlyContext
         javax.naming.Context enc = ctx.getJndiContext();
@@ -563,6 +575,70 @@ public class GeronimoStandardContext extends StandardContext {
 
     public ServletContext getInternalServletContext() {
         return context;
+    }
+
+    protected DirContext createDirContext(TomcatContext tomcatContext) throws DeploymentException {
+        List<DirContext> altDirContexts = new ArrayList<DirContext>();
+        Engine engine = (Engine)getParent().getParent();
+        String serviceName = engine.getService().getName();
+        String engineName = engine.getName();
+        String hostName = getParent().getName();
+        String tomcatHome = System.getProperty("catalina.home");
+        File resourceRootDirectory = new File(tomcatHome + File.separator + "resources" + File.separator + serviceName + File.separator + engineName + File.separator + hostName + File.separator
+                + (getName().equals("/") ? "_" : getName()));
+        File completeFlagFile = new File(resourceRootDirectory, "complete.flag");
+        if (!resourceRootDirectory.exists() || FLUSH_STATIC_RESOURCES_ON_STARTUP || !completeFlagFile.exists()) {
+            try {
+                completeFlagFile.delete();
+                FileUtils.recursiveDelete(resourceRootDirectory);
+                resourceRootDirectory.mkdirs();
+                Enumeration<URL> en = tomcatContext.getBundle().findEntries(tomcatContext.getModulePath() != null ? tomcatContext.getModulePath() + "/WEB-INF/lib" : "WEB-INF/lib", "*.jar", false);
+                if (en != null) {
+                    while (en.hasMoreElements()) {
+                        URL jarUrl = en.nextElement();
+                        File jarResourceDirectory = new File(resourceRootDirectory, jarUrl.getFile().substring(jarUrl.getFile().lastIndexOf('/') + 1));
+                        jarResourceDirectory.mkdirs();
+                        ZipInputStream in = null;
+                        try {
+                            in = new ZipInputStream(jarUrl.openStream());
+                            ZipEntry zipEntry;
+                            while ((zipEntry = in.getNextEntry()) != null) {
+                                String name = zipEntry.getName();
+                                if (name.indexOf("META-INF/resources") == 0) {
+                                    if (zipEntry.isDirectory()) {
+                                        new File(jarResourceDirectory, name).mkdirs();
+                                    } else {
+                                        File resourceFile = new File(jarResourceDirectory, name);
+                                        resourceFile.getParentFile().mkdirs();
+                                        OutputStream out = null;
+                                        try {
+                                            out = new FileOutputStream(resourceFile);
+                                            IOUtils.copy(in, out);
+                                        } finally {
+                                            IOUtils.close(out);
+                                        }
+                                    }
+                                }
+                            }
+                        } finally {
+                            IOUtils.close(in);
+                        }
+                    }
+                }
+                completeFlagFile.createNewFile();
+            } catch (IOException e) {
+                throw new DeploymentException("Fail to create static resoruce cache for jar files in WEB-INF folder", e);
+            }
+        }
+        for (File resourceDirectory : resourceRootDirectory.listFiles()) {
+            if (resourceDirectory.isDirectory() && resourceDirectory.getName().endsWith(".jar") && resourceDirectory.listFiles().length > 0) {
+                FileDirContext fileDirContext = new FileDirContext();
+                fileDirContext.setAllowLinking(allowLinking);
+                fileDirContext.setDocBase(resourceDirectory.getAbsolutePath());
+                altDirContexts.add(fileDirContext);
+            }
+        }
+        return new BundleDirContext(tomcatContext.getBundle(), tomcatContext.getModulePath(), altDirContexts);
     }
 
     private class SystemMethodValve extends ValveBase {

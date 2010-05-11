@@ -22,8 +22,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.naming.Binding;
@@ -37,10 +39,10 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.naming.resources.BaseDirContext;
 import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 
 /**
@@ -57,8 +59,13 @@ public class BundleDirContext extends BaseDirContext {
     private final String path;
 
     public BundleDirContext(Bundle bundle, String path) {
+        this(bundle, path, Collections.<DirContext> emptyList());
+    }
+
+    public BundleDirContext(Bundle bundle, String path, List<DirContext> altDirContext) {
         this.bundle = bundle;
         this.path = path;
+        this.altDirContexts.addAll(altDirContext);
     }
 
     @Override
@@ -243,7 +250,7 @@ public class BundleDirContext extends BaseDirContext {
         name = getName(name);
         URL url = BundleUtils.getEntry(bundle, name);
         if (url == null) {
-            throw new NamingException(sm.getString("resources.notFound", name));
+            return null;
         }
         if (url.toString().endsWith("/")) {
             return new BundleDirContext(bundle, name);
