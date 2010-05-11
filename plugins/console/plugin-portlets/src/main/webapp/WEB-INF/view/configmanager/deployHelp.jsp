@@ -33,6 +33,10 @@
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;"> <fmt:message key="configmanager.common.startAppAfterInstall" /></td>
     <td class="LightBackground" style="padding: 10px 5px 10px 10px"><fmt:message key="configmanager.deployHelp.startAppAfterInstallExp" /></td>
   </tr>
+ <tr>
+    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 10px 5px; color: #1E1E52;"> <fmt:message key="configmanager.common.redeployapplication" /></td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px"><fmt:message key="configmanager.deployHelp.redeployapplication" /></td>
+  </tr>
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/install.gif" alt="Install"/></td>
     <td class="LightBackground" style="padding: 10px 5px 10px 10px"><fmt:message key="configmanager.deployHelp.installApplication" /></td>
