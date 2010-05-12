@@ -97,7 +97,7 @@ public class GeronimoStandardContext extends StandardContext {
 
     private static final boolean allowLinking = Boolean.getBoolean("org.apache.geronimo.tomcat.GeronimoStandardContext.allowLinking");
 
-    private static final boolean FLUSH_STATIC_RESOURCES_ON_STARTUP = Boolean.getBoolean("org.apache.geronimo.tomcat.GeronimoStandardContext.flushStaticResourcesOnStartup");
+    //private static final boolean FLUSH_STATIC_RESOURCES_ON_STARTUP = Boolean.getBoolean("org.apache.geronimo.tomcat.GeronimoStandardContext.flushStaticResourcesOnStartup");
 
     private Subject defaultSubject = null;
     private RunAsSource runAsSource = RunAsSource.NULL;
@@ -587,7 +587,7 @@ public class GeronimoStandardContext extends StandardContext {
         File resourceRootDirectory = new File(tomcatHome + File.separator + "resources" + File.separator + serviceName + File.separator + engineName + File.separator + hostName + File.separator
                 + (getName().equals("/") ? "_" : getName()));
         File completeFlagFile = new File(resourceRootDirectory, "complete.flag");
-        if (!resourceRootDirectory.exists() || FLUSH_STATIC_RESOURCES_ON_STARTUP || !completeFlagFile.exists()) {
+        //if (!resourceRootDirectory.exists() || FLUSH_STATIC_RESOURCES_ON_STARTUP || !completeFlagFile.exists()) {
             try {
                 completeFlagFile.delete();
                 FileUtils.recursiveDelete(resourceRootDirectory);
@@ -629,7 +629,7 @@ public class GeronimoStandardContext extends StandardContext {
             } catch (IOException e) {
                 throw new DeploymentException("Fail to create static resoruce cache for jar files in WEB-INF folder", e);
             }
-        }
+        //}
         for (File resourceDirectory : resourceRootDirectory.listFiles()) {
             if (resourceDirectory.isDirectory() && resourceDirectory.getName().endsWith(".jar") && resourceDirectory.listFiles().length > 0) {
                 FileDirContext fileDirContext = new FileDirContext();
