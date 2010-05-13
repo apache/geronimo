@@ -171,15 +171,16 @@ public class Environment implements Serializable {
     public List<String> getRequireBundles() {
         return Collections.unmodifiableList(new ArrayList<String>(requireBundles));
     }
-        
+
     public Manifest getManifest() throws ManifestException {
         Manifest manifest = new Manifest();
         manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_MANIFESTVERSION, "2"));
         manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_SYMBOLICNAME, configId.getGroupId() + "." + configId.getArtifactId()));
         String versionString = "" + configId.getVersion().getMajorVersion() + "." + configId.getVersion().getMinorVersion() + "." + configId.getVersion().getIncrementalVersion();
         if (configId.getVersion().getQualifier() != null) {
-            versionString += "." + configId.getVersion().getQualifier();
+            versionString += "." + configId.getVersion().getQualifier().replaceAll("[^-_\\w]{1}", "_");
         }
+
         manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_VERSION, versionString));
 
         if (bundleActivator != null) {
@@ -198,7 +199,7 @@ public class Environment implements Serializable {
             Manifest.Attribute bundleClassPath = new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.BUNDLE_CLASSPATH, this.bundleClassPath);
             manifest.addConfiguredAttribute(bundleClassPath);
         }
-        
+
         if (!requireBundles.isEmpty()) {
             Manifest.Attribute requireBundle = new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.REQUIRE_BUNDLE, this.requireBundles);
             manifest.addConfiguredAttribute(requireBundle);
