@@ -62,11 +62,6 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>upgrade-cli</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework.plugingroups</groupId>
         <artifactId>framework</artifactId>
         <type>car</type>
