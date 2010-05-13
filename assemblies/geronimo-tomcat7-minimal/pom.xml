@@ -39,7 +39,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>web-tomcat</artifactId>
+            <artifactId>wab-tomcat</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>

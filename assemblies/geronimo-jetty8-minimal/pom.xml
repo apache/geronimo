@@ -39,7 +39,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>web-jetty</artifactId>
+            <artifactId>wab-jetty</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
