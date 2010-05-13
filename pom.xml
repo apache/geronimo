@@ -1113,6 +1113,10 @@
                         <groupId>org.apache.xbean</groupId>
                         <artifactId>xbean-asm-shaded</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>quartz</groupId>
+                        <artifactId>quartz</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1284,6 +1288,18 @@
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-javaagent</artifactId>
                 <version>${openejbVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.quartz</artifactId>
+                <version>1.5.2_1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
