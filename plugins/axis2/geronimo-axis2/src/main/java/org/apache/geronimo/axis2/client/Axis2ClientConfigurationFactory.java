@@ -23,7 +23,6 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.jaxws.ClientConfigurationFactory;
-import org.apache.axis2.jaxws.util.ClassLoaderUtils;
 import org.apache.geronimo.axis2.GeronimoConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,18 +30,18 @@ import org.slf4j.LoggerFactory;
 public class Axis2ClientConfigurationFactory extends ClientConfigurationFactory
 {
     private static final Logger LOG = LoggerFactory.getLogger(Axis2ClientConfigurationFactory.class);
-    
-    private Map<ClassLoader, ConfigurationContext> contextCache = 
+
+    private Map<ClassLoader, ConfigurationContext> contextCache =
         new Hashtable<ClassLoader, ConfigurationContext>();
 
     private boolean reuseConfigurationContext;
-    
+
     public Axis2ClientConfigurationFactory(boolean reuse) {
         this.reuseConfigurationContext = reuse;
     }
-    
+
     public ConfigurationContext getClientConfigurationContext() {
-        ClassLoader cl = ClassLoaderUtils.getContextClassLoader(null);
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
             if (this.reuseConfigurationContext) {
                 cl = ClientConfigurationFactory.class.getClassLoader();
@@ -55,10 +54,10 @@ public class Axis2ClientConfigurationFactory extends ClientConfigurationFactory
             return getConfigurationContext(cl);
         }
     }
-    
+
     private ConfigurationContext getConfigurationContext(ClassLoader cl) {
         ConfigurationContext context = this.contextCache.get(cl);
-        if (context == null) {            
+        if (context == null) {
             context = createConfigurationContext();
             this.contextCache.put(cl, context);
             if (LOG.isDebugEnabled()) {
@@ -71,22 +70,22 @@ public class Axis2ClientConfigurationFactory extends ClientConfigurationFactory
         }
         return context;
     }
-    
+
     private ConfigurationContext removeConfigurationContext(ClassLoader cl) {
         return this.contextCache.remove(cl);
     }
-    
+
     public void clearCache() {
         this.contextCache.clear();
     }
-    
+
     public ConfigurationContext clearCache(ClassLoader cl) {
         ConfigurationContext context = null;
         if (cl != null) {
             synchronized (cl) {
                 context = removeConfigurationContext(cl);
             }
-            
+
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Removed configuration context " + context + " for " + cl);
             }
@@ -94,7 +93,7 @@ public class Axis2ClientConfigurationFactory extends ClientConfigurationFactory
 
         return context;
     }
-    
+
     private ConfigurationContext createConfigurationContext() {
         try {
             GeronimoConfigurator configurator = new GeronimoConfigurator("META-INF/geronimo-axis2.xml");

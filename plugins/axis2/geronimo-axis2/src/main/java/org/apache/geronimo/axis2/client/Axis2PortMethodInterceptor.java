@@ -26,7 +26,6 @@ import javax.xml.ws.handler.Handler;
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.apache.axis2.description.AxisService;
-import org.apache.axis2.jaxws.description.EndpointDescription;
 import org.apache.axis2.jaxws.description.impl.DescriptionUtils;
 import org.apache.axis2.jaxws.spi.BindingProvider;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
@@ -37,20 +36,20 @@ public class Axis2PortMethodInterceptor extends PortMethodInterceptor {
     public Axis2PortMethodInterceptor(Map<Object, EndpointInfo> seiInfoMap) {
         super(seiInfoMap);
     }
-    
+
     public Object intercept(Object target, Method method, Object[] arguments, MethodProxy methodProxy) throws Throwable {
         Object proxy = super.intercept(target, method, arguments, methodProxy);
-        
+
         BindingProvider axisProxy = (BindingProvider) proxy;
-        
-        List<Handler> handlers = 
+
+        List<Handler> handlers =
             (axisProxy.getBinding() != null) ? axisProxy.getBinding().getHandlerChain() : null;
         AxisService axisService =
             (axisProxy.getEndpointDescription() != null) ? axisProxy.getEndpointDescription().getAxisService() : null;
-        
+
         DescriptionUtils.registerHandlerHeaders(axisService, handlers);
-        
+
         return proxy;
     }
-    
+
 }

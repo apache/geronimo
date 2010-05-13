@@ -22,19 +22,18 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.jaxws.ClientConfigurationFactory;
 import org.apache.axis2.jaxws.description.impl.DescriptionFactoryImpl;
 import org.apache.axis2.metadata.registry.MetadataFactoryRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Axis2ConfigGBean implements GBeanLifecycle {
 
     private final static Logger LOG = LoggerFactory.getLogger(Axis2ConfigGBean.class);
-    
+
     private AbstractName moduleName;
     private ClassLoader classLoder;
 
@@ -57,17 +56,17 @@ public class Axis2ConfigGBean implements GBeanLifecycle {
             LOG.debug("Registered client configuration factory: " + factory);
             // ensure that the factory was installed at the right time
             if (factory != DescriptionFactoryImpl.getClientConfigurationFactory()) {
-                throw new RuntimeException("Client configuration factory was registered too late");           
+                throw new RuntimeException("Client configuration factory was registered too late");
             }
             return (Axis2ClientConfigurationFactory)factory;
         }
     }
-    
+
     public void doStart() throws Exception {
         registerClientConfigurationFactory();
     }
-    
-    public void doStop() throws Exception {             
+
+    public void doStop() throws Exception {
         ConfigurationContext configContext =
             registerClientConfigurationFactory().clearCache(this.classLoder);
         DescriptionFactoryImpl.clearServiceDescriptionCache(configContext);
@@ -80,14 +79,14 @@ public class Axis2ConfigGBean implements GBeanLifecycle {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Axis2ConfigGBean.class, Axis2ConfigGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-                
+
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("configurationBaseUrl", URL.class, true);
         infoFactory.addAttribute("moduleName", AbstractName.class, true);
-        
+
         infoFactory.setConstructor(new String[]{"classLoader", "kernel", "configurationBaseUrl", "moduleName"});
-        
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
