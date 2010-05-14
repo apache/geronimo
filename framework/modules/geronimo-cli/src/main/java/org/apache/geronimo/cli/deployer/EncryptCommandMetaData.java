@@ -24,13 +24,14 @@ public class EncryptCommandMetaData extends BaseCommandMetaData  {
     public static final CommandMetaData META_DATA = new EncryptCommandMetaData();
     
     private EncryptCommandMetaData() {
-        super("encrypt", "2. Other Commands", "",
+        super("encrypt", "2. Other Commands", "[--offline] string",
                 "Encrypt a string for use in deployment plan.\n" +
-                "If you want to use a running server to do the encryption (so that\n" +
-                "you will use the encryption setting of that server, make sure the\n" +
-                "server is running and specify the general options to connect to it.\n" +
-                "If you want to use the common simple encryption, use the --offline\n" +
-                "option. No running server is required in this case.");
+                "If you want to use a running server to do the encryption, so " +
+                "that you can use the encryption setting of that server, " +
+                "make sure the server is running and specify the general " +
+                "options to connect to it.\n "+
+                "If you want to use the common simple encryption, use the "+
+                " --offline option. No running server is required in this case.");
     }
 
 }
