@@ -93,7 +93,7 @@ public class CommandDistribute extends AbstractCommand {
                     plan = test;
                 }
             } catch (IOException e) {
-                throw new DeploymentException("Invalid JAR file " + args[0]);
+                throw new DeploymentException("File not found: " + args[0]);
             }
         }
         if (args.length > 1) {
@@ -111,7 +111,7 @@ public class CommandDistribute extends AbstractCommand {
                     plan = test;
                 }
             } catch (IOException e) {
-                throw new DeploymentException("Invalid JAR file " + args[1]);
+                throw new DeploymentException("File not found:" + args[1]);
             }
         }
         if (module != null) {
