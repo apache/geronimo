@@ -20,6 +20,7 @@ package org.apache.geronimo.openwebbeans.deployment;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,37 +181,13 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
      *            spec DD for module
      * @param webModule
      *            module being deployed
-     * @return list of all managed bean classes from all faces-config xml files.
+     * @return list of all bean classes from libs that contains beans.xml.
      * @throws org.apache.geronimo.common.DeploymentException
-     *             if a faces-config.xml file is located but cannot be parsed.
+     *           
      */
     private List<Class> getManagedClasses(WebAppType webApp, WebModule webModule) throws DeploymentException {
-        log.debug("getFacesClasses( " + webApp.toString() + "," + '\n'
-                + (webModule != null ? webModule.getName() : null) + " ): Entry");
-
-
-        Bundle bundle = webModule.getEarContext().getDeploymentBundle();
-        
-        
-
-        // 1. META-INF/beans.xml
-        List<Class> classes = new ArrayList<Class>();
-        
-        WebBeansScanner ws=new WebBeansScanner(bundle);
-        
-        ws.scanWebBeans();
-        
-        Set<Bean<?>> beanSet=ws.getWebBeans();
-        
-        for (Bean<?> bean:beanSet){
-            
-            classes.add(bean.getBeanClass()) ;
-            
-            log.error("-------------------------------bean.getBeanClass()="+bean.getBeanClass());
-            
-        }
-        
-        return classes;
+     
+        return Collections.EMPTY_LIST;
     }
 
     

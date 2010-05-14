@@ -36,6 +36,72 @@
         OpenWebBeans plugin
     </description>
 
+    <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>myfaces</artifactId>
+        <version>3.0-SNAPSHOT</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+     
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-atinject_1.0_spec</artifactId>
+            <version>1.0</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jcdi_1.0_spec</artifactId>
+            <version>1.0</version>
+        </dependency>
+     
+     <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.dom4j</artifactId>
+            <version>1.6.1_3-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
+            <version>3.7.ga_1-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
+             <groupId>org.apache.geronimo.bundles</groupId>
+             <artifactId>scannotation</artifactId>
+            <version>1.0.2_1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+             <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>openwebbeans-spi</artifactId>
+            <version>1.0.0-SNAPSHOT_1-SNAPSHOT</version>            
+        </dependency>         
+    
+        <dependency>
+             <groupId>org.apache.geronimo.bundles</groupId>
+             <artifactId>openwebbeans-impl</artifactId>
+            <version>1.0.0-SNAPSHOT_1-SNAPSHOT</version>
+        </dependency>
+     
+        <dependency>
+             <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>openwebbeans-web</artifactId>
+            <version>1.0.0-SNAPSHOT_1-SNAPSHOT</version>            
+        </dependency>  
+     
+        <dependency>
+             <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>openwebbeans-jsf</artifactId>
+            <version>1.0.0-SNAPSHOT_1-SNAPSHOT</version>            
+        </dependency>
+    </dependencies>
+  </dependencyManagement>
+    
     <modules>
         <module>geronimo-openwebbeans</module>
         <module>geronimo-openwebbeans-builder</module>

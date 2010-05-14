@@ -72,11 +72,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.myfaces.core</groupId>
-        <artifactId>myfaces-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.dom4j</artifactId>
         <type>jar</type>

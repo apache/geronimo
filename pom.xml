@@ -88,6 +88,7 @@
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${project.version}/car
         </gbeanDeployerBootstrap>
+
         <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${project.version}/car</gbeanDeployer>
         <j2eeDeployer>org.apache.geronimo.configs/j2ee-deployer/${project.version}/car</j2eeDeployer>
         <clientDeployer>org.apache.geronimo.configs/client-deployer/${project.version}/car</clientDeployer>
@@ -101,6 +102,9 @@
         <jettyDeployer>org.apache.geronimo.configs/${jetty}-deployer/${project.version}/car</jettyDeployer>
         <jasperDeployer>org.apache.geronimo.configs/jasper-deployer/${project.version}/car</jasperDeployer>
         <jpaDeployer>org.apache.geronimo.configs/persistence-jpa20-deployer/${project.version}/car</jpaDeployer>
+        <myfacesDeployer>org.apache.geronimo.configs/myfaces-deployer/${project.version}/car</myfacesDeployer>
+        <openwebbeansDeployer>org.apache.geronimo.configs/openwebbeans-deployer/${project.version}/car</openwebbeansDeployer>
+
 
         <!-- Common plan properties -->
         <planServerHostname>0.0.0.0</planServerHostname>
