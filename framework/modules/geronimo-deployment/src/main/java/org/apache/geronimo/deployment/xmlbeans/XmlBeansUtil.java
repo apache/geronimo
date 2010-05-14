@@ -157,6 +157,7 @@ public class XmlBeansUtil {
         xmlOptions.setLoadLineNumbers();
         Collection errors = new ArrayList();
         xmlOptions.setErrorListener(errors);
+        xmlOptions.setValidateTreatLaxAsSkip();
         try {
             if (!dd.validate(xmlOptions)) {
 
