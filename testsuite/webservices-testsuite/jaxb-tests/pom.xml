@@ -50,10 +50,25 @@
         </dependency>
     </dependencies>
 
-    <modules>
-        <module>jaxb-war</module>
-        <module>jaxb-ejb</module>
-        <module>jaxb-client</module>
-    </modules>
+    <profiles>
+        <profile>
+            <id>child</id>
+            <modules>
+                <module>jaxb-war</module>
+                <module>jaxb-ejb</module>
+                <module>jaxb-client</module>
+            </modules>
+        </profile>
+        
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>jaxb-war</module>
+                <module>jaxb-ejb</module>
+                <module>jaxb-client</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

@@ -31,4 +31,18 @@
         Test for the gsh.bat/sh
     </description>
 
+    <profiles>
+        <profile>
+            <id>child</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>        
+    </profiles>
+
 </project>

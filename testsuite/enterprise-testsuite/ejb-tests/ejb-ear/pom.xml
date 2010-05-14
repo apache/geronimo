@@ -1,163 +1,167 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-    
-     http://www.apache.org/licenses/LICENSE-2.0
-    
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
--->
+	<!--
+		Licensed to the Apache Software Foundation (ASF) under one or more
+		contributor license agreements. See the NOTICE file distributed with
+		this work for additional information regarding copyright ownership.
+		The ASF licenses this file to you under the Apache License, Version
+		2.0 (the "License"); you may not use this file except in compliance
+		with the License. You may obtain a copy of the License at
 
-<!-- $Rev: 589258 $ $Date: 2007-10-27 21:41:57 -0400 (Sat, 27 Oct 2007) $ -->
+		http://www.apache.org/licenses/LICENSE-2.0 Unless required by
+		applicable law or agreed to in writing, software distributed under the
+		License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+		CONDITIONS OF ANY KIND, either express or implied. See the License for
+		the specific language governing permissions and limitations under the
+		License.
+	-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<!--
+		$Rev: 589258 $ $Date: 2007-10-27 21:41:57 -0400 (Sat, 27 Oct 2007) $
+	-->
 
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <parent>
-        <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>ejb-tests</artifactId>
-        <version>2.2.1-SNAPSHOT</version>
-    </parent>
+	<modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ejb-ear</artifactId>
-    <name>Geronimo TestSuite :: Enterprise Testsuite :: EJB Tests EAR</name>
-    <packaging>ear</packaging>
+	<parent>
+		<groupId>org.apache.geronimo.testsuite</groupId>
+		<artifactId>ejb-tests</artifactId>
+		<version>2.2.1-SNAPSHOT</version>
+	</parent>
 
-    <!--
-    FIXME: Split this module up... one to build the ear, one to run the tests.
-    -->
-    
-    <description>
+	<artifactId>ejb-ear</artifactId>
+	<name>Geronimo TestSuite :: Enterprise Testsuite :: EJB Tests EAR</name>
+	<packaging>ear</packaging>
+
+	<!--
+		FIXME: Split this module up... one to build the ear, one to run the
+		tests.
+	-->
+
+	<description>
         Geronimo test EAR for EJB Tests
     </description>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>ejb-war</artifactId>
-            <version>${version}</version>
-            <type>war</type>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>ejb-ejb</artifactId>
-            <version>${version}</version>
-            <type>ejb</type>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-           <groupId>org.apache.geronimo.modules</groupId>
-           <artifactId>geronimo-openejb</artifactId>
-           <version>${version}</version>
-           <scope>test</scope>
-        </dependency>
-    </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.geronimo.testsuite</groupId>
+			<artifactId>ejb-war</artifactId>
+			<version>${version}</version>
+			<type>war</type>
+			<scope>provided</scope>
+		</dependency>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-ear-plugin</artifactId>
-                <configuration>
-                    <displayName>Geronimo EAR for EJB Tests</displayName>
-                    <description>Geronimo EAR for EJB Tests</description>
-                    <version>5</version>
-                    <modules>
-                      <ejbModule>
-                            <groupId>org.apache.geronimo.testsuite</groupId>
-                            <artifactId>ejb-ejb</artifactId>
-                            <bundleFileName>ejb-ejb-${version}.jar</bundleFileName>
-                        </ejbModule>
+		<dependency>
+			<groupId>org.apache.geronimo.testsuite</groupId>
+			<artifactId>ejb-ejb</artifactId>
+			<version>${version}</version>
+			<type>ejb</type>
+			<scope>provided</scope>
+		</dependency>
 
-                        <webModule>
-                            <groupId>org.apache.geronimo.testsuite</groupId>
-                            <artifactId>ejb-war</artifactId>
-                            <contextRoot>/ejbtests</contextRoot>
-                            <bundleFileName>ejb-war-${version}.war</bundleFileName>
-                        </webModule>
-                    </modules>
-                </configuration>
-            </plugin>
+		<dependency>
+			<groupId>org.apache.geronimo.modules</groupId>
+			<artifactId>geronimo-openejb</artifactId>
+			<version>${version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<profiles>
+		<profile>
+			<id>child</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-ear-plugin</artifactId>
+						<configuration>
+							<displayName>Geronimo EAR for EJB Tests</displayName>
+							<description>Geronimo EAR for EJB Tests</description>
+							<version>5</version>
+							<modules>
+								<ejbModule>
+									<groupId>org.apache.geronimo.testsuite</groupId>
+									<artifactId>ejb-ejb</artifactId>
+									<bundleFileName>ejb-ejb-${version}.jar</bundleFileName>
+								</ejbModule>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
-                </configuration>
-            </plugin>
+								<webModule>
+									<groupId>org.apache.geronimo.testsuite</groupId>
+									<artifactId>ejb-war</artifactId>
+									<contextRoot>/ejbtests</contextRoot>
+									<bundleFileName>ejb-war-${version}.war</bundleFileName>
+								</webModule>
+							</modules>
+						</configuration>
+					</plugin>
 
-            <!-- "ear" packaging doesn't process test resources -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<configuration>
+							<suiteXmlFiles>
+								<suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
+							</suiteXmlFiles>
+						</configuration>
+					</plugin>
 
-            <!-- "ear" packaging doesn't process test resources -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>testResources</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+					<!-- "ear" packaging doesn't process test resources -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>testCompile</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>geronimo-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
-                        </configuration>
-                    </execution>
+					<!-- "ear" packaging doesn't process test resources -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-resources-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>testResources</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 
-                    <execution>
-                        <id>undeploy</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+					<plugin>
+						<groupId>org.apache.geronimo.buildsupport</groupId>
+						<artifactId>geronimo-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>deploy</id>
+								<phase>pre-integration-test</phase>
+								<goals>
+									<goal>deploy-module</goal>
+								</goals>
+								<configuration>
+									<moduleArchive>${project.build.directory}/${artifactId}-${version}.ear</moduleArchive>
+								</configuration>
+							</execution>
 
+							<execution>
+								<id>undeploy</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>undeploy-module</goal>
+								</goals>
+								<configuration>
+									<moduleId>${groupId}/${artifactId}/${version}/ear</moduleId>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
 

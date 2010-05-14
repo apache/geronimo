@@ -88,7 +88,7 @@
     </build>
     <profiles>
         <profile>
-            <id>it</id>
+            <id>child</id>
             <build>
                 <plugins>
                     <!-- Deploy the ear and invoke the imbedded CORBA app client -->

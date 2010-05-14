@@ -114,17 +114,18 @@
 
     <profiles>
         <profile>
-            <id>it</id>
+            <id>child</id>
             <build>
                 <plugins>
-                    <!-- Deploy the ear and invoke the imbedded CORBA app client  -->
+                    <!-- Deploy the ear and invoke the embedded CORBA app client  -->
                     <!-- ======================================================== -->
                     <!-- ===================================================================== -->
                     <!-- Setup the client log file location for access by the CORBA app client -->
                     <!-- ===================================================================== -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <!--<artifactId>maven-surefire-plugin</artifactId>-->
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <systemProperties>
                                 <property>

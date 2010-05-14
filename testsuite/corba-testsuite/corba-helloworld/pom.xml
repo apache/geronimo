@@ -35,11 +35,28 @@
     <packaging>pom</packaging>
     <description>Geronimo JEE5 CORBA Hello World Tests</description>
 
-    <modules>
-        <module>corba-helloworld-ejb</module>
-        <module>corba-helloworld-war</module>
-        <module>corba-helloworld-client</module>
-        <module>corba-helloworld-ear</module>
-    </modules>
+    <profiles>
+        <profile>
+            <id>child</id>
+            <modules>
+                <module>corba-helloworld-ejb</module>
+                <module>corba-helloworld-war</module>
+                <module>corba-helloworld-client</module>
+                <module>corba-helloworld-ear</module>
+            </modules>
+        </profile>
+        
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>corba-helloworld-ejb</module>
+                <module>corba-helloworld-war</module>
+                <module>corba-helloworld-client</module>
+                <module>corba-helloworld-ear</module>
+            </modules>
+        </profile>
+        
+    </profiles>
 
 </project>
