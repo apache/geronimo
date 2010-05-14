@@ -77,7 +77,7 @@
         <axis2Version>1.5</axis2Version>
         <axiomVersion>1.2.8</axiomVersion>
         <springVersion>2.5.6</springVersion>
-        <xbeanVersion>3.7-SNAPSHOT</xbeanVersion>
+        <xbeanVersion>3.7</xbeanVersion>
         <jetty>jetty8</jetty>
 
         <txmanagerVersion>3.0</txmanagerVersion>
@@ -2392,36 +2392,10 @@ only found in cxf
 
             <repositories>
                 <repository>
-                    <id>aries1</id>
-                    <name>aries1</name>
+                    <id>xbean1</id>
+                    <name>xbean1</name>
                     <layout>default</layout>
-                    <url>https://repository.apache.org/content/repositories/orgapachearies-009</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-
-                <repository>
-                    <id>aries2</id>
-                    <name>aries2</name>
-                    <layout>default</layout>
-                    <url>https://repository.apache.org/content/repositories/orgapachearies-004</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-
-                <repository>
-                    <id>aries3</id>
-                    <name>aries3</name>
-                    <layout>default</layout>
-                    <url>https://repository.apache.org/content/repositories/orgapachearies-010</url>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-031</url>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>
