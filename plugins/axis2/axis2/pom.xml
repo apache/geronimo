@@ -92,29 +92,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.axis2</groupId>
-            <artifactId>axis2-kernel</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.axis2</groupId>
-            <artifactId>axis2-jaxws</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.axis2</groupId>
-            <artifactId>axis2-metadata</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.axis2</groupId>
-            <artifactId>axis2-saaj</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.axis2</groupId>
-            <artifactId>addressing</artifactId>
-            <type>mar</type>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>axis2</artifactId>        
         </dependency>
 
         <dependency>
@@ -123,7 +102,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.ws.commons.axiom</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>axiom-api</artifactId>
         </dependency>
 
@@ -185,7 +164,32 @@
          <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
-         </dependency>            
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.woden</groupId>
+            <artifactId>woden-api</artifactId>
+         </dependency>
+         
+         <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>woodstox</artifactId>               
+         </dependency>
+
+         <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.2_spec</artifactId>         
+         </dependency>
+
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>               
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>            
+        </dependency>
     </dependencies>
 
     <build>

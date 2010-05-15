@@ -73,7 +73,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.ws.commons.axiom</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>axiom-api</artifactId>
         </dependency>
 
