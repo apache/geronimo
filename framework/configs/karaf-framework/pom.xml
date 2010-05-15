@@ -41,30 +41,27 @@
         <depends.maven.plugin.version>1.0</depends.maven.plugin.version>
         <easymock.version>2.4</easymock.version>
         <equinox.version>3.5.1.v20090827</equinox.version>
-        <felix.bundlerepository.version>1.6.0</felix.bundlerepository.version>
+        <felix.bundlerepository.version>1.6.2</felix.bundlerepository.version>
         <felix.compendium.version>1.2.0</felix.compendium.version>
         <felix.configadmin.version>1.2.4</felix.configadmin.version>
-        <felix.fileinstall.version>2.0.8</felix.fileinstall.version>
+        <felix.fileinstall.version>3.0.0</felix.fileinstall.version>
         <felix.framework.version>2.0.5</felix.framework.version>
-        <felix.gogo.version>0.2.2</felix.gogo.version>
+        <felix.gogo.version>0.4.0</felix.gogo.version>
         <felix.osgi.version>1.4.0</felix.osgi.version>
-        <felix.plugin.version>2.0.1</felix.plugin.version>
+        <felix.plugin.version>2.1.0</felix.plugin.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
-        <felix.webconsole.version>2.0.0</felix.webconsole.version>
         <felix.metatype.version>1.0.2</felix.metatype.version>
         <aries.blueprint.version>0.1-incubating</aries.blueprint.version>
-        <jansi.version>1.1</jansi.version>
-        <jetty.bundle.version>6.1.14_1</jetty.bundle.version>
-        <junit.version>3.8.2_1</junit.version>
-        <jline.version>0.9.95-20091026.080844</jline.version>
-        <log4j.version>1.2.14</log4j.version>
+        <jansi.version>1.2</jansi.version>
+        <junit.version>4.7_1</junit.version>
+        <jline.version>0.9.95.20100209</jline.version>
+        <log4j.version>1.2.16</log4j.version>
         <maven.version>2.0.9</maven.version>
         <mina.version>2.0.0-RC1</mina.version>
-        <pax.exam.version>1.1.0</pax.exam.version>
-        <pax.runner.version>1.2.1</pax.runner.version>
+        <pax.exam.version>1.2.0</pax.exam.version>
+        <pax.runner.version>1.4.0</pax.runner.version>
         <pax.url.version>1.1.2</pax.url.version>
-        <pax.web.version>0.7.1</pax.web.version>
-        <sshd.version>0.4.0-SNAPSHOT</sshd.version>
+        <sshd.version>0.4.0</sshd.version>
     </properties>
 
     <dependencyManagement>
