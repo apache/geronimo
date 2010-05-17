@@ -37,22 +37,34 @@ recogonize a hash change when users click back/forward button.--%>
 
 dojo.require("dojo.hash");
 dojo.require("dojox.collections.Dictionary");
+dojo.require("dojo.io.iframe");
 
 var hash_iframeSrc_map= new dojox.collections.Dictionary;
 
+dojo.subscribe("/dojo/hashchange", this, this.onHashChange);
 
 function onHashChange(current_hash) {
 
-    if(current_hash&&!hash_iframeSrc_map.containsKey(current_hash)){
+    if(!current_hash||current_hash.length==0) return;
+    
+    var currentIframeHref=document.getElementById("portletsFrame").contentWindow.location.href;
+    
+    if(hash_iframeSrc_map.containsKey(current_hash)){
+    
+        var HrefForCurrentHash=hash_iframeSrc_map.entry(current_hash).value;
+    
+        if(HrefForCurrentHash==currentIframeHref) return;
 
-        hash_iframeSrc_map.add(current_hash,document.getElementById("portletsFrame").src);
-
+        dojo.io.iframe.setSrc(document.getElementById("portletsFrame"), hash_iframeSrc_map.entry(current_hash).value, true);
+    
     } else {
-        document.getElementById("portletsFrame").src=""+hash_iframeSrc_map.entry(current_hash).value;
+    
+        hash_iframeSrc_map.add(current_hash,currentIframeHref);
+       
     }
 }
 
-dojo.subscribe("/dojo/hashchange", this, this.onHashChange);
+
 
 
 </script>

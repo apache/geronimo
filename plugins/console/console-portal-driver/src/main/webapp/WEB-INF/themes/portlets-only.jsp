@@ -31,7 +31,11 @@ limitations under the License.
 
 <script type="text/javascript">
     if(parent){
+       
+        if(!(parent.location.hash=="#noxssPage=<c:out value="${hashOfCurrentPortalPage}"/>"))
         parent.location.hash="#noxssPage=<c:out value="${hashOfCurrentPortalPage}"/>";
+        <!--window.parent.dojo.hash("#noxssPage=<c:out value='${hashOfCurrentPortalPage}'/>",true);-->
+        
     }
 </script>
 </body>
