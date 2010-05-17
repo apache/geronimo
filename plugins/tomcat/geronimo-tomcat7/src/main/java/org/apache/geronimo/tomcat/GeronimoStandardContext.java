@@ -120,6 +120,9 @@ public class GeronimoStandardContext extends StandardContext {
         setXmlNamespaceAware(true);
         // disable Tomcat startup TLD scanning
         setProcessTlds(false);
+        // By default, we configure HttpOnly with false value, as it would cause DWR fail to work
+        //On the runtime, Tomcat will determine the value based on the configurations in web.xml and context, so the users still have a chance to open it via web.xml
+        setUseHttpOnly(false);
     }
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
