@@ -95,11 +95,12 @@
                 <artifactId>geronimo-transaction-1_6</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <!-- external dependencies -->
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector</artifactId>
-                <version>1.6-SNAPSHOT</version>
+                <version>1.6</version>
             </dependency>
 
             <dependency>
