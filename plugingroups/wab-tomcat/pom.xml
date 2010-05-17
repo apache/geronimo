@@ -93,12 +93,12 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>remote-deploy-tomcat</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>remote-deploy-tomcat</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>

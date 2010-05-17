@@ -106,7 +106,11 @@ public class FileUploadServlet extends HttpServlet {
                     //File temp = File.createTempFile("remote-deploy", "");
                     // Note: Doing this because WAR files have to be their original names to
                     // handle the case where no web.xml or context root was provided
-                    File temp = new File(System.getProperty("java.io.tmpdir"), fileName.trim());
+                    File tempDir = new File(System.getProperty("java.io.tmpdir"));                    
+                    File temp = new File(tempDir, fileName.trim());
+                    if (!temp.getAbsolutePath().startsWith(tempDir.getAbsolutePath())) {
+                        throw new IOException("Invalid upload filename");                        
+                    }
                     temp.createNewFile();
                     temp.deleteOnExit();
                     names[i] = temp.getAbsolutePath();

@@ -184,7 +184,7 @@
         <module>uddi</module>
         <!--<module>mejb</module>-->
         <!--<module>monitoring</module>-->
-        <!--<module>remote-deploy</module>-->
+        <module>remote-deploy</module>
         <!--<module>sharedlib</module>-->
         <module>welcome</module>
         <!--<module>procrun</module>-->
