@@ -64,6 +64,7 @@ limitations under the License.
 </div>
 
 
+
 <script type="text/javascript">
 
 <%-- scripts to create the navigation tree--%>
@@ -172,10 +173,9 @@ function load() {
         if(document.location.href.indexOf(iframeHref)==0){      
             iframeHref=document.location.href.substring(0,document.location.href.indexOf("?"));
         }
-    
-        document.getElementById("portletsFrame").src = iframeHref+"?formId="+formID;
-        setTimeout('returnToTop()', 30);
-
+        
+        dojo.io.iframe.setSrc(document.getElementById("portletsFrame"), iframeHref+"?formId="+formID, true);
+        setTimeout('returnToTop()', 30);      
      }
      
     function returnToTop(){
