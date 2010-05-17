@@ -238,6 +238,7 @@
                             <configuration>
                                 <redirectTestOutputToFile>true</redirectTestOutputToFile>
                                 <forkMode>once</forkMode>
+                                <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
                                 <argLine>-enableassertions</argLine>
                                 <failIfNoTests>false</failIfNoTests>
                                 <workingDirectory>${project.build.directory}</workingDirectory>
