@@ -23,6 +23,8 @@
     <gbean name="CatalinaSystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
         org.apache.catalina.STRICT_SERVLET_COMPLIANCE=true
+        org.apache.tomcat.util.http.ServerCookie.FWD_SLASH_IS_SEPARATOR=false
+        org.apache.tomcat.util.http.ServerCookie.ALWAYS_ADD_EXPIRES=true
         catalina.useNaming=false
         </attribute>
     </gbean>
