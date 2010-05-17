@@ -33,9 +33,9 @@ limitations under the License.
       <pluto:modeAnchor portletMode="edit"/>
       <pluto:modeAnchor portletMode="help"/>
       <!-- Window State Controls -->
-      <pluto:windowStateAnchor windowState="minimized"/>
-      <pluto:windowStateAnchor windowState="maximized"/>
-      <pluto:windowStateAnchor windowState="normal"/>
+      <pluto:windowStateAnchor windowState="minimized" icon='<%= (request.getContextPath() + "/images/controls/min.png")%>' />
+      <pluto:windowStateAnchor windowState="maximized" icon='<%= request.getContextPath() + "/images/controls/max.png"%>'/>
+      <pluto:windowStateAnchor windowState="normal" icon='<%= request.getContextPath() + "/images/controls/norm.png"%>'/>
       <a href="<pluto:url windowState="minimized"/>"><span class="min"></span></a>
       <a href="<pluto:url windowState="maximized"/>"><span class="max"></span></a>
       <a href="<pluto:url windowState="normal"/>"><span class="norm"></span></a>

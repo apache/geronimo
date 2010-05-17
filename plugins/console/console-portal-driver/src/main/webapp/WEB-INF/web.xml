@@ -260,15 +260,25 @@ limitations under the License.
   </taglib>
 
   <taglib>
+    <taglib-uri>http://java.sun.com/portlet_2_0</taglib-uri>
+    <taglib-location>/WEB-INF/tld/portlet_2_0.tld</taglib-location>
+  </taglib>
+
+  <taglib>
     <taglib-uri>http://portals.apache.org/pluto/portlet-el</taglib-uri>
     <taglib-location>/WEB-INF/tld/portlet-el.tld</taglib-location>
+  </taglib>
+  
+  <taglib>
+    <taglib-uri>http://portals.apache.org/pluto/portlet-el_2_0</taglib-uri>
+    <taglib-location>/WEB-INF/tld/portlet-el_2_0.tld</taglib-location>
   </taglib>
 
   <taglib>
     <taglib-uri>http://portals.apache.org/pluto</taglib-uri>
     <taglib-location>/WEB-INF/tld/pluto.tld</taglib-location>
   </taglib>
-
+  
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>Login and HTTPS Required</web-resource-name>

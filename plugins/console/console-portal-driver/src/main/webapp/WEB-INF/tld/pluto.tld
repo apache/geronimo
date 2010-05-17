@@ -51,6 +51,12 @@ limitations under the License.
       <rtexprvalue>false</rtexprvalue>
     </attribute>
   </tag>
+
+  <tag>
+    <name>modeDropDown</name>
+    <tagclass>org.apache.pluto.driver.tags.PortletModeDropDownTag</tagclass>
+    <bodycontent>empty</bodycontent>
+  </tag>
   
   <tag>
     <name>windowStateAnchor</name>
@@ -60,6 +66,11 @@ limitations under the License.
       <name>windowState</name>
       <required>true</required>
       <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>icon</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
     </attribute>
   </tag>
      
