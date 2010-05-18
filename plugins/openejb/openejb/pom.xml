@@ -164,6 +164,11 @@
                                     <attribute name="host">${ServerHostname}</attribute>
                                     <attribute name="multicastHost">${MulticastDiscoveryAddress}</attribute>
                                     <attribute name="multicastPort">${MulticastDiscoveryPort}</attribute>
+                                    <attribute name="multipointHost">${MultipointHost}</attribute>
+                                    <attribute name="multipointPort">${MultipointPort + PortOffset}</attribute>
+                                    <attribute name="multipointServers">${MultipointServers}</attribute>
+                                    <attribute name="multicastEnabled">${MulticastEnabled}</attribute>
+                                    <attribute name="multipointEnabled">${MultipointEnabled}</attribute>
                                     <attribute name="clusterName">${ClusterName}</attribute>
                                 </gbean>
                                 <gbean name="DefaultStatefulContainer">
@@ -194,6 +199,11 @@
                             <config-substitution key="StrictPooling">true</config-substitution>
                             <config-substitution key="MulticastDiscoveryAddress">239.255.3.2</config-substitution>
                             <config-substitution key="MulticastDiscoveryPort">6142</config-substitution>
+                            <config-substitution key="MultipointHost">0.0.0.0</config-substitution>
+                            <config-substitution key="MultipointPort">4212</config-substitution>
+                            <config-substitution key="MulticastEnabled">false</config-substitution>
+                            <config-substitution key="MultipointEnabled">false</config-substitution>
+                            <config-substitution key="MultipointServers"></config-substitution>
                             <config-substitution key="ClusterName">cluster1</config-substitution>
                             <copy-file relative-to="geronimo" dest-dir="">schema</copy-file>
                         </plugin-artifact>

@@ -40,10 +40,11 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
     private String clusterName;
     private String multicastHost;
     private int multicastPort;
-    private boolean enableMulticast;
+    private boolean multicastEnabled;
     private String multipointHost;
     private int multipointPort;
-    private boolean enableMultipoint;
+    private String multipointServers;
+    private boolean multipointEnabled;
     private long heartRate;
     private int maxMissedHeartbeats;
 
@@ -88,12 +89,12 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         this.threads = threads;
     }
 
-    public boolean isEnableMulticast() {
-        return enableMulticast;
+    public boolean isMulticastEnabled() {
+        return multicastEnabled;
     }
 
-    public void setEnableMulticast(boolean enableMulticast) {
-        this.enableMulticast = enableMulticast;
+    public void setMulticastEnabled(boolean multicastEnabled) {
+        this.multicastEnabled = multicastEnabled;
     }
 
     public String getMulticastHost() {
@@ -148,12 +149,20 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         this.multipointPort = multipointPort;
     }
 
-    public boolean isEnableMultipoint() {
-        return enableMultipoint;
+    public String getMultipointServers() {
+        return multipointServers;
     }
 
-    public void setEnableMultipoint(boolean enableMultipoint) {
-        this.enableMultipoint = enableMultipoint;
+    public void setMultipointServers(String multipointServers) {
+        this.multipointServers = multipointServers;
+    }
+
+    public boolean isMultipointEnabled() {
+        return multipointEnabled;
+    }
+
+    public void setMultipointEnabled(boolean multipointEnabled) {
+        this.multipointEnabled = multipointEnabled;
     }
 
     public long getHeartRate() {
@@ -178,13 +187,14 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         properties.setProperty("ejbd.port", Integer.toString(port));
         properties.setProperty("multicast.bind", multicastHost);
         properties.setProperty("multicast.port", Integer.toString(multicastPort));
-        properties.setProperty("multicast.disabled", Boolean.toString(!enableMulticast));
+        properties.setProperty("multicast.disabled", Boolean.toString(!multicastEnabled));
         properties.setProperty("multicast.group", clusterName);
         properties.setProperty("multicast.heart_rate", Long.toString(heartRate));
         properties.setProperty("multicast.max_missed_heartbeats", Integer.toString(maxMissedHeartbeats));
         properties.setProperty("multipoint.bind", multipointHost);
         properties.setProperty("multipoint.port", Integer.toString(multipointPort));
-        properties.setProperty("multipoint.disabled", Boolean.toString(!enableMultipoint));
+        properties.setProperty("multipoint.initialServers", multipointServers);
+        properties.setProperty("multipoint.disabled", Boolean.toString(!multipointEnabled));
         properties.setProperty("multipoint.group", clusterName);
         properties.setProperty("multipoint.heart_rate", Long.toString(heartRate));
         properties.setProperty("multipoint.max_missed_heartbeats", Integer.toString(maxMissedHeartbeats));
@@ -218,10 +228,11 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         infoBuilder.addAttribute("maxMissedHeartbeats", int.class, true);
         infoBuilder.addAttribute("multicastHost", String.class, true);
         infoBuilder.addAttribute("multicastPort", int.class, true);
-        infoBuilder.addAttribute("enableMulticast", boolean.class, true);
+        infoBuilder.addAttribute("multicastEnabled", boolean.class, true);
         infoBuilder.addAttribute("multipointHost", String.class, true);
         infoBuilder.addAttribute("multipointPort", int.class, true);
-        infoBuilder.addAttribute("enableMultipoint", boolean.class, true);
+        infoBuilder.addAttribute("multipointServers", String.class, true);
+        infoBuilder.addAttribute("multipointEnabled", boolean.class, true);
         infoBuilder.addAttribute("threads", int.class, true);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
