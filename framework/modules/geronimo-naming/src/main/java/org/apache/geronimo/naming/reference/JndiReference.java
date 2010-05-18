@@ -22,7 +22,7 @@ import javax.naming.NamingException;
 /**
  * @version $Rev$ $Date$
  */
-public class JndiReference extends SimpleAwareReference {
+public class JndiReference extends SimpleReference {
 
     private String jndiName;
     
