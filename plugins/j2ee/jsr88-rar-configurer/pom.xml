@@ -25,14 +25,14 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>j2ee</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>jsr88-rar-configurer</artifactId>
     <name>Geronimo Plugins, J2EE :: JSR-88 RAR Configurer</name>
     <packaging>car</packaging>
-    
+
     <dependencies>
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.framework</groupId>-->
@@ -53,7 +53,7 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -86,5 +86,5 @@
             </plugin>
         </plugins>
     </build>
- 
+
 </project>

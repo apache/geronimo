@@ -3,7 +3,7 @@
     <module-id>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>jsr88-cli</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
         <type>car</type>
     </module-id>
     <dependency>
@@ -19,6 +19,11 @@
     <dependency>
         <groupId>org.apache.felix</groupId>
         <artifactId>org.apache.felix.bundlerepository</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.configadmin</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -89,6 +94,11 @@
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-main</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-pax-logging</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

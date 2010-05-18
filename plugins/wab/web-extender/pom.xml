@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>wab</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>

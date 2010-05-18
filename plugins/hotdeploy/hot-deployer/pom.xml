@@ -25,16 +25,16 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>hotdeploy</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>hot-deployer</artifactId>
     <name>Geronimo Plugins, Hot Deploy :: Deployer</name>
     <packaging>car</packaging>
 
     <description>The hot deployer is a bad substitute for using explicit deploy commands from maven, the command line, or the console.</description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -42,7 +42,7 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
@@ -55,14 +55,14 @@
             <artifactId>geronimo-hot-deploy</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-tool</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

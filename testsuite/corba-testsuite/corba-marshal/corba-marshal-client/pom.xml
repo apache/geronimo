@@ -27,12 +27,12 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>corba-marshal</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <artifactId>corba-marshal-client</artifactId>
     <name>Geronimo TestSuite :: CORBA TestSuite :: Marshal Client</name>
-    
+
     <description>Example using CORBA to access a stateless EJB</description>
 
     <dependencies>
@@ -43,7 +43,7 @@
             <type>ejb</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.1_spec</artifactId>

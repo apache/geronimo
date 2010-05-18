@@ -25,16 +25,16 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>cxf</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>cxf-tools</artifactId>
     <name>Geronimo Plugins, CXF :: Tools CLI</name>
     <packaging>car</packaging>
 
     <description>CXF JAX-WS command line tools</description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -43,7 +43,7 @@
             <type>car</type>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -99,7 +99,7 @@
                             <goal>directory-inline</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}</outputDirectory> 
+                            <outputDirectory>${project.build.directory}</outputDirectory>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
                                 <descriptor>${project.basedir}/src/main/assembly/bin.xml</descriptor>

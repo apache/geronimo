@@ -25,17 +25,17 @@
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>modules</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <artifactId>geronimo-jmx-remoting</artifactId>
     <packaging>bundle</packaging>
     <name>Geronimo Framework, Modules :: JMX Remoting</name>
-    
+
     <description>
         Provides remote access to a Geronimo server using JSR 160 JMX Remoting.
     </description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -72,7 +72,7 @@
 
         </plugins>
     </build>
-    
+
 </project>
 
 

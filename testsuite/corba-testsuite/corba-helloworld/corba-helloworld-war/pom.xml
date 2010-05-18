@@ -25,13 +25,13 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>corba-helloworld</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <artifactId>corba-helloworld-war</artifactId>
     <name>Geronimo TestSuite :: CORBA TestSuite :: Hello World WAR</name>
     <packaging>war</packaging>
-    
+
     <description>Geronimo Hello World Enterprise Web Application</description>
 
     <dependencies>
@@ -41,13 +41,13 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_3.0_spec</artifactId>

@@ -27,13 +27,13 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>corba-helloworld</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <artifactId>corba-helloworld-ejb</artifactId>
     <name>Geronimo TestSuite :: CORBA TestSuite :: Hello World EJB</name>
     <packaging>ejb</packaging>
-    
+
     <description>Geronimo Hello World Enterprise Stateless EJB</description>
 
     <dependencies>

@@ -6,9 +6,9 @@
     The ASF licenses this file to You under the Apache License, Version 2.0
     (the "License"); you may not use this file except in compliance with
     the License.  You may obtain a copy of the License at
-    
+
        http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,25 +25,25 @@
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>modules</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <artifactId>geronimo-deploy-config</artifactId>
     <packaging>bundle</packaging>
     <name>Geronimo Framework, Modules :: Deploy Config</name>
-    
+
     <description>
-        The deployment module contains basic infrastructure and base classes for 
-        module builders / deployers. This module contains infrastructure and base 
+        The deployment module contains basic infrastructure and base classes for
+        module builders / deployers. This module contains infrastructure and base
         classes for JSR-88 DConfigBeans.
     </description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
         </dependency>
     </dependencies>
-    
+
 </project>
 

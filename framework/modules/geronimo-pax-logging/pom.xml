@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>modules</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <artifactId>geronimo-pax-logging</artifactId>
@@ -62,7 +62,7 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>pax-logging-service;inline=true</Embed-Dependency>
- 
+
                         <Import-Package>
                             com.ibm.uvm.tools;resolution:=optional,
                             com.sun.jdmk.comm;resolution:=optional,

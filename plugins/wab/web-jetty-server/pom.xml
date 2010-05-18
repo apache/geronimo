@@ -21,7 +21,7 @@
   <parent>
     <artifactId>wab</artifactId>
     <groupId>org.apache.geronimo.plugins</groupId>
-    <version>3.0-SNAPSHOT</version>
+    <version>3.0-M1-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.geronimo.plugins</groupId>
   <artifactId>web-jetty-server</artifactId>
@@ -141,7 +141,7 @@
             <type>car</type>
         </dependency>
 
-        <dependency> 
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>aries-deployer</artifactId>
             <version>${project.version}</version>

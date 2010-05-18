@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache.geronimo.buildsupport</groupId>
         <artifactId>buildsupport</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.geronimo.buildsupport.it</groupId>
@@ -43,7 +43,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>velocity</groupId>
             <artifactId>velocity</artifactId>

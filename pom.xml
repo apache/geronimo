@@ -34,7 +34,7 @@
     <name>Geronimo</name>
     <packaging>pom</packaging>
 
-    <version>3.0-SNAPSHOT</version>
+    <version>3.0-M1-SNAPSHOT</version>
 
     <description>
         Apache Geronimo, the JavaEE server project of the Apache Software Foundation.
@@ -1367,7 +1367,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>axiom-api</artifactId>
-                <version>${axiomVersion}_1</version>                
+                <version>${axiomVersion}_1</version>
             </dependency>
 
             <dependency>
@@ -1621,7 +1621,7 @@
                 <artifactId>groovy-all</artifactId>
                 <version>1.6.0</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
@@ -2360,7 +2360,7 @@ only found in cxf
                         <enabled>true</enabled>
                     </releases>
                 </repository>
-                
+
                 <repository>
                     <id>axis2-axiom-api</id>
                     <name>axis2-axiom-api</name>

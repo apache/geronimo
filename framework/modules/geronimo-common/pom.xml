@@ -25,13 +25,13 @@
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>modules</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <artifactId>geronimo-common</artifactId>
     <packaging>bundle</packaging>
     <name>Geronimo Framework, Modules :: Common</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -39,6 +39,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    
+
 </project>
 

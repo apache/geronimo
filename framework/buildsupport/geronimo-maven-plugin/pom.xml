@@ -19,19 +19,19 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.buildsupport</groupId>
         <artifactId>buildsupport</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
-    
+
     <artifactId>geronimo-maven-plugin</artifactId>
     <name>Geronimo Build Support :: Geronimo</name>
     <packaging>maven-plugin</packaging>
-    
+
     <description>
         Geronimo plugin for Maven 2; used to install, start, stop the server
         and operate on modules.
@@ -49,7 +49,7 @@
             <artifactId>geronimo-kernel</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.sonatype.gossip</groupId>
             <artifactId>gossip</artifactId>
@@ -66,7 +66,7 @@
             <artifactId>surefire-api</artifactId>
             <version>2.3</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>plugin-support</artifactId>

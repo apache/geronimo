@@ -25,14 +25,14 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>ca-helper</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>ca-helper-tomcat</artifactId>
     <name>Geronimo Plugins, CA Helper :: Tomcat</name>
     <packaging>car</packaging>
-    
+
     <description>
         This is a helper application for CA to enable receiving CSR's through
         and uploading certificates to web browsers.
@@ -54,7 +54,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
@@ -62,7 +62,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>

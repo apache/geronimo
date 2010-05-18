@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>jetty8</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.geronimo.modules</groupId>
@@ -55,7 +55,7 @@
             <artifactId>geronimo-wab</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-web</artifactId>

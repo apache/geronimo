@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <artifactId>cxf</artifactId>
@@ -58,33 +58,33 @@
                 <version>${cxfVersion}</version>
                 <exclusions>
                     <!-- transitive dependency
-                                      
-                        <groupId>org.apache.ws.security</groupId>           
+
+                        <groupId>org.apache.ws.security</groupId>
                         <artifactId>wss4j</artifactId>
                         <version>1.5.5</version>
-                          
-                        <groupId>org.apache.neethi</groupId>  
+
+                        <groupId>org.apache.neethi</groupId>
                         <artifactId>neethi</artifactId>
                         <version>2.0.4</version>
-                    
+
                         <groupId>org.apache.ws.commons.schema</groupId>
                         <artifactId>XmlSchema</artifactId>
                         <version>1.4.3</version>
 
-                        <groupId>org.apache.geronimo.specs</groupId>    
+                        <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-activation_1.1_spec</artifactId>
                         <version>1.0.2</version>
-                    
-                        <groupId>org.apache.geronimo.specs</groupId>    
+
+                        <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-jms_1.1_spec</artifactId>
                         <version>1.1.1</version>
                     -->
-   
+
                     <!-- geronimo specs,
                             their versions are not the same with those in root pom -->
                     <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>    
-                        <artifactId>geronimo-annotation_1.0_spec</artifactId>   
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-annotation_1.0_spec</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>
@@ -106,15 +106,15 @@
                         <groupId>org.apache.geronimo.specs</groupId>
                         <artifactId>geronimo-jaxws_2.1_spec</artifactId>
                     </exclusion>
-                                       
-                    <!-- Spring jars, 
+
+                    <!-- Spring jars,
                             org.springframework*;resolution:=optional, -->
                     <exclusion>
                         <groupId>org.springframework</groupId>
                         <artifactId>spring-core</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.springframework</groupId> 
+                        <groupId>org.springframework</groupId>
                         <artifactId>spring-beans</artifactId>
                     </exclusion>
                     <exclusion>
@@ -137,8 +137,8 @@
                         <groupId>org.springframework</groupId>
                         <artifactId>spring-support</artifactId>
                     </exclusion>
-                    
-                    <!-- Jetty jars 
+
+                    <!-- Jetty jars
                             org.mortbay*;resolution:=optional, -->
                     <exclusion>
                         <groupId>org.mortbay.jetty</groupId>
@@ -148,12 +148,12 @@
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-util</artifactId>
                     </exclusion>
-                    
-                    <!-- commons jars, 
+
+                    <!-- commons jars,
                             org.apache.commons.lang*;resolution:=optional,
                             org.apache.commons.codec*;resolution:=optional, -->
                     <exclusion>
-                        <groupId>commons-lang</groupId>                
+                        <groupId>commons-lang</groupId>
                         <artifactId>commons-lang</artifactId>
                     </exclusion>
                     <exclusion>
@@ -164,7 +164,7 @@
                         <groupId>commons-pool</groupId>
                         <artifactId>commons-pool</artifactId>
                     </exclusion>
-                
+
                     <!-- sun jars -->
                     <exclusion>
                         <groupId>com.sun.xml.bind</groupId>
@@ -182,8 +182,8 @@
                         <groupId>com.sun.xml.messaging.saaj</groupId>
                         <artifactId>saaj-impl</artifactId>
                     </exclusion>
-                    
-                    <!-- xml jars 
+
+                    <!-- xml jars
                             ..
                             org.jaxen*;resolution:=optional,
                             org.jdom*;resolution:=optional,
@@ -212,10 +212,10 @@
                         <groupId>org.apache.xmlbeans</groupId>
                         <artifactId>xmlbeans</artifactId>
                     </exclusion>
-                    
+
                     <!-- others -->
                     <exclusion>
-                        <groupId>aopalliance</groupId> 
+                        <groupId>aopalliance</groupId>
                         <artifactId>aopalliance</artifactId>
                     </exclusion>
                     <exclusion>
@@ -233,7 +233,7 @@
                     <exclusion>
                         <groupId>org.opensaml</groupId>
                         <artifactId>opensaml</artifactId>
-                    </exclusion>  
+                    </exclusion>
                     <exclusion>
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jaxb-api</artifactId>
@@ -248,18 +248,18 @@
                         <groupId>org.apache.santuario</groupId>
                         <artifactId>xmlsec</artifactId>
                     </exclusion>
-                    
+
                     <!-- runtime jars -->
                     <exclusion>
-                        <groupId>org.slf4j</groupId>                 
+                        <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-jdk14</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.slf4j</groupId>                    
+                        <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>bouncycastle</groupId>                
+                        <groupId>bouncycastle</groupId>
                         <artifactId>bcprov-jdk15</artifactId>
                     </exclusion>
 

@@ -25,16 +25,16 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>connector-1_6</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>transaction-1_6</artifactId>
     <name>Geronimo Plugins, Connector 1.6 :: Transaction Manager (JTA11)</name>
     <packaging>car</packaging>
 
     <description>Geronimo transaction manager module.</description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -43,14 +43,14 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-security</artifactId>
@@ -64,13 +64,13 @@
             <artifactId>geronimo-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-connector-1_6</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.components</groupId>
             <artifactId>geronimo-connector</artifactId>

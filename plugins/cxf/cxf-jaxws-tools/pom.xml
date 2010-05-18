@@ -25,16 +25,16 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>cxf</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>cxf-jaxws-tools</artifactId>
     <name>Geronimo Plugins, CXF :: Tools</name>
     <packaging>car</packaging>
 
     <description>CXF JAX-WS tools</description>
-    
+
     <dependencies>
         <!-- This module should NOT have dependency on cxf/car -->
 
@@ -76,7 +76,7 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
