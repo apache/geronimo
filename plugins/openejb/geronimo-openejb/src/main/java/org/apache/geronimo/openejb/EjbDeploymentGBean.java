@@ -103,38 +103,40 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EjbDeploymentGBean.class, EjbDeploymentGBean.class, NameFactory.STATELESS_SESSION_BEAN);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EjbDeploymentGBean.class, EjbDeploymentGBean.class, NameFactory.STATELESS_SESSION_BEAN);
+        //TODO GERONIMO-5322 simple way to get all the ejbs to start before any servlet gbeans
+        infoBuilder.setPriority(3);
 
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("deploymentId", String.class, true);
-        infoFactory.addAttribute("ejbName", String.class, true);
+        infoBuilder.addAttribute("objectName", String.class, false);
+        infoBuilder.addAttribute("deploymentId", String.class, true);
+        infoBuilder.addAttribute("ejbName", String.class, true);
 
-        infoFactory.addAttribute("homeInterfaceName", String.class, true);
-        infoFactory.addAttribute("remoteInterfaceName", String.class, true);
-        infoFactory.addAttribute("localHomeInterfaceName", String.class, true);
-        infoFactory.addAttribute("localInterfaceName", String.class, true);
-        infoFactory.addAttribute("serviceEndpointInterfaceName", String.class, true);
-        infoFactory.addAttribute("beanClassName", String.class, true);
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoBuilder.addAttribute("homeInterfaceName", String.class, true);
+        infoBuilder.addAttribute("remoteInterfaceName", String.class, true);
+        infoBuilder.addAttribute("localHomeInterfaceName", String.class, true);
+        infoBuilder.addAttribute("localInterfaceName", String.class, true);
+        infoBuilder.addAttribute("serviceEndpointInterfaceName", String.class, true);
+        infoBuilder.addAttribute("beanClassName", String.class, true);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addAttribute("securityEnabled", boolean.class, true);
-        infoFactory.addAttribute("defaultRole", String.class, true);
-        infoFactory.addAttribute("runAsRole", String.class, true);
-        infoFactory.addReference("RunAsSource", RunAsSource.class, SecurityNames.JACC_MANAGER);
+        infoBuilder.addAttribute("securityEnabled", boolean.class, true);
+        infoBuilder.addAttribute("defaultRole", String.class, true);
+        infoBuilder.addAttribute("runAsRole", String.class, true);
+        infoBuilder.addReference("RunAsSource", RunAsSource.class, SecurityNames.JACC_MANAGER);
 
-        infoFactory.addAttribute("componentContextMap", Map.class, true);
+        infoBuilder.addAttribute("componentContextMap", Map.class, true);
 
-        infoFactory.addAttribute("unshareableResources", Set.class, true);
-        infoFactory.addAttribute("applicationManagedSecurityResources", Set.class, true);
-        infoFactory.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
-        infoFactory.addReference("TransactionManager", GeronimoTransactionManager.class);
+        infoBuilder.addAttribute("unshareableResources", Set.class, true);
+        infoBuilder.addAttribute("applicationManagedSecurityResources", Set.class, true);
+        infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class);
+        infoBuilder.addReference("TransactionManager", GeronimoTransactionManager.class);
 
-        infoFactory.addReference("OpenEjbSystem", OpenEjbSystem.class);
-        infoFactory.addReference("EjbModule", EjbModuleImpl.class);
+        infoBuilder.addReference("OpenEjbSystem", OpenEjbSystem.class);
+        infoBuilder.addReference("EjbModule", EjbModuleImpl.class);
 
-        infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[]{
+        infoBuilder.setConstructor(new String[]{
                 "objectName",
                 "deploymentId",
                 "ejbName",
@@ -165,6 +167,6 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
                 "kernel",
         });
 
-        GBEAN_INFO = infoFactory.getBeanInfo();
+        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 }
