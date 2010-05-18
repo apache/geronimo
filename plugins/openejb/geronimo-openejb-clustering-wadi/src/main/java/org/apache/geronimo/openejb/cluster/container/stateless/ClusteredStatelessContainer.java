@@ -50,8 +50,8 @@ public class ClusteredStatelessContainer extends StatelessContainer implements S
     private final Map<Object, Manager> deploymentIdToManager;
     private final Map<Object, NetworkConnectorTracker> deploymentIdToNetworkConnectorTracker;
 
-    public ClusteredStatelessContainer(Object id, SecurityService securityService, int timeOut, int poolSize, boolean strictPooling) throws OpenEJBException {
-        super(id, securityService, new Duration(timeOut, TimeUnit.MILLISECONDS), builder(poolSize, strictPooling), 5);
+    public ClusteredStatelessContainer(Object id, SecurityService securityService, int timeOut, int closeTimeout, int poolSize, boolean strictPooling) throws OpenEJBException {
+        super(id, securityService, new Duration(timeOut, TimeUnit.MILLISECONDS), new Duration(closeTimeout, TimeUnit.MILLISECONDS), builder(poolSize, strictPooling), 5);
 
         deploymentIdToManager = new ConcurrentHashMap<Object, Manager>();
         deploymentIdToNetworkConnectorTracker = new ConcurrentHashMap<Object, NetworkConnectorTracker>();

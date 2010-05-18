@@ -62,7 +62,7 @@ public class ClusteredStatelessContainerTest extends RMockTestCase {
 
         SecurityService securityService = (SecurityService) mock(SecurityService.class);
         container = (ClusteredStatelessContainer) intercept(ClusteredStatelessContainer.class, new Object[] {"id",
-                securityService,500,10,true});
+                securityService,500,10,10,true});
         deploymentId = "deploymentId";
         deploymentInfo = new CoreDeploymentInfo(new DeploymentContext(deploymentId, null, null),
             SFSB.class,
