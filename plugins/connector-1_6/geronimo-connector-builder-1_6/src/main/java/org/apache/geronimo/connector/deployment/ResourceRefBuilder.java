@@ -34,6 +34,10 @@ import javax.annotation.Resource;
 import javax.resource.ResourceException;
 import javax.xml.namespace.QName;
 
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
@@ -78,6 +82,7 @@ import org.osgi.framework.Bundle;
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class ResourceRefBuilder extends AbstractNamingBuilder implements ResourceEnvironmentSetter {
 
     private static final Logger log = LoggerFactory.getLogger(ResourceRefBuilder.class);
@@ -89,21 +94,25 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
     private final QNameSet resourceRefQNameSet;
     private final Environment corbaEnvironment;
-    private final SingleElementCollection corbaGBeanNameSourceCollection;
+    private final SingleElementCollection<CorbaGBeanNameSource> corbaGBeanNameSourceCollection;
 
-    public ResourceRefBuilder(Environment defaultEnvironment, Environment corbaEnvironment, String[] eeNamespaces, Collection corbaGBeanNameSourceCollection) {
+    public ResourceRefBuilder(
+            @ParamAttribute(name = "defaultEnvironment")Environment defaultEnvironment,
+            @ParamAttribute(name = "corbaEnvironment")Environment corbaEnvironment,
+            @ParamAttribute(name = "eeNamespaces")String[] eeNamespaces,
+            @ParamReference(name = "CorbaGBeanNameSource")Collection<CorbaGBeanNameSource> corbaGBeanNameSourceCollection) {
         super(defaultEnvironment);
 
         resourceRefQNameSet = buildQNameSet(eeNamespaces, "resource-ref");
         this.corbaEnvironment = corbaEnvironment;
-        this.corbaGBeanNameSourceCollection = new SingleElementCollection(corbaGBeanNameSourceCollection);
+        this.corbaGBeanNameSourceCollection = new SingleElementCollection<CorbaGBeanNameSource>(corbaGBeanNameSourceCollection);
     }
 
     protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
         return specDD.selectChildren(resourceRefQNameSet).length > 0;
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> componentContext) throws DeploymentException {
 
         // Discover and process any @Resource annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -120,18 +129,18 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         List<ResourceRefType> resourceRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), J2EE_CONVERTER, ResourceRefType.class, ResourceRefType.type);
         XmlObject[] gerResourceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map<String, GerResourceRefType> refMap = mapResourceRefs(gerResourceRefsUntyped);
-        List<String> unresolvedRefs = new ArrayList<String>();        
+        List<String> unresolvedRefs = new ArrayList<String>();
         for (ResourceRefType resourceRef : resourceRefsUntyped) {
-            String name = getStringValue(resourceRef.getResRefName());            
+            String name = getStringValue(resourceRef.getResRefName());
             if (lookupJndiContextMap(componentContext, name) != null) {
                 // some other builder handled this entry already
                 continue;
-            }            
+            }
             addInjections(name, resourceRef.getInjectionTargetArray(), componentContext);
             String type = getStringValue(resourceRef.getResType());
             GerResourceRefType gerResourceRef = refMap.get(name);
             log.debug("trying to resolve " + name + ", type " + type + ", resourceRef " + gerResourceRef);
-            
+
             Object value = null;
             if (gerResourceRef == null) {
                 String lookupName = getStringValue(resourceRef.getLookupName());
@@ -142,17 +151,17 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                     value = new JndiReference(lookupName);
                 }
             }
-            
+
             if (value == null) {
                 value = buildReference(module, name, type, gerResourceRef);
             }
-            
+
             if (value == null) {
                 unresolvedRefs.add(name);
             } else {
                 put(name, value, getJndiContextMap(componentContext));
             }
-            
+
         }
 
         if (unresolvedRefs.size() > 0) {
@@ -160,17 +169,16 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         }
     }
 
-    private Object buildReference(Module module, String name, String type, GerResourceRefType gerResourceRef) 
-        throws DeploymentException {
+    private Object buildReference(Module module, String name, String type, GerResourceRefType gerResourceRef) throws DeploymentException {
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        
+
         Class iface;
         try {
             iface = bundle.loadClass(type);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not resource-ref entry class " + type, e);
         }
-        
+
         if (iface == URL.class) {
             if (gerResourceRef == null || !gerResourceRef.isSetUrl()) {
                 throw new DeploymentException("No url supplied to resolve: " + name);
@@ -185,7 +193,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             }
             return new URLReference(url);
         } else if (ORB.class.isAssignableFrom(iface)) {
-            CorbaGBeanNameSource corbaGBeanNameSource = (CorbaGBeanNameSource) corbaGBeanNameSourceCollection.getElement();
+            CorbaGBeanNameSource corbaGBeanNameSource = corbaGBeanNameSourceCollection.getElement();
             if (corbaGBeanNameSource == null) {
                 throw new DeploymentException("No orb setup but there is a orb reference");
             }
@@ -240,15 +248,15 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 throw new DeploymentException(errorMessage.toString());
             }
         }
-        
+
         return null;
     }
-    
+
     public void setResourceEnvironment(ResourceEnvironmentBuilder builder, XmlObject[] resourceRefs, GerResourceRefType[] gerResourceRefs) throws DeploymentException {
         List<ResourceRefType> resourceRefList = convert(resourceRefs, J2EE_CONVERTER, ResourceRefType.class, ResourceRefType.type);
         Map refMap = mapResourceRefs(gerResourceRefs);
-        Set unshareableResources = new HashSet();
-        Set applicationManagedSecurityResources = new HashSet();
+        Set<AbstractNameQuery> unshareableResources = new HashSet<AbstractNameQuery>();
+        Set<AbstractNameQuery> applicationManagedSecurityResources = new HashSet<AbstractNameQuery>();
         for (ResourceRefType resourceRefType : resourceRefList) {
 
             String type = resourceRefType.getResType().getStringValue().trim();
@@ -284,6 +292,9 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
     }
 
     private AbstractNameQuery getResourceContainerId(String name, String type, URI moduleURI, GerResourceRefType gerResourceRef) {
+        if (name.startsWith("java:")) {
+            name = name.substring(name.indexOf("/env/") + 5);
+        }
         AbstractNameQuery containerId;
         String module = moduleURI == null ? null : moduleURI.toString();
         if (gerResourceRef == null) {
@@ -423,22 +434,4 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         }
     }
 
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceRefBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("corbaEnvironment", Environment.class, true, true);
-        infoBuilder.addReference("CorbaGBeanNameSource", CorbaGBeanNameSource.class);
-
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "corbaEnvironment", "eeNamespaces", "CorbaGBeanNameSource"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }
