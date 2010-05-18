@@ -19,6 +19,7 @@ package org.apache.geronimo.j2ee.deployment;
 import java.util.LinkedHashSet;
 import java.util.jar.JarFile;
 
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.gbean.AbstractName;
@@ -35,17 +36,18 @@ public class ApplicationInfo extends Module<XmlObject, XmlObject> {
     private LinkedHashSet<Module> modules;
     private ModuleList moduleLocations;
 
-    public ApplicationInfo(ConfigurationModuleType type, 
-                           Environment environment, 
-                           AbstractName baseName, 
-                           String name, 
-                           JarFile earFile, 
-                           XmlObject specDD, 
-                           XmlObject vendorDD, 
-                           LinkedHashSet<Module> modules, 
-                           ModuleList moduleLocations, 
-                           String originalSpecDD) {
-        super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, null);
+    public ApplicationInfo(ConfigurationModuleType type,
+                           Environment environment,
+                           AbstractName baseName,
+                           String name,
+                           JarFile earFile,
+                           XmlObject specDD,
+                           XmlObject vendorDD,
+                           LinkedHashSet<Module> modules,
+                           ModuleList moduleLocations,
+                           String originalSpecDD,
+                           AnnotatedApp annotatedApp) {
+        super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, annotatedApp);
         assert type != null;
         assert environment != null;
         assert modules != null;
