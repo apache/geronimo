@@ -2365,7 +2365,7 @@ only found in cxf
                     <id>axis2-axiom-api</id>
                     <name>axis2-axiom-api</name>
                     <layout>default</layout>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-033/</url>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-002/</url>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>
