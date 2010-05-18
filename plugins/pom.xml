@@ -192,6 +192,7 @@
         <module>tomcat</module>
         <module>aries</module>
         <module>wab</module>
+        <module>bval</module>
     </modules>
 
     <profiles>
