@@ -68,6 +68,13 @@
             <pattern>
                 <name>LifecycleMethodBuilder</name>
             </pattern>
+            <pattern>
+                <!-- TODO do app clients get web beans? -->
+                <name>ManagedResourceRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>BValNamingBuilder</name>
+            </pattern>
         </references>
         <reference name="ConnectorModuleBuilder">
             <name>ClientConnectorBuilder</name>

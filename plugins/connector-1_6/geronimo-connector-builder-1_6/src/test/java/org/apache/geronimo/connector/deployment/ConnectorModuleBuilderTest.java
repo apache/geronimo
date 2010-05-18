@@ -46,6 +46,8 @@ import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Jsr77Naming;
@@ -139,6 +141,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     null,
                     serviceBuilder,
                     null,
+                    new NamingBuilderCollection(Collections.<NamingBuilder>emptyList()),
                     kernel.getNaming(),
                     null,
                     bundleContext);

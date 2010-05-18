@@ -51,8 +51,9 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class LifecycleMethodBuilder extends AbstractNamingBuilder {
     public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
-        // skip ejb modules... they have alreayd been processed
-        if (module.getType() == ConfigurationModuleType.EJB) {
+        // skip ejb modules... they have already been processed
+        //skip ears, they have no standalone components
+        if (module.getType() == ConfigurationModuleType.EJB || module.getType() == ConfigurationModuleType.EAR) {
             return;
         }
 

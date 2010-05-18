@@ -7,6 +7,36 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm-all</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>com.thoughtworks.xstream</groupId>
+        <artifactId>xstream</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.aries</groupId>
         <artifactId>org.apache.aries.util</artifactId>
         <type>jar</type>
@@ -22,8 +52,23 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.bval</groupId>
+        <artifactId>bval-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.bval</groupId>
+        <artifactId>bval-jsr303</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-math</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.bundlerepository</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -58,12 +103,22 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-cli</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-core</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-interceptor</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-main</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -79,6 +134,11 @@
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-security</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-bval</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -178,12 +238,22 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-osgi-registry</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-saaj_1.3_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-servlet_3.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-validation_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -233,12 +303,27 @@
     </dependency>
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.cglib</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.howl</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.xstream</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -269,6 +354,11 @@
     <dependency>
         <groupId>org.tranql</groupId>
         <artifactId>tranql-connector</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>xpp3</groupId>
+        <artifactId>xpp3_min</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

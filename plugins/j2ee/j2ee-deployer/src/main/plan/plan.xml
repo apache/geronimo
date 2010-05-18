@@ -64,6 +64,9 @@
                 <name>UnavailableAppClientBuilder</name>
             </pattern>
         </references>
+        <reference name="NamingBuilders">
+            <name>NamingBuilders</name>
+        </reference>
         <reference name="ArtifactResolvers">
             <name>ArtifactResolver</name>
         </reference>
@@ -146,6 +149,9 @@
             </pattern>
             <pattern>
                 <name>ManagedResourceRefBuilder</name>
+            </pattern>
+            <pattern>
+                <name>BValNamingBuilder</name>
             </pattern>
         </references>
     </gbean>
