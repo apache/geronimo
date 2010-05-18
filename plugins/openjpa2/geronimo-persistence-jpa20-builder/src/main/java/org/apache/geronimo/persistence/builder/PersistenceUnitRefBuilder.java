@@ -32,6 +32,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationHelper;
@@ -53,6 +55,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
     private static final QName PERSISTENCE_UNIT_REF_QNAME = new QName(JEE_NAMESPACE, "persistence-unit-ref");
     private static final QNameSet PERSISTENCE_UNIT_REF_QNAME_SET = QNameSet.singleton(PERSISTENCE_UNIT_REF_QNAME);
@@ -63,7 +66,9 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
     private final boolean strictMatching;
 
 
-    public PersistenceUnitRefBuilder(Environment defaultEnvironment, AbstractNameQuery defaultPersistenceUnitAbstractNameQuery, boolean strictMatching) {
+    public PersistenceUnitRefBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+                                     @ParamAttribute(name = "defaultPersistenceUnitAbstractNameQuery") AbstractNameQuery defaultPersistenceUnitAbstractNameQuery,
+                                     @ParamAttribute(name = "strictMatching") boolean strictMatching) {
         super(defaultEnvironment);
         this.defaultPersistenceUnitAbstractNameQuery = defaultPersistenceUnitAbstractNameQuery;
         this.strictMatching = strictMatching;
@@ -224,19 +229,4 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
         return map;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PersistenceUnitRefBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("defaultPersistenceUnitAbstractNameQuery", AbstractNameQuery.class, true, true);
-        infoBuilder.addAttribute("strictMatching", boolean.class, true, true);
-
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "defaultPersistenceUnitAbstractNameQuery", "strictMatching"});
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return PersistenceUnitRefBuilder.GBEAN_INFO;
-    }
 }
