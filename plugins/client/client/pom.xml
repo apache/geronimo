@@ -127,6 +127,11 @@
             <groupId>org.apache.aries.jndi</groupId>
             <artifactId>org.apache.aries.jndi.url</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-bval</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
