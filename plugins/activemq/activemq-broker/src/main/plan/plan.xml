@@ -28,6 +28,7 @@
         <attribute name="amqDataDir">data/default</attribute>
         <attribute name="amqConfigFile">conf/activemq.xml</attribute>
         <attribute name="useShutdownHook">false</attribute>
+        <attribute name="asyncStartup">false</attribute>
         <!--reference name="dataSource">
             <name>NoTxDatasource</name>
         </reference-->

@@ -19,6 +19,7 @@ package org.apache.geronimo.activemq;
 
 import java.io.File;
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.JMSException;
 
@@ -52,21 +53,25 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
 
     private final String objectName;
     private final BrokerService brokerService;
-//    private ResourceSource<ResourceException> dataSource;
+    private final boolean asyncStartup;
+    private final AtomicBoolean active = new AtomicBoolean(false);
+    private Thread asyncStartThread;
     private JMSManager manager;
 
     public BrokerServiceGBeanImpl(@ParamAttribute (name="brokerName") String brokerName,
                                   @ParamAttribute (name="amqBaseDir") URI amqBaseDir, 
                                   @ParamAttribute (name="amqDataDir") String amqDataDir, 
                                   @ParamAttribute (name="amqConfigFile") String amqConfigFile, 
-                                  @ParamAttribute (name="useShutdownHook") boolean useShutdownHook, 
-                                  @ParamReference (name="ServerInfo") ServerInfo serverInfo, 
+                                  @ParamAttribute (name="useShutdownHook") boolean useShutdownHook,
+                                  @ParamAttribute (name="asyncStartup") boolean asyncStartup,
+                                  @ParamReference (name="ServerInfo") ServerInfo serverInfo,
                                   @ParamReference (name="MBeanServerReference") MBeanServerReference mbeanServerReference,
                                   @ParamSpecial (type= SpecialAttributeType.objectName) String objectName,
                                   @ParamSpecial (type=SpecialAttributeType.classLoader) ClassLoader classLoader) 
         throws Exception {
         
         this.objectName = objectName;
+        this.asyncStartup = asyncStartup;
         URI baseDir = serverInfo.resolveServer(amqBaseDir);
         URI dataDir = baseDir.resolve(amqDataDir);
         URI amqConfigUri = baseDir.resolve(amqConfigFile);
@@ -96,12 +101,6 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
 
             // Do not allow the broker to use a shutdown hook, the kernel will stop it
             brokerService.setUseShutdownHook(useShutdownHook);
-
-            // Setup the persistence adapter to use the right datasource and directory
-//            DefaultPersistenceAdapterFactory persistenceFactory = (DefaultPersistenceAdapterFactory) brokerService.getPersistenceFactory();
-//            persistenceFactory.setDataDirectoryFile(serverInfo.resolveServer(dataDirectory));
-//            persistenceFactory.setDataSource((DataSource) dataSource.getResource());            
-            brokerService.start();
         }
         finally {
             Thread.currentThread().setContextClassLoader(old);
@@ -117,35 +116,59 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
     }
 
     public synchronized void doStart() throws Exception {
-      
+        if (!asyncStartup) {
+            brokerService.start();
+        } else {
+            active.set(true);
+            asyncStartThread = new Thread(new Runnable() {
+                public void run() {
+                    asyncStart();
+                }
+            }, "AsyncStartThread-" + getBrokerName());
+            asyncStartThread.start();
+        }
     }
 
     public synchronized void doStop() throws Exception {
+        if (asyncStartup) {
+            active.set(false);
+        }
         brokerService.stop();
         brokerService.waitUntilStopped();
     }
 
     public synchronized void doFail() {
+        if (asyncStartup) {
+            active.set(false);
+        }        
+        try {
+            brokerService.stop();
+            brokerService.waitUntilStopped();
+        } catch (JMSException ignored) {
+            // just a lame exception ActiveMQ likes to throw on shutdown
+            if (!(ignored.getCause() instanceof TransportDisposedIOException)) {
+                log.warn("Caught while closing due to failure: " + ignored, ignored);
+            }
+        } catch (Exception e) {
+            log.warn("Caught while closing due to failure: " + e, e);
+        }
+    }
+
+    private void asyncStart() {
+        while (active.get()) {
             try {
-                brokerService.stop();
+                brokerService.start();
+                log.info("brokerService started");
                 brokerService.waitUntilStopped();
-            } catch (JMSException ignored) {
-                // just a lame exception ActiveMQ likes to throw on shutdown
-                if (!(ignored.getCause() instanceof TransportDisposedIOException)) {
-                    log.warn("Caught while closing due to failure: " + ignored, ignored);
+                if (active.get()) {
+                    log.warn("brokerService stopped");
                 }
             } catch (Exception e) {
-                log.warn("Caught while closing due to failure: " + e, e);
+                log.warn("brokerService start failed: " + e, e);
             }
         }
 
-//    public ResourceSource<ResourceException> getDataSource() {
-//        return dataSource;
-//    }
-//
-//    public void setDataSource(ResourceSource<ResourceException> dataSource) {
-//        this.dataSource = dataSource;
-//    }
+    }
 
     /**
      * Gets the unique name of this object.  The object name must comply with the ObjectName specification
