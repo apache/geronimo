@@ -114,17 +114,9 @@ specific services - those should be provided by children.
             <name>ArtifactResolver</name>
         </reference>
     </gbean>
-
-    <!-- Logging service -->
-    <!--
-    <gbean name="Logger" class="org.apache.geronimo.osgi.logging.log4j.Log4jService">
-        <attribute name="configFileName">var/log/server-log4j.properties</attribute>
-        <attribute name="refreshPeriodSeconds">60</attribute>
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-    </gbean>
-    -->
+    
+    <gbean name="Logger" class="org.apache.geronimo.system.logging.OSGILogServiceWrapper">       
+    </gbean>    
 
     <gbean name="GeronimoOBR" class="org.apache.geronimo.obr.GeronimoOBRGBean">
         <reference name="Repository">
