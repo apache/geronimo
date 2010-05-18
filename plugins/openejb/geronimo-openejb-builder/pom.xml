@@ -45,7 +45,7 @@
              -->
             <!--<exclusions>-->
               <!--<exclusion>-->
-                <!--<groupId>org.apache.openejb</groupId>-->
+                <!--<groupId>${openejbGroup}</groupId>-->
                 <!--<artifactId>container</artifactId>-->
               <!--</exclusion>-->
             <!--</exclusions>-->

@@ -39,7 +39,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-core</artifactId>
             <version>${openejbVersion}</version>
         </dependency>

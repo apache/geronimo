@@ -74,7 +74,7 @@
 
 <!-- openejb-axis may be needed, but does not seem to be ready yet -->
         <!--<dependency>-->
-            <!--<groupId>org.apache.openejb</groupId>-->
+            <!--<groupId>${openejbGroup}</groupId>-->
             <!--<artifactId>openejb-axis</artifactId>-->
         <!--</dependency>-->
 

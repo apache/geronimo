@@ -68,7 +68,7 @@
 
         <!-- not sure about the scope -->
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-axis</artifactId>
             <scope>provided</scope>
         </dependency>

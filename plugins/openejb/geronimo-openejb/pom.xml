@@ -61,42 +61,42 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-ejbd</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-multicast</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-client</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-server</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-loader</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-jee</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-javaagent</artifactId>
         </dependency>
 
