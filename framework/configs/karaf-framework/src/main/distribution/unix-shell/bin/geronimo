@@ -235,6 +235,8 @@ do
   fi
 done
 
+# Setup the Java agent
+JAVA_AGENT_JAR="$GERONIMO_HOME/lib/agent/transformer.jar"
 # Extension dirs
 EXT_DIRS="$GERONIMO_HOME/lib/ext:$JRE_HOME/lib/ext"
 # Endorsed dirs
@@ -290,9 +292,6 @@ if [ "$1" = "jpda" ] ; then
   GERONIMO_OPTS="$GERONIMO_OPTS $JPDA_OPTS"
   shift
 fi
-
-# Setup the Java programming language agent
-JAVA_AGENT_JAR="$GERONIMO_HOME/lib/agent/transformer.jar"
 
 if [ "$1" = "debug" ] ; then
   if $os400; then
