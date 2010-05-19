@@ -374,9 +374,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 throw new DeploymentException("Could not parse application.xml", e);
             } catch (Exception e) {
                 //ee5 spec allows optional application.xml, continue with application == null
-                if (earFile.getName().endsWith(".ear")) {
-                    application = ApplicationType.Factory.newInstance();
-                } else {
+                if (!earFile.getName().endsWith(".ear")) {
                     return null;
                 }
                 //TODO return application.xml that we can make metadata complete?
