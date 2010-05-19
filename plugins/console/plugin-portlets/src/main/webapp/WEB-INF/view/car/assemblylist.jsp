@@ -327,7 +327,7 @@
 </c:otherwise>
 </c:choose>
 
-    <input type="hidden" name="relativeServerPath" value="${relativeServerPath}"/>
+    <input type="hidden" name="targetPath" value="${targetPath}"/>
     <input type="hidden" name="groupId" value="${groupId}"/>
     <input type="hidden" name="artifactId" value="${artifactId}"/>
     <input type="hidden" name="version" value="${version}"/>

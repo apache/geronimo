@@ -38,16 +38,18 @@ public class AssemblyConfirmHandler extends BaseImportExportHandler {
     }
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String relativeServerPath = request.getParameter("relativeServerPath");
-        response.setRenderParameter("relativeServerPath", relativeServerPath);
         return getMode();
     }
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         PortletSession assemblysession = request.getPortletSession(false);
         List<PluginInfoBean> plugins = (List<PluginInfoBean>) assemblysession.getAttribute("plugins");
-        String relativeServerPath = request.getParameter("relativeServerPath");
-        File deployedPath = new File(System.getProperty("org.apache.geronimo.home.dir"), relativeServerPath);
+        String assemblyFileLocation = request.getParameter("assemblyFileLocation");
+        File deployedPath = new File(assemblyFileLocation);
+        if (!deployedPath.isAbsolute()) {
+            deployedPath = new File(System.getProperty("org.apache.geronimo.home.dir"), assemblyFileLocation);
+        }
+        
         String absoluteDeployedPath = deployedPath.getAbsolutePath();
         
         request.setAttribute("plugins", plugins);

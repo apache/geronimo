@@ -44,7 +44,8 @@
 <br>
 <p>File Location: ${absoluteDeployedPath}</p>
 <br>
-<form method=POST">
-<input type="submit" value='<fmt:message key="consolebase.common.done" />' onclick="history.go(-4); return false;" />
+<form action="<portlet:actionURL/>" method="POST">
+<input id="mode" type="hidden" name="mode" value="assemblyConfirm-after"/>
+<input type="submit" value='<fmt:message key="consolebase.common.done" />' />
 </form>
 

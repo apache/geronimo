@@ -51,18 +51,22 @@
 <tr>
   <td><label for="<portlet:namespace/>groupId"><fmt:message key="car.list.assemblyGroupId"/></label></td>
   <td><input type="text" name="groupId" id="<portlet:namespace/>groupId" value="${groupId}"/></td>
+  <td>*</td>
 </tr>
 <tr>
   <td><label for="<portlet:namespace/>artifactId"><fmt:message key="car.list.assemblyArtifactId"/></label></td>
   <td><input type="text" name="artifactId" id="<portlet:namespace/>artifactId" value="${artifactId}"/></td>
+  <td>*</td>
 </tr>
 <tr>
   <td><label for="<portlet:namespace/>version"><fmt:message key="car.list.assemblyVersion"/></label></td>
   <td><input type="text" name="version" id="<portlet:namespace/>version" value="${version}"/></td>
+  <td><fmt:message key="car.list.assemblyVersion.description"/></td>
 </tr>
 <tr>
-  <td><label for="<portlet:namespace/>relativeServerPath"><fmt:message key="car.list.assemblyPath"/></label></td>
-  <td><input type="text" name="relativeServerPath" id="<portlet:namespace/>relativeServerPath" value="${relativeServerPath}"/></td>
+  <td><label for="<portlet:namespace/>targetPath"><fmt:message key="car.list.assemblyPath"/></label></td>
+  <td><input type="text" name="targetPath" id="<portlet:namespace/>targetPath" value="${targetPath}"/></td>
+  <td><fmt:message key="car.list.assemblyPath.description"/></td>
 </tr>
 <tr>
   <td><label for="<portlet:namespace/>format"><fmt:message key="car.list.assemblyFormat"/></label></td>
@@ -71,6 +75,8 @@
         <option <c:if test="${format eq 'zip'}">selected="true"</c:if>>zip</option>
       </select>
   </td>
+  <td></td>
+</tr>
 </table>
 
     <input type="hidden" name="type" value="${type}"/>

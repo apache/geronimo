@@ -51,7 +51,7 @@ public class AssemblyListHandler extends AbstractListHandler {
 
     public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         String column = (String) request.getAttribute("column");
-        String relativeServerPath = request.getParameter("relativeServerPath");
+        String targetPath = request.getParameter("targetPath");
         String groupId = request.getParameter("groupId");
         String artifactId = request.getParameter("artifactId");
         String version = request.getParameter("version");
@@ -59,7 +59,7 @@ public class AssemblyListHandler extends AbstractListHandler {
         String type = request.getParameter("type");
 
         if(!isEmpty(column)) response.setRenderParameter("column", column);
-        response.setRenderParameter("relativeServerPath", isEmpty(relativeServerPath) ? "var/temp/assembly" : relativeServerPath);
+        response.setRenderParameter("targetPath", isEmpty(targetPath) ? "var/temp/" : targetPath);
         if(!isEmpty(groupId)) response.setRenderParameter("groupId", groupId);
         if(!isEmpty(artifactId)) response.setRenderParameter("artifactId", artifactId);
         response.setRenderParameter("version", isEmpty(version) ? "1.0" : version);
@@ -73,7 +73,7 @@ public class AssemblyListHandler extends AbstractListHandler {
 
     public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         String column = request.getParameter("column");
-        String relativeServerPath = request.getParameter("relativeServerPath");
+        String targetPath = request.getParameter("targetPath");
         String groupId = request.getParameter("groupId");
         String artifactId = request.getParameter("artifactId");
         String version = request.getParameter("version");
@@ -84,7 +84,7 @@ public class AssemblyListHandler extends AbstractListHandler {
         }
             
         request.setAttribute("column", column);
-        request.setAttribute("relativeServerPath", relativeServerPath);
+        request.setAttribute("targetPath", targetPath);
         request.setAttribute("groupId", groupId);
         request.setAttribute("artifactId", artifactId);
         request.setAttribute("version", version);

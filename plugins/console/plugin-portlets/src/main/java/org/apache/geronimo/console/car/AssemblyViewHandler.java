@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.console.car;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,7 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
         if (configId != null) {
             pluginIds = new String[]{configId};
         }
-        String relativeServerPath = request.getParameter("relativeServerPath");
+        String targetPath = request.getParameter("targetPath");
         String groupId = request.getParameter("groupId");
         String artifactId = request.getParameter("artifactId");
         String version = request.getParameter("version");
@@ -62,7 +63,7 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
 
         response.setRenderParameter("clickedConfigId", isEmpty(configId) ? "" : configId);
         response.setRenderParameter("pluginIds", pluginIds);
-        response.setRenderParameter("relativeServerPath", isEmpty(relativeServerPath) ? "var/temp/assembly" : relativeServerPath);
+        response.setRenderParameter("targetPath", isEmpty(targetPath) ? "var/temp/" : targetPath);
         if(!isEmpty(groupId)) response.setRenderParameter("groupId", groupId);
         if(!isEmpty(artifactId)) response.setRenderParameter("artifactId", artifactId);
         response.setRenderParameter("version", isEmpty(version) ? "1.0" : version);
@@ -77,7 +78,7 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
 
         String clickedConfigId = request.getParameter("clickedConfigId");
         String[] configIds = request.getParameterValues("pluginIds");
-        String relativeServerPath = request.getParameter("relativeServerPath");
+        String targetPath = request.getParameter("targetPath");
         String groupId = request.getParameter("groupId");
         String artifactId = request.getParameter("artifactId");
         String version = request.getParameter("version");
@@ -95,7 +96,7 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
 
         request.setAttribute("clickedConfigId", clickedConfigId);
         request.setAttribute("plugins", plugins);
-        request.setAttribute("relativeServerPath", relativeServerPath);
+        request.setAttribute("targetPath", targetPath);
         request.setAttribute("groupId", groupId);
         request.setAttribute("artifactId", artifactId);
         request.setAttribute("version", version);
@@ -109,13 +110,12 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
     }
 
     public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
-        String relativeServerPath = request.getParameter("relativeServerPath");
+        String targetPath = request.getParameter("targetPath");
         String groupId = request.getParameter("groupId");
         String artifactId = request.getParameter("artifactId");
         String version = request.getParameter("version");
         String format = request.getParameter("format");
         
-        response.setRenderParameter("relativeServerPath",relativeServerPath);
 
         PluginInstaller pluginInstaller = ManagementHelper.getManagementHelper(request).getPluginInstaller();
         ServerArchiver archiver = ManagementHelper.getManagementHelper(request).getArchiver();
@@ -124,13 +124,27 @@ public class AssemblyViewHandler extends BaseImportExportHandler {
         PluginListType list = getServerPluginList(request, pluginInstaller);
         PluginListType installList = getPluginsFromIds(configIds, list);
         
-
+        
+        // if the targetPath doesn't end with "/" or "\", add one.
+        if (targetPath.lastIndexOf("/") != targetPath.length()-1){
+            if (targetPath.lastIndexOf("\\") != targetPath.length()-1){
+                targetPath = targetPath + "/";
+            }
+        }
+        
+        String targetBasePath = targetPath + groupId +"/";
+        String targetAssemblyPath = targetBasePath + artifactId+"-"+version;
+        String targetArchivePath = targetBasePath;
+        
         try {
-            DownloadResults downloadResults = pluginInstaller.installPluginList("repository", relativeServerPath, installList);
-            archiver.archive(relativeServerPath, "var/temp", new Artifact(groupId, artifactId, version, format));
+            DownloadResults downloadResults = pluginInstaller.installPluginList("repository", targetAssemblyPath, installList);
+            archiver.archive(targetAssemblyPath, targetArchivePath, new Artifact(groupId, artifactId, version, format));
         } catch (Exception e) {
             throw new PortletException("Could not assemble server", e);
         }
+        
+        response.setRenderParameter("assemblyFileLocation", targetBasePath);
+        
         return ASSEMBLY_CONFIRM_MODE+BEFORE_ACTION;
     }
 

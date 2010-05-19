@@ -76,7 +76,6 @@
     </td>
   </tr>
   <tr>
-  <tr>
     <th align="right" valign="top"><fmt:message key="car.viewForDownload.jvmVersions" />:</th>
     <td>
       <c:choose>
@@ -148,7 +147,7 @@
       <td valign="top">
         <input type="submit" value='<fmt:message key="car.common.assemble" />'/>
         <input type="hidden" name="mode" value="${mode}" />
-        <input type="hidden" name="relativeServerPath" value="${relativeServerPath}"/>
+        <input type="hidden" name="targetPath" value="${targetPath}"/>
         <input type="hidden" name="groupId" value="${groupId}"/>
         <input type="hidden" name="artifactId" value="${artifactId}"/>
         <input type="hidden" name="version" value="${version}"/>
