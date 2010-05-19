@@ -22,6 +22,7 @@ package org.apache.geronimo.corba.deployment;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.Collections;
 
 import javax.xml.namespace.QName;
 
@@ -81,6 +82,7 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
         String[] tssLinks = toStringArray(plan.selectChildren(TSS_LINK_QNAME));
         XmlObject[] tsss = plan.selectChildren(TSS_QNAME);
         String[] jndiNames = toStringArray(plan.selectChildren(JNDI_NAME_QNAME));
+        AbstractNameQuery ejbModuleName = NameFactory.newTypeNameQuery(module.getEarContext().getConfigID(), NameFactory.EJB_MODULE, module.getName());
         for (int i = 0; i < tssLinks.length; i++) {
             String tssLink = tssLinks[i];
             URI moduleURI = module.getModuleURI();
@@ -101,6 +103,7 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
             tssLinkData.setAttribute("jndiNames", jndiNames);
             tssLinkData.setReferencePattern("EJB", ejbName);
             tssLinkData.setReferencePattern("TSSBean", tssBeanName);
+            tssLinkData.addDependency(ejbModuleName);
             try {
                 module.getEarContext().addGBean(tssLinkData);
             } catch (GBeanAlreadyExistsException e) {
@@ -115,6 +118,7 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
             tssLinkData.setAttribute("jndiNames", jndiNames);
             tssLinkData.setReferencePattern("EJB", ejbName);
             tssLinkData.setReferencePattern("TSSBean", tssBeanName);
+            tssLinkData.addDependency(ejbModuleName);
             try {
                 module.getEarContext().addGBean(tssLinkData);
             } catch (GBeanAlreadyExistsException e) {
