@@ -160,7 +160,12 @@ to include this software in this distribution under the CDDL license.
 This product includes schema files developed for the Glassfish Java EE
 reference implementation (http://java.sun.com/xml/ns/j2ee/).
 Apache Geronimo elects to include this software in this distribution
-under the CDDL license.  The following schemas are included:
+under the CDDL license.  You can obtain a copy of the License at:
+    https://glassfish.dev.java.net/public/CDDL+GPL.html
+The source code is available at:
+    https://glassfish.dev.java.net/source/browse/glassfish/
+
+The following schemas are included:
 
 ===========================
   application-client_1_4.xsd
@@ -203,3 +208,8 @@ under the CDDL license.  The following schemas are included:
   web-fragment_3_0.xsd
 ===========================
 
+This product includes software developed at
+the OSGi Alliance (http://www.osgi.org/).
+
+ This product includes software developed at
+ OPS4J (http://www.ops4j.org/).

@@ -303,6 +303,7 @@ The following artifacts are also covered by the above W3C license:
 ./repository/org/apache/woden/woden-api/1.0M8/woden-api-1.0M8.jar
 ./repository/org/apache/geronimo/modules/geronimo-webservices-builder/3.0-M1/geronimo-webservices-builder-3.0-M1.jar
 soap_encoding_1_1.xsd in ./repository/org/apache/geronimo/modules/geronimo-webservices-builder/3.0-M1/geronimo-webservices-builder-3.0-M1.jar
+soap_encoding_1_1.xsd in ./repository/org/apache/geronimo/ext/openejb/openejb-jee/3.1.3.0/openejb-jee-3.1.3.0.jar
 
 =========================================================================
 == IBM wsdl.xsd license                                                ==
@@ -355,6 +356,15 @@ following licenses.
 ==  Apache License 2.0                                                 ==
 =========================================================================
 
+./jsr88/geronimo-deploy-jsr88-full.jar
+./lib/commons-cli.jar
+./lib/geronimo-cli.jar
+./lib/geronimo-main.jar
+./lib/geronimo-rmi-loader.jar
+./lib/karaf-jaas-boot.jar
+./lib/agent/transformer.jar
+./lib/endorsed/yoko-rmi-spec.jar
+./lib/endorsed/yoko-spec-corba.jar
 ./repository/commons-cli/commons-cli/1.2/commons-cli-1.2.jar
 ./repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar
 ./repository/commons-fileupload/commons-fileupload/1.2.1/commons-fileupload-1.2.1.jar
@@ -365,58 +375,48 @@ following licenses.
 ./repository/org/apache/activemq/activemq-core/5.3.2/activemq-core-5.3.2.jar
 ./repository/org/apache/activemq/kahadb/5.3.2/kahadb-5.3.2.jar
 ./repository/org/apache/activemq/protobuf/activemq-protobug/1.0/activema-protobuf-1.0.jar
-./repository/org/apache/aries/application/org.apache.aries.application.api/0.1-incubating-SNAPSHOT/org.apache.aries.application.api-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/application/org.apache.aries.application.management/0.1-incubating-SNAPSHOT/org.apache.aries.application.management-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/application/org.apache.aries.application.utils/0.1-incubating-SNAPSHOT/org.apache.aries.application.utils-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/blueprint/org.apache.aries.blueprint/0.1-incubating-SNAPSHOT/org.apache.aries.blueprint-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/jmx/org.apache.aries.jmx/0.1-incubating-SNAPSHOT/org.apache.aries.jmx-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/jmx/org.apache.aries.jmx.blueprint/0.1-incubating-SNAPSHOT/org.apache.aries.jmx.blueprint-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/jndi/org.apache.aries.jndi.core/0.1-incubating-SNAPSHOT/org.apache.aries.jndi.core-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/jndi/org.apache.aries.jndi.url/0.1-incubating-SNAPSHOT/org.apache.aries.jndi.url-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/jpa/org.apache.aries.jpa.api/0.1-incubating-SNAPSHOT/org.apache.aries.jpa.api-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/jpa/org.apache.aries.jpa.blueprint.aries/0.1-incubating-SNAPSHOT/org.apache.aries.jpa.blueprint.aries-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/jpa/org.apache.aries.jpa.container/0.1-incubating-SNAPSHOT/org.apache.aries.jpa.container-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/jpa/org.apache.aries.jpa.container.context/0.1-incubating-SNAPSHOT/org.apache.aries.jpa.container.context-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/org.apache.aries.util/0.1-incubating-SNAPSHOT/org.apache.aries.util-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/transaction/org.apache.aries.transaction.blueprint/0.1-incubating-SNAPSHOT/org.apache.aries.transaction.blueprint-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/aries/web/org.apache.aries.web.urlhandler/0.1-incubating-SNAPSHOT/org.apache.aries.web.urlhandler-0.1-incubating-SNAPSHOT.jar
-./repository/org/apache/axis2/addressing/1.5/addressing-1.5.jar
-./repository/org/apache/axis2/axis2-jaxws/1.5/axis2-jaxws-1.5.jar
-./repository/org/apache/axis2/axis2-kernel/1.5/axis2-kernel-1.5.jar
-./repository/org/apache/axis2/axis2-metadata/1.5/axis2-metadata-1.5.jar
-./repository/org/apache/axis2/axis2-saaj/1.5/axis2-saaj-1.5.jar
-./repository/org/apache/axis2/axis2-transport-http/1.5/axis2-transport-http-1.5.jar
-./repository/org/apache/axis2/axis2-transport-local/1.5/axis2-transport-local-1.5.jar
+./repository/org/apache/aries/application/org.apache.aries.application.api/0.1-incubating/org.apache.aries.application.api-0.1-incubating.jar
+./repository/org/apache/aries/application/org.apache.aries.application.management/0.1-incubating/org.apache.aries.application.management-0.1-incubating.jar
+./repository/org/apache/aries/application/org.apache.aries.application.utils/0.1-incubating/org.apache.aries.application.utils-0.1-incubating.jar
+./repository/org/apache/aries/blueprint/org.apache.aries.blueprint/0.1-incubating/org.apache.aries.blueprint-0.1-incubating.jar
+./repository/org/apache/aries/jmx/org.apache.aries.jmx/0.1-incubating/org.apache.aries.jmx-0.1-incubating.jar
+./repository/org/apache/aries/jmx/org.apache.aries.jmx.blueprint/0.1-incubating/org.apache.aries.jmx.blueprint-0.1-incubating.jar
+./repository/org/apache/aries/jndi/org.apache.aries.jndi.core/0.1-incubating/org.apache.aries.jndi.core-0.1-incubating.jar
+./repository/org/apache/aries/jndi/org.apache.aries.jndi.url/0.1-incubating/org.apache.aries.jndi.url-0.1-incubating.jar
+./repository/org/apache/aries/jpa/org.apache.aries.jpa.api/0.1-incubating/org.apache.aries.jpa.api-0.1-incubating.jar
+./repository/org/apache/aries/jpa/org.apache.aries.jpa.blueprint.aries/0.1-incubating/org.apache.aries.jpa.blueprint.aries-0.1-incubating.jar
+./repository/org/apache/aries/jpa/org.apache.aries.jpa.container/0.1-incubating/org.apache.aries.jpa.container-0.1-incubating.jar
+./repository/org/apache/aries/jpa/org.apache.aries.jpa.container.context/0.1-incubating/org.apache.aries.jpa.container.context-0.1-incubating.jar
+./repository/org/apache/aries/org.apache.aries.util/0.1-incubating/org.apache.aries.util-0.1-incubating.jar
+./repository/org/apache/aries/transaction/org.apache.aries.transaction.blueprint/0.1-incubating/org.apache.aries.transaction.blueprint-0.1-incubating.jar
+./repository/org/apache/aries/web/org.apache.aries.web.urlhandler/0.1-incubating/org.apache.aries.web.urlhandler-0.1-incubating.jar
 ./repository/org/apache/commons/commons-jexl/2.0/commons-jexl-2.0.jar
-./repository/org/apache/felix/gogo/org.apache.felix.gogo.commands/0.2.2/org.apache.felix.gogo.commands-0.2.2.jar
-./repository/org/apache/felix/gogo/org.apache.felix.gogo.runtime/0.2.2/org.apache.felix.gogo.runtime-0.2.2.jar
-./repository/org/apache/felix/karaf/admin/org.apache.felix.karaf.admin.core/1.5.0/org.apache.felix.karaf.admin.core-1.5.0.jar
-./repository/org/apache/felix/karaf/deployer/org.apache.felix.karaf.deployer.blueprint/1.5.0/org.apache.felix.karaf.deployer.blueprint-1.5.0.jar
-./repository/org/apache/felix/karaf/deployer/org.apache.felix.karaf.deployer.features/1.5.0/org.apache.felix.karaf.deployer.features-1.5.0.jar
-./repository/org/apache/felix/karaf/features/org.apache.felix.karaf.features.command/1.5.0/org.apache.felix.karaf.features.command-1.5.0.jar
-./repository/org/apache/felix/karaf/features/org.apache.felix.karaf.features.core/1.5.0/org.apache.felix.karaf.features.core-1.5.0.jar
-./repository/org/apache/felix/karaf/features/org.apache.felix.karaf.features.management/1.5.0/org.apache.felix.karaf.features.management-1.5.0.jar
-./repository/org/apache/felix/karaf/jaas/org.apache.felix.karaf.jaas.boot/1.5.0/org.apache.felix.karaf.jaas.boot-1.5.0.jar
-./repository/org/apache/felix/karaf/jaas/org.apache.felix.karaf.jaas.config/1.5.0/org.apache.felix.karaf.jaas.config-1.5.0.jar
-./repository/org/apache/felix/karaf/jaas/org.apache.felix.karaf.jaas.modules/1.5.0/org.apache.felix.karaf.jaas.modules-1.5.0.jar
-./repository/org/apache/felix/karaf/org.apache.felix.karaf.client/1.5.0/org.apache.felix.karaf.client-1.5.0.jar
-./repository/org/apache/felix/karaf/org.apache.felix.karaf.commons/1.5.0/org.apache.felix.karaf.commons-1.5.0.jar
-./repository/org/apache/felix/karaf/org.apache.felix.karaf.main/1.5.0/org.apache.felix.karaf.main-1.5.0.jar
-./repository/org/apache/felix/karaf/org.apache.felix.karaf.management/1.5.0/org.apache.felix.karaf.management-1.5.0.jar
-./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.commands/1.5.0/org.apache.felix.karaf.shell.commands-1.5.0.jar
-./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.config/1.5.0/org.apache.felix.karaf.shell.config-1.5.0.jar
-./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.console/1.5.0/org.apache.felix.karaf.shell.console-1.5.0.jar
-./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.log/1.5.0/org.apache.felix.karaf.shell.log-1.5.0.jar
-./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.obr/1.5.0/org.apache.felix.karaf.shell.obr-1.5.0.jar
-./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.osgi/1.5.0/org.apache.felix.karaf.shell.osgi-1.5.0.jar
-./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.packages/1.5.0/org.apache.felix.karaf.shell.packages-1.5.0.jar
-./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.ssh/1.5.0/org.apache.felix.karaf.shell.ssh-1.5.0.jar
-./repository/org/apache/felix/org.apache.felix.bundlerepository/1.6.0/org.apache.felix.bundlerepository-1.6.0.jar
+./repository/org/apache/felix/gogo/org.apache.felix.gogo.commands/0.4.0/org.apache.felix.gogo.commands-0.4.0.jar
+./repository/org/apache/felix/gogo/org.apache.felix.gogo.runtime/0.4.0/org.apache.felix.gogo.runtime-0.4.0.jar
+./repository/org/apache/felix/karaf/deployer/org.apache.felix.karaf.deployer.blueprint/1.6.0/org.apache.felix.karaf.deployer.blueprint-1.6.0.jar
+./repository/org/apache/felix/karaf/deployer/org.apache.felix.karaf.deployer.features/1.6.0/org.apache.felix.karaf.deployer.features-1.6.0.jar
+./repository/org/apache/felix/karaf/features/org.apache.felix.karaf.features.command/1.6.0/org.apache.felix.karaf.features.command-1.6.0.jar
+./repository/org/apache/felix/karaf/features/org.apache.felix.karaf.features.core/1.6.0/org.apache.felix.karaf.features.core-1.6.0.jar
+./repository/org/apache/felix/karaf/features/org.apache.felix.karaf.features.management/1.6.0/org.apache.felix.karaf.features.management-1.6.0.jar
+./repository/org/apache/felix/karaf/jaas/org.apache.felix.karaf.jaas.boot/1.6.0/org.apache.felix.karaf.jaas.boot-1.6.0.jar
+./repository/org/apache/felix/karaf/jaas/org.apache.felix.karaf.jaas.config/1.6.0/org.apache.felix.karaf.jaas.config-1.6.0.jar
+./repository/org/apache/felix/karaf/org.apache.felix.karaf.commons/1.6.0/org.apache.felix.karaf.commons-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.commands/1.6.0/org.apache.felix.karaf.shell.commands-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.config/1.6.0/org.apache.felix.karaf.shell.config-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.console/1.6.0/org.apache.felix.karaf.shell.console-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.log/1.6.0/org.apache.felix.karaf.shell.log-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.obr/1.6.0/org.apache.felix.karaf.shell.obr-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.osgi/1.6.0/org.apache.felix.karaf.shell.osgi-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.packages/1.6.0/org.apache.felix.karaf.shell.packages-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.ssh/1.6.0/org.apache.felix.karaf.shell.ssh-1.6.0.jar
+./repository/org/apache/felix/org.apache.felix.bundlerepository/1.6.2/org.apache.felix.bundlerepository-1.6.2.jar
 ./repository/org/apache/felix/org.apache.felix.configadmin/1.2.4/org.apache.felix.configadmin-1.2.4.jar
-./repository/org/apache/felix/org.apache.felix.fileinstall/2.0.8/org.apache.felix.fileinstall-2.0.8.jar
+./repository/org/apache/felix/org.apache.felix.fileinstall/3.0.0/org.apache.felix.fileinstall-3.0.0.jar
 ./repository/org/apache/felix/org.apache.felix.framework/2.0.5/org.apache.felix.framework-2.0.5.jar
 ./repository/org/apache/felix/org.apache.felix.metatype/1.0.2/org.apache.felix.metatype-1.0.2.jar
 ./repository/org/apache/felix/org.apache.felix.prefs/1.0.4/org.apache.felix.prefs-1.0.4.jar
+./repository/org/apache/geronimo/bundles/axiom-api/1.2.8_1/axiom-api-1.2.8_1.jar
+./repository/org/apache/geronimo/bundles/axis2/1.5_1/axis2-1.5_1.jar
 ./repository/org/apache/geronimo/bundles/backport-util-concurrent/2.2_1/backport-util-concurrent-2.2_1.jar
 ./repository/org/apache/geronimo/bundles/castor/1.0.5_1/castor-1.0.5_1.jar
 ./repository/org/apache/geronimo/bundles/commons-digester/1.8_1/commons-digester-1.8_1.jar
@@ -543,15 +543,15 @@ following licenses.
 ./repository/org/apache/myfaces/core/myfaces-api/2.0.0/myfaces-api-2.0.0.jar
 ./repository/org/apache/myfaces/core/myfaces-impl/2.0.0/myfaces-impl-2.0.0.jar
 ./repository/org/apache/neethi/neethi/2.0.4/neethi-2.0.4.jar
-./repository/org/apache/openejb/openejb-api/3.1.3-SNAPSHOT/openejb-api-3.1.3-SNAPSHOT.jar
-./repository/org/apache/openejb/openejb-client/3.1.3-SNAPSHOT/openejb-client-3.1.3-SNAPSHOT.jar
-./repository/org/apache/openejb/openejb-core/3.1.3-SNAPSHOT/openejb-core-3.1.3-SNAPSHOT.jar
-./repository/org/apache/openejb/openejb-ejbd/3.1.3-SNAPSHOT/openejb-ejbd-3.1.3-SNAPSHOT.jar
-./repository/org/apache/openejb/openejb-javaagent/3.1.3-SNAPSHOT/openejb-javaagent-3.1.3-SNAPSHOT.jar
-./repository/org/apache/openejb/openejb-jee/3.1.3-SNAPSHOT/openejb-jee-3.1.3-SNAPSHOT.jar
-./repository/org/apache/openejb/openejb-loader/3.1.3-SNAPSHOT/openejb-loader-3.1.3-SNAPSHOT.jar
-./repository/org/apache/openejb/openejb-multicast/3.1.3-SNAPSHOT/openejb-multicast-3.1.3-SNAPSHOT.jar
-./repository/org/apache/openejb/openejb-server/3.1.3-SNAPSHOT/openejb-server-3.1.3-SNAPSHOT.jar
+./repository/org/apache/geronimo/ext/openejb/openejb-api/3.1.3.0/openejb-api-3.1.3.0.jar
+./repository/org/apache/geronimo/ext/openejb/openejb-client/3.1.3.0/openejb-client-3.1.3.0.jar
+./repository/org/apache/geronimo/ext/openejb/openejb-core/3.1.3.0/openejb-core-3.1.3.0.jar
+./repository/org/apache/geronimo/ext/openejb/openejb-ejbd/3.1.3.0/openejb-ejbd-3.1.3.0.jar
+./repository/org/apache/geronimo/ext/openejb/openejb-javaagent/3.1.3.0/openejb-javaagent-3.1.3.0.jar
+./repository/org/apache/geronimo/ext/openejb/openejb-jee/3.1.3.0/openejb-jee-3.1.3.0.jar
+./repository/org/apache/geronimo/ext/openejb/openejb-loader/3.1.3.0/openejb-loader-3.1.3.0.jar
+./repository/org/apache/geronimo/ext/openejb/openejb-multicast/3.1.3.0/openejb-multicast-3.1.3.0.jar
+./repository/org/apache/geronimo/ext/openejb/openejb-server/3.1.3.0/openejb-server-3.1.3.0.jar
 ./repository/org/apache/openjpa/openjpa/2.0.0/openjpa-2.0.0.jar
 ./repository/org/apache/portals/pluto/pluto-container/2.0.1/pluto-container-2.0.1.jar
 ./repository/org/apache/portals/pluto/pluto-container-api/2.0.1/pluto-container-api-2.0.1.jar
@@ -572,13 +572,14 @@ following licenses.
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.howl/1.0.1-1_1/org.apache.servicemix.bundles.howl-1.0.1-1_1.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jdt-core/3.2.3_3/org.apache.servicemix.bundles.jdt-core-3.2.3_3.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jline/0.9.94_1/org.apache.servicemix.bundles.jline-0.9.94_1.jar
+./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.quartz/1.5.2_1/org.apache.servicemix.bundles.quartz-1.5.2_1.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.serp/1.13.1_2/org.apache.servicemix.bundles.serp-1.13.1_2.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.wsdl4j/1.6.2_2/org.apache.servicemix.bundles.wsdl4j-1.6.2_2.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.xmlbeans/2.4.0_2/org.apache.servicemix.bundles.xmlbeans-2.4.0_2.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.xmlresolver/1.2_1/org.apache.servicemix.bundles.xmlresolver-1.2_1.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.xpp3/1.1.4c_3/org.apache.servicemix.bundles.xpp3-1.1.4c_3.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.xstream/1.3_3/org.apache.servicemix.bundles.xstream-1.3_3.jar
-./repository/org/apache/sshd/sshd-core/0.3.0/sshd-core-0.3.0.jar
+./repository/org/apache/sshd/sshd-core/0.4.0/sshd-core-0.4.0.jar
 ./repository/org/apache/woden/woden-api/1.0M8/woden-api-1.0M8.jar
 ./repository/org/apache/ws/commons/axiom/axiom-api/1.2.8/axiom-api-1.2.8.jar
 ./repository/org/apache/ws/commons/axiom/axiom-dom/1.2.8/axiom-dom-1.2.8.jar
@@ -595,7 +596,6 @@ following licenses.
 ./repository/org/apache/yoko/yoko-rmi-impl/1.1/yoko-rmi-impl-1.1.jar
 ./repository/org/apache/yoko/yoko-rmi-spec/1.1/yoko-rmi-spec-1.1.jar
 ./repository/org/apache/yoko/yoko-spec-corba/1.1/yoko-spec-corba-1.1.jar
-./repository/org/codehaus/groovy/groovy-all-minimal/1.5.6/groovy-all-minimal-1.5.6.jar
 ./repository/org/codehaus/swizzle/swizzle-stream/1.0.1/swizzle-stream-1.0.1.jar
 ./repository/org/eclipse/jetty/jetty-ajp/8.0.0.M0/jetty-ajp-8.0.0.M0.jar
 ./repository/org/eclipse/jetty/jetty-continuation/8.0.0.M0/jetty-continuation-8.0.0.M0.jar
@@ -609,14 +609,12 @@ following licenses.
 ./repository/org/eclipse/jetty/jetty-webapp/8.0.0.M0/jetty-webapp-8.0.0.M0.jar
 ./repository/org/eclipse/jetty/jetty-xml/8.0.0.M0/jetty-xml-8.0.0.M0.jar
 ./repository/org/eclipse/osgi/3.5.1.v20090827/osgi-3.5.1.v20090827.jar
-./repository/org/fusesource/jansi/jansi/1.2/jansi-1.2.jar
-./repository/org/ops4j/pax/logging/pax-logging-api/1.4.1-SNAPSHOT/pax-logging-api-1.4.1-SNAPSHOT.jar
+./repository/org/ops4j/pax/logging/pax-logging-api/1.5.0/pax-logging-api-1.5.0-SNAPSHOT.jar
 ./repository/org/ops4j/pax/url/pax-url-mvn/1.1.2/pax-url-mvn-1.1.2.jar
 ./repository/org/ops4j/pax/url/pax-url-wrap/1.1.2/pax-url-wrap-1.1.2.jar
 ./repository/org/osgi/org.osgi.compendium/4.2.0/org.osgi.compendium-4.2.0.jar
 ./repository/org/osgi/org.osgi.core/4.2.0/org.osgi.core-4.2.0.jar
 ./repository/org/tranql/tranql-connector/1.6/tranql-connector-1.6.jar
-./repository/quartz/quartz/1.5.2/quartz-1.5.2.jar
 
 =========================================================================
 ==  Apache Software License, Version 1.1                               ==
@@ -677,6 +675,7 @@ information on the Apache Software Foundation, please see
 The following artifacts are covered by the Apache Software License,
 Version 1.1:
 
+./lib/commons-cli.jar
 ./repository/commons-cli/commons-cli/1.0/commons-cli-1.2.jar
 
 
@@ -1068,6 +1067,8 @@ Object Management Group (OMG) classes
 
 The following artifacts are also covered by the OMG License:
 
+./lib/endorsed/yoko-rmi-spec.jar
+./lib/endorsed/yoko-spec-corba.jar
 ./repository/org/apache/yoko/yoko-core/1.1/yoko-core-1.1.jar
 ./repository/org/apache/yoko/yoko-rmi-impl/1.1/yoko-rmi-impl-1.1.jar
 ./repository/org/apache/yoko/yoko-rmi-spec/1.1/yoko-rmi-spec-1.1.jar
@@ -1743,7 +1744,7 @@ Foundation as compatible with Apache Software License.
 
 The following artifacts are covered by the SLF4J License:
 
-./repository/org/ops4j/pax/logging/pax-logging-api/1.4.1/pax-logging-api-1.4.1-SNAPSHOT.jar
+./repository/org/ops4j/pax/logging/pax-logging-api/1.5.0/pax-logging-api-1.5.0-SNAPSHOT.jar
 
 
 =========================================================================
@@ -2786,6 +2787,7 @@ under the CDDL license.
 ./repository/org/apache/geronimo/schema/geronimo-schema-javaee_6/1.0/geronimo-schema-javaee_6-1.0.jar
 ./repository/org/apache/geronimo/schema/geronimo-schema-jee_5/1.2/geronimo-schema-jee_5-1.2.jar
 ./repository/org/apache/openjpa/openjpa/2.0.0/openjpa-2.0.0.jar
+./repository/org/apache/aries/jpa/org.apache.aries.jpa.container/0.1-incubating/org.apache.aries.jpa.container-0.1-incubating.jar
 
 =========================================================================
 ==  KXML2 License                                                      ==

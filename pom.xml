@@ -1058,7 +1058,7 @@
                         <artifactId>activemq-core</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>${openejbGroup}</groupId>
+                        <groupId>org.apache.openejb</groupId>
                         <artifactId>commons-dbcp-all</artifactId>
                     </exclusion>
                     <exclusion>
