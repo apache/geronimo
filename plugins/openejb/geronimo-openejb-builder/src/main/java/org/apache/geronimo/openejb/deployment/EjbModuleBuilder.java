@@ -69,14 +69,13 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.EjbContainer;
 import org.apache.geronimo.openejb.EjbDeployment;
-import org.apache.geronimo.openejb.EjbModuleImplGBean;
+import org.apache.geronimo.openejb.EjbModuleImpl;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
@@ -125,6 +124,7 @@ import org.apache.openejb.jee.oejb2.ResourceLocatorType;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.util.LinkResolver;
 import org.apache.openejb.util.UniqueDefaultLinkResolver;
+import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -802,7 +802,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
             }
         }
         // Add JSR77 EJBModule GBean
-        GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImplGBean.class);
+        GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImpl.class);
         try {
             ejbModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerName());
             if (!ejbModule.isStandAlone()) {
@@ -828,7 +828,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         }
 
         // add a depdendency on the ejb module object
-        ejbDeploymentBuilder.addEjbModuleDependency(ejbModuleGBeanData.getAbstractName());
+        ejbDeploymentBuilder.addEjbModuleDependency(ejbModuleGBeanData);
 
         // add the Jacc permissions to the ear
         ComponentPermissions componentPermissions = ejbDeploymentBuilder.buildComponentPermissions();
@@ -900,6 +900,8 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
 
             // add a dependency from the module to the ra so we can be assured the mdb
             // container exists when this app is started
+            //TODO we are now useing a sledgehammer in EjbDeploymentBuilder and adding any possibly relevant
+            // dependency to every ejb gbean.
             ejbModuleGBeanData.addDependency(resourceAdapterAbstractName);
         }
         //check that all the mdbs have resource adapters identified.

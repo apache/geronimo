@@ -22,12 +22,14 @@ package org.apache.geronimo.openejb.cluster.stateful.deployment;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.Context;
 import org.apache.geronimo.clustering.SessionManager;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.openejb.EjbDeploymentGBean;
 import org.apache.geronimo.openejb.EjbModuleImpl;
 import org.apache.geronimo.openejb.OpenEjbSystem;
@@ -35,11 +37,12 @@ import org.apache.geronimo.openejb.cluster.infra.SessionManagerTracker;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.apache.openejb.Container;
+import org.apache.openejb.core.CoreDeploymentInfo;
 
 /**
  * @version $Rev:$ $Date:$
  */
-public class ClusteredStatefulDeployment extends EjbDeploymentGBean {
+public class ClusteredStatefulDeployment extends EjbDeployment {
 
     private final SessionManager sessionManager;
 
@@ -61,15 +64,16 @@ public class ClusteredStatefulDeployment extends EjbDeploymentGBean {
                                        String defaultRole,
                                        String runAsRole,
                                        RunAsSource runAsSource,
-                                       Map<String, Object> componentContext,
+                                       Context componentContext,
                                        Set<String> unshareableResources,
                                        Set<String> applicationManagedSecurityResources,
                                        TrackedConnectionAssociator trackedConnectionAssociator,
-                                       GeronimoTransactionManager transactionManager,
+//                                       GeronimoTransactionManager transactionManager,
                                        OpenEjbSystem openEjbSystem,
-                                       SessionManager sessionManager,
-                                       EjbModuleImpl ejbModule,
-                                       Kernel kernel) throws Exception {
+                                       SessionManager sessionManager//,
+//                                       EjbModuleImpl ejbModule,
+//                                       Kernel kernel
+    ) throws Exception {
         super(objectName,
                 deploymentId,
                 ejbName,
@@ -88,18 +92,16 @@ public class ClusteredStatefulDeployment extends EjbDeploymentGBean {
                 unshareableResources,
                 applicationManagedSecurityResources,
                 trackedConnectionAssociator,
-                transactionManager,
-                openEjbSystem,
-                ejbModule,
-                kernel);
+                openEjbSystem);
         if (null == sessionManager) {
             throw new IllegalArgumentException("sessionManager is required");
         }
         this.sessionManager = sessionManager;
     }
 
-    protected void start() throws Exception {
-        super.start();
+    @Override
+    protected EjbDeployment initialize(CoreDeploymentInfo deploymentInfo) {
+        super.initialize(deploymentInfo);
 
         Container container = deploymentInfo.getContainer();
         if (null == container) {
@@ -111,18 +113,22 @@ public class ClusteredStatefulDeployment extends EjbDeploymentGBean {
         }
         SessionManagerTracker sessionManagerTracker = (SessionManagerTracker) container;
         sessionManagerTracker.addSessionManager(deploymentId, sessionManager);
+
+        return this;
     }
 
-    protected void stop() {
-        if (null != deploymentInfo) {
-            Container container = deploymentInfo.getContainer();
+    @Override
+    protected void destroy() {
+        CoreDeploymentInfo info = deploymentInfo.get();
+        if (null != info) {
+            Container container = info.getContainer();
             if (null != container) {
                 SessionManagerTracker sessionManagerTracker = (SessionManagerTracker) container;
                 sessionManagerTracker.removeSessionManager(deploymentId, sessionManager);
             }
         }
 
-        super.stop();
+        super.destroy();
     }
 
     public static final GBeanInfo GBEAN_INFO;

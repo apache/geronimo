@@ -34,7 +34,7 @@ import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 
-public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle {
+public class EjbDeploymentGBean extends EjbDeployment {
     public EjbDeploymentGBean(String objectName,
                               String deploymentId,
                               String ejbName,
@@ -85,18 +85,6 @@ public class EjbDeploymentGBean extends EjbDeployment implements GBeanLifecycle 
         contexts.add(ejbModule.getApplicationJndi().getApplicationContext());
         contexts.add(ejbModule.getApplicationJndi().getGlobalContext());
         return EnterpriseNamingContext.createEnterpriseNamingContext(contexts);
-    }
-
-    public void doStart() throws Exception {
-        start();
-    }
-
-    public void doStop() throws Exception {
-        stop();
-    }
-
-    public void doFail() {
-        stop();
     }
 
     // do not use this gbean info, instead use StatelessDeploymentGBean, StatefulDeploymentGBean, EntityDeploymentGBean, or MessageDrivenDeploymentGBean
