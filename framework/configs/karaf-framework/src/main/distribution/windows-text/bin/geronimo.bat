@@ -312,7 +312,7 @@ shift
 goto setArgs
 :doneSetArgs
 
-@REM Setup the Java programming language agent
+@REM Setup the Java agent
 set JAVA_AGENT_JAR=%GERONIMO_HOME%\lib\agent\transformer.jar
 set JAVA_AGENT_OPTS=
 if exist "%JAVA_AGENT_JAR%" set JAVA_AGENT_OPTS=-javaagent:"%JAVA_AGENT_JAR%"
