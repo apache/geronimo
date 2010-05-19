@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.management.ObjectName;
-import javax.naming.Context;
 import javax.naming.NamingException;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
@@ -36,7 +35,6 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
@@ -44,12 +42,11 @@ import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
+import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.UndeployException;
-import org.apache.openejb.DeploymentInfo;
-import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.core.CoreDeploymentInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +59,6 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(EjbModuleImpl.class);
     private final J2EEServer server;
     private final J2EEApplication application;
-    private final ApplicationJndi applicationJndi;
-    private final Context moduleContext;
     private final String deploymentDescriptor;
     private final String objectName;
     private final Map<String, EjbDeployment> ejbs = new HashMap<String, EjbDeployment>();
@@ -73,24 +68,20 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
     private final EjbJarInfo ejbJarInfo;
 
     public EjbModuleImpl(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
-                              @ParamReference(name = "J2EEServer", namingType = NameFactory.J2EE_SERVER) J2EEServer server,
-                              @ParamReference(name = "J2EEApplication", namingType = NameFactory.J2EE_APPLICATION) J2EEApplication application,
-                              @ParamReference(name = "ApplicationJndi", namingType = "GBEAN") ApplicationJndi applicationJndi,
-                              @ParamAttribute(name = "moduleJndi") Map<String, Object> moduleJndi,
-                              @ParamAttribute(name = "deploymentDescriptor") String deploymentDescriptor,
-                              @ParamReference(name = "EJBCollection") Collection<? extends EjbDeployment> ejbs,
-                              @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
-                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
-                              @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
-                              @ParamAttribute(name = "ejbJarInfo") EjbJarInfo ejbJarInfo) throws NamingException {
+                         @ParamReference(name = "J2EEServer", namingType = NameFactory.J2EE_SERVER) J2EEServer server,
+                         @ParamReference(name = "J2EEApplication", namingType = NameFactory.J2EE_APPLICATION) J2EEApplication application,
+                         @ParamAttribute(name = "deploymentDescriptor") String deploymentDescriptor,
+                         @ParamReference(name = "EJBCollection") Collection<? extends EjbDeployment> ejbs,
+                         @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                         @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+                         @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
+                         @ParamAttribute(name = "ejbJarInfo") EjbJarInfo ejbJarInfo) throws NamingException {
         this.objectName = objectName;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
         this.server = server;
         this.application = application;
-        this.applicationJndi = applicationJndi;
-        this.moduleContext = EnterpriseNamingContext.livenReferences(moduleJndi, null, kernel, classLoader, "module/");
         this.deploymentDescriptor = deploymentDescriptor;
         ((ReferenceCollection) ejbs).addReferenceCollectionListener(new ReferenceCollectionListener() {
 
@@ -174,14 +165,6 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
             result[i] = (copy.get(i)).getObjectName();
         }
         return result;
-    }
-
-    public ApplicationJndi getApplicationJndi() {
-        return applicationJndi;
-    }
-
-    public Context getModuleContext() {
-        return moduleContext;
     }
 
     public void doStart() throws Exception {

@@ -426,8 +426,10 @@ public class EjbDeploymentBuilder {
                 geronimoOpenejb,
                 ejbModule, buildingContext);
 
-        Map<String, Object> compContext = jndiContext.get(JndiScope.comp);
-        gbean.setAttribute("componentContextMap", compContext);
+        AbstractName applicationJndiName = (AbstractName)earContext.getGeneralData().get(EARContext.APPLICATION_JNDI_NAME_KEY);
+        gbean.setReferencePattern("ApplicationJndi", applicationJndiName);
+        gbean.setAttribute("moduleContextMap", jndiContext.get(JndiScope.module));
+        gbean.setAttribute("componentContextMap", jndiContext.get(JndiScope.comp));
 
         //
         // Process resource refs

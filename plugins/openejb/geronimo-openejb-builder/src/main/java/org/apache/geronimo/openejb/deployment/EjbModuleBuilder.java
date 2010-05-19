@@ -820,8 +820,6 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
             ejbModuleGBeanData.setAttribute("ejbJarInfo", ejbModule.getEjbJarInfo());
             ejbModuleGBeanData.setAttribute("modulePath", ejbModule.getTargetPath());
             ejbModuleGBeanData.setAttribute("moduleContext", moduleContext);
-            AbstractName applicationJndiName = (AbstractName)earContext.getGeneralData().get(EARContext.APPLICATION_JNDI_NAME_KEY); 
-            ejbModuleGBeanData.setReferencePattern("ApplicationJndi", applicationJndiName);
             earContext.addGBean(ejbModuleGBeanData);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBModule GBean " + ejbModuleGBeanData.getAbstractName(), e);
