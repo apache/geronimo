@@ -31,8 +31,8 @@
     <name>Geronimo Assemblies :: Karaf Boilerplate Framework</name>
 
     <properties>
-        <felix.karaf.version>1.5.0-SNAPSHOT</felix.karaf.version>
-        <karaf.osgi.version>1.5.0</karaf.osgi.version>
+        <felix.karaf.version>1.6.0</felix.karaf.version>
+        <karaf.osgi.version>1.6.0</karaf.osgi.version>
 
         <!-- from karaf root pom -->
         <aopalliance.version>1.0_3</aopalliance.version>

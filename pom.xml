@@ -1852,7 +1852,7 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.felix.karaf.shell</groupId>
                 <artifactId>org.apache.felix.karaf.shell.console</artifactId>
-                <version>1.5.0-SNAPSHOT</version>
+                <version>1.6.0</version>
                 <exclusions>
                     <exclusion>
                         <groupId>jline</groupId>
@@ -1872,7 +1872,7 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.felix.karaf.jaas</groupId>
                 <artifactId>org.apache.felix.karaf.jaas.boot</artifactId>
-                <version>1.5.0-SNAPSHOT</version>
+                <version>1.6.0</version>
             </dependency>
 
             <dependency>
@@ -2349,6 +2349,19 @@ only found in cxf
             </modules>
 
             <repositories>
+              <repository>
+                    <id>karaf</id>
+                    <name>karaf</name>
+                    <layout>default</layout>
+                    <url>https://repository.apache.org/content/repositories/orgapachefelix-003</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
+
                 <repository>
                     <id>openejb</id>
                     <name>openejb</name>
@@ -2529,6 +2542,19 @@ only found in cxf
             </modules>
 
             <repositories>
+                <repository>
+                    <id>karaf</id>
+                    <name>karaf</name>
+                    <layout>default</layout>
+                    <url>https://repository.apache.org/content/repositories/orgapachefelix-003</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
+
                 <repository>
                     <!-- org.ops4j routing -->
                     <id>ops4j.snapshots</id>
