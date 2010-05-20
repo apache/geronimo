@@ -25,6 +25,7 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.openejb.SystemException;
 import org.apache.openejb.core.JndiFactory;
 import org.apache.xbean.naming.context.ContextAccess;
+import org.apache.xbean.naming.context.ContextFlyweight;
 import org.apache.xbean.naming.context.WritableContext;
 import org.apache.xbean.naming.global.GlobalContextManager;
 
@@ -42,6 +43,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
+ * Not currently used as a gbean so the annotations could be removed.
  * @version $Rev$ $Date$
  */
 @GBean
@@ -63,39 +65,8 @@ public class DeepBindableContext extends WritableContext {
         removeDeepBinding(name, true, false);
     }
 
-    public JndiFactory newJndiFactory() throws NamingException {
-        return new XBeanJndiFactory();
-    }
-
-    class XBeanJndiFactory implements JndiFactory {
-        private final Context rootContext;
-
-        XBeanJndiFactory() throws NamingException {
-            rootContext = new ContextWrapper(DeepBindableContext.this);
-        }
-
-        public Context createComponentContext(Map<String, Object> bindings) throws SystemException {
-            boolean hasEnv = false;
-            for (String name : bindings.keySet()) {
-                if (name.startsWith("java:comp/env")) {
-                    hasEnv = true;
-                    break;
-                }
-            }
-            if (!hasEnv) bindings.put("java:comp/env/dummy", "dummy");
-
-            WritableContext context = null;
-            try {
-                context = new WritableContext("", bindings);
-            } catch (NamingException e) {
-                throw new IllegalStateException(e);
-            }
-            return context;
-        }
-
-        public Context createRootContext() {
-            return rootContext;
-        }
+    ContextWrapper newContextWrapper() throws NamingException {
+        return new ContextWrapper(this);
     }
 
     class ContextWrapper implements Context {

@@ -27,23 +27,12 @@
         </attribute>
     </gbean>
 
-    <gbean name="OpenEjbContext" class="org.apache.geronimo.openejb.DeepBindableContext">
-        <attribute name="nameInNamespace">openejb</attribute>
-        <attribute name="cacheReferences">false</attribute>
-        <attribute name="supportReferenceable">true</attribute>
-        <attribute name="checkDereferenceDifferent">true</attribute>
-        <attribute name="assumeDereferenceBound">false</attribute>
-    </gbean>
-
     <gbean name="OpenEjbSystem" class="org.apache.geronimo.openejb.OpenEjbSystemGBean">
         <reference name="TransactionManager">
             <name>TransactionManager</name>
         </reference>
         <reference name="ResourceAdapterWrappers"/>
         <reference name="PersistenceUnitGBeans"/>
-        <reference name="OpenEjbContext">
-            <name>OpenEjbContext</name>
-        </reference>
     </gbean>
 
     <gbean name="ExtendedEntityManagerRegistry" class="org.apache.geronimo.openejb.EntityManagerRegistryImpl">

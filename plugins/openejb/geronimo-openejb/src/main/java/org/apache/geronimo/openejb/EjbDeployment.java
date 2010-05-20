@@ -49,6 +49,8 @@ import org.apache.openejb.InterfaceType;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ivm.EjbObjectProxyHandler;
 import org.apache.openejb.core.transaction.TransactionType;
+import org.apache.xbean.naming.context.ContextFederation;
+import org.apache.xbean.naming.context.ImmutableFederatedContext;
 
 public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     private final String objectName;
@@ -292,19 +294,20 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     }
 
     protected EjbDeployment initialize(CoreDeploymentInfo deploymentInfo) {
-//        try {
+        try {
 //            javaCompSubContext = (Context) deploymentInfo.getJndiEnc().lookup("java:comp");
 //            if (componentContext != null) {
 //                javaCompSubContext.bind("geronimo", componentContext);
 //            }
-        deploymentInfo.set(EjbDeployment.class, this);
+            ((ImmutableFederatedContext) componentContext).federateContext(deploymentInfo.getJndiEnc());
+            deploymentInfo.set(EjbDeployment.class, this);
 
-        this.deploymentInfo.set(deploymentInfo);
+            this.deploymentInfo.set(deploymentInfo);
 
-        return this;
-//        } catch (NamingException e) {
-//            throw new IllegalStateException("Unable to complete EjbDeployment initialization", e);
-//        }
+            return this;
+        } catch (NamingException e) {
+            throw new IllegalStateException("Unable to complete EjbDeployment initialization", e);
+        }
     }
 
     protected void destroy() {
