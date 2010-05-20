@@ -73,6 +73,8 @@
         <springVersion>2.5.6</springVersion>
         <openjpaVersion>1.2.2</openjpaVersion>
         <xbeanVersion>3.7</xbeanVersion>
+        <!-- For now, use XBean 3.6 to avoid jndi test failures on 3.7 -->        
+        <xbeanNamingVersion>3.6</xbeanNamingVersion>
         <jetty>jetty7</jetty>
 
         <connectorSuffix />
@@ -420,12 +422,18 @@
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-finder</artifactId>
                 <version>${xbeanVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.xbean</groupId>
+                        <artifactId>xbean-bundleutils</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-naming</artifactId>
-                <version>${xbeanVersion}</version>
+                <version>${xbeanNamingVersion}</version>
             </dependency>
 
             <dependency>
