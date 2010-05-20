@@ -32,6 +32,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -97,6 +98,7 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
+import org.apache.geronimo.xbeans.javaee6.WebType;
 import org.apache.geronimo.xbeans.javaee6.ApplicationDocument;
 import org.apache.geronimo.xbeans.javaee6.ApplicationType;
 import org.apache.geronimo.xbeans.javaee6.ModuleType;
@@ -427,16 +429,19 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         LinkedHashSet<Module> modules = new LinkedHashSet<Module>();
         try {
             addModules(earFile, application, gerApplication, moduleLocations, modules, environment, earName, idBuilder);
-            if (application == null && modules.isEmpty()) {
-                //if no application.xml and no modules detected, return null for stand-alone module processing
-                return null;
+            if (application == null) {
+                if (modules.isEmpty()) {
+                    //if no application.xml and no modules detected, return null for stand-alone module processing
+                    return null;
+                } else {
+                    application = createDefaultSpecPlan(modules);
+                }
             }
         } catch (Throwable e) {
             // close all the modules
             for (Module module : modules) {
                 module.close();
             }
-
             if (e instanceof DeploymentException) {
                 throw (DeploymentException) e;
             } else if (e instanceof RuntimeException) {
@@ -448,7 +453,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         }
 
         String applicationName = null;
-        if (application != null && application.isSetApplicationName()) {
+        if (application.isSetApplicationName()) {
             applicationName = application.getApplicationName().getStringValue().trim();
         } else if (earFile != null) {
             applicationName = FileUtils.removeExtension(new File(earFile.getName()).getName(), ".ear");
@@ -469,6 +474,26 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 annotatedApp);
     }
 
+    private ApplicationType createDefaultSpecPlan(Set<Module> modules) {
+        ApplicationType application = ApplicationType.Factory.newInstance();
+        for (Module module : modules) {
+            ConfigurationModuleType configurationModuleType = module.getType();
+            ModuleType moduleType = application.addNewModule();
+            if (configurationModuleType.equals(ConfigurationModuleType.WAR)) {
+                WebModule webModule = (WebModule) module;
+                WebType web = moduleType.addNewWeb();
+                web.addNewContextRoot().setStringValue(webModule.getContextRoot());
+                web.addNewWebUri().setStringValue(webModule.getTargetPath());
+            } else if (configurationModuleType.equals(ConfigurationModuleType.EJB)) {
+                moduleType.addNewEjb().setStringValue(module.getTargetPath());
+            } else if (configurationModuleType.equals(ConfigurationModuleType.RAR)) {
+                moduleType.addNewConnector().setStringValue(module.getTargetPath());
+            } else if (configurationModuleType.equals(ConfigurationModuleType.CAR)) {
+                moduleType.addNewJava().setStringValue(module.getTargetPath());
+            }
+        }
+        return application;
+    }
 
     private GerApplicationType createDefaultPlan(ApplicationType application, JarFile module) {
         // construct the empty geronimo-application.xml
