@@ -95,8 +95,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>it-manual</id>
-			
+			<id>it-manual</id>			
 			<!--
 				TODO: Hook up m-m-p to allow child modules to be built early during
 				this modules compile (or something) phase.
@@ -147,65 +146,6 @@
 				<module>corba-mytime</module>
 			</modules>
 		</profile>
-	</profiles>
-    <!-- 
-        Comment out following if using surefire plugin to run integration test
-     -->
-	<!--<build>		
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.5</version>
-					<configuration>
-						<skip>true</skip>
-						<testFailureIgnore>true</testFailureIgnore>
-						<reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-						<reportFormat>plain</reportFormat>
-						<useFile>true</useFile>
-						<redirectTestOutputToFile>true</redirectTestOutputToFile>
-						<forkMode>once</forkMode>
-						<workingDirectory>${project.build.directory}</workingDirectory>
-						<suiteXmlFiles>
-                            <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
-                        </suiteXmlFiles>
-					</configuration>
-					<executions>
-						<execution>
-							<id>test</id>
-							<phase>test</phase>
-							<goals>
-								<goal>test</goal>
-							</goals>
-							<configuration>
-								<skip>true</skip>
-							</configuration>
-						</execution>
-						<execution>
-							<id>integration</id>
-							<phase>integration-test</phase>
-							<goals>
-								<goal>test</goal>
-							</goals>
-							<configuration>
-								<testFailureIgnore>true</testFailureIgnore>
-								<skip>false</skip>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-report-plugin</artifactId>
-					<version>2.5</version>
-					<configuration>
-						<aggregate>true</aggregate>
-						<outputDirectory>${project.build.outputDirectory}/surefire-reports</outputDirectory>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>-->
+	</profiles>    
 
 </project>

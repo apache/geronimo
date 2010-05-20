@@ -67,10 +67,7 @@
 
     <profiles>
         <profile>
-            <id>it</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
+            <id>it</id>            
             <!--
             TODO: Hook up m-m-p to allow child modules to be built early during this modules
                   compile (or something) phase.
@@ -94,11 +91,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>selenium-maven-plugin</artifactId>
                     </plugin>
 
                     <plugin>
@@ -121,8 +113,7 @@
         </profile>
 
         <profile>
-            <id>it-manual</id>
-            
+            <id>it-manual</id>            
             <!--
             TODO: Hook up m-m-p to allow child modules to be built early during this modules
                   compile (or something) phase.
@@ -146,11 +137,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>selenium-maven-plugin</artifactId>
                     </plugin>
                     
                     <plugin>

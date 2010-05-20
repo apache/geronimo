@@ -32,6 +32,7 @@
 
 	<groupId>org.apache.geronimo.testsuite</groupId>
 	<artifactId>jms-ejb</artifactId>
+	<name>Geronimo TestSuite :: Enterprise Testsuite :: JMS EJB</name>
 	<packaging>ejb</packaging>
 
 	<dependencies>

@@ -41,9 +41,9 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-	<profiles>
+	<!--<profiles>
 		<profile>
-			<id>child</id>
+			<id>child</id>-->
 			<build>
 				<resources>
 					<resource>
@@ -54,6 +54,6 @@
 					</resource>
 				</resources>
 			</build>
-		</profile>
-	</profiles>
+		<!--</profile>
+	</profiles>-->
 </project>

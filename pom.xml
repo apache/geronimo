@@ -2015,7 +2015,7 @@
                             </assembly>
                         </assemblies>
 
-                        <defaultAssemblyId>jetty</defaultAssemblyId>
+                        <defaultAssemblyId>tomcat</defaultAssemblyId>
 
                         <optionSets>
                             <optionSet>

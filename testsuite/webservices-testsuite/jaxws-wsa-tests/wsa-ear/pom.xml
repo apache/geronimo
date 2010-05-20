@@ -68,6 +68,17 @@
 		<profile>
 			<id>child</id>
 			<build>
+                <resources>
+                    <resource>
+                        <directory>src/test/resources</directory>
+                        <filtering>false</filtering>
+                        <targetPath>${project.build.testOutputDirectory}</targetPath>
+                    </resource>
+                    <resource>
+                        <directory>src/main/filtered-resources</directory>
+                        <filtering>true</filtering>
+                    </resource>                
+                </resources>
 				<plugins>
 					<plugin>
 						<artifactId>maven-ear-plugin</artifactId>
@@ -99,10 +110,10 @@
 								</goals>
 							</execution>
 						</executions>
-					</plugin>
+					</plugin>                    
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
+						<artifactId>maven-failsafe-plugin</artifactId>
 						<configuration>
 							<systemProperties>
 								<property>

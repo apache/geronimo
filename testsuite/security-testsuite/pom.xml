@@ -36,31 +36,11 @@
     
     <description>
         Geronimo security testsuite.
-    </description>
-
-    <build>
-        <plugins>
-            <plugin>
-                <!-- This plugin is needed for all suite poms. -->
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>testsuite-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-surefire-xml</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>generate-surefire-xml</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    </description>    
     
     <profiles>
         <profile>
-            <id>it</id>
-            
+            <id>it</id>            
             <!--
             TODO: Hook up m-m-p to allow child modules to be built early during this modules
                   compile (or something) phase.
@@ -101,8 +81,7 @@
             </build>
         </profile>
         <profile>
-            <id>it-manual</id>
-            
+            <id>it-manual</id>            
             <!--
             TODO: Hook up m-m-p to allow child modules to be built early during this modules
                   compile (or something) phase.

@@ -45,8 +45,11 @@
 		<profile>
 			<id>child</id>
 			<build>
-
 				<plugins>
+                    <plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>selenium-maven-plugin</artifactId>
+					</plugin>
 					<plugin>
 						<groupId>org.apache.geronimo.buildsupport</groupId>
 						<artifactId>geronimo-maven-plugin</artifactId>

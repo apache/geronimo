@@ -37,12 +37,6 @@
 	<description>This project executes testcases for your testsuite</description>
 
 	<dependencies>
-		<!--
-			<dependency> <groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-jsp_2.1_spec</artifactId>
-			<scope>provided</scope> </dependency>
-		-->
-
 		<dependency>
 			<groupId>org.apache.geronimo.specs</groupId>
 			<artifactId>geronimo-servlet_2.5_spec</artifactId>
@@ -56,7 +50,7 @@
 				<plugins>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
+						<artifactId>maven-failsafe-plugin</artifactId>
 						<configuration>
 							<systemProperties>
 								<property>

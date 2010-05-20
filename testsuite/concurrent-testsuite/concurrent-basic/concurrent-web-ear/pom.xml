@@ -76,7 +76,6 @@
 			<id>child</id>
 			<build>
 				<plugins>
-
 					<plugin>
 						<artifactId>maven-ear-plugin</artifactId>
 						<configuration>

@@ -42,16 +42,13 @@
             <artifactId>testsupport-commands</artifactId>
             <version>${project.version}</version>
         </dependency>
-    </dependencies> 
-    
-
+    </dependencies>
 
     <profiles>
         <profile>
             <id>it</id>
             <build>
-                <plugins>
-                    
+                <plugins>                    
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
@@ -69,7 +66,6 @@
             <id>it-manual</id>
             <build>
                 <plugins>
-
                     <plugin>
                         <groupId>org.apache.geronimo.genesis.plugins</groupId>
                         <artifactId>maven-maven-plugin</artifactId>

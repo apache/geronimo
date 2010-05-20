@@ -41,21 +41,20 @@
 		<profile>
 			<id>child</id>
 			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-failsafe-plugin</artifactId>
-							<configuration>
-								<suiteXmlFiles>
-									<suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
-								</suiteXmlFiles>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
-
 				<plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>selenium-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<configuration>
+							<suiteXmlFiles>
+								<suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
+							</suiteXmlFiles>
+						</configuration>
+					</plugin>
 					<plugin>
 						<groupId>org.apache.geronimo.buildsupport</groupId>
 						<artifactId>geronimo-maven-plugin</artifactId>
@@ -72,16 +71,13 @@
 											Deploy only 1 module until
 											https://issues.apache.org/jira/browse/GERONIMO-3199 is fixed.
 										-->
-
 										<!--<module>
 											<groupId>org.apache.geronimo.testsupport</groupId>
 											<artifactId>test-ear-j2ee_1.3</artifactId>
 											<version>${version}</version>
 											<type>ear</type>
-										</module>
-
-
-										--><module>
+										</module>-->
+										<module>
 											<groupId>org.apache.geronimo.testsupport</groupId>
 											<artifactId>test-ear-j2ee_1.4</artifactId>
 											<version>${version}</version>
@@ -112,10 +108,8 @@
 										</module>
 									</modules>
 								</configuration>
-							</execution>
-
-
-							--><execution>
+							</execution>-->
+							<execution>
 								<id>undeploy-ear-as-moduleId</id>
 								<phase>post-integration-test</phase>
 								<goals>
