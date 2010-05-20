@@ -199,7 +199,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
             throw new DeploymentException("No GBean [" + name + "]", e);
         }
         GBeanData clusteredDeploymentGBean = new GBeanData(beanInstance);
-        clusteredDeploymentGBean.setGBeanInfo(ClusteredStatefulDeployment.GBEAN_INFO);
+        clusteredDeploymentGBean.setGBeanInfo(new GBeanData(ClusteredStatefulDeployment.class).getGBeanInfo());
         clusteredDeploymentGBean.setReferencePattern(ClusteredStatefulDeployment.GBEAN_REF_SESSION_MANAGER, sessionManagerName);
         try {
             earContext.addGBean(clusteredDeploymentGBean);
