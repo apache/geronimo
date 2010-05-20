@@ -1368,7 +1368,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>axiom-api</artifactId>
-                <version>${axiomVersion}_1</version>
+                <version>${axiomVersion}_1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -2367,19 +2367,6 @@ only found in cxf
                     <name>openejb</name>
                     <layout>default</layout>
                     <url>https://repository.apache.org/content/repositories/orgapachegeronimo-037</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-
-                <repository>
-                    <id>axis2-axiom-api</id>
-                    <name>axis2-axiom-api</name>
-                    <layout>default</layout>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-002/</url>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>

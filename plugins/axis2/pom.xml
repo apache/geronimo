@@ -52,7 +52,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>axis2</artifactId>
-                <version>${axis2Version}_1</version>
+                <version>${axis2Version}_1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
