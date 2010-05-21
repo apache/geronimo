@@ -415,8 +415,6 @@ following licenses.
 ./repository/org/apache/felix/org.apache.felix.framework/2.0.5/org.apache.felix.framework-2.0.5.jar
 ./repository/org/apache/felix/org.apache.felix.metatype/1.0.2/org.apache.felix.metatype-1.0.2.jar
 ./repository/org/apache/felix/org.apache.felix.prefs/1.0.4/org.apache.felix.prefs-1.0.4.jar
-./repository/org/apache/geronimo/bundles/axiom-api/1.2.8_1/axiom-api-1.2.8_1.jar
-./repository/org/apache/geronimo/bundles/axis2/1.5_1/axis2-1.5_1.jar
 ./repository/org/apache/geronimo/bundles/backport-util-concurrent/2.2_1/backport-util-concurrent-2.2_1.jar
 ./repository/org/apache/geronimo/bundles/castor/1.0.5_1/castor-1.0.5_1.jar
 ./repository/org/apache/geronimo/bundles/commons-digester/1.8_1/commons-digester-1.8_1.jar
@@ -471,8 +469,6 @@ following licenses.
 ./repository/org/apache/geronimo/modules/geronimo-aries-builder/3.0-M1/geronimo-aries-builder-3.0-M1.jar
 ./repository/org/apache/geronimo/modules/geronimo-aries-resolver/3.0-M1/geronimo-aries-resolver-3.0-M1.jar
 ./repository/org/apache/geronimo/modules/geronimo-aries-shell/3.0-M1/geronimo-aries-shell-3.0-M1.jar
-./repository/org/apache/geronimo/modules/geronimo-axis2/3.0-M1/geronimo-axis2-3.0-M1.jar
-./repository/org/apache/geronimo/modules/geronimo-axis2-builder/3.0-M1/geronimo-axis2-builder-3.0-M1.jar
 ./repository/org/apache/geronimo/modules/geronimo-client/3.0-M1/geronimo-client-3.0-M1.jar
 ./repository/org/apache/geronimo/modules/geronimo-client-builder/3.0-M1/geronimo-client-builder-3.0-M1.jar
 ./repository/org/apache/geronimo/modules/geronimo-connector-1_6/3.0-M1/geronimo-connector-1_6-3.0-M1.jar
