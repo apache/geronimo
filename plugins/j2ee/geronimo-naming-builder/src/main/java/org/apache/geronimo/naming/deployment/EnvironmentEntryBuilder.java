@@ -117,7 +117,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
             
             String strValue = envEntryMap.remove(name);
             if (strValue == null) {
-                strValue = getStringValue(envEntry.getEnvEntryValue());
+                strValue = getUntrimmedStringValue(envEntry.getEnvEntryValue());
                 if (strValue == null) {
                     String lookupName = getStringValue(envEntry.getLookupName());
                     if (lookupName != null) {
@@ -139,7 +139,12 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                         if (String.class.equals(typeClass)) {
                             value = strValue;
                         } else if (Character.class.equals(typeClass)) {
-                            value = strValue.charAt(0);
+                            if (strValue.length() == 1) {
+                                value = strValue.charAt(0);
+                            } else {
+                                log.warn("invalid character value: {} for name {}", strValue, name );
+                                value = ' ';
+                            }
                         } else if (Boolean.class.equals(typeClass)) {
                             value = Boolean.valueOf(strValue);
                         } else if (Byte.class.equals(typeClass)) {
@@ -186,7 +191,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         if (refs != null) {
             for (XmlObject ref1 : refs) {
                 GerEnvEntryType ref = (GerEnvEntryType) ref1.copy().changeType(GerEnvEntryType.type);
-                envEntryMap.put(ref.getEnvEntryName().trim(), ref.getEnvEntryValue().trim());
+                envEntryMap.put(ref.getEnvEntryName().trim(), ref.getEnvEntryValue());
             }
         }
         return envEntryMap;
