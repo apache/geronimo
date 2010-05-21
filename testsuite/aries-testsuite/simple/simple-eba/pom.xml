@@ -54,7 +54,7 @@
                 <artifactId>eba-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <generateManifest>false</generateManifest>
+                    <generateManifest>true</generateManifest>
                 </configuration>
             </plugin>
         </plugins>

@@ -1,9 +1,0 @@
-Manifest-Version: 1
-Application-ManifestVersion: 1
-Application-SymbolicName: simple-eba
-Application-Version: 1.0
-Application-Name: Geronimo TestSuite :: Aries Testsuite :: Simple EBA
-Application-Description: Geronimo Aries testsuite.
-Application-Content: simple-api,
- simple-wab
-

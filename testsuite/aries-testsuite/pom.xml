@@ -48,7 +48,7 @@
                 <plugin>
                     <groupId>org.apache.aries</groupId>
                     <artifactId>eba-maven-plugin</artifactId>
-                    <version>0.1-incubating</version>
+                    <version>0.2-incubating-SNAPSHOT</version>
                 </plugin>
             </plugins>
         </pluginManagement>
