@@ -38,6 +38,8 @@ public class WebDeploymentMessageUtils {
 
     private static MessageFormat MULTIPLE_CONFIGURATION_WEB_APP_ERROR_MESSAGE_FORMAT = new MessageFormat("Only one element of {0} could be configured in web.xml");
 
+    private static MessageFormat MULTIPLE_CONFIGURATION_WEB_FRAGMENT_ERROR_MESSAGE_FORMAT = new MessageFormat("Only one element of {0} could be configured in web-fragment.xml of the jar file {1}");
+
     private static MessageFormat INVALID_URL_PATTERN_ERROR_MESSAGE = new MessageFormat("Invalid character CR(#xD) or LF(#xA) is found in <url-pattern> {2} of {0} {1} from {3}");
 
     public static String createDuplicateJNDIRefMessage(String elementName, String refName, String jarUrlA, String jarUrlB) {
@@ -59,6 +61,10 @@ public class WebDeploymentMessageUtils {
 
     public static String createMultipleConfigurationWebAppErrorMessage(String elementName) {
         return MULTIPLE_CONFIGURATION_WEB_APP_ERROR_MESSAGE_FORMAT.format(new Object[] { elementName });
+    }
+
+    public static String createMultipleConfigurationWebFragmentErrorMessage(String elementName, String jarUrl) {
+        return MULTIPLE_CONFIGURATION_WEB_FRAGMENT_ERROR_MESSAGE_FORMAT.format(new Object[] { elementName, jarUrl });
     }
 
     public static String createInvalidUrlPatternErrorMessage(String parentElementName, String parentElement, String urlPattern, String location) {
