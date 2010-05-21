@@ -49,20 +49,6 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>cxf-deployer</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>cxf</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
@@ -102,7 +88,6 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${tomcatDeployer}</deploymentConfig>
-                        <deploymentConfig>${cxfDeployer}</deploymentConfig>
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <category>Web Services</category>

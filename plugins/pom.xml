@@ -159,13 +159,11 @@
         <module>system-database</module>
         <module>activemq</module>
         <module>aspectj</module>
-        <module>axis2</module>
         <module>client</module>
         <module>clustering</module>
         <module>connector-1_6</module>
         <module>console</module>
         <module>corba</module>
-        <module>cxf</module>
         <module>dojo</module>
         <module>hotdeploy</module>
         <module>j2ee</module>
@@ -175,8 +173,8 @@
         <module>myfaces</module>
         <module>openejb</module>
         <module>openjpa2</module>
-        <module>webservices</module>
         <module>uddi</module>
+        <module>webservices</module>
         <module>remote-deploy</module>
         <module>welcome</module>
         <module>procrun</module>
@@ -225,13 +223,11 @@
                 <module>system-database</module>
                 <module>activemq</module>
                 <module>aspectj</module>
-                <module>axis2</module>
                 <module>client</module>
                 <module>clustering</module>
                 <module>connector-1_6</module>
                 <module>console</module>
                 <module>corba</module>
-                <module>cxf</module>
                 <module>dojo</module>
                 <module>hotdeploy</module>
                 <module>j2ee</module>

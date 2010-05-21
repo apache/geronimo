@@ -85,20 +85,6 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>webservices-axis2</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.plugingroups</groupId>-->
-            <!--<artifactId>webservices-cxf</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
         <!-- end plugin groups -->
 
         <!--other plugins-->
