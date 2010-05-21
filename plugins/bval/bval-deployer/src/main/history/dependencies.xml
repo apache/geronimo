@@ -33,12 +33,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.bval</groupId>
-        <artifactId>bval-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.bval</groupId>
-        <artifactId>bval-jsr303</artifactId>
+        <artifactId>apache-bval</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

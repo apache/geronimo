@@ -26,11 +26,11 @@
     </parent>
 
     <artifactId>bval</artifactId>
-    <name>Geronimo Plugins, BVal</name>
+    <name>Geronimo Plugins, Bean Validation</name>
     <packaging>pom</packaging>
 
     <description>
-        BVal plugin
+        Geronimo Bean Validation plugin
     </description>
 
     <modules>
@@ -43,13 +43,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.apache.bval</groupId>
-                <artifactId>bval-core</artifactId>
-                <version>0.1-incubating-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.bval</groupId>
-                <artifactId>bval-jsr303</artifactId>
+                <artifactId>apache-bval</artifactId>
                 <version>0.1-incubating-SNAPSHOT</version>
             </dependency>
 
@@ -69,9 +63,6 @@
                 <artifactId>bval-deployer</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
-
-            
         </dependencies>
     </dependencyManagement>
                 
