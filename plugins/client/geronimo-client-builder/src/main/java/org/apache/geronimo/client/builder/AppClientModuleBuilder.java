@@ -254,11 +254,12 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         try {
             Manifest manifest = moduleFile.getManifest();
             if (manifest == null) {
-                throw new DeploymentException("App client module jar does not contain a manifest: " + moduleFile.getName());
+                // if there is no manifest, it's not an app client module
+                return null;
             }
             mainClass = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
             if (mainClass == null) {
-                //not an app client
+                // if there is no Main-Class header in manifest, it's not an app client module
                 return null;
             }
             String classPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
