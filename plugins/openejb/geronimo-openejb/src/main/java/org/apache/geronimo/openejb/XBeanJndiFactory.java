@@ -20,12 +20,15 @@
 
 package org.apache.geronimo.openejb;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import org.apache.openejb.SystemException;
 import org.apache.openejb.core.JndiFactory;
+import org.apache.xbean.naming.context.ImmutableFederatedContext;
 
 /**
  * @version $Rev$ $Date$
@@ -42,7 +45,8 @@ public class XBeanJndiFactory implements JndiFactory {
     public Context createComponentContext(Map<String, Object> bindings) throws SystemException {
         try {
             DeepBindableContext context = new DeepBindableContext("", false, true, true, false);
-            return context.newContextWrapper();
+            Context rootContext = new ImmutableFederatedContext("", Collections.<Context>singleton(context));
+            return context.newContextWrapper(rootContext);
         } catch (NamingException e) {
             throw new IllegalStateException(e);
         }

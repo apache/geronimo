@@ -113,7 +113,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
         }
 
         // Get the jndi context
-        Context jndiContext = ejbDeployment.getComponentContext();
+        Context jndiContext = deploymentInfo.getJndiEnc();
         geronimoCallContext.oldJndiContext = RootContext.getComponentContext();
         // Set the jndi context into Geronimo's root context
         RootContext.setComponentContext(jndiContext);

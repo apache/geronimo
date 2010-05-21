@@ -70,6 +70,9 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     private final Subject runAs;
 
     private final Context componentContext;
+    private final Context moduleContext;
+    private final Context applicationContext;
+    private final Context globalContext;
 
     // connector stuff
     private final Set<String> unshareableResources;
@@ -119,22 +122,14 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         }
         this.defaultSubject = defaultRole == null ? runAsSource.getDefaultSubject() : runAsSource.getSubjectForRole(defaultRole);
         this.runAs = runAsSource.getSubjectForRole(runAsRole);
-        this.componentContext = buildJndiContext(applicationJndi, moduleJndi, compContext, transactionManager, kernel, classLoader);
+        this.componentContext = EnterpriseNamingContext.livenReferences(compContext, transactionManager, kernel, classLoader, "comp/");
+        this.moduleContext = EnterpriseNamingContext.livenReferences(moduleJndi, transactionManager, kernel, classLoader, "module/");
+        this.applicationContext = applicationJndi.getApplicationContext();
+        this.globalContext = applicationJndi.getGlobalContext();
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
         this.openEjbSystem = openEjbSystem;
-    }
-
-    private static Context buildJndiContext(ApplicationJndi applicationJndi, Map<String, Object> moduleJndi, Map<String, Object> componentContext, GeronimoTransactionManager transactionManager, Kernel kernel, ClassLoader classLoader) throws NamingException {
-        Context moduleContext = EnterpriseNamingContext.livenReferences(moduleJndi, transactionManager, kernel, classLoader, "comp/");
-        Context compContext = EnterpriseNamingContext.livenReferences(componentContext, transactionManager, kernel, classLoader, "comp/");
-        Set<Context> contexts = new LinkedHashSet<Context>(4);
-        contexts.add(compContext);
-        contexts.add(moduleContext);
-        contexts.add(applicationJndi.getApplicationContext());
-        contexts.add(applicationJndi.getGlobalContext());
-        return EnterpriseNamingContext.createEnterpriseNamingContext(contexts);
     }
 
     public CoreDeploymentInfo getDeploymentInfo() {
@@ -187,10 +182,6 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
 
     public Subject getRunAs() {
         return runAs;
-    }
-
-    public Context getComponentContext() {
-        return componentContext;
     }
 
     public Set<String> getUnshareableResources() {
@@ -295,11 +286,11 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
 
     protected EjbDeployment initialize(CoreDeploymentInfo deploymentInfo) {
         try {
-//            javaCompSubContext = (Context) deploymentInfo.getJndiEnc().lookup("java:comp");
-//            if (componentContext != null) {
-//                javaCompSubContext.bind("geronimo", componentContext);
-//            }
-            ((ImmutableFederatedContext) componentContext).federateContext(deploymentInfo.getJndiEnc());
+            ImmutableFederatedContext federatedContext = (ImmutableFederatedContext) ((DeepBindableContext.ContextWrapper)deploymentInfo.getJndiEnc()).getRootContext();
+            federatedContext.federateContext(componentContext);
+            federatedContext.federateContext(moduleContext);
+            federatedContext.federateContext(applicationContext);
+            federatedContext.federateContext(globalContext);
             deploymentInfo.set(EjbDeployment.class, this);
 
             this.deploymentInfo.set(deploymentInfo);

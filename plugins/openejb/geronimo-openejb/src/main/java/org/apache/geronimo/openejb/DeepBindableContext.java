@@ -69,6 +69,10 @@ public class DeepBindableContext extends WritableContext {
         return new ContextWrapper(this);
     }
 
+    ContextWrapper newContextWrapper(Context rootContext) throws NamingException {
+        return new ContextWrapper(rootContext);
+    }
+
     class ContextWrapper implements Context {
         private final Context rootContext;
         private final String shortPrefix;
@@ -79,6 +83,10 @@ public class DeepBindableContext extends WritableContext {
             this.rootContext = rootContext;
             shortPrefix = DeepBindableContext.this.getNameInNamespace();
             longPrefix = "java:" + shortPrefix;
+        }
+
+        Context getRootContext() {
+            return rootContext;
         }
 
         public Object lookup(Name name) throws NamingException {
