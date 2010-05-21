@@ -100,7 +100,7 @@
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-jee</artifactId>
-            <version>3.1.3-SNAPSHOT</version>
+            <version>${openejbVersion}</version>
         </dependency>
 
         <dependency>
