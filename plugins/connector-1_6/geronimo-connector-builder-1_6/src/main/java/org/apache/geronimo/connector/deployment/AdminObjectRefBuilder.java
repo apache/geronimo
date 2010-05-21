@@ -143,14 +143,6 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 // some other builder handled this entry already
                 continue;
             }
-            String refType = getStringValue(resourceEnvRef.getResourceEnvRefType());
-            if (refType.equals("javax.ejb.TimerService") ||
-                    refType.equals("javax.ejb.EntityContext") ||
-                    refType.equals("javax.ejb.MessageDrivenContext") ||
-                    refType.equals("javax.ejb.SessionContext") ||
-                    refType.equals("javax.xml.ws.WebServiceContext")) {
-                continue;
-            }
             addInjections(name, resourceEnvRef.getInjectionTargetArray(), componentContext);
             String type = getStringValue(resourceEnvRef.getResourceEnvRefType());
             GerResourceEnvRefType gerResourceEnvRef = refMap.remove(name);
@@ -246,6 +238,17 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
         if (type.equals("javax.transaction.UserTransaction")) {
             return new UserTransactionReference();
+        }
+        if ("javax.ejb.EntityContext".equals(type) ||
+                "javax.ejb.MessageDrivenContext".equals(type) ||
+                "javax.ejb.SessionContext".equals(type)) {
+            return new JndiReference("java:comp/EJBContext");
+        }
+        if ("javax.xml.ws.WebServiceContext".equals(type)) {
+            return new JndiReference("java:comp/WebServiceContext");
+        }
+        if ("javax.ejb.TimerService".equals(type)) {
+            return new JndiReference("java:comp/TimerService");
         }
         if ("javax.validation.Validator".equals(type)) {
             return new JndiReference("java:comp/Validator");
@@ -397,12 +400,6 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             String resourceName = getResourceName(annotation, method, field);
             String resourceType = getResourceType(annotation, method, field);
 
-            //ejb special cases
-            if (resourceType.equals("javax.ejb.SessionContext")) return true;
-            if (resourceType.equals("javax.ejb.MessageDrivenContext")) return true;
-            if (resourceType.equals("javax.ejb.EntityContext")) return true;
-            if (resourceType.equals("javax.ejb.TimerService")) return true;
-
             //If it already exists in xml as a message-destination-ref or resource-env-ref, we are done.
             MessageDestinationRefType[] messageDestinationRefs = annotatedApp.getMessageDestinationRefArray();
             for (MessageDestinationRefType messageDestinationRef : messageDestinationRefs) {
@@ -444,6 +441,10 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                     resourceEnvRefType = refMap.get(resourceName);
                 }
                 if (resourceEnvRefType != null ||
+                        resourceType.equals("javax.ejb.SessionContext") ||
+                        resourceType.equals("javax.ejb.MessageDrivenContext") ||
+                        resourceType.equals("javax.ejb.EntityContext") ||
+                        resourceType.equals("javax.ejb.TimerService") ||
                         resourceType.equals("javax.validation.Validator") ||
                         resourceType.equals("javax.validation.ValidatorFactory") ||
                         resourceType.equals("javax.transaction.UserTransaction")) {
