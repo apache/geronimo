@@ -43,6 +43,7 @@ import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.core.CoreDeploymentInfo;
 
 @GBean(j2eeType = NameFactory.WEB_SERVICE_LINK)
 public class EJBWebServiceGBean implements GBeanLifecycle {
@@ -72,12 +73,13 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         assert this.location != null : "null location received";
                 
         Class beanClass = ejbDeploymentContext.getBeanClass();    
-        Context context = ejbDeploymentContext.getComponentContext();
+        CoreDeploymentInfo deploymentInfo = ejbDeploymentContext.getDeploymentInfo();
+        Context context = deploymentInfo.getJndiEnc();
         
         Bus bus = CXFWebServiceContainer.getBus();
         bus.setExtension(new ServerJNDIResolver(context), JNDIResolver.class);
-        bus.setExtension(portInfo, PortInfo.class);  
-        bus.setExtension(ejbDeploymentContext.getDeploymentInfo(), DeploymentInfo.class);
+        bus.setExtension(portInfo, PortInfo.class);
+        bus.setExtension(deploymentInfo, DeploymentInfo.class);
         
         ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
         
