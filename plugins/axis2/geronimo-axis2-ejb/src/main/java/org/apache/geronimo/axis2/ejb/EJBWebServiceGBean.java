@@ -72,10 +72,10 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         assert this.location != null : "null location received";
                 
         String beanClassName = ejbDeploymentContext.getBeanClass().getName();    
-        Context context = ejbDeploymentContext.getComponentContext();        
         ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
         DeploymentInfo deploymnetInfo = ejbDeploymentContext.getDeploymentInfo();
-        
+        Context context = deploymnetInfo.getJndiEnc();        
+
         this.container = 
             new EJBWebServiceContainer(portInfo, beanClassName, classLoader, 
                                        context, configurationBaseUrl, deploymnetInfo);
