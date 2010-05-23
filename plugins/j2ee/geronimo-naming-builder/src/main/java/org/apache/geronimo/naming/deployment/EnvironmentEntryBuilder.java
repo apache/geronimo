@@ -105,69 +105,76 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         for (EnvEntryType envEntry: envEntriesUntyped) {
             String name = getStringValue(envEntry.getEnvEntryName());
             String type = getStringValue(envEntry.getEnvEntryType());
-            
-            Class typeClass;
-            try {
-                typeClass = bundle.loadClass(type);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("Could not env-entry type class " + type, e);
-            }
-            
+
             Object value = null;
-            
-            String strValue = envEntryMap.remove(name);
-            if (strValue == null) {
+
+            String strValueOverride = envEntryMap.remove(name);
+            String strValue = null;
+            if (strValueOverride == null) {
                 strValue = getUntrimmedStringValue(envEntry.getEnvEntryValue());
-                if (strValue == null) {
-                    String lookupName = getStringValue(envEntry.getLookupName());
-                    if (lookupName != null) {
-                        if (lookupName.equals(getJndiName(name))) {
-                            throw new DeploymentException("env-entry lookup name refers to itself");
-                        }
-                        value = new JndiReference(lookupName);
-                    }
+                String lookupName = getStringValue(envEntry.getLookupName());
+                if (strValue != null && lookupName != null) {
+                    throw new DeploymentException("You must specify an environment entry value or lookup name but not both. Component: " + module.getAnnotatedApp().toString() + ", name: " + name + ", env-entry-value: " + strValue + ", lookup-name: " + lookupName + "");
                 }
+                if (lookupName != null) {
+                    //TODO better circular reference checking
+                    if (lookupName.equals(getJndiName(name))) {
+                        throw new DeploymentException("env-entry lookup name refers to itself");
+                    }
+                    value = new JndiReference(lookupName);
+                }
+            } else {
+                strValue = strValueOverride;
             }
-            
+
+
             if (value == null) {
                 if (strValue == null) {
                     if ("org.apache.geronimo.kernel.Kernel".equals(type)) {
                         value = new KernelReference();
                     }
                 } else {
-                    try {
-                        if (String.class.equals(typeClass)) {
-                            value = strValue;
-                        } else if (Character.class.equals(typeClass)) {
-                            if (strValue.length() == 1) {
-                                value = strValue.charAt(0);
-                            } else {
-                                log.warn("invalid character value: {} for name {}", strValue, name );
-                                value = ' ';
-                            }
-                        } else if (Boolean.class.equals(typeClass)) {
-                            value = Boolean.valueOf(strValue);
-                        } else if (Byte.class.equals(typeClass)) {
-                            value = Byte.valueOf(strValue);
-                        } else if (Short.class.equals(typeClass)) {
-                            value = Short.valueOf(strValue);
-                        } else if (Integer.class.equals(typeClass)) {
-                            value = Integer.valueOf(strValue);
-                        } else if (Long.class.equals(typeClass)) {
-                            value = Long.valueOf(strValue);
-                        } else if (Float.class.equals(typeClass)) {
-                            value = Float.valueOf(strValue);
-                        } else if (Double.class.equals(typeClass)) {
-                            value = Double.valueOf(strValue);
-                        } else if (Class.class.equals(typeClass)) {
-                            value = new ClassReference(strValue);
-                        } else if (typeClass.isEnum()) {
-                            value = Enum.valueOf(typeClass, strValue);
-                        } else {
-                            throw new DeploymentException("Unrecognized env-entry type: " + type);
+                    if (type != null) {
+                        Class typeClass;
+                        try {
+                            typeClass = bundle.loadClass(type);
+                        } catch (ClassNotFoundException e) {
+                            throw new DeploymentException("Could not env-entry type class " + type, e);
                         }
-                    } catch (NumberFormatException e) {
-                        throw new DeploymentException("Invalid env-entry value for name: " + name, e);
+                        try {
+                            if (String.class.equals(typeClass)) {
+                                value = strValue;
+                            } else if (Character.class.equals(typeClass)) {
+                                if (strValue.length() == 1) {
+                                    value = strValue.charAt(0);
+                                } else {
+                                    log.warn("invalid character value: {} for name {}", strValue, name );
+                                    value = ' ';
+                                }
+                            } else if (Boolean.class.equals(typeClass)) {
+                                value = Boolean.valueOf(strValue);
+                            } else if (Byte.class.equals(typeClass)) {
+                                value = Byte.valueOf(strValue);
+                            } else if (Short.class.equals(typeClass)) {
+                                value = Short.valueOf(strValue);
+                            } else if (Integer.class.equals(typeClass)) {
+                                value = Integer.valueOf(strValue);
+                            } else if (Long.class.equals(typeClass)) {
+                                value = Long.valueOf(strValue);
+                            } else if (Float.class.equals(typeClass)) {
+                                value = Float.valueOf(strValue);
+                            } else if (Double.class.equals(typeClass)) {
+                                value = Double.valueOf(strValue);
+                            } else if (Class.class.equals(typeClass)) {
+                                value = new ClassReference(strValue);
+                            } else if (typeClass.isEnum()) {
+                                value = Enum.valueOf(typeClass, strValue);
+                            } else {
+                                throw new DeploymentException("Unrecognized env-entry type: " + type);
+                            }
+                        } catch (NumberFormatException e) {
+                            throw new DeploymentException("Invalid env-entry value for name: " + name, e);
+                        }
                     }
                 }
             }
