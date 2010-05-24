@@ -48,21 +48,6 @@
         <module>plugin-farm-datasource</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>it</id>
-            <modules>
-                <module>clustering-it</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>all-subprojects</id>
-            <modules>
-                <module>clustering-it</module>
-            </modules>
-        </profile>
-    </profiles>
-
     <properties>
         <wadiVersion>2.1.2</wadiVersion>
     </properties>
