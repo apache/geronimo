@@ -1,1 +1,0 @@
-org.apache.geronimo.buildsupport:car-maven-plugin:prepare-plan org.apache.geronimo.buildsupport:car-maven-plugin:package org.apache.geronimo.buildsupport:car-maven-plugin:prepare-metadata

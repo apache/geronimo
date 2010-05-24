@@ -90,18 +90,4 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
-            <modules>
-                <module>geronimo-gbean-deployer/src/it/j2ee-system-it1</module>
-                <module>geronimo-gbean-deployer/src/it/j2ee-system-it2</module>
-                <module>geronimo-gbean-deployer/src/it/metadatageneration-it3</module>
-                <module>geronimo-gbean-deployer/src/it/metadatageneration-it4</module>
-            </modules>
-        </profile>
-
-    </profiles>
-
 </project>
