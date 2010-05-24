@@ -90,6 +90,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 transactionManager,
                 null,
                 cl,
+ //               null,
                 null);
         Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
         deploymentAttributes.put(WebAttributeName.META_COMPLETE.name(), Boolean.TRUE);
@@ -246,5 +247,6 @@ public abstract class AbstractWebModuleTest extends TestSupport {
     protected void setUp() throws Exception {
         super.setUp();
         System.setProperty("catalina.useNaming", "false");
+        System.setProperty("catalina.base", BASEDIR.getAbsolutePath());
     }
 }

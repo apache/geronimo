@@ -246,7 +246,7 @@ public class BundleDirContext extends BaseDirContext {
     }
 
     @Override
-    protected Object doLookup(String name) throws NamingException {
+    protected Object doLookup(String name) {
         name = getName(name);
         URL url = BundleUtils.getEntry(bundle, name);
         if (url == null) {
