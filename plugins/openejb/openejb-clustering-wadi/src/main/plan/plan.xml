@@ -20,8 +20,11 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="DefaultClusteredStatefulContainer" class="org.apache.geronimo.openejb.StatefulContainerGBean">
+ <gbean name="DefaultClusteredStatefulContainer" class="org.apache.geronimo.openejb.StatefulContainerGBean">
         <attribute name="provider">org.apache.geronimo.openejb.cluster:Default Clustered Stateful Container</attribute>
+        <attribute name="timeout">20</attribute>   
+        <attribute name="capacity">1000</attribute>
+        <attribute name="bulkPassivate">100</attribute>        
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>
@@ -29,6 +32,11 @@
     
     <gbean name="DefaultClusteredStatelessContainer" class="org.apache.geronimo.openejb.StatelessContainerGBean">
         <attribute name="provider">org.apache.geronimo.openejb.cluster:Default Clustered Stateless Container</attribute>
+        <attribute name="accessTimeout">0</attribute>
+        <attribute name="closeTimeout">300000</attribute>        
+        <attribute name="poolSize">10</attribute>
+        <attribute name="poolMin">0</attribute>
+        <attribute name="strictPooling">true</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>

@@ -38,7 +38,15 @@ public class StatelessContainerGBean extends EjbContainer {
      * result in a time-out of 5 milliseconds between invocations.
      * A value of zero would mean no timeout.
      */
-    private final int timeout;
+    private final int accessTimeout;
+    
+    /**
+     * PostConstruct methods are invoked on all instances in the pool
+     * when the bean is undeployed and its pool is closed.  The
+     * CloseTimeout specifies the maximum time to wait for the pool to
+     *  close and PostConstruct methods to be invoked.
+     */
+    private int closeTimeout;
 
     /**
      * Specifies the size of the bean pools for this
@@ -46,6 +54,13 @@ public class StatelessContainerGBean extends EjbContainer {
      */
 
     private final int poolSize;
+    
+    
+    /** Specifies the minimum number of bean instances that should be
+     * in this stateless SessionBean container  
+     */
+     private int poolMin;
+     
 
     /**
      * StrictPooling tells the container what to do when the pool
@@ -61,7 +76,7 @@ public class StatelessContainerGBean extends EjbContainer {
      * method invocation and then are removed.
      */
     private final boolean strictPooling;
-
+    
 
     public StatelessContainerGBean(
             @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abstractName,
@@ -70,15 +85,20 @@ public class StatelessContainerGBean extends EjbContainer {
             @ParamAttribute(name = "poolSize") int poolSize,
             @ParamAttribute(name = "poolMin") int poolMin,
             @ParamAttribute(name = "strictPooling") boolean strictPooling,
-            @ParamAttribute(name = "timeout") int timeout,
+            @ParamAttribute(name = "accessTimeout") int accessTimeout,
+            @ParamAttribute(name = "closeTimeout") int closeTimeout,
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, StatelessSessionContainerInfo.class, openEjbSystem, provider, "STATELESS", properties);
         set("PoolSize", Integer.toString(poolSize));
+        set("PoolMin", Integer.toString(poolMin));        
         set("StrictPooling", Boolean.toString(strictPooling));
-        set("TimeOut", Integer.toString(timeout));
+        set("AccessTimeout", Integer.toString(accessTimeout));
+        set("CloseTimeout", Integer.toString(closeTimeout));
         this.poolSize = poolSize;
+        this.poolMin=poolMin;
         this.strictPooling = strictPooling;
-        this.timeout = timeout;
+        this.accessTimeout = accessTimeout;
+        this.closeTimeout=closeTimeout;
     }
 
     public int getPoolSize() {
@@ -89,7 +109,15 @@ public class StatelessContainerGBean extends EjbContainer {
         return strictPooling;
     }
 
-    public int getTimeout() {
-        return timeout;
+    public int getAccessTimeout() {
+        return accessTimeout;
+    }
+
+    public int getCloseTimeout() {
+        return closeTimeout;
+    }
+
+    public int getPoolMin() {
+        return poolMin;
     }
 }

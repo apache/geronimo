@@ -44,7 +44,7 @@
           id="Default Clustered Stateless Container"
           service="Container"
           types="STATELESS"
-          constructor="id, securityService, TimeOut, PoolSize, StrictPooling"
+          constructor="id, securityService, AccessTimeout, CloseTimeout, PoolSize, StrictPooling"
           class-name="org.apache.geronimo.openejb.cluster.container.stateless.ClusteredStatelessContainer">
 
     # Specifies the time to wait between invocations. This
@@ -52,7 +52,18 @@
     # result in a time-out of 5 milliseconds between invocations.
     # A value of zero would mean no timeout.
 
-    TimeOut 0
+    AccessTimeout 0 milliseconds
+    
+    # PostConstruct methods are invoked on all instances in the pool
+    # when the bean is undeployed and its pool is closed.  The
+    # CloseTimeout specifies the maximum time to wait for the pool to
+    # close and PostConstruct methods to be invoked.
+    #
+    # Usable time units: nanoseconds, microsecons, milliseconds,
+    # seconds, minutes, hours, days.  Or any combination such as
+    # "1 hour and 27 minutes and 10 seconds"
+
+    CloseTimeout = 5 minutes    
 
     # Specifies the size of the bean pools for this
     # stateless SessionBean container.
@@ -72,7 +83,24 @@
     # method invocation and then are removed.
 
     StrictPooling true
-
+    
+    # Specifies the minimum number of bean instances that should be
+    # in the pool for each bean.  Pools are prefilled to the minimum
+    # on startup.  Pool "shrinking" is achived through SoftReferences
+    # and natural vm garbage collection. All but the minimum are allowed
+    # to be garbage collected by the VM when memory is needed.
+    #
+    # The minimum pool size is rigidly maintained.  The minimum side
+    # of the pool is not eligible for IdleTimeout, but is subject to
+    # MaxAge and flushing.  When the pool is flushed, the pool is
+    # immediately refilled to the minimum size with MaxAgeOffset
+    # applied.  When an instance from the minimum side of the pool
+    # reaches it's MaxAge, it is also immediately replaced.
+    # Replacement is done in a background queue using the number of
+    # threads specified by CallbackThreads.
+    
+    PoolMin 0
+    
 
   </ServiceProvider>
 
