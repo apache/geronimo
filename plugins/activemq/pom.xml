@@ -48,12 +48,6 @@
                 <module>activemq-jetty-server</module>
             </modules>
         </profile>
-        <profile>
-            <id>all-subprojects</id>
-            <modules>
-                <module>activemq-server</module>
-            </modules>
-        </profile>
     </profiles>
 
     <properties>
