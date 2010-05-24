@@ -57,23 +57,25 @@ public class Bootstrapper extends FrameworkLauncher {
             destroy(false);
             return -1;
         }
-
-        int exitCode = 0;
         
         ClassLoader oldTCCL = Thread.currentThread().getContextClassLoader();
         try {
             ClassLoader newTCCL = geronimoMain.getClass().getClassLoader();
             Thread.currentThread().setContextClassLoader(newTCCL);
-            exitCode = geronimoMain.execute(opaque);
-            destroy(waitForStop);
+            int exitCode = geronimoMain.execute(opaque);
+            if (exitCode == 0) {
+                destroy(waitForStop);
+            } else {
+                destroy(false);
+            }
+            return exitCode;
         } catch (Throwable e) {
             System.err.println("Error in Main: " + e);
             destroy(false);
+            return -1;
         } finally {
             Thread.currentThread().setContextClassLoader(oldTCCL);
         }
-        
-        return exitCode;
     }
 
     public Main getMain() {
