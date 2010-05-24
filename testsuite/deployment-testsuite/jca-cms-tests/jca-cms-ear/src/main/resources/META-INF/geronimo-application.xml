@@ -106,7 +106,7 @@
                 </reference>
             </gbean>
             <gbean name="test-cms-credentials"
-                   class="org.apache.geronimo.connector.outbound.security.PasswordCredentialLoginModuleWrapperGBean">
+                   class="org.apache.geronimo.connector.outbound.security.PasswordCredentialLoginModuleWrapper">
                 <attribute name="loginModuleClass">
                     org.apache.geronimo.connector.outbound.security.CallerIdentityPasswordCredentialLoginModule
                 </attribute>
@@ -172,8 +172,11 @@
                         </realm>
                     </credential-store>
                 </xml-attribute>
+                <reference name="Realms">
+                    <name>test-cms-realm</name>
+                </reference>
                 <dependency>
                     <name>test-cms-realm</name>
-		</dependency>
+                </dependency>
             </gbean>
 </application>
