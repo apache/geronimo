@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>bval</artifactId>
-    <name>Geronimo Plugins, Bean Validation</name>
+    <name>Geronimo Plugins, BVal</name>
     <packaging>pom</packaging>
 
     <description>
@@ -43,7 +43,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.apache.bval</groupId>
-                <artifactId>apache-bval</artifactId>
+                <artifactId>org.apache.bval.bundle</artifactId>
                 <version>0.1-incubating-SNAPSHOT</version>
             </dependency>
 
