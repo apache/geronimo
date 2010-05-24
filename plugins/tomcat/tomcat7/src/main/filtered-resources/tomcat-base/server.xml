@@ -25,9 +25,7 @@
 <Server port="8005" shutdown="SHUTDOWN">
 
     <!--APR library loader. Documentation at /docs/apr.html -->
-    <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on"/>    
-    <!-- JMX Support for the Tomcat server. Documentation at /docs/non-existent.html -->
-    <Listener className="org.apache.catalina.mbeans.ServerLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on"/>
 
     <!-- 
         Geronimo uses its own JNDI implementation, globalNamingResources configurations in
