@@ -165,7 +165,7 @@
         <amq:systemUsage>
             <amq:systemUsage>
                 <amq:memoryUsage>
-                    <amq:memoryUsage limit="20 mb"/>
+                    <amq:memoryUsage limit="512 mb"/>
                 </amq:memoryUsage>
                 <amq:storeUsage>
                     <amq:storeUsage limit="1 gb" name="foo"/>
