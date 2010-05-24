@@ -22,9 +22,12 @@ package org.apache.geronimo.openejb.deployment.cluster;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
 
@@ -41,7 +44,6 @@ import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -53,6 +55,8 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.openejb.cluster.deployment.ClusteredDeployment;
@@ -104,6 +108,8 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
     private final AbstractNameQuery defaultNetworkConnectorName;
     private final Environment defaultEnvironment;
     
+    private final Artifact artifactToRemoveFromEnvironment;
+    
 
     public WADIOpenEJBClusteringBuilder(
             @ParamAttribute(name = "defaultClusteredStatefulContainerId") String defaultClusteredStatefulContainerId,
@@ -113,6 +119,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
             @ParamAttribute(name = "defaultNumPartitions") int defaultNumPartitions,
             @ParamAttribute(name = "defaultBackingStrategyFactoryName") AbstractNameQuery defaultBackingStrategyFactoryName, 
             @ParamAttribute(name = "defaultClusterName") AbstractNameQuery defaultClusterName,
+            @ParamAttribute(name = "artifactToRemoveFromEnvironment") Artifact artifactToRemoveFromEnvironment,
             @ParamAttribute(name = "defaultNetworkConnectorName") AbstractNameQuery defaultNetworkConnectorName,
             @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment) {
         if (null == defaultClusteredStatefulContainerId) {
@@ -129,6 +136,8 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
             throw new IllegalArgumentException("defaultBackingStrategyFactoryName is required");
         } else if (null == defaultClusterName) {
             throw new IllegalArgumentException("defaultClusterName is required");
+        } else if (null == artifactToRemoveFromEnvironment) {
+            throw new IllegalArgumentException("artifactToRemoveFromEnvironment is required");
         } else if (null == defaultEnvironment) {
             throw new IllegalArgumentException("defaultEnvironment is required");
         } else if (null == defaultNetworkConnectorName) {
@@ -141,6 +150,7 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         this.defaultNumPartitions = defaultNumPartitions;
         this.defaultBackingStrategyFactoryName = defaultBackingStrategyFactoryName;
         this.defaultClusterName = defaultClusterName;
+        this.artifactToRemoveFromEnvironment = artifactToRemoveFromEnvironment;
         this.defaultNetworkConnectorName = defaultNetworkConnectorName;
         this.defaultEnvironment = defaultEnvironment;
         
@@ -233,12 +243,29 @@ public class WADIOpenEJBClusteringBuilder implements ModuleBuilderExtension {
         if (null == clusteringWadiType) {
             return;
         }
-
+        
+        
+        filterDependencies(environment);
+        
         EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
 
         ejbModule.getPreAutoConfigDeployer().add(new MapSessionBeanToContainerIDDeployer(defaultClusteredStatefulContainerId,SessionType.STATEFUL));
         ejbModule.getPreAutoConfigDeployer().add(new MapSessionBeanToContainerIDDeployer(defaultClusteredStatelessContainerId,SessionType.STATELESS));
     }
+    
+    protected void filterDependencies(Environment environment) {
+                List<Dependency> dependencies = environment.getDependencies();
+                dependencies = new ArrayList<Dependency>(dependencies);
+                for (Iterator<Dependency> iterator = dependencies.iterator(); iterator.hasNext();) {
+                    Dependency dependency = iterator.next();
+                    Artifact dependencyArtifact = dependency.getArtifact();
+                    if (artifactToRemoveFromEnvironment.matches(dependencyArtifact)) {
+                        iterator.remove();
+                    }
+                }
+                environment.setDependencies(dependencies);
+            }
+        
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
     }

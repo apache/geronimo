@@ -28,6 +28,7 @@
         <attribute name="defaultNumPartitions">24</attribute>
         <attribute name="defaultBackingStrategyFactoryName">?name=DefaultBackingStrategyFactory</attribute>
         <attribute name="defaultClusterName">?name=DefaultCluster</attribute>
+        <attribute name="artifactToRemoveFromEnvironment">org.apache.geronimo.configs/tomcat6//car</attribute>
         <attribute name="defaultNetworkConnectorName">?#org.apache.geronimo.openejb.EjbDaemonGBean</attribute>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
