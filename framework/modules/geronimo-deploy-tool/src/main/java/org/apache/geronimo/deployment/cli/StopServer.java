@@ -17,11 +17,9 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.management.MBeanServerConnection;
@@ -33,7 +31,7 @@ import javax.management.remote.rmi.RMIConnectorServer;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 
 import org.apache.geronimo.cli.shutdown.ShutdownCLParser;
-import org.apache.geronimo.crypto.EncryptionManager;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.cli.DeployUtils.SavedAuthentication;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -54,12 +52,6 @@ public class StopServer implements Main {
 	private boolean secure;
 
     private final Bundle bundle;
-
-    String KEYSTORE_TRUSTSTORE_PASSWORD_FILE = "org.apache.geronimo.keyStoreTrustStorePasswordFile";
-    String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION = "/var/security/keystores/geronimo-default";
-    String GERONIMO_HOME = "org.apache.geronimo.home.dir";
-    String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = System.getProperty(GERONIMO_HOME)
-            + "/var/config/config-substitutions.properties";
 
     public StopServer(Bundle bundle) {
         this.bundle = bundle;
@@ -83,38 +75,13 @@ public class StopServer implements Main {
 
         secure = parser.isSecure();
 
-        if(secure){
-
-          try {
-                Properties props = new Properties();
-
-                String keyStorePassword = null;
-                String trustStorePassword = null;
-
-                FileInputStream fstream = new FileInputStream(System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE,
-                        DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
-                props.load(fstream);
-
-                keyStorePassword = (String) EncryptionManager.decrypt(props.getProperty("keyStorePassword"));
-                trustStorePassword = (String) EncryptionManager.decrypt(props.getProperty("trustStorePassword"));
-
-                fstream.close();
-
-                String value = System.getProperty("javax.net.ssl.keyStore", System.getProperty(GERONIMO_HOME)
-                        + DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
-                String value1 = System.getProperty("javax.net.ssl.trustStore", System.getProperty(GERONIMO_HOME)
-                        + DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
-                System.setProperty("javax.net.ssl.keyStore", value);
-                System.setProperty("javax.net.ssl.trustStore", value1);
-                System.setProperty("javax.net.ssl.keyStorePassword", keyStorePassword);
-                System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+        if (secure) {
+            try {
+                DeployUtils.setSecurityProperties();
+            } catch (DeploymentException e) {
+                System.err.println(e.getMessage());
+                return 1;
             }
-
-            catch (IOException e) {
-                System.out.println("Unable to set KeyStorePassword and TrustStorePassword");
-                e.printStackTrace();
-            }
-
         }
 
         user = parser.getUser();
@@ -123,7 +90,9 @@ public class StopServer implements Main {
 
         if (user == null && password == null) {
             String uri = DeployUtils.getConnectionURI(host, port, secure);
-            try {
+            ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+            Thread.currentThread().setContextClassLoader(DeployUtils.class.getClassLoader());
+            try {                
                 SavedAuthentication savedAuthentication = DeployUtils.readSavedCredentials(uri);
                 if (savedAuthentication != null) {
                     user = savedAuthentication.getUser();
@@ -131,6 +100,8 @@ public class StopServer implements Main {
                 }
             } catch (IOException e) {
                 System.out.println("Warning: " + e.getMessage());
+            } finally {
+                Thread.currentThread().setContextClassLoader(oldCL);
             }
         }
 

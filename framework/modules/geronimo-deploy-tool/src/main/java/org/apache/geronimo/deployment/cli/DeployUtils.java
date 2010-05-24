@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Properties;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.deployment.plugin.ConfigIDExtractor;
 
@@ -40,6 +41,19 @@ public class DeployUtils extends ConfigIDExtractor {
 
     private final static String DEFAULT_URI = "deployer:geronimo:jmx";
     private final static String DEFAULT_SECURE_URI = "deployer:geronimo:jmxs";
+    
+
+    private static final String KEYSTORE_TRUSTSTORE_PASSWORD_FILE = 
+        "org.apache.geronimo.keyStoreTrustStorePasswordFile";
+
+    private static final String DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION = 
+        "/var/security/keystores/geronimo-default";
+
+    private static final String GERONIMO_HOME = 
+        "org.apache.geronimo.home.dir";
+
+    private static final String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = 
+        System.getProperty(GERONIMO_HOME) + "/var/config/config-substitutions.properties";
 
     /**
      * Split up an output line so it indents at beginning and end (to fit in a
@@ -217,4 +231,25 @@ public class DeployUtils extends ConfigIDExtractor {
         }
     }
 
+    public static void setSecurityProperties() throws DeploymentException {
+        try {
+            Properties props = new Properties();
+            FileInputStream fstream = new FileInputStream(System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
+            props.load(fstream);
+            fstream.close();
+            
+            String keyStorePassword = (String) EncryptionManager.decrypt(props.getProperty("keyStorePassword"));
+            String trustStorePassword = (String) EncryptionManager.decrypt(props.getProperty("trustStorePassword"));
+
+            String keyStore = System.getProperty("javax.net.ssl.keyStore", System.getProperty(GERONIMO_HOME) + DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+            String trustStore = System.getProperty("javax.net.ssl.trustStore", System.getProperty(GERONIMO_HOME) + DEFAULT_TRUSTSTORE_KEYSTORE_LOCATION);
+            
+            System.setProperty("javax.net.ssl.keyStore", keyStore);
+            System.setProperty("javax.net.ssl.trustStore", trustStore);
+            System.setProperty("javax.net.ssl.keyStorePassword", keyStorePassword);
+            System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+        } catch (IOException e) {
+            throw new DeploymentException("Unable to set KeyStorePassword and TrustStorePassword.", e);
+        }
+    }
 }
