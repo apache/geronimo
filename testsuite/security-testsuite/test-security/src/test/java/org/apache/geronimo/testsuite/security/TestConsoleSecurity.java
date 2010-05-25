@@ -82,7 +82,7 @@ public class TestConsoleSecurity extends SeleniumTestSupport {
         selenium.click("submit");
         waitForPageLoad();
         
-        assertTrue(selenium.isTextPresent("Invalid Username and"));
+        assertTrue(selenium.isTextPresent("Invalid User Name and"));
     }
     
 }
