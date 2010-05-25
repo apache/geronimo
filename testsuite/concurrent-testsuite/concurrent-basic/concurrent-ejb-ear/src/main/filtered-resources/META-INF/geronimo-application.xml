@@ -32,7 +32,7 @@
     </environment>
 
     <module>
-	<connector>tranql-connector-ra-1.3.rar</connector>
+	<connector>tranql-connector-ra-1.5.rar</connector>
 	<alt-dd>ConcurrentPool.xml</alt-dd>
     </module>
 
