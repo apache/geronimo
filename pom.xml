@@ -2118,7 +2118,25 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
-                    <version>1.0-rc-1</version>
+                    <version>1.0.1</version>
+                     <dependencies>
+                        <dependency>
+                            <groupId>org.seleniumhq.selenium.server</groupId>
+                            <artifactId>selenium-server</artifactId>
+                            <classifier>standalone</classifier>
+                            <version>1.0.3</version>
+                            <exclusions>
+                                <exclusion>
+                                    <groupId>org.seleniumhq.selenium.server</groupId>
+                                    <artifactId>selenium-server-coreless</artifactId>
+                                </exclusion>
+                                <exclusion>
+                                    <groupId>org.seleniumhq.selenium.core</groupId>
+                                    <artifactId>selenium-core</artifactId>
+                                </exclusion>
+                            </exclusions>
+                        </dependency>
+                    </dependencies>          
                 </plugin>
 
                 <plugin>
