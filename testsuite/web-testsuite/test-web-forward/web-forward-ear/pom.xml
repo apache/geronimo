@@ -91,6 +91,12 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-failsafe-plugin</artifactId>
+                        <!--The case which uses selenium must have this configuration to run, otherwise, selenium server won't launch -->
+                        <configuration>
+                            <suiteXmlFiles>
+							    <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
+							</suiteXmlFiles>
+                        </configuration> 
 					</plugin>
 
 					<!-- "ear" packaging doesn't compile test classes -->
