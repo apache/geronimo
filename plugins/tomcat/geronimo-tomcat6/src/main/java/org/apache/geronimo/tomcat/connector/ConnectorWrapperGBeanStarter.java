@@ -18,6 +18,7 @@
  */
 package org.apache.geronimo.tomcat.connector;
 
+import java.net.InetAddress;
 import java.util.Set;
 
 import org.apache.catalina.connector.Connector;
@@ -86,7 +87,10 @@ public class ConnectorWrapperGBeanStarter implements GBeanLifecycle {
         GBeanData gbeanData = new GBeanData(name, gbeanInfo);
         gbeanData.setAttribute("name", uniqueName);
         gbeanData.setAttribute("connector", conn);
-        gbeanData.setAttribute("host", conn.getAttribute("address"));
+        Object addressProperty = conn.getAttribute("address");
+        if (addressProperty != null) {
+            gbeanData.setAttribute("host", addressProperty instanceof InetAddress ? ((InetAddress) addressProperty).getHostAddress() : addressProperty.toString());
+        }
         gbeanData.setAttribute("port", conn.getPort());
 
         gbeanData.setReferencePattern(ConnectorGBean.CONNECTOR_CONTAINER_REFERENCE, containerAbstractName);

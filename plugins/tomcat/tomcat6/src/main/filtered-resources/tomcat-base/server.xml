@@ -64,7 +64,7 @@
         -->
         <Connector name="TomcatWebConnector"
                    port="${HTTPPort + PortOffset}"
-                   host="${ServerHostname}"
+                   address="${ServerHostname}"
                    protocol="HTTP/1.1"
                    connectionTimeout="20000"
                    redirectPort="${HTTPSPort + PortOffset}"
@@ -82,7 +82,7 @@
    described in the APR documentation -->
         <Connector name="TomcatWebSSLConnector" 
                    port="${HTTPSPort + PortOffset}"
-                   host="${ServerHostname}"
+                   address="${ServerHostname}"
                    protocol="HTTP/1.1"
                    SSLEnabled="true"
                    maxThreads="150"
@@ -97,7 +97,7 @@
         <!-- Define an AJP 1.3 Connector on port 8009 -->
         <Connector name="TomcatAJPConnector"
                    port="${AJPPort + PortOffset}"
-                   host="${ServerHostname}"
+                   address="${ServerHostname}"
                    protocol="AJP/1.3"
                    redirectPort="${HTTPSPort + PortOffset}"
                    executor="DefaultThreadPool"/>
