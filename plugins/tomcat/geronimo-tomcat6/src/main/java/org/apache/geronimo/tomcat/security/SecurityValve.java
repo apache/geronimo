@@ -51,7 +51,7 @@ public class SecurityValve extends ValveBase {
         if (!authorizer.hasUserDataPermissions(request, constraints)) {
             //TODO redirect to secure port?
             if (!response.isError()) {
-                response.sendError(Response.SC_FORBIDDEN);
+                response.sendError(Response.SC_MOVED_TEMPORARILY);
             }
             return;
         }
