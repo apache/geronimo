@@ -47,6 +47,7 @@
         <dependency>
             <groupId>org.seleniumhq.selenium.server</groupId>
             <artifactId>selenium-server</artifactId>
+            <classifier>standalone</classifier>
         </dependency>
         
         <dependency>
