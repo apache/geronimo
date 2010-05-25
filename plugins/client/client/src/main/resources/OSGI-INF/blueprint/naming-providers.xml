@@ -55,7 +55,7 @@ limitations under the License.
             </argument>
         </bean>
     </service>
-
+<!--
     <service id="XBeanInitialContextFactory">
         <interfaces>
             <value>javax.naming.spi.InitialContextFactory</value>
@@ -63,7 +63,7 @@ limitations under the License.
         </interfaces>
         <bean class="org.apache.xbean.naming.global.GlobalContextManager"/>
     </service>
-
+-->
     <service id="rmiContextProvider"
              interface="javax.naming.spi.ObjectFactory">
         <service-properties>

@@ -110,13 +110,8 @@
         <!-- aries jndi integration -->
         <dependency>
             <groupId>org.apache.aries.jndi</groupId>
-            <artifactId>org.apache.aries.jndi.core</artifactId>
+            <artifactId>org.apache.aries.jndi</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.aries.jndi</groupId>
-            <artifactId>org.apache.aries.jndi.url</artifactId>
-        </dependency>
-        
 
     </dependencies>
 

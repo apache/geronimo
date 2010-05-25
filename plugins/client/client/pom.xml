@@ -118,15 +118,13 @@
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-naming</artifactId>
         </dependency>
+
         <!-- aries jndi integration -->
         <dependency>
             <groupId>org.apache.aries.jndi</groupId>
-            <artifactId>org.apache.aries.jndi.core</artifactId>
+            <artifactId>org.apache.aries.jndi</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.aries.jndi</groupId>
-            <artifactId>org.apache.aries.jndi.url</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-bval</artifactId>

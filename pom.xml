@@ -1903,31 +1903,25 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.aries</groupId>
                 <artifactId>org.apache.aries.util</artifactId>
-                <version>0.1-incubating</version>
+                <version>0.2-incubating-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jndi</groupId>
-                <artifactId>org.apache.aries.jndi.core</artifactId>
-                <version>0.1-incubating</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.aries.jndi</groupId>
-                <artifactId>org.apache.aries.jndi.url</artifactId>
-                <version>0.1-incubating</version>
+                <artifactId>org.apache.aries.jndi</artifactId>
+                <version>0.2-incubating-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jmx</groupId>
                 <artifactId>org.apache.aries.jmx</artifactId>
-                <version>0.1-incubating</version>
+                <version>0.2-incubating-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jmx</groupId>
                 <artifactId>org.apache.aries.jmx.blueprint</artifactId>
-                <version>0.1-incubating</version>
+                <version>0.2-incubating-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -1939,43 +1933,7 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint</artifactId>
-                <version>0.1-incubating</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.aries.blueprint</groupId>
-                <artifactId>org.apache.aries.blueprint.api</artifactId>
-                <version>0.1-incubating</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.aries.blueprint</groupId>
-                <artifactId>org.apache.aries.blueprint.core</artifactId>
-                <version>0.1-incubating</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.aries.blueprint</groupId>
-                <artifactId>org.apache.aries.blueprint.cm</artifactId>
-                <version>0.1-incubating</version>
+                <version>0.2-incubating-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>

@@ -13,12 +13,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.aries.jndi</groupId>
-        <artifactId>org.apache.aries.jndi.core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.aries.jndi</groupId>
-        <artifactId>org.apache.aries.jndi.url</artifactId>
+        <artifactId>org.apache.aries.jndi</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
