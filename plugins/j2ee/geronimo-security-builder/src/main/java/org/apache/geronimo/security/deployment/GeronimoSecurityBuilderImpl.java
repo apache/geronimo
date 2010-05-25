@@ -49,6 +49,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -210,13 +211,20 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
         if (earContext.isHasSecurity()) {
             //Be sure to only set once per app
             earContext.setHasSecurity(false);
+            AbstractName applicationPolicyManagerName = earContext.getNaming().createChildName(earContext.getModuleName(), SecurityNames.JACC_MANAGER, SecurityNames.JACC_MANAGER);
+            //TODO A better way to avoid the multiple invocation on securityBuilder.addGBeans ?
+            try {
+                if (earContext.getGBeanInstance(applicationPolicyManagerName) != null) {
+                    return;
+                }
+            } catch (GBeanNotFoundException e1) {
+            }
             AbstractNameQuery roleMapperDataName = (AbstractNameQuery)earContext.getGeneralData().get(ROLE_MAPPER_DATA_NAME);
             if (roleMapperDataName == null) {
                 roleMapperDataName = defaultRoleMappingName;
                 EnvironmentBuilder.mergeEnvironments(earContext.getConfiguration().getEnvironment(), defaultEnvironment);
             }
-            Naming naming = earContext.getNaming();
-            GBeanData jaccBeanData = configureApplicationPolicyManager(naming, earContext.getModuleName(), earContext.getContextIDToPermissionsMap());
+            GBeanData jaccBeanData = configureApplicationPolicyManager(applicationPolicyManagerName, earContext.getContextIDToPermissionsMap());
             jaccBeanData.setReferencePattern("PrincipalRoleMapper", roleMapperDataName);
             try {
                 earContext.addGBean(jaccBeanData);
@@ -334,9 +342,8 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
         return new AbstractNameQuery(roleMapperData.getAbstractName());
     }
 
-    protected GBeanData configureApplicationPolicyManager(Naming naming, AbstractName moduleName, Map<String, ComponentPermissions> contextIDToPermissionsMap) {
-        AbstractName jaccBeanName = naming.createChildName(moduleName, SecurityNames.JACC_MANAGER, SecurityNames.JACC_MANAGER);
-        GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
+    protected GBeanData configureApplicationPolicyManager(AbstractName applicationPolicyManagerName, Map<String, ComponentPermissions> contextIDToPermissionsMap) {        
+        GBeanData jaccBeanData = new GBeanData(applicationPolicyManagerName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
         return jaccBeanData;
     }
