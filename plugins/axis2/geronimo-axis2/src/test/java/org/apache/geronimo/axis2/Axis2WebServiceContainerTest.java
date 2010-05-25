@@ -29,6 +29,7 @@ import javax.xml.parsers.DocumentBuilder;
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainer;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
+import org.apache.geronimo.kernel.osgi.MockBundle;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.webservices.WebServiceContainer.Request;
 import org.w3c.dom.Document;
@@ -48,12 +49,12 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
                        "test_service_doclitbare.wsdl", "test_service_doclitbare_request.xml");
     }
     */
-    
+
     public void testRPCInvokeWithWSDL() throws Exception {
         invokeWithWSDL("RPCLitService", "org.apache.geronimo.axis2.testdata.rpclit.RPCLitService",
                        "test_service_rpclit.wsdl", "test_service_rpclit_request.xml");
     }
-    
+
     public void testGetWSDL() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
@@ -71,9 +72,9 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
                 "127.0.0.1");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         Axis2Response res = new Axis2Response("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
-        
+
         String endpointClassName = "org.apache.geronimo.axis2.testdata.simple.HelloWorld";
-        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, cl, null, null, AnnotationHolder.EMPTY, "/axis2");
+        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, new MockBundle(cl, null,11L), null, AnnotationHolder.EMPTY, "/axis2");
         container.init();
         container.invoke(req, res);
         out.flush();
@@ -83,16 +84,16 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
     private void invokeWithWSDL(String serviceName, String endPointClassName, String wsdl, String requestFile ) throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         InputStream in = cl.getResourceAsStream(requestFile);
-        
+
         //This will reduce number of requests files
         DocumentBuilder documentBuilder = XmlUtil.newDocumentBuilderFactory().newDocumentBuilder();
         Document doc = documentBuilder.parse(in);
 
         Element root = doc.getDocumentElement();
         NodeList nodeList = root.getElementsByTagName("soap:Envelope");
-        
+
         InputStream request;
-        
+
         for(int i = 0; i < nodeList.getLength(); i++){
         	StringBuffer envelope = new StringBuffer("<soap:Envelope");
         	Element element = (Element)nodeList.item(i);
@@ -103,10 +104,10 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         			envelope.append("=\""+attributes.item(k).getNodeValue().trim()+"\"");
         		}
         		String content = element.getTextContent();
-        		
+
         		if(content != null && !content.equals("")){
         			envelope.append(">");
-            		
+
             		NodeList children = element.getChildNodes();
             		if(children != null){
             			for(int j=0; j < children.getLength(); j++){
@@ -123,14 +124,14 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         			envelope.append("/>");
         		}
         	}
-        	
+
             System.out.println(envelope.toString());
-            
+
             request = new ByteArrayInputStream(envelope.toString().getBytes("UTF-8"));
-        	
+
             PortInfo portInfo = new PortInfo();
             portInfo.setLocation("/axis2/" + serviceName);
-            
+
             File wsdlFile = new File(RESOURCE_PATH + wsdl);
             portInfo.setWsdlFile(wsdlFile.toURI().toURL().toString());
 
@@ -147,7 +148,7 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 Axis2Response res = new Axis2Response("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
 
-                POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endPointClassName, cl, null, null, AnnotationHolder.EMPTY, "/axis2");
+                POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endPointClassName, new MockBundle(cl, null, 11L), null, AnnotationHolder.EMPTY, "/axis2");
                 container.init();
                 container.invoke(req, res);
                 System.out.println("Response "+out);
@@ -167,20 +168,20 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
             }
         }
     }
-    
+
     private String getElementContent(Element e){
     	StringBuffer content = new StringBuffer("<"+e.getNodeName());
     	NamedNodeMap attributes = e.getAttributes();
-    	
+
     	if(attributes != null){
     		for(int k=0; k < attributes.getLength(); k++){
     			content.append(" "+attributes.item(k).getNodeName()) ;
     			content.append("=\""+attributes.item(k).getNodeValue()+"\"") ;
     		}
     	}
-    	
+
     	String value = e.getTextContent();
-		
+
 		if(value != null && !value.equals("")){
 			content.append(">");
 
@@ -199,10 +200,10 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
 		}else {
 			content.append("/>");
 		}
-		
+
 		return content.toString();
     }
-    
+
     protected void setUp() throws Exception {
     }
 

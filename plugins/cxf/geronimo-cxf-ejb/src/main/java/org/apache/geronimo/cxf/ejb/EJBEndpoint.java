@@ -41,17 +41,16 @@ import org.apache.geronimo.cxf.GeronimoJaxWsImplementorInfo;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.openejb.DeploymentInfo;
+import org.osgi.framework.Bundle;
 
 public class EJBEndpoint extends CXFEndpoint {
-    
-    public EJBEndpoint(Bus bus,
-                       URL configurationBaseUrl,
-                       Class instance) {
-        super(bus, instance);
-                
+
+    public EJBEndpoint(Bus bus, Class instance, Bundle bundle) {
+        super(bus, instance, bundle);
+
         implInfo = new GeronimoJaxWsImplementorInfo(instance, this.portInfo, instance.getClassLoader());
 
-        serviceFactory = new JaxWsServiceFactoryBean(implInfo);       
+        serviceFactory = new JaxWsServiceFactoryBean(implInfo);
         serviceFactory.setBus(bus);
 
         String wsdlLocation = null;
@@ -59,22 +58,22 @@ public class EJBEndpoint extends CXFEndpoint {
             wsdlLocation = this.portInfo.getWsdlFile();
         } else {
             wsdlLocation = implInfo.getWsdlLocation();
-        }        
-        URL wsdlURL = getWsdlURL(configurationBaseUrl, wsdlLocation);
+        }
+        URL wsdlURL = getWsdlURL(bundle, wsdlLocation);
 
         // install as first to overwrite annotations (wsdl-file, wsdl-port, wsdl-service)
-        CXFServiceConfiguration configuration = 
+        CXFServiceConfiguration configuration =
             new CXFServiceConfiguration(this.portInfo, wsdlURL);
         serviceFactory.getConfigurations().add(0, configuration);
 
-        service = serviceFactory.create();        
+        service = serviceFactory.create();
     }
-    
+
     @Override
     protected Class getImplementorClass() {
         return (Class)this.implementor;
     }
-    
+
     @Override
     protected void init() {
         // configure handlers
@@ -83,30 +82,30 @@ public class EJBEndpoint extends CXFEndpoint {
         } catch (Exception e) {
             throw new WebServiceException("Error configuring handlers", e);
         }
-                
-        DeploymentInfo deploymentInfo = 
-            (DeploymentInfo)bus.getExtension(DeploymentInfo.class);
-        
-        service.setInvoker(new EJBMethodInvoker(this, this.bus, deploymentInfo));  
-        
+
+        DeploymentInfo deploymentInfo =
+            bus.getExtension(DeploymentInfo.class);
+
+        service.setInvoker(new EJBMethodInvoker(this, this.bus, deploymentInfo));
+
         Endpoint endpoint = getEndpoint();
-        
-        /* 
+
+        /*
          * Remove interceptors that perform handler processing since
          * handler processing must happen within the EJB container.
-         */        
+         */
         removeHandlerInterceptors(bus.getInInterceptors());
         removeHandlerInterceptors(endpoint.getInInterceptors());
         removeHandlerInterceptors(endpoint.getBinding().getInInterceptors());
         removeHandlerInterceptors(endpoint.getService().getInInterceptors());
-        
-        // install SAAJ interceptor        
+
+        // install SAAJ interceptor
         if (endpoint.getBinding() instanceof SoapBinding &&
             !this.implInfo.isWebServiceProvider()) {
             endpoint.getService().getInInterceptors().add(new SAAJInInterceptor());
-        }        
+        }
     }
-        
+
     private static void removeHandlerInterceptors(List<Interceptor> interceptors) {
         for (Interceptor interceptor : interceptors) {
             if (interceptor instanceof MustUnderstandInterceptor ||
@@ -114,16 +113,16 @@ public class EJBEndpoint extends CXFEndpoint {
                 interceptor instanceof SOAPHandlerInterceptor) {
                 interceptors.remove(interceptor);
             }
-        } 
+        }
     }
-    
+
     @Override
     public synchronized void injectHandlers() {
         if (this.annotationProcessor != null) {
             // assume injection was already done
             return;
         }
-        
+
         WebServiceContext wsContext = null;
         try {
             InitialContext ctx = new InitialContext();
@@ -131,11 +130,11 @@ public class EJBEndpoint extends CXFEndpoint {
         } catch (NamingException e) {
             throw new WebServiceException("Failed to lookup WebServiceContext", e);
         }
-        
+
         this.annotationProcessor = new JAXWSAnnotationProcessor(new JNDIResolver(), wsContext);
         super.injectHandlers();
     }
-    
+
     @Override
     public void stop() {
         // call handler preDestroy
@@ -144,5 +143,5 @@ public class EJBEndpoint extends CXFEndpoint {
         // shutdown server
         super.stop();
     }
-    
+
 }

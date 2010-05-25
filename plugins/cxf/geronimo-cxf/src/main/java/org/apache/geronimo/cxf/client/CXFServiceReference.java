@@ -91,7 +91,7 @@ public class CXFServiceReference extends JAXWSServiceReference {
         JAXWSAnnotationProcessor annotationProcessor =
                 new JAXWSAnnotationProcessor(new JNDIResolver(), new WebServiceContextImpl());
         GeronimoHandlerResolver handlerResolver =
-                new GeronimoHandlerResolver(classLoader, serviceClass, getHandlerChains(), annotationProcessor);
+                new GeronimoHandlerResolver(bundle, serviceClass, getHandlerChains(), annotationProcessor);
         return handlerResolver;
     }
 

@@ -45,6 +45,8 @@ import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
 import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
+import org.osgi.framework.Bundle;
 
 public abstract class CXFEndpoint {
 
@@ -66,33 +68,29 @@ public abstract class CXFEndpoint {
 
     private String address;
 
-    public CXFEndpoint(Bus bus, Object implementor) {
+    private Bundle bundle;
+
+    public CXFEndpoint(Bus bus, Object implementor, Bundle bundle) {
         this.bus = bus;
         this.implementor = implementor;
         this.portInfo = bus.getExtension(PortInfo.class);
-
+        this.bundle = bundle;
         this.bus.setExtension(this, CXFEndpoint.class);
     }
 
-    protected URL getWsdlURL(URL configurationBaseUrl, String wsdlFile) {
+    protected URL getWsdlURL(Bundle bundle, String wsdlFile) {
+        if (wsdlFile == null || wsdlFile.trim().length() == 0) {
+            return null;
+        }
         URL wsdlURL = null;
-        if (wsdlFile != null && wsdlFile.trim().length() > 0) {
-            wsdlFile = wsdlFile.trim();
-            try {
-                wsdlURL = new URL(wsdlFile);
-            } catch (MalformedURLException e) {
-                // Not a URL, try as a resource
-                wsdlURL = getImplementorClass().getResource("/" + wsdlFile);
-
-                if (wsdlURL == null && configurationBaseUrl != null) {
-                    // Cannot get it as a resource, try with
-                    // configurationBaseUrl
-                    try {
-                        wsdlURL = new URL(configurationBaseUrl, wsdlFile);
-                    } catch (MalformedURLException ee) {
-                        // ignore
-                    }
-                }
+        wsdlFile = wsdlFile.trim();
+        try {
+            wsdlURL = new URL(wsdlFile);
+        } catch (MalformedURLException e) {
+            // Not a URL, try as a resource
+            wsdlURL = bundle.getResource("/" + wsdlFile);
+            if (wsdlURL == null) {
+                wsdlURL = BundleUtils.getEntry(bundle, wsdlFile);
             }
         }
         return wsdlURL;
@@ -199,11 +197,7 @@ public abstract class CXFEndpoint {
     protected void initHandlers() throws Exception {
         HandlerChainsType handlerChains =
             HandlerChainsUtils.getHandlerChains(this.portInfo.getHandlersAsXML());
-        GeronimoHandlerResolver handlerResolver =
-            new GeronimoHandlerResolver(getImplementorClass().getClassLoader(),
-                                        getImplementorClass(),
-                                        handlerChains,
-                                        null);
+        GeronimoHandlerResolver handlerResolver = new GeronimoHandlerResolver(bundle, getImplementorClass(), handlerChains, null);
 
         PortInfoImpl portInfo = new PortInfoImpl(implInfo.getBindingType(),
                                                  serviceFactory.getEndpointName(),

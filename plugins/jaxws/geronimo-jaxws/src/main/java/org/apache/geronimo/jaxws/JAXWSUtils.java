@@ -19,7 +19,6 @@ package org.apache.geronimo.jaxws;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,19 +29,21 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.WebServiceProvider;
 
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JAXWSUtils {
-    
+
     public static final String DEFAULT_CATALOG_WEB = "WEB-INF/jax-ws-catalog.xml";
     public static final String DEFAULT_CATALOG_EJB = "META-INF/jax-ws-catalog.xml";
 
     private static final Logger LOG = LoggerFactory.getLogger(JAXWSUtils.class);
-    
-    private static final Map<String, String> BINDING_MAP = 
+
+    private static final Map<String, String> BINDING_MAP =
         new HashMap<String, String>();
-    
+
     static {
         BINDING_MAP.put("##SOAP11_HTTP", "http://schemas.xmlsoap.org/wsdl/soap/http");
         BINDING_MAP.put("##SOAP12_HTTP", "http://www.w3.org/2003/05/soap/bindings/HTTP/");
@@ -50,12 +51,12 @@ public class JAXWSUtils {
         BINDING_MAP.put("##SOAP12_HTTP_MTOM", "http://www.w3.org/2003/05/soap/bindings/HTTP/?mtom=true");
         BINDING_MAP.put("##XML_HTTP", "http://www.w3.org/2004/08/wsdl/http");
     }
-    
+
     private JAXWSUtils() {
     }
 
     public static QName getPortType(Class seiClass) {
-        WebService webService = (WebService) seiClass.getAnnotation(WebService.class);        
+        WebService webService = (WebService) seiClass.getAnnotation(WebService.class);
         if (webService != null) {
             String localName = webService.name();
             if (localName == null || localName.length() == 0) {
@@ -78,39 +79,39 @@ public class JAXWSUtils {
             }
             return uri;
         } else {
-            return token;            
+            return token;
         }
     }
-    
+
     public static boolean isWebService(Class clazz) {
-        return ((clazz.isAnnotationPresent(WebService.class) || 
+        return ((clazz.isAnnotationPresent(WebService.class) ||
                  clazz.isAnnotationPresent(WebServiceProvider.class)) &&
                  isProperWebService(clazz));
     }
-    
+
     public static boolean isWebServiceProvider(Class clazz) {
         return (clazz.isAnnotationPresent(WebServiceProvider.class) && isProperWebService(clazz));
     }
-    
+
     private static boolean isProperWebService(Class clazz) {
         int modifiers = clazz.getModifiers();
         return (Modifier.isPublic(modifiers) &&
                 !Modifier.isFinal(modifiers) &&
                 !Modifier.isAbstract(modifiers));
     }
-    
+
     public static String getServiceName(Class clazz) {
         return getServiceQName(clazz).getLocalPart();
     }
-    
+
     private static String getServiceName(Class clazz, String name) {
         if (name == null || name.trim().length() == 0) {
             return clazz.getSimpleName() + "Service";
         } else {
             return name.trim();
-        }       
+        }
     }
-    
+
     private static String getPortName(Class clazz, String name, String portName) {
         if (portName == null || portName.trim().length() == 0) {
             if (name == null || name.trim().length() == 0) {
@@ -122,7 +123,7 @@ public class JAXWSUtils {
             return portName.trim();
         }
     }
-    
+
     private static String getNamespace(Class clazz, String namespace) {
         if (namespace == null || namespace.trim().length() == 0) {
             Package pkg = clazz.getPackage();
@@ -135,7 +136,7 @@ public class JAXWSUtils {
             return namespace.trim();
         }
     }
-    
+
     private static String getNamespace(String packageName) {
         if (packageName == null || packageName.length() == 0) {
             return null;
@@ -161,16 +162,16 @@ public class JAXWSUtils {
         namespace.append('/');
         return namespace.toString();
     }
-    
+
     private static QName getServiceQName(Class clazz, String namespace, String name) {
-        return new QName(getNamespace(clazz, namespace), getServiceName(clazz, name));         
+        return new QName(getNamespace(clazz, namespace), getServiceName(clazz, name));
     }
-    
+
     public static QName getServiceQName(Class clazz) {
-        WebService webService = 
+        WebService webService =
             (WebService)clazz.getAnnotation(WebService.class);
         if (webService == null) {
-            WebServiceProvider webServiceProvider = 
+            WebServiceProvider webServiceProvider =
                 (WebServiceProvider)clazz.getAnnotation(WebServiceProvider.class);
             if (webServiceProvider == null) {
                 throw new IllegalArgumentException("The " + clazz.getName() + " is not annotated");
@@ -180,16 +181,16 @@ public class JAXWSUtils {
             return getServiceQName(clazz, webService.targetNamespace(), webService.serviceName());
         }
     }
-    
+
     private static QName getPortQName(Class clazz, String namespace, String name, String portName) {
-        return new QName(getNamespace(clazz, namespace), getPortName(clazz, name, portName));         
+        return new QName(getNamespace(clazz, namespace), getPortName(clazz, name, portName));
     }
-    
+
     public static QName getPortQName(Class clazz) {
-        WebService webService = 
+        WebService webService =
             (WebService)clazz.getAnnotation(WebService.class);
         if (webService == null) {
-            WebServiceProvider webServiceProvider = 
+            WebServiceProvider webServiceProvider =
                 (WebServiceProvider)clazz.getAnnotation(WebServiceProvider.class);
             if (webServiceProvider == null) {
                 throw new IllegalArgumentException("The " + clazz.getName() + " is not annotated");
@@ -199,17 +200,17 @@ public class JAXWSUtils {
             return getPortQName(clazz, webService.targetNamespace(), webService.name(), webService.portName());
         }
     }
-        
+
     public static String getName(Class clazz) {
-        WebService webService = 
+        WebService webService =
             (WebService)clazz.getAnnotation(WebService.class);
         if (webService == null) {
-            WebServiceProvider webServiceProvider = 
+            WebServiceProvider webServiceProvider =
                 (WebServiceProvider)clazz.getAnnotation(WebServiceProvider.class);
             if (webServiceProvider == null) {
                 throw new IllegalArgumentException("The " + clazz.getName() + " is not annotated");
-            } 
-            return clazz.getSimpleName();         
+            }
+            return clazz.getSimpleName();
         } else {
             String sei = webService.endpointInterface();
             if (sei == null || sei.trim().length() == 0) {
@@ -222,30 +223,30 @@ public class JAXWSUtils {
                     throw new RuntimeException("Unable to load SEI class: " + sei, e);
                 }
             }
-        }        
+        }
     }
-        
+
     private static String getNameFromSEI(Class seiClass) {
-        WebService webService = 
+        WebService webService =
             (WebService)seiClass.getAnnotation(WebService.class);
         if (webService == null) {
             throw new IllegalArgumentException("The " + seiClass.getName() + " is not annotated");
-        } 
+        }
         return getName(seiClass, webService.name());
     }
-    
+
     private static String getName(Class clazz, String name) {
         if (name == null || name.trim().length() == 0) {
             return clazz.getSimpleName();
         } else {
             return name.trim();
-        }  
+        }
     }
 
     private static String getWsdlLocation(Class clazz) {
-        WebService webService = (WebService) clazz.getAnnotation(WebService.class); 
+        WebService webService = (WebService) clazz.getAnnotation(WebService.class);
         if (webService == null) {
-            WebServiceProvider webServiceProvider = 
+            WebServiceProvider webServiceProvider =
                 (WebServiceProvider)clazz.getAnnotation(WebServiceProvider.class);
             if (webServiceProvider == null) { //no WebService or WebServiceProvider annotation
                 return "";
@@ -255,23 +256,23 @@ public class JAXWSUtils {
         } else {
             return webService.wsdlLocation().trim();
         }
-    } 
-    
+    }
+
     private static String getServiceInterface(Class clazz) {
-        WebService webService = (WebService) clazz.getAnnotation(WebService.class); 
+        WebService webService = (WebService) clazz.getAnnotation(WebService.class);
         if (webService == null) {
             //WebServiceProvider doesn't support endpointInterface property (JAX-WS 2.0 sec 7.7)
-            return "";  
+            return "";
         } else {
-            if (webService.endpointInterface() == null || webService.endpointInterface().trim().equals("")) {       
+            if (webService.endpointInterface() == null || webService.endpointInterface().trim().equals("")) {
                 return "";
             } else {
                 return webService.endpointInterface().trim();
             }
         }
     }
-    
-    public static String getServiceWsdlLocation(Class clazz, ClassLoader loader) {
+
+    public static String getServiceWsdlLocation(Class clazz, Bundle bundle) {
         String wsdlLocation = getWsdlLocation(clazz);
         if (wsdlLocation != null && !wsdlLocation.equals("")) {
             return wsdlLocation;
@@ -279,48 +280,48 @@ public class JAXWSUtils {
             String serviceInterfaceClassName = getServiceInterface(clazz);
             if (serviceInterfaceClassName != null && !serviceInterfaceClassName.equals("")) {
                 try {
-                    Class serviceInterfaceClass = loader.loadClass(serviceInterfaceClassName);
-                    return getWsdlLocation(serviceInterfaceClass);                    
+                    Class serviceInterfaceClass = bundle.loadClass(serviceInterfaceClassName);
+                    return getWsdlLocation(serviceInterfaceClass);
                 } catch (Exception e) {
                     return "";
                 }
-            } 
+            }
         }
-        return "";        
+        return "";
     }
-    
-    public static boolean containsWsdlLocation(Class clazz, ClassLoader loader) {
-        String wsdlLocSEIFromAnnotation = getServiceWsdlLocation(clazz, loader);
+
+    public static boolean containsWsdlLocation(Class clazz, Bundle bundle) {
+        String wsdlLocSEIFromAnnotation = getServiceWsdlLocation(clazz, bundle);
         if (wsdlLocSEIFromAnnotation != null && !wsdlLocSEIFromAnnotation.equals("")) {
             return true;
         } else {
             return false;
         }
     }
-    
-    public static String getBindingURIFromAnnot(Class clazz, ClassLoader loader) {
+
+    public static String getBindingURIFromAnnot(Class clazz) {
         BindingType bindingType = (BindingType) clazz.getAnnotation(BindingType.class);
         if (bindingType == null) {
-            return ""; 
+            return "";
         } else {
             return bindingType.value();
         }
     }
-    
-    public static URL getOASISCatalogURL(URL configurationBaseUrl, ClassLoader classLoader, String catalogName) {
+
+    public static URL getOASISCatalogURL(Bundle bundle, String catalogName) {
         if (catalogName == null) {
             return null;
         }
         LOG.debug("Checking for {} catalog in classloader", catalogName);
-        URL catalogURL = classLoader.getResource(catalogName);
-        if (catalogURL == null && configurationBaseUrl != null) {
+        URL catalogURL = bundle.getResource(catalogName);
+        if (catalogURL == null ) {
             try {
-                LOG.debug("Checking for {} catalog in module directory", catalogName);  
-                URL tmpCatalogURL = new URL(configurationBaseUrl, catalogName);
-                tmpCatalogURL.openStream().close();
-                catalogURL = tmpCatalogURL;
-            } catch (MalformedURLException e) {
-                LOG.warn("Error constructing catalog URL {} {}", configurationBaseUrl, catalogName);
+                LOG.debug("Checking for {} catalog in module directory", catalogName);
+                URL tmpCatalogURL = BundleUtils.getEntry(bundle, catalogName);
+                if (tmpCatalogURL != null) {
+                    tmpCatalogURL.openStream().close();
+                    catalogURL = tmpCatalogURL;
+                }
             } catch (FileNotFoundException e) {
                 LOG.debug("Catalog {} is not present in the module", catalogName);
             } catch (IOException e) {
@@ -329,5 +330,5 @@ public class JAXWSUtils {
         }
         return catalogURL;
     }
-    
+
 }

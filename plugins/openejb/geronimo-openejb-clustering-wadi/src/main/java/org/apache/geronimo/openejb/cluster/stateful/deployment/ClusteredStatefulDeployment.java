@@ -40,6 +40,7 @@ import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.apache.openejb.Container;
 import org.apache.openejb.core.CoreDeploymentInfo;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev:$ $Date:$
@@ -59,6 +60,7 @@ public class ClusteredStatefulDeployment extends EjbDeployment {
                          @ParamAttribute(name = "serviceEndpointInterfaceName") String serviceEndpointInterfaceName,
                          @ParamAttribute(name = "beanClassName") String beanClassName,
                          @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                         @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
                          @ParamAttribute(name = "securityEnabled") boolean securityEnabled,
                          @ParamAttribute(name = "defaultRole") String defaultRole,
                          @ParamAttribute(name = "runAsRole") String runAsRole,
@@ -83,6 +85,7 @@ public class ClusteredStatefulDeployment extends EjbDeployment {
                 serviceEndpointInterfaceName,
                 beanClassName,
                 classLoader,
+                bundle,
                 securityEnabled,
                 defaultRole,
                 runAsRole,

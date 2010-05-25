@@ -33,61 +33,60 @@ import org.apache.geronimo.cxf.GeronimoJaxWsImplementorInfo;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class POJOEndpoint extends CXFEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(POJOEndpoint.class);
-    
+
     private AnnotationHolder holder;
 
-    public POJOEndpoint(Bus bus, 
-                        URL configurationBaseUrl, 
-                        Class instance) {
-        super(bus, instance);
-        
+    public POJOEndpoint(Bus bus, Class instance, Bundle bundle) {
+        super(bus, instance, bundle);
+
         implInfo = new GeronimoJaxWsImplementorInfo(instance, this.portInfo, instance.getClassLoader());
 
-        serviceFactory = new JaxWsServiceFactoryBean(implInfo);        
+        serviceFactory = new JaxWsServiceFactoryBean(implInfo);
         serviceFactory.setBus(bus);
-                
+
         String wsdlLocation = null;
         if (this.portInfo.getWsdlFile() != null) {
             wsdlLocation = this.portInfo.getWsdlFile();
         } else {
             wsdlLocation = implInfo.getWsdlLocation();
-        }        
-        URL wsdlURL = getWsdlURL(configurationBaseUrl, wsdlLocation);
+        }
+        URL wsdlURL = getWsdlURL(bundle, wsdlLocation);
 
         // install as first to overwrite annotations (wsdl-file, wsdl-port, wsdl-service)
-        CXFServiceConfiguration configuration = 
+        CXFServiceConfiguration configuration =
             new CXFServiceConfiguration(this.portInfo, wsdlURL);
         serviceFactory.getConfigurations().add(0, configuration);
 
         service = serviceFactory.create();
-        
+
         this.holder = bus.getExtension(AnnotationHolder.class);
-        
+
         Context context = bus.getExtension(Context.class);
-        
+
         // instantiate and inject resources into service
         try {
-            this.implementor = this.holder.newInstance(instance.getName(), 
-                                                       instance.getClassLoader(), 
+            this.implementor = this.holder.newInstance(instance.getName(),
+                                                       instance.getClassLoader(),
                                                        context);
         } catch (Exception e) {
             throw new WebServiceException("Service resource injection failed", e);
         }
-        
-        service.setInvoker(new JAXWSMethodInvoker(this.implementor));       
 
-        JNDIResolver jndiResolver = (JNDIResolver) bus.getExtension(JNDIResolver.class);
+        service.setInvoker(new JAXWSMethodInvoker(this.implementor));
+
+        JNDIResolver jndiResolver = bus.getExtension(JNDIResolver.class);
         this.annotationProcessor = new JAXWSAnnotationProcessor(jndiResolver, new WebServiceContextImpl());
     }
-    
+
     @Override
-    protected void init() {        
+    protected void init() {
         // configure and inject handlers
         try {
             initHandlers();
@@ -107,7 +106,7 @@ public class POJOEndpoint extends CXFEndpoint {
             try {
                 this.holder.destroyInstance(this.implementor);
             } catch (Exception e) {
-                LOG.warn("Error calling @PreDestroy method", e); 
+                LOG.warn("Error calling @PreDestroy method", e);
             }
         }
 

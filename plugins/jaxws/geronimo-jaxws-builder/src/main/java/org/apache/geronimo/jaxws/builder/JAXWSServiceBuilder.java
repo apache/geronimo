@@ -106,7 +106,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
     protected abstract Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,
                                                                        URL wsDDUrl,
-                                                                       Deployable deployable, 
+                                                                       Deployable deployable,
                                                                        boolean isEJB,
                                                                        Map correctedPortLocations)
             throws DeploymentException;
@@ -140,8 +140,9 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         Holder moduleHolder = null;
         try {
             GBeanData moduleGBean = context.getGBeanInstance(context.getModuleName());
-            componentContext = (Map)moduleGBean.getAttribute("componentContext");
-            moduleHolder = (Holder)moduleGBean.getAttribute("holder");
+            moduleHolder = (Holder) moduleGBean.getAttribute("holder");
+            GBeanData contextSourceGBean = context.getGBeanInstance(context.getNaming().createChildName(context.getModuleName(), "ContextSource", "ContextSource"));
+            componentContext = (Map) contextSourceGBean.getAttribute("componentContext");
         } catch (GBeanNotFoundException e) {
             LOG.warn("ModuleGBean not found. JNDI resource injection will not work.");
         }
@@ -179,8 +180,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                                      ((EARContext)context).getTransactionManagerName());
         }
 
-        initialize(containerFactoryData, servletClass, portInfo, module);
-
+        initialize(containerFactoryData, servletClass, portInfo, module, bundle);
         return true;
     }
 
@@ -219,13 +219,12 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
         targetGBean.setAttribute("portInfo", portInfo);
 
-        initialize(targetGBean, beanClass, portInfo, module);
+        initialize(targetGBean, beanClass, portInfo, module, bundle);
 
         return true;
     }
 
-    protected void initialize(GBeanData targetGBean, Class wsClass, PortInfo info, Module module)
-        throws DeploymentException {
+    protected void initialize(GBeanData targetGBean, Class wsClass, PortInfo info, Module module, Bundle bundle) throws DeploymentException {
     }
 
     Class<?> loadClass(String className, Bundle bundle) throws DeploymentException {
@@ -236,9 +235,8 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         }
     }
 
-    protected boolean isWsdlSet(PortInfo portInfo, Class serviceClass) {
-        return (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals(""))
-                || JAXWSUtils.containsWsdlLocation(serviceClass, serviceClass.getClassLoader());
+    protected boolean isWsdlSet(PortInfo portInfo, Class serviceClass, Bundle bundle) {
+        return (portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals("")) || JAXWSUtils.containsWsdlLocation(serviceClass, bundle);
     }
 
     protected boolean isHTTPBinding(PortInfo portInfo, Class serviceClass) {
@@ -248,7 +246,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         if (portInfo.getProtocolBinding() != null) {
             bindingURI = JAXWSUtils.getBindingURI(portInfo.getProtocolBinding());
         }
-        bindingURIFromAnnot = JAXWSUtils.getBindingURIFromAnnot(serviceClass, serviceClass.getClassLoader());
+        bindingURIFromAnnot = JAXWSUtils.getBindingURIFromAnnot(serviceClass);
 
         if (bindingURI != null && !bindingURI.trim().equals("")) {
             return bindingURI.equals(HTTPBinding.HTTP_BINDING);

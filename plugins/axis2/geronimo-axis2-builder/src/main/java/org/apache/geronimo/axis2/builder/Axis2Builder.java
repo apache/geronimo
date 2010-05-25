@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.JarFile;
 
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainerFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
@@ -33,6 +32,7 @@ import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -50,6 +50,7 @@ import org.apache.geronimo.xbeans.javaee6.WebservicesDocument;
 import org.apache.geronimo.xbeans.javaee6.WebservicesType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,24 +60,27 @@ import org.slf4j.LoggerFactory;
 public class Axis2Builder extends JAXWSServiceBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(Axis2Builder.class);
-        
+
     protected Collection<WsdlGenerator> wsdlGenerators;
-    
-    public Axis2Builder(Environment defaultEnviroment,
-                        Collection<WsdlGenerator> wsdlGenerators) {
+
+    private GBeanInfo defaultContainerFactoryGBeanInfo;
+
+    public Axis2Builder(Environment defaultEnviroment, Collection<WsdlGenerator> wsdlGenerators) {
         super(defaultEnviroment);
         this.wsdlGenerators = wsdlGenerators;
         this.webServiceFinder = new WARWebServiceFinder();
+        AnnotationGBeanInfoBuilder annotationGBeanInfoBuilder = new AnnotationGBeanInfoBuilder(POJOWebServiceContainerFactoryGBean.class);
+        defaultContainerFactoryGBeanInfo = annotationGBeanInfoBuilder.buildGBeanInfo();
     }
-    
+
     public Axis2Builder(){
         super(null);
     }
-    
+
     protected GBeanInfo getContainerFactoryGBeanInfo() {
-        return POJOWebServiceContainerFactoryGBean.GBEAN_INFO;
+        return defaultContainerFactoryGBeanInfo;
     }
-    
+
     protected Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,
                                                               URL wsDDUrl,
                                                               Deployable deployable,
@@ -91,7 +95,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 
         try {
             XmlObject xobj = XmlObject.Factory.parse(in);
-           
+
             cursor = xobj.newCursor();
             cursor.toStartDoc();
             cursor.toFirstChild();
@@ -164,7 +168,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
             } else {
                 log.debug("Descriptor ignored (not a Java EE 5 descriptor)");
             }
-            
+
             return map;
         } catch (FileNotFoundException e) {
             return Collections.emptyMap();
@@ -193,7 +197,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         }
         return in;
     }
-   
+
     protected WsdlGenerator getWsdlGenerator() throws DeploymentException {
         if (this.wsdlGenerators == null || this.wsdlGenerators.isEmpty()) {
             throw new DeploymentException("Wsdl generator not found");
@@ -201,21 +205,20 @@ public class Axis2Builder extends JAXWSServiceBuilder {
             return this.wsdlGenerators.iterator().next();
         }
     }
-    
+
     @Override
-    protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module) 
-        throws DeploymentException {
+    protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module, Bundle bundle) throws DeploymentException {
         String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
-        if (isWsdlSet(portInfo, serviceClass)) {
+        if (isWsdlSet(portInfo, serviceClass, bundle)) {
             log.debug("Service " + serviceName + " has WSDL.");
             return;
         }
-        
+
         if (isHTTPBinding(portInfo, serviceClass)) {
             log.debug("Service " + serviceName + " has HTTPBinding.");
             return;
         }
-        
+
         if (JAXWSUtils.isWebServiceProvider(serviceClass)) {
             throw new DeploymentException("WSDL must be specified for @WebServiceProvider service " + serviceName);
         }
@@ -223,28 +226,28 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         log.debug("Service " + serviceName + " does not have WSDL. Generating WSDL...");
 
         WsdlGenerator wsdlGenerator = getWsdlGenerator();
-        
+
         WsdlGeneratorOptions options = new WsdlGeneratorOptions();
         options.setSAAJ(WsdlGeneratorOptions.SAAJ.Axis2);
-        
+
         // set wsdl service
         if (portInfo.getWsdlService() == null) {
             options.setWsdlService(JAXWSUtils.getServiceQName(serviceClass));
         } else {
             options.setWsdlService(portInfo.getWsdlService());
         }
-        
+
         // set wsdl port
         if (portInfo.getWsdlPort() != null) {
             options.setWsdlPort(portInfo.getWsdlPort());
         }
-                
+
         String wsdlFile = wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
         portInfo.setWsdlFile(wsdlFile);
-        
+
         log.debug("Generated " + wsdlFile + " for service " + serviceName);
-    }    
-        
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

@@ -17,54 +17,54 @@
 
 package org.apache.geronimo.jaxws.client;
 
-import org.apache.geronimo.naming.reference.SimpleReference;
-import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
-import org.apache.geronimo.naming.reference.KernelAwareReference;
-import org.apache.geronimo.jaxws.JAXWSUtils;
-import org.apache.geronimo.kernel.Kernel;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.Map;
+
+import javax.naming.NamingException;
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
+import javax.xml.ws.handler.HandlerResolver;
+
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.NoOp;
+import net.sf.cglib.reflect.FastClass;
+import net.sf.cglib.reflect.FastConstructor;
+
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.jaxws.JAXWSUtils;
+import org.apache.geronimo.naming.reference.BundleAwareReference;
+import org.apache.geronimo.naming.reference.SimpleReference;
+import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
-import javax.xml.ws.Service;
-import javax.xml.ws.handler.HandlerResolver;
-import javax.xml.namespace.QName;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
+public abstract class JAXWSServiceReference extends SimpleReference implements BundleAwareReference {
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.NoOp;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.reflect.FastConstructor;
-import net.sf.cglib.reflect.FastClass;
-
-public abstract class JAXWSServiceReference extends SimpleReference implements ClassLoaderAwareReference, KernelAwareReference {
-    
     private final static Logger LOG = LoggerFactory.getLogger(JAXWSServiceReference.class);
-    
+
     private static final Class[] URL_SERVICE_NAME_CONSTRUCTOR =
         new Class[] { URL.class, QName.class };
-    
+
     protected String serviceClassName;
-    protected ClassLoader classLoader;
+    protected Bundle bundle;
     protected AbstractName moduleName;
     protected URI wsdlURI;
     protected QName serviceQName;
-    private Kernel kernel;
     protected String handlerChainsXML;
     protected Map<Object, EndpointInfo> seiInfoMap;
     protected String referenceClassName;
-    
+
     protected Class enhancedServiceClass;
     protected Callback[] methodInterceptors;
     protected FastConstructor serviceConstructor;
-    
-    protected transient URL moduleBaseUrl;
+
 
     public JAXWSServiceReference(String handlerChainsXML, Map<Object, EndpointInfo> seiInfoMap, AbstractName name, QName serviceQName, URI wsdlURI, String referenceClassName, String serviceClassName) {
         this.handlerChainsXML = handlerChainsXML;
@@ -75,27 +75,14 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
         this.referenceClassName = referenceClassName;
         this.serviceClassName = serviceClassName;
     }
-    
-    public void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
+
+    public void setBundle(Bundle bundle) {
+        this.bundle = bundle;
     }
 
-    public void setKernel(Kernel kernel) {
-        this.kernel = kernel;
-        init();
-    }
-
-    private void init() {
-        try {
-            this.moduleBaseUrl = (URL) this.kernel.getAttribute(this.moduleName, "configurationBaseUrl");
-        } catch (Exception e) {
-            // ignore
-        }
-    }
-    
     private Class loadClass(String name) throws NamingException {
         try {
-            return this.classLoader.loadClass(name);
+            return bundle.loadClass(name);
         } catch (ClassNotFoundException e) {
             NamingException exception = new NamingException(
                     "Count not load class " + name);
@@ -108,41 +95,34 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
         if (this.wsdlURI == null) {
             return null;
         }
-        
+
         URL wsdlURL = null;
         try {
             wsdlURL = new URL(this.wsdlURI.toString());
         } catch (MalformedURLException e1) {
-            // not a URL, assume it's a local reference
-            
-            if (this.moduleBaseUrl != null) {
-                try {
-                    wsdlURL = new URL(this.moduleBaseUrl.toString() + this.wsdlURI.toString());
-                } catch (Exception e) {
-                    // ignore
-                }
-            }
-            
             if (wsdlURL == null) {
-                wsdlURL = this.classLoader.getResource(this.wsdlURI.toString());
+                wsdlURL = bundle.getResource(this.wsdlURI.toString());
+                if (wsdlURL == null) {
+                    wsdlURL = BundleUtils.getEntry(bundle, wsdlURI.toString());
+                }
                 if (wsdlURL == null) {
                     LOG.warn("Failed to obtain WSDL: " + this.wsdlURI);
                 }
                 return wsdlURL;
             }
         }
-        
+
         return wsdlURL;
     }
 
     protected URL getCatalog() {
-        URL catalogURL = JAXWSUtils.getOASISCatalogURL(this.moduleBaseUrl, this.classLoader, JAXWSUtils.DEFAULT_CATALOG_WEB);
+        URL catalogURL = JAXWSUtils.getOASISCatalogURL(bundle, JAXWSUtils.DEFAULT_CATALOG_WEB);
         if (catalogURL == null) {
-            catalogURL = JAXWSUtils.getOASISCatalogURL(this.moduleBaseUrl, this.classLoader, JAXWSUtils.DEFAULT_CATALOG_EJB);
+            catalogURL = JAXWSUtils.getOASISCatalogURL(bundle, JAXWSUtils.DEFAULT_CATALOG_EJB);
         }
         return catalogURL;
     }
-    
+
     private Class getReferenceClass() throws NamingException {
         return (this.referenceClassName != null) ? loadClass(this.referenceClassName) : null;
     }
@@ -150,19 +130,19 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
     public Object getContent() throws NamingException {
         Service instance = null;
         URL wsdlURL = getWsdlURL();
-        
+
         Class serviceClass = loadClass(this.serviceClassName);
-        Class referenceClass = getReferenceClass();              
-        
+        Class referenceClass = getReferenceClass();
+
         if (referenceClass != null && Service.class.isAssignableFrom(referenceClass)) {
             serviceClass = referenceClass;
         }
-                
+
         if (Service.class.equals(serviceClass)) {
             serviceClass = GenericService.class;
         }
 
-        instance = createServiceProxy(serviceClass, this.classLoader, this.serviceQName, wsdlURL);
+        instance = createServiceProxy(serviceClass, bundle, this.serviceQName, wsdlURL);
 
         HandlerResolver handlerResolver = getHandlerResolver(serviceClass);
         if(handlerResolver != null) {
@@ -183,35 +163,35 @@ public abstract class JAXWSServiceReference extends SimpleReference implements C
     protected PortMethodInterceptor getPortMethodInterceptor() {
         return new PortMethodInterceptor(this.seiInfoMap);
     }
-    
-    private Service createServiceProxy(Class superClass, ClassLoader classLoader, QName serviceName, URL wsdlLocation) throws NamingException {
-        if (this.serviceConstructor == null) {            
+
+    private Service createServiceProxy(Class superClass, Bundle bundle, QName serviceName, URL wsdlLocation) throws NamingException {
+        if (this.serviceConstructor == null) {
             // create method interceptors
             Callback callback = getPortMethodInterceptor();
             this.methodInterceptors = new Callback[] {NoOp.INSTANCE, callback};
 
             // create service class
             Enhancer enhancer = new Enhancer();
-            enhancer.setClassLoader(classLoader);
+            enhancer.setClassLoader(new BundleClassLoader(bundle));
             enhancer.setSuperclass(superClass);
             enhancer.setCallbackFilter(new PortMethodFilter());
             enhancer.setCallbackTypes(new Class[] { NoOp.class, MethodInterceptor.class });
             enhancer.setUseFactory(false);
             enhancer.setUseCache(false);
-            this.enhancedServiceClass = enhancer.createClass(); 
+            this.enhancedServiceClass = enhancer.createClass();
 
             // get constructor
-            this.serviceConstructor = 
+            this.serviceConstructor =
                 FastClass.create(this.enhancedServiceClass).getConstructor(URL_SERVICE_NAME_CONSTRUCTOR);
         }
-        
+
         LOG.debug("Initializing service with: " + wsdlLocation + " " + serviceName);
 
         // associate the method interceptors with the generated service class on the current thread
         Enhancer.registerCallbacks(this.enhancedServiceClass, this.methodInterceptors);
-        
+
         Object[] arguments = new Object[] {wsdlLocation, serviceName};
-        
+
         try {
             return (Service)this.serviceConstructor.newInstance(arguments);
         } catch (InvocationTargetException e) {

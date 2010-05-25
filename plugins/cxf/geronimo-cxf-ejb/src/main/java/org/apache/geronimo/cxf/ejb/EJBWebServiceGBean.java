@@ -25,12 +25,10 @@ import javax.naming.Context;
 import org.apache.cxf.Bus;
 import org.apache.geronimo.cxf.CXFCatalogUtils;
 import org.apache.geronimo.cxf.CXFWebServiceContainer;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -40,10 +38,11 @@ import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.ServerJNDIResolver;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.openejb.EjbDeployment;
-import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.core.CoreDeploymentInfo;
+import org.osgi.framework.Bundle;
 
 @GBean(j2eeType = NameFactory.WEB_SERVICE_LINK)
 public class EJBWebServiceGBean implements GBeanLifecycle {
@@ -55,7 +54,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
     public EJBWebServiceGBean(@ParamReference(name="EjbDeployment")EjbDeployment ejbDeploymentContext,
                               @ParamAttribute(name="portInfo")PortInfo portInfo,
                               @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
-                              @ParamAttribute(name="configurationBaseUrl")URL configurationBaseUrl,
+                              @ParamSpecial(type=SpecialAttributeType.bundle) Bundle bundle,
                               @ParamReference(name="WebServiceContainer")Collection<SoapHandler> webContainers,
                               @ParamAttribute(name="policyContextID")String policyContextID,
                               @ParamReference(name="ConfigurationFactory")ConfigurationFactory configurationFactory,
@@ -66,50 +65,48 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         if (ejbDeploymentContext == null || webContainers == null || webContainers.isEmpty() || portInfo == null) {
             return;
         }
-                
+
         this.soapHandler = webContainers.iterator().next();
         this.location = portInfo.getLocation();
-        
+
         assert this.location != null : "null location received";
-                
-        Class beanClass = ejbDeploymentContext.getBeanClass();    
+
+        Class beanClass = ejbDeploymentContext.getBeanClass();
         CoreDeploymentInfo deploymentInfo = ejbDeploymentContext.getDeploymentInfo();
         Context context = deploymentInfo.getJndiEnc();
-        
+
         Bus bus = CXFWebServiceContainer.getBus();
         bus.setExtension(new ServerJNDIResolver(context), JNDIResolver.class);
         bus.setExtension(portInfo, PortInfo.class);
         bus.setExtension(deploymentInfo, DeploymentInfo.class);
-        
+
         ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
-        
-        URL catalog = JAXWSUtils.getOASISCatalogURL(configurationBaseUrl, 
-                                                    classLoader, 
-                                                    JAXWSUtils.DEFAULT_CATALOG_EJB);
+
+        URL catalog = JAXWSUtils.getOASISCatalogURL(bundle, JAXWSUtils.DEFAULT_CATALOG_EJB);
         if (catalog != null) {
             CXFCatalogUtils.loadOASISCatalog(bus, catalog);
         }
-        
-        this.container = new EJBWebServiceContainer(bus, configurationBaseUrl, beanClass);
-        
-        soapHandler.addWebService(this.location, 
-                                  virtualHosts, 
+
+        this.container = new EJBWebServiceContainer(bus, beanClass, bundle);
+
+        soapHandler.addWebService(this.location,
+                                  virtualHosts,
                                   this.container,
                                   policyContextID,
                                   configurationFactory,
-                                  realmName, 
+                                  realmName,
                                   authMethod,
                                   properties,
-                                  classLoader);        
+                                  classLoader);
     }
 
     public void doStart() throws Exception {
     }
 
-    public void doStop() throws Exception {        
+    public void doStop() throws Exception {
         if (this.soapHandler != null) {
             this.soapHandler.removeWebService(this.location);
-        } 
+        }
         if (this.container != null) {
             this.container.destroy();
         }

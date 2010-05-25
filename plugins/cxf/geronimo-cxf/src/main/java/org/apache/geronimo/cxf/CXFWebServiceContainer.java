@@ -19,12 +19,9 @@ package org.apache.geronimo.cxf;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
@@ -33,33 +30,33 @@ import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.saaj.SAAJUniverse;
+import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class CXFWebServiceContainer implements WebServiceContainer {
 
     private static final Logger LOG = LoggerFactory.getLogger(CXFWebServiceContainer.class);
-    
+
     protected final GeronimoDestination destination;
 
     protected final Bus bus;
 
     protected final CXFEndpoint endpoint;
 
-    protected URL configurationBaseUrl;
+    protected final Bundle bundle;
 
-    public CXFWebServiceContainer(Bus bus,
-                                  URL configurationBaseUrl,
-                                  Object target) {
+    public CXFWebServiceContainer(Bus bus, Object target, Bundle bundle) {
         this.bus = bus;
-        this.configurationBaseUrl = configurationBaseUrl;
-            
+        this.bundle = bundle;
         List ids = new ArrayList();
         ids.add("http://schemas.xmlsoap.org/wsdl/soap/");
-               
+
         DestinationFactoryManager destinationFactoryManager = bus
                 .getExtension(DestinationFactoryManager.class);
         GeronimoDestinationFactory factory = new GeronimoDestinationFactory(bus);
         factory.setTransportIds(ids);
-                
+
         destinationFactoryManager.registerDestinationFactory(
                 "http://cxf.apache.org/transports/http/configuration", factory);
         destinationFactoryManager.registerDestinationFactory(
@@ -80,7 +77,7 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
     static String getBaseUri(URI request) {
         return request.getScheme() + "://" + request.getHost() + ":" + request.getPort() + request.getPath();
     }
-    
+
     public void invoke(Request request, Response response) throws Exception {
         this.endpoint.updateAddress(request.getURI());
         if (request.getMethod() == Request.GET) {
@@ -89,7 +86,7 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
             processPOST(request, response);
         }
     }
-    
+
     protected void processGET(Request request, Response response) throws Exception {
         if (request.getParameter("wsdl") != null || request.getParameter("WSDL") != null ||
                    request.getParameter("xsd") != null || request.getParameter("XSD") != null) {
@@ -115,7 +112,7 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
             processPOST(request, response);
         }
     }
-    
+
     protected void processPOST(Request request, Response response) throws Exception {
         SAAJUniverse universe = new SAAJUniverse();
         universe.set(SAAJUniverse.DEFAULT);
@@ -125,11 +122,11 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
             universe.unset();
         }
     }
-   
+
     public void getWsdl(Request request, Response response) throws Exception {
         invoke(request, response);
-    }    
-        
+    }
+
     public void destroy() {
         if (this.endpoint != null) {
             this.endpoint.stop();
@@ -137,20 +134,20 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
     }
 
     abstract protected CXFEndpoint publishEndpoint(Object target);
-        
+
     /*
-     * Ensure the bus created is unqiue and non-shared. 
+     * Ensure the bus created is unqiue and non-shared.
      * The very first bus created is set as a default bus which then can
      * be (re)used in other places.
      */
-    public static Bus getBus() {        
+    public static Bus getBus() {
         getDefaultBus();
         return new ExtensionManagerBus();
     }
-    
+
     /*
      * Ensure the Spring bus is initialized with the CXF module classloader
-     * instead of the application classloader. 
+     * instead of the application classloader.
      */
     public static Bus getDefaultBus() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -161,5 +158,5 @@ public abstract class CXFWebServiceContainer implements WebServiceContainer {
             Thread.currentThread().setContextClassLoader(cl);
         }
     }
-    
+
 }

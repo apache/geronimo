@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.axis2.ejb;
 
-import java.net.URL;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -34,6 +32,7 @@ import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.openejb.DeploymentInfo;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -41,25 +40,24 @@ import org.apache.openejb.DeploymentInfo;
 public class EJBWebServiceContainer extends Axis2WebServiceContainer {
 
     private DeploymentInfo deploymnetInfo;
-    
+
     public EJBWebServiceContainer(PortInfo portInfo,
                                   String endpointClassName,
-                                  ClassLoader classLoader,
+                                  Bundle bundle,
                                   Context context,
-                                  URL configurationBaseUrl,
                                   DeploymentInfo deploymnetInfo) {
-        super(portInfo, endpointClassName, classLoader, context, configurationBaseUrl);
+        super(portInfo, endpointClassName, bundle, context);
         this.deploymnetInfo = deploymnetInfo;
     }
-    
+
     @Override
-    public void init() throws Exception { 
+    public void init() throws Exception {
         super.init();
-        
+
         String rootContext = null;
         String servicePath = null;
         String location = trimContext(this.portInfo.getLocation());
-        int pos = location.indexOf('/');     
+        int pos = location.indexOf('/');
         if (pos > 0) {
             rootContext = location.substring(0, pos);
             servicePath = location.substring(pos + 1);
@@ -67,39 +65,39 @@ public class EJBWebServiceContainer extends Axis2WebServiceContainer {
             rootContext = "/";
             servicePath = location;
         }
-              
+
         this.configurationContext.setServicePath(servicePath);
-        //need to setContextRoot after servicePath as cachedServicePath is only built 
+        //need to setContextRoot after servicePath as cachedServicePath is only built
         //when setContextRoot is called.
-        this.configurationContext.setContextRoot(rootContext); 
-        
+        this.configurationContext.setContextRoot(rootContext);
+
         // configure handlers
         try {
             configureHandlers();
         } catch (Exception e) {
             throw new WebServiceException("Error configuring handlers", e);
         }
-        
+
         this.factoryRegistry = new GeronimoFactoryRegistry();
         this.factoryRegistry.put(EndpointLifecycleManager.class, new EJBEndpointLifecycleManager());
     }
-    
+
     @Override
     protected AxisServiceGenerator createServiceGenerator() {
         AxisServiceGenerator serviceGenerator = super.createServiceGenerator();
         serviceGenerator.setCatalogName(JAXWSUtils.DEFAULT_CATALOG_EJB);
-        EJBMessageReceiver messageReceiver = 
+        EJBMessageReceiver messageReceiver =
             new EJBMessageReceiver(this, this.endpointClass, this.deploymnetInfo);
         serviceGenerator.setMessageReceiver(messageReceiver);
         return serviceGenerator;
     }
-        
+
     public synchronized void injectHandlers() {
         if (this.annotationProcessor != null) {
             // assume injection was already done
             return;
         }
-        
+
         WebServiceContext wsContext = null;
         try {
             InitialContext ctx = new InitialContext();
@@ -107,16 +105,16 @@ public class EJBWebServiceContainer extends Axis2WebServiceContainer {
         } catch (NamingException e) {
             throw new WebServiceException("Failed to lookup WebServiceContext", e);
         }
-        
+
         this.annotationProcessor = new JAXWSAnnotationProcessor(new JNDIResolver(), wsContext);
         super.injectHandlers();
     }
-    
+
     @Override
     public void destroy() {
         // call handler preDestroy
         destroyHandlers();
-        
+
         super.destroy();
     }
 }

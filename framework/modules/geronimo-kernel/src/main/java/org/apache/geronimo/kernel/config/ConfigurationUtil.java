@@ -43,7 +43,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -90,7 +89,7 @@ public final class ConfigurationUtil {
 
         configurationMarshaler = marshaler;
     }
-    
+
     private static File bootDirectory;
 
     private static File getStartupDirectory() {
@@ -111,17 +110,17 @@ public final class ConfigurationUtil {
         } else {
             log.error("Cound not determine the installation directory of Apache Geronimo, because the startup jar could not be found in the current class loader.");
         }
-        
+
         return directory;
     }
-    
+
     private static File getBootDirectory() {
         if (bootDirectory == null) {
             bootDirectory = getStartupDirectory();
-        }        
+        }
         return bootDirectory;
     }
-    
+
     public static ConfigurationMarshaler createConfigurationMarshaler(String marshalerClass) throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Class clazz = null;
@@ -184,7 +183,7 @@ public final class ConfigurationUtil {
         AbstractName abstractName = Configuration.getConfigurationAbstractName(configId);
         GBeanData gbeanData = new GBeanData(abstractName, Configuration.class);
         gbeanData.setAttribute("configurationData", configurationData);
-        
+
         Collection repositories = null;
         ArtifactResolver artifactResolver = null;
         if (enableBootRepo) {
@@ -231,7 +230,7 @@ public final class ConfigurationUtil {
     public static void writeConfigInfo(PrintWriter writer, ConfigurationData configurationData) {
         writeConfigInfo("", writer, configurationData);
     }
-    
+
     private static void writeConfigInfo(String prefix, PrintWriter writer, ConfigurationData configurationData) {
         writer.println(prefix+"id=" + configurationData.getId());
         writer.println(prefix+"type=" + configurationData.getModuleType());
@@ -324,8 +323,8 @@ public final class ConfigurationUtil {
         }
         return (AbstractName) names.iterator().next();
     }
-    
-    
+
+
     /**
      * Gets a reference or proxy to the ConfigurationManager running in the specified kernel.
      *
@@ -357,7 +356,7 @@ public final class ConfigurationUtil {
             throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
         }
         AbstractName configurationManagerName = (AbstractName) names.iterator().next();
-        return (EditableConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, EditableConfigurationManager.class);
+        return kernel.getProxyManager().createProxy(configurationManagerName, EditableConfigurationManager.class);
     }
 
     public static void releaseConfigurationManager(Kernel kernel, ConfigurationManager configurationManager) {
@@ -516,7 +515,7 @@ public final class ConfigurationUtil {
             }
             if (e instanceof Error) {
                 throw (Error) e;
-            }                         
+            }
             if (e instanceof InvalidConfigException) {
                 throw (InvalidConfigException) e;
             }

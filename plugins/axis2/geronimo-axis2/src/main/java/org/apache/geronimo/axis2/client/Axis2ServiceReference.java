@@ -29,8 +29,6 @@ import org.apache.axis2.jaxws.catalog.impl.OASISCatalogManager;
 import org.apache.axis2.jaxws.context.WebServiceContextImpl;
 import org.apache.axis2.jaxws.description.builder.DescriptionBuilderComposite;
 import org.apache.axis2.jaxws.spi.ServiceDelegate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.jaxws.HandlerChainsUtils;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
@@ -40,6 +38,8 @@ import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
 import org.apache.geronimo.jaxws.client.PortMethodInterceptor;
 import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -92,7 +92,7 @@ public class Axis2ServiceReference extends JAXWSServiceReference {
         JAXWSAnnotationProcessor annotationProcessor =
                 new JAXWSAnnotationProcessor(new JNDIResolver(), new WebServiceContextImpl());
         GeronimoHandlerResolver handlerResolver =
-                new GeronimoHandlerResolver(classLoader, serviceClass, getHandlerChains(), annotationProcessor);
+                new GeronimoHandlerResolver(bundle, serviceClass, getHandlerChains(), annotationProcessor);
         return handlerResolver;
     }
 

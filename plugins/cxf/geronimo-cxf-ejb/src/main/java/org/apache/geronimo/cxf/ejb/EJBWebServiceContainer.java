@@ -16,23 +16,20 @@
  */
 package org.apache.geronimo.cxf.ejb;
 
-import java.net.URL;
-
 import org.apache.cxf.Bus;
 import org.apache.geronimo.cxf.CXFWebServiceContainer;
+import org.osgi.framework.Bundle;
 
 public class EJBWebServiceContainer extends CXFWebServiceContainer {
-    
-    public EJBWebServiceContainer(Bus bus,    
-                                  URL configurationBaseUrl,
-                                  Class target) {
-        super(bus, configurationBaseUrl, target);
+
+    public EJBWebServiceContainer(Bus bus, Class target, Bundle bundle) {
+        super(bus, target, bundle);
     }
-                                    
+
     protected EJBEndpoint publishEndpoint(Object target) {
         assert target != null : "null target received";
 
-        EJBEndpoint ep = new EJBEndpoint(bus, configurationBaseUrl, (Class)target);
+        EJBEndpoint ep = new EJBEndpoint(bus, (Class) target, bundle);
         ep.publish(null);
         return ep;
     }

@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.JarFile;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -32,8 +31,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 import org.apache.cxf.jaxws.javaee.PortComponentType;
 import org.apache.cxf.jaxws.javaee.ServiceImplBeanType;
@@ -56,20 +53,23 @@ import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorOptions;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CXFBuilder extends JAXWSServiceBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(CXFBuilder.class);
-    
+
     /**
-     * This property if enabled will cause the Sun wsgen tool to be used to 
+     * This property if enabled will cause the Sun wsgen tool to be used to
      * generate the WSDL for servies without WSDL. By default CXF tooling
      * will be used the generate the WSDL.
      */
-    private static final String USE_WSGEN_PROPERTY = 
+    private static final String USE_WSGEN_PROPERTY =
         "org.apache.geronimo.cxf.use.wsgen";
 
     protected Collection<WsdlGenerator> wsdlGenerators;
-    
+
     public CXFBuilder() {
         super(null);
     }
@@ -183,7 +183,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
             }
         }
     }
-        
+
     private static String getString(String in) {
         if (in != null) {
             in = in.trim();
@@ -193,15 +193,14 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         }
         return in;
     }
-        
+
     @Override
-    protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module) 
-        throws DeploymentException {  
+    protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module, Bundle bundle) throws DeploymentException {
         if (Boolean.getBoolean(USE_WSGEN_PROPERTY)) {
-            generateWSDL(serviceClass, portInfo, module);
+            generateWSDL(serviceClass, portInfo, module, bundle);
         }
     }
-    
+
     protected WsdlGenerator getWsdlGenerator() throws DeploymentException {
         if (this.wsdlGenerators == null || this.wsdlGenerators.isEmpty()) {
             throw new DeploymentException("Wsdl generator not found");
@@ -209,51 +208,51 @@ public class CXFBuilder extends JAXWSServiceBuilder {
             return this.wsdlGenerators.iterator().next();
         }
     }
-    
-    private void generateWSDL(Class serviceClass, PortInfo portInfo, Module module) 
+
+    private void generateWSDL(Class serviceClass, PortInfo portInfo, Module module, Bundle bundle)
         throws DeploymentException {
         String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
-        if (isWsdlSet(portInfo, serviceClass)) {
+        if (isWsdlSet(portInfo, serviceClass, bundle)) {
             LOG.debug("Service " + serviceName + " has WSDL.");
             return;
-        }        
-        
+        }
+
         if (isHTTPBinding(portInfo, serviceClass)) {
             LOG.debug("Service " + serviceName + " has HTTPBinding.");
             return;
         }
-        
-        if (JAXWSUtils.isWebServiceProvider(serviceClass)) {            
+
+        if (JAXWSUtils.isWebServiceProvider(serviceClass)) {
             throw new DeploymentException("WSDL must be specified for @WebServiceProvider service " + serviceName);
         }
-        
+
         LOG.debug("Service " + serviceName + " does not have WSDL. Generating WSDL...");
-        
+
         WsdlGenerator wsdlGenerator = getWsdlGenerator();
-        
+
         WsdlGeneratorOptions options = new WsdlGeneratorOptions();
         options.setSAAJ(WsdlGeneratorOptions.SAAJ.SUN);
-        
+
         JaxWsImplementorInfo serviceInfo = new JaxWsImplementorInfo(serviceClass);
-        
+
         // set wsdl service
         if (portInfo.getWsdlService() == null) {
             options.setWsdlService(serviceInfo.getServiceName());
         } else {
             options.setWsdlService(portInfo.getWsdlService());
         }
-        
+
         // set wsdl port
         if (portInfo.getWsdlPort() != null) {
             options.setWsdlPort(portInfo.getWsdlPort());
         }
-                        
+
         String wsdlFile = wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
         portInfo.setWsdlFile(wsdlFile);
-        
+
         LOG.debug("Generated " + wsdlFile + " for service " + serviceName);
-    }     
-    
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

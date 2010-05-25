@@ -18,16 +18,14 @@
 package org.apache.geronimo.cxf.pojo;
 
 import java.net.URL;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashSet;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.geronimo.cxf.CXFCatalogUtils;
@@ -46,6 +44,9 @@ import org.apache.geronimo.naming.reference.SimpleReference;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
+import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev: 508298 $ $Date: 2007-02-15 22:25:05 -0500 (Thu, 15 Feb 2007) $
@@ -56,13 +57,14 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
 
     private final Bus bus;
     private final Class servletClass;
-    private final URL configurationBaseUrl;
+    private final Bundle bundle;
 
     public POJOWebServiceContainerFactoryGBean(PortInfo portInfo,
                                                String endpointClassName,
                                                ClassLoader classLoader,
                                                Map componentContext,
                                                Kernel kernel,
+                                               Bundle bundle,
                                                TransactionManager transactionManager,
                                                URL configurationBaseUrl,
                                                AnnotationHolder holder,
@@ -80,11 +82,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
 
             GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
             try {
-                Context localContext = EnterpriseNamingContext.livenReferences(componentContext,
-                                                                  userTransaction,
-                                                                  kernel,
-                                                                  classLoader,
-                                                                  "comp/");
+                Context localContext = EnterpriseNamingContext.livenReferences(componentContext, userTransaction, kernel, classLoader, bundle, "comp/");
                 Set<Context> contexts = new LinkedHashSet<Context>(3);
                 contexts.add(localContext);
                 context = EnterpriseNamingContext.createEnterpriseNamingContext(contexts);
@@ -94,7 +92,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         }
 
         this.bus = CXFWebServiceContainer.getBus();
-        this.configurationBaseUrl = configurationBaseUrl;
+        this.bundle = bundle;
 
         this.servletClass = classLoader.loadClass(endpointClassName);
 
@@ -103,16 +101,14 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         this.bus.setExtension(context, Context.class);
         this.bus.setExtension(holder, AnnotationHolder.class);
 
-        URL catalog = JAXWSUtils.getOASISCatalogURL(this.configurationBaseUrl,
-                                                    classLoader,
-                                                    JAXWSUtils.DEFAULT_CATALOG_WEB);
+        URL catalog = JAXWSUtils.getOASISCatalogURL(bundle, JAXWSUtils.DEFAULT_CATALOG_WEB);
         if (catalog != null) {
             CXFCatalogUtils.loadOASISCatalog(this.bus, catalog);
         }
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        return new POJOWebServiceContainer(bus, configurationBaseUrl, servletClass);
+        return new POJOWebServiceContainer(bus, servletClass, bundle);
     }
 
     private static class WebServiceContextReference extends SimpleReference {
@@ -130,6 +126,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("componentContext", Map.class, true, true);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addAttribute("bundle", Bundle.class, false);
         infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
         infoBuilder.addAttribute("holder", AnnotationHolder.class, true);
@@ -141,6 +138,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                 "classLoader",
                 "componentContext",
                 "kernel",
+                "bundle",
                 "TransactionManager",
                 "configurationBaseUrl",
                 "holder",

@@ -16,25 +16,22 @@
  */
 package org.apache.geronimo.cxf.pojo;
 
-import java.net.URL;
-
 import org.apache.cxf.Bus;
 import org.apache.geronimo.cxf.CXFEndpoint;
 import org.apache.geronimo.cxf.CXFWebServiceContainer;
+import org.osgi.framework.Bundle;
 
 public class POJOWebServiceContainer extends CXFWebServiceContainer {
-    
-    public POJOWebServiceContainer(Bus bus,
-                                   URL configurationBaseUrl,                                  
-                                   Class target) {
-        super(bus, configurationBaseUrl, target);
+
+    public POJOWebServiceContainer(Bus bus, Class target, Bundle bundle) {
+        super(bus, target, bundle);
         this.destination.setPassSecurityContext(true);
     }
 
     protected CXFEndpoint publishEndpoint(Object target) {
         assert target != null : "null target received";
 
-        POJOEndpoint ep = new POJOEndpoint(bus, configurationBaseUrl, (Class)target);
+        POJOEndpoint ep = new POJOEndpoint(bus, (Class) target, bundle);
         ep.publish(null);
         return ep;
     }

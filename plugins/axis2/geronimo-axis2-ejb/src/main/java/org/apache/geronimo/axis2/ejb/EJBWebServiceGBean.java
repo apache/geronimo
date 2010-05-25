@@ -17,27 +17,25 @@
 
 package org.apache.geronimo.axis2.ejb;
 
-import java.net.URL;
 import java.util.Collection;
 import java.util.Properties;
 
 import javax.naming.Context;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.openejb.EjbDeployment;
-import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.openejb.DeploymentInfo;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -53,7 +51,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
     public EJBWebServiceGBean(@ParamReference(name="EjbDeployment")EjbDeployment ejbDeploymentContext,
                               @ParamAttribute(name="portInfo")PortInfo portInfo,
                               @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
-                              @ParamAttribute(name="configurationBaseUrl")URL configurationBaseUrl,
+                              @ParamSpecial(type = SpecialAttributeType.bundle)Bundle bundle,
                               @ParamReference(name="WebServiceContainer")Collection<SoapHandler> webContainers,
                               @ParamAttribute(name="policyContextID")String policyContextID,
                               @ParamReference(name="ConfigurationFactory")ConfigurationFactory configurationFactory,
@@ -65,31 +63,29 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         if (ejbDeploymentContext == null || webContainers == null || webContainers.isEmpty() || portInfo == null) {
             return;
         }
-                
+
         this.soapHandler = webContainers.iterator().next();
         this.location = portInfo.getLocation();
-        
+
         assert this.location != null : "null location received";
-                
-        String beanClassName = ejbDeploymentContext.getBeanClass().getName();    
+
+        String beanClassName = ejbDeploymentContext.getBeanClass().getName();
         ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
         DeploymentInfo deploymnetInfo = ejbDeploymentContext.getDeploymentInfo();
-        Context context = deploymnetInfo.getJndiEnc();        
+        Context context = deploymnetInfo.getJndiEnc();
 
-        this.container = 
-            new EJBWebServiceContainer(portInfo, beanClassName, classLoader, 
-                                       context, configurationBaseUrl, deploymnetInfo);
+        this.container = new EJBWebServiceContainer(portInfo, beanClassName, bundle, context, deploymnetInfo);
         this.container.init();
-         
-        soapHandler.addWebService(this.location, 
-                                  virtualHosts, 
+
+        soapHandler.addWebService(this.location,
+                                  virtualHosts,
                                   this.container,
                                   policyContextID,
                                   configurationFactory,
-                                  realmName, 
+                                  realmName,
                                   authMethod,
                                   properties,
-                                  classLoader);        
+                                  classLoader);
     }
 
     public void doStart() throws Exception {
@@ -98,7 +94,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
     public void doStop() throws Exception {
         if (this.soapHandler != null) {
             this.soapHandler.removeWebService(this.location);
-        } 
+        }
         if (this.container != null) {
             this.container.destroy();
         }
@@ -106,5 +102,5 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
 
     public void doFail() {
     }
-    
+
 }

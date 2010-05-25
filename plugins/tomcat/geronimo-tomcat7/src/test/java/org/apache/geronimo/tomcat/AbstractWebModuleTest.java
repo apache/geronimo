@@ -90,7 +90,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 transactionManager,
                 null,
                 cl,
- //               null,
+               null,
                 null);
         Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
         deploymentAttributes.put(WebAttributeName.META_COMPLETE.name(), Boolean.TRUE);

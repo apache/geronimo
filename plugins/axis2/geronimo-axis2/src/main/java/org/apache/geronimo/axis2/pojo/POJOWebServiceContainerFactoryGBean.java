@@ -17,17 +17,17 @@
 
 package org.apache.geronimo.axis2.pojo;
 
-import java.net.URL;
 import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.kernel.Kernel;
@@ -36,60 +36,61 @@ import org.apache.geronimo.naming.reference.SimpleReference;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
+import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean
 public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerFactory
 {
     private static final Logger LOG = LoggerFactory.getLogger(POJOWebServiceContainerFactoryGBean.class);
-    
+
     private final ClassLoader classLoader;
     private final org.apache.geronimo.jaxws.PortInfo portInfo;
     private final String endpointClassName;
-    private URL configurationBaseUrl;
     private Context context;
     private AnnotationHolder holder;
     private String contextRoot;
+    private Bundle bundle;
 
-    public POJOWebServiceContainerFactoryGBean(org.apache.geronimo.jaxws.PortInfo portInfo,
-                                               String endpointClassName,
-                                               ClassLoader classLoader,
-                                               Map componentContext,
-                                               Kernel kernel,
-                                               TransactionManager transactionManager,
-                                               URL configurationBaseUrl,
-                                               AnnotationHolder holder,
-                                               String contextRoot)
-        throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        
+    public POJOWebServiceContainerFactoryGBean(
+                        @ParamAttribute(name="portInfo") org.apache.geronimo.jaxws.PortInfo portInfo,
+                        @ParamAttribute(name="endpointClassName") String endpointClassName,
+                        @ParamAttribute(name="componentContext") Map componentContext,
+                        @ParamReference(name="TransactionManager", namingType=NameFactory.JTA_RESOURCE) TransactionManager transactionManager,
+                        @ParamAttribute(name="holder") AnnotationHolder holder,
+                        @ParamAttribute(name="contextRoot") String contextRoot,
+                        @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+                        @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
+                        @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader)
+                     throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+
         if (componentContext != null) {
-            
+
             // The name should match WebServiceContextAnnotationHelper.RELATIVE_JNDI_NAME
-            componentContext.put("env/WebServiceContext", new WebServiceContextReference());
-            
+            componentContext.put("comp/env/WebServiceContext", new WebServiceContextReference());
+
             GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
             try {
-                this.context = EnterpriseNamingContext.livenReferences(componentContext,
-                        userTransaction,
-                        kernel,
-                        classLoader,"comp/");
+                this.context = EnterpriseNamingContext.livenReferences(componentContext, userTransaction, kernel, classLoader, bundle, "comp/");
             } catch (NamingException e) {
                 LOG.warn("Failed to create naming context", e);
             }
         }
-        
+
         this.portInfo = portInfo;
         this.classLoader = classLoader;
+        this.bundle = bundle;
         this.endpointClassName = endpointClassName;
-        this.configurationBaseUrl = configurationBaseUrl;   
         this.holder = holder;
         this.contextRoot = contextRoot;
     }
 
     public WebServiceContainer getWebServiceContainer() {
-        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, classLoader, 
-                                                                        context, configurationBaseUrl, holder, contextRoot);
+        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, bundle, context, holder, contextRoot);
         try {
             container.init();
         } catch (Exception e) {
@@ -101,39 +102,6 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
     private static class WebServiceContextReference extends SimpleReference {
         public Object getContent() throws NamingException {
             return new POJOWebServiceContext();
-        }        
-    }
-    
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(POJOWebServiceContainerFactoryGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoBuilder.addAttribute("portInfo", org.apache.geronimo.jaxws.PortInfo.class, true, true);
-        infoBuilder.addAttribute("endpointClassName", String.class, true, true);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addAttribute("componentContext", Map.class, true, true);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-        infoBuilder.addReference("TransactionManager", TransactionManager.class, NameFactory.JTA_RESOURCE);
-        infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
-        infoBuilder.addAttribute("holder", AnnotationHolder.class, true);
-        infoBuilder.addAttribute("contextRoot", String.class, true, true);
-
-        infoBuilder.setConstructor(new String[]{
-                "portInfo", 
-                "endpointClassName", 
-                "classLoader",
-                "componentContext", 
-                "kernel", 
-                "TransactionManager", 
-                "configurationBaseUrl", 
-                "holder", 
-                "contextRoot"
-        });
-        
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
+        }
     }
 }

@@ -18,7 +18,6 @@
 package org.apache.geronimo.openejb;
 
 import java.lang.reflect.Method;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -49,8 +48,8 @@ import org.apache.openejb.InterfaceType;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ivm.EjbObjectProxyHandler;
 import org.apache.openejb.core.transaction.TransactionType;
-import org.apache.xbean.naming.context.ContextFederation;
 import org.apache.xbean.naming.context.ImmutableFederatedContext;
+import org.osgi.framework.Bundle;
 
 public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     private final String objectName;
@@ -64,7 +63,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     private final String serviceEndpointInterfaceName;
     private final String beanClassName;
     private final ClassLoader classLoader;
-
+    private final Bundle bundle;
     private final boolean securityEnabled;
     private final Subject defaultSubject;
     private final Subject runAs;
@@ -93,6 +92,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
                          @ParamAttribute(name = "serviceEndpointInterfaceName") String serviceEndpointInterfaceName,
                          @ParamAttribute(name = "beanClassName") String beanClassName,
                          @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+                         @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
                          @ParamAttribute(name = "securityEnabled") boolean securityEnabled,
                          @ParamAttribute(name = "defaultRole") String defaultRole,
                          @ParamAttribute(name = "runAsRole") String runAsRole,
@@ -116,14 +116,15 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         this.serviceEndpointInterfaceName = serviceEndpointInterfaceName;
         this.beanClassName = beanClassName;
         this.classLoader = classLoader;
+        this.bundle = bundle;
         this.securityEnabled = securityEnabled;
         if (runAsSource == null) {
             runAsSource = RunAsSource.NULL;
         }
         this.defaultSubject = defaultRole == null ? runAsSource.getDefaultSubject() : runAsSource.getSubjectForRole(defaultRole);
         this.runAs = runAsSource.getSubjectForRole(runAsRole);
-        this.componentContext = EnterpriseNamingContext.livenReferences(compContext, transactionManager, kernel, classLoader, "comp/");
-        this.moduleContext = EnterpriseNamingContext.livenReferences(moduleJndi, transactionManager, kernel, classLoader, "module/");
+        this.componentContext = EnterpriseNamingContext.livenReferences(compContext, transactionManager, kernel, classLoader, bundle, "comp/");
+        this.moduleContext = EnterpriseNamingContext.livenReferences(moduleJndi, transactionManager, kernel, classLoader, bundle, "module/");
         this.applicationContext = applicationJndi.getApplicationContext();
         this.globalContext = applicationJndi.getGlobalContext();
         this.unshareableResources = unshareableResources;

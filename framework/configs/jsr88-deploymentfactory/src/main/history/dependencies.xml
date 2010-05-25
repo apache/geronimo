@@ -22,6 +22,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.configadmin</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>jaxb-impl</artifactId>
         <type>jar</type>
@@ -69,6 +74,11 @@
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-main</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>geronimo-pax-logging</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
