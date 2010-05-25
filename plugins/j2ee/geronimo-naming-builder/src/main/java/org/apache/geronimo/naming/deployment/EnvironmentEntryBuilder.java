@@ -30,6 +30,8 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
@@ -55,10 +57,13 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev$ $Date$
  */
+
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GBeanLifecycle {
 
     private static final Logger log = LoggerFactory.getLogger(EnvironmentEntryBuilder.class);
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/naming", "http://geronimo.apache.org/xml/ns/naming-1.2");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/naming-1.1", "http://geronimo.apache.org/xml/ns/naming-1.2");
@@ -68,7 +73,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
     private static final QNameSet GER_ENV_ENTRY_QNAME_SET = QNameSet.singleton(GER_ENV_ENTRY_QNAME);
     private final QNameSet envEntryQNameSet;
 
-    public EnvironmentEntryBuilder(String[] eeNamespaces) {
+    public EnvironmentEntryBuilder(@ParamAttribute(name = "eeNamespaces")String[] eeNamespaces) {
         envEntryQNameSet = buildQNameSet(eeNamespaces, "env-entry");
     }
 
@@ -102,7 +107,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         List<EnvEntryType> envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), JEE_CONVERTER, EnvEntryType.class, EnvEntryType.type);
         XmlObject[] gerEnvEntryUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ENV_ENTRY_QNAME_SET);
         Map<String, String> envEntryMap = mapEnvEntries(gerEnvEntryUntyped);
-        for (EnvEntryType envEntry: envEntriesUntyped) {
+        for (EnvEntryType envEntry : envEntriesUntyped) {
             String name = getStringValue(envEntry.getEnvEntryName());
             String type = getStringValue(envEntry.getEnvEntryType());
 
@@ -127,6 +132,8 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 strValue = strValueOverride;
             }
 
+            type = InferAndCheckType(module, bundle, envEntry.getInjectionTargetArray(), name, type);
+
 
             if (value == null) {
                 if (strValue == null) {
@@ -134,51 +141,49 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                         value = new KernelReference();
                     }
                 } else {
-                    if (type != null) {
-                        Class typeClass;
-                        try {
-                            typeClass = bundle.loadClass(type);
-                        } catch (ClassNotFoundException e) {
-                            throw new DeploymentException("Could not env-entry type class " + type, e);
-                        }
-                        try {
-                            if (String.class.equals(typeClass)) {
-                                value = strValue;
-                            } else if (Character.class.equals(typeClass)) {
-                                if (strValue.length() == 1) {
-                                    value = strValue.charAt(0);
-                                } else {
-                                    log.warn("invalid character value: {} for name {}", strValue, name );
-                                    value = ' ';
-                                }
-                            } else if (Boolean.class.equals(typeClass)) {
-                                value = Boolean.valueOf(strValue);
-                            } else if (Byte.class.equals(typeClass)) {
-                                value = Byte.valueOf(strValue);
-                            } else if (Short.class.equals(typeClass)) {
-                                value = Short.valueOf(strValue);
-                            } else if (Integer.class.equals(typeClass)) {
-                                value = Integer.valueOf(strValue);
-                            } else if (Long.class.equals(typeClass)) {
-                                value = Long.valueOf(strValue);
-                            } else if (Float.class.equals(typeClass)) {
-                                value = Float.valueOf(strValue);
-                            } else if (Double.class.equals(typeClass)) {
-                                value = Double.valueOf(strValue);
-                            } else if (Class.class.equals(typeClass)) {
-                                value = new ClassReference(strValue);
-                            } else if (typeClass.isEnum()) {
-                                value = Enum.valueOf(typeClass, strValue);
+                    Class typeClass;
+                    try {
+                        typeClass = bundle.loadClass(type);
+                    } catch (ClassNotFoundException e) {
+                        throw new DeploymentException("Could not env-entry type class " + type, e);
+                    }
+                    try {
+                        if (String.class.equals(typeClass)) {
+                            value = strValue;
+                        } else if (Character.class.equals(typeClass)) {
+                            if (strValue.length() == 1) {
+                                value = strValue.charAt(0);
                             } else {
-                                throw new DeploymentException("Unrecognized env-entry type: " + type);
+                                log.warn("invalid character value: {} for name {}", strValue, name);
+                                value = ' ';
                             }
-                        } catch (NumberFormatException e) {
-                            throw new DeploymentException("Invalid env-entry value for name: " + name, e);
+                        } else if (Boolean.class.equals(typeClass)) {
+                            value = Boolean.valueOf(strValue);
+                        } else if (Byte.class.equals(typeClass)) {
+                            value = Byte.valueOf(strValue);
+                        } else if (Short.class.equals(typeClass)) {
+                            value = Short.valueOf(strValue);
+                        } else if (Integer.class.equals(typeClass)) {
+                            value = Integer.valueOf(strValue);
+                        } else if (Long.class.equals(typeClass)) {
+                            value = Long.valueOf(strValue);
+                        } else if (Float.class.equals(typeClass)) {
+                            value = Float.valueOf(strValue);
+                        } else if (Double.class.equals(typeClass)) {
+                            value = Double.valueOf(strValue);
+                        } else if (Class.class.equals(typeClass)) {
+                            value = new ClassReference(strValue);
+                        } else if (typeClass.isEnum()) {
+                            value = Enum.valueOf(typeClass, strValue);
+                        } else {
+                            throw new DeploymentException("Unrecognized env-entry type: " + type);
                         }
+                    } catch (NumberFormatException e) {
+                        throw new DeploymentException("Invalid env-entry value for name: " + name, e);
                     }
                 }
             }
-            
+
             // perform resource injection only if there is a value specified
             // see Java EE 5 spec, section EE.5.4.1.3
             if (value != null) {
@@ -186,7 +191,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 put(name, value, getJndiContextMap(sharedContext));
             }
         }
-        
+
         if (!envEntryMap.isEmpty()) {
             throw new DeploymentException("Unknown env-entry elements in geronimo plan: " + envEntryMap);
         }
@@ -203,6 +208,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         }
         return envEntryMap;
     }
+
     public QNameSet getSpecQNameSet() {
         return envEntryQNameSet;
     }
@@ -269,7 +275,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                             // env-entry-type
                             EnvEntryTypeValuesType envEntryType = envEntry.addNewEnvEntryType();
                             envEntryType.setStringValue(resourceType.getCanonicalName());
-                        }                         
+                        }
                         if (method != null || field != null) {
                             // injectionTarget
                             InjectionTargetType injectionTarget = envEntry.addNewInjectionTarget();
@@ -279,7 +285,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                         //------------------------------------------------------------------------------
                         // <env-entry> optional elements:
                         //------------------------------------------------------------------------------
-                        
+
                         // mappedName
                         String mappdedNameAnnotation = annotation.mappedName();
                         if (!mappdedNameAnnotation.equals("")) {
@@ -308,20 +314,6 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
             }
             return false;
         }
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(EnvironmentEntryBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
-        infoBuilder.setConstructor(new String[] {"eeNamespaces"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }
