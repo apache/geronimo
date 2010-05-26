@@ -404,7 +404,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     null,
                     null,
                     null,
-                    new LinkedHashSet<Module>(Collections.singleton(module)),
+                    new LinkedHashSet<Module<?,?>>(Collections.singleton(module)),
                     new ModuleList(),
                     null,
                     null);
