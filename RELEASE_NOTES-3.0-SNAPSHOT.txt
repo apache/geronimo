@@ -20,6 +20,12 @@ OR
 Please see http://cwiki.apache.org/GMOxDOC21/documentation.html for Geronimo 
 2.2 documentation until Geronimo @VERSION@ documentation is created
 
+IMPORTANT
+---------
+This is a Milestone release, that means that is not the final version of
+Apache Geronimo v3.0 Take a look at "Known Issues and Limitations" section for
+further details.
+
 
 System Requirements
 -------------------
@@ -32,11 +38,24 @@ Geronimo @VERSION@ Enhancements
 -------------------------
 
 Support for SUN's Java Enterprise Edition 6.0 specification:
-  - EJB 3.1
+  - EJB 3.1 (partial) 
   - JPA 2.0
   - Servlet 3.0
-  - . . .
-
+  - JSP 2.2 
+  - EL 2.2 
+  - JSF 2.0 
+  - JSTL 1.2 
+  - JCA 1.6 
+  - JACC 1.4 
+  - JASPIC 1.0 
+  - Annocations 1.1 
+  - Interceptors 1.1 
+  - OSGi application support 
+  - Apache Aries programming model, including support for 
+       - OSGi Blueprint service
+       - OSGi JNDI extender 
+       - OSGi Web Application Bundle Support 
+  
 
 Geronimo @VERSION@ Issues Resolved
 ------------------------------
@@ -54,7 +73,7 @@ TBD
 Certification Status
 --------------------
 
-TBD
+Apache Geronimo v@VERSION@, being a MILESTONE release is not yet certified.
 
 
 Distributions
@@ -64,21 +83,15 @@ the one that best fits your environment.
 
 The available distributions are as follows:
 
-Certified distributions:
-- Apache Geronimo with Tomcat web container, AXIS2 for Web Services and OpenJPA
-  for persistence.
-- Apache Geronimo with Jetty web container, CXF for Web Services and OpenJPA 
-  for persistence.
-
 Non-Certified distributions:
+- Apache Geronimo with Tomcat web container and OpenJPA for persistence.
+- Apache Geronimo with Jetty web container and OpenJPA for persistence.
 - Little-G with Tomcat web container, minimal configuration.
 - Little-G with Jetty web container, minimal configuration.
 - Geronimo framework, stripped down Geronimo pluggable framework.
 
-Note: Non-Certified distributions do not contain a complete JavaEE6 stack and
-so cannot be certified.  Certified distributions can be reconfigured by the
-user (such as Tomcat web container with CXF for Web Services). 
-
+Note: Non-Certified distributions do not contain a complete Java EE 6 stack and
+so cannot be certified.  
 
 Supported features
 ------------------
