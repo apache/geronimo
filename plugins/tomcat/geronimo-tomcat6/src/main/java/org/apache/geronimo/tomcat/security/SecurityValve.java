@@ -25,6 +25,7 @@ import java.security.Principal;
 
 import javax.servlet.ServletException;
 
+import org.apache.catalina.Globals;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
@@ -49,9 +50,35 @@ public class SecurityValve extends ValveBase {
         Object constraints = authorizer.getConstraints(request);
 
         if (!authorizer.hasUserDataPermissions(request, constraints)) {
-            //TODO redirect to secure port?
-            if (!response.isError()) {
-                response.sendError(Response.SC_MOVED_TEMPORARILY);
+            //redirect to secure port?
+            if (!response.isError() && !request.getRequest().isSecure()) {
+            	 // Redirect to the corresponding SSL port
+                StringBuffer file = new StringBuffer();
+                String protocol = "https";
+                String host = request.getServerName();
+                // Protocol
+                file.append(protocol).append("://").append(host);
+                int redirectPort = request.getConnector().getRedirectPort();
+				// Host with port
+                if(redirectPort != 443) {
+                    file.append(":").append(redirectPort);
+                }
+                // URI
+                file.append(request.getRequestURI());
+                String requestedSessionId = request.getRequestedSessionId();
+                if ((requestedSessionId != null) &&
+                    request.isRequestedSessionIdFromURL()) {
+                    file.append(";");
+                    file.append(Globals.SESSION_PARAMETER_NAME);
+                    file.append("=");
+                    file.append(requestedSessionId);
+                }
+                String queryString = request.getQueryString();
+                if (queryString != null) {
+                    file.append('?');
+                    file.append(queryString);
+                }
+                response.sendRedirect(file.toString());
             }
             return;
         }
