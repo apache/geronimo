@@ -27,8 +27,6 @@ import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -132,7 +130,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 strValue = strValueOverride;
             }
 
-            type = InferAndCheckType(module, bundle, envEntry.getInjectionTargetArray(), name, type);
+            type = inferAndCheckType(module, bundle, envEntry.getInjectionTargetArray(), name, type);
 
 
             if (value == null) {

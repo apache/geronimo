@@ -349,7 +349,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return BASE_NAMING_QNAME;
     }
 
-    protected String InferAndCheckType(Module module, Bundle bundle, InjectionTargetType[] injectionTargets, String name, String typeName) throws DeploymentException {
+    protected String inferAndCheckType(Module module, Bundle bundle, InjectionTargetType[] injectionTargets, String name, String typeName) throws DeploymentException {
         Class<?> type = null;
         if (typeName != null) {
             try {

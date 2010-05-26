@@ -137,6 +137,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
         List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
         List<String> unresolvedRefs = new ArrayList<String>();
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
         for (ResourceEnvRefType resourceEnvRef : resourceEnvRefsUntyped) {
             String name = getStringValue(resourceEnvRef.getResourceEnvRefName());
             if (lookupJndiContextMap(componentContext, name) != null) {
@@ -145,6 +146,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
             addInjections(name, resourceEnvRef.getInjectionTargetArray(), componentContext);
             String type = getStringValue(resourceEnvRef.getResourceEnvRefType());
+            type = inferAndCheckType(module, bundle, resourceEnvRef.getInjectionTargetArray(), name, type);
             GerResourceEnvRefType gerResourceEnvRef = refMap.remove(name);
 
             Object value = null;
@@ -189,17 +191,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 linkName = name;
             }
             String type = getStringValue(messageDestinationRef.getMessageDestinationType());
-            if (type == null) {
-                //must have an injection target to determine type EE5.8.1.3
-                InjectionTargetType[] targets = messageDestinationRef.getInjectionTargetArray();
-                if (targets.length == 0) {
-                    throw new DeploymentException("No type for message-destination-ref can be determined from explicit specification or injection target: " + messageDestinationRef);
-                }
-                type = getStringValue(targets[0].getInjectionTargetClass());
-                if (type == null) {
-                    throw new DeploymentException("No type for message-destination-ref in injection target: " + targets[0]);
-                }
-            }
+            type = inferAndCheckType(module, bundle, messageDestinationRef.getInjectionTargetArray(), name, type);
 
             GerMessageDestinationType destination = getMessageDestination(linkName, messageDestinations);
 

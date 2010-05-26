@@ -130,6 +130,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         XmlObject[] gerResourceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map<String, GerResourceRefType> refMap = mapResourceRefs(gerResourceRefsUntyped);
         List<String> unresolvedRefs = new ArrayList<String>();
+        Bundle bundle = module.getEarContext().getDeploymentBundle();
         for (ResourceRefType resourceRef : resourceRefsUntyped) {
             String name = getStringValue(resourceRef.getResRefName());
             if (lookupJndiContextMap(componentContext, name) != null) {
@@ -138,6 +139,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             }
             addInjections(name, resourceRef.getInjectionTargetArray(), componentContext);
             String type = getStringValue(resourceRef.getResType());
+            type = inferAndCheckType(module, bundle, resourceRef.getInjectionTargetArray(), name, type);
             GerResourceRefType gerResourceRef = refMap.get(name);
             log.debug("trying to resolve " + name + ", type " + type + ", resourceRef " + gerResourceRef);
 
