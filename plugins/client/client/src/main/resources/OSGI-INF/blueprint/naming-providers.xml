@@ -27,7 +27,7 @@ limitations under the License.
     <service id="javaContextProvider"
              interface="javax.naming.spi.ObjectFactory">
         <service-properties>
-            <entry key="osgi.jndi.urlScheme" value="java"/>
+            <entry key="osgi.jndi.url.scheme" value="java"/>
         </service-properties>
         <bean class="org.apache.geronimo.naming.java.javaURLContextFactory"/>
     </service>
@@ -35,7 +35,7 @@ limitations under the License.
     <service id="gerContextProvider"
              interface="javax.naming.spi.ObjectFactory">
         <service-properties>
-            <entry key="osgi.jndi.urlScheme" value="ger"/>
+            <entry key="osgi.jndi.url.scheme" value="ger"/>
         </service-properties>
         <bean class="org.apache.geronimo.naming.WritableURLContextFactory">
             <argument>
@@ -47,7 +47,7 @@ limitations under the License.
     <service id="jcaContextProvider"
              interface="javax.naming.spi.ObjectFactory">
         <service-properties>
-            <entry key="osgi.jndi.urlScheme" value="jca"/>
+            <entry key="osgi.jndi.url.scheme" value="jca"/>
         </service-properties>
         <bean class="org.apache.geronimo.naming.WritableURLContextFactory">
             <argument>
@@ -67,7 +67,7 @@ limitations under the License.
     <service id="rmiContextProvider"
              interface="javax.naming.spi.ObjectFactory">
         <service-properties>
-            <entry key="osgi.jndi.urlScheme" value="rmi"/>
+            <entry key="osgi.jndi.url.scheme" value="rmi"/>
         </service-properties>
         <bean class="com.sun.jndi.url.rmi.rmiURLContextFactory"/>
     </service>
