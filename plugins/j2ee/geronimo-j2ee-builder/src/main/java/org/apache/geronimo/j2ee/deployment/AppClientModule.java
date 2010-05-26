@@ -52,7 +52,7 @@ public class AppClientModule extends Module<XmlObject, XmlObject> {
                            Collection<ConnectorModule> resourceModules, 
                            AnnotatedApplicationClient annotatedAppClient ) {
         super(standAlone, moduleName, name, clientEnvironment, moduleFile, targetPath, 
-              specDD, vendorDD, originalSpecDD, null, annotatedAppClient );
+              specDD, vendorDD, originalSpecDD, null, annotatedAppClient, null, null );
         this.serverEnvironment = serverEnvironment;
         this.appClientName = appClientName;
         this.mainClassName = mainClassName;

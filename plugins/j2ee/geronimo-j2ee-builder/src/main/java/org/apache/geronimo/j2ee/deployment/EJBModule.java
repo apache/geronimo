@@ -41,7 +41,7 @@ public class EJBModule extends Module<XmlObject, XmlObject> {
                      String originalSpecDD, 
                      AnnotatedApp annotatedApp) {
         super(standAlone, moduleName, name, environment, moduleFile, 
-              targetPath, specDD, vendorDD, originalSpecDD, null, annotatedApp);
+              targetPath, specDD, vendorDD, originalSpecDD, null, annotatedApp, null, null);
     }
 
     public ConfigurationModuleType getType() {

@@ -18,12 +18,14 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableJarFile;
+import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -56,20 +58,30 @@ public abstract class Module<T, U> {
     private ClassFinder classFinder;
 
     protected final Map sharedContext = new HashMap();
+    protected LinkedHashSet<Module<?,?>> modules = new LinkedHashSet<Module<?,?>>();
+    protected ModuleList moduleLocations = new ModuleList();
 
-    protected Module(boolean standAlone, 
-                     AbstractName moduleName, 
-                     String name, 
-                     Environment environment, 
-                     JarFile moduleFile, 
-                     String targetPath, 
-                     T specDD, 
-                     U vendorDD, 
-                     String originalSpecDD, 
-                     String namespace, 
-                     AnnotatedApp annotatedApp) {
+    protected Module(boolean standAlone,
+                     AbstractName moduleName,
+                     String name,
+                     Environment environment,
+                     JarFile moduleFile,
+                     String targetPath,
+                     T specDD,
+                     U vendorDD,
+                     String originalSpecDD,
+                     String namespace,
+                     AnnotatedApp annotatedApp,
+                     ModuleList moduleLocations,
+                     LinkedHashSet<Module<?,?>> modules) {
         this(standAlone, moduleName, name, environment, new DeployableJarFile(moduleFile), 
              targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedApp);
+        if (moduleLocations != null) {
+            this.moduleLocations = moduleLocations;
+        }
+        if (modules != null) {
+            this.modules = modules;
+        }
     }
 
     protected Module(boolean standAlone, 
@@ -269,4 +281,19 @@ public abstract class Module<T, U> {
         }
     }
 
+    public LinkedHashSet<Module<?,?>> getModules() {
+        return modules;
+    }
+
+    public void setModules(LinkedHashSet<Module<?,?>> modules) {
+        this.modules = modules;
+    }
+
+    public ModuleList getModuleLocations() {
+        return moduleLocations;
+    }
+
+    public void setModuleLocations(ModuleList moduleLocations) {
+        this.moduleLocations = moduleLocations;
+    }
 }

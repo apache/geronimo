@@ -33,8 +33,6 @@ import org.apache.xmlbeans.XmlObject;
 public class ApplicationInfo extends Module<XmlObject, XmlObject> {
     
     private ConfigurationModuleType type;
-    private LinkedHashSet<Module> modules;
-    private ModuleList moduleLocations;
 
     public ApplicationInfo(ConfigurationModuleType type,
                            Environment environment,
@@ -43,39 +41,21 @@ public class ApplicationInfo extends Module<XmlObject, XmlObject> {
                            JarFile earFile,
                            XmlObject specDD,
                            XmlObject vendorDD,
-                           LinkedHashSet<Module> modules,
+                           LinkedHashSet<Module<?,?>> modules,
                            ModuleList moduleLocations,
                            String originalSpecDD,
                            AnnotatedApp annotatedApp) {
-        super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, annotatedApp);
+        super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, annotatedApp, moduleLocations, modules);
         assert type != null;
         assert environment != null;
         assert modules != null;
         assert moduleLocations != null;
 
         this.type = type;
-        this.modules = modules;
-        this.moduleLocations = moduleLocations;
     }
 
     public ConfigurationModuleType getType() {
         return type;
-    }
-
-    public LinkedHashSet<Module> getModules() {
-        return modules;
-    }
-
-    public void setModules(LinkedHashSet<Module> modules) {
-        this.modules = modules;
-    }
-
-    public ModuleList getModuleLocations() {
-        return moduleLocations;
-    }
-
-    public void setModuleLocations(ModuleList moduleLocations) {
-        this.moduleLocations = moduleLocations;
     }
 
 }

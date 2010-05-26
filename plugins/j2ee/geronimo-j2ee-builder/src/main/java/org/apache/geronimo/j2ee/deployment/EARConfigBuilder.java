@@ -356,7 +356,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 jarFile,
                 null,
                 null,
-                new LinkedHashSet<Module>(Collections.singleton(module)),
+                new LinkedHashSet<Module<?,?>>(Collections.<Module<?,?>>singleton(module)),
                 new ModuleList(),
                 null,
                 null);
@@ -426,7 +426,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         // todo change module so you can extract the real module path back out.. then we can eliminate
         // the moduleLocations and have addModules return the modules
         ModuleList moduleLocations = new ModuleList();
-        LinkedHashSet<Module> modules = new LinkedHashSet<Module>();
+        LinkedHashSet<Module<?,?>> modules = new LinkedHashSet<Module<?,?>>();
         try {
             addModules(earFile, application, gerApplication, moduleLocations, modules, environment, earName, idBuilder);
             if (application == null) {
@@ -474,7 +474,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 annotatedApp);
     }
 
-    private ApplicationType createDefaultSpecPlan(Set<Module> modules) {
+    private ApplicationType createDefaultSpecPlan(Set<Module<?,?>> modules) {
         ApplicationType application = ApplicationType.Factory.newInstance();
         for (Module module : modules) {
             ConfigurationModuleType configurationModuleType = module.getType();
@@ -833,7 +833,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         return filter;
     }
 
-    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, ModuleList moduleLocations, LinkedHashSet<Module> modules, Environment environment, AbstractName earName, ModuleIDBuilder idBuilder) throws DeploymentException {
+    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, ModuleList moduleLocations, LinkedHashSet<Module<?,?>> modules, Environment environment, AbstractName earName, ModuleIDBuilder idBuilder) throws DeploymentException {
         Map<String, Object> altVendorDDs = new HashMap<String, Object>();
         try {
             mapVendorPlans(gerApplication, altVendorDDs, earFile);
