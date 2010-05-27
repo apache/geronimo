@@ -229,12 +229,26 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return s == null ? null : s.trim();
     }
 
+    protected static String getUntrimmedStringValue(org.apache.geronimo.xbeans.javaee.String string) {
+        if (string == null) {
+            return null;
+        }
+        return string.getStringValue();
+    }
+
     protected static String getStringValue(XsdStringType string) {
         if (string == null) {
             return null;
         }
         String s = string.getStringValue();
         return s == null ? null : s.trim();
+    }
+    
+    protected static String getUntrimmedStringValue(XsdStringType string) {
+        if (string == null) {
+            return null;
+        }
+        return string.getStringValue();
     }
 
     public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType, Set interfaceTypes) {
