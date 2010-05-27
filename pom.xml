@@ -2349,19 +2349,6 @@ only found in cxf
             </modules>
 
             <repositories>
-              <repository>
-                    <id>karaf</id>
-                    <name>karaf</name>
-                    <layout>default</layout>
-                    <url>https://repository.apache.org/content/repositories/orgapachefelix-003</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-
                 <repository>
                     <!-- org.eclipse.jetty routing -->
                     <id>jetty.oss.sonatype.org</id>
