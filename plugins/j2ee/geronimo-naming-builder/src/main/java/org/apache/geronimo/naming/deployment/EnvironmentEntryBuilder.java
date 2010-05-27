@@ -156,7 +156,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         if (refs != null) {
             for (XmlObject ref1 : refs) {
                 GerEnvEntryType ref = (GerEnvEntryType) ref1.copy().changeType(GerEnvEntryType.type);
-                envEntryMap.put(ref.getEnvEntryName().trim(), ref.getEnvEntryValue().trim());
+                envEntryMap.put(ref.getEnvEntryName().trim(), ref.getEnvEntryValue());
             }
         }
         return envEntryMap;
