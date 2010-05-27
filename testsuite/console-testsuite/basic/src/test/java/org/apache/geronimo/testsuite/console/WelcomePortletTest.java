@@ -33,6 +33,7 @@ public class WelcomePortletTest
     public void testWelcomeLink() throws Exception {
         selenium.click("link=Java System Info");
         waitForPageLoad();
+        selenium.open("/console");
         selenium.click("link=Welcome");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

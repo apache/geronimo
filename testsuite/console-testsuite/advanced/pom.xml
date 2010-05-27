@@ -54,6 +54,9 @@
                             <suiteXmlFiles>
 							    <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
 							</suiteXmlFiles>
+														<systemPropertyVariables>
+								<geronimoVersion>${version}</geronimoVersion>
+							</systemPropertyVariables>
                         </configuration>   
 					</plugin>
 				</plugins>

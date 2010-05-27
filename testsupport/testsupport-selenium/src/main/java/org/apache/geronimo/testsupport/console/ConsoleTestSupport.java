@@ -29,27 +29,22 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
 public abstract class ConsoleTestSupport
     extends SeleniumTestSupport
 {
-    protected void login() throws Exception {
-        selenium.open("/");
-        waitForPageLoad();
-        
+    protected void login() throws Exception {    	
+        selenium.open("/");              
         assertEquals("Apache Geronimo", selenium.getTitle());
-
         selenium.deleteAllVisibleCookies();
-
         selenium.click("link=Console");
-        waitForPageLoad();
-        
+        waitForPageLoad();        
         assertEquals("Geronimo Console Login", selenium.getTitle());
-        
-        selenium.type("j_username", "system");
-        selenium.type("j_password", "manager");
+        selenium.type("//input[@name='j_username']", "system");
+        selenium.type("//input[@name='j_password']", "manager");
         selenium.click("submit");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
     }
     
     protected void logout() throws Exception {
+    	selenium.open("/console");
         selenium.click("//a[contains(@href, '/console/logout.jsp')]");
         waitForPageLoad();
         

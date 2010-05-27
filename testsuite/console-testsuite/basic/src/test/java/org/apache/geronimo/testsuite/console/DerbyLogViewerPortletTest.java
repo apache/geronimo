@@ -34,10 +34,10 @@ public class DerbyLogViewerPortletTest
         selenium.click("link=Server Logs");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Derby Log Viewer", 
-                     selenium.getText(getPortletTitleLocation(4)));
+        assertEquals("Log Manager", 
+                     selenium.getText(getPortletTitleLocation()));
         // Test help link
-        selenium.click(getPortletHelpLocation(4));
+        selenium.click(getPortletHelpLocation());
         waitForPageLoad();
         selenium.isTextPresent("This portlet views the log file for Geronimo's internal database, Derby.");
     }

@@ -37,14 +37,17 @@ public class PluginsTest extends TestSupport {
         
         selenium.click("link=Update Repository List");
         waitForPageLoad();
-        assertTrue(selenium.isTextPresent(updatedLink));
+        assertTrue(selenium.isTextPresent(updatedLink));        
         
-        selenium.click("link=Add Repository");
+        selenium.open("/console");
+        selenium.click("link=Plugins");
+        waitForPageLoad();
+        selenium.click("link=Add repository");
         waitForPageLoad();
         assertTrue(selenium.isTextPresent(link));
                     
         selenium.type("newRepository", actualLink);
-        selenium.click("//input[@value='Add Repository']");
+        selenium.click("//input[@value='Add repository']");
         waitForPageLoad();
 
         if (selenium.isTextPresent("Already have an entry for repository " + actualLink)) {
@@ -55,7 +58,7 @@ public class PluginsTest extends TestSupport {
         selenium.select("repository", "label=" + actualLink);
         selenium.type("username", "system");
         selenium.type("password", "manager");            
-        selenium.click("//input[@value = 'Show Plugins in selected repository']");
+        selenium.click("//input[@value = 'Show plugins in selected repository']");
         waitForPageLoad();
         
         assertTrue(selenium.isTextPresent("Geronimo Assemblies :: Boilerplate"));

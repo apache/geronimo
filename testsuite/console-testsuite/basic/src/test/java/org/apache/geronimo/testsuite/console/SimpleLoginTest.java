@@ -34,22 +34,25 @@ public class SimpleLoginTest
         logout();
     }
     
-    @Test
+    @Test(dependsOnMethods = { "testLoginAndLogout" })
     public void testClickSomeLinks() throws Exception {
         try {
             login();
             
             selenium.click("link=Information");
-            waitForPageLoad();
+            waitForPageLoad();            
             assertEquals("Geronimo Console", selenium.getTitle());
             
+            selenium.open("/console");
             selenium.click("link=Java System Info");
             waitForPageLoad();
             assertEquals("Geronimo Console", selenium.getTitle());
             
+            selenium.open("/console");
             selenium.click("link=DB Info");
             waitForPageLoad();
-            assertEquals("Geronimo Console", selenium.getTitle());
+            assertEquals("Geronimo Console", selenium.getTitle());            
+           
         } finally {
             logout();
         }

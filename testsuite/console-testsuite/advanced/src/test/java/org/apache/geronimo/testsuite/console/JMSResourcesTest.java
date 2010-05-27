@@ -53,12 +53,14 @@ public class JMSResourcesTest extends TestSupport {
         selenium.click("//input[@value='Deploy Now']");
         waitForPageLoad();
         assertTrue(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/car)"));
+        selenium.open("/console");
         selenium.click("link=J2EE Connectors");
         waitForPageLoad();
         selenium.click("link=Uninstall"); 
         assertTrue("timed out waiting for button", waitForButton());
         selenium.click("dijit_form_Button_0");
         waitForPageLoad();
+        selenium.open("/console");
         selenium.click("link=JMS Resources");
         waitForPageLoad();
         assertFalse(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/car)"));
