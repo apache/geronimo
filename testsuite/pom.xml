@@ -47,6 +47,9 @@
           Against the default Jetty assembly -
             mvn clean install -Pit
 
+          Against the Tomcat assembly - 
+            mvn clean install -Pit -DassemblyId=tomcat
+
           Against the pre-installed assembly -
             mvn clean install -Pit -DgeronimoHome=<Path to Geronimo Home>
           
