@@ -52,6 +52,16 @@ limitations under the License.
     <listener-class>org.apache.pluto.driver.PortalStartupListener</listener-class>
   </listener>
   
+   <filter>
+    <filter-name>NoXssShowTreeSettingFilter</filter-name>
+    <filter-class>org.apache.geronimo.console.filter.NoXssShowTreeSettingFilter</filter-class>
+  </filter>
+  
+  <filter-mapping>
+    <filter-name>NoXssShowTreeSettingFilter</filter-name>
+    <url-pattern>/secure/*</url-pattern>
+  </filter-mapping>
+  
   <filter>
     <filter-name>PlutoURLRebuildFilter</filter-name>
     <filter-class>org.apache.geronimo.console.filter.PlutoURLRebuildFilter</filter-class>
@@ -287,7 +297,7 @@ limitations under the License.
   </security-constraint>
 
 
-        <security-constraint>
+  <security-constraint>
     <web-resource-collection>
       <web-resource-name>console monitor</web-resource-name>
       <url-pattern>/portal</url-pattern>
