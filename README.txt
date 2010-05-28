@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo v@VERSION@ 
+Apache Geronimo v3.0-M1
 
 http://geronimo.apache.org/
 ------------------------------------------------------
@@ -9,7 +9,7 @@ ______________________
 Release Notes
 ======================
 
- Please read the RELEASE_NOTES-@VERSION@.txt for a complete list of new features 
+ Please read the RELEASE_NOTES-3.0-M1.txt for a complete list of new features 
  available in this release. 
  
   
@@ -23,7 +23,7 @@ Documentation
    -  http://cwiki.apache.org/GMOxDOC30/documentation.html
    OR
    -  http://cwiki.apache.org/GMOxDOC21/documentation.html
-   (Geronimo 2.2 documentation until Geronimo @VERSION@ documentation is created)
+   (Geronimo 2.2 documentation until Geronimo 3.0-M1 documentation is created)
 
 
 ______________________
@@ -43,13 +43,13 @@ ______________________
 Starting Geronimo 
 ======================
 
- There are three general techniques for starting Geronimo (assuming the current directory
- is <geronimo_home>):
+ To start Geronimo in foreground type (assuming the current directory is <geronimo_home>):
 
- 1. GShell -- "./bin/gsh geronimo/start-server"
- 2. Script -- "./bin/geronimo.sh run"
- 3. Java   -- "java -Djava.endorsed.dirs=$JRE_HOME/lib/endorsed:lib/endorsed -Djava.ext.dirs=$JRE_HOME/lib/ext:lib/ext -javaagent:bin/jpa.jar -jar bin/server.jar"
+   ./bin/geronimo run
 
+ To start Geronimo in background type (assuming the current directory is <geronimo_home>):
+
+   ./bin/geronimo start
 
 Additional information on command environments can be found below.
 
@@ -60,7 +60,7 @@ Application Deployment
 
  Applications can be deployed to a Geronimo server in several ways:
 
- 1. Administrative command scripts -- "./bin/gsh deploy/deploy MyApp.war MyDeploymentPlan.xml"
+ 1. Administrative command scripts -- "./bin/deploy deploy MyApp.war MyDeploymentPlan.xml"
  2. Administrative console -- login to the admin console and click "Deploy New" under Applications
  3. Hot deploy -- copy your archive(s) into the "<geronimo-home>/deploy" directory. The
     hot deploy service will automatically deploy these artifacts.
@@ -115,43 +115,11 @@ Security Configuration
  To prevent potential security exposures, we strongly recommend you update the 
  default user names and passwords on your system.
 
-
-______________________
-GShell
-======================
-
- Geronimo provides a command shell environment for executing commands, called GShell. 
-
- To start a GShell environment, from the <geronimo_home> directory, execute "./bin/gsh" (unix)
- or "bin\gsh" (windows). This will start a GShell command environment. From here,
- you can execute Geronimo administrative commands as well as general GShell commands.
- Alternatively, you can invoke a GShell command at the same time that you invoke gsh, for
- example:
-  
-   ./bin/gsh geronimo/stop-server
-
- A list of common gsh commands are:
-
-   help
-   geronimo/start-server
-   geronimo/stop-server
-   deploy/deploy 
-   deploy/undeploy 
-   deploy/list-modules
-   deploy/install-plugin
-   deploy/assemble
-
- Usage information for any command can be obtained by using the --help option. For example:
-
-   geronimo/start-server --help 
-
- For more information on GShell and GShell commands, see the Geronimo @VERSION@ documentation.
-
 ______________________
 Script
 ======================
 
- Geronimo provides a number of .sh or .bat scripts that can be used to administer Geronimo
+ Geronimo provides a number of shell or batch scripts that can be used to administer Geronimo
  servers. To use most of these scripts, you must first set either the JAVA_HOME 
  or JRE_HOME environment variable:
 
@@ -161,16 +129,15 @@ Script
 
  Unix scripts provided by Geronimo (there are .bat equivalents):
 
-   geronimo.sh -- used to start and stop servers; either as a foreground or background process.
-   startup.sh -- start a Geronimo server running as a background process
-   shutdown.sh -- stop a running Geronimo server
-   client.sh -- start a Geronimo application client
-   deploy.sh -- deploy, list, and undeploy plugins and applications
-   jaxws-tools.sh -- generate WSDL from Java code or Java code from WSDL
+   geronimo -- used to start and stop servers; either as a foreground or background process.
+   startup -- start a Geronimo server running as a background process
+   shutdown -- stop a running Geronimo server
+   client -- start a Geronimo application client
+   deploy -- deploy, list, and undeploy plugins and applications
 
- For example, "./bin/deploy.sh list-modules"
+ For example, "./bin/deploy list-modules"
 
- The geronimo.sh and shutdown.sh scripts have multiple sub-commands. Executing the scripts without
+ The 'geronimo' and 'shutdown' scripts have multiple sub-commands. Executing the scripts without
  any arguments will generate usage information. Executing "help <sub-command>" will generate
  usage information for that particular command.
 
