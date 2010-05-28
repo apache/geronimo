@@ -2504,19 +2504,6 @@ only found in cxf
 
             <repositories>
                 <repository>
-                    <id>karaf</id>
-                    <name>karaf</name>
-                    <layout>default</layout>
-                    <url>https://repository.apache.org/content/repositories/orgapachefelix-003</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-
-                <repository>
                     <!-- org.ops4j routing -->
                     <id>ops4j.snapshots</id>
                     <name>OPS4J Snapshots Repository</name>
