@@ -125,6 +125,7 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
                     asyncStart();
                 }
             }, "AsyncStartThread-" + getBrokerName());
+            asyncStartThread.setDaemon(true);
             asyncStartThread.start();
         }
     }
