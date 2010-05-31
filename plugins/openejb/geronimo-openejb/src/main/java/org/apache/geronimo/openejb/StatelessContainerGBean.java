@@ -61,6 +61,13 @@ public class StatelessContainerGBean extends EjbContainer {
      */
      private int poolMin;
      
+     
+	/**
+	 * Specifies the maximum time that an instance should be allowed to sit idly
+	 * in the pool without use before it should be retired and removed.
+	 */
+      private int idleTimeout;
+     
 
     /**
      * StrictPooling tells the container what to do when the pool
@@ -87,6 +94,7 @@ public class StatelessContainerGBean extends EjbContainer {
             @ParamAttribute(name = "strictPooling") boolean strictPooling,
             @ParamAttribute(name = "accessTimeout") int accessTimeout,
             @ParamAttribute(name = "closeTimeout") int closeTimeout,
+            @ParamAttribute(name = "idleTimeout") int idleTimeout,            
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, StatelessSessionContainerInfo.class, openEjbSystem, provider, "STATELESS", properties);
         set("PoolSize", Integer.toString(poolSize));
@@ -94,11 +102,13 @@ public class StatelessContainerGBean extends EjbContainer {
         set("StrictPooling", Boolean.toString(strictPooling));
         set("AccessTimeout", Integer.toString(accessTimeout));
         set("CloseTimeout", Integer.toString(closeTimeout));
+        set("IdleTimeout", Integer.toString(idleTimeout));
         this.poolSize = poolSize;
         this.poolMin=poolMin;
         this.strictPooling = strictPooling;
         this.accessTimeout = accessTimeout;
         this.closeTimeout=closeTimeout;
+        this.idleTimeout=idleTimeout;        
     }
 
     public int getPoolSize() {
@@ -116,6 +126,10 @@ public class StatelessContainerGBean extends EjbContainer {
     public int getCloseTimeout() {
         return closeTimeout;
     }
+    
+    public int getIdleTimeout() {
+        return idleTimeout;
+    }    
 
     public int getPoolMin() {
         return poolMin;
