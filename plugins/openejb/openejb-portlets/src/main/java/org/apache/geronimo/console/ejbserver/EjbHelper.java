@@ -66,10 +66,12 @@ public class EjbHelper extends BaseRemoteProxy {
     private static final Logger log = LoggerFactory.getLogger(EjbHelper.class);
     
     private static final String POOLSIZE = "PoolSize";
+    private static final String POOLMIN = "PoolMin";
     private static final String BULKPASSIVATE = "BulkPassivate";
     private static final String CAPACITY = "Capacity";
-    private static final String TIMEOUT = "TimeOut";
+    private static final String CLOSETIMEOUT = "CloseTimeout";
     private static final String ACCESSTIMEOUT = "AccessTimeout";
+    private static final String IDLETIMEOUT = "IdleTimeout";    
     private static final String PASSIVATOR = "Passivator";
     private static final String STRICTPOOLING = "StrictPooling";
     private static final String INSTANCELIMIT = "InstanceLimit";
@@ -231,9 +233,11 @@ public class EjbHelper extends BaseRemoteProxy {
                 infos.add(information);
                 List<String> editableProperties = new ArrayList<String>();
                 editableProperties.add(POOLSIZE);
+                editableProperties.add(POOLMIN);                
                 editableProperties.add(BULKPASSIVATE);
-                editableProperties.add(TIMEOUT);
+                editableProperties.add(CLOSETIMEOUT);
                 editableProperties.add(ACCESSTIMEOUT);
+                editableProperties.add(IDLETIMEOUT);                
                 editableProperties.add(CAPACITY);
                 editableProperties.add(STRICTPOOLING);
                 editableProperties.add(INSTANCELIMIT);                
@@ -285,11 +289,14 @@ public class EjbHelper extends BaseRemoteProxy {
         
         List<String> numericProperties = new ArrayList<String>();
         numericProperties.add(POOLSIZE);
+        numericProperties.add(POOLMIN);        
         numericProperties.add(BULKPASSIVATE);
-        numericProperties.add(TIMEOUT);
+        numericProperties.add(CLOSETIMEOUT);
+        numericProperties.add(ACCESSTIMEOUT);
+        numericProperties.add(IDLETIMEOUT);           
         numericProperties.add(INSTANCELIMIT); 
         numericProperties.add(CAPACITY);
-        numericProperties.add(ACCESSTIMEOUT);
+     
         
         if (numericProperties.contains(propertyKey)) {
             try {
