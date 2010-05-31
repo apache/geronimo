@@ -20,16 +20,20 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="/WEB-INF/CommonMsg.tld" prefix="CommonMsg"%>
+
 <fmt:setBundle basename="consolebase"/>
 <portlet:defineObjects/>
 
+<CommonMsg:confirmMsg/>
 <c:set var="reslist" value="${requestScope['org.apache.geronimo.console.repo.list']}"/>
+
 
 <style type="text/css">  
     div.Hidden {
         display: none;
     }
-	
+
     div.Shown {
         display: block;
     font-size: 10px;
@@ -113,8 +117,12 @@ function <portlet:namespace/>parse(localFile) {
     }
 }
 
+function removePrompt(target,componentName){
+    return showConfirmMessage(target, '<fmt:message key="repository.remove.confirm"/>' + componentName + '?', '<fmt:message key="repository.remove.ok"/>', '<fmt:message key="repository.remove.cancel"/>');
+}
 </script>
 
+<CommonMsg:commonMsg/>
 <div id="<portlet:namespace/>CommonMsgContainer"></div><br>
 
 <table width="100%">
@@ -124,7 +132,7 @@ function <portlet:namespace/>parse(localFile) {
   <input type="hidden" value="deploy" name="action"/>
   <table width="80%">
     <tr>
-      <th colspan="2" align="center"><fmt:message key="repository.normal.addArchiveToRepository"/></th>
+      <td colspan="2" align="center"><b><fmt:message key="repository.normal.addArchiveToRepository"/></b></td>
     </tr>
     <tr>
       <td align="right" width="40%"><label for="<portlet:namespace/>local"><fmt:message key="consolebase.common.file"/></label></td>
@@ -166,30 +174,36 @@ function <portlet:namespace/>parse(localFile) {
 
 <b><fmt:message key="repository.normal.currentRepositoryEntries"/></b>
 <p><fmt:message key="repository.normal.toViewUsage"/></p>
-<ul>
+
 <table width="100%" class="TableLine" summary="Repository Manager">
     <tr class="DarkBackground">
         <th scope="col" align="left">&nbsp;<fmt:message key="configmanager.normal.componentName" /></th>   
         <th scope="col" align="left">&nbsp;<fmt:message key="consolebase.common.commands"/></th>
     </tr>
     <c:set var="backgroundClass" value='MediumBackground'/>
-	  <c:forEach items="${reslist}" var="res">
-	      <c:choose>
-          <c:when test="${backgroundClass == 'MediumBackground'}" >
-              <c:set var="backgroundClass" value='LightBackground'/>
-          </c:when>
-          <c:otherwise>
-              <c:set var="backgroundClass" value='MediumBackground'/>
-          </c:otherwise>
-      </c:choose>
-      <tr>
-        <td class="${backgroundClass}">
-	      <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="usage"/><portlet:param name="res" value="${res}"/></portlet:actionURL>"><c:out value="${res}"/></a>
-	    </td>
-	    <td class="${backgroundClass}">
-	      <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="remove"/><portlet:param name="res" value="${res}"/></portlet:actionURL>"><fmt:message key="consolebase.common.remove"/></a>
-	    </td>
-	  </tr>
+      <c:forEach items="${reslist}" var="res">
+          <c:choose>
+              <c:when test="${backgroundClass == 'MediumBackground'}" >
+                  <c:set var="backgroundClass" value='LightBackground'/>
+              </c:when>
+              <c:otherwise>
+                  <c:set var="backgroundClass" value='MediumBackground'/>
+              </c:otherwise>
+          </c:choose>
+          <tr>
+            <td class="${backgroundClass}">
+              <a href="<portlet:actionURL portletMode="view"><portlet:param name="action" value="usage"/><portlet:param name="res" value="${res.name}"/></portlet:actionURL>"><c:out value="${res.name}"/></a>
+            </td>
+            <td class="${backgroundClass}">
+                <c:if test="${res.shouldRemove}">
+                    <a href="<portlet:actionURL portletMode="view" ><portlet:param name="action" value="remove"/><portlet:param name="res" value="${res.name}"/></portlet:actionURL>" 
+                    onClick="return removePrompt(this, '${res.name}');"><fmt:message key="consolebase.common.remove"/></a>
+                </c:if>
+                <c:if test="${!res.shouldRemove}">
+                     &nbsp;
+                </c:if>
+            </td>
+          </tr>
 	</c:forEach>
 </table>
-</ul>
+

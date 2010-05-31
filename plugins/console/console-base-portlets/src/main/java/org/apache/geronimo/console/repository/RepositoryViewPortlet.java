@@ -17,24 +17,17 @@
 
 package org.apache.geronimo.console.repository;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.portlet.PortletFileUpload;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
-import org.apache.geronimo.kernel.repository.Maven2Repository;
-import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.SortedSet;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -45,15 +38,28 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.SortedSet;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.portlet.PortletFileUpload;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Maven2Repository;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -63,6 +69,12 @@ public class RepositoryViewPortlet extends BasePortlet {
     private static final Logger log = LoggerFactory.getLogger(RepositoryViewPortlet.class);
 
     private Kernel kernel;
+    
+    private ConfigurationManager configrationManager;
+    
+    private Map<Artifact,LinkedHashSet> childToParents=new HashMap<Artifact,LinkedHashSet>();
+    
+    private Map<Artifact,LinkedHashSet<Artifact>> parentToChildren=new HashMap<Artifact,LinkedHashSet<Artifact>>();
 
     private PortletContext ctx;
 
@@ -75,6 +87,9 @@ public class RepositoryViewPortlet extends BasePortlet {
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
         kernel = KernelRegistry.getSingleKernel();
+        
+        configrationManager=ConfigurationUtil.getConfigurationManager(kernel);
+        
         ctx = portletConfig.getPortletContext();
         normalView = ctx
                 .getRequestDispatcher("/WEB-INF/view/repository/normal.jsp");
@@ -87,6 +102,7 @@ public class RepositoryViewPortlet extends BasePortlet {
     public void processAction(ActionRequest actionRequest,
                               ActionResponse actionResponse) throws PortletException, IOException {
         String action = actionRequest.getParameter("action");
+        actionResponse.setRenderParameter("message", ""); // set to blank first
         if(action != null && action.equals("usage")) {
             // User clicked on a repository entry to view usage
             String res = actionRequest.getParameter("res");
@@ -100,29 +116,39 @@ public class RepositoryViewPortlet extends BasePortlet {
             String res = actionRequest.getParameter("res");
             actionResponse.setRenderParameter("mode", "remove");
             actionResponse.setRenderParameter("res", res);
+            
             Maven2Repository repo = (Maven2Repository) PortletManager.getCurrentServer(actionRequest).getRepositories()[0];
             Artifact artifact = Artifact.create(res);
             File location = repo.getLocation(artifact);
             if (location == null) {
-                return;//??
+                addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg26"));
+                return;
             }
             if (location.isDirectory()) {
-                //don't use this to uninstall plugins
-                return;//??
+                addInfoMessage(actionRequest,getLocalizedString(actionRequest, "consolebase.infoMsg20"));
+                return;
             }
-            while (true) {
-                location.delete();
-                location = location.getParentFile();
-                File[] contents = location.listFiles();
-                if (contents == null || contents.length == 0) {
-                    return;
+            boolean result=location.delete();
+            if(!result){//can not delete the file maybe the jar is using in the JVM
+                addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg25")+artifact.toString()+showReason(artifact));
+                return;
+            }else{//delete parent folder
+                File versionDir=location.getParentFile();
+                File[] contents=versionDir.listFiles();
+                for(File content:contents){
+                    if(!content.delete()){
+                        addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg25")+artifact.toString()+showReason(artifact));
+                        return;
+                    }
                 }
+                versionDir.delete();
+                addInfoMessage(actionRequest,artifact.toString()+getLocalizedString(actionRequest,"consolebase.infoMsg19")); 
+                return;
+            
             }
         }
 
         try {
-
-
             WriteableRepository repo = PortletManager.getCurrentServer(actionRequest).getWritableRepositories()[0];
 
             File uploadFile = null;
@@ -228,13 +254,16 @@ public class RepositoryViewPortlet extends BasePortlet {
         }
     }
 
-    protected void doView(RenderRequest request, RenderResponse response)
+	protected void doView(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {
         // i think generic portlet already does this
         if (WindowState.MINIMIZED.equals(request.getWindowState())) {
             return;
         }
-
+        childToParents.clear();
+        parentToChildren.clear();
+        
+        
         String mode = request.getParameter("mode");
         if(mode != null && mode.equals("usage")) {
             String res = request.getParameter("res");
@@ -247,26 +276,37 @@ public class RepositoryViewPortlet extends BasePortlet {
             usageView.include(request, response);
             return;
         }
-
+        
         try {
-            List list = new ArrayList();
-            ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();
-            for (int i = 0; i < repos.length; i++) {
-                ListableRepository repo = repos[i];
-                final SortedSet artifacts = repo.list();
+            ListableRepository[] repos = PortletManager.getCurrentServer(request).getRepositories();     
+            List moduleList=new ArrayList();
+            for(int i=0;i<repos.length;i++){
+                ListableRepository repo=repos[i];
+                
+                final SortedSet artifacts=repo.list();
                 for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
                     String fileName = iterator.next().toString();
-                    list.add(fileName);
+                    ModuleDetails module=new ModuleDetails(fileName);
+                    moduleList.add(module);
+                    
+                    Configuration configration=configrationManager.getConfiguration(Artifact.create(fileName));
+                    
+                    if(configration!=null){
+                        Artifact configId=configration.getId();
+                        LinkedHashSet<Artifact> dependencies=configration.getDependencies();
+                        
+                        for(Artifact dependency:dependencies){
+                            addParent(configId,dependency);
+                            addChildren(dependency,configId);
+                        }
+                    }
                 }
             }
-            Collections.sort(list);
 
-            request.setAttribute("org.apache.geronimo.console.repo.list", list);
-
+            request.setAttribute("org.apache.geronimo.console.repo.list", moduleList);
         } catch (Exception e) {
             throw new PortletException(e);
         }
-
         normalView.include(request, response);
     }
 
@@ -303,4 +343,71 @@ public class RepositoryViewPortlet extends BasePortlet {
         return listing;
     }
 
+    
+    public void addParent(Artifact child,Artifact parent){
+        if(!childToParents.containsKey(child)){
+            LinkedHashSet <Artifact> parents=new LinkedHashSet<Artifact>();
+            parents.add(parent);
+            childToParents.put(child, parents);
+        }else{
+            childToParents.get(child).add(parent);
+        }
+    }
+    
+    public void addChildren(Artifact parent,Artifact child){
+        if(!parentToChildren.containsKey(parent)){
+            LinkedHashSet<Artifact> children=new LinkedHashSet<Artifact>();
+            children.add(child);
+            parentToChildren.put(parent, children);
+        }else{
+            parentToChildren.get(parent).add(child);
+        }
+    }
+    
+    private String showReason(Artifact artifact){
+        StringBuffer sb=new StringBuffer();
+        sb.append("<br/><br/>Error Reason:the component is using within the server.<br/><br/>");
+        LinkedHashSet<Artifact> children=parentToChildren.get(artifact);
+        if(children!=null){
+            sb.append("The children of "+artifact+":");
+            for(Iterator<Artifact> it=children.iterator();it.hasNext();){
+                sb.append("<br/><span style='padding-left:20px'/>->");
+                sb.append(it.next());
+            }
+        }
+        
+        LinkedHashSet<Artifact> parents=childToParents.get(artifact);
+        if(parents!=null){
+            sb.append("The parents of "+artifact+":<br/>");
+            for(Iterator<Artifact> it=parents.iterator();it.hasNext();){
+                sb.append("<br/><span style='padding-left:20px'/>->");
+                sb.append(it.next());
+            }
+        }
+        return sb.toString();
+    }
+    
+    public static class ModuleDetails{
+        private String name;
+        private boolean shouldRemove;
+        public ModuleDetails(String fileName){
+            name=fileName;
+            shouldRemove=checkShouldRemove(name);
+        }
+        
+        public boolean checkShouldRemove(String name){
+            if(name.endsWith("jar"))
+                return true;
+            return false;
+        }
+        
+        public String getName(){
+            return name;
+        }
+        
+        public boolean getShouldRemove(){
+            return shouldRemove;
+        }
+    
+    }
 }
