@@ -289,10 +289,7 @@
 							</suiteXmlFiles>
 						-->
 						<systemPropertyVariables>
-							<property>
-								<name>geronimoVersion</name>
-								<value>${project.version}</value>
-							</property>
+							<geronimoVersion>${project.version}</geronimoVersion>								
 						</systemPropertyVariables>
 					</configuration>
 					<executions>
