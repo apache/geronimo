@@ -85,7 +85,7 @@ public class BasicRegistry implements InstanceRegistry {
     public synchronized void register(GBeanInstance gbeanInstance) throws GBeanAlreadyExistsException {
         ObjectName name = normalizeObjectName(gbeanInstance.getObjectNameObject());
         if (objectNameRegistry.containsKey(name)) {
-            throw new GBeanAlreadyExistsException("GBean already registered: " + name);
+            throw new GBeanAlreadyExistsException("Cannot register GBean with abstract name: " + gbeanInstance.getAbstractName() + ", GBean with abstract name: " + objectNameRegistry.get(name).getAbstractName() + " already registered under ObjectName: " + name);
         }
         objectNameRegistry.put(name, gbeanInstance);
         infoRegistry.put(gbeanInstance.getAbstractName(), gbeanInstance);
