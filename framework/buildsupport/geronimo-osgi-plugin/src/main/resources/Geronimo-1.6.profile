@@ -142,7 +142,7 @@ org.osgi.framework.system.packages.extra = \
  sun.misc,\
  sun.reflect,\
  org.apache.geronimo.transformer,\
- org.apache.felix.karaf.jaas.boot;version=1.5.0
+ org.apache.felix.karaf.jaas.boot;version=1.6.0
 
 org.osgi.framework.bootdelegation = \
  javax.*,\

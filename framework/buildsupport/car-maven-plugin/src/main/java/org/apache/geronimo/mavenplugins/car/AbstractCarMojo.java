@@ -845,7 +845,7 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.system.util," +
                         "org.apache.geronimo.transformer," +
                         "org.apache.geronimo.mavenplugins.car," +
-                        "org.apache.felix.karaf.jaas.boot;version=\"1.5.0\"," +
+                        "org.apache.felix.karaf.jaas.boot;version=\"1.6.0\"," +
                         "org.apache.yoko," +
                         "org.apache.yoko.osgi," +
                         "org.apache.yoko.rmispec.util"
