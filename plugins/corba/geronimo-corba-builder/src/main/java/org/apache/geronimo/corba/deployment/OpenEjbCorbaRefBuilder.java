@@ -114,7 +114,7 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
 
             Reference ejbReference = addEJBRef(module, ejbRef, remoteRef, bundle);
             if (ejbReference != null) {
-                put(ejbRefName, ejbReference, JNDI_KEY.get(sharedContext));
+                put(ejbRefName, ejbReference, module.getJndiContext());
             }
         }
     }

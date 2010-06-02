@@ -20,7 +20,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.HashSet;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
@@ -35,22 +34,16 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.KernelConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
+import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
@@ -81,7 +74,7 @@ public class MessageDestinationTest extends TestCase {
         locations.put(null, artifact);
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, locations);
         Artifact id = new Artifact("test", "test", "", "car");
-        module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, null, "foo", null, null, null, null);
+        module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, null, "foo", null, null, null, null, null, null);
         ConfigurationManager configurationManager = new MockConfigurationManager();
         EARContext earContext = new EARContext(new File("foo"),
             null,
@@ -139,7 +132,7 @@ public class MessageDestinationTest extends TestCase {
         configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.GBEAN_INFO));
         configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.GBEAN_INFO));
         adminObjectRefBuilder.buildNaming(specDD, plan, module, componentContext);
-        assertEquals(2, NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp).size());
+        assertEquals(2, module.getJndiScope(JndiScope.comp).size());
     }
 
     private static final String PLAN2 = "<tmp xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
@@ -163,7 +156,7 @@ public class MessageDestinationTest extends TestCase {
         configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.GBEAN_INFO));
         configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.GBEAN_INFO));
         adminObjectRefBuilder.buildNaming(specDD, plan, module, componentContext);
-        assertEquals(2, NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp).size());
+        assertEquals(2, module.getJndiScope(JndiScope.comp).size());
     }
 
     private static final String SPECDD2 = "<tmp xmlns=\"http://java.sun.com/xml/ns/j2ee\">" +

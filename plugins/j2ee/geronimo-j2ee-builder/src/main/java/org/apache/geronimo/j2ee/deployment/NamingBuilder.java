@@ -37,17 +37,6 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
     
     XmlObject[] NO_REFS = new XmlObject[] {};
 
-    EARContext.Key<Map<JndiKey, Map<String, Object>>> JNDI_KEY = new EARContext.Key<Map<JndiKey, Map<String, Object>>>() {
-
-        public Map<JndiKey, Map<String, Object>> get(Map<EARContext.Key, Object> context) {
-            Map<JndiKey, Map<String, Object>> result = (Map<JndiKey, Map<String, Object>>) context.get(this);
-            if (result == null) {
-                result = new HashMap<JndiKey, Map<String, Object>>();
-                context.put(this, result);
-            }
-            return result;
-        }
-    };
     EARContext.Key<Holder> INJECTION_KEY = new EARContext.Key<Holder>() {
 
         public Holder get(Map<EARContext.Key, Object> context) {

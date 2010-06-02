@@ -209,18 +209,22 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         this.clientArtifactResolver = clientArtifactResolver;
     }
 
+    @Override
     public void doStart() throws Exception {
         XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
     }
 
+    @Override
     public void doStop() {
         XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
     }
 
+    @Override
     public void doFail() {
         doStop();
     }
 
+    @Override
     public AbstractNameQuery getCorbaGBeanName() {
         return corbaGBeanObjectName;
     }
@@ -229,23 +233,26 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         return (ModuleBuilder) connectorModuleBuilder.getElement();
     }
 
+    @Override
     public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return null;
     }
 
+    @Override
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, "app-client.jar", null, null, null, naming, idBuilder);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming, idBuilder);
+    @Override
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, parentModule, naming, idBuilder);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
         assert targetPath != null : "targetPath is null";
         assert !targetPath.endsWith("/") : "targetPath must not end with a '/'";
-        assert (earName == null) == (earEnvironment == null) : "if earName is not null you must supply earEnvironment as well";
+        assert (parentModule == null) == (earEnvironment == null) : "if earName is not null you must supply earEnvironment as well";
 
         boolean standAlone = earEnvironment == null;
 
@@ -325,16 +332,32 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             idBuilder.resolve(serverEnvironment, new File(moduleFile.getName()).getName(), "car");
         }
 
-        if (earName == null) {
+        AbstractName earName;
+        if (parentModule == null) {
             earName = naming.createRootName(serverEnvironment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+        } else {
+            earName = parentModule.getModuleName();
         }
 
         //always use the artifactId of the app client as the name component of the module name (on the server).
         AbstractName moduleName = naming.createChildName(earName, clientEnvironment.getConfigId().toString(), NameFactory.APP_CLIENT_MODULE);
         AbstractName clientBaseName = naming.createRootName(clientEnvironment.getConfigId(), clientEnvironment.getConfigId().toString(), NameFactory.J2EE_APPLICATION);
 
+        // Create the AnnotatedApp interface for the AppClientModule
+        AnnotatedApplicationClient annotatedApplicationClient = new AnnotatedApplicationClient(appClient, mainClass);
+
+        String name = null;
+        if (appClient.isSetModuleName()) {
+            name = appClient.getModuleName().getStringValue().trim();
+        } else if (standAlone) {
+            name = FileUtils.removeExtension(new File(moduleFile.getName()).getName(), ".jar");
+        } else {
+            name = FileUtils.removeExtension(targetPath, ".jar");
+        }
+
+        AppClientModule module = new AppClientModule(standAlone, moduleName, name, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, annotatedApplicationClient);
+
         //start installing the resource adapters in the client.
-        Collection<ConnectorModule> resourceModules = new ArrayList<ConnectorModule>();
         GerResourceType[] resources = gerAppClient.getResourceArray();
         for (GerResourceType resource : resources) {
             String path;
@@ -376,23 +399,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 }
             }
             XmlObject connectorPlan = resource.getConnector();
-            ConnectorModule connectorModule = (ConnectorModule) getConnectorModuleBuilder().createModule(connectorPlan, connectorFile, path, null, clientEnvironment, null, clientBaseName, naming, idBuilder);
-            resourceModules.add(connectorModule);
+            ConnectorModule connectorModule = (ConnectorModule) getConnectorModuleBuilder().createModule(connectorPlan, connectorFile, path, null, clientEnvironment, null, module, naming, idBuilder);
+            module.getModules().add(connectorModule);
         }
 
-        // Create the AnnotatedApp interface for the AppClientModule
-        AnnotatedApplicationClient annotatedApplicationClient = new AnnotatedApplicationClient(appClient, mainClass);
-
-        String name = null;
-        if (appClient.isSetModuleName()) {
-            name = appClient.getModuleName().getStringValue().trim();
-        } else if (standAlone) {
-            name = FileUtils.removeExtension(new File(moduleFile.getName()).getName(), ".jar");
-        } else {
-            name = FileUtils.removeExtension(targetPath, ".jar");
-        }
-        
-        AppClientModule module = new AppClientModule(standAlone, moduleName, name, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, resourceModules, annotatedApplicationClient);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, clientEnvironment, null, earName, naming, idBuilder);
         }
@@ -404,10 +414,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     null,
                     null,
                     null,
-                    new LinkedHashSet<Module<?,?>>(Collections.singleton(module)),
-                    new ModuleList(),
                     null,
                     null);
+            appInfo.getModules().add(module);
             return appInfo;
         } else {
             return module;
@@ -593,8 +602,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             cleanupAppClientDir(appClientDir);
             throw e;
         }
-        for (ConnectorModule connectorModule : appClientModule.getResourceModules()) {
-            getConnectorModuleBuilder().installModule(connectorModule.getModuleFile(), appClientDeploymentContext, connectorModule, configurationStores, targetConfigurationStore, repositories);
+        for (Module connectorModule : appClientModule.getModules()) {
+            if (connectorModule instanceof ConnectorModule) {
+                getConnectorModuleBuilder().installModule(connectorModule.getModuleFile(), appClientDeploymentContext, connectorModule, configurationStores, targetConfigurationStore, repositories);
+            }
         }
 
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
@@ -606,8 +617,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         AppClientModule appClientModule = ((AppClientModule) clientModule);
         namingBuilders.buildEnvironment(appClientModule.getSpecDD(), appClientModule.getVendorDD(), clientModule.getEnvironment());
 
-        for (ConnectorModule connectorModule : appClientModule.getResourceModules()) {
-            getConnectorModuleBuilder().initContext(appClientModule.getEarContext(), connectorModule, bundle);
+        for (Module connectorModule : appClientModule.getModules()) {
+            if (connectorModule instanceof ConnectorModule) {
+                getConnectorModuleBuilder().initContext(appClientModule.getEarContext(), connectorModule, bundle);
+            }
         }
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.initContext(earContext, clientModule, bundle);
@@ -684,8 +697,10 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     serviceBuilder.build(geronimoAppClient, appClientDeploymentContext, appClientDeploymentContext);
                     //deploy the resource adapters specified in the geronimo-application.xml
 
-                    for (ConnectorModule connectorModule : appClientModule.getResourceModules()) {
-                        getConnectorModuleBuilder().addGBeans(appClientDeploymentContext, connectorModule, appClientClassBundle, repositories);
+                    for (Module connectorModule : appClientModule.getModules()) {
+                        if (connectorModule instanceof ConnectorModule) {
+                            getConnectorModuleBuilder().addGBeans(appClientDeploymentContext, connectorModule, appClientClassBundle, repositories);
+                        }
                     }
                 }
 
@@ -708,10 +723,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         // (or not)
                         appClientModule.setClassFinder(createAppClientClassFinder(appClient, appClientModule));
                     }
-                    Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(earContext.getGeneralData());
-                    Map<JndiKey, Map<String, Object>> clientContexts = new HashMap<JndiKey, Map<String, Object>>(contexts);
-                    getJndiContext(clientContexts, JndiScope.module).put("module/ModuleName", module.getName());
-                    buildingContext.put(NamingBuilder.JNDI_KEY, clientContexts);
+                    appClientModule.getJndiScope(JndiScope.module).put("module/ModuleName", module.getName());
                     namingBuilders.buildNaming(appClient, geronimoAppClient, appClientModule, buildingContext);
 
                     if (!appClient.getMetadataComplete()) {
@@ -722,7 +734,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     appClientModuleGBeanData.setAttribute("deploymentDescriptor", appClientModule.getOriginalSpecDD());
                     //in the app client
                     holder = NamingBuilder.INJECTION_KEY.get(buildingContext);
-                    jndiContextGBeanData.setAttribute("context", NamingBuilder.JNDI_KEY.get(buildingContext));
+                    jndiContextGBeanData.setAttribute("context", appClientModule.getJndiContext());
                 } catch (DeploymentException e) {
                     throw e;
                 } catch (Exception e) {

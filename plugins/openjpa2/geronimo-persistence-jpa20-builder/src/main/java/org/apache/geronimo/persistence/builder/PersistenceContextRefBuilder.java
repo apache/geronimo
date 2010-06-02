@@ -144,7 +144,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
 
                 PersistenceContextReference reference = new PersistenceContextReference(module.getConfigId(), persistenceUnitNameQuery, transactionScoped, properties);
 
-                put(persistenceContextRefName, reference, NamingBuilder.JNDI_KEY.get(componentContext));
+                put(persistenceContextRefName, reference, module.getJndiContext());
             } catch (DeploymentException e) {
                 problems.add(e);
             }
@@ -166,7 +166,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
 
                 PersistenceContextReference reference = new PersistenceContextReference(module.getConfigId(), persistenceUnitNameQuery, transactionScoped, properties);
 
-                put(persistenceContextRefName, reference, NamingBuilder.JNDI_KEY.get(componentContext));
+                put(persistenceContextRefName, reference, module.getJndiContext());
             } catch (DeploymentException e) {
                 problems.add(e);
             }

@@ -31,7 +31,6 @@ import java.util.jar.JarFile;
 
 import javax.naming.Reference;
 import javax.sql.DataSource;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -350,9 +349,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
 
             JarFile rarJarFile = JarUtils.createJarFile(rarFile);
-            AbstractName earName = null;
             String moduleName = "geronimo/test-ear/1.0/car";
-            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, moduleName, action.getSpecDD(), null, null, earName, naming, new ModuleIDBuilder());
+            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, moduleName, action.getSpecDD(), null, null, null, naming, new ModuleIDBuilder());
             if (module == null) {
                 throw new DeploymentException("Was not a connector module");
             }

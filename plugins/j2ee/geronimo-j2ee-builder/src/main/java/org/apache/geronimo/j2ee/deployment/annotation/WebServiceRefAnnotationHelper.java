@@ -27,16 +27,15 @@ import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.WebServiceRefs;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee6.JndiNameType;
 import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee6.XsdAnyURIType;
 import org.apache.geronimo.xbeans.javaee6.XsdStringType;
-import org.apache.xbean.finder.ClassFinder;
+import org.apache.xbean.finder.AbstractFinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -81,7 +80,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
+    public static void processAnnotations(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         if (annotatedApp != null) {
             if (classFinder.isAnnotationPresent(WebServiceRefs.class)) {
                 processWebServiceRefs(annotatedApp, classFinder);
@@ -100,7 +99,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processWebServiceRef(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
+    private static void processWebServiceRef(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processWebServiceRef(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Class> classeswithWebServiceRef = classFinder.findAnnotatedClasses(WebServiceRef.class);
@@ -145,7 +144,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processWebServiceRefs(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
+    private static void processWebServiceRefs(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processWebServiceRefs(): Entry");
 
         List<Class> classeswithWebServiceRefs = classFinder.findAnnotatedClasses(WebServiceRefs.class);

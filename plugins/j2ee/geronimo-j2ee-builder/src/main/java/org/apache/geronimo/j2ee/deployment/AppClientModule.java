@@ -35,7 +35,6 @@ public class AppClientModule extends Module<XmlObject, XmlObject> {
     private JarFile earFile;
     private final AbstractName appClientName;
     private final String mainClassName;
-    private final Collection<ConnectorModule> resourceModules;
 
     public AppClientModule(boolean standAlone, 
                            AbstractName moduleName, 
@@ -49,14 +48,12 @@ public class AppClientModule extends Module<XmlObject, XmlObject> {
                            String mainClassName, 
                            XmlObject vendorDD, 
                            String originalSpecDD, 
-                           Collection<ConnectorModule> resourceModules, 
                            AnnotatedApplicationClient annotatedAppClient ) {
         super(standAlone, moduleName, name, clientEnvironment, moduleFile, targetPath, 
-              specDD, vendorDD, originalSpecDD, null, annotatedAppClient, null, null );
+              specDD, vendorDD, originalSpecDD, null, annotatedAppClient, null, null);
         this.serverEnvironment = serverEnvironment;
         this.appClientName = appClientName;
         this.mainClassName = mainClassName;
-        this.resourceModules = resourceModules;
     }
 
     public ConfigurationModuleType getType() {
@@ -81,19 +78,6 @@ public class AppClientModule extends Module<XmlObject, XmlObject> {
 
     public String getMainClassName() {
         return mainClassName;
-    }
-
-    public Collection<ConnectorModule> getResourceModules() {
-        return resourceModules;
-    }
-
-    public void close() {
-        if (resourceModules != null) {
-            for (ConnectorModule resourceModule : resourceModules) {
-                resourceModule.close();
-            }
-        }
-        super.close();
     }
 
 }

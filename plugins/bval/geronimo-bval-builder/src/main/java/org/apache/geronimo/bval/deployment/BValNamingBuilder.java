@@ -48,9 +48,8 @@ public class BValNamingBuilder extends AbstractNamingBuilder {
 
     @Override
     public void buildNaming(XmlObject xmlObject, XmlObject xmlObject1, Module module, Map<EARContext.Key, Object> keyObjectMap) throws DeploymentException {
-        Map<JndiKey, Map<String, Object>> jndiContext = JNDI_KEY.get(keyObjectMap);
-        put("java:comp/Validator", new DefaultValidatorReference(), jndiContext);
-        put("java:comp/ValidatorFactory", new DefaultValidatorFactoryReference(), jndiContext);
+        put("java:comp/Validator", new DefaultValidatorReference(), module.getJndiContext());
+        put("java:comp/ValidatorFactory", new DefaultValidatorFactoryReference(), module.getJndiContext());
     }
 
     @Override

@@ -48,12 +48,12 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder {
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName earName = naming.createRootName(new Artifact("test", "test-ejb-jar", "", "jar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
         AbstractName moduleName = naming.createChildName(earName, "ejb-jar", NameFactory.EJB_MODULE);
-        return new EJBModule(true, moduleName, null, null, moduleFile, "ejb.jar", null, null, null, null);
+        return new EJBModule(true, moduleName, null, null, moduleFile, "ejb.jar", null, null, null, null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        AbstractName moduleName = naming.createChildName(earName, "ejb-jar", NameFactory.EJB_MODULE);
-        return new EJBModule(false, moduleName, null, null, moduleFile, targetPath, null, null, null, null);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        AbstractName moduleName = naming.createChildName(parentModule.getModuleName(), "ejb-jar", NameFactory.EJB_MODULE);
+        return new EJBModule(false, moduleName, null, null, moduleFile, targetPath, null, null, null, null, Module.share(Module.APP, parentModule.getJndiContext()), parentModule);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module ejbModule, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) {

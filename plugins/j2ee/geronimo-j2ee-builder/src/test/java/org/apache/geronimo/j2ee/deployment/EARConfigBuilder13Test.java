@@ -16,8 +16,10 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.util.Map;
 import java.util.jar.JarFile;
 
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.util.JarUtils;
 
@@ -29,15 +31,16 @@ import org.apache.geronimo.kernel.util.JarUtils;
 public class EARConfigBuilder13Test
     extends EARConfigBuilderTestSupport
 {
+
     protected void setUp() throws Exception {
         super.setUp();
 
         earFile = JarUtils.createJarFile(resolveFile("target/test-ear-j2ee_1.3.ear"));
         locations.put(null, new Artifact("org.apache.geronimo.testsupport", "test-ear-javaee_5", "3.0-SNAPSHOT", "ear"));
-        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, null, "test-ejb-jar.jar", null, null, null, null);
+        ejbConfigBuilder.ejbModule = new EJBModule(false, ejbModuleName, null, null, null, "test-ejb-jar.jar", null, null, null, null, jndiContext, parentModule);
         webConfigBuilder.contextRoot = contextRoot;
-        webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, (JarFile)null, "test-war.war", null, null, null, contextRoot, WEB_NAMESPACE, null);
-        connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, null, "test-rar.rar", null, null, null, null);
+        webConfigBuilder.webModule = new WebModule(false, webModuleName, null, null, (JarFile)null, "test-war.war", null, null, null, contextRoot, WEB_NAMESPACE, null, jndiContext, parentModule);
+        connectorConfigBuilder.connectorModule = new ConnectorModule(false, raModuleName, null, null, null, "test-rar.rar", null, null, null, null, jndiContext, parentModule);
     }
 
     protected void tearDown() throws Exception {

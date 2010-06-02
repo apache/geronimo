@@ -131,6 +131,15 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return NORMAL_PRIORITY;
     }
 
+    /**
+     * This accepts keys like jndi entry names in the spec dds, that is either starting with
+     * java:comp, java:module, java:app, or java:global, or in the java:comp/env space.
+     * For example, java:comp/env/foo and foo are equivalent keys.
+     *
+     * @param key jndi name, either including java:<scope> or after java:comp/env.
+     * @param value value to bind
+     * @param contexts set of scopes to bind into.
+     */
     protected void put(String key, Object value, Map<JndiKey, Map<String, Object>> contexts) {
         JndiKey jndiKey;
         if (key.startsWith("java:")) {
@@ -150,7 +159,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         scope.put(key, value);
     }
     
-    protected Object lookupJndiContextMap(Map<EARContext.Key, Object> sharedContext, String key) {
+    protected Object lookupJndiContextMap(Module module, String key) {
         JndiKey jndiKey;
         if (key.startsWith("java:")) {
             int pos = key.indexOf("/", 5);
@@ -161,13 +170,9 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             key = "comp/env/" + key;
             jndiKey = JndiScope.comp;
         }
-        Map<String, Object> scope = getJndiContextMap(sharedContext).get(jndiKey);
+        Map<String, Object> scope = module.getJndiScope(jndiKey);
         if (scope == null) return null;
         return scope.get(key);
-    }
-    
-    protected Map<JndiKey, Map<String, Object>> getJndiContextMap(Map<EARContext.Key, Object> sharedContext) {
-        return NamingBuilder.JNDI_KEY.get(sharedContext);
     }
 
     protected String getJndiName(String name) {

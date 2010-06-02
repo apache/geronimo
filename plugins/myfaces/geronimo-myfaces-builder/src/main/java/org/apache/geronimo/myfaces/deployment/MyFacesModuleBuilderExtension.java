@@ -143,17 +143,12 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
 
-        //use the same jndi context as the web app
-        Map<JndiKey, Map<String, Object>> compContext = NamingBuilder.JNDI_KEY.get(module.getSharedContext());
-        buildingContext.put(NamingBuilder.JNDI_KEY, compContext);
-
         //use the same holder object as the web app.
         Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
         buildingContext.put(NamingBuilder.INJECTION_KEY, holder);
 
         XmlObject jettyWebApp = webModule.getVendorDD();
 
-//        Configuration earConfiguration = earContext.getConfiguration();
 
         ClassFinder classFinder = createMyFacesClassFinder(webApp, webModule);
         webModule.setClassFinder(classFinder);
@@ -279,6 +274,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                 try {
                     clas = bundle.loadClass(className);
                     classes.add(clas);
+                    //TODO do we need superclasses?
                 }
                 catch (ClassNotFoundException e) {
                     log.warn("MyFacesModuleBuilderExtension: Could not load managed bean class: " + className  + " mentioned in faces-config.xml file at " + url.toString());

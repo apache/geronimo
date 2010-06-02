@@ -23,7 +23,6 @@ import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.deployment.ModuleList;
 import org.apache.xmlbeans.XmlObject;
 
@@ -41,11 +40,9 @@ public class ApplicationInfo extends Module<XmlObject, XmlObject> {
                            JarFile earFile,
                            XmlObject specDD,
                            XmlObject vendorDD,
-                           LinkedHashSet<Module<?,?>> modules,
-                           ModuleList moduleLocations,
                            String originalSpecDD,
                            AnnotatedApp annotatedApp) {
-        super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, annotatedApp, moduleLocations, modules);
+        super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, annotatedApp, null, null);
         assert type != null;
         assert environment != null;
         assert modules != null;

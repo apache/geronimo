@@ -23,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -33,10 +32,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.BundleDeploymentContext;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
-import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -204,10 +201,7 @@ public class WebApplication implements Runnable {
                 deploymentContext.flush();
                 deploymentContext.initializeConfiguration();
 
-                Map<JndiKey, Map<String, Object>> contexts = NamingBuilder.JNDI_KEY.get(deploymentContext.getGeneralData());
-                Map<String, Object> app = new HashMap<String, Object>();
-                app.put("app/AppName", webModule.getName());
-                contexts.put(JndiScope.app, app);
+                webModule.getJndiScope(JndiScope.app).put("app/AppName", webModule.getName());
                 
                 webModuleBuilder.initContext(deploymentContext, webModule, bundle);
 
@@ -217,8 +211,8 @@ public class WebApplication implements Runnable {
                 webModuleBuilder.addGBeans(deploymentContext, webModule, bundle, extender.getRepositories());
 
                 GBeanData appContexts = new GBeanData(appJndiName, ApplicationJndi.class);
-                appContexts.setAttribute("globalContextSegment", contexts.get(JndiScope.global));
-                appContexts.setAttribute("applicationContextMap", contexts.get(JndiScope.app));
+                appContexts.setAttribute("globalContextSegment", webModule.getJndiScope(JndiScope.global));
+                appContexts.setAttribute("applicationContextMap", webModule.getJndiScope(JndiScope.app));
                 appContexts.setReferencePattern("GlobalContext", extender.getGlobalContextAbstractName());
                 deploymentContext.addGBean(appContexts);
 

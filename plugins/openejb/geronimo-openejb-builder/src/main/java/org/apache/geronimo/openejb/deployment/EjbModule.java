@@ -16,17 +16,24 @@
  */
 package org.apache.geronimo.openejb.deployment;
 
+import java.util.Map;
 import java.util.jar.JarFile;
 
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
+import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
+import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
+import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -40,21 +47,25 @@ public class EjbModule extends EJBModule {
     private OpenejbGeronimoEjbJarType vendorDD;
     private final org.apache.openejb.config.EjbModule ejbModule;
     private final ConfigurationFactory.Chain preAutoConfigDeployer;
+    private final boolean shareJndi;
 
-    public EjbModule(org.apache.openejb.config.EjbModule ejbModule, 
-                     boolean standAlone, 
-                     AbstractName moduleName, 
-                     String name, 
-                     Environment environment, 
-                     JarFile moduleFile, 
-                     String targetPath, 
-                     String ejbJarXml, 
-                     AnnotatedApp annoatedApp) {
-        super(standAlone, moduleName, name, environment, moduleFile, 
-              targetPath, null, null, ejbJarXml, annoatedApp);
+    public EjbModule(org.apache.openejb.config.EjbModule ejbModule,
+                     boolean standAlone,
+                     AbstractName moduleName,
+                     String name,
+                     Environment environment,
+                     JarFile moduleFile,
+                     String targetPath,
+                     String ejbJarXml,
+                     AnnotatedApp annoatedApp,
+                     Map<JndiKey, Map<String, Object>> jndiContext,
+                     Module parentModule, boolean shareJndi) {
+        super(standAlone, moduleName, name, environment, moduleFile,
+                targetPath, null, null, ejbJarXml, annoatedApp, jndiContext, parentModule);
         this.ejbModule = ejbModule;
-        
+
         preAutoConfigDeployer = new ConfigurationFactory.Chain();
+        this.shareJndi = shareJndi;
     }
 
     @Override
@@ -118,9 +129,39 @@ public class EjbModule extends EJBModule {
 
     public void setClassLoader(ClassLoader classLoader) {
         ejbModule.setClassLoader(classLoader);
+        ejbModule.getClientModule().setClassLoader(classLoader);
     }
 
     public ConfigurationFactory.Chain getPreAutoConfigDeployer() {
         return preAutoConfigDeployer;
+    }
+
+    public Map<JndiKey, Map<String, Object>> getEjbJndiContext() {
+        if (shareJndi) {
+            return getJndiContext();
+        } else {
+            return Module.share(Module.MODULE, getJndiContext());
+        }
+    }
+
+    Module newEJb(ClassFinder finder, AnnotatedApp aa) throws DeploymentException {
+        Ejb ejb = new Ejb(isStandAlone(), getModuleName(), getName(), getEnvironment(), getModuleFile(), getTargetPath(),
+                getSpecDD(), getVendorDD(), getOriginalSpecDD(), getNamespace(), aa,
+                getEjbJndiContext(), this);
+        ejb.setEarContext(getEarContext());
+        ejb.setRootEarContext(getRootEarContext());
+        ejb.setClassFinder(finder);
+        return ejb;
+    }
+
+    class Ejb extends Module {
+        protected Ejb(boolean standAlone, AbstractName moduleName, String name, Environment environment, JarFile moduleFile, String targetPath, Object specDD, Object vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp, Map<JndiKey, Map<String, Object>> jndiContext, Module<?, ?> parentModule) {
+            super(standAlone, moduleName, name, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedApp, jndiContext, parentModule);
+        }
+
+        @Override
+        public ConfigurationModuleType getType() {
+            return null;
+        }
     }
 }

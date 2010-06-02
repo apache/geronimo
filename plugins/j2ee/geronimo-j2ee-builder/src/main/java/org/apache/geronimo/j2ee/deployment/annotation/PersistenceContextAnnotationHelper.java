@@ -24,12 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContexts;
 import javax.persistence.PersistenceContextType;
+import javax.persistence.PersistenceContexts;
 import javax.persistence.PersistenceProperty;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
 import org.apache.geronimo.xbeans.javaee6.JndiNameType;
@@ -37,7 +34,9 @@ import org.apache.geronimo.xbeans.javaee6.PersistenceContextRefType;
 import org.apache.geronimo.xbeans.javaee6.PersistenceContextTypeType;
 import org.apache.geronimo.xbeans.javaee6.PropertyType;
 import org.apache.geronimo.xbeans.javaee6.XsdStringType;
-import org.apache.xbean.finder.ClassFinder;
+import org.apache.xbean.finder.AbstractFinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -82,7 +81,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
+    public static void processAnnotations(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         if (annotatedApp != null) {
             if (classFinder.isAnnotationPresent(PersistenceContexts.class)) {
                 processPersistenceContexts(annotatedApp, classFinder);
@@ -101,7 +100,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processPersistenceContext(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
+    private static void processPersistenceContext(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceContext(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Class> classeswithPersistenceContext = classFinder.findAnnotatedClasses(PersistenceContext.class);
@@ -146,7 +145,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processPersistenceContexts(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
+    private static void processPersistenceContexts(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceContexts(): Entry");
 
         List<Class> classeswithPersistenceContexts = classFinder.findAnnotatedClasses(PersistenceContexts.class);

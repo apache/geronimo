@@ -25,14 +25,13 @@ import java.util.List;
 
 import javax.persistence.PersistenceUnit;
 import javax.persistence.PersistenceUnits;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
 import org.apache.geronimo.xbeans.javaee6.JndiNameType;
 import org.apache.geronimo.xbeans.javaee6.PersistenceUnitRefType;
-import org.apache.xbean.finder.ClassFinder;
+import org.apache.xbean.finder.AbstractFinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -77,7 +76,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
+    public static void processAnnotations(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         if (annotatedApp != null) {
             if (classFinder.isAnnotationPresent(PersistenceUnits.class)) {
                 processPersistenceUnits(annotatedApp, classFinder);
@@ -96,7 +95,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processPersistenceUnit(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
+    private static void processPersistenceUnit(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceUnit(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Class> classeswithPersistenceUnit = classFinder.findAnnotatedClasses(PersistenceUnit.class);
@@ -141,7 +140,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processPersistenceUnits(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
+    private static void processPersistenceUnits(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceUnits(): Entry");
 
         List<Class> classeswithPersistenceUnits = classFinder.findAnnotatedClasses(PersistenceUnits.class);

@@ -31,6 +31,7 @@ import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
@@ -130,6 +131,8 @@ public abstract class EARConfigBuilderTestSupport
     private ListableRepository repository;
     protected ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repository);
     protected Collection<? extends ArtifactResolver> artifactResolvers = Collections.singleton(new DefaultArtifactResolver(artifactManager, repository));
+    protected Map<JndiKey, Map<String, Object>> jndiContext;
+    protected Module parentModule;
 
     protected void setUp() throws Exception {
         super.setUp();

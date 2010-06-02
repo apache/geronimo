@@ -133,7 +133,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         for (ResourceRefType resourceRef : resourceRefsUntyped) {
             String name = getStringValue(resourceRef.getResRefName());
-            if (lookupJndiContextMap(componentContext, name) != null) {
+            if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
                 continue;
             }
@@ -161,7 +161,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             if (value == null) {
                 unresolvedRefs.add(name);
             } else {
-                put(name, value, getJndiContextMap(componentContext));
+                put(name, value, module.getJndiContext());
             }
 
         }

@@ -39,6 +39,7 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.JarUtils;
@@ -56,6 +57,10 @@ import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.osgi.framework.Bundle;
+import org.osgi.service.packageadmin.ExportedPackage;
+import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.service.packageadmin.RequiredBundle;
 
 /**
  */
@@ -77,6 +82,64 @@ public class PlanParsingTest extends XmlBeansTestSupport {
     protected void setUp() throws Exception {
         super.setUp();
         GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null, null, null);
+        MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
+        PackageAdmin packageAdmin = new PackageAdmin() {
+
+                @Override
+                public ExportedPackage[] getExportedPackages(Bundle bundle) {
+                    return new ExportedPackage[0];
+                }
+
+                @Override
+                public ExportedPackage[] getExportedPackages(String s) {
+                    return new ExportedPackage[0];
+                }
+
+                @Override
+                public ExportedPackage getExportedPackage(String s) {
+                    return null;
+                }
+
+                @Override
+                public void refreshPackages(Bundle[] bundles) {
+                }
+
+                @Override
+                public boolean resolveBundles(Bundle[] bundles) {
+                    return false;
+                }
+
+                @Override
+                public RequiredBundle[] getRequiredBundles(String s) {
+                    return new RequiredBundle[0];
+                }
+
+                @Override
+                public Bundle[] getBundles(String s, String s1) {
+                    return new Bundle[0];
+                }
+
+                @Override
+                public Bundle[] getFragments(Bundle bundle) {
+                    return new Bundle[0];
+                }
+
+                @Override
+                public Bundle[] getHosts(Bundle bundle) {
+                    return new Bundle[0];
+                }
+
+                @Override
+                public Bundle getBundle(Class aClass) {
+                    return null;
+                }
+
+                @Override
+                public int getBundleType(Bundle bundle) {
+                    return 0;
+                }
+            };
+        bundleContext.registerService(PackageAdmin.class.getName(), packageAdmin, null);
         builder = new JettyModuleBuilder(defaultEnvironment,
                 new Integer(1800),
                 null,
@@ -93,7 +156,8 @@ public class PlanParsingTest extends XmlBeansTestSupport {
                 new NamingBuilderCollection(null),
                 null,
                 new MockResourceEnvironmentSetter(),
-                null);
+                null,
+                bundleContext);
         builder.doStart();
         securityBuilder.doStart();
     }

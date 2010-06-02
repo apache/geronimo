@@ -139,7 +139,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                         value = new KernelReference();
                     }
                 } else {
-                    Class typeClass;
+                    Class<?> typeClass;
                     try {
                         typeClass = bundle.loadClass(type);
                     } catch (ClassNotFoundException e) {
@@ -172,7 +172,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                         } else if (Class.class.equals(typeClass)) {
                             value = new ClassReference(strValue);
                         } else if (typeClass.isEnum()) {
-                            value = Enum.valueOf(typeClass, strValue);
+                            value = Enum.valueOf(typeClass.asSubclass(Enum.class), strValue);
                         } else {
                             throw new DeploymentException("Unrecognized env-entry type: " + type);
                         }
@@ -186,7 +186,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
             // see Java EE 5 spec, section EE.5.4.1.3
             if (value != null) {
                 addInjections(name, envEntry.getInjectionTargetArray(), sharedContext);
-                put(name, value, getJndiContextMap(sharedContext));
+                put(name, value, module.getJndiContext());
             }
         }
 

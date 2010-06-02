@@ -100,6 +100,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
@@ -231,31 +232,37 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         packageAdmin = (PackageAdmin) bundleContext.getService(sr);
     }
 
+    @Override
     public void doStart() throws Exception {
         XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
     }
 
+    @Override
     public void doStop() {
         XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
     }
 
+    @Override
     public void doFail() {
         doStop();
     }
 
+    @Override
     public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return null;
     }
 
+    @Override
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, "rar", null, null, null, naming, idBuilder);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming, idBuilder);
+    @Override
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object o1, Module module, Naming naming, ModuleIDBuilder moduleIDBuilder) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, module, naming, moduleIDBuilder);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
         assert targetPath != null : "targetPath is null";
         assert !targetPath.endsWith("/") : "targetPath must not end with a '/'";
@@ -367,11 +374,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         }
 
         AbstractName moduleName;
-        if (earName == null) {
-            earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+        if (parentModule == null) {
+            AbstractName earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
             moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.RESOURCE_ADAPTER_MODULE);
         } else {
-            moduleName = naming.createChildName(earName, targetPath, NameFactory.RESOURCE_ADAPTER_MODULE);
+            moduleName = naming.createChildName(parentModule.getModuleName(), targetPath, NameFactory.RESOURCE_ADAPTER_MODULE);
         }
 
         boolean standAlone = earEnvironment == null;
@@ -385,8 +392,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         } else {
             name = FileUtils.removeExtension(targetPath, ".rar");
         }
-
-        return new ConnectorModule<ConnectorBase, XmlObject>(standAlone, moduleName, name, environment, moduleFile, targetPath, connector, gerConnector, specDD, annotatedApp);
+        return new ConnectorModule<ConnectorBase, XmlObject>(standAlone, moduleName, name, environment, moduleFile, targetPath, connector, gerConnector, specDD, annotatedApp, parentModule == null? null: parentModule.getJndiContext(), parentModule);
     }
 
 //    static XmlObject convertToConnectorSchema(XmlObject xmlObject) throws XmlException {

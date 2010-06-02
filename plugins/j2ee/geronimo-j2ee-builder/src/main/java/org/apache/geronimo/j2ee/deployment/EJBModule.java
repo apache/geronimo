@@ -16,10 +16,12 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
@@ -30,18 +32,20 @@ import org.apache.xmlbeans.XmlObject;
 public class EJBModule extends Module<XmlObject, XmlObject> {
     private AbstractName moduleCmpEngineName;
 
-    public EJBModule(boolean standAlone, 
-                     AbstractName moduleName, 
+    public EJBModule(boolean standAlone,
+                     AbstractName moduleName,
                      String name,
-                     Environment environment, 
-                     JarFile moduleFile, 
-                     String targetPath, 
-                     XmlObject specDD, 
-                     XmlObject vendorDD, 
-                     String originalSpecDD, 
-                     AnnotatedApp annotatedApp) {
+                     Environment environment,
+                     JarFile moduleFile,
+                     String targetPath,
+                     XmlObject specDD,
+                     XmlObject vendorDD,
+                     String originalSpecDD,
+                     AnnotatedApp annotatedApp,
+                     Map<JndiKey, Map<String, Object>> jndiContext,
+                     Module parentModule) {
         super(standAlone, moduleName, name, environment, moduleFile, 
-              targetPath, specDD, vendorDD, originalSpecDD, null, annotatedApp, null, null);
+              targetPath, specDD, vendorDD, originalSpecDD, null, annotatedApp, jndiContext, parentModule);
     }
 
     public ConfigurationModuleType getType() {

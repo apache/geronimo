@@ -17,9 +17,6 @@
 
 package org.apache.geronimo.tomcat.deployment;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -32,7 +29,6 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import javax.servlet.Servlet;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableBundle;
@@ -46,13 +42,16 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
@@ -97,12 +96,17 @@ import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 /**
  * @version $Rev:385659 $ $Date$
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBeanLifecycle {
 
     private static final Logger log = LoggerFactory.getLogger(TomcatModuleBuilder.class);
@@ -125,16 +129,19 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     private final AbstractNameQuery tomcatContainerName;
     protected final NamespaceDrivenBuilderCollection clusteringBuilders;
 
-    public TomcatModuleBuilder(Environment defaultEnvironment,
-            AbstractNameQuery tomcatContainerName,
-            Collection<WebServiceBuilder> webServiceBuilder,
-            Collection<NamespaceDrivenBuilder> serviceBuilders,
-            NamingBuilder namingBuilders,
-            Collection<NamespaceDrivenBuilder> clusteringBuilders,
-            Collection<ModuleBuilderExtension> moduleBuilderExtensions,
-            ResourceEnvironmentSetter resourceEnvironmentSetter,
-            Kernel kernel) {
-        super(kernel, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions);
+    public static final String GBEAN_REF_CLUSTERING_BUILDERS = "ClusteringBuilders";
+
+    public TomcatModuleBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+            @ParamAttribute(name = "tomcatContainerName") AbstractNameQuery tomcatContainerName,
+            @ParamReference(name="WebServiceBuilder", namingType = NameFactory.MODULE_BUILDER) Collection<WebServiceBuilder> webServiceBuilder,
+            @ParamReference(name="ServiceBuilders", namingType = NameFactory.MODULE_BUILDER)Collection<NamespaceDrivenBuilder> serviceBuilders,
+            @ParamReference(name="NamingBuilders", namingType = NameFactory.MODULE_BUILDER)NamingBuilder namingBuilders,
+            @ParamReference(name= GBEAN_REF_CLUSTERING_BUILDERS, namingType = NameFactory.MODULE_BUILDER)Collection<NamespaceDrivenBuilder> clusteringBuilders,
+            @ParamReference(name="ModuleBuilderExtensions", namingType = NameFactory.MODULE_BUILDER)Collection<ModuleBuilderExtension> moduleBuilderExtensions,
+            @ParamReference(name="ResourceEnvironmentSetter", namingType = NameFactory.MODULE_BUILDER)ResourceEnvironmentSetter resourceEnvironmentSetter,
+            @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
+            @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) {
+        super(kernel, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions, bundleContext);
         this.defaultEnvironment = defaultEnvironment;
         this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders);
         this.tomcatContainerName = tomcatContainerName;
@@ -215,14 +222,14 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             name = bundle.getSymbolicName();
         }
 
-        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, tomcatWebApp, specDD, contextPath, TOMCAT_NAMESPACE, annotatedWebApp);
+        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, tomcatWebApp, specDD, contextPath, TOMCAT_NAMESPACE, annotatedWebApp, shareJndi(null), null);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, bundle, naming, idBuilder);
         }
         return module;
     }
 
-    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
         assert targetPath != null : "targetPath is null";
         assert !targetPath.endsWith("/") : "targetPath must not end with a '/'";
@@ -288,10 +295,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         idBuilder.resolve(environment, warName, "war");
 
         AbstractName moduleName;
-        if (earName == null) {
+        AbstractName earName;
+        if (parentModule == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
             moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.WEB_MODULE);
         } else {
+            earName = parentModule.getModuleName();
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
@@ -307,7 +316,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             }
         }
 
-        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, tomcatWebApp, specDD, contextRoot, TOMCAT_NAMESPACE, annotatedWebApp);
+        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, tomcatWebApp, specDD, contextRoot, TOMCAT_NAMESPACE, annotatedWebApp, shareJndi(parentModule), parentModule);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
         }
@@ -647,38 +656,5 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     }
 
 
-
-    public static final GBeanInfo GBEAN_INFO;
-    public static final String GBEAN_REF_CLUSTERING_BUILDERS = "ClusteringBuilders";
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TomcatModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("tomcatContainerName", AbstractNameQuery.class, true, true);
-        infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ServiceBuilders", NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference(GBEAN_REF_CLUSTERING_BUILDERS, NamespaceDrivenBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ModuleBuilderExtensions", ModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addReference("ResourceEnvironmentSetter", ResourceEnvironmentSetter.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
-        infoBuilder.addInterface(ModuleBuilder.class);
-
-        infoBuilder.setConstructor(new String[]{
-                "defaultEnvironment",
-                "tomcatContainerName",
-                "WebServiceBuilder",
-                "ServiceBuilders",
-                "NamingBuilders",
-                GBEAN_REF_CLUSTERING_BUILDERS,
-                "ModuleBuilderExtensions",
-                "ResourceEnvironmentSetter",
-                "kernel"});
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 
 }

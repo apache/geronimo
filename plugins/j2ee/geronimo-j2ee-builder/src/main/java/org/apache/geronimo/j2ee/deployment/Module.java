@@ -17,6 +17,7 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -28,10 +29,13 @@ import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.xbean.finder.AbstractFinder;
 import org.apache.xbean.finder.ClassFinder;
 
 /**
@@ -55,11 +59,14 @@ public abstract class Module<T, U> {
     private T specDD;
     private String originalSpecDD;
     private AnnotatedApp annotatedApp;
-    private ClassFinder classFinder;
+    private AbstractFinder classFinder;
 
     protected final Map sharedContext = new HashMap();
-    protected LinkedHashSet<Module<?,?>> modules = new LinkedHashSet<Module<?,?>>();
-    protected ModuleList moduleLocations = new ModuleList();
+    protected final LinkedHashSet<Module<?, ?>> modules;
+    protected final ModuleList moduleLocations;
+
+    private final Map<JndiKey, Map<String, Object>> jndiContext;
+    private final Module<?, ?> parentModule;
 
     protected Module(boolean standAlone,
                      AbstractName moduleName,
@@ -72,31 +79,26 @@ public abstract class Module<T, U> {
                      String originalSpecDD,
                      String namespace,
                      AnnotatedApp annotatedApp,
-                     ModuleList moduleLocations,
-                     LinkedHashSet<Module<?,?>> modules) {
-        this(standAlone, moduleName, name, environment, new DeployableJarFile(moduleFile), 
-             targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedApp);
-        if (moduleLocations != null) {
-            this.moduleLocations = moduleLocations;
-        }
-        if (modules != null) {
-            this.modules = modules;
-        }
+                     Map<JndiKey, Map<String, Object>> jndiContext,
+                     Module<?, ?> parentModule) {
+        this(standAlone, moduleName, name, environment, new DeployableJarFile(moduleFile),
+                targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedApp, jndiContext, parentModule);
     }
 
-    protected Module(boolean standAlone, 
+    protected Module(boolean standAlone,
                      AbstractName moduleName,
-                     String name, 
-                     Environment environment, 
-                     Deployable deployable, 
-                     String targetPath, 
-                     T specDD, 
-                     U vendorDD, 
-                     String originalSpecDD, 
-                     String namespace, 
-                     AnnotatedApp annotatedApp) {
-        assert targetPath != null: "targetPath is null";
-        assert moduleName != null: "moduleName is null";
+                     String name,
+                     Environment environment,
+                     Deployable deployable,
+                     String targetPath,
+                     T specDD,
+                     U vendorDD,
+                     String originalSpecDD,
+                     String namespace,
+                     AnnotatedApp annotatedApp,
+                     Map<JndiKey, Map<String, Object>> jndiContext, Module<?, ?> parentModule) {
+        assert targetPath != null : "targetPath is null";
+        assert moduleName != null : "moduleName is null";
 
         this.standAlone = standAlone;
         this.moduleName = moduleName;
@@ -107,7 +109,7 @@ public abstract class Module<T, U> {
         this.vendorDD = vendorDD;
         this.originalSpecDD = originalSpecDD;
         this.namespace = namespace;
-        
+
         if (standAlone) {
             this.name = (name == null) ? environment.getConfigId().toString() : name;
             this.moduleURI = URI.create("");
@@ -118,6 +120,14 @@ public abstract class Module<T, U> {
 
         targetPathURI = URI.create(targetPath + "/");
         this.annotatedApp = annotatedApp;
+        this.moduleLocations = new ModuleList();
+        this.modules = new LinkedHashSet<Module<?, ?>>();
+        if (jndiContext != null) {
+            this.jndiContext = jndiContext;
+        } else {
+            this.jndiContext = assure(new HashMap<JndiKey, Map<String, Object>>());
+        }
+        this.parentModule = parentModule;
     }
 
     public abstract ConfigurationModuleType getType();
@@ -241,11 +251,11 @@ public abstract class Module<T, U> {
         this.annotatedApp = annotatedApp;
     }
 
-    public ClassFinder getClassFinder() {
+    public AbstractFinder getClassFinder() {
         return classFinder;
     }
 
-    public void setClassFinder(ClassFinder classFinder) {
+    public void setClassFinder(AbstractFinder classFinder) {
         this.classFinder = classFinder;
     }
 
@@ -254,16 +264,16 @@ public abstract class Module<T, U> {
             throw new NullPointerException("No ear context set");
         }
         if (rootEarContext == null || rootEarContext == earContext || rootEarContext.getConfigID().equals(earContext.getConfigID())) {
-            return new Artifact[] {earContext.getConfigID()};
+            return new Artifact[]{earContext.getConfigID()};
         }
-        return new Artifact[] {rootEarContext.getConfigID(), earContext.getConfigID()};
+        return new Artifact[]{rootEarContext.getConfigID(), earContext.getConfigID()};
     }
 
     /**
      * Given a path in the ear module, return something that will resolve to that location against the eventual configuration
      * base uri.  Currently for all modules except wars that is the original path.  If we create separate configurations for
      * ejb or rar modules, those Module subclasses will need to reimplement this method.
-     *
+     * <p/>
      * Example:  if a war is myweb.war, and you pass in myweb.war/WEB-INF/lib/foo.jar, you get WEB-INF/lib/foo.jar
      * if you pass in myFoo.jar, you get ../myFoo.jar
      *
@@ -281,19 +291,48 @@ public abstract class Module<T, U> {
         }
     }
 
-    public LinkedHashSet<Module<?,?>> getModules() {
+    public LinkedHashSet<Module<?, ?>> getModules() {
         return modules;
-    }
-
-    public void setModules(LinkedHashSet<Module<?,?>> modules) {
-        this.modules = modules;
     }
 
     public ModuleList getModuleLocations() {
         return moduleLocations;
     }
 
-    public void setModuleLocations(ModuleList moduleLocations) {
-        this.moduleLocations = moduleLocations;
+    public Map<JndiKey, Map<String, Object>> getJndiContext() {
+        return jndiContext;
+    }
+
+    public Map<String, Object> getJndiScope(JndiKey scope) {
+        return jndiContext.get(scope);
+    }
+
+    public final static EnumSet<JndiScope> APP = EnumSet.of(JndiScope.global, JndiScope.app);
+    public final static EnumSet<JndiScope> MODULE = EnumSet.of(JndiScope.global, JndiScope.app, JndiScope.module);
+
+    public Module<?, ?> getParentModule() {
+        return parentModule;
+    }
+
+    public static Map<JndiKey, Map<String, Object>> share(EnumSet<JndiScope> scopes, Map<JndiKey, Map<String, Object>> jndiContext) {
+        Map<JndiKey, Map<String, Object>> newContext = new HashMap<JndiKey, Map<String, Object>>();
+        if (jndiContext != null) {
+            for (JndiScope scope : scopes) {
+                Map<String, Object> scopedContext = jndiContext.get(scope);
+                if (scopedContext != null) {
+                    newContext.put(scope, scopedContext);
+                }
+            }
+        }
+        return assure(newContext);
+    }
+
+    public static Map<JndiKey, Map<String, Object>> assure(Map<JndiKey, Map<String, Object>> jndiContext) {
+        for (JndiScope scope : JndiScope.values()) {
+            if (jndiContext.get(scope) == null) {
+                jndiContext.put(scope, new HashMap<String, Object>());
+            }
+        }
+        return jndiContext;
     }
 }

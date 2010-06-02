@@ -175,7 +175,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                     value = createClientRef(value);
                 }
                 if (value instanceof Serializable) {
-                    put(name, value, getJndiContextMap(sharedContext));
+                    put(name, value, module.getJndiContext());
                 }
             }
         }

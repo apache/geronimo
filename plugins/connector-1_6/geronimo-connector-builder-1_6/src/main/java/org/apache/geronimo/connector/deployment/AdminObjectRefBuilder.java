@@ -140,7 +140,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         for (ResourceEnvRefType resourceEnvRef : resourceEnvRefsUntyped) {
             String name = getStringValue(resourceEnvRef.getResourceEnvRefName());
-            if (lookupJndiContextMap(componentContext, name) != null) {
+            if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
                 continue;
             }
@@ -167,7 +167,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             if (value == null) {
                 unresolvedRefs.add(name);
             } else {
-                put(name, value, getJndiContextMap(componentContext));
+                put(name, value, module.getJndiContext());
             }
         }
 
@@ -180,7 +180,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
         for (MessageDestinationRefType messageDestinationRef : messageDestinationRefsUntyped) {
             String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
-            if (lookupJndiContextMap(componentContext, name) != null) {
+            if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
                 continue;
             }
@@ -211,7 +211,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
 
             if (value != null) {
-                put(name, value, getJndiContextMap(componentContext));
+                put(name, value, module.getJndiContext());
             }
         }
 
@@ -231,7 +231,8 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         if (type.equals("javax.transaction.UserTransaction")) {
             return new UserTransactionReference();
         }
-        if ("javax.ejb.EntityContext".equals(type) ||
+        if ("javax.ejb.EJBContext".equals(type) ||
+                "javax.ejb.EntityContext".equals(type) ||
                 "javax.ejb.MessageDrivenContext".equals(type) ||
                 "javax.ejb.SessionContext".equals(type)) {
             return new JndiReference("java:comp/EJBContext");
@@ -433,6 +434,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                     resourceEnvRefType = refMap.get(resourceName);
                 }
                 if (resourceEnvRefType != null ||
+                        resourceType.equals("javax.ejb.EJBContext") ||
                         resourceType.equals("javax.ejb.SessionContext") ||
                         resourceType.equals("javax.ejb.MessageDrivenContext") ||
                         resourceType.equals("javax.ejb.EntityContext") ||

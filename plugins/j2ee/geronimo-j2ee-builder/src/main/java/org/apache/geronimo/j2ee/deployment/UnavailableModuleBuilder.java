@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -45,7 +44,7 @@ public class UnavailableModuleBuilder implements ModuleBuilder {
         return null;
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return null;
     }
 

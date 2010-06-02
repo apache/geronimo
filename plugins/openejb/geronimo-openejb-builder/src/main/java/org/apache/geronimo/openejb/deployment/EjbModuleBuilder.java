@@ -51,8 +51,6 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -70,7 +68,6 @@ import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -235,12 +232,12 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
     
     @Override
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        return createModule(plan, moduleFile, "ejb.jar", null, null, null, naming, idBuilder);
+        return createModule(plan, moduleFile, "ejb.jar", null, null, null, naming, idBuilder, "META-INF/", false);
     }
 
     @Override
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, earName, naming, idBuilder);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, parentModule, naming, idBuilder, "META-INF/", false);
     }
 
     //ModuleBuilderExtension entry points
@@ -263,23 +260,24 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         //check for web module
         if (module instanceof WebModule) {
             //check for WEB-INF/ejb-jar.xml
-            Module ejbModule = createModule(null, moduleFile, targetPath, null, environment, earName, naming, idBuilder);
+            Module ejbModule = createModule(null, moduleFile, targetPath, null, environment, module, naming, idBuilder, "WEB-INF/", true);
             if (ejbModule != null) {
                 module.getModules().add(ejbModule);
                 //???
                 module.getModuleLocations().add(targetPath);
+                ejbModule.getSharedContext().putAll(module.getSharedContext());
             }
         }
 
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, Module parentModule, Naming naming, ModuleIDBuilder idBuilder, String ddDir, boolean subModule) throws DeploymentException {
         if (moduleFile == null) throw new NullPointerException("moduleFile is null");
         if (targetPath == null) throw new NullPointerException("targetPath is null");
         if (targetPath.endsWith("/")) throw new IllegalArgumentException("targetPath must not end with a '/'");
 
         // Load the module file
-        DeploymentLoader loader = new DeploymentLoader();
+        DeploymentLoader loader = new DeploymentLoader(ddDir);
         AppModule appModule;
         try {
             appModule = loader.load(new File(moduleFile.getName()));
@@ -368,12 +366,12 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
 
         AbstractName moduleName;
-        if (earName == null) {
-            earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+        if (parentModule == null || ".".equals(targetPath)) {
+            AbstractName earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
             moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.EJB_MODULE);
             ejbModule.setModuleId(environment.getConfigId().getArtifactId());
         } else {
-            moduleName = naming.createChildName(earName, targetPath, NameFactory.EJB_MODULE);
+            moduleName = naming.createChildName(parentModule.getModuleName(), targetPath, NameFactory.EJB_MODULE);
             ejbModule.setModuleId(targetPath);
         }
 
@@ -382,20 +380,29 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbJar);
         AnnotatedEjbJar annotatedEjbJar = new AnnotatedEjbJar(ejbJarType);
 
-        String name = null;
-        if (ejbJarType.isSetModuleName()) {
+        String name;
+        if (subModule) {
+            name = parentModule.getName();
+        } else if (ejbJarType.isSetModuleName()) {
             name = ejbJarType.getModuleName().getStringValue().trim();
         } else if (standAlone) {
             name = FileUtils.removeExtension(new File(moduleFile.getName()).getName(), ".jar");
         } else {
             name = FileUtils.removeExtension(targetPath, ".jar");
         }
-                
-        EjbModule module = new EjbModule(ejbModule, standAlone, moduleName, name, environment, moduleFile, targetPath, "", annotatedEjbJar);
+
+        Map<JndiKey, Map<String, Object>> context = null;
+        if (subModule) {
+            context = parentModule.getJndiContext();
+        } else if (parentModule != null) {
+            context = Module.share(Module.APP, parentModule.getJndiContext());
+        }
+        EjbModule module = new EjbModule(ejbModule, standAlone, moduleName, name, environment, moduleFile, targetPath, "", annotatedEjbJar, context, parentModule, subModule);
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
-                builder.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, null, earName, naming, idBuilder);
+                builder.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, null, parentModule == null? null: parentModule.getModuleName(), naming, idBuilder);
+
             } catch (Throwable t) {
                 String builderName = builder.getClass().getSimpleName();
                 log.error(builderName + ".createModule() failed: " + t.getMessage(), t);
@@ -522,19 +529,17 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             LinkedHashSet<Module<?,?>> modules = module.getModules();
             for (Module<?,?> subModule: modules) {
                 if (subModule instanceof EjbModule)  {
-                    installModule(earFile, earContext, subModule, configurationStores, targetConfigurationStore, repository);
+                    subModule.setEarContext(module.getEarContext());
+                    subModule.setRootEarContext(module.getRootEarContext());
+                    //don't copy, module is already in classloader
+                    registerModule(subModule, earContext);
                 }
             }
         }
     }
 
     private void installModule(Module module, EARContext earContext) throws DeploymentException {
-        EarData earData = EarData.KEY.get(earContext.getGeneralData());
-        if (earData == null) {
-            earData = new EarData();
-            earContext.getGeneralData().put(EarData.KEY, earData);
-        }
-        earData.addEjbModule((EjbModule) module);
+        registerModule(module, earContext);
 
         JarFile moduleFile = module.getModuleFile();
         try {
@@ -543,6 +548,15 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         } catch (IOException e) {
             throw new DeploymentException("Unable to copy ejb module jar into configuration: " + moduleFile.getName(), e);
         }
+    }
+
+    private void registerModule(Module module, EARContext earContext) {
+        EarData earData = EarData.KEY.get(earContext.getGeneralData());
+        if (earData == null) {
+            earData = new EarData();
+            earContext.getGeneralData().put(EarData.KEY, earData);
+        }
+        earData.addEjbModule((EjbModule) module);
     }
 
     private static final String LINE_SEP = System.getProperty("line.separator");
@@ -573,7 +587,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
             // update the original spec dd with the metadata complete dd
             EjbJar ejbJar = ejbModule.getEjbJar();
-            ejbModule.setOriginalSpecDD(XmlUtil.marshal(ejbModule.getEjbJar()));
+            ejbModule.setOriginalSpecDD(XmlUtil.marshal(ejbJar));
 
             // Get the geronimo-openejb plan
             GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
@@ -638,12 +652,12 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             ClassLoader bundleLoader = new BundleClassLoader(bundle);
 
             // temporary classloader is used for processing ejb annotations and byte code manipulation during ejb load
-            TemporaryClassLoader temporaryClassLoader = new TemporaryClassLoader(new URL[0], bundleLoader);
+//            TemporaryClassLoader temporaryClassLoader = new TemporaryClassLoader(new URL[0], bundleLoader);
 
             // create an openejb app module for the ear containing all ejb modules
             AppModule appModule = new AppModule(bundleLoader, earContext.getConfigID().toString());
-            for (EjbModule module : earData.getEjbModuels()) {
-                module.setClassLoader(temporaryClassLoader);
+            for (EjbModule module : earData.getEjbModules()) {
+                module.setClassLoader(bundleLoader);
                 appModule.getEjbModules().add(module.getEjbModule());
             }
 
@@ -857,11 +871,8 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         EjbDeploymentBuilder ejbDeploymentBuilder = ejbModule.getEjbBuilder();
 
         // add enc
-        Map<JndiKey, Map<String, Object>> jndiContext = NamingBuilder.JNDI_KEY.get(earContext.getGeneralData());
-        getJndiContext(jndiContext, JndiScope.module).put("module/ModuleName", module.getName());        
-        ejbModule.getSharedContext().put(NamingBuilder.JNDI_KEY, jndiContext);
+        module.getJndiScope(JndiScope.module).put("module/ModuleName", module.getName());
         ejbDeploymentBuilder.buildEnc();
-        Map<String, Object> moduleContext = jndiContext.remove(JndiScope.module);
 
         Set<GBeanData> gBeanDatas = earContext.getConfiguration().findGBeanDatas(Collections.singleton(new AbstractNameQuery(PersistenceUnitGBean.class.getName())));
         LinkResolver<String> linkResolver = new UniqueDefaultLinkResolver<String>();
@@ -887,10 +898,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         // Add JSR77 EJBModule GBean
         GBeanData ejbModuleGBeanData = new GBeanData(ejbModule.getModuleName(), EjbModuleImpl.class);
         try {
-            ejbModuleGBeanData.setReferencePattern("J2EEServer", earContext.getServerName());
-            if (!ejbModule.isStandAlone()) {
-                ejbModuleGBeanData.setReferencePattern("J2EEApplication", earContext.getModuleName());
-            }
+            ejbModuleGBeanData.setReferencePattern("J2EEServer", module.getRootEarContext().getServerName());
+            //TODO nested modules figure out when this makes sense
+//            if (!ejbModule.isShared()) {
+//                ejbModuleGBeanData.setReferencePattern("J2EEApplication", module.getRootEarContext().getModuleName());
+//            }
 
             ejbModuleGBeanData.setAttribute("deploymentDescriptor", ejbModule.getOriginalSpecDD());
 
@@ -902,7 +914,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             ejbModuleGBeanData.setReferencePattern("OpenEjbSystem", new AbstractNameQuery(null, Collections.EMPTY_MAP, OpenEjbSystem.class.getName()));
             ejbModuleGBeanData.setAttribute("ejbJarInfo", ejbModule.getEjbJarInfo());
             ejbModuleGBeanData.setAttribute("modulePath", ejbModule.getTargetPath());
-            ejbModuleGBeanData.setAttribute("moduleContext", moduleContext);
+            ejbModuleGBeanData.setAttribute("moduleContext", module.getJndiScope(JndiScope.module));
             earContext.addGBean(ejbModuleGBeanData);
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize EJBModule GBean " + ejbModuleGBeanData.getAbstractName(), e);
@@ -925,15 +937,6 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                 log.error(builderName + ".addGBeans() failed: " + t.getMessage(), t);
             }
         }
-    }
-
-    private static Map<String, Object> getJndiContext(Map<JndiKey, Map<String, Object>> contexts, JndiScope scope) {
-        Map<String, Object> context = contexts.get(scope);
-        if (context == null) {
-            context = new HashMap<String, Object>();
-            contexts.put(scope, context);
-        }
-        return context;
     }
     
     private void setMdbContainerIds(EARContext earContext, EjbModule ejbModule, GBeanData ejbModuleGBeanData) throws DeploymentException {
@@ -1052,7 +1055,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             return ejbModule;
         }
 
-        public Collection<EjbModule> getEjbModuels() {
+        public Collection<EjbModule> getEjbModules() {
             return ejbModules.values();
         }
 
