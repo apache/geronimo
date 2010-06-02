@@ -123,6 +123,12 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>bval-deployer</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->
