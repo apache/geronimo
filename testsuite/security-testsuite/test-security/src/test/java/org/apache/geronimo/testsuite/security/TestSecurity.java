@@ -32,6 +32,7 @@ public class TestSecurity extends SeleniumTestSupport {
         selenium.type("j_password", "bone");
         selenium.click("submit");
         waitForPageLoad();
+        selenium.open("/demo/protect/hello.html");
         assertEquals("hello world.", selenium.getText("xpath=/html"));
         selenium.deleteAllVisibleCookies();
     }

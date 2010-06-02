@@ -30,11 +30,11 @@ public class TestConsoleSecurity extends SeleniumTestSupport {
         selenium.open("/console");
         waitForPageLoad();
         assertFalse(selenium.isTextPresent("Deploy New"));
-        selenium.type("j_username", "system");
-        selenium.type("j_password", "manager");
+        selenium.type("//input[@name='j_username']", "system");
+        selenium.type("//input[@name='j_password']", "manager");
         selenium.click("submit");
         waitForPageLoad();
-        assertTrue(selenium.isTextPresent("Deploy New"));
+        assertEquals("Geronimo Console", selenium.getTitle());
         selenium.click("//a[contains(@href, '/console/logout.jsp')]");
         waitForPageLoad();
         assertEquals("Geronimo Console Login", selenium.getTitle());
@@ -74,10 +74,12 @@ public class TestConsoleSecurity extends SeleniumTestSupport {
         selenium.open("/console");
         waitForPageLoad();
         if (username != null) {
-            selenium.type("j_username", username);
+            //selenium.type("j_username", username);
+            selenium.type("//input[@name='j_username']", username);
         }
         if (password != null) {
-            selenium.type("j_password", password);
+            //selenium.type("j_password", password);
+            selenium.type("//input[@name='j_password']", password);
         }
         selenium.click("submit");
         waitForPageLoad();
