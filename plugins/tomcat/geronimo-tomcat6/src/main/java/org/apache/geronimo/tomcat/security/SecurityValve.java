@@ -24,11 +24,13 @@ import java.io.IOException;
 import java.security.Principal;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Globals;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.geronimo.tomcat.security.jacc.JACCEJBWebServiceAuthorizer;
 
 /**
  * @version $Rev$ $Date$
@@ -48,10 +50,12 @@ public class SecurityValve extends ValveBase {
     public void invoke(Request request, Response response) throws IOException, ServletException {
 
         Object constraints = authorizer.getConstraints(request);
-
+        
+        
         if (!authorizer.hasUserDataPermissions(request, constraints)) {
             //redirect to secure port?
-            if (!response.isError() && !request.getRequest().isSecure()) {
+        	//only for non web service request
+            if (!response.isError() && !request.getRequest().isSecure() && !(authorizer instanceof JACCEJBWebServiceAuthorizer)) {
             	 // Redirect to the corresponding SSL port
                 StringBuffer file = new StringBuffer();
                 String protocol = "https";
@@ -59,6 +63,15 @@ public class SecurityValve extends ValveBase {
                 // Protocol
                 file.append(protocol).append("://").append(host);
                 int redirectPort = request.getConnector().getRedirectPort();
+                
+                // Is redirecting disabled?
+                if (redirectPort <= 0) {
+                    response.sendError
+                        (HttpServletResponse.SC_FORBIDDEN,
+                         request.getRequestURI());
+                    return ;
+                }
+                
 				// Host with port
                 if(redirectPort != 443) {
                     file.append(":").append(redirectPort);
@@ -79,9 +92,12 @@ public class SecurityValve extends ValveBase {
                     file.append(queryString);
                 }
                 response.sendRedirect(file.toString());
+            }else{
+            	response.sendError(response.SC_FORBIDDEN);
             }
             return;
         }
+       
         boolean isAuthMandatory = authorizer.isAuthMandatory(request, constraints);
 
         try {

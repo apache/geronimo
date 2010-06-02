@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
+import javax.ejb.EJBAccessException;
 import javax.naming.Context;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -256,7 +257,10 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
         // If the fault is not going along the back channel we should be 202ing
         if (AddressingHelper.isFaultRedirected(msgContext)) {
             response.setStatusCode(HttpURLConnection.HTTP_ACCEPTED);
-        } else {
+        } else if (e != null && e.getCause()!=null && e.getCause().getCause() instanceof EJBAccessException)   {
+        	//GERONIMO-4738
+       	    response.setStatusCode(HttpURLConnection.HTTP_FORBIDDEN);
+       }else {
             response.setStatusCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
         
