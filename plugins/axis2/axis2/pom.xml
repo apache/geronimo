@@ -93,7 +93,7 @@
 
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>axis2</artifactId>        
+            <artifactId>axis2</artifactId>
         </dependency>
 
         <dependency>
@@ -138,11 +138,6 @@
 
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>woden-impl-dom</artifactId>
         </dependency>
 
@@ -165,30 +160,30 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
          </dependency>
-         
+
          <dependency>
             <groupId>org.apache.woden</groupId>
             <artifactId>woden-api</artifactId>
          </dependency>
-         
+
          <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>woodstox</artifactId>               
+            <artifactId>woodstox</artifactId>
          </dependency>
 
          <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-stax-api_1.2_spec</artifactId>         
+            <artifactId>geronimo-stax-api_1.2_spec</artifactId>
          </dependency>
 
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>               
+            <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>            
+            <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
         </dependency>
     </dependencies>
 

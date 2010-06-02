@@ -109,11 +109,6 @@
                 </exclusion>
 
                 <exclusion>
-                    <groupId>backport-util-concurrent</groupId>
-                    <artifactId>backport-util-concurrent</artifactId>
-                </exclusion>
-
-                <exclusion>
                     <groupId>avalon-framework</groupId>
                     <artifactId>avalon-framework</artifactId>
                 </exclusion>

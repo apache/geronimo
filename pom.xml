@@ -551,16 +551,6 @@
                 <version>3.2.3_3</version>
             </dependency>
 
-            <!--
-            NOTE: This is included for AMQ 4.1 support only.  Need to use 2.2 to
-                  be compatible with AMQ 4.1, latest 3.0 causes CCE problems.
-            -->
-            <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>backport-util-concurrent</artifactId>
-                <version>2.2_1</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.agical.rmock</groupId>
                 <artifactId>rmock</artifactId>
@@ -1647,7 +1637,7 @@
                 <artifactId>groovy-all</artifactId>
                 <version>1.6.0</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
@@ -1998,7 +1988,7 @@ only found in cxf
                             </exclusions>
                         </dependency>
                     </dependencies>
-                
+
                 </plugin>
 
                 <plugin>
