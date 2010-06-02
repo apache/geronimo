@@ -58,6 +58,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-aries-jpa</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-openjpa2</artifactId>
         <type>jar</type>
     </dependency>
