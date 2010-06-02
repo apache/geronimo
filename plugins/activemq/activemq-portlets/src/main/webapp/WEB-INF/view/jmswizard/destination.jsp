@@ -24,7 +24,7 @@
 <p><fmt:message key="jmswizard.destination.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>" method="POST">
+<form name="<portlet:namespace/>JMSForm" id="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="destination-after" />
     <input type="hidden" name="rar" value="${data.rarURI}" />
     <input type="hidden" name="dependency" value="${data.dependency}" />
