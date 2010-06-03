@@ -46,9 +46,9 @@
     </organization>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/trunk</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/server/trunk</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/branches/3.0-M1</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/branches/3.0-M1</developerConnection>
+        <url>http://svn.apache.org/viewvc/geronimo/server//branches/3.0-M1</url>
     </scm>
 
     <properties>
