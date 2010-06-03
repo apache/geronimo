@@ -55,6 +55,9 @@ public class ResourceBuilder {
         // Convert Require-Bundle to requirements.
         convertRequireBundleToRequirement(resource);
         
+        // Convert Bundle-RequireExecutionEnvironment into requirements
+        convertRequireExecutionEnvironmentToRequirement(resource);
+        
         // Convert Fragment-Host to requirement/extend.
         convertFragmentHostToExtends(resource);
 
@@ -63,7 +66,7 @@ public class ResourceBuilder {
         
         // Convert Export-Package declarations into capabilities.
         convertExportPackageToCapability(resource);
-        
+             
         return resource;
     }
     
@@ -118,6 +121,31 @@ public class ResourceBuilder {
             require.setFilter("(&(symbolicname=" + requireBundle.getName() + ")" + versionExpression + ")");  
             
             resource.getRequire().add(require);
+        }
+    }
+    
+    private void convertRequireExecutionEnvironmentToRequirement(Resource resource) {
+        String requiredEnvironments = getProperty(Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT);
+        if (requiredEnvironments != null) {
+            String[] envs = requiredEnvironments.split(",");
+            if (envs.length > 0) {
+                StringBuffer sb = new StringBuffer();
+                sb.append("(|");
+                for (String env : envs) {
+                    sb.append("(ee=");
+                    sb.append(env);
+                    sb.append(")");
+                }                
+                sb.append(")");
+                
+                Require require = new Require();
+                require.setName("ee");
+                require.setContent("Execution Environment " + sb);
+                require.setFilter(sb.toString());
+                
+                resource.getRequire().add(require);
+            }
+                        
         }
     }
     
