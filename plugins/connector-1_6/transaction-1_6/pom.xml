@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>connector-1_6</artifactId>
-        <version>3.0-M1-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
@@ -135,7 +135,7 @@
                             <config-substitution key="TmId">71,84,77,73,68</config-substitution>
                             <config-substitution key="ResourceBindingsFormat">{groupId}/{artifactId}/{j2eeType}/{name}</config-substitution>
                             <config-substitution key="ResourceBindingsNameInNamespace">jca:</config-substitution>
-                            <config-substitution key="ResourceBindingsNamePattern"></config-substitution>
+                            <config-substitution key="ResourceBindingsNamePattern" />
                             <config-substitution key="ResourceBindingsQuery">?#org.apache.geronimo.naming.ResourceSource</config-substitution>
                         </plugin-artifact>
                     </instance>
