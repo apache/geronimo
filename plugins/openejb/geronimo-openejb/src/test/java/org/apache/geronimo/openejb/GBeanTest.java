@@ -29,7 +29,7 @@ public class GBeanTest extends TestCase {
     }
 
     public void testEjbModuleImplGBean() {
-        GBeanInfo.getGBeanInfo(EjbModuleImpl.class.getName(), new MockBundle(getClass().getClassLoader(), "test", 0L));
+        GBeanInfo.getGBeanInfo(EjbModuleImplGBean.class.getName(), new MockBundle(getClass().getClassLoader(), "test", 0L));
     }
 
     public void testEntityDeploymentGBean() {

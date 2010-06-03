@@ -23,10 +23,8 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.openejb.assembler.classic.SingletonSessionContainerInfo;
-import org.apache.openejb.util.Duration;
 
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @version $Rev$ $Date$
@@ -43,9 +41,7 @@ public class SingletonContainerGBean extends EjbContainer {
             @ParamAttribute(name = "accessTimeout") long accessTimeout,
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, SingletonSessionContainerInfo.class, openEjbSystem, provider, "SINGLETON", properties);
-
-        Duration duration = new Duration(accessTimeout, TimeUnit.SECONDS);
-        set("AccessTimeout", duration.toString());
+        set("AccessTimeout", Long.toString(accessTimeout));
         this.accessTimeout = accessTimeout;
     }
 

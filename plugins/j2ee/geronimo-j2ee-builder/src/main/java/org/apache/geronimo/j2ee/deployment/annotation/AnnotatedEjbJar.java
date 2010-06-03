@@ -73,18 +73,6 @@ public class AnnotatedEjbJar implements AnnotatedApp {
         }
     }
 
-    public static AnnotatedApp getAnnotatedApp(XmlObject bean) throws DeploymentException {
-        if (bean instanceof EntityBeanType) {
-            return new EntityBean((EntityBeanType) bean);
-        } else if (bean instanceof MessageDrivenBeanType) {
-            return new MessageDriveBean((MessageDrivenBeanType) bean);
-        } else if (bean instanceof SessionBeanType) {
-            return new SessionBean((SessionBeanType) bean);
-        } else {
-            throw new DeploymentException("Unrecognized XmlBeans object: " + bean);
-        }
-    }
-
     /**
      * EjbJarType methods used for the @EJB, @EJBs annotations
      */
@@ -225,7 +213,6 @@ public class AnnotatedEjbJar implements AnnotatedApp {
 
     public static class EntityBean implements AnnotatedApp {
         private final EntityBeanType bean;
-        private List<EjbRefType> ambiguousEjbRefs;
 
         public EntityBean(EntityBeanType bean) {
             this.bean = bean;
@@ -291,21 +278,8 @@ public class AnnotatedEjbJar implements AnnotatedApp {
             return bean.xmlText();
         }
 
-        /**
-         * ambiguousRefs getter
-         * <p/>
-         * <p>There is no corresponding setter method. To add a new item to the list do:
-         * <pre>
-         *    getAmbiguousEjbRefs().add(ejbRef);
-         * </pre>
-         *
-         * @return ambiguousRefs list
-         */
         public List<EjbRefType> getAmbiguousEjbRefs() {
-            if (ambiguousEjbRefs == null) {
-                ambiguousEjbRefs = new ArrayList<EjbRefType>();
-            }
-            return this.ambiguousEjbRefs;
+            throw new AssertionError("don't call this");
         }
 
         public LifecycleCallbackType[] getPostConstructArray() {
@@ -355,7 +329,6 @@ public class AnnotatedEjbJar implements AnnotatedApp {
 
     public static class MessageDriveBean implements AnnotatedApp {
         private final MessageDrivenBeanType bean;
-        private List<EjbRefType> ambiguousEjbRefs;
 
         public MessageDriveBean(MessageDrivenBeanType bean) {
             this.bean = bean;
@@ -429,21 +402,8 @@ public class AnnotatedEjbJar implements AnnotatedApp {
             return bean.xmlText();
         }
 
-        /**
-         * ambiguousRefs getter
-         * <p/>
-         * <p>There is no corresponding setter method. To add a new item to the list do:
-         * <pre>
-         *    getAmbiguousEjbRefs().add(ejbRef);
-         * </pre>
-         *
-         * @return ambiguousRefs list
-         */
         public List<EjbRefType> getAmbiguousEjbRefs() {
-            if (ambiguousEjbRefs == null) {
-                ambiguousEjbRefs = new ArrayList<EjbRefType>();
-            }
-            return this.ambiguousEjbRefs;
+            throw new AssertionError("don't call this");
         }
 
         public LifecycleCallbackType[] getPostConstructArray() {
@@ -485,7 +445,6 @@ public class AnnotatedEjbJar implements AnnotatedApp {
 
     public static class SessionBean implements AnnotatedApp {
         private final SessionBeanType bean;
-        private List<EjbRefType> ambiguousEjbRefs;
 
         public SessionBean(SessionBeanType bean) {
             this.bean = bean;
@@ -551,21 +510,8 @@ public class AnnotatedEjbJar implements AnnotatedApp {
             return bean.xmlText();
         }
 
-        /**
-         * ambiguousRefs getter
-         * <p/>
-         * <p>There is no corresponding setter method. To add a new item to the list do:
-         * <pre>
-         *    getAmbiguousEjbRefs().add(ejbRef);
-         * </pre>
-         *
-         * @return ambiguousRefs list
-         */
         public List<EjbRefType> getAmbiguousEjbRefs() {
-            if (ambiguousEjbRefs == null) {
-                ambiguousEjbRefs = new ArrayList<EjbRefType>();
-            }
-            return this.ambiguousEjbRefs;
+            throw new AssertionError("don't call this");
         }
 
         public LifecycleCallbackType[] getPostConstructArray() {

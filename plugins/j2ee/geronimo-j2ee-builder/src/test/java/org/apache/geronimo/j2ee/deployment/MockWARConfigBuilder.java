@@ -51,12 +51,12 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         AbstractName earName = naming.createRootName(new Artifact("test", "test-war", "", "war"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
         AbstractName moduleName = naming.createChildName(earName, "war", NameFactory.WEB_MODULE);
-        return new WebModule(true, moduleName, null, null, moduleFile, "war", null, null, null, contextRoot, namespace, null, null, null);
+        return new WebModule(true, moduleName, null, null, moduleFile, "war", null, null, null, contextRoot, namespace, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
-        AbstractName moduleName = naming.createChildName(parentModule.getModuleName(), "war", NameFactory.WEB_MODULE);
-        return new WebModule(false, moduleName, null, null, moduleFile, targetPath, null, null, null, contextRoot, namespace, null, Module.share(Module.APP, parentModule.getJndiContext()), parentModule);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+        AbstractName moduleName = naming.createChildName(earName, "war", NameFactory.WEB_MODULE);
+        return new WebModule(false, moduleName, null, null, moduleFile, targetPath, null, null, null, contextRoot, namespace, null);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module webModule, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {

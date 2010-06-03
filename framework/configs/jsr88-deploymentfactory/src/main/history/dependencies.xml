@@ -3,7 +3,7 @@
     <module-id>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>jsr88-deploymentfactory</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
         <type>car</type>
     </module-id>
     <dependency>

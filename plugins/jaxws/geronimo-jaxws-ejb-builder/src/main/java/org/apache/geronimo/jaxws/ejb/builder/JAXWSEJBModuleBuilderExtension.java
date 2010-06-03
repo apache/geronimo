@@ -187,7 +187,6 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
 
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
 
-        AbstractNameQuery ejbModuleName = NameFactory.newTypeNameQuery(module.getEarContext().getConfigID(), NameFactory.EJB_MODULE, module.getName());
         for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
             if (bean.type != EnterpriseBeanInfo.STATELESS) {
                 continue;
@@ -234,8 +233,6 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
                     ejbWebServiceGBean.setAttribute("properties", properties);
                 }
             }
-
-            ejbWebServiceGBean.addDependency(ejbModuleName);
 
             if (jaxwsBuilder.configureEJB(ejbWebServiceGBean, bean.ejbName, ejbModule,
                                           ejbModule.getSharedContext(), bundle)) {

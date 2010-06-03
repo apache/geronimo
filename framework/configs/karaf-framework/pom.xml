@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <artifactId>karaf-framework</artifactId>
@@ -51,7 +51,7 @@
         <felix.plugin.version>2.1.0</felix.plugin.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
         <felix.metatype.version>1.0.2</felix.metatype.version>
-        <aries.blueprint.version>0.2-incubating-SNAPSHOT</aries.blueprint.version>
+        <aries.blueprint.version>0.1-incubating</aries.blueprint.version>
         <jansi.version>1.2</jansi.version>
         <junit.version>4.7_1</junit.version>
         <jline.version>0.9.95.20100209</jline.version>
@@ -120,12 +120,6 @@
             <dependency>
                 <groupId>org.apache.geronimo.framework</groupId>
                 <artifactId>geronimo-rmi-loader</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.framework</groupId>
-                <artifactId>geronimo-hook</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -544,12 +538,6 @@
                                     <artifactId>geronimo-cli</artifactId>
                                     <outputDirectory>target/dependencies/lib</outputDirectory>
                                     <destFileName>geronimo-cli.jar</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.geronimo.framework</groupId>
-                                    <artifactId>geronimo-hook</artifactId>
-                                    <outputDirectory>target/dependencies/lib</outputDirectory>
-                                    <destFileName>geronimo-hook.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.geronimo.framework</groupId>

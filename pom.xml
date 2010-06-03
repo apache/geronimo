@@ -18,8 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,7 +33,7 @@
     <name>Geronimo</name>
     <packaging>pom</packaging>
 
-    <version>3.0-SNAPSHOT</version>
+    <version>3.0-M1</version>
 
     <description>
         Apache Geronimo, the JavaEE server project of the Apache Software Foundation.
@@ -46,9 +45,9 @@
     </organization>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/trunk</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/trunk</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/server/trunk</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/tags/geronimo-3.0-M1</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/tags/geronimo-3.0-M1</developerConnection>
+        <url>http://svn.apache.org/viewvc/geronimo/server/tags/geronimo-3.0-M1</url>
     </scm>
 
     <properties>
@@ -70,7 +69,8 @@
         <tomcatVersion>7.0.0.1</tomcatVersion>
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
-        <openejbVersion>3.2-SNAPSHOT</openejbVersion>
+        <openejbVersion>3.1.3.0</openejbVersion>
+        <openejbGroup>org.apache.geronimo.ext.openejb</openejbGroup>
         <openjpaVersion>2.0.0</openjpaVersion>
         <derbyVersion>10.5.3.0_1</derbyVersion>
         <cxfVersion>2.1.4</cxfVersion>
@@ -551,6 +551,16 @@
                 <version>3.2.3_3</version>
             </dependency>
 
+            <!--
+            NOTE: This is included for AMQ 4.1 support only.  Need to use 2.2 to
+                  be compatible with AMQ 4.1, latest 3.0 causes CCE problems.
+            -->
+            <dependency>
+                <groupId>org.apache.geronimo.bundles</groupId>
+                <artifactId>backport-util-concurrent</artifactId>
+                <version>2.2_1</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.agical.rmock</groupId>
                 <artifactId>rmock</artifactId>
@@ -876,40 +886,14 @@
             <dependency>
                 <groupId>org.seleniumhq.selenium.client-drivers</groupId>
                 <artifactId>selenium-java-client-driver</artifactId>
-                <version>1.0.2</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.seleniumhq.selenium.server</groupId>
-                        <artifactId>selenium-server</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.seleniumhq.selenium.server</groupId>
-                        <artifactId>selenium-server-coreless</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>1.0-beta-2</version>
             </dependency>
 
             <dependency>
                 <groupId>org.seleniumhq.selenium.server</groupId>
                 <artifactId>selenium-server</artifactId>
-                <classifier>standalone</classifier>
-                <version>1.0.3</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.seleniumhq.selenium.server</groupId>
-                        <artifactId>selenium-server-coreless</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.seleniumhq.selenium.core</groupId>
-                        <artifactId>selenium-core</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>1.0-beta-2</version>
             </dependency>
-
 
             <dependency>
                 <groupId>antlr</groupId>
@@ -1040,16 +1024,16 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId>
+                <groupId>${openejbGroup}</groupId>
                 <artifactId>openejb-core</artifactId>
                 <version>${openejbVersion}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1120,16 +1104,16 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId>
+                <groupId>${openejbGroup}</groupId>
                 <artifactId>openejb-client</artifactId>
                 <version>${openejbVersion}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1144,16 +1128,16 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId>
+                <groupId>${openejbGroup}</groupId>
                 <artifactId>openejb-multicast</artifactId>
                 <version>${openejbVersion}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1164,7 +1148,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId>
+                <groupId>${openejbGroup}</groupId>
                 <artifactId>openejb-ejbd</artifactId>
                 <version>${openejbVersion}</version>
                 <exclusions>
@@ -1173,27 +1157,27 @@
                         <artifactId>log4j</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId>
+                <groupId>${openejbGroup}</groupId>
                 <artifactId>openejb-axis</artifactId>
                 <version>${openejbVersion}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>openejb-webservices</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1212,16 +1196,16 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId>
+                <groupId>${openejbGroup}</groupId>
                 <artifactId>openejb-server</artifactId>
                 <version>${openejbVersion}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1236,16 +1220,16 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId>
+                <groupId>${openejbGroup}</groupId>
                 <artifactId>openejb-loader</artifactId>
                 <version>${openejbVersion}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1256,16 +1240,16 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId>
+                <groupId>${openejbGroup}</groupId>
                 <artifactId>openejb-jee</artifactId>
                 <version>${openejbVersion}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
+                        <groupId>${openejbGroup}</groupId>
                         <artifactId>ejb31-api-experimental</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1284,7 +1268,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.openejb</groupId>
+                <groupId>${openejbGroup}</groupId>
                 <artifactId>openejb-javaagent</artifactId>
                 <version>${openejbVersion}</version>
             </dependency>
@@ -1893,25 +1877,31 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.aries</groupId>
                 <artifactId>org.apache.aries.util</artifactId>
-                <version>0.2-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jndi</groupId>
-                <artifactId>org.apache.aries.jndi</artifactId>
-                <version>0.2-incubating-SNAPSHOT</version>
+                <artifactId>org.apache.aries.jndi.core</artifactId>
+                <version>0.1-incubating</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.aries.jndi</groupId>
+                <artifactId>org.apache.aries.jndi.url</artifactId>
+                <version>0.1-incubating</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jmx</groupId>
                 <artifactId>org.apache.aries.jmx</artifactId>
-                <version>0.2-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jmx</groupId>
                 <artifactId>org.apache.aries.jmx.blueprint</artifactId>
-                <version>0.2-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -1923,7 +1913,43 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint</artifactId>
-                <version>0.2-incubating-SNAPSHOT</version>
+                <version>0.1-incubating</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.aries.blueprint</groupId>
+                <artifactId>org.apache.aries.blueprint.api</artifactId>
+                <version>0.1-incubating</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.aries.blueprint</groupId>
+                <artifactId>org.apache.aries.blueprint.core</artifactId>
+                <version>0.1-incubating</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.aries.blueprint</groupId>
+                <artifactId>org.apache.aries.blueprint.cm</artifactId>
+                <version>0.1-incubating</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -1969,26 +1995,7 @@ only found in cxf
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
-                    <version>1.0.1</version>
-                     <dependencies>
-                        <dependency>
-                            <groupId>org.seleniumhq.selenium.server</groupId>
-                            <artifactId>selenium-server</artifactId>
-                            <classifier>standalone</classifier>
-                            <version>1.0.3</version>
-                            <exclusions>
-                                <exclusion>
-                                    <groupId>org.seleniumhq.selenium.server</groupId>
-                                    <artifactId>selenium-server-coreless</artifactId>
-                                </exclusion>
-                                <exclusion>
-                                    <groupId>org.seleniumhq.selenium.core</groupId>
-                                    <artifactId>selenium-core</artifactId>
-                                </exclusion>
-                            </exclusions>
-                        </dependency>
-                    </dependencies>
-
+                    <version>1.0-rc-1</version>
                 </plugin>
 
                 <plugin>

@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <artifactId>jasper</artifactId>
@@ -96,7 +96,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
+
             <dependency>
                 <groupId>${tomcatGroupId}</groupId>
                 <artifactId>util</artifactId>
@@ -113,7 +113,7 @@
             <!--<groupId>${tomcatGroupId}</groupId>-->
             <!--<artifactId>jasper-jdt</artifactId>-->
             <!--<version>${tomcatVersion}</version>-->
-            <!--</dependency>-->            
+            <!--</dependency>-->
         </dependencies>
     </dependencyManagement>
 

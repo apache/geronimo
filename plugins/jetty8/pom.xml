@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <artifactId>jetty8</artifactId>
@@ -34,7 +34,7 @@
     </description>
 
     <properties>
-        <jettyVersion>8.0.0.M1-SNAPSHOT</jettyVersion>
+        <jettyVersion>8.0.0.M0</jettyVersion>
     </properties>
 
     <dependencyManagement>

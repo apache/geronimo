@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <artifactId>activemq</artifactId>
@@ -39,12 +39,6 @@
         <module>activemq-ra</module>
         <module>geronimo-activemq-blueprint</module>
         <module>geronimo-activemq-management</module>
-        <!--<module>activemq-portlets</module>-->
-        <!--<module>activemq-console-jetty</module>-->
-        <!--<module>activemq-console-tomcat</module>-->
-        <!--<module>activemq-webconsole-jetty</module>-->
-        <!--<module>activemq-webconsole-tomcat</module>-->
-        <!--<module>activemq-webconsole</module>-->
     </modules>
 
     <profiles>
@@ -54,16 +48,10 @@
                 <module>activemq-jetty-server</module>
             </modules>
         </profile>
-        <profile>
-            <id>all-subprojects</id>
-            <modules>
-                <module>activemq-server</module>
-            </modules>
-        </profile>
     </profiles>
 
     <properties>
-        <activemqVersion>5.4-SNAPSHOT</activemqVersion>
+        <activemqVersion>5.3.2</activemqVersion>
     </properties>
 
     <dependencyManagement>
@@ -124,6 +112,10 @@
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>backport-util-concurrent</groupId>
+                        <artifactId>backport-util-concurrent</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

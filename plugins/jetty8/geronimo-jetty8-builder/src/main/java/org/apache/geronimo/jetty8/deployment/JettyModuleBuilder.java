@@ -132,9 +132,6 @@ import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -202,9 +199,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                               @ParamReference(name="NamingBuilders", namingType=NameFactory.MODULE_BUILDER)NamingBuilder namingBuilders,
                               @ParamReference(name="ModuleBuilderExtensions", namingType=NameFactory.MODULE_BUILDER)Collection<ModuleBuilderExtension> moduleBuilderExtensions,
                               @ParamReference(name="ResourceEnvironmentSetter", namingType=NameFactory.MODULE_BUILDER)ResourceEnvironmentSetter resourceEnvironmentSetter,
-                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
-                              @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws GBeanNotFoundException {
-        super(kernel, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions, bundleContext);
+                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) throws GBeanNotFoundException {
+        super(kernel, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions);
         this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? 30 * 60 : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
@@ -218,7 +214,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         this.defaultWelcomeFiles = defaultWelcomeFiles == null ? new ArrayList<String>() : defaultWelcomeFiles;
         this.defaultLocaleEncodingMappings = defaultLocaleEncodingMappings == null ? new HashMap<String, String>() : defaultLocaleEncodingMappings;
         this.defaultMimeTypeMappings = defaultMimeTypeMappings == null ? new HashMap<String, String>() : defaultMimeTypeMappings;
-        ServiceReference sr = bundleContext.getServiceReference(PackageAdmin.class.getName());
     }
 
     public void doStart() throws Exception {
@@ -307,14 +302,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             name = bundle.getSymbolicName();
         }
 
-        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextPath, JETTY_NAMESPACE, annotatedWebApp, shareJndi(null), null);
+        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextPath, JETTY_NAMESPACE, annotatedWebApp);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, bundle, naming, idBuilder);
         }
         return module;
     }
 
-    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, Module parentModule, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         assert moduleFile != null : "moduleFile is null";
         assert targetPath != null : "targetPath is null";
         assert !targetPath.endsWith("/") : "targetPath must not end with a '/'";
@@ -379,12 +374,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         idBuilder.resolve(environment, warName, "war");
 
         AbstractName moduleName;
-        AbstractName earName;
-        if (parentModule == null) {
+        if (earName == null) {
             earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
             moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.WEB_MODULE);
         } else {
-            earName = parentModule.getModuleName();
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
@@ -400,7 +393,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             }
         }
 
-        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextRoot, JETTY_NAMESPACE, annotatedWebApp, shareJndi(parentModule), parentModule);
+        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextRoot, JETTY_NAMESPACE, annotatedWebApp);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
         }

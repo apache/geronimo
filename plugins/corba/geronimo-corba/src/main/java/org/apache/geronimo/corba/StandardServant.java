@@ -21,6 +21,7 @@ import java.rmi.AccessException;
 import java.rmi.MarshalException;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.Map;
@@ -123,7 +124,7 @@ public class StandardServant extends Servant implements InvokeHandler {
         componentContext.put("comp/ORB", orb);
         componentContext.put("comp/HandleDelegate", new CORBAHandleDelegate());
         try {
-            enc = EnterpriseNamingContext.livenReferences(componentContext, null, null, null, null, "comp");
+            enc = EnterpriseNamingContext.livenReferences(componentContext, null, null, null, "comp");
         } catch (NamingException e) {
             throw new RuntimeException("Error creating standard servant naming context", e);
         }
@@ -217,7 +218,7 @@ public class StandardServant extends Servant implements InvokeHandler {
                                 }
                             } else {
                                 try {
-                                    Object handleKey = handle.getPrimaryKey();
+                                    Object handleKey = handle.getPrimaryKey(); 
                                     RpcContainer container = (RpcContainer) ejbDeployment.getContainer();
                                     result = container.invoke(ejbDeployment.getDeploymentId(), interfaceType, method.getDeclaringClass(), method, arguments, handleKey);
                                 } catch (OpenEJBException e) {
@@ -248,10 +249,10 @@ public class StandardServant extends Servant implements InvokeHandler {
                     try {
                         RpcContainer container = (RpcContainer) ejbDeployment.getContainer();
                         result = container.invoke(ejbDeployment.getDeploymentId(), interfaceType, method.getDeclaringClass(), method, arguments, primaryKey);
-                        // some methods like create() or find* return ProxyInfo objects.  We need to
-                        // turn those into real EJB remote references.
+                        // some methods like create() or find* return ProxyInfo objects.  We need to 
+                        // turn those into real EJB remote references. 
                         if (result instanceof ProxyInfo || method.getName().startsWith("find")) {
-                            result = createProxy(result);
+                            result = createProxy(result);                    
                         }
                     } catch (OpenEJBException e) {
                         Throwable cause = e.getCause();
@@ -319,11 +320,11 @@ public class StandardServant extends Servant implements InvokeHandler {
 
     /**
      * Convert ProxyInfo items in a create* or find* result
-     * for returning as a corba result.
-     *
+     * for returning as a corba result. 
+     * 
      * @param retValue The return value.
-     *
-     * @return A CORBA compatible return result.
+     * 
+     * @return A CORBA compatible return result. 
      * @exception Throwable
      */
     protected Object createProxy(Object retValue) throws Throwable {

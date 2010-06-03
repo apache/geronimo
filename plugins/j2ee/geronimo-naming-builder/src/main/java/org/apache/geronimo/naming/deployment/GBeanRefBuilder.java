@@ -23,12 +23,15 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -43,12 +46,10 @@ import org.osgi.framework.Bundle;
 /**
  * @version $Rev$ $Date$
  */
-@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class GBeanRefBuilder extends AbstractNamingBuilder {
     private static final QName GBEAN_REF_QNAME = GerGbeanRefDocument.type.getDocumentElementName();
     private static final QNameSet GBEAN_REF_QNAME_SET = QNameSet.singleton(GBEAN_REF_QNAME);
 
-    @Override
     public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         if (plan == null) {
             return;
@@ -89,19 +90,29 @@ public class GBeanRefBuilder extends AbstractNamingBuilder {
 
             String refName = gbeanRef.getRefName();
 
-            put(refName, new GBeanReference(module.getConfigId(), queries, gBeanType), module.getJndiContext());
+            put(refName, new GBeanReference(module.getConfigId(), queries, gBeanType), NamingBuilder.JNDI_KEY.get(sharedContext));
 
         }
     }
 
-    @Override
     public QNameSet getSpecQNameSet() {
         return QNameSet.EMPTY;
     }
 
-    @Override
     public QNameSet getPlanQNameSet() {
         return GBEAN_REF_QNAME_SET;
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(GBeanRefBuilder.class, NameFactory.MODULE_BUILDER);
+
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 
 }

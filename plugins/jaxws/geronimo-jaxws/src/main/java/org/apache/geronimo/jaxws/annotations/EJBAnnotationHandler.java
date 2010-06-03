@@ -16,11 +16,10 @@
  */
 package org.apache.geronimo.jaxws.annotations;
 
+import javax.ejb.EJB;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
-import javax.ejb.EJB;
 
 public abstract class EJBAnnotationHandler extends InjectingAnnotationHandler {
 

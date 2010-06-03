@@ -29,6 +29,9 @@ import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBs;
 import javax.ejb.Local;
 import javax.ejb.Remote;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.xbeans.javaee6.DescriptionType;
 import org.apache.geronimo.xbeans.javaee6.EjbLinkType;
 import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
@@ -38,9 +41,7 @@ import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
 import org.apache.geronimo.xbeans.javaee6.LocalType;
 import org.apache.geronimo.xbeans.javaee6.RemoteType;
 import org.apache.geronimo.xbeans.javaee6.XsdStringType;
-import org.apache.xbean.finder.AbstractFinder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.xbean.finder.ClassFinder;
 
 /**
  * Static helper class used to encapsulate all the functions related to the translation of
@@ -84,7 +85,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
      *
      * @return true or false
      */
-    public static boolean annotationsPresent(AbstractFinder classFinder) {
+    public static boolean annotationsPresent(ClassFinder classFinder) {
         if (classFinder.isAnnotationPresent(EJB.class)) return true;
         if (classFinder.isAnnotationPresent(EJBs.class)) return true;
         return false;
@@ -97,7 +98,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
      * @return Updated deployment descriptor
      * @throws Exception if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws Exception {
+    public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
         if (annotatedApp != null) {
             processEJBs(annotatedApp, classFinder);
             processEJB(annotatedApp, classFinder);
@@ -112,7 +113,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
      * @param classFinder
      * @throws Exception
      */
-    private static void processEJB(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws Exception {
+    private static void processEJB(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
         log.debug("processEJB(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Class> classesWithEJB = classFinder.findAnnotatedClasses(EJB.class);
@@ -157,7 +158,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
      * @param classFinder
      * @throws Exception
      */
-    private static void processEJBs(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws Exception {
+    private static void processEJBs(AnnotatedApp annotatedApp, ClassFinder classFinder) throws Exception {
         log.debug("processEJBs(): Entry");
 
         List<Class> classesWithEJBs = classFinder.findAnnotatedClasses(EJBs.class);

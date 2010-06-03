@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>console</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <artifactId>console-tomcat</artifactId>
@@ -49,7 +49,7 @@
             <artifactId>dojo-tomcat</artifactId>
             <version>${project.version}</version>
             <type>car</type>
-        </dependency>        
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -85,7 +85,7 @@
             <artifactId>console-filter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>dwr</artifactId>
@@ -99,7 +99,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat7-deployer</artifactId>
@@ -107,7 +107,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
@@ -123,7 +123,7 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat7</artifactId>

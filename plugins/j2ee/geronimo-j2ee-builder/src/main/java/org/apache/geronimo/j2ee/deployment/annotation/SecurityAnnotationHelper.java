@@ -22,15 +22,18 @@ import java.util.List;
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RunAs;
 import javax.servlet.Servlet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.xbeans.javaee6.RoleNameType;
 import org.apache.geronimo.xbeans.javaee6.RunAsType;
 import org.apache.geronimo.xbeans.javaee6.SecurityRoleType;
 import org.apache.geronimo.xbeans.javaee6.ServletType;
+import org.apache.geronimo.xbeans.javaee6.ServletNameType;
+import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.xbean.finder.AbstractFinder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.xbean.finder.ClassFinder;
 
 
 /**
@@ -71,7 +74,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
      * @param classFinder  Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    public static void processAnnotations(WebAppType webApp, AbstractFinder classFinder) throws DeploymentException {
+    public static void processAnnotations(WebAppType webApp, ClassFinder classFinder) throws DeploymentException {
         if (webApp != null && classFinder != null) {
             if (classFinder.isAnnotationPresent(DeclareRoles.class)) {
                 processDeclareRoles(webApp, classFinder);
@@ -90,7 +93,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processDeclareRoles(WebAppType webApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processDeclareRoles(WebAppType webApp, ClassFinder classFinder) throws DeploymentException {
         log.debug("processDeclareRoles(): Entry: webApp: " + webApp.toString());
 
         List<Class> classesWithDeclareRoles = classFinder.findAnnotatedClasses(DeclareRoles.class);
@@ -117,7 +120,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processRunAs(WebAppType webApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processRunAs(WebAppType webApp, ClassFinder classFinder) throws DeploymentException {
         log.debug("processRunAs(): Entry: webApp: " + webApp.toString());
 
         List<Class> classesWithRunAs = classFinder.findAnnotatedClasses(RunAs.class);

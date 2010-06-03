@@ -19,13 +19,25 @@ package org.apache.geronimo.web25.deployment;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.jar.JarFile;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.ModuleIDBuilder;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -34,6 +46,7 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
 
     private ClassLoader classLoader = this.getClass().getClassLoader();
     private XmlOptions options = new XmlOptions();
+    private WebModuleBuilder webModuleBuilder = new WebModuleBuilder(null);
 
     public void testWeb25To30Transform() throws Exception {
         URL srcXml = classLoader.getResource("javaee_5schema/web-2-25.xml");
@@ -130,5 +143,41 @@ public class SchemaConversionTest extends XmlBeansTestSupport {
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         SchemaConversionUtils.convertToServletSchema(xmlObject);
     }
+
+    private static class WebModuleBuilder extends AbstractWebModuleBuilder {
+
+        protected WebModuleBuilder(Kernel kernel) {
+            super(kernel, null, null, null, Collections.EMPTY_SET, null);
+        }
+
+        public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+            return null;
+        }
+
+        protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+            return null;
+        }
+
+        public void initContext(EARContext earContext, Module module, Bundle classLoader) throws DeploymentException {
+        }
+
+        public void addGBeans(EARContext earContext, Module module, Bundle classLoader, Collection repositories) throws DeploymentException {
+        }
+
+        public String getSchemaNamespace() {
+            return null;
+        }
+
+        @Override
+        protected void postInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        protected void preInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+            // TODO Auto-generated method stub
+        }
+    }
+
 
 }

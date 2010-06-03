@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>welcome</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
@@ -34,12 +34,12 @@
     <packaging>car</packaging>
 
      <description>
-       The welcome application for Geronimo. 
-       This binds to / so it handles all requests that nothing else is bound to. 
-       The main purpose is to greet users who are exploring Geronimo for the first time. 
+       The welcome application for Geronimo.
+       This binds to / so it handles all requests that nothing else is bound to.
+       The main purpose is to greet users who are exploring Geronimo for the first time.
        It should typically be removed or replaced for production applications.
-   </description> 
-    
+   </description>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
@@ -48,7 +48,7 @@
             <type>war</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat7-deployer</artifactId>
@@ -56,7 +56,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper-deployer</artifactId>
@@ -64,7 +64,7 @@
             <type>car</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>tomcat7</artifactId>
@@ -78,7 +78,7 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>plugin</artifactId>
@@ -86,7 +86,7 @@
             <type>car</type>
         </dependency>
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
@@ -94,7 +94,7 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        
+
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.buildsupport</groupId>
@@ -121,5 +121,5 @@
             </plugin>
         </plugins>
     </build>
-    
+
 </project>

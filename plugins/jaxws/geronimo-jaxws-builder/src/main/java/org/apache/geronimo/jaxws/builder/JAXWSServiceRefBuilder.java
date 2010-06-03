@@ -164,7 +164,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         Object ref = createService(serviceRef, gerServiceRef, module, bundle,
                                    serviceInterfaceClass, serviceQName,
                                    wsdlURI, serviceReferenceType, portComponentRefMap);
-        put(name, ref, module.getJndiContext());
+        put(name, ref, getJndiContextMap(componentContext));
     }
 
     public abstract Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef,

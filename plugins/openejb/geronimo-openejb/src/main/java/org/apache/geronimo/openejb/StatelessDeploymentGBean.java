@@ -19,7 +19,6 @@ package org.apache.geronimo.openejb;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoFactory;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
@@ -29,9 +28,9 @@ public class StatelessDeploymentGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EjbDeployment.class,
-                EjbDeployment.class,
-                new AnnotationGBeanInfoFactory().getGBeanInfo(EjbDeployment.class),
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EjbDeploymentGBean.class,
+                EjbDeploymentGBean.class,
+                EjbDeploymentGBean.GBEAN_INFO,
                 NameFactory.STATELESS_SESSION_BEAN);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

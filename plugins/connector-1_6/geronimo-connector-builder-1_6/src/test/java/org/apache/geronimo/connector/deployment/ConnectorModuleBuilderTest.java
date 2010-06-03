@@ -31,6 +31,7 @@ import java.util.jar.JarFile;
 
 import javax.naming.Reference;
 import javax.sql.DataSource;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -45,8 +46,6 @@ import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Jsr77Naming;
@@ -140,7 +139,6 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     null,
                     serviceBuilder,
                     null,
-                    new NamingBuilderCollection(Collections.<NamingBuilder>emptyList()),
                     kernel.getNaming(),
                     null,
                     bundleContext);
@@ -349,8 +347,9 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
 
             JarFile rarJarFile = JarUtils.createJarFile(rarFile);
+            AbstractName earName = null;
             String moduleName = "geronimo/test-ear/1.0/car";
-            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, moduleName, action.getSpecDD(), null, null, null, naming, new ModuleIDBuilder());
+            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, moduleName, action.getSpecDD(), null, null, earName, naming, new ModuleIDBuilder());
             if (module == null) {
                 throw new DeploymentException("Was not a connector module");
             }

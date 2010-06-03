@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>corba</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
@@ -50,7 +50,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-client</artifactId>
         </dependency>
 
@@ -61,7 +61,7 @@
 
         <!-- client CORBABean needs the ApplicationServer class -->
         <dependency>
-            <groupId>org.apache.openejb</groupId>
+            <groupId>${openejbGroup}</groupId>
             <artifactId>openejb-core</artifactId>
             <exclusions>
                 <exclusion>
@@ -69,19 +69,19 @@
                     <artifactId>activmq-core</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.openejb</groupId>
+                    <groupId>${openejbGroup}</groupId>
                     <artifactId>openejb-loader</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.openejb</groupId>
+                    <groupId>${openejbGroup}</groupId>
                     <artifactId>openejb-javaagent</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.openejb</groupId>
+                    <groupId>${openejbGroup}</groupId>
                     <artifactId>asm-finder</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.openejb</groupId>
+                    <groupId>${openejbGroup}</groupId>
                     <artifactId>openejb-jee</artifactId>
                 </exclusion>
                 <exclusion>

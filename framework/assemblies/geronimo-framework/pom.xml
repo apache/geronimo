@@ -6,9 +6,9 @@
     The ASF licenses this file to You under the Apache License, Version 2.0
     (the "License"); you may not use this file except in compliance with
     the License.  You may obtain a copy of the License at
-    
+
        http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,24 +19,24 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.apache.geronimo.framework.assemblies</groupId>
         <artifactId>assemblies</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <groupId>org.apache.geronimo.assemblies</groupId>
     <artifactId>geronimo-framework</artifactId>
     <name>Geronimo Assemblies :: Framework</name>
     <packaging>server-assembly</packaging>
-    
+
     <description>
         A minimal Geronimo server (Little-G) framework assembly.
     </description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework.plugingroups</groupId>
@@ -144,7 +144,7 @@
                          </execution>
                      </executions>
                 </plugin>
-                
+
             </plugins>
         </pluginManagement>
     </build>
@@ -165,5 +165,5 @@
             </build>
         </profile>
     </profiles>
-    
+
 </project>

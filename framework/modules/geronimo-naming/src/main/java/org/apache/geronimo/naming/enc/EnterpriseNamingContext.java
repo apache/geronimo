@@ -27,13 +27,11 @@ import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.reference.BundleAwareReference;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.EntryFactory;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.xbean.naming.context.ImmutableContext;
 import org.apache.xbean.naming.context.ImmutableFederatedContext;
-import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -47,8 +45,7 @@ public final class EnterpriseNamingContext {
         return new ImmutableFederatedContext("java:", contexts);
     }
 
-    public static Context livenReferences(Map<String, Object> componentContext, UserTransaction userTransaction, Kernel kernel, ClassLoader classLoader, Bundle bundle, String prefix)
-            throws NamingException {
+    public static Context livenReferences(Map<String, Object> componentContext, UserTransaction userTransaction, Kernel kernel, ClassLoader classLoader, String prefix) throws NamingException {
         Map<String, Object> map = new HashMap<String, Object>();
         boolean containsEnv = false;
         if (componentContext != null) {
@@ -67,9 +64,6 @@ public final class EnterpriseNamingContext {
                 }
                 if (value instanceof ClassLoaderAwareReference) {
                     ((ClassLoaderAwareReference) value).setClassLoader(classLoader);
-                }
-                if (value instanceof BundleAwareReference) {
-                    ((BundleAwareReference) value).setBundle(bundle);
                 }
                 map.put(name, value);
             }

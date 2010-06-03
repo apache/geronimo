@@ -27,8 +27,10 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.deployment.EARContext;
@@ -40,25 +42,21 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
 import org.apache.geronimo.xbeans.javaee6.JavaIdentifierType;
 import org.apache.geronimo.xbeans.javaee6.LifecycleCallbackType;
-import org.apache.xbean.finder.AbstractFinder;
+import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
-@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class LifecycleMethodBuilder extends AbstractNamingBuilder {
-
-    @Override
     public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
-        // skip ejb modules... they have already been processed
-        //skip ears, they have no standalone components
-        if (module.getType() == ConfigurationModuleType.EJB || module.getType() == ConfigurationModuleType.EAR) {
+        // skip ejb modules... they have alreayd been processed
+        if (module.getType() == ConfigurationModuleType.EJB) {
             return;
         }
 
-        AbstractFinder classFinder = module.getClassFinder();
+        ClassFinder classFinder = module.getClassFinder();
         AnnotatedApp annotatedApp = module.getAnnotatedApp();
         if (annotatedApp == null) {
             throw new NullPointerException("No AnnotatedApp supplied");
@@ -131,14 +129,23 @@ public class LifecycleMethodBuilder extends AbstractNamingBuilder {
         return map;
     }
 
-    @Override
     public QNameSet getSpecQNameSet() {
         return QNameSet.EMPTY;
     }
 
-    @Override
     public QNameSet getPlanQNameSet() {
         return QNameSet.EMPTY;
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LifecycleMethodBuilder.class, NameFactory.MODULE_BUILDER);
+
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 }

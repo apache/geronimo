@@ -26,9 +26,9 @@ import javax.xml.ws.handler.HandlerResolver;
 
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
+import org.apache.geronimo.jaxws.handler.GeronimoHandlerChainBuilder;
 import org.apache.geronimo.xbeans.javaee.HandlerChainType;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
-import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -37,17 +37,17 @@ public class GeronimoHandlerResolver implements HandlerResolver {
 
     private HandlerChainsType handlerChains;
 
-    private Bundle bundle;
+    private ClassLoader classLoader;
 
     private Class serviceClass;
 
     private AnnotationProcessor annotationProcessor;
 
-    public GeronimoHandlerResolver(Bundle bundle,
+    public GeronimoHandlerResolver(ClassLoader classLoader,
                                    Class serviceClass,
                                    HandlerChainsType handlerChains,
                                    AnnotationProcessor annotationProcessor) {
-        this.bundle = bundle;
+        this.classLoader = classLoader;
         this.serviceClass = serviceClass;
         this.handlerChains = handlerChains;
         this.annotationProcessor = annotationProcessor;
@@ -56,7 +56,7 @@ public class GeronimoHandlerResolver implements HandlerResolver {
     public List<Handler> getHandlerChain(javax.xml.ws.handler.PortInfo portInfo) {
 
         GeronimoHandlerChainBuilder builder =
-                new GeronimoHandlerChainBuilder(bundle, portInfo);
+                new GeronimoHandlerChainBuilder(this.classLoader, portInfo);
 
         List<Handler> handlers = null;
         if (this.handlerChains == null) {

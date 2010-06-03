@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -37,11 +36,9 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
@@ -179,22 +176,9 @@ public class EjbDeploymentBuilder {
         }
     }
 
-    private static Set<AbstractName> getResourceDependencies(EARContext earContext) {
-        AbstractNameQuery cfNameQuery = new AbstractNameQuery(earContext.getConfigID(), Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_MANAGED_CONNECTION_FACTORY));
-        AbstractNameQuery aoNameQuery = new AbstractNameQuery(earContext.getConfigID(), Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_ADMIN_OBJECT));
-        AbstractNameQuery raNameQuery = new AbstractNameQuery(earContext.getConfigID(), Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_RESOURCE_ADAPTER));
-        Set<AbstractName> dependencies = new HashSet<AbstractName>();
-        dependencies.addAll(earContext.findGBeans(cfNameQuery));
-        dependencies.addAll(earContext.findGBeans(aoNameQuery));
-        dependencies.addAll(earContext.findGBeans(raNameQuery));
-        return dependencies;
-    }
-
-    public void addEjbModuleDependency(GBeanData ejbModule) {
-        Set<AbstractName> resourceDependencies = getResourceDependencies(earContext);
+    public void addEjbModuleDependency(AbstractName ejbModuleName) {
         for (GBeanData gbean : gbeans.values()) {
-            ejbModule.addDependency(gbean.getAbstractName());
-            gbean.addDependencies(resourceDependencies);
+            gbean.setReferencePattern("EjbModule", ejbModuleName);
         }
     }
 
@@ -376,31 +360,29 @@ public class EjbDeploymentBuilder {
         if (!ejbJarType.getMetadataComplete()) {
             // Create a classfinder and populate it for the naming builder(s). The absence of a
             // classFinder in the module will convey whether metadata-complete is set (or not)
-//            ejbModule.setClassFinder(createEjbJarClassFinder(ejbModule));
+            ejbModule.setClassFinder(createEjbJarClassFinder(ejbModule));
         }
 
+        Map<JndiKey, Map<String, Object>> moduleJndiContext = NamingBuilder.JNDI_KEY.get(ejbModule.getSharedContext());
         EnterpriseBeansType enterpriseBeans = ejbJarType.getEnterpriseBeans();
         if (enterpriseBeans != null) {
             for (SessionBeanType xmlbeansEjb : enterpriseBeans.getSessionArray()) {
                 String ejbName = xmlbeansEjb.getEjbName().getStringValue().trim();
-                String beanClass = xmlbeansEjb.getEjbClass().getStringValue().trim();
                 GBeanData gbean = getEjbGBean(ejbName);
                 ResourceRefType[] resourceRefs = xmlbeansEjb.getResourceRefArray();
-                addEnc(gbean, beanClass, xmlbeansEjb, resourceRefs);
+                addEnc(gbean, xmlbeansEjb, resourceRefs, moduleJndiContext);
             }
             for (MessageDrivenBeanType xmlbeansEjb : enterpriseBeans.getMessageDrivenArray()) {
                 String ejbName = xmlbeansEjb.getEjbName().getStringValue().trim();
-                String beanClass = xmlbeansEjb.getEjbClass().getStringValue().trim();
                 GBeanData gbean = getEjbGBean(ejbName);
                 ResourceRefType[] resourceRefs = xmlbeansEjb.getResourceRefArray();
-                addEnc(gbean, beanClass, xmlbeansEjb, resourceRefs);
+                addEnc(gbean, xmlbeansEjb, resourceRefs, moduleJndiContext);
             }
             for (EntityBeanType xmlbeansEjb : enterpriseBeans.getEntityArray()) {
                 String ejbName = xmlbeansEjb.getEjbName().getStringValue().trim();
-                String beanClass = xmlbeansEjb.getEjbClass().getStringValue().trim();
                 GBeanData gbean = getEjbGBean(ejbName);
                 ResourceRefType[] resourceRefs = xmlbeansEjb.getResourceRefArray();
-                addEnc(gbean, beanClass, xmlbeansEjb, resourceRefs);
+                addEnc(gbean, xmlbeansEjb, resourceRefs, moduleJndiContext);
             }
 
         }
@@ -411,40 +393,26 @@ public class EjbDeploymentBuilder {
         }
     }
 
-    private void addEnc(GBeanData gbean, String beanClass, XmlObject xmlbeansEjb, ResourceRefType[] resourceRefs) throws DeploymentException {
+    private void addEnc(GBeanData gbean, XmlObject xmlbeansEjb, ResourceRefType[] resourceRefs, Map<JndiKey, Map<String, Object>> moduleJndiContext) throws DeploymentException {
         OpenejbGeronimoEjbJarType geronimoOpenejb = ejbModule.getVendorDD();
 
         //
         // Build ENC
         //
+
+        // Geronimo uses a map to pass data to the naming build and for the results data
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
+        Map<JndiKey, Map<String, Object>> jndiContext = new HashMap<JndiKey, Map<String, Object>>();
+        buildingContext.put(NamingBuilder.JNDI_KEY, jndiContext);
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, gbean.getAbstractName());
-        Class ejbClass;
-        try {
-            ejbClass = ejbModule.getEarContext().getDeploymentBundle().loadClass(beanClass);
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Could not load ejb class", e);
-        }
-        List<Class> classes = new ArrayList<Class>();
-        while (ejbClass != null && !ejbClass.equals(Object.class)) {
-            classes.add(ejbClass);
-            ejbClass = ejbClass.getSuperclass();
-        }
+        ((AnnotatedEjbJar) ejbModule.getAnnotatedApp()).setBean(xmlbeansEjb);
 
-        ClassFinder finder = new ClassFinder(classes);
-        AnnotatedApp annotatedApp = AnnotatedEjbJar.getAnnotatedApp(xmlbeansEjb); 
-
-
-        Module module = ejbModule.newEJb(finder, annotatedApp);
         namingBuilder.buildNaming(xmlbeansEjb,
                 geronimoOpenejb,
-                module,
-                buildingContext);
+                ejbModule, buildingContext);
 
-        AbstractName applicationJndiName = (AbstractName)earContext.getGeneralData().get(EARContext.APPLICATION_JNDI_NAME_KEY);
-        gbean.setReferencePattern("ApplicationJndi", applicationJndiName);
-        gbean.setAttribute("moduleContextMap", module.getJndiScope(JndiScope.module));
-        gbean.setAttribute("componentContextMap", module.getJndiScope(JndiScope.comp));
+        Map<String, Object> compContext = jndiContext.get(JndiScope.comp);
+        gbean.setAttribute("componentContextMap", compContext);
 
         //
         // Process resource refs
@@ -459,26 +427,26 @@ public class EjbDeploymentBuilder {
         resourceEnvironmentSetter.setResourceEnvironment(refBuilder, resourceRefs, gerResourceRefs);
     }
 
-//    private ClassFinder createEjbJarClassFinder(EjbModule ejbModule) throws DeploymentException {
-//
-//        try {
-//            // Get the classloader from the module's EARContext
-//            Bundle bundle = ejbModule.getEarContext().getDeploymentBundle();
-//
-//            //----------------------------------------------------------------------------------------
-//            // Find the list of classes from the ejb-jar.xml we want to search for annotations in
-//            //----------------------------------------------------------------------------------------
-//            List<Class> classes = new ArrayList<Class>();
-//
-//            for (EnterpriseBean bean : ejbModule.getEjbJar().getEnterpriseBeans()) {
-//                classes.add(bundle.loadClass(bean.getEjbClass()));
-//            }
-//
-//            return new ClassFinder(classes);
-//        } catch (ClassNotFoundException e) {
-//            throw new DeploymentException("Unable to load bean class.", e);
-//        }
-//    }
+    private ClassFinder createEjbJarClassFinder(EjbModule ejbModule) throws DeploymentException {
+
+        try {
+            // Get the classloader from the module's EARContext
+            Bundle bundle = ejbModule.getEarContext().getDeploymentBundle();
+
+            //----------------------------------------------------------------------------------------
+            // Find the list of classes from the ejb-jar.xml we want to search for annotations in
+            //----------------------------------------------------------------------------------------
+            List<Class> classes = new ArrayList<Class>();
+
+            for (EnterpriseBean bean : ejbModule.getEjbJar().getEnterpriseBeans()) {
+                classes.add(bundle.loadClass(bean.getEjbClass()));
+            }
+
+            return new ClassFinder(classes);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Unable to load bean class.", e);
+        }
+    }
 
     private GBeanData getEjbGBean(String ejbName) throws DeploymentException {
         GBeanData gbean = gbeans.get(ejbName);

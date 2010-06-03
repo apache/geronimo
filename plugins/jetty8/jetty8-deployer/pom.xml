@@ -25,16 +25,16 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>jetty8</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
-    
+
     <groupId>org.apache.geronimo.configs</groupId>
     <artifactId>jetty8-deployer</artifactId>
     <name>Geronimo Plugins, Jetty 8 :: Deployer</name>
     <packaging>car</packaging>
 
     <description>Geronimo deployer for Jetty 8 Web Server integration.</description>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -71,7 +71,7 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

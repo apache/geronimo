@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>plugins</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <artifactId>clustering</artifactId>
@@ -47,21 +47,6 @@
         <module>geronimo-plugin-farm-node</module>
         <module>plugin-farm-datasource</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>it</id>
-            <modules>
-                <module>clustering-it</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>all-subprojects</id>
-            <modules>
-                <module>clustering-it</module>
-            </modules>
-        </profile>
-    </profiles>
 
     <properties>
         <wadiVersion>2.1.2</wadiVersion>

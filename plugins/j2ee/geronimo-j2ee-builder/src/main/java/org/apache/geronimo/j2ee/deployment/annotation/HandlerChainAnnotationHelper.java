@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceRef;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
@@ -36,7 +37,7 @@ import org.apache.geronimo.xbeans.javaee6.HandlerType;
 import org.apache.geronimo.xbeans.javaee6.ParamValueType;
 import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee6.XsdQNameType;
-import org.apache.xbean.finder.AbstractFinder;
+import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,7 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
      * @param classFinder ClassFinder containing classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    public static void processAnnotations(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
         if ( annotatedApp != null && classFinder.isAnnotationPresent(HandlerChain.class)) {
             processHandlerChain(annotatedApp, classFinder);
         }
@@ -94,7 +95,7 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
      * @param classFinder ClassFinder containing classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processHandlerChain(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processHandlerChain(AnnotatedApp annotatedApp, ClassFinder classFinder) throws DeploymentException {
         log.debug("processHandlerChain(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Method> methodswithHandlerChain = classFinder.findAnnotatedMethods(HandlerChain.class);

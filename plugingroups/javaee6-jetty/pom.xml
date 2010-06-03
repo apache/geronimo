@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>plugingroups</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <artifactId>javaee6-jetty</artifactId>
@@ -85,20 +85,6 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>webservices-axis2</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.plugingroups</groupId>-->
-            <!--<artifactId>webservices-cxf</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
         <!-- end plugin groups -->
 
         <!--other plugins-->
@@ -120,12 +106,6 @@
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jmx-security</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>bval-deployer</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>

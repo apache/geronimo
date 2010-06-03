@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>tomcat</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
@@ -93,16 +93,16 @@
             <groupId>${tomcatGroupId}</groupId>
             <artifactId>tribes</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>${tomcatGroupId}</groupId>
             <artifactId>util</artifactId>
         </dependency>
 
-        <!-- Check whether we really need this dependency-->  
+        <!-- Check whether we really need this dependency-->
         <dependency>
             <groupId>org.apache.geronimo.javamail</groupId>
-            <artifactId>geronimo-javamail_1.4_mail</artifactId>                
+            <artifactId>geronimo-javamail_1.4_mail</artifactId>
         </dependency>
     </dependencies>
 

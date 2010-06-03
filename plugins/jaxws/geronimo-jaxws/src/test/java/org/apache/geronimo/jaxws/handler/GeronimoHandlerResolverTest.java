@@ -16,17 +16,15 @@
  */
 package org.apache.geronimo.jaxws.handler;
 
-import java.io.InputStream;
-import java.util.List;
+import org.apache.geronimo.testsupport.TestSupport;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
+import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.PortInfo;
-
-import org.apache.geronimo.kernel.osgi.MockBundle;
-import org.apache.geronimo.testsupport.TestSupport;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import java.io.InputStream;
+import java.util.List;
 
 public class GeronimoHandlerResolverTest extends TestSupport {
 
@@ -36,7 +34,8 @@ public class GeronimoHandlerResolverTest extends TestSupport {
         HandlerChainsType handlerChains = toHandlerChains(in);
         assertEquals(3, handlerChains.getHandlerChainArray().length);
 
-        GeronimoHandlerResolver resolver = new GeronimoHandlerResolver(new MockBundle(getClass().getClassLoader(), null, 11L), getClass(), handlerChains, null);
+        GeronimoHandlerResolver resolver =
+            new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
 
         List<Handler> handlers = null;
 
@@ -50,7 +49,8 @@ public class GeronimoHandlerResolverTest extends TestSupport {
         HandlerChainsType handlerChains = toHandlerChains(in);
         assertEquals(4, handlerChains.getHandlerChainArray().length);
 
-        GeronimoHandlerResolver resolver = new GeronimoHandlerResolver(new MockBundle(getClass().getClassLoader(), null, 11L), getClass(), handlerChains, null);
+        GeronimoHandlerResolver resolver =
+            new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
 
         List<Handler> handlers = null;
 
@@ -84,7 +84,9 @@ public class GeronimoHandlerResolverTest extends TestSupport {
         HandlerChainsType handlerChains = toHandlerChains(in);
         assertEquals(4, handlerChains.getHandlerChainArray().length);
 
-        GeronimoHandlerResolver resolver = new GeronimoHandlerResolver(new MockBundle(getClass().getClassLoader(), null, 11L), getClass(), handlerChains, null);
+        GeronimoHandlerResolver resolver =
+            new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
+
         List<Handler> handlers = null;
 
         handlers = resolver.getHandlerChain(new TestPortInfo(null, null, null));
@@ -115,7 +117,8 @@ public class GeronimoHandlerResolverTest extends TestSupport {
         HandlerChainsType handlerChains = toHandlerChains(in);
         assertEquals(4, handlerChains.getHandlerChainArray().length);
 
-        GeronimoHandlerResolver resolver = new GeronimoHandlerResolver(new MockBundle(getClass().getClassLoader(), null, 11L), getClass(), handlerChains, null);
+        GeronimoHandlerResolver resolver =
+            new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
 
         List<Handler> handlers = null;
 
@@ -149,7 +152,8 @@ public class GeronimoHandlerResolverTest extends TestSupport {
         HandlerChainsType handlerChains = toHandlerChains(in);
         assertEquals(3, handlerChains.getHandlerChainArray().length);
 
-        GeronimoHandlerResolver resolver = new GeronimoHandlerResolver(new MockBundle(getClass().getClassLoader(), null, 11L), getClass(), handlerChains, null);
+        GeronimoHandlerResolver resolver =
+            new GeronimoHandlerResolver(getClass().getClassLoader(), getClass(), handlerChains, null);
 
         List<Handler> handlers = null;
 

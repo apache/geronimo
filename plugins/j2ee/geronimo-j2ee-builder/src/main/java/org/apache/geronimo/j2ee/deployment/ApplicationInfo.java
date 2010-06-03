@@ -19,10 +19,10 @@ package org.apache.geronimo.j2ee.deployment;
 import java.util.LinkedHashSet;
 import java.util.jar.JarFile;
 
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.deployment.ModuleList;
 import org.apache.xmlbeans.XmlObject;
 
@@ -32,27 +32,48 @@ import org.apache.xmlbeans.XmlObject;
 public class ApplicationInfo extends Module<XmlObject, XmlObject> {
     
     private ConfigurationModuleType type;
+    private LinkedHashSet<Module> modules;
+    private ModuleList moduleLocations;
 
-    public ApplicationInfo(ConfigurationModuleType type,
-                           Environment environment,
-                           AbstractName baseName,
-                           String name,
-                           JarFile earFile,
-                           XmlObject specDD,
-                           XmlObject vendorDD,
-                           String originalSpecDD,
-                           AnnotatedApp annotatedApp) {
-        super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, annotatedApp, null, null);
+    public ApplicationInfo(ConfigurationModuleType type, 
+                           Environment environment, 
+                           AbstractName baseName, 
+                           String name, 
+                           JarFile earFile, 
+                           XmlObject specDD, 
+                           XmlObject vendorDD, 
+                           LinkedHashSet<Module> modules, 
+                           ModuleList moduleLocations, 
+                           String originalSpecDD) {
+        super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, null);
         assert type != null;
         assert environment != null;
         assert modules != null;
         assert moduleLocations != null;
 
         this.type = type;
+        this.modules = modules;
+        this.moduleLocations = moduleLocations;
     }
 
     public ConfigurationModuleType getType() {
         return type;
+    }
+
+    public LinkedHashSet<Module> getModules() {
+        return modules;
+    }
+
+    public void setModules(LinkedHashSet<Module> modules) {
+        this.modules = modules;
+    }
+
+    public ModuleList getModuleLocations() {
+        return moduleLocations;
+    }
+
+    public void setModuleLocations(ModuleList moduleLocations) {
+        this.moduleLocations = moduleLocations;
     }
 
 }

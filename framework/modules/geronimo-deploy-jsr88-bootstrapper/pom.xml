@@ -25,13 +25,13 @@
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>modules</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <artifactId>geronimo-deploy-jsr88-bootstrapper</artifactId>
     <packaging>bundle</packaging>
     <name>Geronimo Framework, Modules :: Deploy JSR-88 Bootstrapper</name>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

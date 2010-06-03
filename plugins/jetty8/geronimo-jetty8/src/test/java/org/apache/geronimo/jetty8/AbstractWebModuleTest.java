@@ -146,7 +146,6 @@ public class AbstractWebModuleTest extends TestSupport {
                 transactionManager,
                 null,
                 cl,
-                null,
                 null);
         WebAppContextWrapper app = new WebAppContextWrapper(null,
                 contextPath,

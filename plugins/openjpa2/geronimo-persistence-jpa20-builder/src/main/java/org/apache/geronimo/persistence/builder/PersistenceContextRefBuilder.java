@@ -33,8 +33,6 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationHelper;
@@ -60,7 +58,6 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
     private static final QName PERSISTENCE_CONTEXT_REF_QNAME = new QName(JEE_NAMESPACE, "persistence-context-ref");
     private static final QNameSet PERSISTENCE_CONTEXT_REF_QNAME_SET = QNameSet.singleton(PERSISTENCE_CONTEXT_REF_QNAME);
@@ -70,9 +67,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
     private final AbstractNameQuery defaultPersistenceUnitAbstractNameQuery;
     private final boolean strictMatching;
 
-    public PersistenceContextRefBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
-                                     @ParamAttribute(name = "defaultPersistenceUnitAbstractNameQuery") AbstractNameQuery defaultPersistenceUnitAbstractNameQuery,
-                                     @ParamAttribute(name = "strictMatching") boolean strictMatching) {
+    public PersistenceContextRefBuilder(Environment defaultEnvironment, AbstractNameQuery defaultPersistenceUnitAbstractNameQuery, boolean strictMatching) {
         super(defaultEnvironment);
         this.defaultPersistenceUnitAbstractNameQuery = defaultPersistenceUnitAbstractNameQuery;
         this.strictMatching = strictMatching;
@@ -144,7 +139,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
 
                 PersistenceContextReference reference = new PersistenceContextReference(module.getConfigId(), persistenceUnitNameQuery, transactionScoped, properties);
 
-                put(persistenceContextRefName, reference, module.getJndiContext());
+                put(persistenceContextRefName, reference, NamingBuilder.JNDI_KEY.get(componentContext));
             } catch (DeploymentException e) {
                 problems.add(e);
             }
@@ -166,7 +161,7 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
 
                 PersistenceContextReference reference = new PersistenceContextReference(module.getConfigId(), persistenceUnitNameQuery, transactionScoped, properties);
 
-                put(persistenceContextRefName, reference, module.getJndiContext());
+                put(persistenceContextRefName, reference, NamingBuilder.JNDI_KEY.get(componentContext));
             } catch (DeploymentException e) {
                 problems.add(e);
             }
@@ -260,4 +255,19 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
         return GER_PERSISTENCE_CONTEXT_REF_QNAME_SET;
     }
 
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PersistenceContextRefBuilder.class, NameFactory.MODULE_BUILDER);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+        infoBuilder.addAttribute("defaultPersistenceUnitAbstractNameQuery", AbstractNameQuery.class, true, true);
+        infoBuilder.addAttribute("strictMatching", boolean.class, true, true);
+
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "defaultPersistenceUnitAbstractNameQuery", "strictMatching"});
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
 }

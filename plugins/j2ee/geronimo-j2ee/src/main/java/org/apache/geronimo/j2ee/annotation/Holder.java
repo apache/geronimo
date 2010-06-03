@@ -36,14 +36,12 @@ import javax.naming.NamingException;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 import org.apache.xbean.recipe.StaticRecipe;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class Holder implements Serializable {
-    private static final Logger log = LoggerFactory.getLogger(Holder.class);
+
     public static final Holder EMPTY = new Holder() {
     };
 
@@ -201,7 +199,6 @@ public class Holder implements Serializable {
                         objectRecipe.setProperty(injection.getTargetName(), new StaticRecipe(object));
                     }
                 } catch (NamingException e) {
-                    log.info("Could not look up " + injection.getJndiName(), e);
                     problems.add(e);
                 }
             }

@@ -151,6 +151,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
 
+        //use the same jndi context as the web app
+        Map compContext = NamingBuilder.JNDI_KEY.get(sharedContext);
+        buildingContext.put(NamingBuilder.JNDI_KEY, compContext);
 
         //use the same holder object as the web app.
         Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);

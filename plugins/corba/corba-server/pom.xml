@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>corba</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
     <artifactId>corba-server</artifactId>
     <packaging>server-assembly</packaging>

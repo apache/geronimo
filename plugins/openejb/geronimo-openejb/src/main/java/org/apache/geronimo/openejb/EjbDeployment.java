@@ -18,38 +18,24 @@
 package org.apache.geronimo.openejb;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBObject;
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
-import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.EJB;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
-import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.jacc.RunAsSource;
-import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.apache.openejb.BeanType;
 import org.apache.openejb.Container;
 import org.apache.openejb.InterfaceType;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ivm.EjbObjectProxyHandler;
 import org.apache.openejb.core.transaction.TransactionType;
-import org.apache.xbean.naming.context.ImmutableFederatedContext;
-import org.osgi.framework.Bundle;
 
 public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     private final String objectName;
@@ -63,15 +49,12 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     private final String serviceEndpointInterfaceName;
     private final String beanClassName;
     private final ClassLoader classLoader;
-    private final Bundle bundle;
+
     private final boolean securityEnabled;
     private final Subject defaultSubject;
     private final Subject runAs;
 
     private final Context componentContext;
-    private final Context moduleContext;
-    private final Context applicationContext;
-    private final Context globalContext;
 
     // connector stuff
     private final Set<String> unshareableResources;
@@ -80,32 +63,34 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
 
     protected final OpenEjbSystem openEjbSystem;
 
-    protected AtomicReference<CoreDeploymentInfo> deploymentInfo = new AtomicReference<CoreDeploymentInfo>();
+    protected CoreDeploymentInfo deploymentInfo;
 
-    public EjbDeployment(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
-                         @ParamAttribute(name = "deploymentId") String deploymentId,
-                         @ParamAttribute(name = "ejbName") String ejbName,
-                         @ParamAttribute(name = "homeInterfaceName") String homeInterfaceName,
-                         @ParamAttribute(name = "remoteInterfaceName") String remoteInterfaceName,
-                         @ParamAttribute(name = "localHomeInterfaceName") String localHomeInterfaceName,
-                         @ParamAttribute(name = "localInterfaceName") String localInterfaceName,
-                         @ParamAttribute(name = "serviceEndpointInterfaceName") String serviceEndpointInterfaceName,
-                         @ParamAttribute(name = "beanClassName") String beanClassName,
-                         @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
-                         @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
-                         @ParamAttribute(name = "securityEnabled") boolean securityEnabled,
-                         @ParamAttribute(name = "defaultRole") String defaultRole,
-                         @ParamAttribute(name = "runAsRole") String runAsRole,
-                         @ParamReference(name = "RunAsSource", namingType = SecurityNames.JACC_MANAGER) RunAsSource runAsSource,
-                         @ParamReference(name = "ApplicationJndi", namingType = "GBEAN") ApplicationJndi applicationJndi,
-                         @ParamAttribute(name = "moduleContextMap") Map<String, Object> moduleJndi,
-                         @ParamAttribute(name = "componentContextMap") Map<String, Object> compContext,
-                         @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
-                         @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
-                         @ParamReference(name = "TrackedConnectionAssociator") TrackedConnectionAssociator trackedConnectionAssociator,
-                         @ParamReference(name = "TransactionManager") GeronimoTransactionManager transactionManager,
-                         @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
-                         @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws LoginException, NamingException {
+//    private Context javaCompSubContext;
+
+    public EjbDeployment() throws LoginException {
+        this(null, null, null, null, null, null, null, null, null, null,
+             false, null, null, null, null, null, null, null, null);
+    }
+
+    public EjbDeployment(String objectName,
+            String deploymentId,
+            String ejbName,
+            String homeInterfaceName,
+            String remoteInterfaceName,
+            String localHomeInterfaceName,
+            String localInterfaceName,
+            String serviceEndpointInterfaceName,
+            String beanClassName,
+            ClassLoader classLoader,
+            boolean securityEnabled,
+            String defaultRole,
+            String runAsRole,
+            RunAsSource runAsSource,
+            Context componentContext,
+            Set<String> unshareableResources,
+            Set<String> applicationManagedSecurityResources,
+            TrackedConnectionAssociator trackedConnectionAssociator,
+            OpenEjbSystem openEjbSystem) throws LoginException {
         this.objectName = objectName;
         this.deploymentId = deploymentId;
         this.ejbName = ejbName;
@@ -116,17 +101,13 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         this.serviceEndpointInterfaceName = serviceEndpointInterfaceName;
         this.beanClassName = beanClassName;
         this.classLoader = classLoader;
-        this.bundle = bundle;
         this.securityEnabled = securityEnabled;
         if (runAsSource == null) {
             runAsSource = RunAsSource.NULL;
         }
-        this.defaultSubject = defaultRole == null ? runAsSource.getDefaultSubject() : runAsSource.getSubjectForRole(defaultRole);
+        this.defaultSubject = defaultRole == null? runAsSource.getDefaultSubject(): runAsSource.getSubjectForRole(defaultRole);
         this.runAs = runAsSource.getSubjectForRole(runAsRole);
-        this.componentContext = EnterpriseNamingContext.livenReferences(compContext, transactionManager, kernel, classLoader, bundle, "comp/");
-        this.moduleContext = EnterpriseNamingContext.livenReferences(moduleJndi, transactionManager, kernel, classLoader, bundle, "module/");
-        this.applicationContext = applicationJndi.getApplicationContext();
-        this.globalContext = applicationJndi.getGlobalContext();
+        this.componentContext = componentContext;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
@@ -134,7 +115,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     }
 
     public CoreDeploymentInfo getDeploymentInfo() {
-        return deploymentInfo.get();
+        return deploymentInfo;
     }
 
     public String getDeploymentId() {
@@ -185,6 +166,10 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         return runAs;
     }
 
+    public Context getComponentContext() {
+        return componentContext;
+    }
+
     public Set<String> getUnshareableResources() {
         return unshareableResources;
     }
@@ -198,77 +183,77 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     }
 
     public EJBHome getEJBHome() {
-        return getDeploymentInfo().getEJBHome();
+        return deploymentInfo.getEJBHome();
     }
 
     public EJBLocalHome getEJBLocalHome() {
-        return getDeploymentInfo().getEJBLocalHome();
+        return deploymentInfo.getEJBLocalHome();
     }
 
     public Object getBusinessLocalHome() {
-        return getDeploymentInfo().getBusinessLocalHome();
+        return deploymentInfo.getBusinessLocalHome();
     }
 
     public Object getBusinessRemoteHome() {
-        return getDeploymentInfo().getBusinessRemoteHome();
+        return deploymentInfo.getBusinessRemoteHome();
     }
 
     public EJBObject getEjbObject(Object primaryKey) {
-        return (EJBObject) EjbObjectProxyHandler.createProxy(getDeploymentInfo(), primaryKey, InterfaceType.EJB_HOME);
+        return (EJBObject) EjbObjectProxyHandler.createProxy(deploymentInfo, primaryKey, InterfaceType.EJB_HOME);
     }
 
     public Class getHomeInterface() {
-        return getDeploymentInfo().getHomeInterface();
+        return deploymentInfo.getHomeInterface();
     }
 
     public Class getRemoteInterface() {
-        return getDeploymentInfo().getRemoteInterface();
+        return deploymentInfo.getRemoteInterface();
     }
 
     public Class getLocalHomeInterface() {
-        return getDeploymentInfo().getLocalHomeInterface();
+        return deploymentInfo.getLocalHomeInterface();
     }
 
     public Class getLocalInterface() {
-        return getDeploymentInfo().getLocalInterface();
+        return deploymentInfo.getLocalInterface();
     }
 
     public Class getBeanClass() {
-        return getDeploymentInfo().getBeanClass();
+        return deploymentInfo.getBeanClass();
     }
 
     public Class getBusinessLocalInterface() {
-        return getDeploymentInfo().getBusinessLocalInterface();
+        return deploymentInfo.getBusinessLocalInterface();
     }
 
     public Class getBusinessRemoteInterface() {
-        return getDeploymentInfo().getBusinessRemoteInterface();
+        return deploymentInfo.getBusinessRemoteInterface();
     }
 
     public Class getMdbInterface() {
-        return getDeploymentInfo().getMdbInterface();
+        return deploymentInfo.getMdbInterface();
     }
 
     public Class getServiceEndpointInterface() {
-        return getDeploymentInfo().getServiceEndpointInterface();
+        return deploymentInfo.getServiceEndpointInterface();
     }
 
     public BeanType getComponentType() {
-        return getDeploymentInfo().getComponentType();
+        return deploymentInfo.getComponentType();
     }
 
     public Container getContainer() {
-        return getDeploymentInfo().getContainer();
+        return deploymentInfo.getContainer();
     }
 
     public boolean isBeanManagedTransaction() {
-        return getDeploymentInfo().isBeanManagedTransaction();
+        return deploymentInfo.isBeanManagedTransaction();
     }
 
     public TransactionType getTransactionType(Method method) {
-        return getDeploymentInfo().getTransactionType(method);
+          return deploymentInfo.getTransactionType(method);
     }
-
+    
     public String getObjectName() {
         return objectName;
     }
@@ -285,27 +270,27 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         return true;
     }
 
-    protected EjbDeployment initialize(CoreDeploymentInfo deploymentInfo) {
-        try {
-            ImmutableFederatedContext federatedContext = (ImmutableFederatedContext) ((DeepBindableContext.ContextWrapper)deploymentInfo.getJndiEnc()).getRootContext();
-            federatedContext.federateContext(componentContext);
-            federatedContext.federateContext(moduleContext);
-            federatedContext.federateContext(applicationContext);
-            federatedContext.federateContext(globalContext);
+    protected void start() throws Exception {
+        deploymentInfo = (CoreDeploymentInfo) openEjbSystem.getDeploymentInfo(deploymentId);
+        if (deploymentInfo == null) {
+            throw new IllegalStateException("Ejb does not exist " + deploymentId);
+        }
+
+//        javaCompSubContext = (Context) deploymentInfo.getJndiEnc().lookup("java:comp");
+//        if (componentContext != null) {
+//            javaCompSubContext.bind("geronimo", componentContext);
+//        }
+        synchronized(deploymentInfo){
             deploymentInfo.set(EjbDeployment.class, this);
-
-            this.deploymentInfo.set(deploymentInfo);
-
-            return this;
-        } catch (NamingException e) {
-            throw new IllegalStateException("Unable to complete EjbDeployment initialization", e);
+       	    deploymentInfo.notifyAll();
         }
     }
 
-    protected void destroy() {
-        CoreDeploymentInfo info = deploymentInfo.getAndSet(null);
-        if (info != null) {
-            info.set(EjbDeployment.class, null);
-        }
+    protected void stop() {
+        if (deploymentInfo != null) {
+	    deploymentInfo.setDestroyed(true);
+	    deploymentInfo.set(EjbDeployment.class, null);
+	    deploymentInfo = null;
+	}	
     }
 }

@@ -16,7 +16,8 @@
  */
 package org.apache.geronimo.persistence.builder;
 
-import java.io.InputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
 import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
@@ -39,10 +39,8 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
@@ -50,26 +48,22 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.persistence20.PersistenceDocument;
-import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
-import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
+import org.apache.xbean.finder.ResourceFinder;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
  * @version $Rev$ $Date$
  */
-@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class PersistenceUnitBuilder implements ModuleBuilderExtension {
 
     private static final EARContext.Key<List<URL>> PERSISTENCE_URL_LIST_KEY = new EARContext.Key<List<URL>>() {
@@ -95,23 +89,18 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     private final AbstractNameQuery extendedEntityManagerRegistryName;
     private static final String ANON_PU_NAME = "AnonymousPersistenceUnit";
     private static final String RESOURCE_SOURCE_CLASS_NAME = ResourceSource.class.getName();
-    private final PackageAdmin packageAdmin;
 
-    public PersistenceUnitBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
-                                  @ParamAttribute(name = "defaultPersistenceProviderClassName") String defaultPersistenceProviderClassName,
-                                  @ParamAttribute(name = "defaultJtaDataSourceName") String defaultJtaDataSourceName,
-                                  @ParamAttribute(name = "defaultNonJtaDataSourceName") String defaultNonJtaDataSourceName,
-                                  @ParamAttribute(name = "extendedEntityManagerRegistryName") AbstractNameQuery extendedEntityManagerRegistryName,
-                                  @ParamAttribute(name = "defaultPersistenceUnitProperties") Properties defaultPersistenceUnitProperties,
-                                  @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws URISyntaxException {
+    public PersistenceUnitBuilder(Environment defaultEnvironment,
+                                  String defaultPersistenceProviderClassName,
+                                  String defaultJtaDataSourceName,
+                                  String defaultNonJtaDataSourceName,
+                                  AbstractNameQuery extendedEntityManagerRegistryName, Properties defaultPersistenceUnitProperties) throws URISyntaxException {
         this.defaultEnvironment = defaultEnvironment;
         this.defaultPersistenceProviderClassName = defaultPersistenceProviderClassName;
         this.defaultJtaDataSourceName = defaultJtaDataSourceName == null ? null : getAbstractNameQuery(defaultJtaDataSourceName);
         this.defaultNonJtaDataSourceName = defaultNonJtaDataSourceName == null ? null : getAbstractNameQuery(defaultNonJtaDataSourceName);
         this.extendedEntityManagerRegistryName = extendedEntityManagerRegistryName;
         this.defaultPersistenceUnitProperties = defaultPersistenceUnitProperties == null ? new Properties() : defaultPersistenceUnitProperties;
-        ServiceReference sr = bundleContext.getServiceReference(PackageAdmin.class.getName());
-        packageAdmin = (PackageAdmin) bundleContext.getService(sr);
     }
 
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -144,56 +133,68 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             throw new DeploymentException("Parse Persistence configuration file failed", e);
         }
         try {
+            File rootBaseFile = module.getRootEarContext().getConfiguration().getConfigurationDir();
+            String rootBase = rootBaseFile.toURI().normalize().toString();
             URI moduleBaseURI = moduleContext.getBaseDir().toURI();
+            Map rootGeneralData = module.getRootEarContext().getGeneralData();
             ClassPathList manifestcp = EARContext.CLASS_PATH_LIST_KEY.get(module.getEarContext().getGeneralData());
             if (manifestcp == null) {
                 manifestcp = new ClassPathList();
                 manifestcp.add(module.getTargetPath());
             }
-//            URL[] urls = new URL[manifestcp.size()];
-//            int i = 0;
-//            for (String path : manifestcp) {
-//                //TODO either this encoding is unnecessary or incomplete
-//                path = path.replaceAll(" ", "%20");
-//                URL url = moduleBaseURI.resolve(path).toURL();
-//                urls[i++] = url;
-//            }
-            BundleResourceFinder finder = new BundleResourceFinder(packageAdmin, bundle, "", "META-INF/persistence.xml");
-            List<URL> knownPersistenceUrls = PERSISTENCE_URL_LIST_KEY.get(module.getRootEarContext().getGeneralData());
-            final Map<URL, String> persistenceURLs = new HashMap<URL, String>();
-            finder.find(new BundleResourceFinder.ResourceFinderCallback() {
-
-                @Override
-                public void foundInDirectory(Bundle bundle, String baseDir, URL url) throws Exception {
-                    persistenceURLs.put(url, baseDir);
-                }
-
-                @Override
-                public void foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream inputStream) throws Exception {
-                    URL jarURL = bundle.getEntry(jarName);
-                    URL url = new URL("jar:" + jarURL.toString() + "!/" + entry.getName());
-                    persistenceURLs.put(url, jarName);
-                }
-            });
-            persistenceURLs.keySet().removeAll(knownPersistenceUrls);
-            if (raws.length > 0 || persistenceURLs.size() > 0) {
+            URL[] urls = new URL[manifestcp.size()];
+            int i = 0;
+            for (String path : manifestcp) {
+                path = path.replaceAll(" ", "%20");
+                URL url = moduleBaseURI.resolve(path).toURL();
+                urls[i++] = url;
+            }
+            ResourceFinder finder = new ResourceFinder("", null, urls);
+            List<URL> knownPersistenceUrls = PERSISTENCE_URL_LIST_KEY.get(rootGeneralData);
+            List<URL> persistenceUrls = finder.findAll("META-INF/persistence.xml");
+            persistenceUrls.removeAll(knownPersistenceUrls);
+            if (raws.length > 0 || persistenceUrls.size() > 0) {
                 EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
             }
-            for (Map.Entry<URL, String> entry : persistenceURLs.entrySet()) {
-                URL persistenceUrl = entry.getKey();
-                String persistenceLocation = entry.getValue();
-                PersistenceDocument persistenceDocument;
+            for (URL persistenceUrl : persistenceUrls) {
+                String persistenceLocation;
                 try {
-                    XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, new BundleClassLoader(moduleContext.getDeploymentBundle()));
-                    persistenceDocument = convertToPersistenceDocument(xmlObject);
-                } catch (XmlException e) {
-                    throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
+                    persistenceLocation = persistenceUrl.toURI().toString();
+                } catch (URISyntaxException e) {
+                    //????
+                    continue;
                 }
-                PersistenceDocument.Persistence persistence = persistenceDocument.getPersistence();
-                buildPersistenceUnits(persistence, overrides, module, persistenceLocation);
-                knownPersistenceUrls.add(persistenceUrl);
+                int pos = persistenceLocation.indexOf(rootBase);
+                if (pos < 0) {
+                    //not in the ear
+                    continue;
+                }
+                int endPos = persistenceLocation.lastIndexOf("!/");
+                if (endPos < 0) {
+                    // if unable to find the '!/' marker, try to see if this is
+                    // a war file with the persistence.xml directly embeded - no ejb-jar
+                    endPos = persistenceLocation.lastIndexOf("META-INF");
+                }
+                if (endPos >= 0) {
+                    //path relative to ear base uri
+                    String relative = persistenceLocation.substring(pos + rootBase.length(), endPos);
+                    //find path relative to module base uri
+                    relative = module.getRelativePath(relative);
+                    PersistenceDocument persistenceDocument;
+                    try {
+                        XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, new BundleClassLoader(moduleContext.getDeploymentBundle()));
+                        persistenceDocument = convertToPersistenceDocument(xmlObject);
+                    } catch (XmlException e) {
+                        throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
+                    }
+                    PersistenceDocument.Persistence persistence = persistenceDocument.getPersistence();
+                    buildPersistenceUnits(persistence, overrides, module, relative);
+                    knownPersistenceUrls.add(persistenceUrl);
+                } else {
+                    throw new DeploymentException("Could not find persistence.xml file: " + persistenceUrl);
+                }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new DeploymentException("Could not look for META-INF/persistence.xml files", e);
         }
 
@@ -221,7 +222,6 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                 try {
                     cursor.dispose();
                 } catch (Exception e) {
-                    //ignore
                 }
             }
         }
@@ -234,9 +234,9 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
 //            cursor.toStartDoc();
 //            cursor.toFirstChild();
 //            SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
-        XmlObject result = xmlObject.changeType(PersistenceDocument.Persistence.type);
-        XmlBeansUtil.validateDD(result);
-        return (PersistenceDocument.Persistence) result;
+            XmlObject result = xmlObject.changeType(PersistenceDocument.Persistence.type);
+            XmlBeansUtil.validateDD(result);
+            return (PersistenceDocument.Persistence) result;
 //        } finally {
 //            if (cursor != null) {
 //                try {
@@ -391,5 +391,35 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     public QNameSet getPlanQNameSet() {
         return QNameSet.singleton(PERSISTENCE_QNAME);
     }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(PersistenceUnitBuilder.class, NameFactory.MODULE_BUILDER);
+
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
+        infoBuilder.addAttribute("defaultPersistenceProviderClassName", String.class, true, true);
+        infoBuilder.addAttribute("defaultJtaDataSourceName", String.class, true, true);
+        infoBuilder.addAttribute("defaultNonJtaDataSourceName", String.class, true, true);
+        infoBuilder.addAttribute("extendedEntityManagerRegistryName", AbstractNameQuery.class, true, true);
+        infoBuilder.addAttribute("defaultPersistenceUnitProperties", Properties.class, true, true);
+
+        infoBuilder.setConstructor(new String[]{
+                "defaultEnvironment",
+                "defaultPersistenceProviderClassName",
+                "defaultJtaDataSourceName",
+                "defaultNonJtaDataSourceName",
+                "extendedEntityManagerRegistryName",
+                "defaultPersistenceUnitProperties"
+        });
+
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 
 }

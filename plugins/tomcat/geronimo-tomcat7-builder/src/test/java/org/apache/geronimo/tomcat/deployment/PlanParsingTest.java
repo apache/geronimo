@@ -35,7 +35,6 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
@@ -45,10 +44,6 @@ import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.xmlbeans.XmlObject;
-import org.osgi.framework.Bundle;
-import org.osgi.service.packageadmin.ExportedPackage;
-import org.osgi.service.packageadmin.PackageAdmin;
-import org.osgi.service.packageadmin.RequiredBundle;
 
 /**
  */
@@ -64,64 +59,6 @@ public class PlanParsingTest extends TestCase {
     private TomcatModuleBuilder builder;
 
     protected void setUp() throws Exception {
-        MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
-        PackageAdmin packageAdmin = new PackageAdmin() {
-
-                @Override
-                public ExportedPackage[] getExportedPackages(Bundle bundle) {
-                    return new ExportedPackage[0];
-                }
-
-                @Override
-                public ExportedPackage[] getExportedPackages(String s) {
-                    return new ExportedPackage[0];
-                }
-
-                @Override
-                public ExportedPackage getExportedPackage(String s) {
-                    return null;
-                }
-
-                @Override
-                public void refreshPackages(Bundle[] bundles) {
-                }
-
-                @Override
-                public boolean resolveBundles(Bundle[] bundles) {
-                    return false;
-                }
-
-                @Override
-                public RequiredBundle[] getRequiredBundles(String s) {
-                    return new RequiredBundle[0];
-                }
-
-                @Override
-                public Bundle[] getBundles(String s, String s1) {
-                    return new Bundle[0];
-                }
-
-                @Override
-                public Bundle[] getFragments(Bundle bundle) {
-                    return new Bundle[0];
-                }
-
-                @Override
-                public Bundle[] getHosts(Bundle bundle) {
-                    return new Bundle[0];
-                }
-
-                @Override
-                public Bundle getBundle(Class aClass) {
-                    return null;
-                }
-
-                @Override
-                public int getBundleType(Bundle bundle) {
-                    return 0;
-                }
-            };
-        bundleContext.registerService(PackageAdmin.class.getName(), packageAdmin, null);
         builder = new TomcatModuleBuilder(defaultEnvironment,
                 tomcatContainerObjectName,
                 Collections.singleton(webServiceBuilder),
@@ -130,8 +67,7 @@ public class PlanParsingTest extends TestCase {
                 Collections.EMPTY_LIST,
                 null,
                 new MockResourceEnvironmentSetter(),
-                null,
-                bundleContext);
+                null);
         builder.doStart();
         GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null, null, null);
         securityBuilder.doStart();

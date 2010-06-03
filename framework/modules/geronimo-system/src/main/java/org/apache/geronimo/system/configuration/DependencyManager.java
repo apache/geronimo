@@ -94,7 +94,7 @@ public class DependencyManager implements SynchronousBundleListener {
         PluginArtifactType pluginArtifactType = null;
         URL info = bundle.getEntry("META-INF/geronimo-plugin.xml");
         if (info != null) {
-            log.debug("found geronimo-plugin.xml for bundle " + bundle);
+            log.info("found geronimo-plugin.xml for bundle " + bundle);
             InputStream in = null;
             try {
                 in = info.openStream();
@@ -108,7 +108,7 @@ public class DependencyManager implements SynchronousBundleListener {
                 }
             }
         } else {
-            log.debug("did not find geronimo-plugin.xml for bundle " + bundle);
+            log.info("did not find geronimo-plugin.xml for bundle " + bundle);
         }
         return pluginArtifactType;
     }
@@ -117,14 +117,14 @@ public class DependencyManager implements SynchronousBundleListener {
         if (repositoryAdmin != null) {
             URL info = bundle.getEntry("OSGI-INF/obr/repository.xml");
             if (info != null) {
-                log.debug("found repository.xml for bundle " + bundle);
+                log.info("found repository.xml for bundle " + bundle);
                 try {
                     repositoryAdmin.addRepository(info);
                 } catch (Exception e) {
                     log.info("Error adding respository.xml for bundle " + bundle, e);
                 }
             } else {
-                log.debug("did not find respository.xml for bundle " + bundle);
+                log.info("did not find respository.xml for bundle " + bundle);
             }
         }
     }
@@ -148,7 +148,7 @@ public class DependencyManager implements SynchronousBundleListener {
             List<DependencyType> dependencies = pluginArtifactType.getDependency();
             try {
                 for (DependencyType dependencyType : dependencies) {
-                    log.debug("Installing artifact: " + dependencyType);
+                    log.info("Installing artifact: " + dependencyType);
                     Artifact artifact = dependencyType.toArtifact();
                     if (artifactResolver != null) {
                         artifact = artifactResolver.resolveInClassLoader(artifact);
@@ -161,7 +161,7 @@ public class DependencyManager implements SynchronousBundleListener {
                     }
                 }
             } catch (Exception e) {
-                log.error("Could not install bundle dependency", e);
+                log.error("Could not install bundle dependecy", e);
             }
         }
     }
@@ -173,7 +173,7 @@ public class DependencyManager implements SynchronousBundleListener {
             List<DependencyType> dependencies = pluginArtifactType.getDependency();
             try {
                 for (DependencyType dependencyType : dependencies) {
-                    log.debug("Starting artifact: " + dependencyType);
+                    log.info("Starting artifact: " + dependencyType);
                     Artifact artifact = dependencyType.toArtifact();
                     if (artifactResolver != null) {
                         artifact = artifactResolver.resolveInClassLoader(artifact);

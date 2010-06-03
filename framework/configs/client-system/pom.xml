@@ -18,15 +18,14 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <artifactId>client-system</artifactId>
@@ -222,12 +221,11 @@
                     <category>Geronimo Core</category>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content load="false"/>
+                            <config-xml-content load="false" />
                             <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-system//car">
                                 org.apache.geronimo.framework/client-system/${project.version}/car
                             </artifact-alias>
-                            <artifact-alias server="client"
-                                            key="org.apache.geronimo.framework/j2ee-system/${project.version}/car">
+                            <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-system/${project.version}/car">
                                 org.apache.geronimo.framework/client-system/${project.version}/car
                             </artifact-alias>
                         </plugin-artifact>

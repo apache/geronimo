@@ -39,7 +39,7 @@ public class DeepBindableContextTest extends TestCase {
         DeepBindableContext context = new DeepBindableContext("openejb", false, true, false, false);
         globalContext.bind("openejb", context);
 
-        Context contextWrapper = context.newContextWrapper();
+        Context contextWrapper = context.newJndiFactory().createRootContext();
         testBindUnbind(context, contextWrapper, "openejb/foo/bar", "");
         testBindUnbind(context, contextWrapper, "java:openejb/foo/bar", "java:");
 

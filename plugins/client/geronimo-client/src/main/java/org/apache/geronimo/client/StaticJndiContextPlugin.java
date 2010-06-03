@@ -30,7 +30,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
-import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
@@ -38,13 +37,13 @@ import org.osgi.framework.Bundle;
 public class StaticJndiContextPlugin implements AppClientPlugin {
     private final Context context;
 
-    public StaticJndiContextPlugin(Map<JndiKey, Map<String, Object>> contexts, Kernel kernel, ClassLoader classLoader, Bundle bundle) throws NamingException {
+    public StaticJndiContextPlugin(Map<JndiKey, Map<String, Object>> contexts, Kernel kernel, ClassLoader classLoader) throws NamingException {
         //TODO this does not include global entries from other apps.
         Map<String, Object> clientContext = new HashMap<String, Object>();
         for (Map<String, Object> context: contexts.values()) {
             clientContext.putAll(context);
         }
-        this.context = EnterpriseNamingContext.livenReferences(clientContext, null, kernel, classLoader, bundle, "comp/");
+        this.context = EnterpriseNamingContext.livenReferences(clientContext, null, kernel, classLoader, "comp/");
     }
 
     public void startClient(AbstractName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {
@@ -69,10 +68,9 @@ public class StaticJndiContextPlugin implements AppClientPlugin {
         infoFactory.addAttribute("jndiContext", Context.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("bundle", Bundle.class, false);
         infoFactory.addInterface(AppClientPlugin.class);
 
-        infoFactory.setConstructor(new String[]{"context", "kernel", "classLoader", "bundle"});
+        infoFactory.setConstructor(new String[]{"context", "kernel", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

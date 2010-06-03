@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.naming.deployment;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -131,15 +130,6 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return NORMAL_PRIORITY;
     }
 
-    /**
-     * This accepts keys like jndi entry names in the spec dds, that is either starting with
-     * java:comp, java:module, java:app, or java:global, or in the java:comp/env space.
-     * For example, java:comp/env/foo and foo are equivalent keys.
-     *
-     * @param key jndi name, either including java:<scope> or after java:comp/env.
-     * @param value value to bind
-     * @param contexts set of scopes to bind into.
-     */
     protected void put(String key, Object value, Map<JndiKey, Map<String, Object>> contexts) {
         JndiKey jndiKey;
         if (key.startsWith("java:")) {
@@ -159,7 +149,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         scope.put(key, value);
     }
     
-    protected Object lookupJndiContextMap(Module module, String key) {
+    protected Object lookupJndiContextMap(Map<EARContext.Key, Object> sharedContext, String key) {
         JndiKey jndiKey;
         if (key.startsWith("java:")) {
             int pos = key.indexOf("/", 5);
@@ -170,9 +160,13 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             key = "comp/env/" + key;
             jndiKey = JndiScope.comp;
         }
-        Map<String, Object> scope = module.getJndiScope(jndiKey);
+        Map<String, Object> scope = getJndiContextMap(sharedContext).get(jndiKey);
         if (scope == null) return null;
         return scope.get(key);
+    }
+    
+    protected Map<JndiKey, Map<String, Object>> getJndiContextMap(Map<EARContext.Key, Object> sharedContext) {
+        return NamingBuilder.JNDI_KEY.get(sharedContext);
     }
 
     protected String getJndiName(String name) {
@@ -277,26 +271,12 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return s == null ? null : s.trim();
     }
 
-    protected static String getUntrimmedStringValue(org.apache.geronimo.xbeans.javaee6.String string) {
-        if (string == null) {
-            return null;
-        }
-        return string.getStringValue();
-    }
-
     protected static String getStringValue(XsdStringType string) {
         if (string == null) {
             return null;
         }
         String s = string.getStringValue();
         return s == null ? null : s.trim();
-    }
-    
-    protected static String getUntrimmedStringValue(XsdStringType string) {
-        if (string == null) {
-            return null;
-        }
-        return string.getStringValue();
     }
 
     public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType, Set interfaceTypes) {
@@ -352,65 +332,6 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
 
     public QName getBaseQName() {
         return BASE_NAMING_QNAME;
-    }
-
-    protected String inferAndCheckType(Module module, Bundle bundle, InjectionTargetType[] injectionTargets, String name, String typeName) throws DeploymentException {
-        Class<?> type = null;
-        if (typeName != null) {
-            try {
-                type = bundle.loadClass(typeName);
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("could not load type class for env entry named: " + name, e);
-            }
-        }
-        for (InjectionTargetType injectionTarget : injectionTargets) {
-            String className = getStringValue(injectionTarget.getInjectionTargetClass());
-            try {
-                Class<?> clazz = bundle.loadClass(className);
-                String fieldName = getStringValue(injectionTarget.getInjectionTargetName());
-                Field field = getField(clazz, fieldName);
-                Class<?> fieldType = field.getType();
-                fieldType = fieldType.isPrimitive()? primitives.get(fieldType): fieldType;
-                if (type == null) {
-                    type = fieldType;
-                } else if (!fieldType.equals(type)) {
-                    throw new DeploymentException("Mismatched types in env-entry named: " + name + " type: " + type + " injections " + injectionTargets);
-                }
-            } catch (ClassNotFoundException e) {
-                throw new DeploymentException("could not load injection target class for env entry named: " + name + " in class: " + className, e);
-            } catch (NoSuchFieldException e) {
-                throw new DeploymentException("could not access field for env entry named: " + name + " in class: " + className + "of type: " + type, e);
-            }
-        }
-        if (type == null) {
-            throw new DeploymentException("No way to determine type of env-entry " + name + " in component " + module.getAnnotatedApp().toString());
-        }
-        return type.getName();
-    }
-
-    private static final Map<Class<?>, Class<?>> primitives = new HashMap<Class<?>, Class<?>>();
-
-    static {
-        primitives.put(boolean.class, Boolean.class);
-        primitives.put(byte.class, Byte.class);
-        primitives.put(char.class, Character.class);
-        primitives.put(double.class, Double.class);
-        primitives.put(float.class, Float.class);
-        primitives.put(int.class, Integer.class);
-        primitives.put(long.class, Long.class);
-        primitives.put(short.class, Short.class);
-    }
-
-    private Field getField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
-        do {
-            try {
-                return clazz.getDeclaredField(fieldName);
-            } catch (NoSuchFieldException e) {
-                //look at superclass
-            }
-            clazz = clazz.getSuperclass();
-        } while (clazz != null);
-        throw new NoSuchFieldException(fieldName);
     }
 }
 

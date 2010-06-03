@@ -17,23 +17,20 @@
 
 package org.apache.geronimo.jaxws.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.geronimo.jaxws.JAXWSUtils;
+import org.apache.geronimo.xbeans.javaee.HandlerChainType;
+import org.apache.xmlbeans.XmlCursor;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.PortInfo;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.xml.namespace.QName;
-import javax.xml.ws.handler.Handler;
-import javax.xml.ws.handler.PortInfo;
-
-import org.apache.geronimo.jaxws.JAXWSUtils;
-import org.apache.geronimo.xbeans.javaee.HandlerChainType;
-import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
-import org.apache.xmlbeans.XmlCursor;
-import org.osgi.framework.Bundle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -41,25 +38,25 @@ import org.slf4j.LoggerFactory;
 public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
     private static final Logger log = LoggerFactory.getLogger(GeronimoHandlerChainBuilder.class);
 
-    private Bundle bundle = null;
+    private ClassLoader classLoader = null;
     private PortInfo portInfo;
 
-    public GeronimoHandlerChainBuilder(Bundle bundle,
+    public GeronimoHandlerChainBuilder(ClassLoader classloader,
                                        PortInfo portInfo) {
-        this.bundle = bundle;
+        this.classLoader = classloader;
         this.portInfo = portInfo;
     }
 
-    public Bundle getHandlerBundle() {
-        return bundle;
+    public ClassLoader getHandlerClassLoader() {
+        return this.classLoader;
     }
 
     protected List<Handler> buildHandlerChain(HandlerChainType hc,
-                                              Bundle bundle) {
+                                              ClassLoader classLoader) {
         if (matchServiceName(portInfo, hc)
                 && matchPortName(portInfo, hc)
                 && matchBinding(portInfo, hc)) {
-            return super.buildHandlerChain(hc, new BundleClassLoader(bundle));
+            return super.buildHandlerChain(hc, classLoader);
         } else {
             return Collections.emptyList();
         }
@@ -114,7 +111,7 @@ public class GeronimoHandlerChainBuilder extends AnnotationHandlerChainBuilder {
         if (null == hc) {
             return null;
         }
-        return sortHandlers(buildHandlerChain(hc, getHandlerBundle()));
+        return sortHandlers(buildHandlerChain(hc, getHandlerClassLoader()));
     }
 
     /*

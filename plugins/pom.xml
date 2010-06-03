@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <groupId>org.apache.geronimo.plugins</groupId>
@@ -159,16 +159,12 @@
         <module>system-database</module>
         <module>activemq</module>
         <module>aspectj</module>
-        <!--<module>axis</module>-->
-        <module>axis2</module>
         <module>client</module>
         <module>clustering</module>
         <module>connector-1_6</module>
         <module>console</module>
         <module>corba</module>
-        <module>cxf</module>
         <module>dojo</module>
-        <!--<module>debugviews</module>-->
         <module>hotdeploy</module>
         <module>j2ee</module>
         <module>jasper</module>
@@ -177,22 +173,15 @@
         <module>myfaces</module>
         <module>openejb</module>
         <module>openjpa2</module>
-<!--        <module>openwebbeans</module>-->
-        <!--<module>plancreator</module>-->
-        <module>webservices</module>
-        <!--<module>ca-helper</module>-->
         <module>uddi</module>
-        <!--<module>mejb</module>-->
-        <!--<module>monitoring</module>-->
+        <module>webservices</module>
         <module>remote-deploy</module>
-        <!--<module>sharedlib</module>-->
         <module>welcome</module>
-        <!--<module>procrun</module>-->
+        <module>procrun</module>
         <module>jetty8</module>
         <module>tomcat</module>
         <module>aries</module>
         <module>wab</module>
-        <module>bval</module>
     </modules>
 
     <profiles>
@@ -234,16 +223,12 @@
                 <module>system-database</module>
                 <module>activemq</module>
                 <module>aspectj</module>
-                <module>axis</module>
-                <module>axis2</module>
                 <module>client</module>
                 <module>clustering</module>
                 <module>connector-1_6</module>
                 <module>console</module>
                 <module>corba</module>
-                <module>cxf</module>
                 <module>dojo</module>
-                <module>debugviews</module>
                 <module>hotdeploy</module>
                 <module>j2ee</module>
                 <module>jasper</module>
@@ -252,19 +237,16 @@
                 <module>myfaces</module>
                 <module>openejb</module>
                 <module>openjpa2</module>
-        <!--        <module>openwebbeans</module>-->
                 <module>plancreator</module>
                 <module>webservices</module>
-                <module>ca-helper</module>
                 <module>uddi</module>
-                <module>mejb</module>
-                <module>monitoring</module>
                 <module>remote-deploy</module>
-                <module>sharedlib</module>
                 <module>welcome</module>
                 <module>procrun</module>
                 <module>jetty8</module>
                 <module>tomcat</module>
+                <module>aries</module>
+                <module>wab</module>
             </modules>
         </profile>
     </profiles>

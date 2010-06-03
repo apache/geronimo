@@ -57,7 +57,7 @@ import org.osgi.framework.BundleContext;
  * @version $Rev$ $Date$
  */
 public class EnvironmentEntryBuilderTest extends TestCase {
-    private Map<EARContext.Key, Object> componentContext = new HashMap<EARContext.Key, Object>();
+    private Map componentContext = new HashMap();
     private NamingBuilder environmentEntryBuilder = new EnvironmentEntryBuilder(new String[]{AbstractNamingBuilder.JEE_NAMESPACE});
 
     private static final String TEST = "<tmp xmlns=\"http://java.sun.com/xml/ns/javaee\">" +
@@ -114,20 +114,20 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             "<env-entry-type>java.lang.Boolean</env-entry-type>" +
             "<env-entry-value>TRUE</env-entry-value>" +
             "</env-entry>" +
-
+            
             "<env-entry>" +
             "<env-entry-name>class</env-entry-name>" +
             "<env-entry-type>java.lang.Class</env-entry-type>" +
             "<env-entry-value>java.net.URI</env-entry-value>" +
             "</env-entry>" +
-
+            
             "<env-entry>" +
             "<env-entry-name>enum</env-entry-name>" +
             "<env-entry-type>java.util.concurrent.TimeUnit</env-entry-type>" +
             "<env-entry-value>NANOSECONDS</env-entry-value>" +
             "</env-entry>" +
             "</tmp>";
-
+    
     private static final String TEST_PLAN = "<tmp xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
             "<env-entry>" +
             "<env-entry-name>string</env-entry-name>" +
@@ -173,13 +173,13 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             "<env-entry-name>boolean</env-entry-name>" +
             "<env-entry-value>FALSE</env-entry-value>" +
             "</env-entry>" +
-
+            
             "<env-entry>" +
             "<env-entry-name>class</env-entry-name>" +
             "<env-entry-type>java.lang.Class</env-entry-type>" +
             "<env-entry-value>java.net.URL</env-entry-value>" +
             "</env-entry>" +
-
+            
             "<env-entry>" +
             "<env-entry-name>enum</env-entry-name>" +
             "<env-entry-type>java.util.concurrent.TimeUnit</env-entry-type>" +
@@ -188,14 +188,14 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             "</tmp>";
 
     private Module module;
-
+    
     protected void setUp() throws Exception {
         Artifact artifact = new Artifact("foo", "bar", "1.0", "car");
         Map<String, Artifact> locations = new HashMap<String, Artifact>();
         locations.put(null, artifact);
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, locations);
         Artifact id = new Artifact("test", "test", "", "car");
-        module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, null, "foo", null, null, null, null, null, null);
+        module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, null, "foo", null, null, null, null);
         ConfigurationManager configurationManager = new MockConfigurationManager();
         EARContext earContext = new EARContext(new File("foo"),
             null,
@@ -213,7 +213,7 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         module.setEarContext(earContext);
         module.setRootEarContext(earContext);
     }
-
+            
     public void testEnvEntries() throws Exception {
 
         String stringVal = "Hello World";
@@ -235,7 +235,7 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             cursor.dispose();
         }
         environmentEntryBuilder.buildNaming(doc, null, module, componentContext);
-        Context context = EnterpriseNamingContext.livenReferences(module.getJndiScope(JndiScope.comp), null, null, getClass().getClassLoader(), null, "comp/");
+        Context context = EnterpriseNamingContext.livenReferences(NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp), null, null, getClass().getClassLoader(), "comp/");
         Set actual = new HashSet();
         for (NamingEnumeration e = context.listBindings("comp/env"); e.hasMore();) {
             NameClassPair pair = (NameClassPair) e.next();
@@ -285,7 +285,7 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             cursor.dispose();
         }
         environmentEntryBuilder.buildNaming(doc, plan, module, componentContext);
-        Context context = EnterpriseNamingContext.livenReferences(module.getJndiScope(JndiScope.comp), null, null, getClass().getClassLoader(), null, "comp/");
+        Context context = EnterpriseNamingContext.livenReferences(NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp), null, null, getClass().getClassLoader(), "comp/");
         Set actual = new HashSet();
         for (NamingEnumeration e = context.listBindings("comp/env"); e.hasMore();) {
             NameClassPair pair = (NameClassPair) e.next();
@@ -307,7 +307,7 @@ public class EnvironmentEntryBuilderTest extends TestCase {
     }
 
     public void testEmptyEnvironment() throws NamingException {
-        Context context = EnterpriseNamingContext.livenReferences(module.getJndiScope(JndiScope.comp), null, null, null, null, "comp/");
+        Context context = EnterpriseNamingContext.livenReferences(NamingBuilder.JNDI_KEY.get(componentContext).get(JndiScope.comp), null, null, null, "comp/");
         Context env = (Context) context.lookup("comp/env");
         assertNotNull(env);
     }

@@ -31,7 +31,6 @@ import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
@@ -85,8 +84,6 @@ public abstract class EARConfigBuilderTestSupport
 
     protected static final ModuleBuilderExtension persistenceUnitBuilder = null;
 
-    protected static final NamingBuilder namingBuilder = new NamingBuilderCollection(Collections.<NamingBuilder>emptySet());
-
     protected static final Naming naming = new Jsr77Naming();
 
     protected static final AbstractName rootConfig = naming.createRootName(new Artifact("test", "stuff", "", "car"), "test", "test") ;
@@ -131,8 +128,6 @@ public abstract class EARConfigBuilderTestSupport
     private ListableRepository repository;
     protected ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repository);
     protected Collection<? extends ArtifactResolver> artifactResolvers = Collections.singleton(new DefaultArtifactResolver(artifactManager, repository));
-    protected Map<JndiKey, Map<String, Object>> jndiContext;
-    protected Module parentModule;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -163,7 +158,6 @@ public abstract class EARConfigBuilderTestSupport
                     appClientConfigBuilder,
                     serviceBuilder,
                     persistenceUnitBuilder,
-                    namingBuilder,
                     naming,
                     artifactResolvers,
                     bundleContext);
@@ -196,10 +190,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                namingBuilder,
-                naming,
-                artifactResolvers,
-                bundleContext);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -235,10 +226,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                namingBuilder,
-                naming,
-                artifactResolvers,
-                bundleContext);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -274,10 +262,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                namingBuilder,
-                naming,
-                artifactResolvers,
-                bundleContext);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -313,10 +298,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                namingBuilder,
-                naming,
-                artifactResolvers,
-                bundleContext);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -352,10 +334,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                namingBuilder,
-                naming,
-                artifactResolvers,
-                bundleContext);
+                naming, artifactResolvers, bundleContext);
 
 
         ConfigurationData configurationData = null;
@@ -392,10 +371,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                namingBuilder,
-                naming,
-                artifactResolvers,
-                bundleContext);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
@@ -431,10 +407,7 @@ public abstract class EARConfigBuilderTestSupport
                 appClientConfigBuilder,
                 serviceBuilder,
                 persistenceUnitBuilder,
-                namingBuilder,
-                naming,
-                artifactResolvers,
-                bundleContext);
+                naming, artifactResolvers, bundleContext);
 
         ConfigurationData configurationData = null;
         DeploymentContext context = null;

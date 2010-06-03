@@ -123,9 +123,6 @@ wsdl=text/xml
             <pattern>
                 <name>OpenWebBeansModuleBuilderExtension</name>
             </pattern>
-            <pattern>
-                <name>EJBBuilder</name>
-            </pattern>
         </references>
         <reference name="ResourceEnvironmentSetter">
             <name>ResourceRefBuilder</name>

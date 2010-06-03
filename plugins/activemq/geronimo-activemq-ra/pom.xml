@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>activemq</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <groupId>org.apache.geronimo.modules</groupId>
@@ -106,6 +106,11 @@
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>nlog4j</artifactId>
+                </exclusion>
+
+                <exclusion>
+                    <groupId>backport-util-concurrent</groupId>
+                    <artifactId>backport-util-concurrent</artifactId>
                 </exclusion>
 
                 <exclusion>

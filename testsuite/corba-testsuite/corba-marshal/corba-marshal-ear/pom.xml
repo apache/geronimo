@@ -27,19 +27,19 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>corba-marshal</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <artifactId>corba-marshal-ear</artifactId>
     <name>Geronimo TestSuite :: CORBA TestSuite :: Marshal EAR</name>
     <packaging>ear</packaging>
-    
+
     <description>Example using CORBA to access a stateless EJB</description>
-    
+
     <!--
     FIXME: Split this module up... one to build the ear, one to run the tests.
     -->
-    
+
     <properties>
         <clientLogFile>${basedir}/target/client.log</clientLogFile>
     </properties>
@@ -51,7 +51,7 @@
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
             <artifactId>corba-marshal-client</artifactId>

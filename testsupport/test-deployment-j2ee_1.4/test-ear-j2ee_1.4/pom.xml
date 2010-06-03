@@ -7,9 +7,9 @@
     to you under the Apache License, Version 2.0 (the
     "License"); you may not use this file except in compliance
     with the License.  You may obtain a copy of the License at
-    
+
      http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
     "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,23 +21,23 @@
 <!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.testsupport</groupId>
         <artifactId>test-deployment-j2ee_1.4</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <artifactId>test-ear-j2ee_1.4</artifactId>
     <name>Geronimo Test Support, Test Deployment J2EE 1.4 :: EAR</name>
     <packaging>ear</packaging>
-    
+
     <description>
         Geronimo test EAR for J2EE 1.4.
     </description>
-    
+
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
@@ -45,14 +45,14 @@
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
-        
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>test-ejb-j2ee_1.4</artifactId>
             <version>${project.version}</version>
             <type>ejb</type>
         </dependency>
-        
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>test-rar-j2ee_1.4</artifactId>
@@ -60,8 +60,8 @@
             <type>rar</type>
         </dependency>
     </dependencies>
-    
-    <build>       
+
+    <build>
         <plugins>
             <plugin>
                 <artifactId>maven-ear-plugin</artifactId>
@@ -77,13 +77,13 @@
                             <contextRoot>/test-1_4</contextRoot>
                             <bundleFileName>web.war</bundleFileName>
                         </webModule>
-                        
+
                         <ejbModule>
                             <groupId>${pom.groupId}</groupId>
                             <artifactId>test-ejb-j2ee_1.4</artifactId>
                             <bundleFileName>ejb.jar</bundleFileName>
                         </ejbModule>
-                        
+
                         <rarModule>
                             <groupId>${pom.groupId}</groupId>
                             <artifactId>test-rar-j2ee_1.4</artifactId>
@@ -95,5 +95,5 @@
         </plugins>
 
     </build>
-    
+
 </project>

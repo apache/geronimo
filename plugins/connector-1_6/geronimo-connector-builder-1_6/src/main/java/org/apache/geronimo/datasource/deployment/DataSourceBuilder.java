@@ -26,6 +26,7 @@ import javax.annotation.sql.DataSourceDefinition;
 import javax.annotation.sql.DataSourceDefinitions;
 import javax.resource.ResourceException;
 import javax.sql.DataSource;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.datasource.DataSourceDescription;
 import org.apache.geronimo.datasource.DataSourceGBean;
@@ -41,12 +42,12 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.reference.ResourceReferenceFactory;
 import org.apache.geronimo.xbeans.javaee6.DataSourceType;
 import org.apache.geronimo.xbeans.javaee6.IsolationLevelType;
 import org.apache.geronimo.xbeans.javaee6.PropertyType;
-import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -145,7 +146,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
                         
         String jndiName = ds.getName().getStringValue();
         
-        if (lookupJndiContextMap(module, jndiName) != null) {
+        if (lookupJndiContextMap(componentContext, jndiName) != null) {
             return;
         }
         
@@ -172,7 +173,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         earContext.addGBean(dataSourceGBean);
                 
         Object ref = new ResourceReferenceFactory<ResourceException>(module.getConfigId(), new AbstractNameQuery(dataSourceAbstractName), DataSource.class);
-        put(jndiName, ref, module.getJndiContext());
+        put(jndiName, ref, getJndiContextMap(componentContext));
     }
     
     private DataSourceType processDefinition(DataSourceDefinition dsDefinition, AnnotatedApp annotatedApp) {

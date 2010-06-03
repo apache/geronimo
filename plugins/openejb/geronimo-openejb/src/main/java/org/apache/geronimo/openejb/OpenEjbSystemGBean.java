@@ -97,13 +97,13 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private Properties properties; 
     
     public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
-        this(transactionManager, null, null, null, OpenEjbSystemGBean.class.getClassLoader(), new Properties());
+        this(transactionManager, null, null, new DeepBindableContext("java:openejb", false, true, true, false), null, OpenEjbSystemGBean.class.getClassLoader(), new Properties());
     }
 
     public OpenEjbSystemGBean(@ParamReference(name = "TransactionManager", namingType = NameFactory.JTA_RESOURCE) TransactionManager transactionManager,
                               @ParamReference(name = "ResourceAdapterWrappers", namingType = NameFactory.JCA_RESOURCE_ADAPTER) Collection<ResourceAdapterWrapper> resourceAdapters,
                               @ParamReference(name = "PersistenceUnitGBeans", namingType = NameFactory.PERSISTENCE_UNIT) Collection<PersistenceUnitGBean> persistenceUnitGBeans,
-//                              @ParamReference(name = "OpenEjbContext")DeepBindableContext openejbContext,
+                              @ParamReference(name = "OpenEjbContext")DeepBindableContext openejbContext,
                               @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                               @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
                               @ParamAttribute(name = "properties") Properties properties) throws Exception {
@@ -126,7 +126,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 //        System.setProperty("openejb.naming", "xbean");
         boolean offline = true;
         configurationFactory = new ConfigurationFactory(offline);
-        assembler = new Assembler(new XBeanJndiFactory());
+        assembler = new Assembler(openejbContext.newJndiFactory());
 
         // install application server
         ApplicationServer applicationServer = new ServerFederation();

@@ -77,9 +77,6 @@ import org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManage
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.osgi.framework.Bundle;
-import org.osgi.service.packageadmin.ExportedPackage;
-import org.osgi.service.packageadmin.PackageAdmin;
-import org.osgi.service.packageadmin.RequiredBundle;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -288,64 +285,6 @@ public class JettyModuleBuilderTest extends TestSupport {
         defaultEnvironment.setConfigId(webModuleArtifact);
         Collection<ModuleBuilderExtension> moduleBuilderExtensions = new ArrayList<ModuleBuilderExtension>();
         GeronimoSecurityBuilderImpl securityBuilder = new GeronimoSecurityBuilderImpl(null, null, null);
-        MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
-        PackageAdmin packageAdmin = new PackageAdmin() {
-
-                @Override
-                public ExportedPackage[] getExportedPackages(Bundle bundle) {
-                    return new ExportedPackage[0];
-                }
-
-                @Override
-                public ExportedPackage[] getExportedPackages(String s) {
-                    return new ExportedPackage[0];
-                }
-
-                @Override
-                public ExportedPackage getExportedPackage(String s) {
-                    return null;
-                }
-
-                @Override
-                public void refreshPackages(Bundle[] bundles) {
-                }
-
-                @Override
-                public boolean resolveBundles(Bundle[] bundles) {
-                    return false;
-                }
-
-                @Override
-                public RequiredBundle[] getRequiredBundles(String s) {
-                    return new RequiredBundle[0];
-                }
-
-                @Override
-                public Bundle[] getBundles(String s, String s1) {
-                    return new Bundle[0];
-                }
-
-                @Override
-                public Bundle[] getFragments(Bundle bundle) {
-                    return new Bundle[0];
-                }
-
-                @Override
-                public Bundle[] getHosts(Bundle bundle) {
-                    return new Bundle[0];
-                }
-
-                @Override
-                public Bundle getBundle(Class aClass) {
-                    return null;
-                }
-
-                @Override
-                public int getBundleType(Bundle bundle) {
-                    return 0;
-                }
-            };
-        bundleContext.registerService(PackageAdmin.class.getName(), packageAdmin, null);
         builder = new JettyModuleBuilder(defaultEnvironment,
                 new Integer(1800),
                 Collections.EMPTY_LIST,
@@ -363,8 +302,7 @@ public class JettyModuleBuilderTest extends TestSupport {
                 new NamingBuilderCollection(null),
                 moduleBuilderExtensions,
                 new MockResourceEnvironmentSetter(),
-                kernel,
-                bundleContext);
+                kernel);
         builder.doStart();
 
         securityBuilder.doStart();

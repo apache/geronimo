@@ -18,23 +18,15 @@ package org.apache.geronimo.openejb;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 import javax.management.ObjectName;
+import javax.naming.Context;
 import javax.naming.NamingException;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionEvent;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+
+import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
@@ -42,77 +34,46 @@ import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.openejb.DeploymentInfo;
-import org.apache.openejb.NoSuchApplicationException;
-import org.apache.openejb.UndeployException;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
-import org.apache.openejb.core.CoreDeploymentInfo;
-import org.slf4j.Logger;
+import org.apache.openejb.UndeployException;
+import org.apache.openejb.NoSuchApplicationException;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * @version $Revision$ $Date$
  */
-
-@GBean(j2eeType = NameFactory.EJB_MODULE)
-public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
+public class EjbModuleImpl implements EJBModule {
     private static final Logger log = LoggerFactory.getLogger(EjbModuleImpl.class);
     private final J2EEServer server;
     private final J2EEApplication application;
+    private final ApplicationJndi applicationJndi;
+    private final Context moduleContext;
     private final String deploymentDescriptor;
     private final String objectName;
-    private final Map<String, EjbDeployment> ejbs = new HashMap<String, EjbDeployment>();
+    private final Collection<? extends EJB> ejbs;
     private final ClassLoader classLoader;
 
     private final OpenEjbSystem openEjbSystem;
     private final EjbJarInfo ejbJarInfo;
 
-    public EjbModuleImpl(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
-                         @ParamReference(name = "J2EEServer", namingType = NameFactory.J2EE_SERVER) J2EEServer server,
-                         @ParamReference(name = "J2EEApplication", namingType = NameFactory.J2EE_APPLICATION) J2EEApplication application,
-                         @ParamAttribute(name = "deploymentDescriptor") String deploymentDescriptor,
-                         @ParamReference(name = "EJBCollection") Collection<? extends EjbDeployment> ejbs,
-                         @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
-                         @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
-                         @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
-                         @ParamAttribute(name = "ejbJarInfo") EjbJarInfo ejbJarInfo) throws NamingException {
+    public EjbModuleImpl(String objectName, J2EEServer server, J2EEApplication application, ApplicationJndi applicationJndi, Map<String, Object> moduleJndi, String deploymentDescriptor, Collection<? extends EJB> ejbs, ClassLoader classLoader, Kernel kernel, OpenEjbSystem openEjbSystem, EjbJarInfo ejbJarInfo) throws NamingException {
         this.objectName = objectName;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
         this.server = server;
         this.application = application;
+        this.applicationJndi = applicationJndi;
+        this.moduleContext = EnterpriseNamingContext.livenReferences(moduleJndi, null, kernel, classLoader, "module/");
         this.deploymentDescriptor = deploymentDescriptor;
-        ((ReferenceCollection) ejbs).addReferenceCollectionListener(new ReferenceCollectionListener() {
-
-            public void memberAdded(ReferenceCollectionEvent event) {
-                EjbDeployment ejb = (EjbDeployment) event.getMember();
-                addEjb(ejb);
-            }
-
-            public void memberRemoved(ReferenceCollectionEvent event) {
-                EjbDeployment ejb = (EjbDeployment) event.getMember();
-                removeEjb(ejb);
-            }
-        });
-        for (EjbDeployment ejb : ejbs) {
-            addEjb(ejb);
-        }
+        this.ejbs = ejbs;
 
         this.classLoader = classLoader;
 
         this.openEjbSystem = openEjbSystem;
         this.ejbJarInfo = ejbJarInfo;
-    }
-
-    private void removeEjb(EjbDeployment ejb) {
-        GeronimoThreadContextListener.get().removeEjb(ejb.getDeploymentId());
-        ejbs.remove(ejb.getDeploymentId());
-    }
-
-    private void addEjb(EjbDeployment ejb) {
-        ejbs.put(ejb.getDeploymentId(), ejb);
-        GeronimoThreadContextListener.get().addEjb(ejb);
     }
 
     public String getObjectName() {
@@ -157,7 +118,7 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
 
         ArrayList<EJB> copy;
         synchronized (ejbs) {
-            copy = new ArrayList<EJB>(ejbs.values());
+            copy = new ArrayList<EJB>(ejbs);
         }
 
         String[] result = new String[copy.size()];
@@ -167,37 +128,36 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
         return result;
     }
 
-    public void doStart() throws Exception {
-        openEjbSystem.createEjbJar(ejbJarInfo, classLoader);
-        for (String deploymentId: ejbs.keySet()) {
-            DeploymentInfo deploymentInfo = openEjbSystem.getDeploymentInfo(deploymentId);
-            GeronimoThreadContextListener.get().getEjbDeployment((CoreDeploymentInfo) deploymentInfo);
-        }
+    public ApplicationJndi getApplicationJndi() {
+        return applicationJndi;
     }
 
-    public void doStop() {
+    public Context getModuleContext() {
+        return moduleContext;
+    }
+
+    protected void start() throws Exception {
+        openEjbSystem.createEjbJar(ejbJarInfo, classLoader);
+    }
+
+    protected void stop() {
         try {
             openEjbSystem.removeEjbJar(ejbJarInfo, classLoader);
         } catch (NoSuchApplicationException e) {
             log.error("Module does not exist.", e);
         } catch (UndeployException e) {
             List<Throwable> causes = e.getCauses();
-            log.error(e.getMessage() + ": Encountered " + causes.size() + " failures.");
+            log.error(e.getMessage()+": Encountered "+causes.size()+" failures.");
             for (Throwable throwable : causes) {
                 log.info(throwable.toString(), throwable);
             }
         }
     }
 
-    public void doFail() {
-        doStop();
-    }
-
     /**
      * ObjectName must match this pattern:
      * <p/>
      * domain:j2eeType=EJBModule,name=MyName,J2EEServer=MyServer,J2EEApplication=MyApplication
-     * @param objectName object name to verify
      */
     private void verifyObjectName(ObjectName objectName) {
         if (objectName.isPattern()) {
