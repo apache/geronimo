@@ -37,7 +37,7 @@
             <action class="org.apache.geronimo.shell.deploy.DisconnectCommand">
             </action>
         </command>
-        <command name="deploy/distribute">
+        <command name="deploy/distribute-module">
             <action class="org.apache.geronimo.shell.deploy.DistributeCommand">
             </action>
         </command>
