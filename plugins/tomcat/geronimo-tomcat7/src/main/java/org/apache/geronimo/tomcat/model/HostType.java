@@ -551,7 +551,7 @@ public class HostType {
         recipe.allow(Option.IGNORE_MISSING_PROPERTIES);
         Host host = (Host) recipe.create(cl);
         if (host instanceof Lifecycle) {
-            Lifecycle lifecycle = (Lifecycle) host;
+            Lifecycle lifecycle = host;
             for (ListenerType listenerType : getListener()) {
                 LifecycleListener listener = listenerType.getLifecycleListener(cl);
                 lifecycle.addLifecycleListener(listener);

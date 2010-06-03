@@ -22,10 +22,10 @@ package org.apache.geronimo.tomcat.cluster;
 import javax.servlet.http.Cookie;
 
 import org.apache.catalina.Context;
-import org.apache.catalina.Globals;
 import org.apache.catalina.Session;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+import org.apache.catalina.core.ApplicationSessionCookieConfig;
 
 /**
  * setNewSessionCookie contains code copied from
@@ -81,7 +81,7 @@ public class JkRouter implements Router {
     protected void setNewSessionCookie(Request request, Response response, String augmentedSessionID) {
         Context context = request.getContext();
         if (context.getCookies()) {
-            Cookie newCookie = new Cookie(Globals.SESSION_COOKIE_NAME, augmentedSessionID);
+            Cookie newCookie = new Cookie(ApplicationSessionCookieConfig.getSessionCookieName(request.getContext()), augmentedSessionID);
             newCookie.setMaxAge(-1);
             String contextPath = null;
             if (context != null && context.getSessionCookiePath() != null) {

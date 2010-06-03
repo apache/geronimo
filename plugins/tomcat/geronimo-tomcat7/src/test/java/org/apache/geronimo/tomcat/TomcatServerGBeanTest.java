@@ -78,7 +78,7 @@ public class TomcatServerGBeanTest extends TestSupport {
         assertEquals(2, clusterType.getValve().size());
         assertEquals(2, clusterType.getClusterListener().size());
         ChannelType channelType = clusterType.getChannel();
-        assertEquals(3, channelType.getInterceptor().size());        
+        assertEquals(3, channelType.getInterceptor().size());
         assertEquals(1, channelType.getInterceptor().get(2).getMember().size());
     }
 
@@ -90,5 +90,12 @@ public class TomcatServerGBeanTest extends TestSupport {
         } finally {
             tomcatServerGBean.doStop();
         }
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        System.setProperty("catalina.useNaming", "false");
+        System.setProperty("catalina.base", BASEDIR.getAbsolutePath());
     }
 }

@@ -123,6 +123,8 @@ public class GeronimoStandardContext extends StandardContext {
         // By default, we configure HttpOnly with false value, as it would cause DWR fail to work
         //On the runtime, Tomcat will determine the value based on the configurations in web.xml and context, so the users still have a chance to open it via web.xml
         setUseHttpOnly(false);
+        //Turn off  webXmlValidation, Geronimo should have done there in the deployment process
+        setXmlValidation(false);
     }
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
@@ -723,6 +725,10 @@ public class GeronimoStandardContext extends StandardContext {
     @Override
     public String getBasePath() {
         //TODO Override setDocBase with an empty block to avoid NullPointerException
-        return null;
+        if (getDocBase() == null) {
+            return null;
+        } else {
+            return super.getBasePath();
+        }
     }
 }

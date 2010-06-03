@@ -24,20 +24,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.security.auth.Subject;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
+import org.apache.catalina.Lifecycle;
+import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Service;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.Lifecycle;
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardService;
 import org.apache.catalina.startup.ContextConfig;
-import org.apache.catalina.connector.Connector;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -48,8 +48,8 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.osgi.web.WebApplicationConstants;
-import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
@@ -170,6 +170,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             ObjectName objName = objectName == null ? null : ObjectName.getInstance(objectName);
             for (Container host : hosts) {
                 defaultContext = createContext("", classLoader, null);
+                defaultContext.setDocBase(docBase);
                 if (objName != null) {
                     defaultContext.setName(objName.getKeyProperty(NameFactory.J2EE_NAME));
                 }

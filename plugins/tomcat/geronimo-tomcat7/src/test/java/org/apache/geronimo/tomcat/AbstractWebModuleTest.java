@@ -246,5 +246,6 @@ public abstract class AbstractWebModuleTest extends TestSupport {
     protected void setUp() throws Exception {
         super.setUp();
         System.setProperty("catalina.useNaming", "false");
+        System.setProperty("catalina.base", BASEDIR.getAbsolutePath());
     }
 }

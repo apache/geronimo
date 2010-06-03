@@ -64,8 +64,4 @@ public class EjbWsContextConfig extends BaseGeronimoContextConfig {
         return new JACCEJBWebServiceAuthorizer(defaultAcc);
     }
 
-    @Override
-    protected void webConfig() {
-        //For a EJBWsContextConfig, we no need to scan web.xml/annotations
-    }
 }
