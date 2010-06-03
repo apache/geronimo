@@ -102,6 +102,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.woden</groupId>
+        <artifactId>woden-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.ws.commons.axiom</groupId>
         <artifactId>axiom-api</artifactId>
         <type>jar</type>
