@@ -938,8 +938,8 @@ under the CDDL license.
 
 
 This product includes schema files developed for the Glassfish Java EE
-reference implementation.  Apache Geronimo elects to include this software 
-in this distribution under the CDDL license.  
+reference implementation.  Apache Geronimo elects to include this software
+in this distribution under the CDDL license.
 
 The following schemas are included:
 
@@ -1174,13 +1174,13 @@ following licenses.
 ./repository/org/apache/geronimo/components/geronimo-connector/3.0/geronimo-connector-3.0.jar
 ./repository/org/apache/geronimo/components/geronimo-jaspi/1.1/geronimo-jaspi-1.1.jar
 ./repository/org/apache/geronimo/components/geronimo-transaction/3.0/geronimo-transaction-3.0.jar
-./repository/org/apache/geronimo/ext/tomcat/catalina/7.0.0.0/catalina-7.0.0.0.jar
-./repository/org/apache/geronimo/ext/tomcat/catalina-ha/7.0.0.0/catalina-ha-7.0.0.0.jar
-./repository/org/apache/geronimo/ext/tomcat/jasper/7.0.0.0/jasper-7.0.0.0.jar
-./repository/org/apache/geronimo/ext/tomcat/jasper-el/7.0.0.0/jasper-el-7.0.0.0.jar
-./repository/org/apache/geronimo/ext/tomcat/shared/7.0.0.0/shared-7.0.0.0.jar
-./repository/org/apache/geronimo/ext/tomcat/tribes/7.0.0.0/tribes-7.0.0.0.jar
-./repository/org/apache/geronimo/ext/tomcat/util/7.0.0.0/util-7.0.0.0.jar
+./repository/org/apache/geronimo/ext/tomcat/catalina/7.0.0.0/catalina-7.0.0.1.jar
+./repository/org/apache/geronimo/ext/tomcat/catalina-ha/7.0.0.0/catalina-ha-7.0.0.1.jar
+./repository/org/apache/geronimo/ext/tomcat/jasper/7.0.0.0/jasper-7.0.0.1.jar
+./repository/org/apache/geronimo/ext/tomcat/jasper-el/7.0.0.0/jasper-el-7.0.0.1.jar
+./repository/org/apache/geronimo/ext/tomcat/shared/7.0.0.0/shared-7.0.0.1.jar
+./repository/org/apache/geronimo/ext/tomcat/tribes/7.0.0.0/tribes-7.0.0.1.jar
+./repository/org/apache/geronimo/ext/tomcat/util/7.0.0.0/util-7.0.0.1.jar
 ./repository/org/apache/geronimo/framework/geronimo-blueprint/3.0-M1/geronimo-blueprint-3.0-M1.jar
 ./repository/org/apache/geronimo/framework/geronimo-cli/3.0-M1/geronimo-cli-3.0-M1.jar
 ./repository/org/apache/geronimo/framework/geronimo-common/3.0-M1/geronimo-common-3.0-M1.jar
@@ -1348,7 +1348,7 @@ following licenses.
 ./repository/org/eclipse/jetty/jetty-webapp/8.0.0.M0/jetty-webapp-8.0.0.M0.jar
 ./repository/org/eclipse/jetty/jetty-xml/8.0.0.M0/jetty-xml-8.0.0.M0.jar
 ./repository/org/eclipse/osgi/3.5.1.v20090827/osgi-3.5.1.v20090827.jar
-./repository/org/ops4j/pax/logging/pax-logging-api/1.5.0/pax-logging-api-1.5.0-SNAPSHOT.jar
+./repository/org/ops4j/pax/logging/pax-logging-api/1.5.0/pax-logging-api-1.5.0.jar
 ./repository/org/ops4j/pax/url/pax-url-mvn/1.1.2/pax-url-mvn-1.1.2.jar
 ./repository/org/ops4j/pax/url/pax-url-wrap/1.1.2/pax-url-wrap-1.1.2.jar
 ./repository/org/osgi/org.osgi.compendium/4.2.0/org.osgi.compendium-4.2.0.jar
@@ -2483,7 +2483,7 @@ Foundation as compatible with Apache Software License.
 
 The following artifacts are covered by the SLF4J License:
 
-./repository/org/ops4j/pax/logging/pax-logging-api/1.5.0/pax-logging-api-1.5.0-SNAPSHOT.jar
+./repository/org/ops4j/pax/logging/pax-logging-api/1.5.0/pax-logging-api-1.5.0.jar
 
 
 =========================================================================
