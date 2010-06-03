@@ -90,6 +90,7 @@
                 <module>geronimo-management</module>
                 <module>geronimo-naming</module>
                 <module>geronimo-security</module>
+                <module>geronimo-hook</module>
             </modules>
         </profile>
         <profile>

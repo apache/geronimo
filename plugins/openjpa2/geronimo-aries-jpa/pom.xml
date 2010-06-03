@@ -52,6 +52,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-hook</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.aries</groupId>
             <artifactId>org.apache.aries.util</artifactId>
             <scope>provided</scope>

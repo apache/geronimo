@@ -34,7 +34,7 @@ import org.osgi.framework.ServiceReference;
 
 public class GeronimoManagedPersistenceUnitInfoFactory extends ManagedPersistenceUnitInfoFactoryImpl {
     
-    private PersistenceUnitFragmentGenerator generator = new PersistenceUnitFragmentGenerator();
+    private PersistenceBundleHelper helper = new PersistenceBundleHelper();
     
     private Map<Bundle, Collection<ManagedPersistenceUnitInfo>> map = 
         Collections.synchronizedMap(new HashMap<Bundle, Collection<ManagedPersistenceUnitInfo>>());
@@ -51,7 +51,7 @@ public class GeronimoManagedPersistenceUnitInfoFactory extends ManagedPersistenc
             managedUnits.add(new GeronimoManagedPersistenceUnitInfo(persistenceBundle, unit, providerReference));
         }
      
-        generator.persistenceUnitMetadataCreated(containerContext, persistenceBundle, providerReference, managedUnits);
+        helper.addProviderImports(containerContext, persistenceBundle, providerReference);
         
         map.put(persistenceBundle, managedUnits);
         
@@ -65,7 +65,7 @@ public class GeronimoManagedPersistenceUnitInfoFactory extends ManagedPersistenc
             for (ManagedPersistenceUnitInfo unit : managedUnits) {
                 ((GeronimoManagedPersistenceUnitInfo) unit).destroy();
             }
-            generator.persistenceBundleDestroyed(containerContext, persistenceBundle);
+            helper.removeProviderImports(containerContext, persistenceBundle);
         }
     }
     
