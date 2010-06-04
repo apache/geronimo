@@ -23,36 +23,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
+    
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>testsuite</artifactId>
+        <artifactId>aries-testsuite</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-
-    <artifactId>aries-testsuite</artifactId>
-    <name>Geronimo TestSuite :: Aries Testsuite</name>
+    
+    <artifactId>jpa</artifactId>
+    <name>Geronimo TestSuite :: Aries Testsuite :: JPA Test</name>
     <packaging>pom</packaging>
-
-    <description>
-        Geronimo Aries testsuite.
-    </description>
-
+    
     <modules>
-        <module>simple</module>
-        <module>jpa</module>
+        <module>jpa-pu</module>
+        <module>jpa-wab</module>
+        <module>jpa-eba</module>
     </modules>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.aries</groupId>
-                    <artifactId>eba-maven-plugin</artifactId>
-                    <version>0.2-incubating-SNAPSHOT</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
 </project>

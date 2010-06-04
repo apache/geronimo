@@ -26,23 +26,23 @@
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>simple</artifactId>
+        <artifactId>jpa</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>simple-eba</artifactId>
-    <name>Geronimo TestSuite :: Aries Testsuite :: Simple EBA</name>
+    <artifactId>jpa-eba</artifactId>
+    <name>Geronimo TestSuite :: Aries Testsuite :: JPA EBA</name>
     <packaging>eba</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>simple-api</artifactId>
+            <artifactId>jpa-pu</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.testsuite</groupId>
-            <artifactId>simple-wab</artifactId>
+            <artifactId>jpa-wab</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -74,7 +74,7 @@
                             <artifactId>maven-failsafe-plugin</artifactId>
                             <configuration>
                                 <systemPropertyVariables>
-                                    <webAppName>simple</webAppName>
+                                    <webAppName>jpa</webAppName>
                                 </systemPropertyVariables>
                             </configuration>
                         </plugin>
@@ -83,9 +83,46 @@
 
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.tranql</groupId>
+                                            <artifactId>tranql-connector-derby-embed-xa</artifactId>
+                                            <version>1.6</version>
+                                            <type>rar</type>
+                                            <outputDirectory>target/</outputDirectory>
+                                            <destFileName>derby.rar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
                         <executions>
+                            <execution>
+                                <id>deploy-rar</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleArchive>${project.build.directory}/derby.rar</moduleArchive>
+                                    <modulePlan>${project.build.directory}/test-classes/datasource.xml</modulePlan>
+                                </configuration>
+                            </execution>
                             <execution>
                                 <id>deploy-eba</id>
                                 <phase>pre-integration-test</phase>
@@ -96,6 +133,7 @@
                                     <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.eba</moduleArchive>
                                 </configuration>
                             </execution>
+
                             <execution>
                                 <id>undeploy-eba</id>
                                 <phase>post-integration-test</phase>
@@ -106,8 +144,20 @@
                                     <moduleId>application/${project.groupId}.${project.artifactId}/1.0.0/eba</moduleId>
                                 </configuration>
                             </execution>
+
+                            <execution>
+                                <id>undeploy-rar</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>${project.groupId}/jpa-datasource/1.0.0/car</moduleId>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
+
                 </plugins>
             </build>
         </profile>
