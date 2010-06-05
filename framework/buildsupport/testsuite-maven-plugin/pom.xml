@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.buildsupport</groupId>
         <artifactId>buildsupport</artifactId>
-        <version>3.0-M2-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <artifactId>testsuite-maven-plugin</artifactId>
