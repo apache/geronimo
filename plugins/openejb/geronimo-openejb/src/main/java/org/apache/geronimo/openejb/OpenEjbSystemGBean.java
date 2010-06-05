@@ -114,7 +114,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         this.classLoader = classLoader;
         this.properties = properties;
         
-        System.setProperty("duct tape","");
+        System.setProperty("openejb.geronimo", "true");
         System.setProperty("admin.disabled", "true");
         System.setProperty("openejb.logger.external", "true");
 

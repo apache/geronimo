@@ -184,7 +184,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         this.moduleBuilderExtensions = moduleBuilderExtensions;
 
         //duplicate of stuff in OpenEjbSystemGBean, may not be essential
-        System.setProperty("duct tape", "");
+        System.setProperty("openejb.geronimo", "true");
         System.setProperty("admin.disabled", "true");
         System.setProperty("openejb.logger.external", "true");
         System.setProperty("openejb.log.factory", "org.apache.openejb.util.PaxLogStreamFactory");
