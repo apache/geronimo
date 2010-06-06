@@ -59,6 +59,16 @@
                 <module>web-jetty-server</module>
             </modules>
         </profile>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>geronimo-wab</module>
+                <module>geronimo-web-extender</module>
+                <module>web-extender</module>
+                <module>web-tomcat-server</module>
+                <module>web-jetty-server</module>
+            </modules>
+        </profile>
     </profiles>
 
 </project>

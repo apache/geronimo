@@ -34,7 +34,6 @@
 
     <modules>
         <module>uddi-db</module>
-        <!--<module>geronimo-uddi-server</module>-->
         <module>uddi-jetty</module>
         <module>uddi-tomcat</module>
   </modules>
@@ -65,6 +64,15 @@
         <profile>
             <id>mini-servers</id>
             <modules>
+                <module>uddi-jetty-server</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>uddi-db</module>
+                <module>uddi-jetty</module>
+                <module>uddi-tomcat</module>
                 <module>uddi-jetty-server</module>
             </modules>
         </profile>

@@ -50,6 +50,18 @@
                 <module>geronimo-connector-server</module>
             </modules>
         </profile>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>client-transaction-1_6</module>
+                <module>connector-deployer-1_6</module>
+                <module>geronimo-connector-1_6</module>
+                <module>geronimo-connector-builder-1_6</module>
+                <module>geronimo-transaction-1_6</module>
+                <module>transaction-1_6</module>
+                <module>geronimo-connector-server</module>
+            </modules>
+        </profile>
     </profiles>
 
     <dependencyManagement>

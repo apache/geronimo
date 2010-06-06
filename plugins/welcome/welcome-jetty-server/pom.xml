@@ -79,6 +79,13 @@
                     </servers>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
@@ -96,6 +103,6 @@
         </dependency>
     </dependencies>
     <properties>
-        <geronimoVersion>3.0-M1-SNAPSHOT</geronimoVersion>
+        <geronimoVersion>3.0-M1</geronimoVersion>
     </properties>
 </project>
