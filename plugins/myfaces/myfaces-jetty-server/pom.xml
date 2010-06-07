@@ -15,17 +15,16 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>myfaces</artifactId>
     <groupId>org.apache.geronimo.plugins</groupId>
-    <version>3.0-M1-SNAPSHOT</version>
+    <version>3.0-M1</version>
   </parent>
   <groupId>org.apache.geronimo.plugins</groupId>
   <artifactId>myfaces-jetty-server</artifactId>
-  <version>3.0-M1-SNAPSHOT</version>
+  <version>3.0-M1</version>
   <packaging>server-assembly</packaging>
   <build>
     <pluginManagement>
@@ -33,7 +32,7 @@
         <plugin>
           <groupId>org.apache.geronimo.buildsupport</groupId>
           <artifactId>car-maven-plugin</artifactId>
-          <version>${geronimoVersion}</version>
+          <version>${project.version}</version>
           <extensions>true</extensions>
         </plugin>
       </plugins>
@@ -73,53 +72,60 @@
           </servers>
         </configuration>
       </plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <configuration>
+              <skip>true</skip>
+          </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo.framework</groupId>
       <artifactId>karaf-framework</artifactId>
-      <version>${geronimoVersion}</version>
+      <version>${project.version}</version>
       <type>car</type>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.configs</groupId>
       <artifactId>jetty8</artifactId>
-      <version>${geronimoVersion}</version>
+      <version>${project.version}</version>
       <type>car</type>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.configs</groupId>
       <artifactId>jetty8-deployer</artifactId>
-      <version>${geronimoVersion}</version>
+      <version>${project.version}</version>
       <type>car</type>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.configs</groupId>
       <artifactId>jasper</artifactId>
-      <version>${geronimoVersion}</version>
+      <version>${project.version}</version>
       <type>car</type>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.configs</groupId>
       <artifactId>jasper-deployer</artifactId>
-      <version>${geronimoVersion}</version>
+      <version>${project.version}</version>
       <type>car</type>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.configs</groupId>
       <artifactId>myfaces</artifactId>
-      <version>${geronimoVersion}</version>
+      <version>${project.version}</version>
       <type>car</type>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.configs</groupId>
       <artifactId>myfaces-deployer</artifactId>
-      <version>${geronimoVersion}</version>
+      <version>${project.version}</version>
       <type>car</type>
     </dependency>
   </dependencies>
   <properties>
-    <geronimoVersion>3.0-M1-SNAPSHOT</geronimoVersion>
+    <geronimoVersion>3.0-M1</geronimoVersion>
   </properties>
 </project>

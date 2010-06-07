@@ -50,6 +50,18 @@
                 <module>corba-server</module>
             </modules>
         </profile>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>client-corba-yoko</module>
+                <module>geronimo-corba</module>
+                <module>geronimo-corba-builder</module>
+                <module>geronimo-yoko</module>
+                <module>j2ee-corba-yoko</module>
+                <module>openejb-corba-deployer</module>
+                <module>corba-server</module>
+            </modules>
+        </profile>
     </profiles>
 
     <dependencyManagement>
