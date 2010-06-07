@@ -21,13 +21,13 @@
     <parent>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>modules</artifactId>
-        <version>3.0-M1</version>
+        <version>3.0-M2-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.geronimo.framework</groupId>
     <artifactId>geronimo-shell-base</artifactId>
     <packaging>bundle</packaging>
-    <version>3.0-M1</version>
+    <version>3.0-M2-SNAPSHOT</version>
     <name>Geronimo Framework, Modules :: Shell Commands</name>
 
     <dependencies>
