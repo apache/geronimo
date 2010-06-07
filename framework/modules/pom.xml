@@ -86,7 +86,6 @@
                 <module>geronimo-interceptor</module>
                 <module>geronimo-jdbc</module>
                 <module>geronimo-jmx-remoting</module>
-           <!-- <module>geronimo-config-groovy-transformer</module> -->
                 <module>geronimo-management</module>
                 <module>geronimo-naming</module>
                 <module>geronimo-security</module>

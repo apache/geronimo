@@ -183,10 +183,6 @@
         <module>commands-testsuite</module>
         <module>corba-testsuite</module>
         <module>enterprise-testsuite</module>
-<!--
-        <module>console-testsuite</module>
-        <module>deployment-testsuite</module>
--->
         <module>security-testsuite</module>
         <module>web-testsuite</module>
         <module>webservices-testsuite</module>
@@ -355,22 +351,6 @@
             <properties>
                 <browser>${browserPath}</browser>
             </properties>
-        </profile>
-
-        <profile>
-            <id>all-subprojects</id>
-            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
-            <modules>
-                <module>aries-testsuite</module>
-                <module>commands-testsuite</module>
-                <module>console-testsuite</module>
-                <module>corba-testsuite</module>
-                <module>deployment-testsuite</module>
-                <module>enterprise-testsuite</module>
-                <module>security-testsuite</module>
-                <module>web-testsuite</module>
-                <module>webservices-testsuite</module>
-            </modules>
         </profile>
     </profiles>
 

@@ -40,18 +40,6 @@
 
     <modules>
         <module>jaxb-tests</module>
-<!--
-        <module>jaxr-tests</module>
-        <module>jaxrpc-jaxws-tests</module>
-        <module>jaxrpc-tests</module>
-        <module>jaxws-catalog-tests</module>
-        <module>jaxws-catalog-tests</module>
-        <module>jaxws-mtom-tests</module>
-        <module>jaxws-provider-tests</module>
-        <module>jaxws-tests</module>
-        <module>jaxws-wsa-tests</module>
-        <module>saaj-tests</module>
--->
         <module>stax-tests</module>
     </modules>
 
