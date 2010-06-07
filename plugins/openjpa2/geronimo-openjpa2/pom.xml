@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>openjpa2</artifactId>
-        <version>3.0-M1-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <groupId>org.apache.geronimo.modules</groupId>
