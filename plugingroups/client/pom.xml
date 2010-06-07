@@ -38,12 +38,12 @@
     </description>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>client-corba-yoko</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>client-corba-yoko</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>

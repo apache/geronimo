@@ -3,9 +3,14 @@
     <module-id>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>client</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
         <type>car</type>
     </module-id>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>client-corba-yoko</artifactId>
+        <type>car</type>
+    </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>client-deployer</artifactId>
