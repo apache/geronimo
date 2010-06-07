@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache.geronimo.testsupport</groupId>
         <artifactId>test-deployment-j2ee_1.3</artifactId>
-        <version>3.0-M2-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <artifactId>test-war-j2ee_1.3</artifactId>

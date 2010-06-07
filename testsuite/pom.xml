@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo</artifactId>
-        <version>3.0-M2-SNAPSHOT</version>
+        <version>3.0-M1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.apache.geronimo.testsuite</groupId>
@@ -355,6 +355,22 @@
             <properties>
                 <browser>${browserPath}</browser>
             </properties>
+        </profile>
+
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>aries-testsuite</module>
+                <module>commands-testsuite</module>
+                <module>console-testsuite</module>
+                <module>corba-testsuite</module>
+                <module>deployment-testsuite</module>
+                <module>enterprise-testsuite</module>
+                <module>security-testsuite</module>
+                <module>web-testsuite</module>
+                <module>webservices-testsuite</module>
+            </modules>
         </profile>
     </profiles>
 
