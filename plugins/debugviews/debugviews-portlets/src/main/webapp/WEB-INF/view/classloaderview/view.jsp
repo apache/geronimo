@@ -124,9 +124,9 @@
             }
         }
         //make sure the ancestor node expanded before
-        expandParent(debugTree._itemNodeMap[debugStore.getIdentity(path[0])].getParent());
+        expandParent(debugTree._itemNodesMap[debugStore.getIdentity(path[0])][0].getParent());
         for (i = 0;;i++) {
-            node  = debugTree._itemNodeMap[debugStore.getIdentity(path[i])];
+            node  = debugTree._itemNodesMap[debugStore.getIdentity(path[i])][0];
             if(i < path.length-1)
                 debugTree._expandNode(node);
             else 
