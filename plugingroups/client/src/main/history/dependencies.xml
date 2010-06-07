@@ -8,6 +8,11 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>client-corba-yoko</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>client-deployer</artifactId>
         <type>car</type>
     </dependency>

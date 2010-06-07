@@ -149,30 +149,6 @@
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
                         <executions>
-
-                            <!-- These two modules must be running before a CORBA module can be deployed -->
-                            <execution>
-                                <id>start-j2ee-corba-yoko</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>start-module</goal>
-                                </goals>
-                                <configuration>
-                                    <moduleId>org.apache.geronimo.configs/j2ee-corba-yoko/${project.version}/car</moduleId>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>openejb-corba-deployer</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>start-module</goal>
-                                </goals>
-                                <configuration>
-                                    <moduleId>org.apache.geronimo.configs/openejb-corba-deployer/${project.version}/car
-                                    </moduleId>
-                                </configuration>
-                            </execution>
-
                             <!-- Deploy the CORBA module -->
                             <execution>
                                 <id>deploy-ear</id>
@@ -181,8 +157,7 @@
                                     <goal>deploy-module</goal>
                                 </goals>
                                 <configuration>
-                                    <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.ear
-                                    </moduleArchive>
+                                    <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.ear</moduleArchive>
                                 </configuration>
                             </execution>
 
