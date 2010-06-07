@@ -81,6 +81,14 @@
                 <module>test-tomcat</module>
             </modules>
         </profile>
+
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>test-jetty</module>
+                <module>test-tomcat</module>
+            </modules>
+        </profile>
     </profiles>
 
 </project>
