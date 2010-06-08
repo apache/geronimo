@@ -81,6 +81,23 @@
             </dependency>
 
             <dependency>
+                <groupId>org.tranql</groupId>
+                <artifactId>tranql-connector-derby-embed-local</artifactId>
+                <version>${tranqlDerbyVersion}</version>
+                <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-derby-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>pluto</artifactId>
                 <version>${project.version}</version>

@@ -116,6 +116,7 @@
                 </exclusions>
             </dependency>
 
+            <!-- These are defined in system-database
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-derby-embed-xa</artifactId>
@@ -132,7 +133,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>org.tranql</groupId>
                 <artifactId>tranql-connector-derby-embed-local</artifactId>
@@ -149,6 +149,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            -->
 
             <dependency>
                 <groupId>org.tranql</groupId>

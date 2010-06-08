@@ -69,17 +69,18 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- These are pulled in/provided by system-database
         <dependency>
             <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-local</artifactId>
             <type>rar</type>
         </dependency>
-
         <dependency>
             <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-xa</artifactId>
             <type>rar</type>
         </dependency>
+        -->
 
         <dependency>
             <groupId>org.tranql</groupId>
