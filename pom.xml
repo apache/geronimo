@@ -2177,7 +2177,14 @@ only found in cxf
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
-
+                            <assembly>
+                                <id>jetty-web</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-jetty8-javaee6-web</artifactId>
+                                <version>${project.version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
                             <assembly>
                                 <id>jetty-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
@@ -2195,7 +2202,14 @@ only found in cxf
                                 <classifier>bin</classifier>
                                 <type>zip</type>
                             </assembly>
-
+                            <assembly>
+                                <id>tomcat-web</id>
+                                <groupId>org.apache.geronimo.assemblies</groupId>
+                                <artifactId>geronimo-tomcat7-javaee6-web</artifactId>
+                                <version>${project.version}</version>
+                                <classifier>bin</classifier>
+                                <type>zip</type>
+                            </assembly>
                             <assembly>
                                 <id>tomcat-minimal</id>
                                 <groupId>org.apache.geronimo.assemblies</groupId>
@@ -2221,7 +2235,7 @@ only found in cxf
                             <optionSet>
                                 <id>morememory</id>
                                 <options>
-                                    <option>-Xmx512m</option>
+                                    <option>-Xmx1024m</option>
                                     <option>-XX:MaxPermSize=256m</option>
                                 </options>
                             </optionSet>
