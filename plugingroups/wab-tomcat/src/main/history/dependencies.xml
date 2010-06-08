@@ -42,11 +42,6 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>welcome-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>offline-deployer</artifactId>
         <type>car</type>
