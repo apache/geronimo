@@ -7,9 +7,24 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>aopalliance</groupId>
+        <artifactId>aopalliance</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>jee-specs</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-asm</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.springframework</groupId>
@@ -24,6 +39,11 @@
     <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-expression</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

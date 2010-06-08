@@ -32,16 +32,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>jivesoftware</groupId>
-        <artifactId>smack</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>jivesoftware</groupId>
-        <artifactId>smackx</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>net.sf.josql</groupId>
         <artifactId>gentlyweb-utils</artifactId>
         <type>jar</type>
@@ -117,13 +107,18 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.fusesource.commonman</groupId>
-        <artifactId>commons-management</artifactId>
+        <groupId>org.codehaus.woodstox</groupId>
+        <artifactId>stax2-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-aop</artifactId>
+        <groupId>org.codehaus.woodstox</groupId>
+        <artifactId>woodstox-core-asl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.fusesource.commonman</groupId>
+        <artifactId>commons-management</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -149,6 +144,11 @@
     <dependency>
         <groupId>rome</groupId>
         <artifactId>rome</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>stax</groupId>
+        <artifactId>stax-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
