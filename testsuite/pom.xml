@@ -183,10 +183,6 @@
         <module>commands-testsuite</module>
         <module>corba-testsuite</module>
         <module>enterprise-testsuite</module>
-<!--
-        <module>console-testsuite</module>
-        <module>deployment-testsuite</module>
--->
         <module>security-testsuite</module>
         <module>web-testsuite</module>
         <module>webservices-testsuite</module>

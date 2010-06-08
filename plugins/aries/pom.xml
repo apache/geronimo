@@ -39,9 +39,6 @@
     <modules>
         <module>geronimo-aries-builder</module>
         <module>geronimo-aries-resolver</module>
-<!--
-        <module>geronimo-aries-shell</module>
--->
         <module>aries-deployer</module>
     </modules>
 
