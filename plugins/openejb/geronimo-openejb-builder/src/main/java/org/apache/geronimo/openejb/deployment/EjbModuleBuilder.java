@@ -98,6 +98,7 @@ import org.apache.openejb.assembler.classic.StatefulBeanInfo;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.DeploymentLoader;
+import org.apache.openejb.config.FinderFactory;
 import org.apache.openejb.config.ReadDescriptors;
 import org.apache.openejb.config.UnknownModuleTypeException;
 import org.apache.openejb.config.UnsupportedModuleTypeException;
@@ -123,6 +124,7 @@ import org.apache.openejb.jee.oejb2.OpenejbJarType;
 import org.apache.openejb.jee.oejb2.PatternType;
 import org.apache.openejb.jee.oejb2.ResourceLocatorType;
 import org.apache.openejb.loader.SystemInstance;
+import org.apache.openejb.osgi.core.BundleFinderFactory;
 import org.apache.openejb.util.LinkResolver;
 import org.apache.openejb.util.UniqueDefaultLinkResolver;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
@@ -182,6 +184,8 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             moduleBuilderExtensions = Collections.emptyList();
         }
         this.moduleBuilderExtensions = moduleBuilderExtensions;
+        
+        SystemInstance.get().setComponent(FinderFactory.class, new BundleFinderFactory());
 
         //duplicate of stuff in OpenEjbSystemGBean, may not be essential
         System.setProperty("openejb.geronimo", "true");

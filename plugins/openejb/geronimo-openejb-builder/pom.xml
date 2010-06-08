@@ -59,6 +59,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-osgi-core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-webservices-builder</artifactId>
             <version>${project.version}</version>
