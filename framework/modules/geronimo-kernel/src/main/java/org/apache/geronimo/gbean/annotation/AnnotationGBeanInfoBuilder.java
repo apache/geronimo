@@ -144,6 +144,9 @@ public class AnnotationGBeanInfoBuilder {
                     String name = reference.name();
                     Class referenceType = getGenericActualType(genericTypes[index], parameterType);
                     String namingType = reference.namingType();
+                    if (namingType.equals("")) {
+                        namingType = null;
+                    }
                     infoBuilder.addReference(name, referenceType, namingType);
                     cstrNames[index] = name;
                     annotationFound = true;
@@ -199,11 +202,15 @@ public class AnnotationGBeanInfoBuilder {
             Class type = method.getParameterTypes()[0];
             Class referenceType = getGenericActualType(method.getGenericParameterTypes()[0], type);
             String name = getName(method);
-            GReferenceInfo referenceInfo = new GReferenceInfo(name, 
+            String namingType = reference.namingType();
+            if (namingType.equals("")) {
+                namingType = null;
+            }
+            GReferenceInfo referenceInfo = new GReferenceInfo(name,
                 referenceType.getName(), 
                 type.getName(), 
                 method.getName(), 
-                reference.namingType());
+                namingType);
             infoBuilder.addReference(referenceInfo);
         }
     }

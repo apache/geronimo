@@ -473,8 +473,8 @@ public class GBeanInfoBuilder {
 
         // build the reference infos now that we know the constructor types
         Set referenceInfos = new HashSet();
-        for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
+        for (Object o : references.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             String referenceName = (String) entry.getKey();
             RefInfo refInfo = (RefInfo) entry.getValue();
             String referenceType = refInfo.getJavaType();

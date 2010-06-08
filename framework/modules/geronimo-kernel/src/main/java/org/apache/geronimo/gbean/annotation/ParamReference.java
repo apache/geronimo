@@ -36,5 +36,5 @@ import java.lang.annotation.Target;
 public @interface ParamReference {
     String name();
     
-    String namingType() default "GBean";
+    String namingType() default "";
 }
