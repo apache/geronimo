@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.naming.RefAddr;
 import javax.naming.Reference;
+import javax.naming.StringRefAddr;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -227,6 +229,18 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load resource-env-ref entry class " + type, e);
         }
+        if (gerResourceEnvRef != null && gerResourceEnvRef.isSetReferenceClass()) {
+            String clazz = gerResourceEnvRef.getReferenceClass();
+            RefAddr addr = null;
+            if (gerResourceEnvRef.isSetStringAddrType()) {
+                String refAddrType = getStringValue(gerResourceEnvRef.getStringAddrType());
+                String refAddr = getStringValue(gerResourceEnvRef.getStringAddr());
+                addr = new StringRefAddr(refAddrType, refAddr);
+            }
+            String objectFactory = getStringValue(gerResourceEnvRef.getObjectFactory());
+            String objectFactoryLocation = getStringValue(gerResourceEnvRef.getObjectFactoryLocation());
+            return new Reference(clazz, addr, objectFactory, objectFactoryLocation);
+        }
 
         if (type.equals("javax.transaction.UserTransaction")) {
             return new UserTransactionReference();
@@ -249,6 +263,9 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         if ("javax.validation.ValidatorFactory".equals(type)) {
             return new JndiReference("java:comp/ValidatorFactory");
         }
+        if ("javax.transaction.TransactionSynchronizationRegistry".equals(type)) {
+            return new JndiReference("java:comp/TransactionSynchronizationRegistry");
+        }
         try {
             AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
             ResourceReferenceFactory<RuntimeException> ref = buildAdminObjectReference(module, containerId, iface);
@@ -256,6 +273,10 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         } catch (UnresolvedReferenceException e) {
             throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")", e);
         }
+    }
+
+    private String getStringValue(String string) {
+        return string == null? null: string.trim();
     }
 
     private Object buildMessageReference(Module module, String linkName, String type, GerMessageDestinationType destination)
@@ -441,7 +462,8 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                         resourceType.equals("javax.ejb.TimerService") ||
                         resourceType.equals("javax.validation.Validator") ||
                         resourceType.equals("javax.validation.ValidatorFactory") ||
-                        resourceType.equals("javax.transaction.UserTransaction")) {
+                        resourceType.equals("javax.transaction.UserTransaction") ||
+                        resourceType.equals("javax.transaction.TransactionSynchronizationRegistry")) {
                     //mapped resource-env-ref
                     addResourceEnvRef(annotatedApp, resourceName, resourceType, method, field, annotation);
                     return true;

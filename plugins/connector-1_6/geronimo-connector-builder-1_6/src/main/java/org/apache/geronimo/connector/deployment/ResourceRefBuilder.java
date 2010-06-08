@@ -100,7 +100,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             @ParamAttribute(name = "defaultEnvironment")Environment defaultEnvironment,
             @ParamAttribute(name = "corbaEnvironment")Environment corbaEnvironment,
             @ParamAttribute(name = "eeNamespaces")String[] eeNamespaces,
-            @ParamReference(name = "CorbaGBeanNameSource")Collection<CorbaGBeanNameSource> corbaGBeanNameSourceCollection) {
+            @ParamReference(name = "CorbaGBeanNameSource", namingType = "") Collection<CorbaGBeanNameSource> corbaGBeanNameSourceCollection) {
         super(defaultEnvironment);
 
         resourceRefQNameSet = buildQNameSet(eeNamespaces, "resource-ref");

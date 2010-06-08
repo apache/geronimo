@@ -767,6 +767,52 @@
                         </xsd:annotation>
                     </xsd:element>
                 </xsd:sequence>
+                <xsd:sequence>
+                    <xsd:element name="reference-class" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The element class is used to specify the class of the
+                                Object referred to by a Reference.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:sequence minOccurs="0">
+                        <xsd:element name="string-addr-type" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The addrType for a StringRefAddr
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element name="string-addr" type="xsd:string" minOccurs="0">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The addr for a StringRefAddr
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:sequence>
+                    <xsd:element name="object-factory" type="xsd:string" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The element object-factory is used to specify an
+                                ObjectFactory class to use in a Reference. This must
+                                be registered so the osgi object factory locator can
+                                find it.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="object-factory-location" type="xsd:string" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The element object-factory is used to specify an
+                                ObjectFactory class to use in a Reference. This must
+                                be registered so the osgi object factory locator can
+                                find it.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
