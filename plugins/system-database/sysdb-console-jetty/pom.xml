@@ -89,6 +89,13 @@
         </dependency>
         
         <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>db-connectors</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
             <version>${project.version}</version>
@@ -136,101 +143,6 @@
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-test-ddbean</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-derby-embed-local</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-derby-embed-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-ra</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-derby-client-local</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-derby-client-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-db2-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-informix-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-mysql-local</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-mysql-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-oracle-local</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-oracle-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-oracle-rac-local</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-postgresql-local</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-postgresql-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-sqlserver2000-xa</artifactId>
-            <type>rar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.tranql</groupId>
-            <artifactId>tranql-connector-sqlserver2005-xa</artifactId>
-            <type>rar</type>
         </dependency>
 
         <dependency>

@@ -85,7 +85,6 @@
             <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-xa</artifactId>
             <type>rar</type>
-            <scope>provided</scope>
         </dependency>
 
     </dependencies>
