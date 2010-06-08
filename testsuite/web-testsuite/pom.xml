@@ -51,32 +51,4 @@
         <module>test-myfaces</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>testsuite-with-jetty</id>
-            <activation>
-                <property>
-                    <name>assemblyId</name>
-                    <value>jetty</value>
-                </property>
-            </activation>
-            <modules>
-                <module>test-jetty</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>testsuite-with-tomcat</id>
-            <activation>
-                <property>
-                    <name>assemblyId</name>
-                    <value>tomcat</value>
-                </property>
-            </activation>
-            <modules>
-                <module>test-tomcat</module>
-            </modules>
-        </profile>
-    </profiles>
-
 </project>
