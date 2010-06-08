@@ -8,7 +8,17 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>bval-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>javamail</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>welcome-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
