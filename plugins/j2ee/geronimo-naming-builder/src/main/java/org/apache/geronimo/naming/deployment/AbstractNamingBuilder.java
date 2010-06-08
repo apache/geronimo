@@ -374,7 +374,13 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
                 if (type == null) {
                     type = fieldType;
                 } else if (!fieldType.equals(type)) {
-                    throw new DeploymentException("Mismatched types in env-entry named: " + name + " type: " + type + " injections " + injectionTargets);
+                    if (fieldType.isAssignableFrom(type)) {
+                        //type is subclass
+                    } else if (type.isAssignableFrom(fieldType)) {
+                        type = fieldType;
+                    } else {
+                        throw new DeploymentException("Mismatched types in env-entry named: " + name + " type: " + type + " injections " + injectionTargets);
+                    }
                 }
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("could not load injection target class for env entry named: " + name + " in class: " + className, e);
