@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>connector-1_6</artifactId>
-        <version>3.0-M1-SNAPSHOT</version>
+        <version>3.0-M1</version>
     </parent>
 
     <groupId>org.apache.geronimo.configs</groupId>
@@ -75,7 +75,7 @@
                     <category>Geronimo Core</category>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content load="false"/>
+                            <config-xml-content load="false" />
                             <artifact-alias server="client" key="org.apache.geronimo.configs/transaction-1_6//car">org.apache.geronimo.configs/client-transaction-1_6/${project.version}/car</artifact-alias>
                             <artifact-alias server="client" key="org.apache.geronimo.configs/transaction-1_6/${project.version}/car">org.apache.geronimo.configs/client-transaction-1_6/${project.version}/car</artifact-alias>
                         </plugin-artifact>
