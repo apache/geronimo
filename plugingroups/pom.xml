@@ -30,22 +30,24 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>client</module>
-        <!--<module>clustering-jetty</module>-->
-        <!--<module>clustering-tomcat</module>-->
-        <module>ejb</module>
-        <module>jms</module>
-        <module>javaee6-jetty</module>
-        <module>javaee6-tomcat</module>
-        <module>persistence</module>
         <module>wab-tomcat</module>
         <module>wab-jetty</module>
+        <module>jms</module>
+        <module>persistence</module>
         <module>eba-tomcat</module>
         <module>eba-jetty</module>
-        <module>console-tomcat</module>
-        <module>console-jetty</module>
+        <module>ejb</module>
+        <module>javaee6-web-jetty</module>
+        <module>javaee6-web-tomcat</module>
+        <module>client</module>
         <module>webservices-axis2</module>
         <!--<module>webservices-cxf</module>-->
+        <!--<module>clustering-jetty</module>-->
+        <!--<module>clustering-tomcat</module>-->
+        <module>console-tomcat</module>
+        <module>console-jetty</module>
+        <module>javaee6-jetty</module>
+        <module>javaee6-tomcat</module>
   </modules>
 
     <build>
