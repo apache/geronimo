@@ -42,12 +42,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.openejb.ApplicationException;
 import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.InterfaceType;
 import org.apache.openejb.RpcContainer;
 
 public class EJBMessageReceiver implements MessageReceiver
 {
     private static final Logger LOG = LoggerFactory.getLogger(EJBMessageReceiver.class);
-    
+
     private DeploymentInfo deploymentInfo;
     private Class serviceImplClass;
     private EJBWebServiceContainer container;
@@ -57,17 +58,17 @@ public class EJBMessageReceiver implements MessageReceiver
         this.serviceImplClass = serviceImplClass;
         this.deploymentInfo = deploymentInfo;
     }
-    
-    public void receive(org.apache.axis2.context.MessageContext axisMsgCtx) throws AxisFault {         
+
+    public void receive(org.apache.axis2.context.MessageContext axisMsgCtx) throws AxisFault {
         MessageContext requestMsgCtx = new MessageContext(axisMsgCtx);
-        
+
         // init some bits
         requestMsgCtx.setOperationName(requestMsgCtx.getAxisMessageContext().getAxisOperation().getName());
         requestMsgCtx.setEndpointDescription(getEndpointDescription(requestMsgCtx));
-        
+
         SoapMessageContext jaxwsContext =
             MessageContextFactory.createSoapMessageContext(requestMsgCtx);
-        
+
         Method method = null;
         if (Provider.class.isAssignableFrom(this.serviceImplClass)) {
             method = getProviderMethod();
@@ -77,26 +78,26 @@ public class EJBMessageReceiver implements MessageReceiver
             method = getServiceMethod(requestMsgCtx);
             ContextUtils.addWSDLProperties(requestMsgCtx, jaxwsContext);
         }
-        
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Invoking '" + method.getName() + "' method.");
         }
-        
+
         EJBInterceptor interceptor = new EJBInterceptor(this.container, requestMsgCtx);
         EJBAddressingSupport wsaSupport = new EJBAddressingSupport(jaxwsContext);
         Object[] arguments = { jaxwsContext, interceptor, wsaSupport };
-        
+
         RpcContainer container = (RpcContainer) this.deploymentInfo.getContainer();
 
         Class callInterface = this.deploymentInfo.getServiceEndpointInterface();
-        
+
         method = getMostSpecificMethod(method, callInterface);
-        
+
         //This assumes that we are on the ultimate execution thread
-        ThreadContextMigratorUtil.performMigrationToThread(Constants.THREAD_CONTEXT_MIGRATOR_LIST_ID, 
-                                                           axisMsgCtx);        
+        ThreadContextMigratorUtil.performMigrationToThread(Constants.THREAD_CONTEXT_MIGRATOR_LIST_ID,
+                                                           axisMsgCtx);
         try {
-            Object res = container.invoke(this.deploymentInfo.getDeploymentID(), callInterface, method, arguments, null);
+            Object res = container.invoke(this.deploymentInfo.getDeploymentID(), InterfaceType.SERVICE_ENDPOINT, callInterface, method, arguments, null);
             // TODO: update response message with new response value?
         } catch (ApplicationException e) {
             if (e.getCause() instanceof AxisFault) {
@@ -107,11 +108,11 @@ public class EJBMessageReceiver implements MessageReceiver
         } catch (Exception e) {
             throw AxisFault.makeFault(e);
         } finally {
-            ThreadContextMigratorUtil.performThreadCleanup(Constants.THREAD_CONTEXT_MIGRATOR_LIST_ID, 
+            ThreadContextMigratorUtil.performThreadCleanup(Constants.THREAD_CONTEXT_MIGRATOR_LIST_ID,
                                                            axisMsgCtx);
         }
     }
-    
+
     private static Method getMostSpecificMethod(Method method, Class<?> targetClass) {
         if (method != null && targetClass != null) {
             try {
@@ -123,7 +124,7 @@ public class EJBMessageReceiver implements MessageReceiver
         }
         return method;
     }
-    
+
     private Method getServiceMethod(MessageContext mc) {
         OperationDescription opDesc = mc.getOperationDescription();
         if (opDesc == null) {
@@ -138,11 +139,11 @@ public class EJBMessageReceiver implements MessageReceiver
 
         return returnMethod;
     }
-    
+
     private OperationDescription getOperationDescription(MessageContext mc) {
         EndpointDescription ed = mc.getEndpointDescription();
         EndpointInterfaceDescription eid = ed.getEndpointInterfaceDescription();
-        
+
         OperationDescription[] ops = eid.getDispatchableOperation(mc.getOperationName());
         if (ops == null || ops.length == 0) {
             throw ExceptionFactory.makeWebServiceException(
@@ -156,7 +157,7 @@ public class EJBMessageReceiver implements MessageReceiver
         OperationDescription op = ops[0];
         return op;
     }
-    
+
     private EndpointDescription getEndpointDescription(MessageContext mc) {
         AxisService axisSvc = mc.getAxisMessageContext().getAxisService();
 
@@ -165,7 +166,7 @@ public class EJBMessageReceiver implements MessageReceiver
         EndpointDescription ed = (EndpointDescription) param.getValue();
         return ed;
     }
-    
+
     private Method getProviderMethod() {
         try {
             return this.serviceImplClass.getMethod("invoke", getProviderType());
@@ -173,12 +174,12 @@ public class EJBMessageReceiver implements MessageReceiver
             throw ExceptionFactory.makeWebServiceException("Could not get Provider.invoke() method");
         }
     }
-    
+
     private Class<?> getProviderType() {
         Type[] giTypes = this.serviceImplClass.getGenericInterfaces();
         for (Type giType : giTypes) {
             if (giType instanceof ParameterizedType) {
-                ParameterizedType paramType = (ParameterizedType)giType;            
+                ParameterizedType paramType = (ParameterizedType)giType;
                 Class interfaceName = (Class)paramType.getRawType();
                 if (interfaceName == javax.xml.ws.Provider.class) {
                     if (paramType.getActualTypeArguments().length > 1) {
@@ -186,11 +187,11 @@ public class EJBMessageReceiver implements MessageReceiver
                             "Provider cannot have more than one Generic Types defined as per JAX-WS Specification");
                     }
                 }
-                return (Class)paramType.getActualTypeArguments()[0];                            
+                return (Class)paramType.getActualTypeArguments()[0];
             }
         }
         throw ExceptionFactory.makeWebServiceException(
             "Provider has to implement javax.xml.ws.Provider interface as javax.xml.ws.Provider<DataSource>, javax.xml.ws.Provider<SOAPMessage>, javax.xml.ws.Provider<Source> or javax.xml.ws.Provider<JAXBContext>");
     }
-    
+
 }
