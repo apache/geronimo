@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.openejb.ApplicationException;
 import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.InterfaceType;
 import org.apache.openejb.RpcContainer;
 
 public class EJBMessageReceiver implements MessageReceiver
@@ -96,7 +97,7 @@ public class EJBMessageReceiver implements MessageReceiver
         ThreadContextMigratorUtil.performMigrationToThread(Constants.THREAD_CONTEXT_MIGRATOR_LIST_ID, 
                                                            axisMsgCtx);        
         try {
-            Object res = container.invoke(this.deploymentInfo.getDeploymentID(), callInterface, method, arguments, null);
+            Object res = container.invoke(this.deploymentInfo.getDeploymentID(), InterfaceType.SERVICE_ENDPOINT, callInterface, method, arguments, null);
             // TODO: update response message with new response value?
         } catch (ApplicationException e) {
             if (e.getCause() instanceof AxisFault) {

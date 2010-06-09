@@ -35,6 +35,7 @@ import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.service.invoker.Factory;
 import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.InterfaceType;
 import org.apache.openejb.RpcContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +125,7 @@ public class EJBMethodInvoker extends AbstractJAXWSMethodInvoker {
 
             Class callInterface = this.deploymentInfo.getServiceEndpointInterface();
             method = getMostSpecificMethod(method, callInterface);
-            Object res = container.invoke(this.deploymentInfo.getDeploymentID(), callInterface, method, arguments, null);
+            Object res = container.invoke(this.deploymentInfo.getDeploymentID(), InterfaceType.SERVICE_ENDPOINT, callInterface, method, arguments, null);
 
             if (exchange.isOneWay()) {
                 return null;
