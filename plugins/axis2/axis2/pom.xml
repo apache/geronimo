@@ -139,11 +139,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.woden</groupId>
-            <artifactId>woden-api</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
         </dependency>
