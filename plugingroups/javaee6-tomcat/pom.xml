@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>plugingroups</artifactId>
-        <version>3.0-M1</version>
+        <version>3.0-M2-SNAPSHOT</version>
     </parent>
 
     <artifactId>javaee6-tomcat</artifactId>
