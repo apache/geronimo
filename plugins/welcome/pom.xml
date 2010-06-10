@@ -46,6 +46,16 @@
                 <module>welcome-tomcat-server</module>
             </modules>
         </profile>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>geronimo-welcome</module>
+                <module>welcome-jetty</module>
+                <module>welcome-tomcat</module>
+                <module>welcome-jetty-server</module>
+                <module>welcome-tomcat-server</module>
+            </modules>
+        </profile>
     </profiles>
     
 </project>

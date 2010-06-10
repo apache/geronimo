@@ -54,6 +54,24 @@
                 <module>console-tomcat-server</module>
             </modules>
         </profile>
+        <profile>
+            <id>all-subprojects</id>
+            <modules>
+                <module>geronimo-converter</module>
+                <module>console-core</module>
+                <module>console-base-portlets</module>
+                <module>console-filter</module>
+                <module>console-portal-driver</module>
+                <module>console-ear</module>
+                <module>console-tomcat</module>
+                <module>console-jetty</module>
+                <module>plugin-portlets</module>
+                <module>plugin-console-jetty</module>
+                <module>plugin-console-tomcat</module>
+                <module>console-jetty-server</module>
+                <module>console-tomcat-server</module>
+            </modules>
+        </profile>
     </profiles>
     
     <dependencyManagement>

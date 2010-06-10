@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
     <module-id>
-        <groupId>org.apache.geronimo.plugins</groupId>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>db-connectors</artifactId>
         <version>3.0-SNAPSHOT</version>
         <type>car</type>
@@ -19,16 +19,6 @@
     <dependency>
         <groupId>org.tranql</groupId>
         <artifactId>tranql-connector-derby-client-xa</artifactId>
-        <type>rar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-derby-embed-local</artifactId>
-        <type>rar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.tranql</groupId>
-        <artifactId>tranql-connector-derby-embed-xa</artifactId>
         <type>rar</type>
     </dependency>
     <dependency>
