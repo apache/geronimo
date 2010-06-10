@@ -1838,7 +1838,7 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.bundlerepository</artifactId>
-                <version>1.6.2</version>
+                <version>1.6.3-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.felix</groupId>
