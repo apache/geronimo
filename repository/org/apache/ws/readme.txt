@@ -1,6 +1,6 @@
 Private Build of Axiom 1.2.5 for Geronimo.   
 
-How to build Axiom 1.2.5
+How to build Axiom 1.2.5-20100610
 ---------------------------------
  Checkout the Axiom 1.2.5 tag
    svn co http://svn.apache.org/repos/asf/webservices/commons/tags/axiom/1_2_5
@@ -27,4 +27,4 @@ Patch Information
 Copy patched jar files to appropriate locations
 -----------------------------------------------
   cd 1_2_5
-  cp modules/axiom-api/target/axiom-api-1.2.5.jar <geronimo-root>/repository/org/apache/ws/commons/axiom/axiom-api/1.2.5/axiom-api-1.2.5.jar
+  cp modules/axiom-api/target/axiom-api-1.2.5.jar <geronimo-root>/repository/org/apache/ws/commons/axiom/axiom-api/1.2.5-20100610/axiom-api-1.2.5-20100610.jar
