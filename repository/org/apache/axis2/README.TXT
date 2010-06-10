@@ -41,4 +41,4 @@ Copy patched jar files to appropriate locations
   cp modules/saaj/target/axis2-saaj-1.3.jar <geronimo-root>/repository/org/apache/axis2/axis2-saaj/1.3-G20090406/axis2-saaj-1.3-G20090406.jar
   cp modules/metadata/target/axis2-metadata-1.3.jar <geronimo-root>/repository/org/apache/axis2/axis2-metadata/1.3-G20090406/axis2-metadata-1.3-G20090406.jar
   cp modules/jaxws/target/axis2-jaxws-1.3.jar <geronimo-root>/repository/org/apache/axis2/axis2-jaxws/1.3-G20090406/axis2-jaxws-1.3-G20090406.jar
-  cp modules/kernel/target/axis2-kernel-1.3.jar  <geronimo-root>/repository/org/apache/axis2/axis2-kernel/1.3-G20090406/axis2-kernel-1.3-G20090406.jar
+  cp modules/kernel/target/axis2-kernel-1.3.jar  <geronimo-root>/repository/org/apache/axis2/axis2-kernel/1.3-G20100610/axis2-kernel-1.3-G20100610.jar

@@ -1416,7 +1416,7 @@
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-kernel</artifactId>
-                <version>1.3-G20090406</version>
+                <version>1.3-G20100610</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.woden</groupId>
