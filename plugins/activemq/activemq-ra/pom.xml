@@ -87,10 +87,10 @@
                         <plugin-artifact>
                             <config-xml-content>
                                 <gbean name="ActiveMQ RA">
-                                        <attribute name="ServerUrl">tcp://${ServerHostname}:${ActiveMQPort + PortOffset}</attribute>
+                                        <attribute name="ServerUrl">tcp://${ActiveMQHostname}:${ActiveMQPort + PortOffset}</attribute>
                                 </gbean>
                              </config-xml-content>
-                            <config-substitution key="ServerHostname">localhost</config-substitution>
+                            <config-substitution key="ActiveMQHostname">localhost</config-substitution>
                             <config-substitution key="ActiveMQPort">61616</config-substitution>
                         </plugin-artifact>
                     </instance>
