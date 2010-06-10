@@ -1,0 +1,132 @@
+Index: modules/kernel/src/org/apache/axis2/builder/BuilderUtil.java
+===================================================================
+--- modules/kernel/src/org/apache/axis2/builder/BuilderUtil.java	(revision 952555)
++++ modules/kernel/src/org/apache/axis2/builder/BuilderUtil.java	(working copy)
+@@ -192,9 +192,9 @@
+     public static StAXBuilder getPOXBuilder(InputStream inStream, String charSetEnc)
+             throws XMLStreamException {
+         StAXBuilder builder;
+-        XMLStreamReader xmlreader =
+-                StAXUtils.createXMLStreamReader(inStream, charSetEnc);
+-        builder = new StAXOMBuilder(xmlreader);
++        XMLStreamReader xmlReader = StAXUtils.createSecureXMLStreamReader(inStream, charSetEnc);
++        builder = new StAXOMBuilder(xmlReader);
++        ((StAXOMBuilder) builder).setAllowDTDandPI(false);
+         return builder;
+     }
+ 
+@@ -374,7 +374,7 @@
+             PushbackInputStream pis = getPushbackInputStream(attachments.getSOAPPartInputStream());
+             String actualCharSetEncoding = getCharSetEncoding(pis, charSetEncoding);
+             
+-            streamReader = StAXUtils.createXMLStreamReader(pis, actualCharSetEncoding);
++            streamReader = StAXUtils.createSecureXMLStreamReader(pis, actualCharSetEncoding);
+         } catch (IOException e) {
+             throw new XMLStreamException(e);
+         }
+@@ -414,13 +414,16 @@
+                 XOPAwareStAXOMBuilder stAXOMBuilder = new XOPAwareStAXOMBuilder(
+                         streamReader, attachments);
+                 builder = stAXOMBuilder;
++                ((XOPAwareStAXOMBuilder) builder).setAllowDTDandPI(false);
+ 
+             } else if (attachments.getAttachmentSpecType().equals(
+                     MTOMConstants.SWA_TYPE)) {
+                 builder = new StAXOMBuilder(streamReader);
++                ((XOPAwareStAXOMBuilder) builder).setAllowDTDandPI(false);
+             } else if (attachments.getAttachmentSpecType().equals(
+                     MTOMConstants.SWA_TYPE_12)) {
+                 builder = new StAXOMBuilder(streamReader);
++                ((XOPAwareStAXOMBuilder) builder).setAllowDTDandPI(false);
+             }
+         }
+ 
+@@ -531,8 +534,8 @@
+      * @deprecated If some one really need this method, please shout.
+      */
+     public static StAXBuilder getBuilder(Reader in) throws XMLStreamException {
+-        XMLStreamReader xmlreader = StAXUtils.createXMLStreamReader(in);
+-        StAXBuilder builder = new StAXSOAPModelBuilder(xmlreader, null);
++        XMLStreamReader xmlReader = StAXUtils.createSecureXMLStreamReader(in);
++        StAXBuilder builder = new StAXSOAPModelBuilder(xmlReader, null);
+         return builder;
+     }
+ 
+@@ -544,8 +547,10 @@
+      * @throws XMLStreamException
+      */
+     public static StAXBuilder getBuilder(InputStream inStream) throws XMLStreamException {
+-        XMLStreamReader xmlReader = StAXUtils.createXMLStreamReader(inStream);
+-        return new StAXOMBuilder(xmlReader);
++         XMLStreamReader xmlReader = StAXUtils.createSecureXMLStreamReader(inStream);
++         StAXBuilder builder = new StAXOMBuilder(xmlReader);
++         ((StAXOMBuilder) builder).setAllowDTDandPI(false);
++         return builder;
+     }
+ 
+     /**
+@@ -558,7 +563,7 @@
+      */
+     public static StAXBuilder getBuilder(InputStream inStream, String charSetEnc)
+             throws XMLStreamException {
+-        XMLStreamReader xmlReader = StAXUtils.createXMLStreamReader(inStream, charSetEnc);
++        XMLStreamReader xmlReader = StAXUtils.createSecureXMLStreamReader(inStream, charSetEnc);
+         try {
+             StAXBuilder builder =  new StAXSOAPModelBuilder(xmlReader);
+             return builder;
+@@ -580,7 +585,7 @@
+      * @throws XMLStreamException
+      */
+     public static StAXBuilder getSOAPBuilder(InputStream inStream) throws XMLStreamException {
+-        XMLStreamReader xmlReader = StAXUtils.createXMLStreamReader(inStream);
++            XMLStreamReader xmlReader = StAXUtils.createSecureXMLStreamReader(inStream);
+         try {
+             StAXBuilder builder =  new StAXSOAPModelBuilder(xmlReader);
+             return builder;
+@@ -604,7 +609,7 @@
+      */
+     public static StAXBuilder getSOAPBuilder(InputStream inStream, String charSetEnc)
+             throws XMLStreamException {
+-        XMLStreamReader xmlReader = StAXUtils.createXMLStreamReader(inStream, charSetEnc);
++        XMLStreamReader xmlReader = StAXUtils.createSecureXMLStreamReader(inStream, charSetEnc);
+         try {
+             StAXBuilder builder =  new StAXSOAPModelBuilder(xmlReader);
+             return builder;
+@@ -621,8 +626,9 @@
+     public static StAXBuilder getBuilder(SOAPFactory soapFactory, InputStream in, String charSetEnc)
+             throws XMLStreamException {
+         StAXBuilder builder;
+-        XMLStreamReader xmlreader = StAXUtils.createXMLStreamReader(in, charSetEnc);
+-        builder = new StAXOMBuilder(soapFactory, xmlreader);
++        XMLStreamReader xmlReader = StAXUtils.createSecureXMLStreamReader(in, charSetEnc);
++        builder = new StAXOMBuilder(soapFactory, xmlReader);
++                ((StAXOMBuilder) builder).setAllowDTDandPI(false);
+         return builder;
+     }
+ 
+Index: modules/kernel/src/org/apache/axis2/builder/MTOMBuilder.java
+===================================================================
+--- modules/kernel/src/org/apache/axis2/builder/MTOMBuilder.java	(revision 952555)
++++ modules/kernel/src/org/apache/axis2/builder/MTOMBuilder.java	(working copy)
+@@ -51,7 +51,7 @@
+             String actualCharSetEncoding = BuilderUtil.getCharSetEncoding(pis, charSetEncoding);
+             
+             // Get the XMLStreamReader for this input stream
+-            streamReader = StAXUtils.createXMLStreamReader(pis, actualCharSetEncoding);        
++            streamReader= StAXUtils.createSecureXMLStreamReader(pis, actualCharSetEncoding);
+             StAXBuilder builder = new MTOMStAXSOAPModelBuilder(streamReader,
+                     attachments);
+             SOAPEnvelope envelope = (SOAPEnvelope) builder.getDocumentElement();
+Index: modules/kernel/src/org/apache/axis2/builder/SOAPBuilder.java
+===================================================================
+--- modules/kernel/src/org/apache/axis2/builder/SOAPBuilder.java	(revision 952555)
++++ modules/kernel/src/org/apache/axis2/builder/SOAPBuilder.java	(working copy)
+@@ -48,7 +48,7 @@
+             String actualCharSetEncoding = BuilderUtil.getCharSetEncoding(pis, charSetEncoding);
+             
+             // Get the XMLStreamReader for this input stream
+-            streamReader = StAXUtils.createXMLStreamReader(pis, actualCharSetEncoding);
++            streamReader = StAXUtils.createSecureXMLStreamReader(pis, actualCharSetEncoding);
+ 
+             StAXBuilder builder = new StAXSOAPModelBuilder(streamReader);
+             SOAPEnvelope envelope = (SOAPEnvelope) builder.getDocumentElement();

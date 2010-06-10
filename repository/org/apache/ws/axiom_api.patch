@@ -1,0 +1,267 @@
+Index: modules/axiom-api/src/main/java/org/apache/axiom/om/impl/builder/StAXOMBuilder.java
+===================================================================
+--- modules/axiom-api/src/main/java/org/apache/axiom/om/impl/builder/StAXOMBuilder.java	(revision 949978)
++++ modules/axiom-api/src/main/java/org/apache/axiom/om/impl/builder/StAXOMBuilder.java	(working copy)
+@@ -52,6 +52,7 @@
+     private static final Log log = LogFactory.getLog(StAXOMBuilder.class);
+     private boolean doTrace = log.isDebugEnabled();
+     private static int nsCount = 0;
++    boolean allowDTDandPI = true;
+ 
+     /**
+      * Constructor StAXOMBuilder.
+@@ -309,6 +310,9 @@
+      * @throws OMException
+      */
+     protected OMNode createDTD() throws OMException {
++    	 if (!allowDTDandPI) {
++    		 throw new OMException("Inbound message MUST NOT contain a Document Type Declaration(DTD)");
++    		 }
+         if (!parser.hasText())
+             return null;
+         lastNode = omfactory.createOMDocType(document, parser.getText());
+@@ -322,6 +326,9 @@
+      * @throws OMException
+      */
+     protected OMNode createPI() throws OMException {
++    	if (!allowDTDandPI) {
++    		throw new OMException("Inbound message MUST NOT contain Processing Instructions(PI)");
++    		}
+         OMNode node;
+         String target = parser.getPITarget();
+         String data = parser.getPIData();
+@@ -337,6 +344,20 @@
+         return node;
+     }
+ 
++
++    /**
++    * @return true if Document Type Definitions and Processing Instructions are allowed
++    */
++    public boolean isAllowDTDandPI() {
++    return allowDTDandPI;
++    }
++    
++    /**
++    * @param allowDTDandPI boolean
++    */
++    public void setAllowDTDandPI(boolean allowDTDandPI) {
++    this.allowDTDandPI = allowDTDandPI;
++    }
+     protected void endElement() {
+         if (lastNode.isComplete()) {
+             OMNodeEx parent = (OMNodeEx) lastNode.getParent();
+Index: modules/axiom-api/src/main/java/org/apache/axiom/om/util/SecureXMLResolver.java
+===================================================================
+--- modules/axiom-api/src/main/java/org/apache/axiom/om/util/SecureXMLResolver.java	(revision 0)
++++ modules/axiom-api/src/main/java/org/apache/axiom/om/util/SecureXMLResolver.java	(revision 0)
+@@ -0,0 +1,47 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one
++ * or more contributor license agreements. See the NOTICE file
++ * distributed with this work for additional information
++ * regarding copyright ownership. The ASF licenses this file
++ * to you under the Apache License, Version 2.0 (the
++ * "License"); you may not use this file except in compliance
++ * with the License. You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing,
++ * software distributed under the License is distributed on an
++ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++ * KIND, either express or implied. See the License for the
++ * specific language governing permissions and limitations
++ * under the License.
++ */
++package org.apache.axiom.om.util;
++
++import javax.xml.stream.XMLResolver;
++import javax.xml.stream.XMLStreamException;
++
++import org.apache.commons.logging.Log;
++import org.apache.commons.logging.LogFactory;
++
++/**
++ * This XMLResolver is used whenever a secure XMLStreamReader
++ * is needed.  Basically it thows an exception if an attempt
++ * is made to read an entity.
++ */
++public final class SecureXMLResolver implements XMLResolver {
++
++    private static Log log = LogFactory.getLog(SecureXMLResolver.class);
++    public Object resolveEntity(String arg0, String arg1, String arg2,
++            String arg3) throws XMLStreamException {
++        // Note Scheu:
++        // Do not expose the name of the entity that was attempted to be 
++        // read as this will reveal secure information to the client.
++        if (log.isDebugEnabled()) {
++            log.debug("resolveEntity is disabled because this is a secure XMLStreamReader(" + 
++                    arg0 + ") (" + arg1 + ") (" + arg2   + ") (" + arg3 + ")");
++        }
++        throw new XMLStreamException("Reading external entities is disabled");
++    }
++
++}
+\ No newline at end of file
+
+Property changes on: modules\axiom-api\src\main\java\org\apache\axiom\om\util\SecureXMLResolver.java
+___________________________________________________________________
+Name: svn:mime-type
+   + text/plain
+Name: svn:keywords
+   + Date Revision
+Name: svn:eol-style
+   + native
+
+Index: modules/axiom-api/src/main/java/org/apache/axiom/om/util/StAXUtils.java
+===================================================================
+--- modules/axiom-api/src/main/java/org/apache/axiom/om/util/StAXUtils.java	(revision 949978)
++++ modules/axiom-api/src/main/java/org/apache/axiom/om/util/StAXUtils.java	(working copy)
+@@ -113,6 +113,39 @@
+             }
+     });
+ 
++    private static final Pool secureXmlInputFactoryPool =
++    	new Pool(new ObjectCreator[] { new ObjectCreator() {
++    	public Object newObject() {
++    	return AccessController.doPrivileged(new PrivilegedAction() {
++    	public Object run() {
++    	 // return XMLInputFactory.newInstance("javax.xml.stream.XMLInputFactory", StAXUtils.class.getClassLoader());
++         // TODO: Refactor this code when the FactoryFinder.class in XLXP fixed and used instead of the Axis2-bundle version
++    	// Try to simulate the above to create XMLInputFactory using the specific classloader
++    	// This it not quite the same since it will modify the classloader for all classes
++    	Thread currentThread = Thread.currentThread();
++    	ClassLoader savedClassLoader = currentThread.getContextClassLoader();
++    	XMLInputFactory factory = null;
++    	try {
++    	    currentThread.setContextClassLoader(StAXUtils.class.getClassLoader());
++    	    factory = XMLInputFactory.newInstance();
++    	
++    	// The following setting disabled external entities...which is a requirement
++    	// for network xml reading.
++    	setSecureProperties(factory);
++    	} finally {
++    	 currentThread.setContextClassLoader(savedClassLoader);
++    	}
++    	return factory;
++    	}
++    	});
++    	}
++    	}, new ObjectCreator() {
++    	 public Object newObject() {
++    	return XMLInputFactory.newInstance();
++    	}
++    	} });
++    	
++    	
+     private static final Pool xmlOutputFactoryPool = new Pool(new ObjectCreator[] {
+             new ObjectCreator() {
+                 public Object newObject() {
+@@ -144,6 +177,106 @@
+                 }
+             }
+     });
++    
++     /**
++    * Gets an XMLInputFactory instance from pool.
++    *
++    * @return an XMLInputFactory instance.
++    */
++    private static XMLInputFactory getSecureXMLInputFactory() {
++    return (XMLInputFactory) secureXmlInputFactoryPool.getInstance();
++    }
++    
++    /**
++    * Returns an XMLInputFactory instance for reuse.
++    *
++    * @param factory An XMLInputFactory instance that is available for reuse
++    */
++    private static void releaseSecureXMLInputFactory(XMLInputFactory factory) {
++     secureXmlInputFactoryPool.releaseInstance(factory);
++    }
++    
++    /**
++    * Create an XMLStreamReader that will be used to read a stream for 
++    * an incoming message.  We need to use more restrictive "secure" properties
++    * to ensure against attacks.
++    * @param in
++    * @param encoding
++    * @return
++    * @throws XMLStreamException
++    */
++    public static XMLStreamReader createSecureXMLStreamReader(InputStream in, String encoding)
++    throws XMLStreamException {
++    XMLInputFactory inputFactory = getSecureXMLInputFactory();
++    try {
++    XMLStreamReader reader = inputFactory.createXMLStreamReader(in, encoding);
++    if (isDebugEnabled) {
++    log.debug("XMLStreamReader is " + reader.getClass().getName());
++    }
++    return reader;
++    } finally {
++     releaseSecureXMLInputFactory(inputFactory);
++            }
++     }
++    
++        /**
++         * Create an XMLStreamReader that will be used to read a stream for 
++         * an incoming message.  We need to use more restrictive "secure" properties
++         * to ensure against attacks.
++         * @param in
++         * @return
++         * @throws XMLStreamException
++         */
++        public static XMLStreamReader createSecureXMLStreamReader(InputStream in) throws XMLStreamException {
++            XMLInputFactory inputFactory = getSecureXMLInputFactory();
++            try {
++                XMLStreamReader reader = inputFactory.createXMLStreamReader(in);
++                if (isDebugEnabled) {
++                    log.debug("XMLStreamReader is " + reader.getClass().getName());
++                }
++                return reader;
++            } finally {
++                releaseSecureXMLInputFactory(inputFactory);
++            }
++        }
++    
++        /**
++         * Create an XMLStreamReader that will be used to read a stream for 
++         * an incoming message.  We need to use more restrictive "secure" properties
++         * to ensure against attacks.
++         * 
++         * @param in
++         * @return
++         * @throws XMLStreamException
++         */
++        public static XMLStreamReader createSecureXMLStreamReader(Reader in) throws XMLStreamException {
++            XMLInputFactory inputFactory = getXMLInputFactory();
++            try {
++                XMLStreamReader reader = inputFactory.createXMLStreamReader(in);
++                if (isDebugEnabled) {
++                    log.debug("XMLStreamReader is " + reader.getClass().getName());
++                }
++                return reader;
++            } finally {
++                releaseSecureXMLInputFactory(inputFactory);
++            }
++        }
++     
++        private static void setSecureProperties(XMLInputFactory f) {
++        	// The goal is to prevent tampering of the message
++        	      // by external entities or denial of service 
++        	      // replacing entities.
++        	      // Setting the following properties ensures this goal
++        	      f.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, 
++        	              Boolean.FALSE);
++        	      f.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, 
++        	              Boolean.FALSE);
++        	      f.setProperty(XMLInputFactory.SUPPORT_DTD, 
++        	              Boolean.FALSE);
++        	      f.setXMLResolver(new SecureXMLResolver());
++        	  }
++        	
++        
+ 
+ 
+     private static Log log = LogFactory.getLog(StAXUtils.class);
