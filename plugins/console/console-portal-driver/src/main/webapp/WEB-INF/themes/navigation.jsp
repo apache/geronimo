@@ -175,6 +175,16 @@ function load() {
         }
         
         dojo.io.iframe.setSrc(document.getElementById("portletsFrame"), iframeHref+"?formId="+formID, true);
+               
+         try {
+            objToResize=getIframeObjectToResize();
+            <%-- reset the height of iframe page each time the new portlet is loaded--%>
+            objToResize.height = 400;
+              }
+          catch(err){
+            window.status = err.message;
+          }
+          
         setTimeout('returnToTop()', 30);      
      }
      

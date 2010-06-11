@@ -75,8 +75,7 @@ function onHashChange(current_hash) {
 <%-- When there's hash in current page url
 redirect the page with noxxsPage hash as the query string,
 the server side will get the real redirect target page based on the value of noxxsPage--%>
-
- if(document.location.hash!='') {
+if(document.location.hash!='') {
        var href = document.location.href;
        var newHref = href.substring(0,href.lastIndexOf("#"));
        if(newHref.indexOf("&noxssPage")>0){
@@ -85,27 +84,47 @@ the server side will get the real redirect target page based on the value of nox
        document.location.href =  newHref + "&noxssPage=" +document.location.hash.substr(11,document.location.hash.length);
     }
 
-var iframeId;
 
-function delayResize(id){
-    iframeId=id;
-    <%--delay the resize so that the ajax content get loaded before the resizing.--%>
-    setTimeout('autoResize()',300); 
+<%-- get the real iframe object to resize--%>    
+function getIframeObjectToResize(){
+
+        frame = document.getElementById("portletsFrame");
+        frame_document = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
+        objToResize = (frame.style) ? frame.style : frame;     
+        return objToResize;  
 }
+    
 
-function autoResize(){
+function autoResizeIframe(){
 
   try{
-    frame = document.getElementById(iframeId);
-    frame_document = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
-    objToResize = (frame.style) ? frame.style : frame;
-    objToResize.height = frame_document.body.scrollHeight + 10;
-  }
+      <%-- reset the height of index page each time the new portlet is loaded--%>
+      document.body.height = 400; 
+      iframeObjectToResize=getIframeObjectToResize();
+      iframeObjectToResize.height = frame_document.body.scrollHeight;
+      }
   catch(err){
     window.status = err.message;
   }
 
 }
+
+function autoCheckIframe(){
+
+    var iFrameDocument=document.getElementById("portletsFrame").contentWindow.document;
+    var LoginForm=iFrameDocument.getElementsByName('login');
+
+    if(LoginForm.length!=0){
+        window.location.reload();
+    }
+
+}
+
+<%-- ensure the iframe height could be adjusted according to the content--%>
+setInterval('autoResizeIframe()',500); 
+
+<%-- ensure login page is not displayed in the iframe after the timeout--%>
+setInterval('autoCheckIframe()',500); 
 
 
 </script>
@@ -159,7 +178,7 @@ function autoResize(){
                     <td class="Gutter">&nbsp;</td> <!-- Spacer -->
                     <td valign="top">
                 
-                    <iframe  src="" id="portletsFrame" width="100%" height="100%" scrolling="no" frameborder="0" onload="if (window.parent && window.parent.delayResize) {window.parent.delayResize('portletsFrame');}">
+                    <iframe  src="" id="portletsFrame" width="100%" height="100%" scrolling="no" frameborder="0">
                     
                     </iframe>
                     </td>

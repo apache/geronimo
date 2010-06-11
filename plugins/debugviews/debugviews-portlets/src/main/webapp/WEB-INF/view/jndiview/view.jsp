@@ -177,6 +177,6 @@
 </div>
 <br />
 <div dojoType="dijit.Tree" jsId="debugTree" class="soria" showRoot="false"
-      model="debugModel" openOnClick="true"  style="height: 800px;overflow: auto;">
+      model="debugModel" openOnClick="true"  style="width: 100%;overflow: auto;overflow-y: hidden;">
 </div>
 
