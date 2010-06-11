@@ -45,9 +45,9 @@
     </organization>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/tags/geronimo-2.2</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/tags/geronimo-2.2</developerConnection>
-        <url>http://svn.apache.org/viewvc/geronimo/server/tags/geronimo-2.2</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/geronimo/server/branches/2.2.1</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/geronimo/server/branches/2.2.1</developerConnection>
+        <url>http://svn.apache.org/viewvc/geronimo/server/branches/geronimo-2.2.1</url>
     </scm>
 
     <properties>
