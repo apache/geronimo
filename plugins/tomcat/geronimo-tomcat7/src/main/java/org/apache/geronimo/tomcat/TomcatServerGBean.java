@@ -51,6 +51,7 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.system.configuration.PluginAttributeStore;
 import org.apache.geronimo.system.jmx.MBeanServerReference;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -116,24 +117,30 @@ public class TomcatServerGBean implements GBeanLifecycle {
         if (serverConfig == null) {
             File serverConfigFile = serverInfo.resolveServer(serverConfigLocation);
             this.tomcatServerConfigManager = new TomcatServerConfigManager(serverConfigFile);
-            Reader in = new FileReader(serverConfigFile);
-            StringBuilder b = new StringBuilder();
-            char[] buf = new char[1024];
-            int i;
-            while ((i = in.read(buf)) > 0) {
-                b.append(buf, 0, i);
+            Reader in = null;
+            try {
+                in = new FileReader(serverConfigFile);
+                StringBuilder b = new StringBuilder();
+                char[] buf = new char[1024];
+                int i;
+                while ((i = in.read(buf)) > 0) {
+                    b.append(buf, 0, i);
+                }
+                serverConfig = b.toString();
+            } finally {
+                IOUtils.close(in);
             }
-            serverConfig = b.toString();
         }
         if (attributeStore != null) {
             serverConfig = attributeStore.substitute(serverConfig);
         }
-        Reader in = new StringReader(serverConfig);
+        Reader in = null;
         try {
+            in = new StringReader(serverConfig);
             ServerType serverType = loadServerType(in);
             server = serverType.build(classLoader, kernel);
         } finally {
-            in.close();
+            IOUtils.close(in);
         }
     }
 

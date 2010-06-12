@@ -32,7 +32,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.catalina.Service;
 import org.apache.catalina.Executor;
-import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Engine;
 import org.apache.catalina.core.StandardService;
@@ -287,12 +286,9 @@ public class ServiceType {
             Connector connector = connectorType.getConnector(cl, service);
             service.addConnector(connector);
         }
-        if (service instanceof Lifecycle) {
-            Lifecycle lifecycle = (Lifecycle) service;
-            for (ListenerType listenerType: getListener()) {
-                LifecycleListener listener = listenerType.getLifecycleListener(cl);
-                lifecycle.addLifecycleListener(listener);
-            }
+        for (ListenerType listenerType : getListener()) {
+            LifecycleListener listener = listenerType.getLifecycleListener(cl);
+            service.addLifecycleListener(listener);
         }
 
         if (getEngine() != null) {

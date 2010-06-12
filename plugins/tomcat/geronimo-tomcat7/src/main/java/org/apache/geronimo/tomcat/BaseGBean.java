@@ -16,9 +16,8 @@
  */
 package org.apache.geronimo.tomcat;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.tomcat.util.IntrospectionUtils;
 
@@ -26,16 +25,11 @@ public abstract class BaseGBean {
 
     protected void setParameters(Object object, Map<String, String> map){
         if (map != null){
-            Set<String> keySet = map.keySet();
-            Iterator<String> iterator = keySet.iterator();
-            while(iterator.hasNext()){
-                String name = iterator.next();
-                String value = map.get(name);
-                
-                IntrospectionUtils.setProperty(object, name, value);                    
+            for(Entry<String,String> entry : map.entrySet()){
+                IntrospectionUtils.setProperty(object, entry.getKey(), entry.getValue());
             }
         }
-        
+
     }
-        
+
 }

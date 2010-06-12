@@ -32,7 +32,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.catalina.Cluster;
 import org.apache.catalina.Host;
-import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Pipeline;
 import org.apache.catalina.Realm;
@@ -550,13 +549,12 @@ public class HostType {
         ObjectRecipe recipe = new ObjectRecipe(className, properties);
         recipe.allow(Option.IGNORE_MISSING_PROPERTIES);
         Host host = (Host) recipe.create(cl);
-        if (host instanceof Lifecycle) {
-            Lifecycle lifecycle = host;
-            for (ListenerType listenerType : getListener()) {
-                LifecycleListener listener = listenerType.getLifecycleListener(cl);
-                lifecycle.addLifecycleListener(listener);
-            }
+
+        for (ListenerType listenerType : getListener()) {
+            LifecycleListener listener = listenerType.getLifecycleListener(cl);
+            host.addLifecycleListener(listener);
         }
+
         //alias
         for (String alias : getAlias()) {
             host.addAlias(alias);

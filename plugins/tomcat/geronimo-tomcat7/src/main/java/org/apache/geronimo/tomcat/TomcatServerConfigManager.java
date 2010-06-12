@@ -21,6 +21,7 @@ package org.apache.geronimo.tomcat;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,7 +46,7 @@ import org.w3c.dom.NodeList;
  * @version $Rev$ $Date$
  */
 public class TomcatServerConfigManager {
-    
+
     private static final Logger log = LoggerFactory.getLogger(TomcatServerConfigManager.class);
 
     private Document server_xml_dom_doc;
@@ -86,7 +87,7 @@ public class TomcatServerConfigManager {
      * @param attributesToUpdate
      *                      The connector attributes that need to be updated.
      * @param uniqueConnectorName
-     *                      the name of connector to be updated. 
+     *                      the name of connector to be updated.
      * @param serviceName
      *                      the name attribute of <Service> that the connector resides in.
      */
@@ -106,24 +107,20 @@ public class TomcatServerConfigManager {
 
             service.insertBefore(connector, lastConnectorNode);
         }
-        
+
 
         // set attributes for the connector
-
-        for (String attributeName : attributesToUpdate.keySet()) {
-            
-            if(attributesToUpdate.get(attributeName)==null){
+        for (Entry<String, String> entry : attributesToUpdate.entrySet()) {
+            String attributeName = entry.getKey();
+            String attributeValue = entry.getValue();
+            if (attributeValue == null) {
                 continue;
             }
-            
             // must use "SSLEnabled" instead of "sslEnabled" because attribute is case-sensitive in server.xml
             if (attributeName.equalsIgnoreCase("SSLEnabled")) {
-                
-                connector.setAttribute("SSLEnabled", attributesToUpdate.get(attributeName));
-                
+                connector.setAttribute("SSLEnabled", attributeValue);
             } else {
-
-                connector.setAttribute(attributeName, attributesToUpdate.get(attributeName));
+                connector.setAttribute(attributeName, attributeValue);
             }
         }
 
@@ -132,7 +129,7 @@ public class TomcatServerConfigManager {
         persistServerConfig();
 
     }
-    
+
 
 
     private Element findTargetConnector(String name) {
@@ -191,9 +188,9 @@ public class TomcatServerConfigManager {
     }
 
     private void persistServerConfig() {
-        
+
         TransformerFactory tf = TransformerFactory.newInstance();
-       
+
         Transformer transformer;
         try {
             transformer = tf.newTransformer();
@@ -205,7 +202,7 @@ public class TomcatServerConfigManager {
             StreamResult result = new StreamResult(fos);
             transformer.transform(source, result);
         } catch (Exception e1) {
-            
+
             log.error("Error when persist modified dom back to file:"+server_XML_File,e1);
         }
 

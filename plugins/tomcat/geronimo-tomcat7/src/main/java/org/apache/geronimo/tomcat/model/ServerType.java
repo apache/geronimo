@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Server;
 import org.apache.catalina.Service;
@@ -76,7 +75,7 @@ import org.slf4j.LoggerFactory;
 public class ServerType {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerType.class);
-    
+
     @XmlElement(name = "Listener")
     protected List<ListenerType> listener;
     @XmlElement(name = "GlobalNamingResources")
@@ -280,12 +279,10 @@ public class ServerType {
         Server instance = (Server) recipe.create(cl);
         instance.setPort(port);
         instance.setShutdown(shutdown);
-        if (instance instanceof Lifecycle) {
-            Lifecycle lifecycle = (Lifecycle) instance;
-            for (ListenerType listenerType: getListener()) {
-                LifecycleListener listener = listenerType.getLifecycleListener(cl);
-                lifecycle.addLifecycleListener(listener);
-            }
+
+        for (ListenerType listenerType : getListener()) {
+            LifecycleListener listener = listenerType.getLifecycleListener(cl);
+            instance.addLifecycleListener(listener);
         }
 
         NamingResources globalNamingResources = new NamingResources();
@@ -293,7 +290,7 @@ public class ServerType {
             logger.warn("All the resource settings in the server.xml are ignored, please use Geronimo deployment plan to define those configurations");
         }
         /*
-        for (NamingResourcesType naming: getGlobalNamingResources()) {            
+        for (NamingResourcesType naming: getGlobalNamingResources()) {
             naming.merge(globalNamingResources, cl);
         }
         */

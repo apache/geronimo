@@ -31,7 +31,6 @@ import javax.security.auth.Subject;
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
-import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Service;
@@ -258,10 +257,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     }
 
     public void doStop() throws Exception {
-        if (embedded instanceof Lifecycle) {
-            ((Lifecycle)embedded).stop();
-        }
-
+        embedded.stop();
     }
 
     /**

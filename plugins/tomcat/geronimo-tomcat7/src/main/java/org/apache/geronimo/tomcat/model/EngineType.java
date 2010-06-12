@@ -33,7 +33,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
-import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Realm;
 import org.apache.catalina.core.StandardEngine;
@@ -357,13 +356,11 @@ public class EngineType {
             engine.setCluster(getCluster().getCluster(cl));
         }
         //listener
-        if (engine instanceof Lifecycle) {
-            Lifecycle lifecycle = (Lifecycle) engine;
-            for (ListenerType listenerType: getListener()) {
-                LifecycleListener listener = listenerType.getLifecycleListener(cl);
-                lifecycle.addLifecycleListener(listener);
-            }
+        for (ListenerType listenerType : getListener()) {
+            LifecycleListener listener = listenerType.getLifecycleListener(cl);
+            engine.addLifecycleListener(listener);
         }
+
         return engine;
     }
 }

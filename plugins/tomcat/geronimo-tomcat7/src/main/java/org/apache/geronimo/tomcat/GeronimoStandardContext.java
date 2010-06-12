@@ -46,7 +46,6 @@ import org.apache.catalina.ContainerListener;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Globals;
 import org.apache.catalina.InstanceListener;
-import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Loader;
@@ -347,8 +346,7 @@ public class GeronimoStandardContext extends StandardContext {
                 try {
                     LifecycleListener listener =
                       (LifecycleListener) getInstanceManager().newInstance(wrapperLifecycle);
-                    if (wrapper instanceof Lifecycle)
-                        ((Lifecycle) wrapper).addLifecycleListener(listener);
+                    wrapper.addLifecycleListener(listener);
                 } catch (Throwable t) {
                     getLogger().error("createWrapper", t);
                     return (null);

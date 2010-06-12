@@ -19,6 +19,7 @@ package org.apache.geronimo.tomcat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.catalina.Manager;
 import org.apache.catalina.Store;
@@ -33,29 +34,29 @@ import org.slf4j.LoggerFactory;
 public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever{
 
     private static final Logger log = LoggerFactory.getLogger(ManagerGBean.class);
-    
+
     public static final String J2EE_TYPE = "Manager";
-    
+
     protected final Manager manager;
 
     // no-arg constructor required for gbean refs
     public ManagerGBean(){
         manager = null;
     }
-    
+
     protected ManagerGBean(String className) throws Exception{
-       super();     
+       super();
        manager = (Manager)Class.forName(className).newInstance();
     }
-    
-    public ManagerGBean(String className, 
+
+    public ManagerGBean(String className,
             Map initParams) throws Exception {
         super(); // TODO: make it an attribute
         //Validate
         if (className == null){
             className = "org.apache.catalina.session.StandardManager";
         }
-        
+
         //Create the Manager object
         manager = (Manager)Class.forName(className).newInstance();
 
@@ -66,7 +67,7 @@ public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRet
             CLASSNAME_PARAMETERHANDLER_MAP.get(DEFAULT_PARAMETER_HANDLER).handle(manager, initParams);
         }
     }
-    
+
     public void doStart() throws Exception {
     }
 
@@ -79,7 +80,7 @@ public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRet
     public Object getInternalObject() {
         return manager;
     }
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     public static final Map<String, ParametersHandler> CLASSNAME_PARAMETERHANDLER_MAP = new HashMap<String, ParametersHandler>();
@@ -91,8 +92,8 @@ public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRet
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { 
-                "className", 
+        infoFactory.setConstructor(new String[] {
+                "className",
                 "initParams"});
         GBEAN_INFO = infoFactory.getBeanInfo();
         //Initialize handler map
@@ -134,10 +135,10 @@ public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRet
             }
             Store store = (Store) Class.forName(nameValueMap.get(STORE_CLASSNAME).trim()).newInstance();
             nameValueMap.remove(STORE_CLASSNAME);
-            //Initialize store object            
-            for (Iterator<String> it = nameValueMap.keySet().iterator(); it.hasNext();) {
-                String sCurrentParameterName = it.next();
-                String sCurrentParameterValue = nameValueMap.get(sCurrentParameterName);
+            //Initialize store object
+            for(Entry<String,String> entry : nameValueMap.entrySet()){
+                String sCurrentParameterName = entry.getKey();
+                String sCurrentParameterValue = entry.getValue();
                 if (sCurrentParameterValue != null) {
                     sCurrentParameterValue = sCurrentParameterValue.trim();
                 }
