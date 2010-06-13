@@ -77,6 +77,13 @@ public class StartServerMojo
      * @parameter expression="${maximumMemory}"
      */
     private String maximumMemory = null;
+
+    /**
+     * Set the maximum permsize for the forked JVM.
+     *
+     * @parameter expression="${maxPermSize}"
+     */
+    private String maxPermSize = null;
     
     /**
      * The location of the Java Virtual Machine executable to launch the server with.
@@ -192,6 +199,12 @@ public class StartServerMojo
 
         if (maximumMemory != null) {
             java.setMaxmemory(maximumMemory);
+        }
+        
+        if (maxPermSize !=null){    
+            java.createJvmarg().setValue("-XX:MaxPermSize="+maxPermSize);         
+        } else {           
+            java.createJvmarg().setValue("-XX:MaxPermSize=128m");    
         }
 
         // Load the Java programming language agent for JPA
