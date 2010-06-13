@@ -39,6 +39,10 @@ public class XBeanJndiFactory implements JndiFactory {
     XBeanJndiFactory() throws NamingException {
         DeepBindableContext context = new DeepBindableContext("openejb", false, true, true, false);
         rootContext = context.newContextWrapper();
+        rootContext.createSubcontext("local");
+        rootContext.createSubcontext("remote");
+        rootContext.createSubcontext("client");
+        rootContext.createSubcontext("Deployment");
     }
 
     @Override
