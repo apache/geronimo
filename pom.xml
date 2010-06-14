@@ -1838,7 +1838,7 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.bundlerepository</artifactId>
-                <version>1.6.4</version>
+                <version>1.6.3-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.felix</groupId>
@@ -2362,19 +2362,6 @@ only found in cxf
             </modules>
 
             <repositories>
-                <repository>
-                    <id>bundlerepo</id>
-                    <name>bundlerepo</name>
-                    <layout>default</layout>
-                    <url>https://repository.apache.org/content/repositories/orgapachefelix-049</url>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <releases>
-                        <enabled>true</enabled>
-                    </releases>
-                </repository>
-
                 <repository>
                     <!-- org.eclipse.jetty routing -->
                     <id>jetty.oss.sonatype.org</id>
