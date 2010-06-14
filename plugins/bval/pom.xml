@@ -45,6 +45,16 @@
                 <groupId>org.apache.bval</groupId>
                 <artifactId>org.apache.bval.bundle</artifactId>
                 <version>0.1-incubating</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.bval</groupId>
+                        <artifactId>bval-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.bval</groupId>
+                        <artifactId>bval-jsr303</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- internal -->
