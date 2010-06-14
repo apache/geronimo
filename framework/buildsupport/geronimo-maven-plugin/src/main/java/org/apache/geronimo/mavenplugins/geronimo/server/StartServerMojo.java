@@ -201,12 +201,10 @@ public class StartServerMojo
             java.setMaxmemory(maximumMemory);
         }
         
-        if (maxPermSize !=null){    
+        if (maxPermSize != null){    
             java.createJvmarg().setValue("-XX:MaxPermSize="+maxPermSize);         
-        } else {           
-            java.createJvmarg().setValue("-XX:MaxPermSize=128m");    
-        }
-
+        } 
+        
         // Load the Java programming language agent for JPA
         File javaAgentJar = new File(geronimoHome, "lib/agent/transformer.jar");
         if (javaAgentJar.exists()) {
