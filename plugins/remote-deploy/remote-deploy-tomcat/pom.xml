@@ -46,6 +46,7 @@
             <artifactId>geronimo-remote-deploy</artifactId>
             <version>${project.version}</version>
             <type>war</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

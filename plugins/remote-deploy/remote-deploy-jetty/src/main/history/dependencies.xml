@@ -12,11 +12,6 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.plugins</groupId>
-        <artifactId>geronimo-remote-deploy</artifactId>
-        <type>war</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
         <type>jar</type>
