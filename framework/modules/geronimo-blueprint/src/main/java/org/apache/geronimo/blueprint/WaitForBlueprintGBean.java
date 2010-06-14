@@ -17,37 +17,42 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.blueprint;
 
 import java.util.Hashtable;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.Priority;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.blueprint.container.BlueprintEvent;
 import org.osgi.service.blueprint.container.BlueprintListener;
+import org.osgi.service.packageadmin.ExportedPackage;
+import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
- * Blueprint starts beans asynchornously whereas geronimo starts configurations in a single thread.
+ * Blueprint starts beans asynchronously whereas Geronimo starts configurations in a single thread.
  * This bean waits for the blueprint activity to complete before returning.
  *
  * @version $Rev$ $Date$
  */
-
 @GBean
 @Priority(priority = 2)
 public class WaitForBlueprintGBean {
+    
     private volatile BlueprintEvent event;
     private CountDownLatch latch = new CountDownLatch(1);
 
-    public WaitForBlueprintGBean(@ParamSpecial(type= SpecialAttributeType.bundleContext)BundleContext bundleContext) throws Exception {
-        final Bundle bundle = bundleContext.getBundle();
+    public WaitForBlueprintGBean(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
+                                 @ParamAttribute(name = "packageName") String packageName,
+                                 @ParamAttribute(name = "symbolicName") String symbolicName) throws Exception {        
+        final Bundle bundle = getBundle(bundleContext, symbolicName, packageName);
         BlueprintListener listener = new BlueprintListener() {
 
             @Override
@@ -68,4 +73,30 @@ public class WaitForBlueprintGBean {
         }
     }
 
+    private Bundle getBundle(BundleContext bundleContext, String symbolicName, String packageName) throws Exception {       
+        ServiceReference reference = bundleContext.getServiceReference(PackageAdmin.class.getName());
+        PackageAdmin packageAdmin = (PackageAdmin) bundleContext.getService(reference);
+        try {
+            if (symbolicName != null) {
+                Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
+                if (bundles == null) {
+                    throw new Exception("Unable to find bundle based on symbolic name. There is no bundle with " + symbolicName + " symbolic name");
+                } else if (bundles.length > 1) {
+                    throw new Exception("Found multiple bundles with the same symbolic name: " + symbolicName);                    
+                } else {
+                    return bundles[0];
+                }
+            } else if (packageName != null) {
+                ExportedPackage exportedPackage = packageAdmin.getExportedPackage(packageName);
+                if (exportedPackage == null) {
+                    throw new Exception("Unable to find bundle based on package name. There is no bundle that exports " + packageName + " package");
+                }
+                return exportedPackage.getExportingBundle();
+            } else {
+                return bundleContext.getBundle();
+            }
+        } finally {
+            bundleContext.ungetService(reference);
+        }
+    }
 }
