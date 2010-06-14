@@ -23,8 +23,8 @@ public interface Http11Protocol {
     //Https
     public String getAlgorithm();
     public void setAlgorithm(String algorithm);
-    public boolean getClientAuth();
-    public void setClientAuth(boolean clientAuth);
+    public String getClientAuth();
+    public void setClientAuth(String clientAuth);
     public String getKeystoreFile();
     public void setKeystoreFile(String keystoreFile);
     public String getKeystorePass();

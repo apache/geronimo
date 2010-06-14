@@ -74,9 +74,9 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
         return (String) connector.getAttribute("ciphers");
     }
 
-    public boolean getClientAuth() {
+    public String getClientAuth() {
         Object value = connector.getAttribute("clientAuth");
-        return value == null ? false : new Boolean(value.toString()).booleanValue();
+        return value == null ? "false" : value.toString();
     }
 
     public String getKeyAlias() {
@@ -134,8 +134,8 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     }
     
     @Persistent(manageable=false)
-    public void setClientAuth(boolean clientAuth) {
-        connector.setAttribute("clientAuth", new Boolean(clientAuth));
+    public void setClientAuth(String clientAuth) {
+        connector.setAttribute("clientAuth", clientAuth);
     }
 
     @Persistent(manageable=false)
