@@ -3,7 +3,7 @@ Private Build of Axis2 1.3 for Geronimo.
 How to build Axis2 1.3-G20090406:
 ---------------------------------
  Checkout the Axis2 1.3 tag
-   svn co http://svn.apache.org/repos/asf/webservices/axis2/tags/java/v1.3/ axis2-1.3
+   svn co http://svn.apache.org/repos/asf/axis/axis2/java/core/tags/java/v1.3
   
 
 Apply the patches
@@ -14,6 +14,7 @@ Apply the patches
  patch -p0 -i metadata.patch
  patch -p0 -i jaxws.patch
  patch -p0 -i kernel.patch
+ patch -p0 -i builder.patch
 
 Build Axis2 1.3
 ---------------
@@ -32,6 +33,7 @@ Patch Information
  metadata.patch - contains fixes for SEI with overloaded methods
  jaxws.patch    - contains fixes for AXIS2-3343 and RESTful invocations
  kernel.patch   - contains fixes for AXIS2-4279
+ builder.patch  - contains fixes for AXIS2-4450
 
 Copy patched jar files to appropriate locations
 -----------------------------------------------
@@ -39,4 +41,4 @@ Copy patched jar files to appropriate locations
   cp modules/saaj/target/axis2-saaj-1.3.jar <geronimo-root>/repository/org/apache/axis2/axis2-saaj/1.3-G20090406/axis2-saaj-1.3-G20090406.jar
   cp modules/metadata/target/axis2-metadata-1.3.jar <geronimo-root>/repository/org/apache/axis2/axis2-metadata/1.3-G20090406/axis2-metadata-1.3-G20090406.jar
   cp modules/jaxws/target/axis2-jaxws-1.3.jar <geronimo-root>/repository/org/apache/axis2/axis2-jaxws/1.3-G20090406/axis2-jaxws-1.3-G20090406.jar
-  cp modules/kernel/target/axis2-kernel-1.3.jar  <geronimo-root>/repository/org/apache/axis2/axis2-kernel/1.3-G20090406/axis2-kernel-1.3-G20090406.jar
+  cp modules/kernel/target/axis2-kernel-1.3.jar  <geronimo-root>/repository/org/apache/axis2/axis2-kernel/1.3-G20100610/axis2-kernel-1.3-G20100610.jar
