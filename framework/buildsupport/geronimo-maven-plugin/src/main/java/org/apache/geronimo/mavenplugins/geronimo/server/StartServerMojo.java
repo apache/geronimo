@@ -196,9 +196,7 @@ public class StartServerMojo
         
         if (maxPermSize !=null){    
             java.createJvmarg().setValue("-XX:MaxPermSize="+maxPermSize);         
-        } else {           
-            java.createJvmarg().setValue("-XX:MaxPermSize=128m");    
-        }
+        } 
 
         // Load the Java programming language agent for JPA
         File javaAgentJar = new File(geronimoHome, "bin/jpa.jar");
