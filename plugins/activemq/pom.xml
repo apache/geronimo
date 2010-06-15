@@ -51,11 +51,6 @@
         <profile>
             <id>all-subprojects</id>
             <modules>
-                <module>activemq-broker-blueprint</module>
-                <module>geronimo-activemq-ra</module>
-                <module>activemq-ra</module>
-                <module>geronimo-activemq-blueprint</module>
-                <module>geronimo-activemq-management</module>
                 <module>activemq-jetty-server</module>
             </modules>
         </profile>
@@ -63,12 +58,6 @@
             <id>mini-servers</id>
             <modules>
                 <module>activemq-jetty-server</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>all-subprojects</id>
-            <modules>
-                <module>activemq-server</module>
             </modules>
         </profile>
     </profiles>

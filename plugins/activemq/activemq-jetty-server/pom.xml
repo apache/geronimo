@@ -79,6 +79,101 @@
               <skip>true</skip>
           </configuration>
       </plugin>
+        <plugin>
+            <groupId>org.apache.geronimo.buildsupport</groupId>
+            <artifactId>geronimo-maven-plugin</artifactId>
+            <version>${project.version}</version>
+
+            <configuration>
+                <!--<assemblies>-->
+                    <!--<assembly>-->
+                        <!--<id>activemq</id>-->
+                        <!--<groupId>org.apache.geronimo.plugins</groupId>-->
+                        <!--<artifactId>activemq-server</artifactId>-->
+                        <!--<version>${geronimoVersion}</version>-->
+                        <!--<classifier>bin</classifier>-->
+                        <!--<type>zip</type>-->
+                    <!--</assembly>-->
+                <!--</assemblies>-->
+
+                <!--<defaultAssemblyId>activemq</defaultAssemblyId>-->
+               <assemblyArchive>${project.build.directory}/${pom.artifactId}-${pom.version}-bin.zip</assemblyArchive>
+                <optionSets>
+                    <optionSet>
+                        <id>morememory</id>
+                        <options>
+                            <option>-Xmx512m</option>
+                            <option>-XX:MaxPermSize=128m</option>
+                        </options>
+                    </optionSet>
+
+                    <optionSet>
+                        <id>debug</id>
+                        <options>
+                            <option>-Xdebug</option>
+                            <option>-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</option>
+                        </options>
+                    </optionSet>
+                </optionSets>
+            </configuration>
+            <executions>
+                 <execution>
+                     <id>start</id>
+                     <phase>pre-integration-test</phase>
+                     <goals>
+                         <goal>start-server</goal>
+                     </goals>
+                     <configuration>
+                         <assemblyId>${it-server}</assemblyId>
+                         <logOutput>true</logOutput>
+                         <background>true</background>
+                         <verifyTimeout>300</verifyTimeout>
+                         <refresh>true</refresh>
+                         <optionSets>
+                             <optionSet>
+                                 <id>default</id>
+                                 <options>
+                                    <option>-XX:MaxPermSize=128m</option>
+                                 </options>
+                             </optionSet>
+
+                             <optionSet>
+                                  <id>morememory</id>
+                                  <options>
+                                      <option>-Xmx512m</option>
+                                      <option>-XX:MaxPermSize=128m</option>
+                                  </options>
+                              </optionSet>
+
+                              <optionSet>
+                                  <id>debug</id>
+                                  <options>
+                                      <option>-Xdebug</option>
+                                      <option>-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</option>
+                                  </options>
+                              </optionSet>
+                         </optionSets>
+                     </configuration>
+                 </execution>
+                 <!--<execution>-->
+                     <!--<id>install-plugin</id>-->
+                     <!--<phase>install</phase>-->
+                     <!--<goals>-->
+                         <!--<goal>install-plugin</goal>-->
+                     <!--</goals>-->
+                     <!--<configuration>-->
+                         <!--<defaultGeronimoRepository>http://geronimo.apache.org/plugins/geronimo-${geronimoVersion}/</defaultGeronimoRepository>-->
+                     <!--</configuration>-->
+                 <!--</execution>-->
+                 <execution>
+                     <id>stop</id>
+                     <phase>install</phase>
+                     <goals>
+                         <goal>stop-server</goal>
+                     </goals>
+                 </execution>
+             </executions>
+        </plugin>
     </plugins>
   </build>
   <dependencies>
