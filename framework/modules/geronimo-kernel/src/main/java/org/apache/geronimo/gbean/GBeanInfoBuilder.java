@@ -134,6 +134,10 @@ public class GBeanInfoBuilder {
 
     private int priority = GBeanInfo.PRIORITY_NORMAL;
 
+    private boolean osgiService;
+
+    private Set<String> serviceInterfaces = new HashSet<String>();
+
     public GBeanInfoBuilder(Class gbeanType) {
         this(checkNotNull(gbeanType).getName(), gbeanType, null, null);
     }
@@ -466,6 +470,14 @@ public class GBeanInfoBuilder {
         this.priority = priority;
     }
 
+    public void setOsgiService(boolean osgiService) {
+        this.osgiService = osgiService;
+    }
+
+    public Set<String> getServiceInterfaces() {
+        return serviceInterfaces;
+    }
+
     public GBeanInfo getBeanInfo() {
         // get the types of the constructor args
         // this also verifies that we have a valid constructor
@@ -502,7 +514,7 @@ public class GBeanInfoBuilder {
             referenceInfos.add(new GReferenceInfo(referenceName, referenceType, proxyType, setterName, namingType));
         }
 
-        return new GBeanInfo(sourceClass, name, gbeanType.getName(), j2eeType, attributes.values(), constructor, operations.values(), referenceInfos, interfaces, priority);
+        return new GBeanInfo(sourceClass, name, gbeanType.getName(), j2eeType, attributes.values(), constructor, operations.values(), referenceInfos, interfaces, priority, osgiService, serviceInterfaces.toArray(new String[serviceInterfaces.size()]));
     }
 
     private Map getConstructorTypes() throws InvalidConfigurationException {

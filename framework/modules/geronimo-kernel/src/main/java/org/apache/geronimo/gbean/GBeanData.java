@@ -20,10 +20,14 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,6 +51,8 @@ public class GBeanData implements Externalizable {
     private final Set<ReferencePatterns> dependencies;
     private AbstractName abstractName;
     private int priority;
+    private String[] serviceInterfaces;
+    private Dictionary serviceProperties;
 
 
     public GBeanData() {
@@ -91,6 +97,17 @@ public class GBeanData implements Externalizable {
         references = new HashMap<String, ReferencePatterns>(gbeanData.references);
         dependencies = new HashSet<ReferencePatterns>(gbeanData.dependencies);
         abstractName = gbeanData.abstractName;
+        if (gbeanData.serviceInterfaces != null) {
+            serviceInterfaces = Arrays.copyOf(gbeanData.serviceInterfaces, gbeanData.serviceInterfaces.length);
+        }
+        if (gbeanData.serviceProperties != null) {
+            serviceProperties = new Hashtable();
+            for (Enumeration e = gbeanData.serviceProperties.keys(); e.hasMoreElements();) {
+                Object key = e.nextElement();
+                serviceProperties.put(key, gbeanData.serviceProperties.get(key));
+            }
+
+        }
     }
 
     public AbstractName getAbstractName() {
@@ -223,6 +240,25 @@ public class GBeanData implements Externalizable {
         this.priority = priority;
     }
 
+    public String[] getServiceInterfaces() {
+        return serviceInterfaces;
+    }
+
+    public void setServiceInterfaces(String[] serviceInterfaces) {
+        this.serviceInterfaces = serviceInterfaces;
+    }
+
+    public Dictionary getServiceProperties() {
+        if (serviceProperties == null) {
+            serviceProperties = new Hashtable();
+        }
+        return serviceProperties;
+    }
+
+    public void setServiceProperties(Dictionary serviceProperties) {
+        this.serviceProperties = serviceProperties;
+    }
+
     public void writeExternal(ObjectOutput out) throws IOException {
         // write version index
         out.writeObject(backwardExternalizables.length - 1);
@@ -273,6 +309,8 @@ public class GBeanData implements Externalizable {
                 throw (IOException) new IOException("Unable to write dependency pattern in gbean: " + abstractName).initCause(e);
             }
         }
+        out.writeObject(serviceInterfaces);
+        out.writeObject(serviceProperties);
     }
 
 
@@ -357,6 +395,9 @@ public class GBeanData implements Externalizable {
                     ReferencePatterns depdendencyPattern = (ReferencePatterns) in.readObject();
                     dependencies.add(depdendencyPattern);
                 }
+
+                serviceInterfaces = (String[]) in.readObject();
+                serviceProperties = (Dictionary) in.readObject();
             } catch (IOException e) {
                 throw (IOException) new IOException("Unable to deserialize GBeanData " + abstractName).initCause(e);
             } catch (ClassNotFoundException e) {

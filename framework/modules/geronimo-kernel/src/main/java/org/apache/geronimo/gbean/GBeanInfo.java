@@ -45,7 +45,7 @@ public final class GBeanInfo implements Serializable {
     public static final int PRIORITY_CLASSLOADER = 1;
     public static final int PRIORITY_NORMAL = 5;
 
-    private static final Set DEFAULT_NOTIFICATIONS = Collections.unmodifiableSet(new HashSet(Arrays.asList(NotificationType.TYPES)));
+    private static final Set<String> DEFAULT_NOTIFICATIONS = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(NotificationType.TYPES)));
 
     /**
      * Static helper to try to get the GBeanInfo from the class supplied.
@@ -70,77 +70,91 @@ public final class GBeanInfo implements Serializable {
     private final String className;
     private final String j2eeType;
     private final Set<GAttributeInfo> attributes;
-    private final Map attributesByName;
+    private final Map<String,GAttributeInfo> attributesByName;
     private final GConstructorInfo constructor;
-    private final Set operations;
-    private final Set notifications;
-    private final Set references;
-    private final Map referencesByName;
-    private final Set interfaces;
-    private int priority;
+    private final Set<GOperationInfo> operations;
+    private final Set<String> notifications;
+    private final Set<GReferenceInfo> references;
+    private final Map<String, GReferenceInfo> referencesByName;
+    private final Set<String> interfaces;
+    private final int priority;
+    private final boolean osgiService;
+    private final String[] serviceInterfaces;
 
     /**
      * @deprecated use GBeanInfoBuilder
      */
     public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
-        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, PRIORITY_NORMAL);
+        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, PRIORITY_NORMAL, false, null);
     }
 
     /**
      * @deprecated use GBeanInfoBuilder
      */
     public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
-        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, PRIORITY_NORMAL);
+        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, PRIORITY_NORMAL, false, null);
     }
 
     /**
      * @deprecated use GBeanInfoBuilder
      */
     public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
-        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications, PRIORITY_NORMAL);
+        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications, PRIORITY_NORMAL, false, null);
     }
 
     /**
      * @deprecated use GBeanInfoBuilder
      */
     public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
-        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications, PRIORITY_NORMAL);
+        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications, PRIORITY_NORMAL, false, null);
     }
 
-    GBeanInfo(String sourceClass, String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, int priority) {
-        this(sourceClass, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, priority);
+    public GBeanInfo(String sourceClass, String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, int priority, boolean osgiService, String[] serviceInterfaces) {
+        this(sourceClass, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS, priority, osgiService, serviceInterfaces);
     }
 
-    GBeanInfo(String sourceClass, String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications, int priority) {
+    GBeanInfo(String sourceClass,
+              String name,
+              String className,
+              String j2eeType,
+              Collection<GAttributeInfo> attributes,
+              GConstructorInfo constructor,
+              Collection<GOperationInfo> operations,
+              Set<GReferenceInfo> references,
+              Set<String> interfaces,
+              Set<String> notifications,
+              int priority,
+              boolean osgiService,
+              String[] serviceInterfaces) {
         this.sourceClass = sourceClass;
         this.name = name;
         this.className = className;
         this.j2eeType = j2eeType;
         if (attributes == null) {
-            this.attributes = Collections.EMPTY_SET;
-            this.attributesByName = Collections.EMPTY_MAP;
+            this.attributes = Collections.emptySet();
+            this.attributesByName = Collections.emptyMap();
         } else {
-            Map map = new HashMap();
+            Map<String, GAttributeInfo> map = new HashMap<String, GAttributeInfo>();
             for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
                 GAttributeInfo attribute = (GAttributeInfo) iterator.next();
                 map.put(attribute.getName(), attribute);
             }
             this.attributesByName = Collections.unmodifiableMap(map);
-            this.attributes = Collections.unmodifiableSet(new HashSet(map.values()));
+            this.attributes = Collections.unmodifiableSet(new HashSet<GAttributeInfo>(map.values()));
         }
         if (constructor == null) {
-            this.constructor = new GConstructorInfo(Collections.EMPTY_LIST);
+            this.constructor = new GConstructorInfo(Collections.<Object>emptyList());
         } else {
             this.constructor = constructor;
         }
         if (operations == null) {
-            this.operations = Collections.EMPTY_SET;
+            this.operations = Collections.emptySet();
         } else {
-            this.operations = Collections.unmodifiableSet(new HashSet(operations));
+            this.operations = Collections.unmodifiableSet(new HashSet<GOperationInfo>(operations));
         }
         if (references == null) {
-            this.references = Collections.EMPTY_SET;
-            this.referencesByName = Collections.EMPTY_MAP;
+            this.references = Collections.emptySet();
+            this.referencesByName = Collections.emptyMap();
         } else {
             Map map = new HashMap();
             for (Iterator iterator = references.iterator(); iterator.hasNext();) {
@@ -161,6 +175,8 @@ public final class GBeanInfo implements Serializable {
             this.notifications = Collections.unmodifiableSet(new HashSet(notifications));
         }
         this.priority = priority;
+        this.osgiService = osgiService;
+        this.serviceInterfaces = serviceInterfaces == null? new String[0]: serviceInterfaces;
     }
 
     /**
@@ -257,10 +273,18 @@ public final class GBeanInfo implements Serializable {
         return priority;
     }
 
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        priority = GBeanInfo.PRIORITY_NORMAL;
-        in.defaultReadObject();
+    public boolean isOsgiService() {
+        return osgiService;
     }
+
+    public String[] getServiceInterfaces() {
+        return serviceInterfaces;
+    }
+
+//    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+//        priority = GBeanInfo.PRIORITY_NORMAL;
+//        in.defaultReadObject();
+//    }
 
     public String toString() {
         StringBuffer result = new StringBuffer("[GBeanInfo:");

@@ -27,6 +27,7 @@ import javax.annotation.sql.DataSourceDefinitions;
 import javax.resource.ResourceException;
 import javax.sql.DataSource;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.connector.deployment.ConnectorModuleBuilder;
 import org.apache.geronimo.datasource.DataSourceDescription;
 import org.apache.geronimo.datasource.DataSourceGBean;
 import org.apache.geronimo.gbean.AbstractName;
@@ -168,6 +169,19 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         
         dataSourceGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerName());
         dataSourceGBean.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
+
+        dataSourceGBean.setServiceInterfaces(new String[] {DataSource.class.getName()});
+        String osgiJndiName = null;
+        if (dsDescription.getProperties() != null) {
+            osgiJndiName = dsDescription.getProperties().get(ConnectorModuleBuilder.OSGI_JNDI_SERVICE_NAME);
+        }
+        if (osgiJndiName == null) {
+            osgiJndiName = dataSourceAbstractName.getArtifact().getGroupId() + "/" +
+                     dataSourceAbstractName.getArtifact().getArtifactId() + "/" +
+                     dataSourceAbstractName.getNameProperty("j2eeType") + "/" +
+                     dataSourceAbstractName.getNameProperty("name");
+        }
+        dataSourceGBean.getServiceProperties().put(ConnectorModuleBuilder.OSGI_JNDI_SERVICE_NAME, osgiJndiName);
         
         earContext.addGBean(dataSourceGBean);
                 

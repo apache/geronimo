@@ -28,7 +28,6 @@ import javax.sql.ConnectionPoolDataSource;
 import javax.sql.DataSource;
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
-
 import org.apache.geronimo.connector.outbound.GenericConnectionManager;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
@@ -37,10 +36,9 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
-import org.apache.geronimo.connector.wrapper.outbound.ConnectionFactoryRegistration;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
@@ -50,7 +48,11 @@ import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceException;
+import org.osgi.framework.ServiceFactory;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tranql.connector.CredentialExtractor;
@@ -63,15 +65,15 @@ import org.tranql.connector.jdbc.AbstractXADataSourceMCF;
  * @version $Revision$
  */
 @GBean
-public class DataSourceGBean implements GBeanLifecycle, ResourceSource<ResourceException> {
+@OsgiService
+public class DataSourceGBean implements ResourceSource<ResourceException>, ServiceFactory {
     
     private static final Logger log = LoggerFactory.getLogger(DataSourceGBean.class);
         
     private final DataSourceDescription dataSourceDescription;
     private final transient ClassLoader classLoader;
     private final transient GenericConnectionManager connectionManager;
-    private final transient ConnectionFactoryRegistration connectionRegistration;
-    
+
     public DataSourceGBean(@ParamAttribute(name="dataSourceDescription") DataSourceDescription dataSourceDescription,
                            @ParamAttribute(name="defaultMaxSize") int defaultMaxSize,
                            @ParamAttribute(name="defaultMinSize") int defaultMinSize,
@@ -91,7 +93,6 @@ public class DataSourceGBean implements GBeanLifecycle, ResourceSource<ResourceE
         
         String dsName = dataSourceDescription.getName();
         String dsClass = dataSourceDescription.getClassName();
-        String dsJndiName = getOsgiJndiName();
         
         TransactionSupport transactionSupport;
         PoolingSupport pooling;
@@ -138,14 +139,21 @@ public class DataSourceGBean implements GBeanLifecycle, ResourceSource<ResourceE
             new GenericConnectionManager(transactionSupport, pooling, null, connectionTracker, transactionManager, mcf, objectName, classLoader);
                 
         connectionManager.doRecovery();
-        
-        connectionRegistration = new ConnectionFactoryRegistration(connectionManager, 
-                                                                   bundleContext, 
-                                                                   abstractName, 
-                                                                   dsJndiName, 
-                                                                   new String [] { DataSource.class.getName() });
     }
     
+    @Override
+    public Object getService(Bundle bundle, ServiceRegistration serviceRegistration) {
+        try {
+            return connectionManager.createConnectionFactory();
+        } catch (ResourceException e) {
+            throw new ServiceException("Error creating connection factory", e);
+        }
+    }
+
+    @Override
+    public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object o) {
+    }
+
     private Object createDataSource() throws Exception {
         String className = dataSourceDescription.getClassName();
         Class clazz = classLoader.loadClass(className);
@@ -196,15 +204,7 @@ public class DataSourceGBean implements GBeanLifecycle, ResourceSource<ResourceE
             properties.put(name, value);
         }
     }
-          
-    private String getOsgiJndiName() {
-        if (dataSourceDescription.getProperties() != null) {
-            return dataSourceDescription.getProperties().remove(ConnectionFactoryRegistration.OSGI_JNDI_SERVICE_NAME);
-        } else {
-            return null;
-        }        
-    }
-    
+
     private PoolingSupport createPool(int defaultMinSize, 
                                       int defaultMaxSize, 
                                       int defaultBlockingTimeoutMilliseconds, 
@@ -223,17 +223,6 @@ public class DataSourceGBean implements GBeanLifecycle, ResourceSource<ResourceE
         return connectionManager.createConnectionFactory();
     }
     
-    public void doFail() {
-    }
-
-    public void doStart() throws Exception {
-        connectionRegistration.register();
-    }
- 
-    public void doStop() throws Exception {
-        connectionRegistration.unregister();
-    }
-      
     private class PooledConnectionDataSourceMCF extends AbstractPooledConnectionDataSourceMCF {
         
         public PooledConnectionDataSourceMCF(ConnectionPoolDataSource ds) {

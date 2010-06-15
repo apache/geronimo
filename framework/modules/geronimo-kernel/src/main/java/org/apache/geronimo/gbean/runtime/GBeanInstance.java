@@ -19,10 +19,13 @@ package org.apache.geronimo.gbean.runtime;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -31,6 +34,8 @@ import java.util.Set;
 
 import javax.management.ObjectName;
 
+import org.apache.geronimo.gbean.ServiceInterfaces;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
@@ -66,8 +71,7 @@ import org.osgi.framework.BundleContext;
  *
  * @version $Rev:385718 $ $Date$
  */
-public final class GBeanInstance implements StateManageable
-{
+public final class GBeanInstance implements StateManageable {
     private static final Logger log = LoggerFactory.getLogger(GBeanInstance.class);
 
     private static final int DESTROYED = 0;
@@ -212,10 +216,14 @@ public final class GBeanInstance implements StateManageable
 
     private String stateReason;
 
+    private String[] serviceInterfaces;
+    private Dictionary serviceProperties;
+    private ServiceRegistration serviceRegistration;
+
     /**
      * Construct a GBeanMBean using the supplied GBeanData and bundle
      *
-     * @param gbeanData   the data for the new GBean including GBeanInfo, intial attribute values, and reference patterns
+     * @param gbeanData     the data for the new GBean including GBeanInfo, intial attribute values, and reference patterns
      * @param bundleContext
      * @throws org.apache.geronimo.gbean.InvalidConfigurationException
      *          if the gbeanInfo is inconsistent with the actual java classes, such as
@@ -240,12 +248,12 @@ public final class GBeanInstance implements StateManageable
         name = gbeanInfo.getName();
 
         // interfaces
-        interfaces = (String[]) gbeanInfo.getInterfaces().toArray(new String[0]);
+        interfaces = gbeanInfo.getInterfaces().toArray(new String[gbeanInfo.getInterfaces().size()]);
 
         // attributes
         attributes = buildAttributes(gbeanInfo);
         for (int i = 0; i < attributes.length; i++) {
-            attributeIndex.put(attributes[i].getName(), new Integer(i));
+            attributeIndex.put(attributes[i].getName(), i);
         }
 
         // references
@@ -255,7 +263,7 @@ public final class GBeanInstance implements StateManageable
 
         references = referencesSet.toArray(new GBeanReference[referencesSet.size()]);
         for (int i = 0; i < references.length; i++) {
-            referenceIndex.put(references[i].getName(), new Integer(i));
+            referenceIndex.put(references[i].getName(), i);
         }
 
         //dependencies
@@ -281,13 +289,13 @@ public final class GBeanInstance implements StateManageable
         int opCounter = 0;
         for (Map.Entry<GOperationSignature, GBeanOperation> entry : operationsMap.entrySet()) {
             operations[opCounter] = entry.getValue();
-            operationIndex.put(entry.getKey(), new Integer(opCounter));
+            operationIndex.put(entry.getKey(), opCounter);
             opCounter++;
         }
 
         // rebuild the gbean info based on the current attributes, operations, and references because
         // the above code add new attributes and operations
-        this.gbeanInfo = rebuildGBeanInfo(gbeanInfo.getConstructor(), gbeanInfo.getJ2eeType());
+        this.gbeanInfo = rebuildGBeanInfo(gbeanInfo.getConstructor(), gbeanInfo.getJ2eeType(), gbeanInfo.getPriority(), gbeanInfo.isOsgiService(), gbeanInfo.getServiceInterfaces());
 
         objectRecipe = newObjectRecipe(gbeanData);
 
@@ -302,6 +310,9 @@ public final class GBeanInstance implements StateManageable
         for (int i = 0; i < dependencies.length; i++) {
             dependencies[i].online();
         }
+
+        this.serviceInterfaces = gbeanData.getServiceInterfaces();
+        this.serviceProperties = gbeanData.getServiceProperties();
     }
 
     protected ObjectRecipe newObjectRecipe(GBeanData gbeanData) {
@@ -341,14 +352,14 @@ public final class GBeanInstance implements StateManageable
                 objectRecipe.setProperty(attributeName, attribute.getPersistentValue());
             }
         }
-        
+
         return objectRecipe;
     }
 
     protected void buildReferencesAndDependencies(GBeanData gbeanData,
-        GBeanInfo gbeanInfo,
-        Set<GBeanReference> referencesSet,
-        Set<GBeanDependency> dependencySet) {
+                                                  GBeanInfo gbeanInfo,
+                                                  Set<GBeanReference> referencesSet,
+                                                  Set<GBeanDependency> dependencySet) {
         Map<String, ReferencePatterns> dataReferences = gbeanData.getReferences();
         for (GReferenceInfo referenceInfo : gbeanInfo.getReferences()) {
             String referenceName = referenceInfo.getName();
@@ -373,7 +384,7 @@ public final class GBeanInstance implements StateManageable
             attributesMap.put(attributeInfo.getName(), new GBeanAttribute(this, attributeInfo));
         }
         addManagedObjectAttributes(attributesMap);
-        
+
         return attributesMap.values().toArray(new GBeanAttribute[attributesMap.size()]);
     }
 
@@ -416,7 +427,7 @@ public final class GBeanInstance implements StateManageable
     }
 
     /**
-     * The bundle used to build this gbean.  
+     * The bundle used to build this gbean.
      *
      * @return the bundle used to build this gbean
      */
@@ -435,6 +446,7 @@ public final class GBeanInstance implements StateManageable
 
     /**
      * Gets the reason we are in the current state.
+     *
      * @return the reason we are in the current state
      */
     public String getStateReason() {
@@ -443,12 +455,13 @@ public final class GBeanInstance implements StateManageable
 
     /**
      * Sets the reason we are in the current state.
-     * @param reason  The reason we are in the current state
+     *
+     * @param reason The reason we are in the current state
      */
     public void setStateReason(String reason) {
         stateReason = reason;
     }
-    
+
     /**
      * The java type of the wrapped gbean instance
      *
@@ -601,18 +614,18 @@ public final class GBeanInstance implements StateManageable
         for (int i = 0; i < references.length; i++) {
             GBeanReference reference = references[i];
             String name = reference.getName();
-            if(reference instanceof GBeanSingleReference) {
+            if (reference instanceof GBeanSingleReference) {
                 AbstractName abstractName = ((GBeanSingleReference) reference).getTargetName();
-                if(abstractName != null) {
+                if (abstractName != null) {
                     gbeanData.setReferencePattern(name, abstractName);
                 }
-            } else if(reference instanceof GBeanCollectionReference) {
+            } else if (reference instanceof GBeanCollectionReference) {
                 Set patterns = ((GBeanCollectionReference) reference).getPatterns();
-                if(patterns != null) {
+                if (patterns != null) {
                     gbeanData.setReferencePatterns(name, patterns);
                 }
             } else {
-                throw new IllegalStateException("Unrecognized GBeanReference '"+reference.getClass().getName()+"'");
+                throw new IllegalStateException("Unrecognized GBeanReference '" + reference.getClass().getName() + "'");
             }
         }
         //TODO copy the dependencies??
@@ -931,7 +944,7 @@ public final class GBeanInstance implements StateManageable
             if (unsetProperties.size() > 0) {
                 throw new ConstructionException("Error creating gbean of class: " + gbeanInfo.getClassName() + ", attempting to set nonexistent properties: " + unsetProperties.keySet());
             }
-            
+
             // write the target variable in a synchronized block so it is available to all threads
             // we do this before calling the setters or start method so the bean can be called back
             // from a setter start method
@@ -952,7 +965,7 @@ public final class GBeanInstance implements StateManageable
                     throw e;
                 }
             }
-            
+
             if (instance instanceof GBeanLifecycle) {
                 checkIfShouldFail();
                 try {
@@ -969,6 +982,29 @@ public final class GBeanInstance implements StateManageable
                 checkIfShouldFail();
                 if (instanceRegistry != null) {
                     instanceRegistry.instanceCreated(instance, this);
+                }
+                if (gbeanInfo.isOsgiService()) {
+                    String[] serviceInterfaces;
+                    if (this.serviceInterfaces != null) {
+                        serviceInterfaces = this.serviceInterfaces;
+                    } else if (instance instanceof ServiceInterfaces) {
+                        serviceInterfaces = ((ServiceInterfaces)instance).getServiceInterfaces();
+                    } else if (gbeanInfo.getServiceInterfaces().length > 0) {
+                        serviceInterfaces = gbeanInfo.getServiceInterfaces();
+                    } else {
+                        Set<String> classes = new HashSet<String>(gbeanInfo.getInterfaces());
+                        classes.add(gbeanInfo.getClassName());
+                        serviceInterfaces = classes.toArray(new String[classes.size()]);
+                    }
+                    Dictionary serviceProperties;
+                    if (this.serviceProperties != null) {
+                        serviceProperties = this.serviceProperties;
+                    } else {
+                        serviceProperties = new Hashtable();
+                        serviceProperties.put("org.apache.geronimo.abstractName", abstractName);
+                    }
+                    serviceRegistration = bundleContext.registerService(serviceInterfaces, instance, serviceProperties);
+                    log.debug("Registered gbean " + abstractName + " as osgi service under interfaces " + Arrays.asList(serviceInterfaces) + " with properties " + serviceProperties);
                 }
                 instanceState = RUNNING;
                 this.notifyAll();
@@ -1064,7 +1100,7 @@ public final class GBeanInstance implements StateManageable
             }
             assert instanceState == RUNNING;
             stateReason = null;
-            
+
             // we are definately going to stop... if this fails the must clean up these variables
             instanceState = DESTROYING;
             instance = target;
@@ -1150,6 +1186,11 @@ public final class GBeanInstance implements StateManageable
             if (instanceRegistry != null) {
                 instanceRegistry.instanceDestroyed(instance);
             }
+            if (serviceRegistration != null) {
+                serviceRegistration.unregister();
+                serviceRegistration = null;
+                log.debug("unregistered gbean as osgi service: " + abstractName);
+            }
             startTime = 0;
         }
 
@@ -1206,7 +1247,11 @@ public final class GBeanInstance implements StateManageable
 
     }
 
-    private GBeanInfo rebuildGBeanInfo(GConstructorInfo constructor, String j2eeType) {
+    private GBeanInfo rebuildGBeanInfo(GConstructorInfo constructor,
+                                       String j2eeType,
+                                       int priority,
+                                       boolean osgiService,
+                                       String[] serviceInterfaces) {
         Set<GAttributeInfo> attributeInfos = new HashSet<GAttributeInfo>();
         for (int i = 0; i < attributes.length; i++) {
             GBeanAttribute attribute = attributes[i];
@@ -1227,14 +1272,18 @@ public final class GBeanInstance implements StateManageable
             interfaceInfos.add(interfaces[i]);
         }
 
-        return new GBeanInfo(name,
+        return new GBeanInfo(null,
+                name,
                 type.getName(),
                 j2eeType,
                 attributeInfos,
                 constructor,
                 operationInfos,
                 referenceInfos,
-                interfaceInfos);
+                interfaceInfos,
+                priority,
+                osgiService,
+                serviceInterfaces);
     }
 
     public boolean equals(Object obj) {

@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,9 +45,9 @@ import org.apache.geronimo.gbean.GReferenceInfo;
 public class AnnotationGBeanInfoBuilder {
     private static final String DEFAULT_J2EE_TYPE = "GBean";
     
-    private final Class gbeanClass;
+    private final Class<?> gbeanClass;
     
-    public AnnotationGBeanInfoBuilder(Class gbeanClass) {
+    public AnnotationGBeanInfoBuilder(Class<?> gbeanClass) {
         if (null == gbeanClass) {
             throw new IllegalArgumentException("gbeanClass is required");
         }
@@ -60,6 +61,7 @@ public class AnnotationGBeanInfoBuilder {
             GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(name, gbeanClass, j2eeType);
 
             setPriority(infoBuilder);
+            setOsgiService(infoBuilder);
             setConstructor(infoBuilder);
             markPersistent(infoBuilder);
             addReferences(infoBuilder);
@@ -69,9 +71,17 @@ public class AnnotationGBeanInfoBuilder {
             throw new GBeanAnnotationException("Could not fully load class: " + gbeanClass.getName() + "\n due to: " + e.getMessage() +  "\n in classloader \n" + gbeanClass.getClassLoader(), e);
         }
     }
-    
+
+    private void setOsgiService(GBeanInfoBuilder infoBuilder) {
+        OsgiService osgiService = gbeanClass.getAnnotation(OsgiService.class);
+        infoBuilder.setOsgiService(osgiService != null);
+        if (osgiService != null) {
+            infoBuilder.getServiceInterfaces().addAll(Arrays.asList(osgiService.serviceInterfaces()));
+        }
+    }
+
     protected void setPriority(GBeanInfoBuilder infoBuilder) {
-        Priority priority = (Priority) gbeanClass.getAnnotation(Priority.class);
+        Priority priority = gbeanClass.getAnnotation(Priority.class);
         if (null == priority) {
             return;
         }
@@ -162,7 +172,7 @@ public class AnnotationGBeanInfoBuilder {
         infoBuilder.setConstructor(cstrNames);
     }
 
-    protected Set<Method> filterSettersByAnnotation(Class annotationClass) {
+    protected Set<Method> filterSettersByAnnotation(Class<? extends Annotation> annotationClass) {
         Set<Method> filteredMethods = new HashSet<Method>();
         Method[] methods = gbeanClass.getMethods();
         for (Method method : methods) {

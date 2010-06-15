@@ -56,7 +56,6 @@ import org.osgi.framework.ServiceRegistration;
 public class GenericConnectionManagerGBean extends GenericConnectionManager implements GBeanLifecycle, Serializable, Externalizable {
     private Kernel kernel;
     private AbstractName abstractName;
-    private transient ConnectionFactoryRegistration connectionRegistration;
     //externalizable format version
     private static final int VERSION = 1;
 
@@ -77,11 +76,6 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         
         doRecovery();
         
-        connectionRegistration = new ConnectionFactoryRegistration(this, 
-                                                                   bundleContext, 
-                                                                   abstractName, 
-                                                                   managedConnectionFactoryWrapper.getJndiName(), 
-                                                                   new String [] { managedConnectionFactoryWrapper.getConnectionFactoryInterface() });
     }
 
     public GenericConnectionManagerGBean() {
@@ -98,17 +92,6 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         }
     }
 
-    public void doFail() {
-    }
-
-    public void doStart() throws Exception {
-        connectionRegistration.register();
-    }
-   
-    public void doStop() throws Exception {
-        connectionRegistration.unregister();
-    }
-    
     private static SubjectSource getSubjectSource(boolean containerManagedSecurity) {
         if (containerManagedSecurity) {
             return new SubjectSource() {

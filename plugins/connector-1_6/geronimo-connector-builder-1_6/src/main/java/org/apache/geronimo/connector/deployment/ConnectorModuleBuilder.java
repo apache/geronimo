@@ -167,6 +167,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
     static final String GERCONNECTOR_NAMESPACE = CONNECTOR_QNAME.getNamespaceURI();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+    public static final String OSGI_JNDI_SERVICE_NAME = "osgi.jndi.service.name";
 
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/connector", "http://geronimo.apache.org/xml/ns/j2ee/connector-1.2");
@@ -1321,9 +1322,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         setDynamicGBeanDataAttributes(managedConnectionFactoryInstanceGBeanData, connectiondefinitionInstance.getConfigPropertySettingArray(), bundle);
 
         String jndiName = connectiondefinitionInstance.getJndiName();
-        if (jndiName != null) {
-            managedConnectionFactoryInstanceGBeanData.setAttribute("jndiName", jndiName.trim());
+        if (jndiName == null) {
+            jndiName = connectionFactoryAbstractName.getArtifact().getGroupId() + "/" +
+                            connectionFactoryAbstractName.getArtifact().getArtifactId() + "/" +
+                            connectionFactoryAbstractName.getNameProperty("j2eeType") + "/" +
+                            connectionFactoryAbstractName.getNameProperty("name");
+        } else {
+            jndiName = jndiName.trim();
         }
+//        managedConnectionFactoryInstanceGBeanData.setAttribute("jndiName", jndiName.trim());
         
         //Check if Driver class is available here. This should be available in cl. If not log a warning as
         //the plan gets deployed and while starting GBean an error is thrown
@@ -1337,20 +1344,21 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             }
         }
 
+        Set<String> implementedInterfaces = new HashSet<String>();
+        implementedInterfaces.add((String) managedConnectionFactoryInstanceGBeanData.getAttribute("connectionFactoryInterface"));
+        implementedInterfaces.add((String) managedConnectionFactoryInstanceGBeanData.getAttribute("connectionFactoryImplClass"));
         try {
             if (resourceAdapterAbstractName != null) {
                 managedConnectionFactoryInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterAbstractName);
             }
             //additional interfaces implemented by connection factory
-            String[] implementedInterfaces = connectiondefinitionInstance.getImplementedInterfaceArray();
-            if (implementedInterfaces != null) {
-                for (int i = 0; i < implementedInterfaces.length; i++) {
-                    implementedInterfaces[i] = implementedInterfaces[i].trim();
+            String[] additionalInterfaces = connectiondefinitionInstance.getImplementedInterfaceArray();
+            if (additionalInterfaces != null) {
+                for (int i = 0; i < additionalInterfaces.length; i++) {
+                    implementedInterfaces.add(additionalInterfaces[i].trim());
                 }
-            } else {
-                implementedInterfaces = new String[0];
             }
-            managedConnectionFactoryInstanceGBeanData.setAttribute("implementedInterfaces", implementedInterfaces);
+            managedConnectionFactoryInstanceGBeanData.setAttribute("implementedInterfaces", implementedInterfaces.toArray(new String[implementedInterfaces.size()]));
 
         } catch (Exception e) {
             throw new DeploymentException(e);
@@ -1368,6 +1376,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         // ConnectionFactory
         GBeanData connectionFactoryGBeanData = new GBeanData(connectionFactoryAbstractName, JCAConnectionFactoryImpl.class);
         connectionFactoryGBeanData.setReferencePattern("ConnectionManager", connectionManagerName);
+        connectionFactoryGBeanData.setServiceInterfaces(implementedInterfaces.toArray(new String[implementedInterfaces.size()]));
+        connectionFactoryGBeanData.getServiceProperties().put(OSGI_JNDI_SERVICE_NAME, jndiName);
 
         try {
             earContext.addGBean(connectionFactoryGBeanData);

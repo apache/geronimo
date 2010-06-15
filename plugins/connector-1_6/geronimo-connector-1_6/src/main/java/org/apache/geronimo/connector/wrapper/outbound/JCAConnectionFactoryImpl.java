@@ -21,6 +21,7 @@ import java.util.Hashtable;
 import javax.management.ObjectName;
 import javax.resource.ResourceException;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
@@ -30,12 +31,17 @@ import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.naming.ResourceSource;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceException;
+import org.osgi.framework.ServiceFactory;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * @version $Rev$ $Date$
  */
 @GBean(j2eeType = NameFactory.JCA_CONNECTION_FACTORY)
-public class JCAConnectionFactoryImpl implements JCAConnectionFactory, ResourceSource<ResourceException> {
+@OsgiService
+public class JCAConnectionFactoryImpl implements JCAConnectionFactory, ResourceSource<ResourceException>, ServiceFactory {
     private final String objectName;
     private final GenericConnectionManagerGBean connectionManager;
 
@@ -99,11 +105,24 @@ public class JCAConnectionFactoryImpl implements JCAConnectionFactory, ResourceS
         }
     }
 
+    @Override
+    public Object getService(Bundle bundle, ServiceRegistration serviceRegistration) {
+        try {
+            return connectionManager.createConnectionFactory();
+        } catch (ResourceException e) {
+            throw new ServiceException("Error creating connection factory", e);
+        }
+    }
+
+    @Override
+    public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object o) {
+    }
 
     /**
      * ObjectName must match this pattern:
      * <p/>
      * domain:j2eeType=JCAConnectionFactory,name=MyName,J2EEServer=MyServer,JCAResource=MyJCAResource
+     * @param objectName ObjectName to verify for compliance to jsr77 rules.
      */
     private void verifyObjectName(ObjectName objectName) {
         if (objectName.isPattern()) {
