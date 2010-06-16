@@ -65,13 +65,13 @@ GERONIMO-5383 Update to new versions of CXF and Axis2
 
 Certification Status
 --------------------
-Apache Geronimo v2.1.6 has passed 100% of SUN's Java Enterprise Edition 5.0 
+Apache Geronimo v2.1.x has passed 100% of SUN's Java Enterprise Edition 5.0 
 Certification Test Suite. See "Distributions" for further details.
 
 
 Distributions
 -------------
-Apache Geronimo v2.1.6 is available in five distributions so you can pick the 
+Apache Geronimo v2.1.x is available in five distributions so you can pick the 
 one that best fits your environment.
 
 The available distributions are as follows:
