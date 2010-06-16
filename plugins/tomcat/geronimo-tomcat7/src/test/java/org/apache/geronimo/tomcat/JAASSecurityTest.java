@@ -119,9 +119,18 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
         //Be sure we have been given the login page
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        assertEquals("<!-- Login Page -->", reader.readLine());
-        reader.close();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            assertEquals("<!-- Login Page -->", reader.readLine());
+        } finally {
+            if (reader != null)
+                try {
+                    reader.close();
+                    reader = null;
+                } catch (Exception e) {
+                }
+        }
 
         String cookie = connection.getHeaderField("Set-Cookie");
         cookie = cookie.substring(0, cookie.lastIndexOf(';'));
@@ -137,10 +146,18 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/protected/hello.txt").openConnection();
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
-        reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        try {
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-        assertEquals("Hello World", reader.readLine());
+            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+            assertEquals("Hello World", reader.readLine());
+        } finally {
+            if (reader != null)
+                try {
+                    reader.close();
+                } catch (Exception e) {
+                }
+        }
         connection.disconnect();
 
         stopWebApp();

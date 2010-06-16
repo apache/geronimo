@@ -159,7 +159,7 @@ public class TomcatEJBWebServiceContext extends StandardContext {
         }
 
         public int getMethod() {
-            Integer method = (Integer) methods.get(request.getMethod());
+            Integer method = methods.get(request.getMethod());
             return method == null ? UNSUPPORTED : method.intValue();
         }
 
@@ -187,17 +187,17 @@ public class TomcatEJBWebServiceContext extends StandardContext {
             return request.getContextPath();
         }
 
-        private static final Map methods = new HashMap();
+        private static final Map<String, Integer> methods = new HashMap<String, Integer>();
 
         static {
-            methods.put("OPTIONS", new Integer(OPTIONS));
-            methods.put("GET", new Integer(GET));
-            methods.put("HEAD", new Integer(HEAD));
-            methods.put("POST", new Integer(POST));
-            methods.put("PUT", new Integer(PUT));
-            methods.put("DELETE", new Integer(DELETE));
-            methods.put("TRACE", new Integer(TRACE));
-            methods.put("CONNECT", new Integer(CONNECT));
+            methods.put("OPTIONS", Integer.valueOf(OPTIONS));
+            methods.put("GET", Integer.valueOf(GET));
+            methods.put("HEAD", Integer.valueOf(HEAD));
+            methods.put("POST", Integer.valueOf(POST));
+            methods.put("PUT", Integer.valueOf(PUT));
+            methods.put("DELETE", Integer.valueOf(DELETE));
+            methods.put("TRACE", Integer.valueOf(TRACE));
+            methods.put("CONNECT", Integer.valueOf(CONNECT));
         }
 
     }

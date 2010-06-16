@@ -37,12 +37,18 @@ public class ContainerTest extends AbstractWebModuleTest {
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
         container.addWebService(contextPath, null, webServiceInvoker, null, null, null, null, null, cl);
         HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + contextPath).openConnection();
+        BufferedReader reader = null;
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
             assertEquals("Hello World", reader.readLine());
         } finally {
             connection.disconnect();
+            if (reader != null)
+                try {
+                    reader.close();
+                } catch (Exception e) {
+                }
         }
         container.removeWebService(contextPath);
         connection = (HttpURLConnection) new URL(connector.getConnectUrl() + contextPath).openConnection();
@@ -79,11 +85,17 @@ public class ContainerTest extends AbstractWebModuleTest {
         connection = (HttpURLConnection) new URL(connector.getConnectUrl() + contextPath).openConnection();
         String authentication = new String(Base64.encode("alan:starcraft".getBytes()));
         connection.setRequestProperty("Authorization", "Basic " + authentication);
+        BufferedReader reader = null;
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
             assertEquals("Hello World", reader.readLine());
         } finally {
+            if (reader != null)
+                try {
+                    reader.close();
+                } catch (Exception e) {
+                }
             connection.disconnect();
         }
         container.removeWebService(contextPath);

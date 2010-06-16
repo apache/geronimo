@@ -17,7 +17,6 @@
 package org.apache.geronimo.tomcat;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -112,13 +111,13 @@ public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRet
 
     static class DefaultParametersHandler implements ParametersHandler {
         public void handle(Object managerObject, Map<String, String> nameValueMap) throws Exception {
-            for (Iterator<String> it = nameValueMap.keySet().iterator(); it.hasNext();) {
-                String sCurrentParameterName = it.next();
-                String sCurrentParameterValue = nameValueMap.get(sCurrentParameterName);
-                if (sCurrentParameterValue != null) {
-                    sCurrentParameterValue = sCurrentParameterValue.trim();
+            for (Entry<String,String> entry : nameValueMap.entrySet()) {
+                String currentParameterName = entry.getKey();
+                String currentParameterValue = entry.getValue();
+                if (currentParameterValue != null) {
+                    currentParameterValue = currentParameterValue.trim();
                 }
-                IntrospectionUtils.setProperty(managerObject, sCurrentParameterName, sCurrentParameterValue);
+                IntrospectionUtils.setProperty(managerObject, currentParameterName, currentParameterValue);
             }
         }
     }

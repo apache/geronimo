@@ -17,12 +17,10 @@
 package org.apache.geronimo.tomcat;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import javax.management.ObjectName;
 import javax.management.j2ee.statistics.Statistic;
 import javax.management.j2ee.statistics.Stats;
 
@@ -31,18 +29,27 @@ import javax.management.j2ee.statistics.Stats;
  */
 public class StatTest extends AbstractWebModuleTest {
 
-    private ObjectName webModuleName;
+    //private ObjectName webModuleName;
 
     public void testStats() throws Exception {
         TomcatWebAppContext webModule;
         webModule = setUpInsecureAppContext("war1", null, null, null, null, null);
             HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/hello.txt")
                     .openConnection();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
             assertEquals("Hello World", reader.readLine());
             //connection.disconnect();
-        // Stats stats = (Stats) kernel.getAttribute(webModuleName, "stats");
+            // Stats stats = (Stats) kernel.getAttribute(webModuleName, "stats");
+        } finally {
+            if (reader != null)
+                try {
+                    reader.close();
+                } catch (Exception e) {
+                }
+        }
 
         int n = 3;
         for (int k = 0; k < n; k++) {
@@ -50,7 +57,7 @@ public class StatTest extends AbstractWebModuleTest {
                 connector.resetStats();
                 webModule.resetStats();
             }
-            //System.out.println("******* NOW IS " + System.currentTimeMillis()); 
+            //System.out.println("******* NOW IS " + System.currentTimeMillis());
             Stats[] allStats = { webModule.getStats(), connector.getStats() };
             Stats stats;
             for (int j = 0; j < allStats.length; j++) {

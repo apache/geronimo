@@ -38,7 +38,7 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     private String truststoreFileName;
 
     private String algorithm;
-    
+
     public AbstractHttp11ConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
                                         @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
                                         @ParamAttribute(manageable=false, name = "protocol") String tomcatProtocol,
@@ -47,7 +47,7 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
                                         @ParamReference(name = "TomcatContainer") TomcatContainer container,
                                         @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
                                         @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
-                                        
+
         super(name, initParams, tomcatProtocol, host, port, container, serverInfo, conn);
     }
 
@@ -60,10 +60,10 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     public String getGeronimoProtocol() {
         return WebManager.PROTOCOL_HTTP;
     }
-    
+
     // Generic SSL
     public String getAlgorithm() {
-        
+
         if ("default".equalsIgnoreCase(algorithm)) {
             return KeyManagerFactory.getDefaultAlgorithm();
         }
@@ -86,7 +86,7 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     public String getKeystoreFile() {
 
         String keystore = (String) connector.getAttribute("keystoreFile");
-        
+
         return getRelatedPathtoCatalinaHome(keystore);
 
     }
@@ -100,9 +100,9 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     }
 
     public String getTruststoreFile() {
-        
+
         String truststoreFile = (String) connector.getAttribute("truststoreFile");
-        
+
         return getRelatedPathtoCatalinaHome(truststoreFile);
 
     }
@@ -114,11 +114,11 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     public String getTruststorePass() {
         return (String) connector.getAttribute("truststorePass");
     }
-    
+
     public String getKeystorePass() {
         return (String) connector.getAttribute("keystorePass");
     }
-    
+
     @Persistent(manageable=false)
     public void setAlgorithm(String algorithm) {
         this.algorithm = algorithm;
@@ -132,7 +132,7 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     public void setCiphers(String ciphers) {
         connector.setAttribute("ciphers", ciphers);
     }
-    
+
     @Persistent(manageable=false)
     public void setClientAuth(String clientAuth) {
         connector.setAttribute("clientAuth", clientAuth);
@@ -147,11 +147,11 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
 
     @Persistent(manageable=false)
     public void setKeystoreFile(String keystoreFile) {
-        if (keystoreFile!= null && keystoreFile.equals("")) 
+        if (keystoreFile!= null && keystoreFile.equals(""))
             keystoreFile = null;
-        
+
         keystoreFileName = keystoreFile;
-        
+
         if (keystoreFileName == null) {
 
             connector.setAttribute("keystoreFile", keystoreFileName);
@@ -159,42 +159,42 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
         } else {
 
             String resovledAbsolutePath = this.getAbsolutePathBasedOnCatalinaHome(keystoreFileName);
-            
+
             if (resovledAbsolutePath != null)
                 connector.setAttribute("keystoreFile", resovledAbsolutePath);
 
         }
-        
+
     }
-    
+
 
     @Persistent(manageable=false)
     public void setKeystorePass(String keystorePass) {
-        if (keystorePass!= null && keystorePass.equals("")) 
+        if (keystorePass!= null && keystorePass.equals(""))
             keystorePass = null;
         connector.setAttribute("keystorePass", keystorePass);
     }
 
     @Persistent(manageable=false)
     public void setKeystoreType(String keystoreType) {
-        if (keystoreType!= null && keystoreType.equals("")) 
+        if (keystoreType!= null && keystoreType.equals(""))
             keystoreType = null;
         connector.setAttribute("keystoreType", keystoreType);
     }
 
     @Persistent(manageable=false)
     public void setSslProtocol(String sslProtocol) {
-        if (sslProtocol!= null && sslProtocol.equals("")) 
+        if (sslProtocol!= null && sslProtocol.equals(""))
             sslProtocol = null;
         connector.setAttribute("sslProtocol", sslProtocol);
     }
 
     @Persistent(manageable=false)
     public void setTruststoreFile(String truststoreFile) {
-        if (truststoreFile!= null && truststoreFile.equals("")) 
+        if (truststoreFile!= null && truststoreFile.equals(""))
             truststoreFile = null;
         truststoreFileName = truststoreFile;
-        
+
         if (truststoreFileName == null) {
             connector.setAttribute("truststoreFile", null);
         }
@@ -208,20 +208,20 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
         }
 
     }
-    
+
     @Persistent(manageable=false)
     public void setTruststorePass(String truststorePass) {
-        if (truststorePass!= null && truststorePass.equals("")) 
+        if (truststorePass!= null && truststorePass.equals(""))
             truststorePass = null;
         connector.setAttribute("truststorePass", truststorePass);
     }
-    
+
     @Persistent(manageable=false)
     public void setTruststoreType(String truststoreType) {
-        if (truststoreType!= null && truststoreType.equals("")) 
+        if (truststoreType!= null && truststoreType.equals(""))
             truststoreType = null;
         connector.setAttribute("truststoreType", truststoreType);
     }
 
-    
+
 }

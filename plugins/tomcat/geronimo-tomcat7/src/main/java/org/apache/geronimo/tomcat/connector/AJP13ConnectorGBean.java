@@ -39,14 +39,14 @@ import org.apache.geronimo.tomcat.stats.ConnectorStats;
 
 @GBean(name="Tomcat Connector AJP")
 public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol, StatisticsProvider {
-    
+
     // JSR77 stats
     private ConnectorStats connStatsProvider = new ConnectorStats();
 
     private boolean reset = true;
 
     protected String connectHost;
-    
+
     public AJP13ConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
                                @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
                                @ParamAttribute(manageable=false, name = "host") String host,
@@ -54,10 +54,10 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
                                @ParamReference(name = "TomcatContainer") TomcatContainer container,
                                @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
                                @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
-    
+
 
         super(name, initParams, "AJP/1.3", container, serverInfo, conn);
-        
+
         // Default the host to listen on all address is one was not specified
         if (host == null) {
             host = "0.0.0.0";
@@ -72,11 +72,11 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
         connector.setPort(port);
 
     }
-    
+
     public String getGeronimoProtocol(){
         return WebManager.PROTOCOL_AJP;
     }
-    
+
     public String getConnectUrl() {
         if(connectHost == null) {
             String host = getAddress();
@@ -94,24 +94,24 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
                     }
                 }
             }
-            // this host address could be in IPv6 format, 
+            // this host address could be in IPv6 format,
             // which means we need to wrap it in brackets
             if (host.indexOf(":") >= 0) {
-                host = "[" + host + "]"; 
+                host = "[" + host + "]";
             }
             connectHost = host;
         }
         return getScheme().toLowerCase()+"://"+connectHost+(getPort() == getDefaultPort() ? "" : ":"+getPort());
     }
-    
+
     public int getDefaultPort() {
-        return -1; 
-    }  
-    
+        return -1;
+    }
+
     public InetSocketAddress getListenAddress() {
         return new InetSocketAddress(getHost(), getPort());
     }
-    
+
     public String getAddress() {
         Object value = connector.getAttribute("address");
         if (value == null) {
@@ -120,7 +120,7 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
             return ((InetAddress) value).getHostAddress();
         } else
             return value.toString();
-    } 
+    }
 
     public int getBacklog() {
         Object value = connector.getAttribute("backlog");
@@ -141,17 +141,17 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
     	 Object value = connector.getAttribute("executor");
          if (value == null)
              return null;
-         
+
          if (value instanceof String)
              return (String)value;
-         
+
          if(value instanceof Executor){
          	return ((Executor) value).getName();
          }
-         
-         return (String) value.getClass().getName();
+
+         return value.getClass().getName();
     }
-    
+
     public String getHost() {
         return getAddress();
     }
@@ -165,101 +165,101 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
         Object value = connector.getAttribute("maxThreads");
         return value == null ? 200 : Integer.parseInt(value.toString());
     }
-    
+
     public int getMaxSpareThreads() {
         Object value = connector.getAttribute("maxSpareThreads");
         return value == null ? 100 : Integer.parseInt(value.toString());
     }
-    
+
     public int getMinSpareThreads() {
         Object value = connector.getAttribute("minSpareThreads");
         return value == null ? 10 : Integer.parseInt(value.toString());
     }
-    
+
     public int getPort() {
         return connector.getPort();
     }
 
     public boolean getTcpNoDelay() {
         Object value = connector.getAttribute("tcpNoDelay");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
 
     public boolean getTomcatAuthentication() {
         Object value = connector.getAttribute("tomcatAuthentication");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
-    
+
     @Persistent(manageable=false)
     public void setAddress(String address) {
         connector.setAttribute("address", address);
     }
-    
+
     @Persistent(manageable=false)
     public void setBacklog(int backlog) {
-        connector.setAttribute("backlog", new Integer(backlog));
+        connector.setAttribute("backlog", Integer.valueOf(backlog));
     }
-    
+
     @Persistent(manageable=false)
     public void setBufferSize(int bufferSize) {
-        connector.setAttribute("bufferSize", new Integer(bufferSize));
+        connector.setAttribute("bufferSize", Integer.valueOf(bufferSize));
     }
-    
+
     @Persistent(manageable=false)
     public void setConnectionTimeout(int connectionTimeout) {
-        connector.setAttribute("connectionTimeout", new Integer(connectionTimeout));
+        connector.setAttribute("connectionTimeout", Integer.valueOf(connectionTimeout));
     }
-    
+
     @Persistent(manageable=false)
     public void setExecutor(String executor) {
         connector.setAttribute("executor", executor);
     }
-    
+
     @Persistent(manageable=false)
     public void setHost(String host) {
         setAddress(host);
     }
-    
+
     @Persistent(manageable=false)
     public void setKeepAliveTimeout(int keepAliveTimeout) {
-        connector.setAttribute("keepAliveTimeout", keepAliveTimeout);        
+        connector.setAttribute("keepAliveTimeout", keepAliveTimeout);
     }
-    
+
     @Persistent(manageable=false)
     public void setMaxThreads(int maxThreads) {
-        connector.setAttribute("maxThreads", maxThreads);        
+        connector.setAttribute("maxThreads", maxThreads);
     }
-    
+
     @Persistent(manageable=false)
     public void setMaxSpareThreads(int maxSpareThreads) {
-        connector.setAttribute("maxSpareThreads", new Integer(maxSpareThreads));
+        connector.setAttribute("maxSpareThreads", Integer.valueOf(maxSpareThreads));
     }
-    
-    @Persistent(manageable=false) 
+
+    @Persistent(manageable=false)
     public void setMinSpareThreads(int minSpareThreads) {
-        connector.setAttribute("minSpareThreads", new Integer(minSpareThreads));
+        connector.setAttribute("minSpareThreads", Integer.valueOf(minSpareThreads));
     }
-    
+
     @Persistent(manageable=false)
     public void setNoCompressionUserAgents(String noCompressionUserAgents) {
         connector.setAttribute("noCompressionUserAgents", noCompressionUserAgents);
     }
-    
+
     @Persistent(manageable=false)
     public void setPort(int port) {
         connector.setPort(port);
     }
-    
+
     @Persistent(manageable=false)
     public void setTcpNoDelay(boolean tcpNoDelay) {
-        connector.setAttribute("tcpNoDelay", new Boolean(tcpNoDelay));
+        connector.setAttribute("tcpNoDelay", Boolean.valueOf(tcpNoDelay));
     }
-    
+
     @Persistent(manageable=false)
     public void setTomcatAuthentication(boolean tomcatAuthentication) {
-        connector.setAttribute("tomcatAuthentication", new Boolean(tomcatAuthentication));
+        connector.setAttribute("tomcatAuthentication", Boolean.valueOf(tomcatAuthentication));
     }
-    
+
     // Statistics Provider
 
     public boolean isStatisticsProvider() {
@@ -278,6 +278,6 @@ public class AJP13ConnectorGBean extends ConnectorGBean implements Ajp13Protocol
     public void resetStats() {
         reset = true;
     }
-    
-   
+
+
 }

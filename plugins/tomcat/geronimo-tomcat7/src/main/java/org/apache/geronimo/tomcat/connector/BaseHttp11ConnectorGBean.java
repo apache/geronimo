@@ -41,7 +41,7 @@ import org.apache.geronimo.tomcat.stats.ConnectorStats;
 public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements BaseHttp11Protocol, StatisticsProvider {
 
     protected String connectHost;
-    
+
     // JSR77 stats
     private ConnectorStats connStatsProvider = new ConnectorStats();
 
@@ -55,7 +55,7 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
                                     @ParamReference(name = "TomcatContainer") TomcatContainer container,
                                     @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
                                     @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
-                                    
+
         super(name, initParams, tomcatProtocol, container, serverInfo, conn);
 
         // Default the host to listen on all address is one was not specified
@@ -70,11 +70,11 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
 
         connector.setAttribute("address", host);
         connector.setPort(port);
-        
+
     }
-    
+
     protected void initProtocol() {}
-    
+
     public String getConnectUrl() {
         if(connectHost == null) {
             String host = getAddress();
@@ -92,16 +92,16 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
                     }
                 }
             }
-            // this host address could be in IPv6 format, 
+            // this host address could be in IPv6 format,
             // which means we need to wrap it in brackets
             if (host.indexOf(":") >= 0) {
-                host = "[" + host + "]"; 
+                host = "[" + host + "]";
             }
             connectHost = host;
         }
         return getScheme().toLowerCase()+"://"+connectHost+(getPort() == getDefaultPort() ? "" : ":"+getPort());
     }
-    
+
     public abstract int getDefaultPort();
 
 
@@ -146,28 +146,28 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
 
     public boolean getDisableUploadTimeout() {
         Object value = connector.getAttribute("disableUploadTimeout");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
 
     public String getExecutor() {
         Object value = connector.getAttribute("executor");
         if (value == null)
             return null;
-        
+
         if (value instanceof String)
             return (String)value;
-        
+
         if(value instanceof Executor){
             return ((Executor) value).getName();
         }
-        
-        return (String) value.getClass().getName();
+
+        return value.getClass().getName();
     }
-    
+
     public String getHost() {
         return getAddress();
     }
-    
+
     public InetSocketAddress getListenAddress() {
         return new InetSocketAddress(getHost(), getPort());
     }
@@ -191,12 +191,12 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
         Object value = connector.getAttribute("maxThreads");
         return value == null ? 200 : Integer.parseInt(value.toString());
     }
-    
+
     public int getMaxSpareThreads() {
         Object value = connector.getAttribute("maxSpareThreads");
         return value == null ? 100 : Integer.parseInt(value.toString());
     }
-    
+
     public int getMinSpareThreads() {
         Object value = connector.getAttribute("minSpareThreads");
         return value == null ? 10 : Integer.parseInt(value.toString());
@@ -225,95 +225,95 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
 
     public boolean getTcpNoDelay() {
         Object value = connector.getAttribute("tcpNoDelay");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
-    
+
 
     public int getThreadPriority() {
         Object value = connector.getAttribute("threadPriority");
         return value == null ? Thread.NORM_PRIORITY : Integer.parseInt(value.toString());
     }
-    
+
 
     public void setAcceptCount(int acceptCount) {
-        connector.setAttribute("acceptCount", new Integer(acceptCount));
+        connector.setAttribute("acceptCount", Integer.valueOf(acceptCount));
     }
-    
+
     @Persistent(manageable=false)
     public void setAddress(String address) {
         connector.setAttribute("address", address);
     }
-    
+
     @Persistent(manageable=false)
     public void setBufferSize(int bufferSize) {
-        connector.setAttribute("bufferSize", new Integer(bufferSize));
+        connector.setAttribute("bufferSize", Integer.valueOf(bufferSize));
     }
-    
+
     @Persistent(manageable=false)
     public void setCompressableMimeType(String compressableMimeType) {
         connector.setAttribute("compressableMimeType", compressableMimeType);
     }
-    
+
     @Persistent(manageable=false)
     public void setCompression(String compression) {
         connector.setAttribute("compression", compression);
     }
-    
+
     @Persistent(manageable=false)
     public void setConnectionLinger(int connectionLinger) {
-        connector.setAttribute("connectionLinger", new Integer(connectionLinger));
+        connector.setAttribute("connectionLinger", Integer.valueOf(connectionLinger));
     }
-    
+
     @Persistent(manageable=false)
     public void setConnectionTimeout(int connectionTimeout) {
-        connector.setAttribute("connectionTimeout", new Integer(connectionTimeout));
+        connector.setAttribute("connectionTimeout", Integer.valueOf(connectionTimeout));
     }
-    
+
     @Persistent(manageable=false)
     public void setDisableUploadTimeout(boolean disableUploadTimeout) {
-        connector.setAttribute("disableUploadTimeout", new Boolean(disableUploadTimeout));
+        connector.setAttribute("disableUploadTimeout", Boolean.valueOf(disableUploadTimeout));
     }
-    
+
     @Persistent(manageable=false)
     public void setExecutor(String executor) {
         connector.setAttribute("executor", executor);
     }
-    
+
     @Persistent(manageable=false)
     public void setHost(String host) {
         setAddress(host);
     }
-    
+
     @Persistent(manageable=false)
     public void setKeepAliveTimeout(int keepAliveTimeout) {
         connector.setAttribute("keepAliveTimeout", keepAliveTimeout);
     }
-    
+
     @Persistent(manageable=false)
     public void setMaxHttpHeaderSize(int maxHttpHeaderSize) {
-        connector.setAttribute("maxHttpHeaderSize", new Integer(maxHttpHeaderSize));
+        connector.setAttribute("maxHttpHeaderSize", Integer.valueOf(maxHttpHeaderSize));
     }
-    
+
     @Persistent(manageable=false)
     public void setMaxKeepAliveRequests(int maxKeepAliveRequests) {
-        connector.setAttribute("maxKeepAliveRequests", new Integer(maxKeepAliveRequests));
+        connector.setAttribute("maxKeepAliveRequests",Integer.valueOf(maxKeepAliveRequests));
     }
-    
+
     @Persistent(manageable=false)
     public void setMaxThreads(int maxThreads) {
-        connector.setAttribute("maxThreads", new Integer(maxThreads));
+        connector.setAttribute("maxThreads", Integer.valueOf(maxThreads));
     }
-    
+
     @Persistent(manageable=false)
     public void setMaxSpareThreads(int maxSpareThreads) {
-        connector.setAttribute("maxSpareThreads", new Integer(maxSpareThreads));
+        connector.setAttribute("maxSpareThreads", Integer.valueOf(maxSpareThreads));
     }
-    
+
     @Persistent(manageable=false)
     public void setMinSpareThreads(int minSpareThreads) {
-        connector.setAttribute("minSpareThreads", new Integer(minSpareThreads));
+        connector.setAttribute("minSpareThreads", Integer.valueOf(minSpareThreads));
     }
-    
+
     @Persistent(manageable=false)
     public void setNoCompressionUserAgents(String noCompressionUserAgents) {
         connector.setAttribute("noCompressionUserAgents", noCompressionUserAgents);
@@ -326,27 +326,27 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
     public void setRestrictedUserAgents(String restrictedUserAgents) {
         connector.setAttribute("restrictedUserAgents", restrictedUserAgents);
     }
-    
+
     @Persistent(manageable=false)
     public void setServer(String server) {
         if (server.equals(""))
             server = null;
         connector.setAttribute("server", server);
     }
-    
+
     @Persistent(manageable=false)
     public void setSocketBuffer(int socketBuffer) {
-        connector.setAttribute("socketBuffer", new Integer(socketBuffer));
+        connector.setAttribute("socketBuffer", Integer.valueOf(socketBuffer));
     }
-    
+
     @Persistent(manageable=false)
     public void setTcpNoDelay(boolean tcpNoDelay) {
-        connector.setAttribute("tcpNoDelay", new Boolean(tcpNoDelay));
+        connector.setAttribute("tcpNoDelay", Boolean.valueOf(tcpNoDelay));
     }
-    
+
     @Persistent(manageable=false)
     public void setThreadPriority(int threadPriority) {
-        connector.setAttribute("threadPriority", new Integer(threadPriority));
+        connector.setAttribute("threadPriority", Integer.valueOf(threadPriority));
     }
 
     // Statistics Provider
@@ -367,7 +367,7 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
     public void resetStats() {
         reset = true;
     }
-    
+
     protected String getRelatedPathtoCatalinaHome(String path) {
 
         if (null != path && path.indexOf(System.getProperty("catalina.home")) != -1) {
@@ -386,14 +386,14 @@ public abstract class BaseHttp11ConnectorGBean extends ConnectorGBean implements
         if (new File(path).isAbsolute()) {
             return path;
         }
-      
-        
+
+
         File file= new File(new File(System.getProperty("catalina.home")), path);
 
         return file.getAbsolutePath();
-        
+
 
     }
 
-    
+
 }

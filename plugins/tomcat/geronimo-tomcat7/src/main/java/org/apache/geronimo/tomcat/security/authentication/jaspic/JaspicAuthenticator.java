@@ -20,28 +20,29 @@
 
 package org.apache.geronimo.tomcat.security.authentication.jaspic;
 
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.Arrays;
-import java.security.Principal;
 
-import javax.security.auth.message.config.ServerAuthContext;
-import javax.security.auth.message.config.ServerAuthConfig;
-import javax.security.auth.message.MessageInfo;
-import javax.security.auth.message.AuthStatus;
+import javax.security.auth.Subject;
 import javax.security.auth.message.AuthException;
+import javax.security.auth.message.AuthStatus;
+import javax.security.auth.message.MessageInfo;
 import javax.security.auth.message.callback.CallerPrincipalCallback;
 import javax.security.auth.message.callback.GroupPrincipalCallback;
-import javax.security.auth.Subject;
+import javax.security.auth.message.config.ServerAuthConfig;
+import javax.security.auth.message.config.ServerAuthContext;
 
-import org.apache.geronimo.tomcat.security.Authenticator;
+import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.Response;
 import org.apache.geronimo.tomcat.security.AuthResult;
+import org.apache.geronimo.tomcat.security.Authenticator;
+import org.apache.geronimo.tomcat.security.IdentityService;
 import org.apache.geronimo.tomcat.security.ServerAuthException;
 import org.apache.geronimo.tomcat.security.TomcatAuthStatus;
 import org.apache.geronimo.tomcat.security.UserIdentity;
-import org.apache.geronimo.tomcat.security.IdentityService;
-import org.apache.catalina.connector.Request;
-import org.apache.catalina.connector.Response;
 
 /**
  * @version $Rev$ $Date$
@@ -102,7 +103,7 @@ public class JaspicAuthenticator implements Authenticator {
                     }
                     GroupPrincipalCallback groupPrincipalCallback = callbackHandler.getThreadGroupPrincipalCallback();
                     String[] groups = groupPrincipalCallback == null ? null : groupPrincipalCallback.getGroups();
-                    userIdentity = identityService.newUserIdentity(clientSubject, principal, Arrays.asList(groups));
+                    userIdentity = identityService.newUserIdentity(clientSubject, principal, groups == null ? Collections.<String>emptyList() : Arrays.asList(groups));
                 }
                 return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity);
             }

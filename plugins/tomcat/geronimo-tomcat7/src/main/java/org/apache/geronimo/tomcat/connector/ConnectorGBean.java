@@ -307,7 +307,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
     public boolean getSslEnabled() {
         Object value = connector.getAttribute("SSLEnabled");
-        return value == null ? false : new Boolean(value.toString()).booleanValue();
+        return value == null ? false : Boolean.valueOf(value.toString());
     }
 
     @Persistent(manageable=false)

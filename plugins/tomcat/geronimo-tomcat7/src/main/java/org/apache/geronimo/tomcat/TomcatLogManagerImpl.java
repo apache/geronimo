@@ -79,11 +79,11 @@ public class TomcatLogManagerImpl implements TomcatLogManager, GBeanLifecycle {
     private final static String LOG_FILE_NAME_FORMAT = "yyyy-MM-dd";
     private List<AccessLogValve> accessLogValves;
     private final ServerInfo serverInfo;
-    private TomcatServerGBean tomcatServer;    
+    private TomcatServerGBean tomcatServer;
 
     public TomcatLogManagerImpl(ServerInfo serverInfo, TomcatServerGBean tomcatServer) {
         this.serverInfo = serverInfo;
-        this.tomcatServer = tomcatServer;        
+        this.tomcatServer = tomcatServer;
     }
 
     /**
@@ -98,11 +98,11 @@ public class TomcatLogManagerImpl implements TomcatLogManager, GBeanLifecycle {
         for (AccessLogValve accessLogValve : accessLogValves) {
             logNames.add("var/catalina/logs/" + accessLogValve.getPrefix() + LOG_FILE_NAME_FORMAT + accessLogValve.getSuffix());
         }
-        return (String[]) logNames.toArray(new String[logNames.size()]);
+        return logNames.toArray(new String[logNames.size()]);
     }
 
     /**
-     * Gets the names of all log files for this log name.  
+     * Gets the names of all log files for this log name.
      *
      * @param logName The name of the log for which to return the specific file names.
      *
@@ -120,7 +120,7 @@ public class TomcatLogManagerImpl implements TomcatLogManager, GBeanLifecycle {
                 names.add(logFiles[i].getName());
             }
         }
-        return (String[]) names.toArray(new String[names.size()]);
+        return names.toArray(new String[names.size()]);
     }
 
     /**
@@ -186,7 +186,7 @@ public class TomcatLogManagerImpl implements TomcatLogManager, GBeanLifecycle {
         if (logFiles !=null) {
             for (int i = 0; i < logFiles.length; i++) {
                 fileLineCount = 0;
-                FileInputStream logInputStream = null;
+                BufferedReader reader = null;
                 try {
                     // Obtain the date for the current log file
                     String fileName = logFiles[i].getName();
@@ -200,8 +200,7 @@ public class TomcatLogManagerImpl implements TomcatLogManager, GBeanLifecycle {
                        || (start>0 && start<=logFileTime && end>0 && end>=logFileTime)) {
 
                         // It's in the range, so process the file
-                        logInputStream = new FileInputStream(logFiles[i]);
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(logInputStream, "US-ASCII"));
+                        reader = new BufferedReader(new InputStreamReader(new FileInputStream(logFiles[i]), "US-ASCII"));
 
                         Matcher target = ACCESS_LOG_PATTERN.matcher("");
                         SimpleDateFormat format = (start == 0 && end == 0) ? null : new SimpleDateFormat(ACCESS_LOG_DATE_FORMAT);
@@ -255,9 +254,9 @@ public class TomcatLogManagerImpl implements TomcatLogManager, GBeanLifecycle {
                 } catch (Exception e) {
                     log.error("Unexpected error processing logs", e);
                 } finally {
-                    if (logInputStream != null) {
+                    if (reader != null) {
                         try {
-                            logInputStream.close();
+                            reader.close();
                         } catch (IOException e) {
                             // ignore
                         }
@@ -265,15 +264,15 @@ public class TomcatLogManagerImpl implements TomcatLogManager, GBeanLifecycle {
                 }
             }
         }
-        return new SearchResults(lineCount, (LogMessage[]) list.toArray(new LogMessage[list.size()]), capped);
+        return new SearchResults(lineCount, list.toArray(new LogMessage[list.size()]), capped);
     }
 
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Log Manager", TomcatLogManagerImpl.class);        
-        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");       
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Log Manager", TomcatLogManagerImpl.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addReference("Server", TomcatServerGBean.class);
         infoFactory.addInterface(TomcatLogManager.class);
         infoFactory.setConstructor(new String[] { "ServerInfo", "Server" });
@@ -305,11 +304,11 @@ public class TomcatLogManagerImpl implements TomcatLogManager, GBeanLifecycle {
             return pattern.matcher(fileName).matches();
         }
     }
-    
-    public void doFail() {       
+
+    public void doFail() {
     }
 
-    public void doStart() throws Exception {        
+    public void doStart() throws Exception {
         //Find all the access log valves and add them to the list
         //Valve could be added on Engine/Host/Context
         Server server = tomcatServer.getServer();
@@ -342,7 +341,7 @@ public class TomcatLogManagerImpl implements TomcatLogManager, GBeanLifecycle {
         }
     }
 
-    public void doStop() throws Exception {        
+    public void doStop() throws Exception {
     }
 
 /*

@@ -28,7 +28,7 @@ import java.net.URL;
  */
 public class ApplicationTest extends AbstractWebModuleTest {
     private File basedir = new File(System.getProperty("basedir"));
-    
+
     public void testApplication() throws Exception {
         setUpInsecureAppContext("war1",
                 null,
@@ -38,10 +38,20 @@ public class ApplicationTest extends AbstractWebModuleTest {
                 null);
 
         HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() +  "/test/hello.txt").openConnection();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
-        assertEquals("Hello World", reader.readLine());
-        connection.disconnect();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
+            assertEquals("Hello World", reader.readLine());
+        } finally {
+            connection.disconnect();
+            if (reader != null)
+                try {
+                    reader.close();
+                } catch (Exception e) {
+                }
+
+        }
     }
 
     protected void setUp() throws Exception {

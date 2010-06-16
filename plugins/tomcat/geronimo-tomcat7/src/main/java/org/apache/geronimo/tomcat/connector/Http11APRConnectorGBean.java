@@ -39,7 +39,7 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     private String certificateChainFile;
     private String revocationPath;
     private String revocationFile;
-    
+
     public Http11APRConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
                                    @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
                                    @ParamAttribute(manageable=false, name = "host") String host,
@@ -47,7 +47,7 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
                                    @ParamReference(name = "TomcatContainer") TomcatContainer container,
                                    @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
                                    @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
-                                   
+
         super(name, initParams, "org.apache.coyote.http11.Http11AprProtocol", host, port, container, serverInfo, conn);
     }
 
@@ -104,7 +104,7 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
     public String getSslCipherSuite() {
         return (String) connector.getAttribute("SSLCipherSuite");
     }
-    
+
     public String getSslProtocol() {
         return (String) connector.getAttribute("SSLProtocol");
     }
@@ -130,34 +130,34 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
 
     public boolean getUseSendfile() {
         Object value = connector.getAttribute("useSendfile");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
-    
+
     public String getSslPassword() {
         return (String) connector.getAttribute("SSLPassword");
     }
-    
+
     @Persistent(manageable=false)
     public void setPollTime(int pollTime) {
         connector.setAttribute("pollTime", pollTime);
     }
-    
+
     @Persistent(manageable=false)
     public void setPollerSize(int pollerSize) {
         connector.setAttribute("pollerSize", pollerSize);
     }
-    
+
     @Persistent(manageable=false)
     public void setSendfileSize(int sendfileSize) {
         connector.setAttribute("sendfileSize", sendfileSize);
     }
-    
+
     @Persistent(manageable=false)
     public void setSslCACertificateFile(String sslCACertificateFile) {
         if (sslCACertificateFile != null && sslCACertificateFile.equals(""))
             sslCACertificateFile = null;
         caCertificateFile = sslCACertificateFile;
-        
+
         if (caCertificateFile == null) {
             connector.setAttribute("SSLCACertificateFile", null);
         } else {
@@ -169,13 +169,13 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
 
         }
     }
-    
+
     @Persistent(manageable=false)
     public void setSslCACertificatePath(String sslCACertificatePath) {
         if (sslCACertificatePath != null && sslCACertificatePath.equals(""))
             sslCACertificatePath = null;
         caCertificatePath = sslCACertificatePath;
-        
+
         if (caCertificatePath == null) {
             connector.setAttribute("SSLCACertificatePath", null);
         } else {
@@ -187,13 +187,13 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
 
         }
     }
-    
+
     @Persistent(manageable=false)
     public void setSslCertificateChainFile(String sslCertificateChainFile) {
         if (sslCertificateChainFile != null && sslCertificateChainFile.equals(""))
             sslCertificateChainFile = null;
         certificateChainFile = sslCertificateChainFile;
-        
+
         if (certificateChainFile == null) {
             connector.setAttribute("SSLCertificateChainFile", null);
         } else {
@@ -205,13 +205,13 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
 
         }
     }
-    
+
     @Persistent(manageable=false)
     public void setSslCertificateFile(String sslCertificateFile) {
         if (sslCertificateFile != null && sslCertificateFile.equals(""))
             sslCertificateFile = null;
         certificateFile = sslCertificateFile;
-        
+
         if (certificateFile == null) {
             connector.setAttribute("SSLCertificateFile", null);
         } else {
@@ -223,13 +223,13 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
 
         }
     }
-    
+
     @Persistent(manageable=false)
     public void setSslCertificateKeyFile(String sslCertificateKeyFile) {
         if (sslCertificateKeyFile != null && sslCertificateKeyFile.equals(""))
             sslCertificateKeyFile = null;
         certificateKeyFile = sslCertificateKeyFile;
-        
+
         if (certificateKeyFile == null) {
             connector.setAttribute("SSLCertificateKeyFile", null);
         } else {
@@ -241,30 +241,30 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
 
         }
     }
-    
+
     @Persistent(manageable=false)
     public void setSslCipherSuite(String sslCipherSuite) {
         connector.setAttribute("SSLCipherSuite", sslCipherSuite);
     }
-    
+
     @Persistent(manageable=false)
     public void setSslPassword(String sslPassword) {
         if (sslPassword != null && sslPassword.equals(""))
             sslPassword = null;
         connector.setAttribute("SSLPassword", sslPassword);
     }
-    
+
     @Persistent(manageable=false)
     public void setSslProtocol(String sslProtocol) {
         connector.setAttribute("SSLProtocol", sslProtocol);
     }
-    
+
     @Persistent(manageable=false)
     public void setSslCARevocationFile(String sslCARevocationFile) {
-        if (sslCARevocationFile!= null && sslCARevocationFile.equals("")) 
+        if (sslCARevocationFile!= null && sslCARevocationFile.equals(""))
             sslCARevocationFile = null;
         revocationFile = sslCARevocationFile;
-        
+
         if (revocationFile == null) {
             connector.setAttribute("SSLCARevocationFile", null);
         } else {
@@ -276,13 +276,13 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
 
         }
     }
-    
+
     @Persistent(manageable=false)
     public void setSslCARevocationPath(String sslCARevocationPath) {
-        if (sslCARevocationPath!= null && sslCARevocationPath.equals("")) 
+        if (sslCARevocationPath!= null && sslCARevocationPath.equals(""))
             sslCARevocationPath = null;
         revocationPath = sslCARevocationPath;
-        
+
         if (revocationPath == null) {
             connector.setAttribute("SSLCARevocationPath", null);
         } else {
@@ -295,20 +295,20 @@ public class Http11APRConnectorGBean extends BaseHttp11ConnectorGBean implements
         }
 
     }
-    
+
     @Persistent(manageable=false)
     public void setSslVerifyClient(String sslVerifyClient) {
         connector.setAttribute("SSLVerifyClient", sslVerifyClient);
     }
-    
+
     @Persistent(manageable=false)
     public void setSslVerifyDepth(int sslVerifyDepth) {
         connector.setAttribute("SSLVerifyDepth", sslVerifyDepth);
     }
-    
+
     @Persistent(manageable=false)
     public void setUseSendfile(boolean useSendfile) {
         connector.setAttribute("useSendfile", useSendfile);
     }
-    
+
 }

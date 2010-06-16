@@ -39,14 +39,14 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
                                    @ParamReference(name = "TomcatContainer") TomcatContainer container,
                                    @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
                                    @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
-                                   
+
         super(name, initParams, "org.apache.coyote.http11.Http11NioProtocol", host, port, container, serverInfo, conn);
     }
-    
+
     public int getDefaultPort() {
-        return 80; 
-    }  
-    
+        return 80;
+    }
+
     public String getGeronimoProtocol(){
         return WebManager.PROTOCOL_HTTP;
     }
@@ -63,7 +63,7 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
 
     public boolean getCommand_line_options() {
         Object value = connector.getAttribute("command-line-options");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
 
     public int getOomParachute() {
@@ -75,7 +75,7 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
         Object value = connector.getAttribute("pollerThreadCount");
         return value == null ? 1 : Integer.parseInt(value.toString());
     }
-    
+
     public int getPollerThreadPriority() {
         Object value = connector.getAttribute("pollerThreadCount");
         return value == null ? Thread.NORM_PRIORITY : Integer.parseInt(value.toString());
@@ -123,7 +123,7 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
 
     public boolean getSocket_directBuffer() {
         Object value = connector.getAttribute("socket.directBuffer");
-        return value == null ? false : new Boolean(value.toString()).booleanValue();
+        return value == null ? false : Boolean.valueOf(value.toString());
     }
 
     public int getSocket_eventCache() {
@@ -138,7 +138,7 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
 
     public boolean getSocket_ooBInline() {
         Object value = connector.getAttribute("socket.ooBInline");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
 
     public int getSocket_performanceBandwidth() {
@@ -168,12 +168,12 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
 
     public boolean getSocket_soKeepAlive() {
         Object value = connector.getAttribute("socket.soKeepAlive");
-        return value == null ? false : new Boolean(value.toString()).booleanValue();
+        return value == null ? false : Boolean.valueOf(value.toString());
     }
 
     public boolean getSocket_soLingerOn() {
         Object value = connector.getAttribute("socket.soLingerOn");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
 
     public int getSocket_soLingerTime() {
@@ -183,7 +183,7 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
 
     public boolean getSocket_soReuseAddress() {
         Object value = connector.getAttribute("socket.soReuseAddress");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
 
     public int getSocket_soTimeout() {
@@ -198,7 +198,7 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
 
     public boolean getSocket_tcpNoDelay() {
         Object value = connector.getAttribute("socket.tcpNoDelay");
-        return value == null ? false : new Boolean(value.toString()).booleanValue();
+        return value == null ? false : Boolean.valueOf(value.toString());
     }
 
     public int getSocket_txBufSize() {
@@ -208,188 +208,188 @@ public class Http11NIOConnectorGBean extends AbstractHttp11ConnectorGBean implem
 
     public boolean getUseComet() {
         Object value = connector.getAttribute("useComet");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
 
     public boolean getUseExecutor() {
         Object value = connector.getAttribute("useExecutor");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
 
     public boolean getUseSendfile() {
         Object value = connector.getAttribute("useSendfile");
-        return value == null ? true : new Boolean(value.toString()).booleanValue();
+        return value == null ? true : Boolean.valueOf(value.toString());
     }
-    
+
     @Persistent(manageable=false)
     public void setAcceptorThreadCount(int acceptorThreadCount) {
-        connector.setAttribute("acceptorThreadCount", new Integer(acceptorThreadCount));
+        connector.setAttribute("acceptorThreadCount", Integer.valueOf(acceptorThreadCount));
     }
-    
+
     @Persistent(manageable=false)
     public void setAcceptorThreadPriority(int acceptorThreadPriority) {
-        connector.setAttribute("acceptorThreadPriority", new Integer(acceptorThreadPriority));
+        connector.setAttribute("acceptorThreadPriority", Integer.valueOf(acceptorThreadPriority));
     }
-    
+
     @Persistent(manageable=false)
     public void setCommand_line_options(boolean command_line_options) {
-        connector.setAttribute("command-line-options", new Boolean(command_line_options));
+        connector.setAttribute("command-line-options", Boolean.valueOf(command_line_options));
     }
-    
+
     @Persistent(manageable=false)
     public void setOomParachute(int oomParachute) {
-        connector.setAttribute("oomParachute", new Integer(oomParachute));
+        connector.setAttribute("oomParachute", Integer.valueOf(oomParachute));
     }
-    
+
     @Persistent(manageable=false)
     public void setPollerThreadCount(int pollerThreadCount) {
-        connector.setAttribute("pollerThreadCount", new Integer(pollerThreadCount));
+        connector.setAttribute("pollerThreadCount", Integer.valueOf(pollerThreadCount));
     }
-    
-    @Persistent(manageable=false)   
+
+    @Persistent(manageable=false)
     public void setPollerThreadPriority(int pollerThreadPriority) {
-        connector.setAttribute("pollerThreadPriority", new Integer(pollerThreadPriority));
+        connector.setAttribute("pollerThreadPriority", Integer.valueOf(pollerThreadPriority));
     }
-    
+
     @Persistent(manageable=false)
     public void setProcessCache(int processCache) {
-        connector.setAttribute("processCache", new Integer(processCache));
+        connector.setAttribute("processCache", Integer.valueOf(processCache));
     }
-    
+
     @Persistent(manageable=false)
     public void setSelectorPool_maxSelectors(int selectorPool_maxSelectors) {
-        connector.setAttribute("selectorPool.maxSelectors", new Integer(selectorPool_maxSelectors));
+        connector.setAttribute("selectorPool.maxSelectors", Integer.valueOf(selectorPool_maxSelectors));
     }
-    
+
     @Persistent(manageable=false)
     public void setSelectorPool_maxSpareSelectors(int selectorPool_maxSpareSelectors) {
-        connector.setAttribute("selectorPool.maxSpareSelectors", new Integer(selectorPool_maxSpareSelectors));
+        connector.setAttribute("selectorPool.maxSpareSelectors", Integer.valueOf(selectorPool_maxSpareSelectors));
     }
-    
+
     @Persistent(manageable=false)
     public void setSelectorTimeout(int selectorTimeout) {
-        connector.setAttribute("selectorTimeout", new Integer(selectorTimeout));
+        connector.setAttribute("selectorTimeout", Integer.valueOf(selectorTimeout));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_appReadBufSize(int socket_appReadBufSize) {
-        connector.setAttribute("socket.appReadBufSize", new Integer(socket_appReadBufSize));
+        connector.setAttribute("socket.appReadBufSize", Integer.valueOf(socket_appReadBufSize));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_appWriteBufSize(int socket_appWriteBufSize) {
-        connector.setAttribute("socket.appWriteBufSize", new Integer(socket_appWriteBufSize));
+        connector.setAttribute("socket.appWriteBufSize", Integer.valueOf(socket_appWriteBufSize));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_bufferPool(int socket_bufferPool) {
-        connector.setAttribute("socket.bufferPool", new Integer(socket_bufferPool));
+        connector.setAttribute("socket.bufferPool", Integer.valueOf(socket_bufferPool));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_bufferPoolSize(int socket_bufferPoolSize) {
-        connector.setAttribute("socket.bufferPoolSize", new Integer(socket_bufferPoolSize));
+        connector.setAttribute("socket.bufferPoolSize", Integer.valueOf(socket_bufferPoolSize));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_directBuffer(boolean socket_directBuffer) {
-        connector.setAttribute("socket.directBuffer", new Boolean(socket_directBuffer));
+        connector.setAttribute("socket.directBuffer", Boolean.valueOf(socket_directBuffer));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_eventCache(int socket_eventCache) {
-        connector.setAttribute("socket.eventCache", new Integer(socket_eventCache));
+        connector.setAttribute("socket.eventCache", Integer.valueOf(socket_eventCache));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_keyCache(int socket_keyCache) {
-        connector.setAttribute("socket.keyCache", new Integer(socket_keyCache));
+        connector.setAttribute("socket.keyCache", Integer.valueOf(socket_keyCache));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_ooBInline(boolean socket_ooBInline) {
-        connector.setAttribute("socket.ooBInline", new Boolean(socket_ooBInline));
+        connector.setAttribute("socket.ooBInline", Boolean.valueOf(socket_ooBInline));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_performanceBandwidth(int socket_performanceBandwidth) {
-        connector.setAttribute("socket.performanceBandwidth", new Integer(socket_performanceBandwidth));
+        connector.setAttribute("socket.performanceBandwidth", Integer.valueOf(socket_performanceBandwidth));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_performanceConnectionTime(int socket_performanceConnectionTime) {
-        connector.setAttribute("socket.performanceConnectionTime", new Integer(socket_performanceConnectionTime));
+        connector.setAttribute("socket.performanceConnectionTime", Integer.valueOf(socket_performanceConnectionTime));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_performanceLatency(int socket_performanceLatency) {
-        connector.setAttribute("socket.performanceLatency", new Integer(socket_performanceLatency));
+        connector.setAttribute("socket.performanceLatency", Integer.valueOf(socket_performanceLatency));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_processorCache(int socket_processorCache) {
-        connector.setAttribute("socket.processorCache", new Integer(socket_processorCache));
+        connector.setAttribute("socket.processorCache", Integer.valueOf(socket_processorCache));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_rxBufSize(int socket_rxBufSize) {
-        connector.setAttribute("socket.rxBufSize", new Integer(socket_rxBufSize));
+        connector.setAttribute("socket.rxBufSize", Integer.valueOf(socket_rxBufSize));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_soKeepAlive(boolean socket_soKeepAlive) {
-        connector.setAttribute("socket.soKeepAlive", new Boolean(socket_soKeepAlive));
+        connector.setAttribute("socket.soKeepAlive", Boolean.valueOf(socket_soKeepAlive));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_soLingerOn(boolean socket_soLingerOn) {
-        connector.setAttribute("socket.soLingerOn", new Boolean(socket_soLingerOn));
+        connector.setAttribute("socket.soLingerOn", Boolean.valueOf(socket_soLingerOn));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_soLingerTime(int socket_soLingerTime) {
-        connector.setAttribute("socket.soLingerTime", new Integer(socket_soLingerTime));
+        connector.setAttribute("socket.soLingerTime", Integer.valueOf(socket_soLingerTime));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_soReuseAddress(boolean socket_soReuseAddress) {
-        connector.setAttribute("socket.soReuseAddress", new Boolean(socket_soReuseAddress));
+        connector.setAttribute("socket.soReuseAddress", Boolean.valueOf(socket_soReuseAddress));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_soTimeout(int socket_soTimeout) {
-        connector.setAttribute("socket.soTimeout", new Integer(socket_soTimeout));
+        connector.setAttribute("socket.soTimeout", Integer.valueOf(socket_soTimeout));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_soTrafficClass(int socket_soTrafficClass) {
-        connector.setAttribute("socket.soTrafficClass", new Integer(socket_soTrafficClass));
+        connector.setAttribute("socket.soTrafficClass", Integer.valueOf(socket_soTrafficClass));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_tcpNoDelay(boolean socket_tcpNoDelay) {
-        connector.setAttribute("socket.tcpNoDelay", new Boolean(socket_tcpNoDelay));
+        connector.setAttribute("socket.tcpNoDelay", Boolean.valueOf(socket_tcpNoDelay));
     }
-    
+
     @Persistent(manageable=false)
     public void setSocket_txBufSize(int socket_txBufSize) {
-        connector.setAttribute("socket.txBufSize", new Integer(socket_txBufSize));
+        connector.setAttribute("socket.txBufSize", Integer.valueOf(socket_txBufSize));
     }
-    
+
     @Persistent(manageable=false)
     public void setUseComet(boolean useComet) {
-        connector.setAttribute("useExecutor", new Boolean(useComet));
+        connector.setAttribute("useExecutor", Boolean.valueOf(useComet));
     }
-    
+
     @Persistent(manageable=false)
     public void setUseExecutor(boolean useExecutor) {
-        connector.setAttribute("useExecutor", new Boolean(useExecutor));
+        connector.setAttribute("useExecutor", Boolean.valueOf(useExecutor));
     }
-    
+
     @Persistent(manageable=false)
     public void setUseSendfile(boolean useSendfile) {
-        connector.setAttribute("useSendfile", new Boolean(useSendfile));
+        connector.setAttribute("useSendfile", Boolean.valueOf(useSendfile));
     }
-    
+
 
 }
