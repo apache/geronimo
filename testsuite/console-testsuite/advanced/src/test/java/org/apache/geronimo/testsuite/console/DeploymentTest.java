@@ -29,7 +29,7 @@ public class DeploymentTest extends ConsoleTestSupport {
         try {
             login();
 
-            selenium.click("link=Deploy New");
+            selenium.click("link=Deployer");
             selenium.waitForPageToLoad("30000");
             selenium.click("//input[@value='Install']");
             selenium.waitForPageToLoad("30000");

@@ -33,14 +33,14 @@ public class DeploymentPortletTest
 {
     @Test
     public void testDeploymentLink() throws Exception {
-        selenium.click("link=Deploy New");
+        selenium.click("link=Deployer");
         selenium.waitForPageToLoad("30000");
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Install New Applications", 
+        assertEquals("Install Application", 
                      selenium.getText(getPortletTitleLocation()));
         // Test help link
         selenium.click(getPortletHelpLocation());
         selenium.waitForPageToLoad("30000");
-        selenium.isTextPresent("This portlet allows the user to deploy new applications on Geronimo.");
+        //assertTrue(selenium.isElementPresent("//input[contains(@name,'startApp')]"));
     }
 }

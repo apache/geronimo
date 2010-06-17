@@ -44,8 +44,13 @@ public class PluginsTest extends ConsoleTestSupport {
             selenium.type("newRepository", actualLink);
             selenium.click("//input[@value='Add Repository']");
             selenium.waitForPageToLoad("30000");
+
+            if (selenium.isTextPresent("Already have an entry for repository " + actualLink)) {
+                selenium.click("link=Cancel");
+                waitForPageLoad();
+            }
             
-            selenium.select("repository", "label=" + actualLink);
+            selenium.select("repository", "label=" + actualLink);            
             selenium.type("username", "system");
             selenium.type("password", "manager");            
             selenium.click("//input[@value='Show Plugins in selected repository']");
