@@ -45,7 +45,7 @@
                     from another Tomcat Geronimo installation.
                 </description>
             </prerequisite>
-            <dependency>geronimo/j2ee-server/2.1.5/car</dependency>
+            <dependency>geronimo/j2ee-server/2.1.6/car</dependency>
             <dependency>geronimo/geronimo-daytrader-derby-db/2.0-SNAPSHOT/jar</dependency>
         </plugin-artifact>
     </plugin>
