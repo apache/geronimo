@@ -41,6 +41,6 @@ public class DeploymentPortletTest
         // Test help link
         selenium.click(getPortletHelpLocation());
         selenium.waitForPageToLoad("30000");
-        //assertTrue(selenium.isElementPresent("//input[contains(@name,'startApp')]"));
+        selenium.isTextPresent("This portlet allows the user to deploy or redeploy applications on Geronimo.");
     }
 }
