@@ -46,7 +46,7 @@ specific services - those should be provided by children.-->
       <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-common</artifactId>
-        <version>2.1.6-SNAPSHOT</version>
+        <version>2.1.6</version>
         <type>jar</type>
         <import>classes</import>
       </dependency>
@@ -60,7 +60,7 @@ specific services - those should be provided by children.-->
       <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-crypto</artifactId>
-        <version>2.1.6-SNAPSHOT</version>
+        <version>2.1.6</version>
         <type>jar</type>
         <import>classes</import>
       </dependency>
@@ -123,7 +123,7 @@ specific services - those should be provided by children.-->
       <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-system</artifactId>
-        <version>2.1.6-SNAPSHOT</version>
+        <version>2.1.6</version>
         <type>jar</type>
         <import>classes</import>
       </dependency>
