@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jpa-tests</artifactId>
-        <version>2.1.7-SNAPSHOT</version>
+        <version>2.1.6-SNAPSHOT</version>
     </parent>
     <artifactId>jpa-ear</artifactId>
     <name>Geronimo TestSuite :: Enterprise Testsuite :: JPA - EAR</name>
