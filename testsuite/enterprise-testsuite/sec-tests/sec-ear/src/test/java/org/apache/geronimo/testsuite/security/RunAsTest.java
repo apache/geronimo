@@ -22,6 +22,7 @@ package org.apache.geronimo.testsuite.security;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeSuite;
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
+import com.thoughtworks.selenium.SeleniumException;
 
 /**
  * ???
@@ -44,7 +45,15 @@ public class RunAsTest
 
     @Test
     public void testServletRunAs() throws Exception {
-        selenium.open("/sec/servlet");
+        // Add try catch block to avoid XHR ERROR bug in Selenium RC 1.0.3
+        try {
+            selenium.open("/sec/servlet");
+        } catch (SeleniumException se) {
+            String message = se.getMessage();
+		    if (message == null || !message.contains("XHR ERROR")) {
+			    throw se;
+		    }
+        }        
         selenium.waitForPageToLoad("30000");
         System.out.println("----------------------------------------------");
         System.out.println(selenium.getText("xpath=/html/body"));
@@ -56,7 +65,15 @@ public class RunAsTest
 
     @Test
     public void testJspRunAs() throws Exception {
-        selenium.open("/sec/jsp");
+        // Add try catch block to avoid XHR ERROR bug in Selenium RC 1.0.3
+        try {
+            selenium.open("/sec/jsp");
+        } catch (SeleniumException se) {
+            String message = se.getMessage();
+		    if (message == null || !message.contains("XHR ERROR")) {
+			    throw se;
+		    }
+        }        
         selenium.waitForPageToLoad("30000");
         System.out.println("----------------------------------------------");
         System.out.println(selenium.getText("xpath=/html/body"));
