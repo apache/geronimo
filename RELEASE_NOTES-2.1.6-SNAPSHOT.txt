@@ -1,4 +1,4 @@
-Release Notes -- Apache Geronimo -- Version 2.1.6
+Release Notes -- Apache Geronimo -- Version #VERSION#
 
 
 Geronimo URLs
@@ -58,30 +58,27 @@ Plan Creator (added in Geronimo 2.1.2)
   the user through a sequence of steps and generates geronimo-web.xml automatically.
 
 
-Geronimo 2.1.6 Issues Resolved
+Geronimo #VERSION# Issues Resolved
 ------------------------------
 ** Bug
-GERONIMO-5383 Update to new versions of CXF and Axis2 
-GERONIMO-5379 Fixes for geronimo custom AXIS2 for 2.1 branch
-GERONIMO-5378 Upgrade CXF version to 2.0.13
-GERONIMO-5347 Upgrade selenium to support latest version browsers in testsuite
-GERONIMO-5330 env-entry values should not be trimmed
-GERONIMO-5303 Improve metadata of encrypt command
-GERONIMO-5274 Deploy New/Install New Application portlet needs some love to help out newbies
-GERONIMO-5167 "ERROR [JNDIReferenceFactory] null" when I deploy new JMS Resource Group for Active MQ
-GERONIMO-4945 Unable to deploy ejb with custom annotation
-GERONIMO-4861 Deployment Plan XML Parsing - Not add generated namespace names to closing tags , upgrade jaxb impl.
-GERONIMO-4583 Remove obsolete plugins from plugins group
+
+
+** Improvement
+
+
+** New Feature
+
+
 
 Certification Status
 --------------------
-Apache Geronimo v2.1.x has passed 100% of SUN's Java Enterprise Edition 5.0 
+Apache Geronimo v#VERSION# has passed 100% of SUN's Java Enterprise Edition 5.0 
 Certification Test Suite. See "Distributions" for further details.
 
 
 Distributions
 -------------
-Apache Geronimo v2.1.x is available in five distributions so you can pick the 
+Apache Geronimo v#VERSION# is available in five distributions so you can pick the 
 one that best fits your environment.
 
 The available distributions are as follows:
@@ -110,15 +107,5 @@ All programming elements of the Java EE 5.0 Specification are available.
 Known Issues and Limitations
 ----------------------------
 ** Bug
-GERONIMO-5181 Modification to Database connection pool parameters are not saved when restart Geronimo. 
-GERONIMO-5160 Fail to create Database Pool for DB2(DataDirect) and Informix(DataDirect) 
-GERONIMO-5137 EJB security config in ejb-jar.xml does not override the ones defined via security annotations 
-GERONIMO-4901 Shutting down Geronimo destroys pending Timers 
-GERONIMO-4887 java.lang.SecurityException: Invalid login when edit a running jmx server 
-GERONIMO-4845 the view is also existed after I delete the server in monitoting portlet 
-GERONIMO-4775 Need to convert static English images into translatable text in Admin console 
-GERONIMO-4757 "java.lang.IllegalStateException" error when use install-plugin goal 
-GERONIMO-4731 Jetty build does not support IPV6 address in browser. 
-GERONIMO-4688 hardcode port in plan.xml of plugin farming. 
-GERONIMO-4634 PlanCreator does not work for some applications
+
 
