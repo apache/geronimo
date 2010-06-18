@@ -100,13 +100,11 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
@@ -135,22 +133,21 @@ import org.apache.openejb.jee.ConnectionDefinition;
 import org.apache.openejb.jee.Connector;
 import org.apache.openejb.jee.Connector10;
 import org.apache.openejb.jee.ConnectorBase;
-import org.apache.openejb.jee.InboundResource;
+import org.apache.openejb.jee.InboundResourceadapter;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.MessageAdapter;
 import org.apache.openejb.jee.MessageListener;
-import org.apache.openejb.jee.OutboundResourceAdapter;
-import org.apache.openejb.jee.ResourceAdapterBase;
+import org.apache.openejb.jee.OutboundResourceadapter;
+import org.apache.openejb.jee.ResourceadapterBase;
 import org.apache.openejb.jee.TransactionSupportType;
+import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
-import org.osgi.service.packageadmin.RequiredBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -556,7 +553,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         resourceAdapterModuleData.setAttribute("EISType", connector.getEisType());
         resourceAdapterModuleData.setAttribute("resourceAdapterVersion", connector.getResourceAdapterVersion());
 
-        ResourceAdapterBase resourceAdapter = connector.getResourceAdapter();
+        ResourceadapterBase resourceAdapter = connector.getResourceAdapter();
         // Create the resource adapter gbean
         if (resourceAdapter.getResourceAdapterClass() != null) {
             GBeanInfoBuilder resourceAdapterInfoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapperGBean.class, new MultiGBeanInfoFactory().getGBeanInfo(ResourceAdapterWrapperGBean.class));
@@ -642,7 +639,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 //          connector.setDescriptions(ra.description());
             connector.setMetadataComplete(false);
             connector.setVersion("1.6");
-            ResourceAdapterBase resourceAdapter = new ResourceAdapterBase();
+            ResourceadapterBase resourceAdapter = new ResourceadapterBase();
             connector.setResourceAdapter(resourceAdapter);
             resourceAdapter.setResourceAdapterClass(raClass.getName());
         } else {
@@ -658,15 +655,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         if (connector.isMetadataComplete() != null && connector.isMetadataComplete()) {
             log.info("Connector is metadata complete");
         } else {
-            ResourceAdapterBase resourceAdapter = connector.getResourceAdapter();
+            ResourceadapterBase resourceAdapter = connector.getResourceAdapter();
             log.info("Reading connector annotations");
             if (raClass != null/*and not metadata complete */) {
                 javax.resource.spi.Connector ra = raClass.getAnnotation(javax.resource.spi.Connector.class);
                 if (ra != null) {
 
-                    OutboundResourceAdapter outboundResourceAdapter = resourceAdapter.getOutboundResourceAdapter();
+                    OutboundResourceadapter outboundResourceAdapter = resourceAdapter.getOutboundResourceAdapter();
                     if (outboundResourceAdapter == null) {
-                        outboundResourceAdapter = new OutboundResourceAdapter();
+                        outboundResourceAdapter = new OutboundResourceadapter();
                         resourceAdapter.setOutboundResourceAdapter(outboundResourceAdapter);
                     }
                     if (outboundResourceAdapter.isReauthenticationSupport() == null) {
@@ -682,9 +679,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
             //inbound
             log.info("connector of type: " + connector);
-            InboundResource inboundResource = resourceAdapter.getInboundResourceAdapter();
+            InboundResourceadapter inboundResource = resourceAdapter.getInboundResourceAdapter();
             if (inboundResource == null) {
-                inboundResource = new InboundResource();
+                inboundResource = new InboundResourceadapter();
                 inboundResource.setMessageAdapter(new MessageAdapter());
             }
             MessageAdapter messageAdapter = inboundResource.getMessageAdapter();
@@ -733,9 +730,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 }
             }
 
-            OutboundResourceAdapter outboundResourceAdapter = resourceAdapter.getOutboundResourceAdapter();
+            OutboundResourceadapter outboundResourceAdapter = resourceAdapter.getOutboundResourceAdapter();
             if (outboundResourceAdapter == null) {
-                outboundResourceAdapter = new OutboundResourceAdapter();
+                outboundResourceAdapter = new OutboundResourceadapter();
             }
 
             //outbound
@@ -784,7 +781,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
      * @param aoInterface     admin object interface
      * @return AdminObject data object
      */
-    private AdminObject getAdminObject(ResourceAdapterBase resourceAdapter, Class aoInterface) {
+    private AdminObject getAdminObject(ResourceadapterBase resourceAdapter, Class aoInterface) {
         for (AdminObject adminObject : resourceAdapter.getAdminObject()) {
             if (aoInterface.getName().equals(adminObject.getAdminObjectInterface())) {
                 return adminObject;
@@ -858,7 +855,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         return list;
     }
 
-    private void buildConnectionDefinition(Class mcfClass, javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation, OutboundResourceAdapter outboundResourceAdapter) throws DeploymentException {
+    private void buildConnectionDefinition(Class mcfClass, javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation, OutboundResourceadapter outboundResourceAdapter) throws DeploymentException {
         ConnectionDefinition connectionDefinition = getConnectionDefinition(connectionDefinitionAnnotation, outboundResourceAdapter);
         if (connectionDefinition.getManagedConnectionFactoryClass() == null) {
             connectionDefinition.setManagedConnectionFactoryClass(mcfClass.getName());
@@ -871,7 +868,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         }
     }
 
-    private ConnectionDefinition getConnectionDefinition(javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation, OutboundResourceAdapter outboundResourceAdapter) {
+    private ConnectionDefinition getConnectionDefinition(javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation, OutboundResourceadapter outboundResourceAdapter) {
         for (ConnectionDefinition connectionDefinition : outboundResourceAdapter.getConnectionDefinition()) {
             if (connectionDefinitionAnnotation.connectionFactory().getName().equals(connectionDefinition.getConnectionFactoryInterface())) {
                 return connectionDefinition;
@@ -927,7 +924,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     }
 
     private void addConnectorGBeans(EARContext earContext, AbstractName jcaResourceName, GBeanData resourceAdapterModuleData, ConnectorBase connector, GerConnectorType geronimoConnector, Bundle bundle) throws DeploymentException {
-        ResourceAdapterBase resourceAdapter = connector.getResourceAdapter();
+        ResourceadapterBase resourceAdapter = connector.getResourceAdapter();
 
         GerResourceadapterType[] geronimoResourceAdapters = geronimoConnector.getResourceadapterArray();
         for (GerResourceadapterType geronimoResourceAdapter : geronimoResourceAdapters) {
