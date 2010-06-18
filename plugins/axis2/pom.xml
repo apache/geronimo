@@ -183,9 +183,10 @@
             </dependency>
 
             <dependency>
+                <!-- NOTE:  The addressing mar was not re-released with 1.5.2 -->
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>addressing</artifactId>
-                <version>${axis2Version}</version>
+                <version>1.5.1</version>
                 <type>mar</type>
                 <exclusions>
                     <exclusion>
