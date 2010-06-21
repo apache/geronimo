@@ -77,7 +77,7 @@ public class XSSHandler {
                 // these parameter value(s) which can allow &lt; and &quot; usage
                 String[] vals = hreq.getParameterValues(name);
                 for (String value : vals) {
-                    if (isInvalidParam(value)) {
+                    if (isInvalidParamLmt(value)) {
                         // should be safe to log the uri, as we've already run isInvalidURI() on it
                         log.warn("Blocking request due to known XSS content in parameter=" + name + " for uri=" + hreq.getRequestURI());
                         return true;
@@ -87,7 +87,7 @@ public class XSSHandler {
             else {
                 String[] vals = hreq.getParameterValues(name);
                 for (String value : vals) {
-                    if (isInvalidString(value)) {
+                    if (isInvalidParam(value)) {
                         // should be safe to log the uri, as we've already run isInvalidURI() on it
                         log.warn("Blocking request due to potential XSS content in parameter=" + name + " for uri=" + hreq.getRequestURI());
                         return true;
@@ -119,9 +119,25 @@ public class XSSHandler {
         }
         return false;
     }
+    
+    /**
+     * This is a copy of isInvalidString expect the elimination of URLDecoder.
+     * Searches the given string for any &lt; or &quot; instances
+     * @param value
+     * @return true if we find &lt; or &quot; anywhere in the string, otherwise false
+     */
+    private boolean isInvalidParam(String value) {
+        if (value != null) {
+            String s = value.toLowerCase();
+            if ((s.indexOf('<') != -1) || (s.indexOf('"') != -1)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
-     * More limited version of the isInvalidString() method, in which we only
+     * More limited version of the isInvalidParam() method, in which we only
      * check for: <script, <img, <iframe, <div and style= tags in the string.
      * @param value
      * @return true if we find:
@@ -129,32 +145,26 @@ public class XSSHandler {
      *      2) style= anywhere in the string
      *      else false
      */
-    private boolean isInvalidParam(String value) {
+    private boolean isInvalidParamLmt(String value) {
         if (value != null) {
-            try {
-                String s = URLDecoder.decode(value, "UTF-8").toLowerCase();
-                int offset = s.indexOf('<');
-                while (offset != -1) {
-                    // increment past the "<"
-                    offset++;
-                    // if we found a start tag in the param, lets dig deeper...
-                    if (containsScript(s, offset) || containsImg(s, offset) ||
-                        containsIframe(s, offset) || containsDiv(s, offset)) {
-                        // we found a hit
-                        return true;
-                    }
-                    else {
-                        // look for another set of tags in the string
-                        offset = s.indexOf('<', offset);
-                    }
+            String s = value.toLowerCase();
+            int offset = s.indexOf('<');
+            while (offset != -1) {
+                // increment past the "<"
+                offset++;
+                // if we found a start tag in the param, lets dig deeper...
+                if (containsScript(s, offset) || containsImg(s, offset) ||
+                    containsIframe(s, offset) || containsDiv(s, offset)) {
+                    // we found a hit
+                    return true;
                 }
-                // also need to check for style= usage
-                return(containsStyle(s));
+                else {
+                    // look for another set of tags in the string
+                    offset = s.indexOf('<', offset);
+                }
             }
-            catch (UnsupportedEncodingException uee) {
-                // should never happen
-                log.error("URLDecoder.decode(UTF8) failed.", uee);
-            }
+            // also need to check for style= usage
+            return(containsStyle(s));
         }
         return false;
     }
