@@ -83,20 +83,10 @@ public class NavigationJsonGeneratorTest extends TestCase {
     public void testGenerateQuickLauncherJSON() {
         System.out.println("testGenerateQuickLauncherJSON() ------ ");
         String json=navigationJsonGenerator.generateQuickLauncherJSON(pageList, "console", "/images/ico_deploy_16x16.gif");
-        String expected="[\n\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item1-1-1-1</span>\',name: \'item1-1-1-1\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item1-2</span>\',name: \'item1-2\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item2-2</span>\',name: \'item2-2\'}\n]";
+        String expected="[\n\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item1-1-1-1</span>\',name: \'item1-1-1-1\',href:\'console/portal/1-1-1-1/cat1/cat1-1/cat1-1-1/item1-1-1-1'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item1-2</span>\',name: \'item1-2\',href:\'console/portal/1-2/cat1/item1-2\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item2-2</span>\',name: \'item2-2\',href:\'console/portal/2-2/cat2/item2-2\'}\n]";
        
         System.out.println(json);
         Assert.assertEquals(expected,json);
 
     }
-    
-    public void testGenerateLinks() {
-        System.out.println("testGenerateLinks()------ ");
-        String json=navigationJsonGenerator.generateLinks(pageList, "console", "/images/ico_deploy_16x16.gif");
-        String expected="<ul>\n<li><a href=\"console/portal/1-1-1-1/cat1/cat1-1/cat1-1-1/item1-1-1-1\">item1-1-1-1</a></li>\n<li><a href=\"console/portal/1-2/cat1/item1-2\">item1-2</a></li>\n<li><a href=\"console/portal/2-2/cat2/item2-2\">item2-2</a></li>\n</ul>";
-
-        System.out.println(json);
-        Assert.assertEquals(expected,json);
-    }
-
 }

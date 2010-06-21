@@ -164,8 +164,11 @@ public class NavigationJsonGenerator {
             sb.append("\n{");
             sb.append("label: \'<img src=\"").append(contextPath).append(node.getIcon()).append("\">&nbsp;");
             sb.append("<span>").append(getLocalizedString(node.getLabel())).append("</span>\'");
-            sb.append(",");
+            sb.append(",");            
             sb.append("name: \'").append(getLocalizedString(node.getLabel())).append("\'");
+            sb.append(",");
+            sb.append("href:\'").append(contextPath + "/portal/" + node.getId() + "/" + node.getPath() + "\'");
+
             sb.append("},");
         }
         
@@ -183,54 +186,6 @@ public class NavigationJsonGenerator {
 
     }
     
- public String generateLinks(List<PageConfig> pageConfigList, String contextPath, String DefaultIcon) {
-        
-        Map<String, TreeNode> navigationTree = new TreeMap<String, TreeNode>();
-        
-        for (PageConfig pc : pageConfigList) {
-            try {
-                new TreeNode(pc).populateTree(navigationTree);
-            } catch (Exception e) {
-                log.error(e.getMessage(),e);
-                continue;
-            }
-        }
-
-        StringBuffer sb = new StringBuffer(10);
-        sb.append("<ul>\n");
-        
-        for (TreeNode node : navigationTree.values()) {
-
-            if (node.isTopNode()) {
-                appendNodeToLinks(sb, node, contextPath, DefaultIcon);
-            }
-
-        }
-
-        sb.append("</ul>");
-        return sb.toString();
-    }
-
-    private void appendNodeToLinks(StringBuffer sb, TreeNode node, String contextPath, String DefaultIcon) {
-
-        if (node.isLeafNode()) {
-            sb.append("<li>");
-            sb.append("<a href=\"" + contextPath + "/portal/" + node.getId() + "/" + node.getPath() + "\">"
-                    + getLocalizedString(node.getLabel()) + "</a>");
-            sb.append("</li>\n");
-        }
-        
-        if (node.getChildren() != null) {
-
-            for (TreeNode child : node.getChildren().values()) {
-                appendNodeToLinks(sb, child, contextPath, DefaultIcon);
-            }
-        
-        }
-
-
-
-    }
     
     private String getLocalizedString(String key) {
 

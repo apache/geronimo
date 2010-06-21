@@ -59,12 +59,6 @@ limitations under the License.
     </tr>
 </table>
 
-<div id="links" style="visibility: hidden; width: 0px; height: 0px;">
-<%=generator.generateLinks(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif")%>
-</div>
-
-
-
 <script type="text/javascript">
 
 <%-- scripts to create the navigation tree--%>
@@ -75,21 +69,7 @@ limitations under the License.
 
    var treeData = <%=treeJson%>;
    var listData = <%=listJson%>;
-   var treeStore;
-
-function load() {
-
-   var listStore= new dojo.data.ItemFileReadStore
-       ({
-       data: {
-           identifier: 'name',
-           label: 'label',
-           items: listData
-           }
-    });
-
-             
-  treeStore = new dojo.data.ItemFileReadStore
+   var treeStore = new dojo.data.ItemFileReadStore
     ({
          data: {
              identifier: 'id',
@@ -97,8 +77,15 @@ function load() {
              items: treeData
              }
      });
-
-       
+    var listStore = new dojo.data.ItemFileReadStore({
+       data: {
+           identifier: 'name',
+           label: 'label',
+           items: listData
+           }
+    });
+function load() {
+      
    var treeModel = new dijit.tree.ForestStoreModel({
        store: treeStore
    });
@@ -114,7 +101,7 @@ function load() {
 
              if(anchorNode)
                 {
-                 displayPortlets(anchorNode);
+                 displayPortlets(anchorNode.href);
                 }                     
             },
             _createTreeNode: function(args) {
@@ -149,26 +136,21 @@ function load() {
          );
   }
 
-   function quickLaunchPortlets(portalPageName){
+    function quickLaunchPortlets(portalPageName){
+        listStore.fetchItemByIdentity({identity:portalPageName,
+            onItem:function(item){
+                var iframeHref = listStore.getValue(item,"href");
+                displayPortlets(iframeHref);
+            }
+        });
+        if(dijit.byId("navigationTree")){
+            findAndSelect(portalPageName,dijit.byId("navigationTree").rootNode);
+        }
+    }
 
-       var anchors = dojo.byId("links").getElementsByTagName("a"); 
-       
-       for (var i = 0; i < anchors.length; i++) { 
-           anchorName = anchors[i].innerHTML; 
-           if ( anchorName == portalPageName) { 
-               displayPortlets(anchors[i]);
-               if(dijit.byId("navigationTree")){
-                   findAndSelect(portalPageName,dijit.byId("navigationTree").rootNode);
-               }
-               return;
-           }
-       }
-
-   }
-
-    function displayPortlets(anchor){
+    function displayPortlets(iframeHref){
     
-        var iframeHref = anchor.href;
+        //var iframeHref = anchor.href;
 
         if(document.location.href.indexOf(iframeHref)==0){      
             iframeHref=document.location.href.substring(0,document.location.href.indexOf("?"));
