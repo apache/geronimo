@@ -27,8 +27,10 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.jar.JarFile;
 
+import javax.jws.WebService;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
+import javax.xml.ws.WebServiceProvider;
 
 import org.apache.geronimo.axis.server.EjbWebServiceGBean;
 import org.apache.geronimo.common.DeploymentException;
@@ -126,6 +128,12 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
             if (bean.type != EnterpriseBeanInfo.STATELESS) {
                 continue;
             }
+            
+            //JAX-WS will be handled in JAXWSEJBModuleBuilderExtension 
+            if (isJAXWSWebService(bean,cl)){
+            	continue;
+            }           
+
 
             String ejbName = bean.ejbName;
 
@@ -169,7 +177,17 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         }
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
+    private boolean isJAXWSWebService(EnterpriseBeanInfo bean, ClassLoader cl) throws DeploymentException {
+    	try {
+            Class clazz =  cl.loadClass(bean.ejbClass);
+            return (clazz.isAnnotationPresent(WebService.class) || 
+                    clazz.isAnnotationPresent(WebServiceProvider.class));
+        } catch (ClassNotFoundException ex) {
+            throw new DeploymentException("Unable to load Web Service class: " + bean.ejbClass);
+        }
+    }
+
+	public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Collection repository) throws DeploymentException {
         if (module.getType() != ConfigurationModuleType.EJB) {
             return;
         }
