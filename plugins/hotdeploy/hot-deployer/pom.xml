@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>hotdeploy</artifactId>
-        <version>2.1.6</version>
+        <version>2.1.7-SNAPSHOT</version>
     </parent>
     
     <groupId>org.apache.geronimo.configs</groupId>
