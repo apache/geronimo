@@ -63,6 +63,7 @@ Geronimo 2.1.6 Issues Resolved
 ** Bug
 GERONIMO-5383 Update to new versions of CXF and Axis2 
 GERONIMO-5387 Update the spring framework version used in Geronimo. 
+GERONIMO-5391 Update the Xerces impl version to 2.10.0
 
 Certification Status
 --------------------
