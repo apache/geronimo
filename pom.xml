@@ -33,7 +33,7 @@
     <name>Geronimo</name>
     <packaging>pom</packaging>
 
-    <version>2.1.7-SNAPSHOT</version>
+    <version>2.1.6-SNAPSHOT</version>
 
     <description>
         Apache Geronimo, the JavaEE server project of the Apache Software Foundation.
