@@ -700,10 +700,10 @@ The following artifacts are covered by the Apache License Version 2.0:
 ./repository/org/apache/geronimo/configs/activemq-ra/2.2.1/activemq-ra-2.2.1.car/rar/spring-beans-2.5.6.jar
 ./repository/org/apache/geronimo/configs/activemq-ra/2.2.1/activemq-ra-2.2.1.car/rar/spring-context-2.5.6.jar
 ./repository/org/apache/geronimo/configs/activemq-ra/2.2.1/activemq-ra-2.2.1.car/rar/spring-core-2.5.6.jar
-./repository/org/springframework/spring-beans/2.5.6/spring-beans-2.5.6.jar
-./repository/org/springframework/spring-context/2.5.6/spring-context-2.5.6.jar
-./repository/org/springframework/spring-core/2.5.6/spring-core-2.5.6.jar
-./repository/org/springframework/spring-web/2.5.6/spring-web-2.5.6.jar
+./repository/org/springframework/spring-beans/2.5.6.SEC02/spring-beans-2.5.6.SEC02.jar
+./repository/org/springframework/spring-context/2.5.6.SEC02/spring-context-2.5.6.SEC02.jar
+./repository/org/springframework/spring-core/2.5.6.SEC02/spring-core-2.5.6.SEC02.jar
+./repository/org/springframework/spring-web/2.5.6.SEC02/spring-web-2.5.6.SEC02.jar
 ./repository/quartz/quartz/1.5.2/quartz-1.5.2.jar
 ./repository/xml-resolver/xml-resolver/1.2/xml-resolver-1.2.jar
 
