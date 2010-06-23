@@ -26,7 +26,7 @@
       <dep:moduleId>
         <dep:groupId>org.apache.geronimo.plugins</dep:groupId>
         <dep:artifactId>geronimo-remote-deploy</dep:artifactId>
-        <dep:version>2.1.6-SNAPSHOT</dep:version>
+        <dep:version>2.1.7-SNAPSHOT</dep:version>
       </dep:moduleId>
       <dep:dependencies/>
       <dep:hidden-classes/>
