@@ -98,10 +98,11 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void println(String s) throws IOException {
         if (jlineConsoleEnabled) {
-            jlineConsoleReader.printNewline();
             jlineConsoleReader.printString(s);
+            jlineConsoleReader.printNewline();
         } else {
             console.println(s);
+            console.println();
         }
     }
 
