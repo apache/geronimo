@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -36,6 +38,7 @@ import javax.xml.bind.Marshaller;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
@@ -52,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @GBean
+@OsgiService
 public class GeronimoOBRGBean implements GBeanLifecycle {
     
     private static final Logger LOG = LoggerFactory.getLogger(GeronimoOBRGBean.class);
@@ -60,15 +64,18 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
     private ListableRepository repository;
     private File obrFile;
     private List<URL> repositories;
+    private Set<Artifact> exclusions;
     
     public GeronimoOBRGBean(@ParamReference(name = "Repository", namingType = "Repository") ListableRepository repository,
                             @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
                             @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
-                            @ParamAttribute(name = "repositoryList") String repositoryList) throws Exception {
+                            @ParamAttribute(name = "repositoryList") String repositoryList,
+                            @ParamAttribute(name = "exclusions") String exclusions) throws Exception {
         this.repository = repository;         
         this.bundleContext = bundleContext;
         this.obrFile = serverInfo.resolveServer("var/obr.xml");
         this.repositories = parseRepositories(repositoryList);
+        this.exclusions = parseExclusions(exclusions);
     }
 
     private static List<URL> parseRepositories(String repositoryList) throws MalformedURLException {
@@ -83,12 +90,50 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
         return list;
     }
     
-    private void generateOBR() throws Exception {
+    private static Set<Artifact> parseExclusions(String exclusions) throws MalformedURLException {
+        Set<Artifact> set = new HashSet<Artifact>();
+        if (exclusions != null) {
+            StringTokenizer tokenizer = new StringTokenizer(exclusions, ",");
+            while (tokenizer.hasMoreElements()) {
+                String token = (String) tokenizer.nextElement();
+                set.add(Artifact.create(token.trim()));
+            }
+        }
+        return set;
+    }
+    
+    public void refresh() throws Exception {
+        generateRepository();
+                
+        ServiceReference ref = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
+        RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(ref);        
+        try {
+            repositoryAdmin.removeRepository(obrFile.toURI().toURL().toExternalForm());
+            repositoryAdmin.addRepository(obrFile.toURI().toURL());
+        } finally {        
+            bundleContext.ungetService(ref);
+        }        
+    }
+    
+    private void generateRepository() throws Exception {
         
         String obrName = "Geronimo OBR Repository";
 
         org.apache.geronimo.kernel.repository.Repository geronimoRepository = repository;
         Set<Artifact> artifacts = repository.list();
+        
+        // prune excluded artifacts
+        for (Artifact excluded : exclusions) {
+            Iterator<Artifact> iterator = artifacts.iterator();
+            while (iterator.hasNext()) {
+                Artifact artifact = iterator.next();
+                if (excluded.matches(artifact)) {
+                    LOG.debug("Exluded {} artifact from OBR", artifact);
+                    iterator.remove();                    
+                }
+            }
+        }
+        
         generateOBR(obrName, artifacts, geronimoRepository, obrFile);
     }
 
@@ -96,7 +141,7 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
         Repository repo = generateOBRModel(obrName, geronimoRepository, artifacts);
         marshallOBRModel(repo, obrFile);
     }
-
+    
     public static void marshallOBRModel(Repository repo, File obrFile) throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(Repository.class);
         Marshaller marshaller = context.createMarshaller();
@@ -136,8 +181,15 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
 
             BundleDescription desc = new BundleDescription(mf);
             ResourceBuilder builder = new ResourceBuilder(desc);
-
-            Resource resource = builder.createResource();
+            
+            Resource resource = null;
+            try {
+                resource = builder.createResource();
+            } catch (RuntimeException e) {
+                LOG.debug("Failed to generate OBR information for " + artifact + " artifact", e);
+                continue;
+            }
+            
             if (resource != null) {
                 resource.setUri(getURL(artifact));
                 if (location.isFile()) {
@@ -145,7 +197,7 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
                 }
                 repo.getResource().add(resource);
             } else {
-                LOG.debug("Artifact {} is not a bundle.", artifact);
+                LOG.debug("Did not generate OBR information for {} artifact. It is not a bundle.", artifact);
             }
         }
         return repo;
@@ -155,25 +207,39 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
         return "mvn:" + artifact.getGroupId() + "/" + artifact.getArtifactId() + "/" + artifact.getVersion() + ("jar".equals(artifact.getType())?  "": "/" + artifact.getType());
     }
 
-    private void registerOBR() throws Exception {
+    private void registerRepositories() throws Exception {
         ServiceReference ref = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
-        RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(ref);
-        
-        repositoryAdmin.addRepository(obrFile.toURI().toURL());
-        
-        for (URL repository : repositories) {
-            repositoryAdmin.addRepository(repository);
+        RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(ref);        
+        try {
+            repositoryAdmin.addRepository(obrFile.toURI().toURL());        
+            for (URL repository : repositories) {
+                repositoryAdmin.addRepository(repository);
+            }
+        } finally {        
+            bundleContext.ungetService(ref);
         }
-        
-        bundleContext.ungetService(ref); 
+    }
+    
+    private void unregisterRepositories() throws Exception {
+        ServiceReference ref = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
+        RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(ref);        
+        try {
+            repositoryAdmin.removeRepository(obrFile.toURI().toURL().toExternalForm());       
+            for (URL repository : repositories) {
+                repositoryAdmin.removeRepository(repository.toExternalForm());
+            }
+        } finally {        
+            bundleContext.ungetService(ref);
+        }
     }
     
     public void doStart() throws Exception {
-        generateOBR();
-        registerOBR();
+        generateRepository();
+        registerRepositories();
     }
     
     public void doStop() throws Exception {
+        unregisterRepositories();
     }
    
     public void doFail() {

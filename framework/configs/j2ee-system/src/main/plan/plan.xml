@@ -125,6 +125,10 @@ specific services - those should be provided by children.
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
+        <attribute name="exclusions">
+             org.apache.felix/org.apache.felix.framework//,
+             org.eclipse/osgi//
+        </attribute>
     </gbean>
 
     <gbean name="EmbeddedDaemon" class="org.apache.geronimo.system.main.EmbeddedDaemon"/>
