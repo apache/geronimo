@@ -65,8 +65,8 @@ public class TldRegistration implements GBeanLifecycle {
         String[] packageNames = packageNameList.split(",");
         for (String packageName : packageNames) {
             ExportedPackage exportedPackage = packageAdmin.getExportedPackage(packageName.trim());
-            if (exportedPackage == null) {
-                LOGGER.warn("Package {} is not currently exported by any bundle", packageName);
+            if (exportedPackage == null || exportedPackage.getExportingBundle().getState() != Bundle.ACTIVE) {
+                LOGGER.warn("Package {} is not currently exported by any active bundle", packageName);
             } else {
                 Bundle exportingBundle = exportedPackage.getExportingBundle();
                 
