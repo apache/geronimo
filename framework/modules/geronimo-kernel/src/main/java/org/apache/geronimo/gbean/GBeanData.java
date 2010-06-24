@@ -222,7 +222,7 @@ public class GBeanData implements Externalizable {
         for (Map.Entry<String, Object> entry : attributes.entrySet()) {
             String name = entry.getKey();
             Object value = entry.getValue();
-            if (isEncrypted(name) && value != null) {
+            if (isEncrypted(name) && value != null && !(value.equals(""))) {
                 value = EncryptionManager.encrypt((String) value);
             }
             try {
