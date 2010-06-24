@@ -70,7 +70,7 @@
         <cxfVersion>2.1.10</cxfVersion>
         <axis2Version>1.5.2-SNAPSHOT</axis2Version>
         <axiomVersion>1.2.9-SNAPSHOT</axiomVersion>
-        <springVersion>3.0.1.RELEASE</springVersion>
+        <springVersion>3.0.3.RELEASE</springVersion>
         <openjpaVersion>1.2.2</openjpaVersion>
         <xbeanVersion>3.7</xbeanVersion>
         <!-- For now, use XBean 3.6 to avoid jndi test failures on 3.7 -->        
