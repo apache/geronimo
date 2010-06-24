@@ -49,7 +49,7 @@
         <module>tomcat7-clustering-builder-wadi</module>
     </modules>
     <properties>
-        <tomcatVersion>7.0.0.2-SNAPSHOT</tomcatVersion>
+        <tomcatVersion>7.0.0.1</tomcatVersion>
     </properties>
     <dependencyManagement>
         <dependencies>
