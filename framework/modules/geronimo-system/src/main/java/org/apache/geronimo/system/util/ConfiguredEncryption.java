@@ -45,7 +45,7 @@ import org.apache.geronimo.crypto.EncryptionManager;
  *
  * To use, include something like this in the rmi-naming module of var/config/config.xml:
  *
- * <gbean name="org.apache.geronimo.framework/rmi-naming/2.1-SNAPSHOT/car?name=ConfiguredEncryption,j2eeType=GBean" gbeanInfo="org.apache.geronimo.system.util.ConfiguredEncryption">
+ * <gbean name="ConfiguredEncryption">
  * <attribute name="path">var/security/ConfiguredSecretKey.ser</attribute>
  * <reference name="ServerInfo"><pattern><name>ServerInfo</name></pattern></reference>
  * </gbean>
