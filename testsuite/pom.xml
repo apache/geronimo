@@ -181,16 +181,16 @@
     </distributionManagement>
 
     <modules>
-        <!--<module>commands-testsuite</module>-->
-        <!--<module>corba-testsuite</module>-->
-        <!--<module>enterprise-testsuite</module>-->
+        <module>commands-testsuite</module>
+        <module>corba-testsuite</module>
+        <module>enterprise-testsuite</module>
 <!--
         <module>console-testsuite</module>
         <module>deployment-testsuite</module>
 -->
-        <!--<module>security-testsuite</module>-->
-        <!--<module>web-testsuite</module>-->
-        <!--<module>webservices-testsuite</module>-->
+        <module>security-testsuite</module>
+        <module>web-testsuite</module>
+        <module>webservices-testsuite</module>
         <module>aries-testsuite</module>
     </modules>
 
@@ -286,10 +286,6 @@
                                                 <id>default</id>
                                                 <options>
                                                     <option>-XX:MaxPermSize=160m</option>
-                                                    <option>-Xdebug</option>
-                                                    <option>-Xnoagent</option>
-                                                    <option>-Djava.compiler=NONE</option>
-                                                    <option>-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005</option>
                                                 </options>
                                             </optionSet>
                                         </optionSets>
