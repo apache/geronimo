@@ -35,7 +35,6 @@ import javax.naming.NamingException;
 
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
-import org.apache.xbean.recipe.StaticRecipe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,14 +191,7 @@ public class Holder implements Serializable {
                     String jndiName = injection.getJndiName();
                     //our componentContext is attached to jndi at "java:" so we remove that when looking stuff up in it
                     Object object = context.lookup("comp/env/" + jndiName);
-                    if (object instanceof String) {
-                        String string = (String) object;
-                        // Pass it in raw so it could be potentially converted to
-                        // another data type by an xbean-reflect property editor
-                        objectRecipe.setProperty(injection.getTargetName(), string);
-                    } else {
-                        objectRecipe.setProperty(injection.getTargetName(), new StaticRecipe(object));
-                    }
+                    objectRecipe.setProperty(injection.getTargetName(), object);
                 } catch (NamingException e) {
                     log.info("Could not look up " + injection.getJndiName(), e);
                     problems.add(e);
