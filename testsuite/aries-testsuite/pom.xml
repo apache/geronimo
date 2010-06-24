@@ -39,7 +39,7 @@
     </description>
 
     <modules>
-        <module>simple</module>
+        <!--<module>simple</module>-->
         <module>jpa</module>
     </modules>
 

@@ -17,12 +17,11 @@
 
 package org.apache.geronimo.axis2.builder;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.axis2.client.Axis2ConfigGBean;
 import org.apache.geronimo.axis2.client.Axis2ServiceReference;
 import org.apache.geronimo.common.DeploymentException;
@@ -30,6 +29,8 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -41,26 +42,27 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee6.PortComponentRefType;
-import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
+import org.apache.openejb.jee.PortComponentRef;
+import org.apache.openejb.jee.ServiceRef;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.osgi.framework.Bundle;
-
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(Axis2ServiceRefBuilder.class);
 
-    public Axis2ServiceRefBuilder(Environment defaultEnvironment,
-                                 String[] eeNamespaces) {
+    public Axis2ServiceRefBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+                                  @ParamAttribute(name = "eeNamespaces") String[] eeNamespaces) {
         super(defaultEnvironment, eeNamespaces);
     }
 
-    public Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef,
+    @Override
+    public Object createService(ServiceRef serviceRef, GerServiceRefType gerServiceRef,
                                 Module module, Bundle bundle, Class serviceInterfaceClass,
                                 QName serviceQName, URI wsdlURI, Class serviceReferenceType,
-                                Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException {
+                                Map<Class, PortComponentRef> portComponentRefMap) throws DeploymentException {
         registerConfigGBean(module);
         EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterfaceClass,
                 gerServiceRef, portComponentRefMap, module, bundle,
@@ -74,13 +76,13 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
         String handlerChainsXML = null;
         try {
             handlerChainsXML = getHandlerChainAsString(serviceRef.getHandlerChains());
-        } catch (IOException e) {
+        } catch (JAXBException e) {
             // this should not happen
             log.warn("Failed to serialize handler chains", e);
         }
 
         String serviceReferenceName = (serviceReferenceType == null) ? null : serviceReferenceType.getName();
-        return new Axis2ServiceReference(serviceInterfaceClass.getName(), serviceReferenceName,  wsdlURI,
+        return new Axis2ServiceReference(serviceInterfaceClass.getName(), serviceReferenceName, wsdlURI,
                 serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
     }
 
@@ -104,23 +106,4 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
         }
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(
-                Axis2ServiceRefBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addInterface(ServiceRefBuilder.class);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true,
-                true);
-        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
-
-        infoBuilder.setConstructor(new String[] { "defaultEnvironment",
-                                                  "eeNamespaces" });
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return Axis2ServiceRefBuilder.GBEAN_INFO;
-    }
 }

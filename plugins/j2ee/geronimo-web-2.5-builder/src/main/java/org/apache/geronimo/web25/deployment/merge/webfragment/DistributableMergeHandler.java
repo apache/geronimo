@@ -19,43 +19,44 @@ package org.apache.geronimo.web25.deployment.merge.webfragment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.Empty;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class DistributableMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class DistributableMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     public static final String CURRENT_MERGED_DISTRIBUTABLE_VALUE = "CURRENT_MERGED_DISTRIBUTABLE_VALUE";
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
         boolean currentMergedDistributableValue = (Boolean) mergeContext.getAttribute(CURRENT_MERGED_DISTRIBUTABLE_VALUE);
         if (currentMergedDistributableValue) {
-            mergeContext.setAttribute(CURRENT_MERGED_DISTRIBUTABLE_VALUE, webFragment.getDistributableArray().length > 0);
+            mergeContext.setAttribute(CURRENT_MERGED_DISTRIBUTABLE_VALUE, webFragment.getDistributable().size() > 0);
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
         boolean currentMergedDistributableValue = (Boolean) mergeContext.getAttribute(CURRENT_MERGED_DISTRIBUTABLE_VALUE);
-        boolean distributableInWebXml = webApp.getDistributableArray().length > 0;
+        boolean distributableInWebXml = webApp.getDistributable().size() > 0;
         if (currentMergedDistributableValue) {
             if (!distributableInWebXml) {
-                webApp.addNewDistributable();
+                webApp.getDistributable().add(new Empty());
             }
         } else {
             if (distributableInWebXml) {
-                for (int i = 0, iLoopSize = webApp.getDistributableArray().length; i < iLoopSize; i++) {
-                    webApp.removeDistributable(0);
+                for (int i = 0, iLoopSize = webApp.getDistributable().size(); i < iLoopSize; i++) {
+                    webApp.getDistributable().clear();
                 }
             }
         }
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
         context.setAttribute(CURRENT_MERGED_DISTRIBUTABLE_VALUE, Boolean.TRUE);
     }
 }

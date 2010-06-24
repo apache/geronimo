@@ -21,19 +21,20 @@ import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
 
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 
 import org.apache.geronimo.kernel.repository.Environment;
 
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 
-import org.apache.xmlbeans.XmlObject;
+import org.apache.openejb.jee.ServiceRef;
 
 public interface ServiceRefBuilder {
-    void buildNaming(XmlObject serviceRef,
+    void buildNaming(ServiceRef serviceRef,
                      GerServiceRefType serviceRefType,
                      Module module,
-                     Map componentContext) throws DeploymentException;
+                     Map<EARContext.Key, Object> componentContext) throws DeploymentException;
 
     Environment getEnvironment();
 }

@@ -65,20 +65,20 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.schema</groupId>
-            <artifactId>geronimo-schema-javaee_6</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.schema</groupId>-->
+            <!--<artifactId>geronimo-schema-javaee_6</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-          <groupId>org.apache.geronimo.schema</groupId>
-          <artifactId>geronimo-schema-jee_5</artifactId>
-        </dependency>
+        <!--<dependency>-->
+          <!--<groupId>org.apache.geronimo.schema</groupId>-->
+          <!--<artifactId>geronimo-schema-jee_5</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.schema</groupId>
-            <artifactId>geronimo-schema-j2ee_1.4</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.schema</groupId>-->
+            <!--<artifactId>geronimo-schema-j2ee_1.4</artifactId>-->
+        <!--</dependency>-->
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.modules</groupId>-->

@@ -26,6 +26,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -55,11 +56,11 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
         }
     };
 
-    void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException;
+    void buildEnvironment(JndiConsumer specDD, XmlObject plan, Environment environment) throws DeploymentException;
 
-    void initContext(XmlObject specDD, XmlObject plan, Module module) throws DeploymentException;
+    void initContext(JndiConsumer specDD, XmlObject plan, Module module) throws DeploymentException;
     
-    void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException;
+    void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException;
 
     /**
      * Returns sort order priority.  Lower numbers indicate higher priority.

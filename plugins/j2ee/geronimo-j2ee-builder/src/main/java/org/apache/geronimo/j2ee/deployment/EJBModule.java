@@ -20,17 +20,16 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.openejb.jee.EjbJar;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
-public class EJBModule extends Module<XmlObject, XmlObject> {
-    private AbstractName moduleCmpEngineName;
+public class EJBModule<U> extends Module<EjbJar, U> {
 
     public EJBModule(boolean standAlone,
                      AbstractName moduleName,
@@ -38,26 +37,17 @@ public class EJBModule extends Module<XmlObject, XmlObject> {
                      Environment environment,
                      JarFile moduleFile,
                      String targetPath,
-                     XmlObject specDD,
-                     XmlObject vendorDD,
+                     EjbJar specDD,
+                     U vendorDD,
                      String originalSpecDD,
-                     AnnotatedApp annotatedApp,
                      Map<JndiKey, Map<String, Object>> jndiContext,
                      Module parentModule) {
         super(standAlone, moduleName, name, environment, moduleFile, 
-              targetPath, specDD, vendorDD, originalSpecDD, null, annotatedApp, jndiContext, parentModule);
+              targetPath, specDD, vendorDD, originalSpecDD, null, jndiContext, parentModule);
     }
 
     public ConfigurationModuleType getType() {
         return ConfigurationModuleType.EJB;
-    }
-
-    public AbstractName getModuleCmpEngineName() {
-        return moduleCmpEngineName;
-    }
-
-    public void setModuleCmpEngineName(AbstractName moduleCmpEngineName) {
-        this.moduleCmpEngineName = moduleCmpEngineName;
     }
 
 }

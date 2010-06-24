@@ -21,8 +21,8 @@
    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
    version="2.5" >
 
-    <display-name>Empty web application</display-name>
     <description>Empty web application</description>
+    <display-name>Empty web application</display-name>
     <service-ref>
         <service-ref-name>WebServiceRef10</service-ref-name>
         <service-interface>javax.xml.ws.Service</service-interface>

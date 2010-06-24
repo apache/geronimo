@@ -28,11 +28,12 @@ import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.webfragment.ServletInitParamMergeHandler;
 import org.apache.geronimo.web25.deployment.merge.webfragment.ServletMappingMergeHandler;
 import org.apache.geronimo.web25.deployment.merge.webfragment.ServletMergeHandler;
-import org.apache.geronimo.xbeans.javaee6.IconType;
-import org.apache.geronimo.xbeans.javaee6.ParamValueType;
-import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.Icon;
+import org.apache.openejb.jee.ParamValue;
+import org.apache.openejb.jee.ServletMapping;
+import org.apache.openejb.jee.Servlet;
+import org.apache.openejb.jee.Text;
+import org.apache.openejb.jee.WebApp;
 
 /**
  * @version $Rev$ $Date$
@@ -40,7 +41,7 @@ import org.apache.geronimo.xbeans.javaee6.WebAppType;
 public class WebServletAnnotationMergeHandler implements AnnotationMergeHandler {
 
     @Override
-    public void merge(Class<?>[] classes, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void merge(Class<?>[] classes, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
         for (Class<?> cls : classes) {
             if (!HttpServlet.class.isAssignableFrom(cls)) {
                 throw new DeploymentException("The class " + cls.getName() + " with WebServlet annotation must extend javax.servlet.HttpServlet");
@@ -57,65 +58,63 @@ public class WebServletAnnotationMergeHandler implements AnnotationMergeHandler 
             String servletName = webServlet.name().length() == 0 ? cls.getName() : webServlet.name();
             String[] urlPatterns = valueAttributeConfigured ? webServlet.value() : webServlet.urlPatterns();
             if (ServletMergeHandler.isServletConfigured(servletName, mergeContext)) {
-                ServletType targetServlet = ServletMergeHandler.getServlet(servletName, mergeContext);
+                Servlet targetServlet = ServletMergeHandler.getServlet(servletName, mergeContext);
                 //merge init-params, we only merge those init-param that are not explicitly configured in the web.xml or web-fragment.xml
                 for (WebInitParam webInitParam : webServlet.initParams()) {
                     String paramName = webInitParam.name();
                     if (ServletInitParamMergeHandler.isServletInitParamConfigured(servletName, paramName, mergeContext)) {
                         continue;
                     }
-                    ParamValueType newParamValue = targetServlet.addNewInitParam();
-                    newParamValue.addNewDescription().setStringValue(webInitParam.description());
-                    newParamValue.addNewParamName().setStringValue(webInitParam.name());
-                    newParamValue.addNewParamValue().setStringValue(webInitParam.value());
+                    ParamValue newParamValue = WebFilterAnnotationMergeHandler.newParamValue(webInitParam);
+                    targetServlet.getInitParam().add(newParamValue);
                     ServletInitParamMergeHandler.addServletInitParam(servletName, newParamValue, ElementSource.ANNOTATION, mergeContext.getCurrentJarUrl(), mergeContext);
                 }
             } else {
                 //Add a new Servlet
                 //create servlet element
-                ServletType newServlet = webApp.addNewServlet();
+                Servlet newServlet = new Servlet();
                 if (!webServlet.displayName().isEmpty()) {
-                    newServlet.addNewDisplayName().setStringValue(webServlet.displayName());
+                    newServlet.addDisplayName(new Text(null, webServlet.displayName()));
                 }
-                newServlet.addNewServletClass().setStringValue(cls.getName());
-                newServlet.addNewServletName().setStringValue(servletName);
-                newServlet.addNewAsyncSupported().setBooleanValue(webServlet.asyncSupported());
+                newServlet.setServletClass(cls.getName());
+                newServlet.setServletName(servletName);
+                newServlet.setAsyncSupported(webServlet.asyncSupported());
                 if (!webServlet.description().isEmpty()) {
-                    newServlet.addNewDescription().setStringValue(webServlet.description());
+                    newServlet.addDescription(new Text(null, webServlet.description()));
                 }
                 if (webServlet.loadOnStartup() != -1) {
                     newServlet.setLoadOnStartup(webServlet.loadOnStartup());
                 }
                 for (WebInitParam webInitParam : webServlet.initParams()) {
-                    ParamValueType paramValue = newServlet.addNewInitParam();
-                    paramValue.addNewDescription().setStringValue(webInitParam.description());
-                    paramValue.addNewParamName().setStringValue(webInitParam.name());
-                    paramValue.addNewParamValue().setStringValue(webInitParam.value());
+                    newServlet.getInitParam().add(WebFilterAnnotationMergeHandler.newParamValue(webInitParam));
                 }
                 if (!webServlet.smallIcon().isEmpty() || !webServlet.largeIcon().isEmpty()) {
-                    IconType iconType = newServlet.addNewIcon();
+                    Icon icon = new Icon();
                     if (!webServlet.smallIcon().isEmpty()) {
-                        iconType.addNewSmallIcon().setStringValue(webServlet.smallIcon());
+                        icon.setSmallIcon(webServlet.smallIcon());
                     }
                     if (!webServlet.largeIcon().isEmpty()) {
-                        iconType.addNewLargeIcon().setStringValue(webServlet.largeIcon());
+                        icon.setLargeIcon(webServlet.largeIcon());
                     }
+                    newServlet.getIconMap().put(null, icon);
                 }
                 //TODO Figure out how to handle MultipartConfig annotation
                 MultipartConfig multipartConfig = cls.getAnnotation(MultipartConfig.class);
                 if (multipartConfig != null) {
                 }
+                webApp.getServlet().add(newServlet);
                 ServletMergeHandler.addServlet(newServlet, mergeContext);
             }
             if (!ServletMappingMergeHandler.isServletMappingConfigured(servletName, mergeContext)) {
                 //merge url-patterns, spec 8.1.n.vi. url-patterns, when specified in a descriptor for a given servlet name overrides the url patterns specified via the annotation.
                 //FIXME To my understanding of the spec, once there are url-patterns configured in the descriptors, those configurations from the annotations are ignored
-                ServletMappingType newServletMapping = webApp.addNewServletMapping();
+                ServletMapping newServletMapping = new ServletMapping();
                 //create servlet-mapping element
-                newServletMapping.addNewServletName().setStringValue(servletName);
+                newServletMapping.setServletName(servletName);
                 for (String urlPattern : urlPatterns) {
-                    newServletMapping.addNewUrlPattern().setStringValue(urlPattern);
+                    newServletMapping.getUrlPattern().add(urlPattern);
                 }
+                webApp.getServletMapping().add(newServletMapping);
                 ServletMappingMergeHandler.addServletMapping(newServletMapping, mergeContext);
                 //Set this tag, so that if any following web-fragment.xml has defined the url-patterns explicitly, it could drop the configurations from annotation
                 mergeContext.setAttribute(ServletMappingMergeHandler.createServletMappingSourceKey(servletName), ElementSource.ANNOTATION);
@@ -124,11 +123,11 @@ public class WebServletAnnotationMergeHandler implements AnnotationMergeHandler 
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
         //TODO double check whether there are annotations are missed due to they are from excluded jars
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
     }
 }

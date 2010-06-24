@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -85,13 +86,13 @@ public class NamingBuilderCollectionTest extends TestCase {
             this.callList = callList;
         }
         
-        public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment)
+        public void buildEnvironment(JndiConsumer specDD, XmlObject plan, Environment environment)
                 throws DeploymentException {
             this.callList.add("buildEnvironment");
             this.callList.add(this);
         }
 
-        public void buildNaming(XmlObject specDD,
+        public void buildNaming(JndiConsumer specDD,
                                 XmlObject plan,
                                 Module module,
                                 Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
@@ -99,7 +100,7 @@ public class NamingBuilderCollectionTest extends TestCase {
             this.callList.add(this);
         }
 
-        public void initContext(XmlObject specDD, XmlObject plan, Module module)
+        public void initContext(JndiConsumer specDD, XmlObject plan, Module module)
                 throws DeploymentException {
             this.callList.add("initContext");
             this.callList.add(this);

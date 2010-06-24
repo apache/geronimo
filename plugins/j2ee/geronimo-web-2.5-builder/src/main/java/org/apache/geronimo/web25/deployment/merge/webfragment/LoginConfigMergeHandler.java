@@ -20,27 +20,27 @@ package org.apache.geronimo.web25.deployment.merge.webfragment;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @FIXME For login-config, no rules are mentioned in spec, from my understanding, we should only use the one from web.xml
  * @version $Rev$ $Date$
  */
-public class LoginConfigMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class LoginConfigMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType srcElement, WebAppType targetElement, MergeContext mergeContext) throws DeploymentException {
+    public void merge(WebFragment srcElement, WebApp targetElement, MergeContext mergeContext) throws DeploymentException {
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
         // TODO Auto-generated method stub
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        if (webApp.getLoginConfigArray().length > 1) {
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        if (webApp.getLoginConfig().size() > 1) {
             throw new DeploymentException(WebDeploymentMessageUtils.createMultipleConfigurationWebAppErrorMessage("login-config"));
         }
     }

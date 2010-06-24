@@ -18,6 +18,7 @@
 package org.apache.geronimo.datasource.deployment;
 
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,6 @@ import java.util.Map;
 import javax.annotation.sql.DataSourceDefinition;
 import javax.annotation.sql.DataSourceDefinitions;
 import javax.resource.ResourceException;
-import javax.sql.DataSource;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.deployment.ConnectorModuleBuilder;
 import org.apache.geronimo.datasource.DataSourceDescription;
@@ -39,14 +39,15 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.reference.ResourceReferenceFactory;
-import org.apache.geronimo.xbeans.javaee6.DataSourceType;
-import org.apache.geronimo.xbeans.javaee6.IsolationLevelType;
-import org.apache.geronimo.xbeans.javaee6.PropertyType;
+import org.apache.openejb.jee.DataSource;
+import org.apache.openejb.jee.IsolationLevel;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.Property;
+import org.apache.openejb.jee.Text;
 import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
@@ -95,7 +96,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         this.dataSourceQNameSet = buildQNameSet(eeNamespaces, "data-source");
     }
     
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
                         
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         
@@ -106,8 +107,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             throw new DeploymentException("could not create class finder " + bundle, e);
         }
         
-        AnnotatedApp app = module.getAnnotatedApp();
-        
+
         // step 1: process annotations and update deployment descriptor
         List<Class> classes;        
         classes = classFinder.findAnnotatedClasses(DataSourceDefinitions.class);
@@ -115,7 +115,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             for (Class clazz : classes) {
                 DataSourceDefinitions dsDefinitions = (DataSourceDefinitions) clazz.getAnnotation(DataSourceDefinitions.class);
                 for (DataSourceDefinition dsDefinition : dsDefinitions.value()) {
-                    processDefinition(dsDefinition, app);
+                    processDefinition(dsDefinition, specDD);
                 }
                 
             }
@@ -124,16 +124,17 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         if (classes != null) {
             for (Class clazz : classes) {
                 DataSourceDefinition dsDefinition = (DataSourceDefinition) clazz.getAnnotation(DataSourceDefinition.class);
-                processDefinition(dsDefinition, app);
+                processDefinition(dsDefinition, specDD);
             }
         }
         
         // step 2: bind all defined data sources into jndi
-        DataSourceType[] dataSources = app.getDataSourceArray();
+        Collection<DataSource> dataSources = specDD.getDataSource();
         if (dataSources != null) {
-            for (int i = 0; i < dataSources.length; i++) {
+            int i = 0;
+            for (DataSource dataSource: dataSources) {
                 try {
-                    addDataSourceGBean(module, componentContext, dataSources[i], "DataSource-" + i);
+                    addDataSourceGBean(module, componentContext, dataSource, "DataSource-" + i++);
                 } catch (GBeanAlreadyExistsException e) {
                     throw new DeploymentException("Error creating DataSource gbean", e);
                 }
@@ -141,10 +142,10 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         }        
     }
 
-    private void addDataSourceGBean(Module module, Map componentContext, DataSourceType ds, String name)
+    private void addDataSourceGBean(Module module, Map componentContext, DataSource ds, String name)
         throws GBeanAlreadyExistsException {
                         
-        String jndiName = ds.getName().getStringValue();
+        String jndiName = ds.getName();
         
         if (lookupJndiContextMap(module, jndiName) != null) {
             return;
@@ -189,101 +190,106 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         put(jndiName, ref, module.getJndiContext());
     }
     
-    private DataSourceType processDefinition(DataSourceDefinition dsDefinition, AnnotatedApp annotatedApp) {
-        DataSourceType dataSource = findDataSource(dsDefinition, annotatedApp);
-        if (dataSource == null) {
-            dataSource = annotatedApp.addNewDataSource();
-            dataSource.addNewName().setStringValue(dsDefinition.name());
+    private DataSource processDefinition(DataSourceDefinition dsDefinition, JndiConsumer annotatedApp) {
+        DataSource dataSource = findDataSource(dsDefinition, annotatedApp);
+        boolean existing = dataSource != null;
+        if (!existing) {
+            dataSource = new DataSource();
+            dataSource.setName(dsDefinition.name());
         }
         
-        if (!dataSource.isSetClassName()) {
-            dataSource.addNewClassName().setStringValue(dsDefinition.className());
+        if (dataSource.getClassName() == null) {
+            dataSource.setClassName(dsDefinition.className());
         }
         
-        if (!dataSource.isSetDescription() && dsDefinition.description().trim().length() > 0) {
-            dataSource.addNewDescription().setStringValue(dsDefinition.description().trim());            
+        if (dataSource.getDescription() == null && dsDefinition.description().trim().length() > 0) {
+            dataSource.setDescriptions(new Text[]{new Text(null, dsDefinition.description().trim())});
+
         }
         
-        if (!dataSource.isSetUrl() && dsDefinition.url().trim().length() > 0) {
-            dataSource.addNewUrl().setStringValue(dsDefinition.description().trim());
+        if (dataSource.getUrl() == null && dsDefinition.url().trim().length() > 0) {
+            dataSource.setUrl(dsDefinition.description().trim());
         }
         
-        if (!dataSource.isSetUser() && dsDefinition.user().trim().length() > 0) {
-            dataSource.addNewUser().setStringValue(dsDefinition.user().trim());
+        if (dataSource.getUser() == null && dsDefinition.user().trim().length() > 0) {
+            dataSource.setUser(dsDefinition.user().trim());
         }
         
-        if (!dataSource.isSetPassword() && dsDefinition.password().trim().length() > 0) {
-            dataSource.addNewPassword().setStringValue(dsDefinition.password().trim());
+        if (dataSource.getPassword() == null && dsDefinition.password().trim().length() > 0) {
+            dataSource.setPassword(dsDefinition.password().trim());
         }
         
-        if (!dataSource.isSetDatabaseName() && dsDefinition.databaseName().trim().length() > 0) {
-            dataSource.addNewDatabaseName().setStringValue(dsDefinition.databaseName().trim());
+        if (dataSource.getDatabaseName() == null && dsDefinition.databaseName().trim().length() > 0) {
+            dataSource.setDatabaseName(dsDefinition.databaseName().trim());
         }
         
-        if (!dataSource.isSetPortNumber() && dsDefinition.portNumber() != -1) {
-            dataSource.addNewPortNumber().setStringValue(String.valueOf(dsDefinition.portNumber()));
+        if (dataSource.getPortNumber() == null && dsDefinition.portNumber() != -1) {
+            dataSource.setPortNumber(dsDefinition.portNumber());
         }
         
-        if (!dataSource.isSetServerName() && dsDefinition.serverName().trim().length() > 0) {
-            dataSource.addNewServerName().setStringValue(dsDefinition.serverName().trim());
+        if (dataSource.getServerName() == null && dsDefinition.serverName().trim().length() > 0) {
+            dataSource.setServerName(dsDefinition.serverName().trim());
         }
         
-        if (!dataSource.isSetUrl() && dsDefinition.url().trim().length() > 0) {
-            dataSource.addNewUrl().setStringValue(dsDefinition.url().trim());
+        if (dataSource.getUrl() == null && dsDefinition.url().trim().length() > 0) {
+            dataSource.setUrl(dsDefinition.url().trim());
         }
         
-        if (!dataSource.isSetInitialPoolSize() && dsDefinition.initialPoolSize() != -1) {
-            dataSource.addNewInitialPoolSize().setStringValue(String.valueOf(dsDefinition.initialPoolSize()));            
+        if (dataSource.getInitialPoolSize() == null && dsDefinition.initialPoolSize() != -1) {
+            dataSource.setInitialPoolSize(dsDefinition.initialPoolSize());
         }
         
-        if (!dataSource.isSetMaxPoolSize() && dsDefinition.maxPoolSize() != -1) {
-            dataSource.addNewMaxPoolSize().setStringValue(String.valueOf(dsDefinition.maxPoolSize()));            
+        if (dataSource.getMaxPoolSize() == null && dsDefinition.maxPoolSize() != -1) {
+            dataSource.setMaxPoolSize(dsDefinition.maxPoolSize());
         }
         
-        if (!dataSource.isSetMinPoolSize() && dsDefinition.minPoolSize() != -1) {
-            dataSource.addNewMinPoolSize().setStringValue(String.valueOf(dsDefinition.minPoolSize()));            
+        if (dataSource.getMinPoolSize() == null && dsDefinition.minPoolSize() != -1) {
+            dataSource.setMinPoolSize(dsDefinition.minPoolSize());
         }
         
-        if (!dataSource.isSetMaxIdleTime() && dsDefinition.maxIdleTime() != -1) {
-            dataSource.addNewMaxIdleTime().setStringValue(String.valueOf(dsDefinition.maxIdleTime()));            
+        if (dataSource.getMaxIdleTime() == null && dsDefinition.maxIdleTime() != -1) {
+            dataSource.setMaxIdleTime(dsDefinition.maxIdleTime());
         }
         
-        if (!dataSource.isSetMaxStatements() && dsDefinition.maxStatements() != -1) {
-            dataSource.addNewMaxStatements().setStringValue(String.valueOf(dsDefinition.maxStatements()));            
+        if (dataSource.getMaxStatements() == null && dsDefinition.maxStatements() != -1) {
+            dataSource.setMaxStatements(dsDefinition.maxStatements());
         }
         
-        if (!dataSource.isSetLoginTimeout() && dsDefinition.loginTimeout() != 0) {
-            dataSource.addNewLoginTimeout().setStringValue(String.valueOf(dsDefinition.loginTimeout()));            
+        if (dataSource.getLoginTimeout() == null && dsDefinition.loginTimeout() != 0) {
+            dataSource.setLoginTimeout(dsDefinition.loginTimeout());
         }
         
-        if (!dataSource.isSetIsolationLevel() && dsDefinition.isolationLevel() != -1) {
-            dataSource.setIsolationLevel(IsolationLevelType.Enum.forInt(dsDefinition.isolationLevel()));
+        if (dataSource.getIsolationLevel() == null && dsDefinition.isolationLevel() != -1) {
+            dataSource.setIsolationLevel(IsolationLevel.values()[dsDefinition.isolationLevel()]); 
         }
         
-        if (!dataSource.isSetTransactional()) {
-            dataSource.addNewTransactional().setBooleanValue(dsDefinition.transactional());
+        if (dataSource.getTransactional() == null) {
+            dataSource.setTransactional(dsDefinition.transactional());
         }
         
-        if (dataSource.getPropertyArray() == null || dataSource.getPropertyArray().length == 0) {
+        if (dataSource.getProperty().size() == 0) {
             String[] properties = dsDefinition.properties();
             if (properties != null) {
                 for (String property : properties) {
                     String[] tokens = property.split("=");
-                    PropertyType propertyType = dataSource.addNewProperty();
-                    propertyType.addNewName().setStringValue(tokens[0]);
-                    propertyType.addNewValue().setStringValue(tokens[1]);                    
+                    Property prop = new Property();
+                    prop.setName(tokens[0]);
+                    prop.setValue(tokens[1]);
+                    dataSource.getProperty().add(prop);
                 }               
             }
         }
-        
+        if (!existing) {
+            annotatedApp.getDataSource().add(dataSource);
+        }
         return dataSource;
     }
 
-    private DataSourceType findDataSource(DataSourceDefinition dsDefinition, AnnotatedApp annotatedApp) {
+    private DataSource findDataSource(DataSourceDefinition dsDefinition, JndiConsumer annotatedApp) {
         String dsDefinitionName = getJndiName(dsDefinition.name().trim());
-        DataSourceType[] dataSources = annotatedApp.getDataSourceArray();
-        for (DataSourceType ds : dataSources) {
-            String dsName = getJndiName(ds.getName().getStringValue().trim());
+        Collection<DataSource> dataSources = annotatedApp.getDataSource();
+        for (DataSource ds : dataSources) {
+            String dsName = getJndiName(ds.getName().trim());
             if (dsDefinitionName.equals(dsName)) {
                 return ds;
             }
@@ -291,72 +297,72 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         return null;        
     }
     
-    private DataSourceDescription createDataSourceDescription(DataSourceType ds) {
+    private DataSourceDescription createDataSourceDescription(DataSource ds) {
         DataSourceDescription dsDescription = new DataSourceDescription();
         
-        dsDescription.setName(ds.getName().getStringValue());
-        dsDescription.setClassName(ds.getClassName().getStringValue());
+        dsDescription.setName(ds.getName());
+        dsDescription.setClassName(ds.getClassName());
         
-        if (ds.isSetDescription()) {
-            dsDescription.setDescription(ds.getDescription().getStringValue().trim());
+        if (ds.getDescription() != null) {
+            dsDescription.setDescription(ds.getDescription().trim());
         }
         
-        if (ds.isSetUrl()) {
-            dsDescription.setUrl(ds.getUrl().getStringValue().trim());
+        if (ds.getUrl() != null) {
+            dsDescription.setUrl(ds.getUrl().trim());
         }
         
-        if (ds.isSetUser()) {
-            dsDescription.setUser(ds.getUser().getStringValue().trim());
+        if (ds.getUser() != null) {
+            dsDescription.setUser(ds.getUser().trim());
         }
         
-        if (ds.isSetPassword()) {
-            dsDescription.setPassword(ds.getPassword().getStringValue().trim());
+        if (ds.getPassword() != null) {
+            dsDescription.setPassword(ds.getPassword().trim());
         }
         
-        if (ds.isSetDatabaseName()) {
-            dsDescription.setDatabaseName(ds.getDatabaseName().getStringValue().trim());
+        if (ds.getDatabaseName() != null) {
+            dsDescription.setDatabaseName(ds.getDatabaseName().trim());
         }
         
-        if (ds.isSetServerName()) {
-            dsDescription.setServerName(ds.getServerName().getStringValue().trim());
+        if (ds.getServerName() != null) {
+            dsDescription.setServerName(ds.getServerName().trim());
         }
         
-        if (ds.isSetPortNumber()) {
-            dsDescription.setPortNumber(ds.getPortNumber().getBigIntegerValue().intValue());
+        if (ds.getPortNumber() != null) {
+            dsDescription.setPortNumber(ds.getPortNumber());
         }
                 
-        if (ds.isSetLoginTimeout()) {
-            dsDescription.setLoginTimeout(ds.getLoginTimeout().getBigIntegerValue().intValue());      
+        if (ds.getLoginTimeout() != null) {
+            dsDescription.setLoginTimeout(ds.getLoginTimeout());
         }
         
-        PropertyType[] props = ds.getPropertyArray();
+        List<Property> props = ds.getProperty();
         if (props != null) {
             Map<String, String> properties = new HashMap<String, String>();
-            for (PropertyType prop : props) {
-                properties.put(prop.getName().getStringValue().trim(), 
-                               prop.getValue().getStringValue().trim());
+            for (Property prop : props) {
+                properties.put(prop.getName().trim(),
+                               prop.getValue().trim());
             }
             dsDescription.setProperties(properties);
         }
         
         // transaction properties
         
-        if (ds.isSetTransactional()) {
-            dsDescription.setTransactional(ds.getTransactional().getBooleanValue());
+        if (ds.getTransactional()) {
+            dsDescription.setTransactional(ds.getTransactional());
         }
         
-        if (ds.isSetIsolationLevel()) {
-            switch (ds.getIsolationLevel().intValue()) {
-            case IsolationLevelType.INT_TRANSACTION_READ_COMMITTED:
+        if (ds.getIsolationLevel() != null) {
+            switch (ds.getIsolationLevel()) {
+            case TRANSACTION_READ_COMMITTED:
                 dsDescription.setIsolationLevel(Connection.TRANSACTION_READ_COMMITTED);
                 break;
-            case IsolationLevelType.INT_TRANSACTION_READ_UNCOMMITTED:
+            case TRANSACTION_READ_UNCOMMITTED:
                 dsDescription.setIsolationLevel(Connection.TRANSACTION_READ_UNCOMMITTED);
                 break;
-            case IsolationLevelType.INT_TRANSACTION_REPEATABLE_READ:
+            case TRANSACTION_REPEATABLE_READ:
                 dsDescription.setIsolationLevel(Connection.TRANSACTION_REPEATABLE_READ);
                 break;
-            case IsolationLevelType.INT_TRANSACTION_SERIALIZABLE:
+            case TRANSACTION_SERIALIZABLE:
                 dsDescription.setIsolationLevel(Connection.TRANSACTION_SERIALIZABLE);
                 break;
             }
@@ -364,24 +370,24 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         
         // pool properties
         
-        if (ds.isSetInitialPoolSize()) {
-            dsDescription.setInitialPoolSize(ds.getInitialPoolSize().getBigIntegerValue().intValue());
+        if (ds.getInitialPoolSize() != null) {
+            dsDescription.setInitialPoolSize(ds.getInitialPoolSize());
         }
         
-        if (ds.isSetMaxPoolSize()) {
-            dsDescription.setMaxPoolSize(ds.getMaxPoolSize().getBigIntegerValue().intValue());
+        if (ds.getMaxPoolSize() != null) {
+            dsDescription.setMaxPoolSize(ds.getMaxPoolSize());
         }
         
-        if (ds.isSetMinPoolSize()) {
-            dsDescription.setMinPoolSize(ds.getMinPoolSize().getBigIntegerValue().intValue());
+        if (ds.getMinPoolSize() != null) {
+            dsDescription.setMinPoolSize(ds.getMinPoolSize());
         }
         
-        if (ds.isSetMaxStatements()) {
-            dsDescription.setMaxStatements(ds.getMaxStatements().getBigIntegerValue().intValue());
+        if (ds.getMaxStatements() != null) {
+            dsDescription.setMaxStatements(ds.getMaxStatements());
         }
         
-        if (ds.isSetMaxIdleTime()) {
-            dsDescription.setMaxIdleTime(ds.getMaxIdleTime().getBigIntegerValue().intValue());
+        if (ds.getMaxIdleTime() != null) {
+            dsDescription.setMaxIdleTime(ds.getMaxIdleTime());
         }
         
         return dsDescription;

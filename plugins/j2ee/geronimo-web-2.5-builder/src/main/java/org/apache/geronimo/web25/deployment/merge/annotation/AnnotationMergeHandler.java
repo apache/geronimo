@@ -19,16 +19,16 @@ package org.apache.geronimo.web25.deployment.merge.annotation;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.WebApp;
 
 /**
  * @version $Rev$ $Date$
  */
 public interface AnnotationMergeHandler {
 
-    public void merge(Class<?>[] classes, WebAppType webApp, MergeContext mergeContext) throws DeploymentException;
+    public void merge(Class<?>[] classes, WebApp webApp, MergeContext mergeContext) throws DeploymentException;
 
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException;
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException;
 
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException;
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException;
 }

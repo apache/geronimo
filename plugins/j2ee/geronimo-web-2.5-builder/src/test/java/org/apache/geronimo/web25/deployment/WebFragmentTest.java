@@ -18,6 +18,7 @@
 package org.apache.geronimo.web25.deployment;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -26,9 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
-
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -55,15 +54,12 @@ import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 import org.apache.geronimo.web25.deployment.merge.MergeHelper;
 import org.apache.geronimo.web25.deployment.merge.webfragment.WebFragmentEntry;
-import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentDocument;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 import org.osgi.framework.Bundle;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class WebFragmentTest extends XmlBeansTestSupport {
@@ -75,16 +71,17 @@ public class WebFragmentTest extends XmlBeansTestSupport {
      * a. All the ordering configuration in the web-fragments should be ignored
      * b. The name in the absolute ordering configuration might be not present in founded web-fragment.xml
      * c. If others is configured, all the web-fragment should be included,
+     *
      * @throws Exception
      */
     public void testAbsoluteSortWithOthers() throws Exception {
-        Map<String, WebFragmentDocument> jarURLWebFragmentDocumentMap = new LinkedHashMap<String, WebFragmentDocument>();
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testA.jar", (WebFragmentDocument) loadXmlObject("webfragments/absolute/webfragmentA.xml"));
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testB.jar", (WebFragmentDocument) loadXmlObject("webfragments/absolute/webfragmentB.xml"));
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testC.jar", (WebFragmentDocument) loadXmlObject("webfragments/absolute/webfragmentC.xml"));
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testD.jar", (WebFragmentDocument) loadXmlObject("webfragments/absolute/webfragmentD.xml"));
-        WebAppType webApp = ((WebAppDocument) loadXmlObject("webfragments/absolute/web-withothers.xml")).getWebApp();
-        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentDocumentMap);
+        Map<String, WebFragment> jarURLWebFragmentMap = new LinkedHashMap<String, WebFragment>();
+        jarURLWebFragmentMap.put("WEB-INF/lib/testA.jar", loadXmlObject("webfragments/absolute/webfragmentA.xml", WebFragment.class));
+        jarURLWebFragmentMap.put("WEB-INF/lib/testB.jar", loadXmlObject("webfragments/absolute/webfragmentB.xml", WebFragment.class));
+        jarURLWebFragmentMap.put("WEB-INF/lib/testC.jar", loadXmlObject("webfragments/absolute/webfragmentC.xml", WebFragment.class));
+        jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/absolute/webfragmentD.xml", WebFragment.class));
+        WebApp webApp = loadXmlObject("webfragments/absolute/web-withothers.xml", WebApp.class);
+        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
         Assert.assertEquals(4, webFragmentEntries.length);
         Assert.assertEquals("webfragmentD", webFragmentEntries[0].getName());
         Assert.assertEquals("webfragmentB", webFragmentEntries[1].getName());
@@ -97,33 +94,34 @@ public class WebFragmentTest extends XmlBeansTestSupport {
      * a. All the ordering configuration in the web-fragments should be ignored
      * b. The name in the absolute ordering configuration might be not present in founded web-fragment.xml
      * c. If others element is not configured, only those explicitly configured web fragments are included
+     *
      * @throws Exception
      */
     public void testAbsoluteSortWithoutOthers() throws Exception {
-        Map<String, WebFragmentDocument> jarURLWebFragmentDocumentMap = new LinkedHashMap<String, WebFragmentDocument>();
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testA.jar", (WebFragmentDocument) loadXmlObject("webfragments/absolute/webfragmentA.xml"));
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testB.jar", (WebFragmentDocument) loadXmlObject("webfragments/absolute/webfragmentB.xml"));
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testC.jar", (WebFragmentDocument) loadXmlObject("webfragments/absolute/webfragmentC.xml"));
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testD.jar", (WebFragmentDocument) loadXmlObject("webfragments/absolute/webfragmentD.xml"));
-        WebAppType webApp = ((WebAppDocument) loadXmlObject("webfragments/absolute/web-withoutothers.xml")).getWebApp();
-        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentDocumentMap);
+        Map<String, WebFragment> jarURLWebFragmentMap = new LinkedHashMap<String, WebFragment>();
+        jarURLWebFragmentMap.put("WEB-INF/lib/testA.jar", loadXmlObject("webfragments/absolute/webfragmentA.xml", WebFragment.class));
+        jarURLWebFragmentMap.put("WEB-INF/lib/testB.jar", loadXmlObject("webfragments/absolute/webfragmentB.xml", WebFragment.class));
+        jarURLWebFragmentMap.put("WEB-INF/lib/testC.jar", loadXmlObject("webfragments/absolute/webfragmentC.xml", WebFragment.class));
+        jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/absolute/webfragmentD.xml", WebFragment.class));
+        WebApp webApp = loadXmlObject("webfragments/absolute/web-withoutothers.xml", WebApp.class);
+        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
         Assert.assertEquals(2, webFragmentEntries.length);
         Assert.assertEquals("webfragmentD", webFragmentEntries[0].getName());
         Assert.assertEquals("webfragmentA", webFragmentEntries[1].getName());
     }
 
     public void testRelativeSort() throws Exception {
-        Map<String, WebFragmentDocument> jarURLWebFragmentDocumentMap = new LinkedHashMap<String, WebFragmentDocument>();
+        Map<String, WebFragment> jarURLWebFragmentMap = new LinkedHashMap<String, WebFragment>();
         //A  -(after)-> B
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testA.jar", (WebFragmentDocument) loadXmlObject("webfragments/relative/webfragmentA.xml"));
+        jarURLWebFragmentMap.put("WEB-INF/lib/testA.jar", loadXmlObject("webfragments/relative/webfragmentA.xml", WebFragment.class));
         //B
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testB.jar", (WebFragmentDocument) loadXmlObject("webfragments/relative/webfragmentB.xml"));
+        jarURLWebFragmentMap.put("WEB-INF/lib/testB.jar", loadXmlObject("webfragments/relative/webfragmentB.xml", WebFragment.class));
         //C -(before) -> others
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testC.jar", (WebFragmentDocument) loadXmlObject("webfragments/relative/webfragmentC.xml"));
+        jarURLWebFragmentMap.put("WEB-INF/lib/testC.jar", loadXmlObject("webfragments/relative/webfragmentC.xml", WebFragment.class));
         //D -(after) -> others
-        jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testD.jar", (WebFragmentDocument) loadXmlObject("webfragments/relative/webfragmentD.xml"));
-        WebAppType webApp = ((WebAppDocument) loadXmlObject("webfragments/relative/web.xml")).getWebApp();
-        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentDocumentMap);
+        jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/relative/webfragmentD.xml", WebFragment.class));
+        WebApp webApp = loadXmlObject("webfragments/relative/web.xml", WebApp.class);
+        WebFragmentEntry[] webFragmentEntries = MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
         Assert.assertEquals("webfragmentC", webFragmentEntries[0].getName());
         Assert.assertEquals("webfragmentB", webFragmentEntries[1].getName());
         Assert.assertEquals("webfragmentA", webFragmentEntries[2].getName());
@@ -133,18 +131,19 @@ public class WebFragmentTest extends XmlBeansTestSupport {
     /**
      * Test Points :
      * a. A -> A
+     *
      * @throws Exception
      */
     public void testCircusDependencyA() throws Exception {
         try {
-            Map<String, WebFragmentDocument> jarURLWebFragmentDocumentMap = new LinkedHashMap<String, WebFragmentDocument>();
+            Map<String, WebFragment> jarURLWebFragmentMap = new LinkedHashMap<String, WebFragment>();
             //A  -(before)-> A
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testA.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusA/webfragmentA.xml"));
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testB.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusA/webfragmentB.xml"));
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testC.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusA/webfragmentC.xml"));
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testD.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusA/webfragmentD.xml"));
-            WebAppType webApp = ((WebAppDocument) loadXmlObject("webfragments/circus/circusA/web.xml")).getWebApp();
-            MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentDocumentMap);
+            jarURLWebFragmentMap.put("WEB-INF/lib/testA.jar", loadXmlObject("webfragments/circus/circusA/webfragmentA.xml", WebFragment.class));
+            jarURLWebFragmentMap.put("WEB-INF/lib/testB.jar", loadXmlObject("webfragments/circus/circusA/webfragmentB.xml", WebFragment.class));
+            jarURLWebFragmentMap.put("WEB-INF/lib/testC.jar", loadXmlObject("webfragments/circus/circusA/webfragmentC.xml", WebFragment.class));
+            jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/circus/circusA/webfragmentD.xml", WebFragment.class));
+            WebApp webApp = loadXmlObject("webfragments/circus/circusA/web.xml", WebApp.class);
+            MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
             fail("Circus Dependency should be found");
         } catch (DeploymentException e) {
             Assert.assertTrue(e.getMessage().indexOf("WEB-INF/lib/testA.jar") != -1);
@@ -154,19 +153,20 @@ public class WebFragmentTest extends XmlBeansTestSupport {
     /**
      * Test Points :
      * a. A -> B -> A
+     *
      * @throws Exception
      */
     public void testCircusDependencyB() throws Exception {
         try {
-            Map<String, WebFragmentDocument> jarURLWebFragmentDocumentMap = new LinkedHashMap<String, WebFragmentDocument>();
+            Map<String, WebFragment> jarURLWebFragmentMap = new LinkedHashMap<String, WebFragment>();
             //A  -(before)-> B
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testA.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusB/webfragmentA.xml"));
+            jarURLWebFragmentMap.put("WEB-INF/lib/testA.jar", loadXmlObject("webfragments/circus/circusB/webfragmentA.xml", WebFragment.class));
             //B -(before) -> A
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testB.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusB/webfragmentB.xml"));
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testC.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusB/webfragmentC.xml"));
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testD.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusB/webfragmentD.xml"));
-            WebAppType webApp = ((WebAppDocument) loadXmlObject("webfragments/circus/circusB/web.xml")).getWebApp();
-            MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentDocumentMap);
+            jarURLWebFragmentMap.put("WEB-INF/lib/testB.jar", loadXmlObject("webfragments/circus/circusB/webfragmentB.xml", WebFragment.class));
+            jarURLWebFragmentMap.put("WEB-INF/lib/testC.jar", loadXmlObject("webfragments/circus/circusB/webfragmentC.xml", WebFragment.class));
+            jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/circus/circusB/webfragmentD.xml", WebFragment.class));
+            WebApp webApp = loadXmlObject("webfragments/circus/circusB/web.xml", WebApp.class);
+            MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
             fail("Circus Dependency should be found");
         } catch (DeploymentException e) {
             Assert.assertTrue(e.getMessage().indexOf("WEB-INF/lib/testA.jar") != -1 || e.getMessage().indexOf("WEB-INF/lib/testB.jar") != -1);
@@ -176,30 +176,36 @@ public class WebFragmentTest extends XmlBeansTestSupport {
     /**
      * Test Points :
      * a. A -> B -> C -> A
+     *
      * @throws Exception
      */
     public void testCircusDependencyC() throws Exception {
         try {
-            Map<String, WebFragmentDocument> jarURLWebFragmentDocumentMap = new LinkedHashMap<String, WebFragmentDocument>();
+            Map<String, WebFragment> jarURLWebFragmentMap = new LinkedHashMap<String, WebFragment>();
             //A  -(after)-> B
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testA.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusC/webfragmentA.xml"));
+            jarURLWebFragmentMap.put("WEB-INF/lib/testA.jar", loadXmlObject("webfragments/circus/circusC/webfragmentA.xml", WebFragment.class));
             //B - (after) -> D
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testB.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusC/webfragmentB.xml"));
+            jarURLWebFragmentMap.put("WEB-INF/lib/testB.jar", loadXmlObject("webfragments/circus/circusC/webfragmentB.xml", WebFragment.class));
             //C -(before) -> others
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testC.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusC/webfragmentC.xml"));
+            jarURLWebFragmentMap.put("WEB-INF/lib/testC.jar", loadXmlObject("webfragments/circus/circusC/webfragmentC.xml", WebFragment.class));
             //D -(after) -> A
-            jarURLWebFragmentDocumentMap.put("WEB-INF/lib/testD.jar", (WebFragmentDocument) loadXmlObject("webfragments/circus/circusC/webfragmentD.xml"));
-            WebAppType webApp = ((WebAppDocument) loadXmlObject("webfragments/circus/circusC/web.xml")).getWebApp();
-            MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentDocumentMap);
+            jarURLWebFragmentMap.put("WEB-INF/lib/testD.jar", loadXmlObject("webfragments/circus/circusC/webfragmentD.xml", WebFragment.class));
+            WebApp webApp = loadXmlObject("webfragments/circus/circusC/web.xml", WebApp.class);
+            MergeHelper.sortWebFragments(new DummyEARContext(), null, null, webApp, jarURLWebFragmentMap);
             fail("Circus Dependency should be found");
         } catch (DeploymentException e) {
             Assert.assertTrue(e.getMessage().indexOf("WEB-INF/lib/testA.jar") != -1 || e.getMessage().indexOf("WEB-INF/lib/testB.jar") != -1 || e.getMessage().indexOf("WEB-INF/lib/testD.jar") != -1);
         }
     }
 
-    private XmlObject loadXmlObject(String url) throws Exception {
+    private <T> T loadXmlObject(String url, Class<T> clazz) throws Exception {
         URL srcXml = classLoader.getResource(url);
-        return XmlBeansUtil.parse(srcXml, classLoader);
+        InputStream in = srcXml.openStream();
+        try {
+            return (T) JaxbJavaee.unmarshal(clazz, in);
+        } finally {
+            in.close();
+        }
     }
 
     public static class DummyConfigurationManager implements ConfigurationManager {
@@ -406,27 +412,27 @@ public class WebFragmentTest extends XmlBeansTestSupport {
     private static class DummyEARContext extends EARContext {
 
         /**
-         *  public EARContext(File baseDir,
-                      File inPlaceConfigurationDir,
-                      Environment environment,
-                      ConfigurationModuleType moduleType,
-                      Naming naming,
-                      ConfigurationManager configurationManager,
-                      BundleContext bundleContext,
-                      AbstractNameQuery serverName,
-                      AbstractName baseName,
-                      AbstractNameQuery transactionManagerObjectName,
-                      AbstractNameQuery connectionTrackerObjectName,
-                      AbstractNameQuery corbaGBeanObjectName,
-                      Map messageDestinations) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager, bundleContext);
-
-        this.serverName = serverName;
-        this.transactionManagerObjectName = transactionManagerObjectName;
-        this.connectionTrackerObjectName = connectionTrackerObjectName;
-        this.corbaGBeanObjectName = corbaGBeanObjectName;
-        this.messageDestinations = messageDestinations;
-        }
+         * public EARContext(File baseDir,
+         * File inPlaceConfigurationDir,
+         * Environment environment,
+         * ConfigurationModuleType moduleType,
+         * Naming naming,
+         * ConfigurationManager configurationManager,
+         * BundleContext bundleContext,
+         * AbstractNameQuery serverName,
+         * AbstractName baseName,
+         * AbstractNameQuery transactionManagerObjectName,
+         * AbstractNameQuery connectionTrackerObjectName,
+         * AbstractNameQuery corbaGBeanObjectName,
+         * Map messageDestinations) throws DeploymentException {
+         * super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager, bundleContext);
+         * <p/>
+         * this.serverName = serverName;
+         * this.transactionManagerObjectName = transactionManagerObjectName;
+         * this.connectionTrackerObjectName = connectionTrackerObjectName;
+         * this.corbaGBeanObjectName = corbaGBeanObjectName;
+         * this.messageDestinations = messageDestinations;
+         * }
          */
         public DummyEARContext() throws Exception {
             super(FileUtils.createTempDir(), null, new Environment(), ConfigurationModuleType.WAR, null, new DummyConfigurationManager(), new MockBundleContext(new MockBundle(WebFragmentTest.class

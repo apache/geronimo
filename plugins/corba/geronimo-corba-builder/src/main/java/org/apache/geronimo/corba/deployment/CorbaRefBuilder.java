@@ -20,25 +20,24 @@ package org.apache.geronimo.corba.deployment;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.QNameSet;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.naming.reference.ORBReference;
-import org.apache.geronimo.naming.reference.HandleDelegateReference;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.SingleElementCollection;
+import org.apache.geronimo.naming.reference.HandleDelegateReference;
+import org.apache.geronimo.naming.reference.ORBReference;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -54,22 +53,22 @@ public class CorbaRefBuilder extends AbstractNamingBuilder {
         this.corbaGBeanNameSourceCollection = new SingleElementCollection<CorbaGBeanNameSource>(corbaGBeanNameSource);
     }
 
-    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) throws DeploymentException {
 //        if (OpenEjbCorbaRefBuilder.hasCssRefs(plan) || TSSLinkBuilder.hasTssLinks(plan)) {
             return true;
 //        }
 //        return false;
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         if (matchesDefaultEnvironment(module.getEnvironment())) {
             CorbaGBeanNameSource corbaGBeanNameSource = corbaGBeanNameSourceCollection.getElement();
             if (corbaGBeanNameSource != null) {
                 AbstractNameQuery corbaName = corbaGBeanNameSource.getCorbaGBeanName();
                 if (corbaName != null) {
                     Artifact[] moduleId = module.getConfigId();
-                    put("env/ORB", new ORBReference(moduleId, corbaName), module.getJndiContext());
-                    put("env/HandleDelegate", new HandleDelegateReference(moduleId, corbaName), module.getJndiContext());
+                    put("java:comp/ORB", new ORBReference(moduleId, corbaName), module.getJndiContext());
+                    put("java:comp/HandleDelegate", new HandleDelegateReference(moduleId, corbaName), module.getJndiContext());
                 }
             }
         }

@@ -22,94 +22,94 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.CookieConfigType;
-import org.apache.geronimo.xbeans.javaee6.SessionConfigType;
-import org.apache.geronimo.xbeans.javaee6.TrackingModeType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.CookieConfig;
+import org.apache.openejb.jee.SessionConfig;
+import org.apache.openejb.jee.TrackingMode;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class SessionConfigMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class SessionConfigMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        if (webFragment.getSessionConfigArray().length == 1) {
-            mergeSessionConfig(webApp, webFragment.getSessionConfigArray(0), mergeContext, ElementSource.WEB_FRAGMENT);
-        } else if (webFragment.getSessionConfigArray().length > 1) {
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        if (webFragment.getSessionConfig().size() == 1) {
+            mergeSessionConfig(webApp, webFragment.getSessionConfig().get(0), mergeContext, ElementSource.WEB_FRAGMENT);
+        } else if (webFragment.getSessionConfig().size() > 1) {
             throw new DeploymentException(WebDeploymentMessageUtils.createMultipleConfigurationWebFragmentErrorMessage("session-config", mergeContext.getCurrentJarUrl()));
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        if (webApp.getSessionConfigArray().length == 1) {
-            SessionConfigType sessionConfig = webApp.getSessionConfigArray(0);
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        if (webApp.getSessionConfig().size() == 1) {
+            SessionConfig sessionConfig = webApp.getSessionConfig().get(0);
             mergeSessionConfig(webApp, sessionConfig, context, ElementSource.WEB_XML);
             context.setAttribute("session-config", sessionConfig);
-        } else if (webApp.getSessionConfigArray().length > 1) {
+        } else if (webApp.getSessionConfig().size() > 1) {
             throw new DeploymentException(WebDeploymentMessageUtils.createMultipleConfigurationWebAppErrorMessage("session-config"));
         }
     }
 
-    private CookieConfigType getCookieConfig(WebAppType webApp, MergeContext context) {
-        SessionConfigType sessionConfig = getSessionConfig(webApp, context);
-        if (sessionConfig.isSetCookieConfig()) {
-            return sessionConfig.getCookieConfig();
-        } else {
-            return sessionConfig.addNewCookieConfig();
+    private CookieConfig getCookieConfig(WebApp webApp, MergeContext context) {
+        SessionConfig sessionConfig = getSessionConfig(webApp, context);
+        if (sessionConfig.getCookieConfig() == null) {
+            sessionConfig.setCookieConfig(new CookieConfig());
         }
+        return sessionConfig.getCookieConfig();
     }
 
-    private SessionConfigType getSessionConfig(WebAppType webApp, MergeContext context) {
-        SessionConfigType sessionConfig = (SessionConfigType) context.getAttribute("session-config");
+    private SessionConfig getSessionConfig(WebApp webApp, MergeContext context) {
+        SessionConfig sessionConfig = (SessionConfig) context.getAttribute("session-config");
         if (sessionConfig == null) {
-            sessionConfig = webApp.addNewSessionConfig();
+            sessionConfig = new SessionConfig();
+            webApp.getSessionConfig().add(sessionConfig);
             context.setAttribute("session-config", sessionConfig);
         }
         return sessionConfig;
     }
 
-    private void mergeSessionConfig(WebAppType webApp, SessionConfigType sessionConfig, MergeContext context, ElementSource elementSource) throws DeploymentException {
-        if (sessionConfig.isSetSessionTimeout()) {
-            if (mergeSingleAttribute(context, "timeout", "session-config.session-timeout", sessionConfig.getSessionTimeout().getStringValue(), null, elementSource)) {
-                getSessionConfig(webApp, context).addNewSessionTimeout().set(sessionConfig.getSessionTimeout());
+    private void mergeSessionConfig(WebApp webApp, SessionConfig sessionConfig, MergeContext context, ElementSource elementSource) throws DeploymentException {
+        if (sessionConfig.getSessionTimeout() != null) {
+            if (mergeSingleAttribute(context, "timeout", "session-config.session-timeout", "" + sessionConfig.getSessionTimeout(), null, elementSource)) {
+                getSessionConfig(webApp, context).setSessionTimeout(sessionConfig.getSessionTimeout());
             }
         }
-        if (sessionConfig.isSetCookieConfig()) {
-            CookieConfigType cookieConfig = sessionConfig.getCookieConfig();
-            if (cookieConfig.isSetName() && mergeSingleAttribute(context, "name", "session-config.cookie-config.name", cookieConfig.getName().getStringValue(), null, elementSource)) {
-                getCookieConfig(webApp, context).addNewName().set(cookieConfig.getName());
+        if (sessionConfig.getCookieConfig() != null) {
+            CookieConfig cookieConfig = sessionConfig.getCookieConfig();
+            if (cookieConfig.getName() != null && mergeSingleAttribute(context, "name", "session-config.cookie-config.name", cookieConfig.getName(), null, elementSource)) {
+                getCookieConfig(webApp, context).setName(cookieConfig.getName());
             }
-            if (cookieConfig.isSetDomain() && mergeSingleAttribute(context, "domain", "session-config.cookie-config.domain", cookieConfig.getDomain().getStringValue(), null, elementSource)) {
-                getCookieConfig(webApp, context).addNewDomain().set(cookieConfig.getDomain());
+            if (cookieConfig.getDomain() != null && mergeSingleAttribute(context, "domain", "session-config.cookie-config.domain", cookieConfig.getDomain(), null, elementSource)) {
+                getCookieConfig(webApp, context).setDomain(cookieConfig.getDomain());
             }
-            if (cookieConfig.isSetPath() && mergeSingleAttribute(context, "path", "session-config.cookie-config.path", cookieConfig.getPath().getStringValue(), null, elementSource)) {
-                getCookieConfig(webApp, context).addNewPath().set(cookieConfig.getPath());
+            if (cookieConfig.getPath() != null && mergeSingleAttribute(context, "path", "session-config.cookie-config.path", cookieConfig.getPath(), null, elementSource)) {
+                getCookieConfig(webApp, context).setPath(cookieConfig.getPath());
             }
-            if (cookieConfig.isSetComment() && mergeSingleAttribute(context, "comment", "session-config.cookie-config.comment", cookieConfig.getComment().getStringValue(), null, elementSource)) {
-                getCookieConfig(webApp, context).addNewComment().set(cookieConfig.getComment());
+            if (cookieConfig.getComment() != null && mergeSingleAttribute(context, "comment", "session-config.cookie-config.comment", cookieConfig.getComment(), null, elementSource)) {
+                getCookieConfig(webApp, context).setComment(cookieConfig.getComment());
             }
-            if (cookieConfig.isSetHttpOnly() && mergeSingleAttribute(context, "http-only", "session-config.cookie-config.http-only", cookieConfig.getHttpOnly().getStringValue(), null, elementSource)) {
-                getCookieConfig(webApp, context).addNewHttpOnly().set(cookieConfig.getHttpOnly());
+            if (cookieConfig.getHttpOnly() != null && mergeSingleAttribute(context, "http-only", "session-config.cookie-config.http-only", "" + cookieConfig.getHttpOnly(), null, elementSource)) {
+                getCookieConfig(webApp, context).setHttpOnly(cookieConfig.getHttpOnly());
             }
-            if (cookieConfig.isSetSecure() && mergeSingleAttribute(context, "secure", "session-config.cookie-config.secure", cookieConfig.getSecure().getStringValue(), null, elementSource)) {
-                getCookieConfig(webApp, context).addNewSecure().set(cookieConfig.getSecure());
+            if (cookieConfig.getSecure() != null && mergeSingleAttribute(context, "secure", "session-config.cookie-config.secure", "" +  cookieConfig.getSecure(), null, elementSource)) {
+                getCookieConfig(webApp, context).setSecure(cookieConfig.getSecure());
             }
-            if (cookieConfig.isSetMaxAge() && mergeSingleAttribute(context, "max-age", "session-config.cookie-config.max-age", cookieConfig.getMaxAge().getStringValue(), null, elementSource)) {
-                getCookieConfig(webApp, context).addNewMaxAge().set(cookieConfig.getMaxAge());
+            if (cookieConfig.getMaxAge() != null && mergeSingleAttribute(context, "max-age", "session-config.cookie-config.max-age",  "" +cookieConfig.getMaxAge(), null, elementSource)) {
+                getCookieConfig(webApp, context).setMaxAge(cookieConfig.getMaxAge());
             }
         }
-        if (elementSource.equals(ElementSource.WEB_FRAGMENT) && sessionConfig.getTrackingModeArray().length > 0) {
-            for (TrackingModeType trackingMode : sessionConfig.getTrackingModeArray()) {
-                if (!context.containsAttribute("session-config.tracking-mode." + trackingMode.getStringValue())) {
-                    getSessionConfig(webApp, context).addNewTrackingMode().set(trackingMode);
-                    context.setAttribute("session-config.tracking-mode." + trackingMode.getStringValue(), Boolean.TRUE);
+        if (elementSource.equals(ElementSource.WEB_FRAGMENT) && !sessionConfig.getTrackingMode().isEmpty()) {
+            for (TrackingMode trackingMode : sessionConfig.getTrackingMode()) {
+                if (!context.containsAttribute("session-config.tracking-mode." + trackingMode)) {
+                    getSessionConfig(webApp, context).getTrackingMode().add(trackingMode);
+                    context.setAttribute("session-config.tracking-mode." + trackingMode, Boolean.TRUE);
                 }
             }
         }

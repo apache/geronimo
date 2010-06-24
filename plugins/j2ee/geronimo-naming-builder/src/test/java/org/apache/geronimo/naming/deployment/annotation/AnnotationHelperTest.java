@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.naming.deployment.annotation;
 
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -25,16 +26,16 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.annotation.Resources;
-
+import javax.xml.bind.JAXBException;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.naming.deployment.EnvironmentEntryBuilder;
 import org.apache.geronimo.naming.deployment.SwitchingServiceRefBuilder;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
-import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.ClassFinder;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
@@ -76,35 +77,56 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //
         // 2. env-entry
         //
-        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
-        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
-        WebAppType webApp = webAppDoc.getWebApp();
-        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
-        ResourceAnnotationHelper.processAnnotations(annotatedWebApp, classFinder, EnvironmentEntryBuilder.EnvEntryRefProcessor.INSTANCE);
+//        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
+//        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
+//        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
+//        WebAppType webApp = webAppDoc.getWebApp();
+//        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
+        WebApp webApp = load("annotation/empty-web-src.xml", WebApp.class);
+        ResourceAnnotationHelper.processAnnotations(webApp, classFinder, EnvironmentEntryBuilder.EnvEntryRefProcessor.INSTANCE);
         URL expectedXML = classLoader.getResource("annotation/env-entry-expected.xml");
         XmlObject expected = XmlObject.Factory.parse(expectedXML);
-        log.debug("[@Resource <env-entry> Source XML] " + '\n' + webApp.toString() + '\n');
-        log.debug("[@Resource <env-entry> Expected XML]" + '\n' + expected.toString() + '\n');
+//        log.debug("[@Resource <env-entry> Source XML] " + '\n' + webApp.toString() + '\n');
+//        log.debug("[@Resource <env-entry> Expected XML]" + '\n' + expected.toString() + '\n');
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webApp, expected, problems);
         assertTrue("Differences: " + problems, ok);
         //
         // 3. service-ref
         //
-        srcXML = classLoader.getResource("annotation/empty-web-src.xml");
-        xmlObject = XmlObject.Factory.parse(srcXML, options);
-        webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
-        webApp = webAppDoc.getWebApp();
-        annotatedWebApp = new AnnotatedWebApp(webApp);
-        ResourceAnnotationHelper.processAnnotations(annotatedWebApp, classFinder, SwitchingServiceRefBuilder.ServiceRefProcessor.INSTANCE);
+//        srcXML = classLoader.getResource("annotation/empty-web-src.xml");
+//        xmlObject = XmlObject.Factory.parse(srcXML, options);
+//        webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
+//        webApp = webAppDoc.getWebApp();
+//        annotatedWebApp = new AnnotatedWebApp(webApp);
+        webApp = load("annotation/empty-web-src.xml", WebApp.class);
+        ResourceAnnotationHelper.processAnnotations(webApp, classFinder, SwitchingServiceRefBuilder.ServiceRefProcessor.INSTANCE);
         expectedXML = classLoader.getResource("annotation/service-ref-expected.xml");
         expected = XmlObject.Factory.parse(expectedXML);
-        log.debug("[@Resource <service-ref> Source XML] " + '\n' + webApp.toString() + '\n');
-        log.debug("[@Resource <service-ref> Expected XML]" + '\n' + expected.toString() + '\n');
+//        log.debug("[@Resource <service-ref> Source XML] " + '\n' + webApp.toString() + '\n');
+//        log.debug("[@Resource <service-ref> Expected XML]" + '\n' + expected.toString() + '\n');
         problems = new ArrayList();
         ok = compareXmlObjects(webApp, expected, problems);
         assertTrue("Differences: " + problems, ok);
+    }
+
+    
+    private boolean compareXmlObjects(WebApp webApp, XmlObject expected, List problems) throws JAXBException, XmlException {
+        String xml = JaxbJavaee.marshal(WebApp.class, webApp);
+        log.debug("[Source XML] " + '\n' + xml + '\n');
+        log.debug("[Expected XML]" + '\n' + expected.toString() + '\n');
+        XmlObject actual = XmlObject.Factory.parse(xml);
+        return compareXmlObjects(actual, expected, problems);
+    }
+
+    private <T> T load(String url, Class<T> clazz) throws Exception {
+        URL srcXml = classLoader.getResource(url);
+        InputStream in = srcXml.openStream();
+        try {
+            return (T) JaxbJavaee.unmarshal(clazz, in);
+        } finally {
+            in.close();
+        }
     }
 
 }

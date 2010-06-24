@@ -307,8 +307,11 @@ public class GeronimoStandardContext extends StandardContext {
     private void addJACCSecurityLifecycleListener(TomcatWebAppContext tomcatWebAppContext) throws DeploymentException {
         float schemaVersion = (Float) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.SCHEMA_VERSION.name());
         boolean metaComplete = (Boolean) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.META_COMPLETE.name());
-        addLifecycleListener(new JACCSecurityLifecycleListener(bundle, tomcatWebAppContext.getDeploymentDescriptor(), schemaVersion >= 2.5f && !metaComplete, tomcatWebAppContext
-                .getApplicationPolicyConfigurationManager(), tomcatWebAppContext.getSecurityHolder().getPolicyContextID()));
+        addLifecycleListener(new JACCSecurityLifecycleListener(bundle,
+                null, 
+                schemaVersion >= 2.5f && !metaComplete,
+                tomcatWebAppContext.getApplicationPolicyConfigurationManager(),
+                tomcatWebAppContext.getSecurityHolder().getPolicyContextID()));
     }
 
     private final Object instanceListenersLock = new Object();

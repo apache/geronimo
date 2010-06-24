@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.wsdl.Binding;
 import javax.wsdl.Definition;
@@ -41,7 +40,6 @@ import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceClient;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.JAXWSUtils;
@@ -51,13 +49,11 @@ import org.apache.geronimo.jaxws.wsdl.CatalogWSDLLocator;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortPropertyType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee6.PortComponentRefType;
+import org.apache.openejb.jee.PortComponentRef;
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.CatalogManager;
 import org.apache.xml.resolver.tools.CatalogResolver;
-
 import org.osgi.framework.Bundle;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,11 +75,11 @@ public class EndpointInfoBuilder {
 
     private Map<Object, EndpointInfo> portInfoMap = new HashMap<Object, EndpointInfo>();
 
-    private Map<Class, PortComponentRefType> portComponentRefMap;
+    private Map<Class, PortComponentRef> portComponentRefMap;
 
     public EndpointInfoBuilder(Class serviceClass,
                                GerServiceRefType serviceRefType,
-                               Map<Class, PortComponentRefType> portComponentRefMap,
+                               Map<Class, PortComponentRef> portComponentRefMap,
                                Module module,
                                Bundle bundle,
                                URI wsdlURI,
@@ -356,14 +352,14 @@ public class EndpointInfoBuilder {
 
     private boolean isMTOMEnabled(QName portType) {
         boolean mtomEnabled = false;
-        PortComponentRefType portRef = getPortComponentRef(portType);
-        if (portRef != null && portRef.isSetEnableMtom()) {
-            mtomEnabled = portRef.getEnableMtom().getBooleanValue();
+        PortComponentRef portRef = getPortComponentRef(portType);
+        if (portRef != null) {
+            mtomEnabled = portRef.isEnableMtom();
         }
         return mtomEnabled;
     }
 
-    private PortComponentRefType getPortComponentRef(QName portType) {
+    private PortComponentRef getPortComponentRef(QName portType) {
         if (this.portComponentRefMap == null) {
             return null;
         }
@@ -381,14 +377,14 @@ public class EndpointInfoBuilder {
 
     private boolean isMTOMEnabled(String portName) {
         boolean mtomEnabled = false;
-        PortComponentRefType portRef = getPortComponentRef(portName);
-        if (portRef != null && portRef.isSetEnableMtom()) {
-            mtomEnabled = portRef.getEnableMtom().getBooleanValue();
+        PortComponentRef portRef = getPortComponentRef(portName);
+        if (portRef != null) {
+            mtomEnabled = portRef.isEnableMtom();
         }
         return mtomEnabled;
     }
 
-    private PortComponentRefType getPortComponentRef(String portName) {
+    private PortComponentRef getPortComponentRef(String portName) {
         if (this.portComponentRefMap == null) {
             return null;
         }

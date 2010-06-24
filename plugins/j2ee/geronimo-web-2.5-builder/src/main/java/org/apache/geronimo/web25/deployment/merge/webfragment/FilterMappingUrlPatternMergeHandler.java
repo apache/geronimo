@@ -21,59 +21,55 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentValidationUtils;
-import org.apache.geronimo.xbeans.javaee6.FilterMappingType;
-import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.FilterMapping;
+import org.apache.openejb.jee.WebApp;
 
 /**
  * @version $Rev$ $Date$
  */
-public class FilterMappingUrlPatternMergeHandler implements SubMergeHandler<FilterMappingType, FilterMappingType> {
+public class FilterMappingUrlPatternMergeHandler implements SubMergeHandler<FilterMapping, FilterMapping> {
 
     @Override
-    public void add(FilterMappingType filterMapping, MergeContext mergeContext) throws DeploymentException {
-        String filterName = filterMapping.getFilterName().getStringValue();
-        for (UrlPatternType urlPattern : filterMapping.getUrlPatternArray()) {
-            String urlPatternStr = urlPattern.getStringValue();
-            if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
-                throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterName, urlPatternStr, "web-fragment.xml located in "
+    public void add(FilterMapping filterMapping, MergeContext mergeContext) throws DeploymentException {
+        String filterName = filterMapping.getFilterName();
+        for (String urlPattern : filterMapping.getUrlPattern()) {
+            if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
+                throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterName, urlPattern, "web-fragment.xml located in "
                         + mergeContext.getCurrentJarUrl()));
             }
-            mergeContext.setAttribute(createFilterMappingUrlPatternKey(filterName, urlPatternStr), urlPattern);
+            mergeContext.setAttribute(createFilterMappingUrlPatternKey(filterName, urlPattern), urlPattern);
         }
     }
 
     @Override
-    public void merge(FilterMappingType srcFilterMapping, FilterMappingType targetFilterMapping, MergeContext mergeContext) throws DeploymentException {
-        String filterName = srcFilterMapping.getFilterName().getStringValue();
-        for (UrlPatternType urlPattern : srcFilterMapping.getUrlPatternArray()) {
-            String urlPatternStr = urlPattern.getStringValue();
-            String filterMappingUrlPatternKey = createFilterMappingUrlPatternKey(filterName, urlPatternStr);
+    public void merge(FilterMapping srcFilterMapping, FilterMapping targetFilterMapping, MergeContext mergeContext) throws DeploymentException {
+        String filterName = srcFilterMapping.getFilterName();
+        for (String urlPattern : srcFilterMapping.getUrlPattern()) {
+            String filterMappingUrlPatternKey = createFilterMappingUrlPatternKey(filterName, urlPattern);
             if (!mergeContext.containsAttribute(filterMappingUrlPatternKey)) {
-                UrlPatternType newUrlPattern = (UrlPatternType) targetFilterMapping.addNewUrlPattern().set(urlPattern);
-                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
-                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterName, urlPatternStr, "web-fragment.xml located in "
+                targetFilterMapping.getUrlPattern().add(urlPattern);
+                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
+                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterName, urlPattern, "web-fragment.xml located in "
                             + mergeContext.getCurrentJarUrl()));
                 }
-                mergeContext.setAttribute(filterMappingUrlPatternKey, newUrlPattern);
+                mergeContext.setAttribute(filterMappingUrlPatternKey, urlPattern);
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (FilterMappingType filterMapping : webApp.getFilterMappingArray()) {
-            String filterName = filterMapping.getFilterName().getStringValue();
-            for (UrlPatternType urlPattern : filterMapping.getUrlPatternArray()) {
-                String urlPatternStr = urlPattern.getStringValue();
-                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
-                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterName, urlPatternStr, "web.xml"));
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (FilterMapping filterMapping : webApp.getFilterMapping()) {
+            String filterName = filterMapping.getFilterName();
+            for (String urlPattern : filterMapping.getUrlPattern()) {
+                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
+                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterName, urlPattern, "web.xml"));
                 }
-                context.setAttribute(createFilterMappingUrlPatternKey(filterName, urlPatternStr), urlPattern);
+                context.setAttribute(createFilterMappingUrlPatternKey(filterName, urlPattern), urlPattern);
             }
         }
     }

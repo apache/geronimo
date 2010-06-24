@@ -23,8 +23,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -32,6 +30,7 @@ import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.jee.EjbJar;
+import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
@@ -39,12 +38,9 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev$ $Date$
  */
-public class EjbModule extends EJBModule {
-    private String originalSpecDD;
-    private XmlObject specDD;
+public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
     private EjbJarInfo ejbJarInfo;
     private EjbDeploymentBuilder ejbDeploymentBuilder;
-    private OpenejbGeronimoEjbJarType vendorDD;
     private final org.apache.openejb.config.EjbModule ejbModule;
     private final ConfigurationFactory.Chain preAutoConfigDeployer;
     private final boolean shareJndi;
@@ -56,12 +52,14 @@ public class EjbModule extends EJBModule {
                      Environment environment,
                      JarFile moduleFile,
                      String targetPath,
-                     String ejbJarXml,
-                     AnnotatedApp annoatedApp,
+                     String originalSpecDD,
+                     EjbJar specDD,
+                     OpenejbGeronimoEjbJarType vendorDD,
                      Map<JndiKey, Map<String, Object>> jndiContext,
-                     Module parentModule, boolean shareJndi) {
+                     Module parentModule,
+                     boolean shareJndi) {
         super(standAlone, moduleName, name, environment, moduleFile,
-                targetPath, null, null, ejbJarXml, annoatedApp, jndiContext, parentModule);
+              targetPath, specDD, vendorDD, originalSpecDD, jndiContext, parentModule);
         this.ejbModule = ejbModule;
 
         preAutoConfigDeployer = new ConfigurationFactory.Chain();
@@ -69,30 +67,8 @@ public class EjbModule extends EJBModule {
     }
 
     @Override
-    public String getOriginalSpecDD() {
-        return originalSpecDD;
-    }
-
-    public void setOriginalSpecDD(String originalSpecDD) {
-        this.originalSpecDD = originalSpecDD;
-    }
-
-    @Override
-    public XmlObject getSpecDD() {
-        return specDD;
-    }
-
-    public void setSpecDD(XmlObject specDD) {
-        this.specDD = specDD;
-    }
-
-    @Override
-    public OpenejbGeronimoEjbJarType getVendorDD() {
-        return vendorDD;
-    }
-
-    public void setVendorDD(OpenejbGeronimoEjbJarType vendorDD) {
-        this.vendorDD = vendorDD;
+    public ConfigurationModuleType getType() {
+        return ConfigurationModuleType.EJB;
     }
 
     public org.apache.openejb.config.EjbModule getEjbModule() {
@@ -144,9 +120,9 @@ public class EjbModule extends EJBModule {
         }
     }
 
-    Module newEJb(ClassFinder finder, AnnotatedApp aa) throws DeploymentException {
+    Module newEJb(ClassFinder finder, EnterpriseBean bean) throws DeploymentException {
         Ejb ejb = new Ejb(isStandAlone(), getModuleName(), getName(), getEnvironment(), getModuleFile(), getTargetPath(),
-                getSpecDD(), getVendorDD(), getOriginalSpecDD(), getNamespace(), aa,
+                bean, getVendorDD(), getOriginalSpecDD(), getNamespace(),
                 getEjbJndiContext(), this);
         ejb.setEarContext(getEarContext());
         ejb.setRootEarContext(getRootEarContext());
@@ -154,9 +130,9 @@ public class EjbModule extends EJBModule {
         return ejb;
     }
 
-    class Ejb extends Module {
-        protected Ejb(boolean standAlone, AbstractName moduleName, String name, Environment environment, JarFile moduleFile, String targetPath, Object specDD, Object vendorDD, String originalSpecDD, String namespace, AnnotatedApp annotatedApp, Map<JndiKey, Map<String, Object>> jndiContext, Module<?, ?> parentModule) {
-            super(standAlone, moduleName, name, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedApp, jndiContext, parentModule);
+    class Ejb extends Module<EnterpriseBean, XmlObject> {
+        protected Ejb(boolean standAlone, AbstractName moduleName, String name, Environment environment, JarFile moduleFile, String targetPath, EnterpriseBean specDD, XmlObject vendorDD, String originalSpecDD, String namespace, Map<JndiKey, Map<String, Object>> jndiContext, Module<?, ?> parentModule) {
+            super(standAlone, moduleName, name, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace, jndiContext, parentModule);
         }
 
         @Override

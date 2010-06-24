@@ -22,44 +22,44 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.ParamValueType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.ParamValue;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ContextParamMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class ContextParamMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     public static final String QUALIFIED_CONTEXT_PARAM_NAME_PREFIX = "context-param.param-name.";
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
         String jarUrl = mergeContext.getCurrentJarUrl();
-        for (ParamValueType paramValue : webFragment.getContextParamArray()) {
-            String qualifiedContextParamName = QUALIFIED_CONTEXT_PARAM_NAME_PREFIX + paramValue.getParamName().getStringValue();
+        for (ParamValue paramValue : webFragment.getContextParam()) {
+            String qualifiedContextParamName = QUALIFIED_CONTEXT_PARAM_NAME_PREFIX + paramValue.getParamName();
             if (mergeContext.containsAttribute(qualifiedContextParamName)) {
                 continue;
             }
             MergeItem existedContextParamValue = (MergeItem) mergeContext.getAttribute(qualifiedContextParamName);
             if (existedContextParamValue == null) {
-                webApp.addNewContextParam().set(paramValue);
-                mergeContext.setAttribute(qualifiedContextParamName, new MergeItem(paramValue.getParamValue().getStringValue(), jarUrl, ElementSource.WEB_FRAGMENT));
-            } else if (!existedContextParamValue.getValue().equals(paramValue.getParamValue().getStringValue())) {
-                throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage("context-param", "param-name", paramValue.getParamName().getStringValue(), "param-value",
-                        existedContextParamValue.getValue().toString(), existedContextParamValue.getBelongedURL(), paramValue.getParamValue().getStringValue(), jarUrl));
+                webApp.getContextParam().add(paramValue);
+                mergeContext.setAttribute(qualifiedContextParamName, new MergeItem(paramValue.getParamValue(), jarUrl, ElementSource.WEB_FRAGMENT));
+            } else if (!existedContextParamValue.getValue().equals(paramValue.getParamValue())) {
+                throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage("context-param", "param-name", paramValue.getParamName(), "param-value",
+                        existedContextParamValue.getValue().toString(), existedContextParamValue.getBelongedURL(), paramValue.getParamValue(), jarUrl));
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (ParamValueType paramValue : webApp.getContextParamArray()) {
-            context.setAttribute(QUALIFIED_CONTEXT_PARAM_NAME_PREFIX + paramValue.getParamName().getStringValue(), paramValue.getParamName().getStringValue());
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (ParamValue paramValue : webApp.getContextParam()) {
+            context.setAttribute(QUALIFIED_CONTEXT_PARAM_NAME_PREFIX + paramValue.getParamName(), paramValue.getParamName());
         }
     }
 }

@@ -17,15 +17,17 @@
 
 package org.apache.geronimo.jetty8.deployment;
 
+import java.util.Collection;
+
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.openejb.jee.ResourceRef;
 
 /**
  * @version $Rev$ $Date$
  */
 public class MockResourceEnvironmentSetter implements ResourceEnvironmentSetter {
-    public void setResourceEnvironment(ResourceEnvironmentBuilder builder, XmlObject[] resourceRefs, GerResourceRefType[] gerResourceRefs) {
+    public void setResourceEnvironment(ResourceEnvironmentBuilder builder, Collection<ResourceRef> resourceRefs, GerResourceRefType[] gerResourceRefs) {
     }
 }

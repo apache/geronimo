@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.jasper.deployment;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -32,15 +32,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 
-import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableBundle;
 import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -61,17 +58,15 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
-import org.apache.geronimo.xbeans.javaee.TagType;
-import org.apache.geronimo.xbeans.javaee.TaglibDocument;
-import org.apache.geronimo.xbeans.javaee.TldTaglibType;
-import org.apache.geronimo.xbeans.javaee6.JspConfigType;
-import org.apache.geronimo.xbeans.javaee6.TaglibType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.JspConfig;
+import org.apache.openejb.jee.Listener;
+import org.apache.openejb.jee.Tag;
+import org.apache.openejb.jee.Taglib;
+import org.apache.openejb.jee.TldTaglib;
+import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -92,15 +87,6 @@ import org.slf4j.LoggerFactory;
 public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
     private static final Logger log = LoggerFactory.getLogger(JspModuleBuilderExtension.class);
-
-    private static final QName TLIB_VERSION = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "tlib-version");
-    private static final QName SHORT_NAME = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "short-name");
-    private static final QName TAG_CLASS = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "tag-class");
-    private static final QName TEI_CLASS = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "tei-class");
-    private static final QName BODY_CONTENT = new QName(SchemaConversionUtils.JAVAEE_NAMESPACE, "body-content");
-
-    private static final String SCHEMA_LOCATION_URL = "http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd";
-    private static final String VERSION = "2.1";
 
     private final Environment defaultEnvironment;
     private final NamingBuilder namingBuilders;
@@ -132,7 +118,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
 
         WebModule webModule = (WebModule) module;
-        WebAppType webApp = (WebAppType) webModule.getSpecDD();
+        WebApp webApp = webModule.getSpecDD();
 
         EARContext moduleContext = module.getEarContext();
         Map sharedContext = module.getSharedContext();
@@ -188,7 +174,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         }
     }
 
-    protected ClassFinder createJspClassFinder(WebAppType webApp, WebModule webModule, Set<String> listenerNames) throws DeploymentException {
+    protected ClassFinder createJspClassFinder(WebApp webApp, WebModule webModule, Set<String> listenerNames) throws DeploymentException {
         Collection<URL> urls = getTldFiles(webApp, webModule);
         List<Class> classes = getListenerClasses(webApp, webModule, urls, listenerNames);
         return new ClassFinder(classes);
@@ -212,7 +198,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
      * @return list of the URL(s) for the TLD files
      * @throws DeploymentException if there's a problem finding a tld file
      */
-    private LinkedHashSet<URL> getTldFiles(WebAppType webApp, WebModule webModule) throws DeploymentException {
+    private LinkedHashSet<URL> getTldFiles(WebApp webApp, WebModule webModule) throws DeploymentException {
         if (log.isDebugEnabled()) {
             log.debug("getTldFiles( " + webApp.toString() + "," + webModule.getName() + " ): Entry");
         }
@@ -220,12 +206,12 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         LinkedHashSet<URL> tldURLs = new LinkedHashSet<URL>();
 
         // 1. web.xml <taglib> entries
-        JspConfigType[] jspConfigs = webApp.getJspConfigArray();
-        for (JspConfigType jspConfig : jspConfigs) {
-            TaglibType[] taglibs = jspConfig.getTaglibArray();
-            for (TaglibType taglib : taglibs) {
-                String uri = taglib.getTaglibUri().getStringValue().trim();
-                String location = taglib.getTaglibLocation().getStringValue().trim();
+        List<JspConfig> jspConfigs = webApp.getJspConfig();
+        for (JspConfig jspConfig : jspConfigs) {
+            List<Taglib> taglibs = jspConfig.getTaglib();
+            for (Taglib taglib : taglibs) {
+                String uri = taglib.getTaglibUri().trim();
+                String location = taglib.getTaglibLocation().trim();
                 if (!location.equals("")) {
                     if (location.startsWith("/")) {
                         location = location.substring(1);
@@ -253,7 +239,6 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         log.debug("getTldFiles() Exit: URL[" + tldURLs.size() + "]: " + tldURLs.toString());
         return tldURLs;
     }
-
 
     /**
      * scanModule(): Scan the module being deployed for JAR files or TLD files in the WEB-INF
@@ -298,7 +283,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         return tldURLs;
     }
     
-    private List<Class> getListenerClasses(WebAppType webApp, WebModule webModule, Collection<URL> urls, Set<String> listenerNames) throws DeploymentException {
+    private List<Class> getListenerClasses(WebApp webApp, WebModule webModule, Collection<URL> urls, Set<String> listenerNames) throws DeploymentException {
         if (log.isDebugEnabled()) {
             log.debug("getListenerClasses( " + webApp.toString() + "," + '\n' +
                     webModule.getName() + " ): Entry");
@@ -318,20 +303,22 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         return classes;
     }
 
-
     private void parseTldFile(URL url, Bundle bundle, List<Class> classes, Set<String> listenerNames) throws DeploymentException {
         log.debug("parseTLDFile( " + url.toString() + " ): Entry");
 
         try {
-            XmlObject xml = XmlBeansUtil.parse(url, null);
-            TaglibDocument tld = convertToTaglibSchema(xml);
-            TldTaglibType tl = tld.getTaglib();
+            InputStream in = url.openStream();
+            TldTaglib tl;
+            try {
+                tl = (TldTaglib) JaxbJavaee.unmarshalTaglib(TldTaglib.class, in);
+            } finally {
+                in.close();
+            }
 
             // Get all the listeners from the TLD file
-            org.apache.geronimo.xbeans.javaee.ListenerType[] listeners = tl.getListenerArray();
-            for (org.apache.geronimo.xbeans.javaee.ListenerType listener : listeners) {
-                org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType cls = listener.getListenerClass();
-                String className = cls.getStringValue().trim();
+            List<Listener> listeners = tl.getListener();
+            for (Listener listener : listeners) {
+                String className = listener.getListenerClass();
                 try {
                     Class clas = bundle.loadClass(className);
                     classes.add(clas);
@@ -343,10 +330,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             }
 
             // Get all the tags from the TLD file
-            TagType[] tags = tl.getTagArray();
-            for (TagType tag : tags) {
-                org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType cls = tag.getTagClass();
-                String className = cls.getStringValue().trim();
+            List<Tag> tags = tl.getTag();
+            for (Tag tag : tags) {
+                String className = tag.getTagClass();
                 try {
                     Class clas = bundle.loadClass(className);
                     classes.add(clas);
@@ -355,228 +341,12 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                     log.warn("JspModuleBuilderExtension: Could not load tag class: " + className + " mentioned in TLD file at " + url.toString());
                 }
             }
-        }
-        catch (XmlException xmle) {
-            throw new DeploymentException("Could not parse TLD file at " + url.toString(), xmle);
-        }
-        catch (IOException ioe) {
+        } catch (Exception ioe) {
             throw new DeploymentException("Could not find TLD file at " + url.toString(), ioe);
         }
 
         log.debug("parseTLDFile(): Exit");
     }
-
-
-    /**
-     * convertToTaglibSchema(): Convert older TLD files based on the 1.1 and 1.2 DTD or the 2.0 XSD
-     * schemas
-     * <p/>
-     * <p><strong>Note(s):</strong>
-     * <ul>
-     * <li>Those tags from the 1.1 and 1.2 DTD that are no longer valid (e.g., jsp-version) are
-     * removed
-     * <li>Valid  tags from the 1.1 and 1.2 DTD are converted (e.g., tlibversion to
-     * tlib-version)
-     * <li>The <taglib> root and the <tag> root elements are reordered as necessary (i.e.,
-     * description, display-name)
-     * <li>The <rtexprvalue> tag is inserted in the &lt;attribute> tag if necessary since it was
-     * not required to preceed <type> in 2.0 schema. Default value of false is used.
-     * </ul>
-     *
-     * @param xmlObject possibly old-style tag lib document
-     * @return converted TagLibDocument in the new shiny schema
-     * @throws XmlException if something goes horribly wrong
-     */
-    protected static TaglibDocument convertToTaglibSchema(XmlObject xmlObject) throws XmlException {
-        if (log.isDebugEnabled()) {
-            log.debug("convertToTaglibSchema( " + xmlObject.toString() + " ): Entry");
-        }
-
-        XmlCursor cursor = xmlObject.newCursor();
-        XmlCursor moveable = xmlObject.newCursor();
-        try {
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            if (SchemaConversionUtils.JAVAEE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
-                log.debug("Nothing to do");
-            } else if (SchemaConversionUtils.J2EE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
-                log.debug("Converting XSD 2.0 to 2.1 schema");
-                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, SCHEMA_LOCATION_URL, VERSION);
-                cursor.toStartDoc();
-                cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "taglib");
-                cursor.toFirstChild();
-                do {
-                    String name = cursor.getName().getLocalPart();
-                    if ("tag".equals(name)) {
-                        cursor.push();
-                        cursor.toFirstChild();
-                        SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                        do {
-                            name = cursor.getName().getLocalPart();
-                            boolean rtexprvalueFound = false;
-                            boolean typeFound = false;
-                            if ("attribute".equals(name)) {
-                                cursor.push();
-                                cursor.toFirstChild();
-                                do {
-                                    name = cursor.getName().getLocalPart();
-                                    if ("rtexprvalue".equals(name)) {
-                                        rtexprvalueFound = true;
-                                    }
-                                    if ("type".equals(name)) {
-                                        typeFound = true;
-                                    }
-                                } while (cursor.toNextSibling());
-                                cursor.pop();
-                                if (typeFound && !rtexprvalueFound) {
-                                    //--------------------------------------------------------------
-                                    // Handle the case where the <type> tag must now be preceded by
-                                    // the <rtexprvalue> tag in the 2.1 schema. Cases are:
-                                    // 1: Only type found:
-                                    //      We are currently positioned directly after the attribute
-                                    //      tag (via the pop) so just insert the rtexprvalue tag
-                                    //      with the default value. The tags will be properly
-                                    //      ordered below.
-                                    // 2: Both type and rtexprvalue found:
-                                    //      The tags will be properly ordered below with the
-                                    //      convertToAttributeGroup() call, so nothing to do
-                                    // 3: Only rtexprvalue found:
-                                    //      Nothing to do
-                                    // 4: Neither found:
-                                    //      Nothing to do
-                                    //--------------------------------------------------------------
-                                    cursor.push();
-                                    cursor.toFirstChild();
-                                    cursor.insertElementWithText("rtexprvalue", SchemaConversionUtils.JAVAEE_NAMESPACE, "false");
-                                    cursor.pop();
-                                }
-                                cursor.push();
-                                cursor.toFirstChild();
-                                SchemaConversionUtils.convertToTldAttribute(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                                cursor.pop();
-                            }
-                        } while (cursor.toNextSibling());
-                        cursor.pop();
-                        // Do this conversion last after the other tags have been converted
-                        SchemaConversionUtils.convertToTldTag(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                    }
-                } while (cursor.toNextSibling());
-            } else {
-                log.debug("Converting DTD to 2.1 schema");
-                SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, SCHEMA_LOCATION_URL, VERSION);
-                cursor.toStartDoc();
-                cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "taglib");
-                cursor.toFirstChild();
-                SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                do {
-                    String name = cursor.getName().getLocalPart();
-                    if ("jsp-version".equals(name) ||
-                            "jspversion".equals(name) ||
-                            "info".equals(name)) {
-                        cursor.removeXmlContents();
-                        cursor.removeXml();
-                    }
-                    if ("tlibversion".equals(name)) {
-                        cursor.setName(TLIB_VERSION);
-                    }
-                    if ("tlibversion".equals(name)) {
-                        cursor.setName(TLIB_VERSION);
-                    }
-                    if ("shortname".equals(name)) {
-                        cursor.setName(SHORT_NAME);
-                    }
-                    if ("tag".equals(name)) {
-                        cursor.push();
-                        cursor.toFirstChild();
-                        SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                        boolean bodyContentFound = false;
-                        do {
-                            name = cursor.getName().getLocalPart();
-                            if ("tagclass".equals(name)) {
-                                cursor.setName(TAG_CLASS);
-                            }
-                            if ("teiclass".equals(name)) {
-                                cursor.setName(TEI_CLASS);
-                            }
-                            if ("bodycontent".equals(name)) {
-                                cursor.setName(BODY_CONTENT);
-                                bodyContentFound = true;
-                            }
-                            if ("body-content".equals(name)) {
-                                bodyContentFound = true;
-                            }
-                            if ("attribute".equals(name)) {
-                                cursor.push();
-                                cursor.toFirstChild();
-                                SchemaConversionUtils.convertToTldAttribute(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                                cursor.pop();
-                            }
-                            if ("variable".equals(name)) {
-                                cursor.push();
-                                cursor.toFirstChild();
-                                SchemaConversionUtils.convertToTldVariable(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                                cursor.pop();
-                            }
-                            if ("info".equals(name)) {
-                                cursor.removeXmlContents();
-                                cursor.removeXml();
-                            }
-                        } while (cursor.toNextSibling());
-                        cursor.pop();
-                        if (!bodyContentFound) {
-                            //--------------------------------------------------------------
-                            // Handle the case where the <body-content> tag is missing. We
-                            // are currently positioned directly after the <tag> attribute
-                            // (via the pop) so just insert the <body-content> tag with the
-                            // default value. The tags will be properly ordered below.
-                            //--------------------------------------------------------------
-                            cursor.push();
-                            cursor.toFirstChild();
-                            cursor.insertElementWithText("body-content", SchemaConversionUtils.JAVAEE_NAMESPACE, "scriptless");
-                            cursor.pop();
-                        }
-                        // Do this conversion last after the other tags have been converted
-                        cursor.push();
-                        cursor.toFirstChild();
-                        SchemaConversionUtils.convertToTldTag(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                        cursor.pop();
-                    }
-                    if ("validator".equals(name)) {
-                        cursor.push();
-                        cursor.toFirstChild();
-                        SchemaConversionUtils.convertToTldValidator(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-                        cursor.pop();
-                    }
-                } while (cursor.toNextSibling());
-            }
-        }
-        finally {
-            cursor.dispose();
-            moveable.dispose();
-        }
-        XmlObject result = xmlObject.changeType(TaglibDocument.type);
-        if (result != null) {
-            try {
-                XmlBeansUtil.validateDD(result);
-            } catch (XmlException e) {
-                log.warn("Invalid transformed taglib", e);
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("convertToTaglibSchema( " + result.toString() + " ): Exit 1");
-            }
-            return (TaglibDocument) result;
-        }
-        try {
-            XmlBeansUtil.validateDD(xmlObject);
-        } catch (XmlException e) {
-            log.warn("Invalid transformed taglib", e);
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("convertToTaglibSchema( " + xmlObject.toString() + " ): Exit 2");
-        }
-        return (TaglibDocument) xmlObject;
-    }
-
 
     private URI createURI(String path) throws URISyntaxException {
         path = path.replaceAll(" ", "%20");

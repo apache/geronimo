@@ -21,14 +21,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.PersistenceUnit;
 import javax.persistence.PersistenceUnits;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.JndiNameType;
-import org.apache.geronimo.xbeans.javaee6.PersistenceUnitRefType;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.PersistenceUnitRef;
 import org.apache.xbean.finder.AbstractFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    public static void processAnnotations(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         if (annotatedApp != null) {
             if (classFinder.isAnnotationPresent(PersistenceUnits.class)) {
                 processPersistenceUnits(annotatedApp, classFinder);
@@ -95,7 +96,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processPersistenceUnit(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processPersistenceUnit(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceUnit(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Class> classeswithPersistenceUnit = classFinder.findAnnotatedClasses(PersistenceUnit.class);
@@ -127,7 +128,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
         }
 
         // Validate deployment descriptor to ensure it's still okay
-        validateDD(annotatedApp);
+//        validateDD(annotatedApp);
 
         log.debug("processPersistenceUnit(): Exit: AnnotatedApp: " + annotatedApp.toString());
     }
@@ -140,7 +141,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processPersistenceUnits(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processPersistenceUnits(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceUnits(): Entry");
 
         List<Class> classeswithPersistenceUnits = classFinder.findAnnotatedClasses(PersistenceUnits.class);
@@ -184,7 +185,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
      * @param field      Field name with the @PersistenceUnit annoation
      * @param annotatedApp  Access to the specc dd
      */
-    private static void addPersistenceUnit(AnnotatedApp annotatedApp, PersistenceUnit annotation, Class cls, Method method, Field field) {
+    private static void addPersistenceUnit(JndiConsumer annotatedApp, PersistenceUnit annotation, Class cls, Method method, Field field) {
         log.debug("addPersistenceUnit( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
                 "[annotation] " + annotation.toString() + "," + '\n' +
                 "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
@@ -205,13 +206,13 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
         log.debug("addPersistenceUnit(): persistenceUnitRefName: " + persistenceUnitRefName);
 
         // If there is already xml for the persistence unit ref, just add injection targets and return.
-        PersistenceUnitRefType[] persistenceUnitRefs = annotatedApp.getPersistenceUnitRefArray();
-        for (PersistenceUnitRefType persistenceUnitRef : persistenceUnitRefs) {
-            if (persistenceUnitRef.getPersistenceUnitRefName().getStringValue().trim().equals(persistenceUnitRefName)) {
+        Collection<PersistenceUnitRef> persistenceUnitRefs = annotatedApp.getPersistenceUnitRef();
+        for (PersistenceUnitRef persistenceUnitRef : persistenceUnitRefs) {
+            if (persistenceUnitRef.getPersistenceUnitRefName().trim().equals(persistenceUnitRefName)) {
                 if (method != null || field != null) {
-                    InjectionTargetType[] targets = persistenceUnitRef.getInjectionTargetArray();
+                    List<InjectionTarget> targets = persistenceUnitRef.getInjectionTarget();
                     if (!hasTarget(method, field, targets)) {
-                        configureInjectionTarget(persistenceUnitRef.addNewInjectionTarget(), method, field);
+                        persistenceUnitRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }
                 }
                 return;
@@ -219,15 +220,14 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
         }
 
         // Doesn't exist in deployment descriptor -- add new
-        PersistenceUnitRefType persistenceUnitRef = annotatedApp.addNewPersistenceUnitRef();
+        PersistenceUnitRef persistenceUnitRef = new PersistenceUnitRef();
 
         //------------------------------------------------------------------------------
         // <persistence-unit-ref> required elements:
         //------------------------------------------------------------------------------
 
         // persistence-unit-ref-name
-        JndiNameType unitRefName = persistenceUnitRef.addNewPersistenceUnitRefName();
-        unitRefName.setStringValue(persistenceUnitRefName);
+        persistenceUnitRef.setPersistenceUnitRefName(persistenceUnitRefName);
 
         //------------------------------------------------------------------------------
         // <persistence-unit-ref> optional elements:
@@ -236,15 +236,14 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
         // persistence-unit-name
         String unitNameAnnotation = annotation.unitName();
         if (!unitNameAnnotation.equals("")) {
-            org.apache.geronimo.xbeans.javaee6.String persistenceUnitName = persistenceUnitRef.addNewPersistenceUnitName();
-            persistenceUnitName.setStringValue(unitNameAnnotation);
+            persistenceUnitRef.setPersistenceUnitName(unitNameAnnotation);
         }
 
         // injection targets
         if (method != null || field != null) {
-            configureInjectionTarget(persistenceUnitRef.addNewInjectionTarget(), method, field);
+            persistenceUnitRef.getInjectionTarget().add(configureInjectionTarget(method, field));
         }
-
+        annotatedApp.getPersistenceUnitRef().add(persistenceUnitRef);
     }
 
 }

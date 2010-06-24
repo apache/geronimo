@@ -18,25 +18,23 @@ package org.apache.geronimo.webservices.builder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Iterator;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.testsupport.TestSupport;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  * @version $Rev$ $Date$
@@ -116,16 +114,16 @@ public class ParsingTest
 
     public void testWebservicesJ2ee14() throws Exception {
         URL url = getClass().getClassLoader().getResource("webservices-j2ee14.xml");
-        assertNotNull(WSDescriptorParser.getWebservicesType(url));
+        assertNotNull(WSDescriptorParser.getWebservices(url));
     }
 
     public void testWebservicesJee5() throws Exception {
         URL url = getClass().getClassLoader().getResource("webservices-jee5.xml");
-        assertNotNull(WSDescriptorParser.getWebservicesType(url));
+        assertNotNull(WSDescriptorParser.getWebservices(url));
     }
 
     public void testWebservicesJavaEE6() throws Exception {
         URL url = getClass().getClassLoader().getResource("webservices-javaee6.xml");
-        assertNotNull(WSDescriptorParser.getWebservicesType(url));
+        assertNotNull(WSDescriptorParser.getWebservices(url));
     }
 }

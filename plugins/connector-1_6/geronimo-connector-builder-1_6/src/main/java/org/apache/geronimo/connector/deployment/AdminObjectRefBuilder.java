@@ -20,6 +20,7 @@ package org.apache.geronimo.connector.deployment;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,19 +30,13 @@ import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 import javax.xml.namespace.QName;
-
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -56,18 +51,17 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
-import org.apache.geronimo.xbeans.javaee6.DescriptionType;
-import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.JndiNameType;
-import org.apache.geronimo.xbeans.javaee6.MessageDestinationRefType;
-import org.apache.geronimo.xbeans.javaee6.MessageDestinationType;
-import org.apache.geronimo.xbeans.javaee6.MessageDestinationTypeType;
-import org.apache.geronimo.xbeans.javaee6.ResourceEnvRefType;
-import org.apache.geronimo.xbeans.javaee6.XsdStringType;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.MessageDestination;
+import org.apache.openejb.jee.MessageDestinationRef;
+import org.apache.openejb.jee.ResourceEnvRef;
+import org.apache.openejb.jee.Text;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -93,12 +87,18 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         messageDestinationRefQNameSet = buildQNameSet(eeNamespaces, "message-destination-ref");
     }
 
-    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
-        return specDD.selectChildren(adminOjbectRefQNameSet).length > 0 || specDD.selectChildren(messageDestinationRefQNameSet).length > 0;
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) {
+        return !specDD.getResourceEnvRef().isEmpty() || !specDD.getMessageDestinationRef().isEmpty();
     }
 
-    public void initContext(XmlObject specDD, XmlObject plan, Module module) throws DeploymentException {
-        List<MessageDestinationType> specDestinations = convert(specDD.selectChildren(messageDestinationQNameSet), JEE_CONVERTER, MessageDestinationType.class, MessageDestinationType.type);
+    public void initContext(JndiConsumer specDD, XmlObject plan, Module module) throws DeploymentException {
+        List<MessageDestination> specDestinations;
+        try {
+            Method m = specDD.getClass().getMethod("getMessageDestination", new Class[0]);
+            specDestinations = (List<MessageDestination>) m.invoke(specDD, new Object[0]);
+        } catch (Exception e) {
+            specDestinations = new ArrayList<MessageDestination>();
+        }
         XmlObject[] gerDestinations = plan.selectChildren(GER_MESSAGE_DESTINATION_QNAME_SET);
         Map<String, GerMessageDestinationType> nameMap = new HashMap<String, GerMessageDestinationType>();
         for (XmlObject gerDestination : gerDestinations) {
@@ -106,8 +106,8 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             String name = destination.getMessageDestinationName().trim();
             nameMap.put(name, destination);
             boolean found = false;
-            for (MessageDestinationType specDestination : specDestinations) {
-                if (specDestination.getMessageDestinationName().getStringValue().trim().equals(name)) {
+            for (MessageDestination specDestination : specDestinations) {
+                if (specDestination.getMessageDestinationName().trim().equals(name)) {
                     found = true;
                     break;
                 }
@@ -120,7 +120,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         XmlObject[] gerResourceEnvRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map<String, GerResourceEnvRefType> refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
         Map<String, Map<String, GerMessageDestinationType>> messageDestinations = module.getRootEarContext().getMessageDestinations();
@@ -130,25 +130,25 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
             // Process all the annotations for this naming builder type
             try {
-                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder(), new AdminObjectRefProcessor(refMap, messageDestinations, module.getEarContext()));
+                ResourceAnnotationHelper.processAnnotations(specDD, module.getClassFinder(), new AdminObjectRefProcessor(refMap, messageDestinations, module.getEarContext()));
             }
             catch (Exception e) {
                 log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
             }
         }
 
-        List<ResourceEnvRefType> resourceEnvRefsUntyped = convert(specDD.selectChildren(adminOjbectRefQNameSet), JEE_CONVERTER, ResourceEnvRefType.class, ResourceEnvRefType.type);
+        Collection<ResourceEnvRef> resourceEnvRefsUntyped = specDD.getResourceEnvRef();
         List<String> unresolvedRefs = new ArrayList<String>();
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        for (ResourceEnvRefType resourceEnvRef : resourceEnvRefsUntyped) {
+        for (ResourceEnvRef resourceEnvRef : resourceEnvRefsUntyped) {
             String name = getStringValue(resourceEnvRef.getResourceEnvRefName());
             if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
                 continue;
             }
-            addInjections(name, resourceEnvRef.getInjectionTargetArray(), componentContext);
+            addInjections(name, resourceEnvRef.getInjectionTarget(), componentContext);
             String type = getStringValue(resourceEnvRef.getResourceEnvRefType());
-            type = inferAndCheckType(module, bundle, resourceEnvRef.getInjectionTargetArray(), name, type);
+            type = inferAndCheckType(module, bundle, resourceEnvRef.getInjectionTarget(), name, type);
             GerResourceEnvRefType gerResourceEnvRef = refMap.remove(name);
 
             Object value = null;
@@ -178,22 +178,22 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         }
 
         //message-destination-refs
-        List<MessageDestinationRefType> messageDestinationRefsUntyped = convert(specDD.selectChildren(messageDestinationRefQNameSet), JEE_CONVERTER, MessageDestinationRefType.class, MessageDestinationRefType.type);
+        Collection<MessageDestinationRef> messageDestinationRefsUntyped = specDD.getMessageDestinationRef();
 
-        for (MessageDestinationRefType messageDestinationRef : messageDestinationRefsUntyped) {
+        for (MessageDestinationRef messageDestinationRef : messageDestinationRefsUntyped) {
             String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
             if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
                 continue;
             }
-            addInjections(name, messageDestinationRef.getInjectionTargetArray(), componentContext);
+            addInjections(name, messageDestinationRef.getInjectionTarget(), componentContext);
             String linkName = getStringValue(messageDestinationRef.getMessageDestinationLink());
             //TODO figure out something better to do here!
             if (linkName == null) {
                 linkName = name;
             }
             String type = getStringValue(messageDestinationRef.getMessageDestinationType());
-            type = inferAndCheckType(module, bundle, messageDestinationRef.getInjectionTargetArray(), name, type);
+            type = inferAndCheckType(module, bundle, messageDestinationRef.getInjectionTarget(), name, type);
 
             GerMessageDestinationType destination = getMessageDestination(linkName, messageDestinations);
 
@@ -273,10 +273,6 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         } catch (UnresolvedReferenceException e) {
             throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")", e);
         }
-    }
-
-    private String getStringValue(String string) {
-        return string == null? null: string.trim();
     }
 
     private Object buildMessageReference(Module module, String linkName, String type, GerMessageDestinationType destination)
@@ -410,30 +406,30 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             this.earContext = earContext;
         }
 
-        public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) throws DeploymentException {
+        public boolean processResource(JndiConsumer annotatedApp, Resource annotation, Class cls, Method method, Field field) throws DeploymentException {
             String resourceName = getResourceName(annotation, method, field);
             String resourceType = getResourceType(annotation, method, field);
 
             //If it already exists in xml as a message-destination-ref or resource-env-ref, we are done.
-            MessageDestinationRefType[] messageDestinationRefs = annotatedApp.getMessageDestinationRefArray();
-            for (MessageDestinationRefType messageDestinationRef : messageDestinationRefs) {
-                if (messageDestinationRef.getMessageDestinationRefName().getStringValue().trim().equals(resourceName)) {
+            Collection<MessageDestinationRef> messageDestinationRefs = annotatedApp.getMessageDestinationRef();
+            for (MessageDestinationRef messageDestinationRef : messageDestinationRefs) {
+                if (messageDestinationRef.getMessageDestinationRefName().trim().equals(resourceName)) {
                     if (method != null || field != null) {
-                        InjectionTargetType[] targets = messageDestinationRef.getInjectionTargetArray();
+                        List<InjectionTarget> targets = messageDestinationRef.getInjectionTarget();
                         if (!hasTarget(method, field, targets)) {
-                            configureInjectionTarget(messageDestinationRef.addNewInjectionTarget(), method, field);
+                            messageDestinationRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                         }
                     }
                     return true;
                 }
             }
-            ResourceEnvRefType[] ResourceEnvRefs = annotatedApp.getResourceEnvRefArray();
-            for (ResourceEnvRefType resourceEnvRefType : ResourceEnvRefs) {
-                if (resourceEnvRefType.getResourceEnvRefName().getStringValue().trim().equals(resourceName)) {
+            Collection<ResourceEnvRef> ResourceEnvRefs = annotatedApp.getResourceEnvRef();
+            for (ResourceEnvRef resourceEnvRefType : ResourceEnvRefs) {
+                if (resourceEnvRefType.getResourceEnvRefName().trim().equals(resourceName)) {
                     if (method != null || field != null) {
-                        InjectionTargetType[] targets = resourceEnvRefType.getInjectionTargetArray();
+                        List<InjectionTarget> targets = resourceEnvRefType.getInjectionTarget();
                         if (!hasTarget(method, field, targets)) {
-                            configureInjectionTarget(resourceEnvRefType.addNewInjectionTarget(), method, field);
+                            resourceEnvRefType.getInjectionTarget().add(configureInjectionTarget(method, field));
                         }
                     }
                     return true;
@@ -491,28 +487,23 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
         }
 
-        private void addResourceEnvRef(AnnotatedApp annotatedApp, String resourceName, String resourceType, Method method, Field field, Resource annotation) {
-            ResourceEnvRefType resourceEnvRef = annotatedApp.addNewResourceEnvRef();
+        private void addResourceEnvRef(JndiConsumer annotatedApp, String resourceName, String resourceType, Method method, Field field, Resource annotation) {
+            ResourceEnvRef resourceEnvRef = new ResourceEnvRef();
 
             //------------------------------------------------------------------------------
             // <resource-env-ref> required elements:
             //------------------------------------------------------------------------------
 
             // resource-env-ref-name
-            JndiNameType resourceEnvRefName = resourceEnvRef.addNewResourceEnvRefName();
-            resourceEnvRefName.setStringValue(resourceName);
-            resourceEnvRef.setResourceEnvRefName(resourceEnvRefName);
+            resourceEnvRef.setResourceEnvRefName(resourceName);
 
-            if (!resourceType.equals("")) {
+            if (!resourceType.isEmpty()) {
                 // resource-env-ref-type
-                FullyQualifiedClassType qualifiedClass = resourceEnvRef.addNewResourceEnvRefType();
-                qualifiedClass.setStringValue(resourceType);
-                resourceEnvRef.setResourceEnvRefType(qualifiedClass);
+                resourceEnvRef.setResourceEnvRefType(resourceType);
             }
             if (method != null || field != null) {
                 // injectionTarget
-                InjectionTargetType injectionTarget = resourceEnvRef.addNewInjectionTarget();
-                configureInjectionTarget(injectionTarget, method, field);
+                resourceEnvRef.getInjectionTarget().add(configureInjectionTarget(method, field));
             }
 
             //------------------------------------------------------------------------------
@@ -521,47 +512,41 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
             // description
             String descriptionAnnotation = annotation.description();
-            if (!descriptionAnnotation.equals("")) {
-                DescriptionType description = resourceEnvRef.addNewDescription();
-                description.setStringValue(descriptionAnnotation);
+            if (!descriptionAnnotation.isEmpty()) {
+                resourceEnvRef.setDescriptions(new Text[] {new Text(null, descriptionAnnotation) }  );
             }
 
             // mappedName
             String mappdedNameAnnotation = annotation.mappedName();
-            if (!mappdedNameAnnotation.equals("")) {
-                XsdStringType mappedName = resourceEnvRef.addNewMappedName();
-                mappedName.setStringValue(mappdedNameAnnotation);
+            if (!mappdedNameAnnotation.isEmpty()) {
+                resourceEnvRef.setMappedName(mappdedNameAnnotation);
             }
 
             // lookup
             String lookup = annotation.lookup();
             if (!lookup.equals("")) {
-                XsdStringType lookupName = resourceEnvRef.addNewLookupName();
-                lookupName.setStringValue(lookup);
+                resourceEnvRef.setLookupName(lookup);
             }
+            annotatedApp.getResourceEnvRef().add(resourceEnvRef);
         }
 
-        private void addMethodDestinationRef(AnnotatedApp annotatedApp, String resourceName, String resourceType, Method method, Field field, Resource annotation) {
-            MessageDestinationRefType messageDestinationRef = annotatedApp.addNewMessageDestinationRef();
+        private void addMethodDestinationRef(JndiConsumer annotatedApp, String resourceName, String resourceType, Method method, Field field, Resource annotation) {
+            MessageDestinationRef messageDestinationRef = new MessageDestinationRef();
 
             //------------------------------------------------------------------------------
             // <message-destination-ref> required elements:
             //------------------------------------------------------------------------------
 
             // message-destination-ref-name
-            JndiNameType messageDestinationRefName = messageDestinationRef.addNewMessageDestinationRefName();
-            messageDestinationRefName.setStringValue(resourceName);
-            messageDestinationRef.setMessageDestinationRefName(messageDestinationRefName);
+            messageDestinationRef.setMessageDestinationRefName(resourceName);
 
-            if (!resourceType.equals("")) {
+            if (!resourceType.isEmpty()) {
                 // message-destination-ref-type
-                MessageDestinationTypeType msgDestType = messageDestinationRef.addNewMessageDestinationType();
-                msgDestType.setStringValue(resourceType);
+                messageDestinationRef.setMessageDestinationType(resourceType);
             }
             if (method != null || field != null) {
                 // injectionTarget
-                InjectionTargetType injectionTarget = messageDestinationRef.addNewInjectionTarget();
-                configureInjectionTarget(injectionTarget, method, field);
+                messageDestinationRef.getInjectionTarget().add(configureInjectionTarget(method, field));
             }
 
             //------------------------------------------------------------------------------
@@ -570,24 +555,22 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
             // description
             String descriptionAnnotation = annotation.description();
-            if (!descriptionAnnotation.equals("")) {
-                DescriptionType description = messageDestinationRef.addNewDescription();
-                description.setStringValue(descriptionAnnotation);
+            if (!descriptionAnnotation.isEmpty()) {
+                messageDestinationRef.setDescriptions(new Text[]{new Text(null, descriptionAnnotation)});
             }
 
             // mappedName
             String mappdedNameAnnotation = annotation.mappedName();
-            if (!mappdedNameAnnotation.equals("")) {
-                XsdStringType mappedName = messageDestinationRef.addNewMappedName();
-                mappedName.setStringValue(mappdedNameAnnotation);
+            if (!mappdedNameAnnotation.isEmpty()) {
+                messageDestinationRef.setMappedName(mappdedNameAnnotation);
             }
 
             // lookup
             String lookup = annotation.lookup();
-            if (!lookup.equals("")) {
-                XsdStringType lookupName = messageDestinationRef.addNewLookupName();
-                lookupName.setStringValue(lookup);
+            if (!lookup.isEmpty()) {
+                messageDestinationRef.setLookupName(lookup);
             }
+            annotatedApp.getMessageDestinationRef().add(messageDestinationRef);
         }
     }
 

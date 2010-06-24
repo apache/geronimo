@@ -22,15 +22,15 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.PersistenceUnitRefType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.PersistenceUnitRef;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class PersistenceUnitRefMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class PersistenceUnitRefMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     public static final String PERSISTENCE_UNIT_REF_NAME_PREFIX = "persistence-unit-ref.persistence-unit-ref-name.";
 
@@ -42,9 +42,9 @@ public class PersistenceUnitRefMergeHandler implements WebFragmentMergeHandler<W
      * b. web.xml file should inherit it from the web-fragment.xml file
      */
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (PersistenceUnitRefType srcPersistenceUnitRef : webFragment.getPersistenceUnitRefArray()) {
-            String persistenceUnitRefName = srcPersistenceUnitRef.getPersistenceUnitRefName().getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (PersistenceUnitRef srcPersistenceUnitRef : webFragment.getPersistenceUnitRef()) {
+            String persistenceUnitRefName = srcPersistenceUnitRef.getPersistenceUnitRefName();
             String persistenceUnitRefKey = createPersistenceUnitRefKey(persistenceUnitRefName);
             MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(persistenceUnitRefKey);
             if (mergeItem != null) {
@@ -52,43 +52,43 @@ public class PersistenceUnitRefMergeHandler implements WebFragmentMergeHandler<W
                     throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("persistence-unit-ref", persistenceUnitRefName, mergeItem.getBelongedURL(), mergeContext.getCurrentJarUrl()));
                 } else if (mergeItem.isFromWebXml() && !isPersistenceUnitRefInjectTargetsConfiguredInInitialWebXML(persistenceUnitRefName, mergeContext)) {
                     //Merge InjectTarget
-                    PersistenceUnitRefType persistenceUnitRef = (PersistenceUnitRefType) mergeItem.getValue();
-                    for (InjectionTargetType injectTarget : srcPersistenceUnitRef.getInjectionTargetArray()) {
-                        String persistenceUnitRefInjectTargetKey = createPersistenceUnitRefInjectTargetKey(persistenceUnitRefName, injectTarget.getInjectionTargetClass().getStringValue(), injectTarget
-                                .getInjectionTargetName().getStringValue());
+                    PersistenceUnitRef persistenceUnitRef = (PersistenceUnitRef) mergeItem.getValue();
+                    for (InjectionTarget injectTarget : srcPersistenceUnitRef.getInjectionTarget()) {
+                        String persistenceUnitRefInjectTargetKey = createPersistenceUnitRefInjectTargetKey(persistenceUnitRefName, injectTarget.getInjectionTargetClass(), injectTarget
+                                .getInjectionTargetName());
                         if (!mergeContext.containsAttribute(persistenceUnitRefInjectTargetKey)) {
-                            persistenceUnitRef.addNewInjectionTarget().set(injectTarget);
+                            persistenceUnitRef.getInjectionTarget().add(injectTarget);
                             mergeContext.setAttribute(persistenceUnitRefInjectTargetKey, Boolean.TRUE);
                         }
                     }
                 }
             } else {
-                PersistenceUnitRefType targetPersistenceUnitRef = (PersistenceUnitRefType) webApp.addNewPersistenceUnitRef().set(srcPersistenceUnitRef);
-                mergeContext.setAttribute(persistenceUnitRefKey, new MergeItem(targetPersistenceUnitRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
-                for (InjectionTargetType injectionTarget : targetPersistenceUnitRef.getInjectionTargetArray()) {
-                    mergeContext.setAttribute(createPersistenceUnitRefInjectTargetKey(persistenceUnitRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                            .getStringValue()), Boolean.TRUE);
+                webApp.getPersistenceUnitRef().add(srcPersistenceUnitRef);
+                mergeContext.setAttribute(persistenceUnitRefKey, new MergeItem(srcPersistenceUnitRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
+                for (InjectionTarget injectionTarget : srcPersistenceUnitRef.getInjectionTarget()) {
+                    mergeContext.setAttribute(createPersistenceUnitRefInjectTargetKey(persistenceUnitRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                            ), Boolean.TRUE);
                 }
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (PersistenceUnitRefType persistenceUnitRef : webApp.getPersistenceUnitRefArray()) {
-            String persistenceUnitRefName = persistenceUnitRef.getPersistenceUnitRefName().getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (PersistenceUnitRef persistenceUnitRef : webApp.getPersistenceUnitRef()) {
+            String persistenceUnitRefName = persistenceUnitRef.getPersistenceUnitRefName();
             mergeContext.setAttribute(createPersistenceUnitRefKey(persistenceUnitRefName), new MergeItem(persistenceUnitRef, null, ElementSource.WEB_XML));
             //Create an attribute tag to indicate whether injectTarget is configured in web.xml file
-            if (persistenceUnitRef.getInjectionTargetArray().length > 0) {
+            if (!persistenceUnitRef.getInjectionTarget().isEmpty()) {
                 mergeContext.setAttribute(createPersistenceUnitRefInjectTargetConfiguredInWebXMLKey(persistenceUnitRefName), Boolean.TRUE);
             }
-            for (InjectionTargetType injectionTarget : persistenceUnitRef.getInjectionTargetArray()) {
-                mergeContext.setAttribute(createPersistenceUnitRefInjectTargetKey(persistenceUnitRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                        .getStringValue()), Boolean.TRUE);
+            for (InjectionTarget injectionTarget : persistenceUnitRef.getInjectionTarget()) {
+                mergeContext.setAttribute(createPersistenceUnitRefInjectTargetKey(persistenceUnitRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                        ), Boolean.TRUE);
             }
         }
     }

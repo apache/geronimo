@@ -25,7 +25,6 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.xbeans.connector.GerConnectorDocument;
 import org.apache.geronimo.xbeans.connector.GerConnectorType;
-import org.apache.geronimo.xbeans.javaee6.ConnectorDocument;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -43,14 +42,14 @@ public class PlanParsingTest extends TestSupport {
         XmlBeansUtil.validateDD(connector);
         assertEquals(1, connectorDocument.getConnector().getResourceadapterArray().length);
     }
-
-    public void testLoadJavaEEDeploymentDescriptor() throws Exception {
-        URL srcXml = classLoader.getResource("connector_1_6/ra.xml");
-        XmlObject plan = XmlBeansUtil.parse(srcXml, getClass().getClassLoader());
-        ConnectorDocument connectorDocument = (ConnectorDocument) plan.changeType(ConnectorDocument.type);
-        assertNotNull(connectorDocument.getConnector().getResourceadapter());
-        XmlBeansUtil.validateDD(connectorDocument);
-    }
+    //TODO move to openejb-jee
+//    public void testLoadJavaEEDeploymentDescriptor() throws Exception {
+//        URL srcXml = classLoader.getResource("connector_1_6/ra.xml");
+//        XmlObject plan = XmlBeansUtil.parse(srcXml, getClass().getClassLoader());
+//        ConnectorDocument connectorDocument = (ConnectorDocument) plan.changeType(ConnectorDocument.type);
+//        assertNotNull(connectorDocument.getConnector().getResourceadapter());
+//        XmlBeansUtil.validateDD(connectorDocument);
+//    }
 
     public void testLoadGeronimoDeploymentDescriptor15() throws Exception {
         URL srcXml = classLoader.getResource("connector_1_6/geronimo-ra.xml");

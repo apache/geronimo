@@ -99,7 +99,7 @@ public class URLPattern {
      * Add a method to the union of HTTP methods associated with this URL pattern.  An empty Set  is short hand for
      * the set of all HTTP methods.
      *
-     * @param method the HTTP methods to be added to the set.
+     * @param methods the HTTP methods to be added to the set.
      */
     public void addMethods(Set<String> methods, boolean isExcluded) {
         httpMethods.add(methods, isExcluded);

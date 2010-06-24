@@ -26,9 +26,9 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.Servlet;
+import org.apache.openejb.jee.ServletMapping;
+import org.apache.openejb.jee.WebApp;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,12 +51,12 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
                                          Map<String, PortInfo> map)
         throws DeploymentException {
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        WebAppType webApp = (WebAppType) module.getSpecDD();
+        WebApp webApp = (WebApp) module.getSpecDD();
 
         // find web services
-        ServletType[] servletTypes = webApp.getServletArray();
+        List<Servlet> servletTypes = webApp.getServlet();
 
-        if (webApp.getDomNode().getChildNodes().getLength() == 0) {
+        if (webApp.getServlet().size() == 0) {
             // web.xml not present (empty really), discover annotated
             // classes and update DD
             List<Class> services = WARWebServiceFinder.discoverWebServices(module.getModuleFile(), false, this.getClass().getClassLoader());
@@ -70,15 +70,15 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
                 LOG.debug("Discovered POJO Web Service: " + service.getName());
 
                 // add new <servlet/> element
-                ServletType servlet = webApp.addNewServlet();
-                servlet.addNewServletName().setStringValue(service.getName());
-                servlet.addNewServletClass().setStringValue(service.getName());
-
+                Servlet servlet = new Servlet();
+                servlet.setServletName(service.getName());
+                servlet.setServletClass(service.getName());
+                webApp.getServlet().add(servlet);
                 // add new <servlet-mapping/> element
                 String location = "/" + JAXWSUtils.getServiceName(service);
-                ServletMappingType servletMapping = webApp.addNewServletMapping();
-                servletMapping.addNewServletName().setStringValue(service.getName());
-                servletMapping.addNewUrlPattern().setStringValue(location);
+                ServletMapping servletMapping = new ServletMapping();
+                servletMapping.setServletName(service.getName());
+                servletMapping.getUrlPattern().add(location);
 
                 // map service
                 PortInfo portInfo = new PortInfo();
@@ -88,10 +88,10 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
         } else {
             // web.xml present, examine servlet classes and check for web
             // services
-            for (ServletType servletType : servletTypes) {
-                String servletName = servletType.getServletName().getStringValue().trim();
-                if (servletType.isSetServletClass()) {
-                    String servletClassName = servletType.getServletClass().getStringValue().trim();
+            for (Servlet servletType : servletTypes) {
+                String servletName = servletType.getServletName().trim();
+                if (servletType.getServletClass() != null) {
+                    String servletClassName = servletType.getServletClass().trim();
                     try {
                         Class servletClass = bundle.loadClass(servletClassName);
                         if (JAXWSUtils.isWebService(servletClass)) {

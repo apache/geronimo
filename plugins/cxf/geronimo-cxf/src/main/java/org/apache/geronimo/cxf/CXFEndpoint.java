@@ -44,7 +44,7 @@ import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
 import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import org.apache.openejb.jee.HandlerChains;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 
@@ -195,8 +195,8 @@ public abstract class CXFEndpoint {
      * Set appropriate handlers for the port/service/bindings.
      */
     protected void initHandlers() throws Exception {
-        HandlerChainsType handlerChains =
-            HandlerChainsUtils.getHandlerChains(this.portInfo.getHandlersAsXML());
+        HandlerChains handlerChains =
+            HandlerChainsUtils.toHandlerChains(this.portInfo.getHandlersAsXML(), HandlerChains.class);
         GeronimoHandlerResolver handlerResolver = new GeronimoHandlerResolver(bundle, getImplementorClass(), handlerChains, null);
 
         PortInfoImpl portInfo = new PortInfoImpl(implInfo.getBindingType(),

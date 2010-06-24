@@ -22,21 +22,21 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.LocaleEncodingMappingListType;
-import org.apache.geronimo.xbeans.javaee6.LocaleEncodingMappingType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.LocaleEncodingMapping;
+import org.apache.openejb.jee.LocaleEncodingMappingList;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class LocaleEncodingMappingListMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class LocaleEncodingMappingListMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        LocaleEncodingMappingListType targetLocaleEncodingMappingList = null;
-        for (LocaleEncodingMappingListType localeEncodingMappingList : webFragment.getLocaleEncodingMappingListArray()) {
-            for (LocaleEncodingMappingType localeEncodingMapping : localeEncodingMappingList.getLocaleEncodingMappingArray()) {
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        LocaleEncodingMappingList targetLocaleEncodingMappingList = webApp.getLocaleEncodingMappingList().isEmpty() ? null: webApp.getLocaleEncodingMappingList().get(0);
+        for (LocaleEncodingMappingList localeEncodingMappingList : webFragment.getLocaleEncodingMappingList()) {
+            for (LocaleEncodingMapping localeEncodingMapping : localeEncodingMappingList.getLocaleEncodingMapping()) {
                 String localeEncodingMappingKey = createLocaleEncodingMappingKey(localeEncodingMapping.getLocale());
                 MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(localeEncodingMappingKey);
                 if (mergeItem != null && mergeItem.isFromWebFragment() && !mergeItem.getValue().equals(localeEncodingMapping.getEncoding())) {
@@ -44,39 +44,35 @@ public class LocaleEncodingMappingListMergeHandler implements WebFragmentMergeHa
                             (String) mergeItem.getValue(), mergeItem.getBelongedURL(), localeEncodingMapping.getLocale(), mergeContext.getCurrentJarUrl()));
                 }
                 if (targetLocaleEncodingMappingList == null) {
-                    targetLocaleEncodingMappingList = webApp.getLocaleEncodingMappingListArray().length > 0 ? webApp.getLocaleEncodingMappingListArray(0) : webApp.addNewLocaleEncodingMappingList();
+                    targetLocaleEncodingMappingList = new LocaleEncodingMappingList();
+                    webApp.getLocaleEncodingMappingList().add(targetLocaleEncodingMappingList);
                 }
-                targetLocaleEncodingMappingList.addNewLocaleEncodingMapping().set(localeEncodingMapping);
+                targetLocaleEncodingMappingList.getLocaleEncodingMapping().add(localeEncodingMapping);
                 mergeContext.setAttribute(localeEncodingMappingKey, new MergeItem(localeEncodingMapping.getEncoding(), mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        LocaleEncodingMappingListType[] localeEncodingMappingLists = webApp.getLocaleEncodingMappingListArray();
-        if (localeEncodingMappingLists.length == 0) {
-            return;
-        }
-        //Spec 14.2 While multiple locale-encoding-mapping lists are found, we need to concatenate the items
-        if (localeEncodingMappingLists.length > 1) {
-            LocaleEncodingMappingListType targetLocaleEncodingMappingList = localeEncodingMappingLists[0];
-            for (int i = 1; i < localeEncodingMappingLists.length; i++) {
-                LocaleEncodingMappingListType localeEncodingMappingList = localeEncodingMappingLists[i];
-                for (LocaleEncodingMappingType localeEncodingMapping : localeEncodingMappingList.getLocaleEncodingMappingArray()) {
-                    targetLocaleEncodingMappingList.addNewLocaleEncodingMapping().set(localeEncodingMapping);
-                }
-            }
-            for (int i = 1, iLength = localeEncodingMappingLists.length; i < iLength; i++) {
-                webApp.removeLocaleEncodingMappingList(1);
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        LocaleEncodingMappingList targetLocaleEncodingMappingList = null;
+        for (LocaleEncodingMappingList list: webApp.getLocaleEncodingMappingList()) {
+            if (targetLocaleEncodingMappingList == null) {
+                targetLocaleEncodingMappingList = list;
+            } else {
+                targetLocaleEncodingMappingList.getLocaleEncodingMapping().addAll(list.getLocaleEncodingMapping());
             }
         }
-        for (LocaleEncodingMappingType localeEncodingMapping : webApp.getLocaleEncodingMappingListArray(0).getLocaleEncodingMappingArray()) {
-            context.setAttribute(createLocaleEncodingMappingKey(localeEncodingMapping.getLocale()), new MergeItem(localeEncodingMapping.getEncoding(), null, ElementSource.WEB_XML));
+        if (targetLocaleEncodingMappingList != null) {
+            webApp.getLocaleEncodingMappingList().clear();
+            webApp.getLocaleEncodingMappingList().add(targetLocaleEncodingMappingList);
+            for (LocaleEncodingMapping localeEncodingMapping : targetLocaleEncodingMappingList.getLocaleEncodingMapping()) {
+                context.setAttribute(createLocaleEncodingMappingKey(localeEncodingMapping.getLocale()), new MergeItem(localeEncodingMapping.getEncoding(), null, ElementSource.WEB_XML));
+            }
         }
     }
 

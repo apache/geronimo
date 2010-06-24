@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -31,19 +32,16 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee6.DescriptionType;
-import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.JndiNameType;
-import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee6.XsdStringType;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.ServiceRef;
+import org.apache.openejb.jee.Text;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -75,7 +73,7 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         this.serviceRefQNameSet = buildQNameSet(eeNamespaces, "service-ref");
     }
 
-    public void buildEnvironment(XmlObject specDD,
+    public void buildEnvironment(JndiConsumer specDD,
             XmlObject plan,
             Environment environment)
             throws DeploymentException {
@@ -87,57 +85,52 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         }
     }
 
-    public void buildNaming(XmlObject specDD,
+    public void buildNaming(JndiConsumer specDD,
             XmlObject plan,
             Module module,
             Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
 
         // Discover and process any @WebServiceRef annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
-            processAnnotations(module);
+            processAnnotations(specDD, module);
         }
 
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         Class jaxrpcClass = null;
         Class jaxwsClass = null;
 
-        XmlObject[] serviceRefs = specDD.selectChildren(serviceRefQNameSet);
+        Collection<ServiceRef> serviceRefs = specDD.getServiceRef();
 
         XmlObject[] gerServiceRefsUntyped = plan == null ? NO_REFS : plan
                 .selectChildren(GER_SERVICE_REF_QNAME_SET);
         Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
 
-        for (XmlObject serviceRef : serviceRefs) {
+        for (ServiceRef serviceRef : serviceRefs) {
             if (jaxrpcClass == null) {
                 jaxrpcClass = loadClass("javax.xml.rpc.Service", bundle);
             }
             if (jaxwsClass == null) {
                 jaxwsClass = loadClass("javax.xml.ws.Service", bundle);
             }
-            ServiceRefType serviceRefType = (ServiceRefType) convert(
-                    serviceRef, JEE_CONVERTER, ServiceRefType.type);
 
-            String name = getStringValue(serviceRefType.getServiceRefName());
+            String name = getStringValue(serviceRef.getServiceRefName());
             GerServiceRefType gerServiceRefType = (GerServiceRefType) serviceRefMap.get(name);
             serviceRefMap.remove(name);
 
-            String serviceInterfaceName = getStringValue(serviceRefType
-                    .getServiceInterface());
+            String serviceInterfaceName = serviceRef.getServiceInterface();
             Class serviceInterfaceClass = loadClass(serviceInterfaceName, bundle);
 
-            InjectionTargetType[] injections = serviceRefType.getInjectionTargetArray();
+            List<InjectionTarget> injections = serviceRef.getInjectionTarget();
             addInjections(name, injections, sharedContext);
 
             if (jaxrpcClass.isAssignableFrom(serviceInterfaceClass)) {
                 // class jaxrpc handler
                 ServiceRefBuilder jaxrpcBuilder = getJAXRCPBuilder();
-                jaxrpcBuilder.buildNaming(serviceRef, gerServiceRefType,
-                        module, sharedContext);
+                jaxrpcBuilder.buildNaming(serviceRef, gerServiceRefType, module, sharedContext);
             } else if (jaxwsClass.isAssignableFrom(serviceInterfaceClass)) {
                 // calll jaxws handler
                 ServiceRefBuilder jaxwsBuilder = getJAXWSBuilder();
-                jaxwsBuilder.buildNaming(serviceRef, gerServiceRefType, module,
-                        sharedContext);
+                jaxwsBuilder.buildNaming(serviceRef, gerServiceRefType, module, sharedContext);
             } else {
                 throw new DeploymentException(serviceInterfaceName
                         + " does not extend "
@@ -205,13 +198,13 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         return refMap;
     }
 
-    private void processAnnotations(Module module) throws DeploymentException {
+    private void processAnnotations(JndiConsumer specDD, Module module) throws DeploymentException {
 
         // Process all the annotations for this naming builder type
         //At the moment the only exception thrown is if the resulting doc is not valid.  Bail now.
         try {
-            WebServiceRefAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
-            ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder(), ServiceRefProcessor.INSTANCE);
+            WebServiceRefAnnotationHelper.processAnnotations(specDD, module.getClassFinder());
+            ResourceAnnotationHelper.processAnnotations(specDD, module.getClassFinder(), ServiceRefProcessor.INSTANCE);
         }
         catch (Exception e) {
             log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
@@ -233,8 +226,8 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         private ServiceRefProcessor() {
         }
 
-        public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) {
-            log.debug("processResource( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
+        public boolean processResource(JndiConsumer jndiConsumer, Resource annotation, Class cls, Method method, Field field) {
+            log.debug("processResource( [annotatedApp] " + jndiConsumer.toString() + "," + '\n' +
                     "[annotation] " + annotation.toString() + "," + '\n' +
                     "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
                     "[method] " + (method != null ? method.getName() : null) + "," + '\n' +
@@ -253,13 +246,13 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                 log.debug("processResource(): <service-ref> found");
 
                 boolean exists = false;
-                ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
-                for (ServiceRefType serviceRef : serviceRefs) {
-                    if (serviceRef.getServiceRefName().getStringValue().trim().equals(resourceName)) {
+                Collection<ServiceRef> serviceRefs = jndiConsumer.getServiceRef();
+                for (ServiceRef serviceRef : serviceRefs) {
+                    if (serviceRef.getServiceRefName().trim().equals(resourceName)) {
                         if (method != null || field != null) {
-                            InjectionTargetType[] targets = serviceRef.getInjectionTargetArray();
+                            List<InjectionTarget> targets = serviceRef.getInjectionTarget();
                             if (!hasTarget(method, field, targets)) {
-                                configureInjectionTarget(serviceRef.addNewInjectionTarget(), method, field);
+                                serviceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                             }
                         }
                         exists = true;
@@ -272,21 +265,17 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                         log.debug("processResource(): Does not exist in DD: " + resourceName);
 
                         // Doesn't exist in deployment descriptor -- add new
-                        ServiceRefType serviceRef = annotatedApp.addNewServiceRef();
+                        ServiceRef serviceRef = new ServiceRef();
 
                         //------------------------------------------------------------------------------
                         // <service-ref> required elements:
                         //------------------------------------------------------------------------------
 
                         // service-ref-name
-                        JndiNameType serviceRefName = serviceRef.addNewServiceRefName();
-                        serviceRefName.setStringValue(resourceName);
-                        serviceRef.setServiceRefName(serviceRefName);
+                        serviceRef.setServiceRefName(resourceName);
 
                         // service-ref-interface
-                        FullyQualifiedClassType serviceRefInterfaceClass = serviceRef.addNewServiceInterface();
-                        serviceRefInterfaceClass.setStringValue(resourceType);
-                        serviceRef.setServiceInterface(serviceRefInterfaceClass);
+                        serviceRef.setServiceInterface(resourceType);
 
                         //------------------------------------------------------------------------------
                         // <service-ref> optional elements:
@@ -295,29 +284,24 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                         // description
                         String descriptionAnnotation = annotation.description();
                         if (!descriptionAnnotation.equals("")) {
-                            DescriptionType description = serviceRef.addNewDescription();
-                            description.setStringValue(descriptionAnnotation);
+                            serviceRef.setDescriptions(new Text[] {new Text(null, descriptionAnnotation)  });
                         }
 
                         // service-ref-type
-                        if (!serviceRef.isSetServiceRefType()) {
-                            FullyQualifiedClassType serviceRefTypeClass = serviceRef.addNewServiceRefType();
-                            serviceRefTypeClass.setStringValue(resourceType);
-                            serviceRef.setServiceRefType(serviceRefTypeClass);
+                        if (serviceRef.getServiceRefType() == null) {
+                            serviceRef.setServiceRefType(resourceType);
                         }
 
                         // injectionTarget
                         if (method != null || field != null) {
-                            InjectionTargetType injectionTarget = serviceRef.addNewInjectionTarget();
-                            configureInjectionTarget(injectionTarget, method, field);
+                            serviceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                         }
                         
                         // mappedName
-                        if (!serviceRef.isSetMappedName() && annotation.mappedName().trim().length() > 0) {
-                            XsdStringType mappedName = serviceRef.addNewMappedName();
-                            mappedName.setStringValue(annotation.mappedName().trim());
-                            serviceRef.setMappedName(mappedName);
+                        if (serviceRef.getMappedName() == null && annotation.mappedName().trim().length() > 0) {
+                            serviceRef.setMappedName(annotation.mappedName().trim());
                         }
+                        jndiConsumer.getServiceRef().add(serviceRef);
                     }
                     catch (Exception anyException) {
                         log.debug("SwitchServiceRefBuilder: Exception caught while processing <service-ref>");

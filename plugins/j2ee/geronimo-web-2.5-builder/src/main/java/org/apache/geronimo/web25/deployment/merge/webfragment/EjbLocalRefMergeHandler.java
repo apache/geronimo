@@ -22,15 +22,15 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.EjbLocalRef;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class EjbLocalRefMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class EjbLocalRefMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     public static final String EJB_LOCAL_REF_NAME_PREFIX = "ejb-local-ref.ejb-ref-name.";
 
@@ -42,9 +42,9 @@ public class EjbLocalRefMergeHandler implements WebFragmentMergeHandler<WebFragm
      * b. web.xml file should inherit it from the web-fragment.xml file
      */
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (EjbLocalRefType srcEjbLocalRef : webFragment.getEjbLocalRefArray()) {
-            String ejbLocalRefName = srcEjbLocalRef.getEjbRefName().getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (EjbLocalRef srcEjbLocalRef : webFragment.getEjbLocalRef()) {
+            String ejbLocalRefName = srcEjbLocalRef.getEjbRefName();
             String ejbLocalRefKey = createEjbLocalRefKey(ejbLocalRefName);
             MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(ejbLocalRefKey);
             if (mergeItem != null) {
@@ -52,43 +52,43 @@ public class EjbLocalRefMergeHandler implements WebFragmentMergeHandler<WebFragm
                     throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("ejb-local-ref", ejbLocalRefName, mergeItem.getBelongedURL(), mergeContext.getCurrentJarUrl()));
                 } else if (mergeItem.isFromWebXml() && !isEjbLocalRefInjectTargetsConfiguredInInitialWebXML(ejbLocalRefName, mergeContext)) {
                     //Merge InjectTarget
-                    EjbLocalRefType ejbLocalRef = (EjbLocalRefType) mergeItem.getValue();
-                    for (InjectionTargetType injectTarget : srcEjbLocalRef.getInjectionTargetArray()) {
-                        String ejbLocalRefInjectTargetKey = createEjbLocalRefInjectTargetKey(ejbLocalRefName, injectTarget.getInjectionTargetClass().getStringValue(), injectTarget
-                                .getInjectionTargetName().getStringValue());
+                    EjbLocalRef ejbLocalRef = (EjbLocalRef) mergeItem.getValue();
+                    for (InjectionTarget injectTarget : srcEjbLocalRef.getInjectionTarget()) {
+                        String ejbLocalRefInjectTargetKey = createEjbLocalRefInjectTargetKey(ejbLocalRefName, injectTarget.getInjectionTargetClass(), injectTarget
+                                .getInjectionTargetName());
                         if (!mergeContext.containsAttribute(ejbLocalRefInjectTargetKey)) {
-                            ejbLocalRef.addNewInjectionTarget().set(injectTarget);
+                            ejbLocalRef.getInjectionTarget().add(injectTarget);
                             mergeContext.setAttribute(ejbLocalRefInjectTargetKey, Boolean.TRUE);
                         }
                     }
                 }
             } else {
-                EjbLocalRefType targetEjbLocalRef = (EjbLocalRefType) webApp.addNewEjbLocalRef().set(srcEjbLocalRef);
-                mergeContext.setAttribute(ejbLocalRefKey, new MergeItem(targetEjbLocalRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
-                for (InjectionTargetType injectionTarget : targetEjbLocalRef.getInjectionTargetArray()) {
-                    mergeContext.setAttribute(createEjbLocalRefInjectTargetKey(ejbLocalRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                            .getStringValue()), Boolean.TRUE);
+                webApp.getEjbLocalRef().add(srcEjbLocalRef);
+                mergeContext.setAttribute(ejbLocalRefKey, new MergeItem(srcEjbLocalRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
+                for (InjectionTarget injectionTarget : srcEjbLocalRef.getInjectionTarget()) {
+                    mergeContext.setAttribute(createEjbLocalRefInjectTargetKey(ejbLocalRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                            ), Boolean.TRUE);
                 }
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (EjbLocalRefType ejbLocalRef : webApp.getEjbLocalRefArray()) {
-            String ejbLocalRefName = ejbLocalRef.getEjbRefName().getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (EjbLocalRef ejbLocalRef : webApp.getEjbLocalRef()) {
+            String ejbLocalRefName = ejbLocalRef.getEjbRefName();
             mergeContext.setAttribute(createEjbLocalRefKey(ejbLocalRefName), new MergeItem(ejbLocalRef, null, ElementSource.WEB_XML));
             //Create an attribute tag to indicate whether injectTarget is configured in web.xml file
-            if (ejbLocalRef.getInjectionTargetArray().length > 0) {
+            if (ejbLocalRef.getInjectionTarget().size() > 0) {
                 mergeContext.setAttribute(createEjbLocalRefInjectTargetConfiguredInWebXMLKey(ejbLocalRefName), Boolean.TRUE);
             }
-            for (InjectionTargetType injectionTarget : ejbLocalRef.getInjectionTargetArray()) {
-                mergeContext.setAttribute(createEjbLocalRefInjectTargetKey(ejbLocalRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                        .getStringValue()), Boolean.TRUE);
+            for (InjectionTarget injectionTarget : ejbLocalRef.getInjectionTarget()) {
+                mergeContext.setAttribute(createEjbLocalRefInjectTargetKey(ejbLocalRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                        ), Boolean.TRUE);
             }
         }
     }

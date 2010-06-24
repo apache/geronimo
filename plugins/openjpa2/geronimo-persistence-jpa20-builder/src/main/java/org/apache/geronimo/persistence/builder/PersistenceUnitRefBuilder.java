@@ -17,25 +17,22 @@
 package org.apache.geronimo.persistence.builder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashSet;
 
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -48,7 +45,8 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceUnitRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceUnitRefType;
-import org.apache.geronimo.xbeans.javaee6.PersistenceUnitRefType;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.PersistenceUnitRef;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -74,35 +72,35 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
         this.strictMatching = strictMatching;
     }
 
-    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
-        if (specDD != null && specDD.selectChildren(PersistenceUnitRefBuilder.PERSISTENCE_UNIT_REF_QNAME_SET).length > 0) {
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) throws DeploymentException {
+        if (specDD != null && specDD.getPersistenceUnitRef().size() > 0) {
             return true;
         }
         return plan != null && plan.selectChildren(PersistenceUnitRefBuilder.GER_PERSISTENCE_UNIT_REF_QNAME_SET).length > 0;
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         Configuration localConfiguration = module.getEarContext().getConfiguration();
         // Discover and process any @PersistenceUnitRef annotations (if !metadata-complete)
         if (module.getClassFinder() != null) {
-            processAnnotations(module);
+            processAnnotations(specDD, module);
         }
 
-        List<PersistenceUnitRefType> specPersistenceUnitRefsUntyped = convert(specDD.selectChildren(PersistenceUnitRefBuilder.PERSISTENCE_UNIT_REF_QNAME_SET), JEE_CONVERTER, PersistenceUnitRefType.class, PersistenceUnitRefType.type);
+        Collection<PersistenceUnitRef> specPersistenceUnitRefsUntyped = specDD.getPersistenceUnitRef();
         Map<String, GerPersistenceUnitRefType> gerPersistenceUnitRefsUntyped = getGerPersistenceUnitRefs(plan);
         List<DeploymentException> problems = new ArrayList<DeploymentException>();
-        for (PersistenceUnitRefType persistenceUnitRef : specPersistenceUnitRefsUntyped) {
+        for (PersistenceUnitRef persistenceUnitRef : specPersistenceUnitRefsUntyped) {
             try {
-                String persistenceUnitRefName = persistenceUnitRef.getPersistenceUnitRefName().getStringValue().trim();
+                String persistenceUnitRefName = persistenceUnitRef.getPersistenceUnitRefName().trim();
 
-                addInjections(persistenceUnitRefName, persistenceUnitRef.getInjectionTargetArray(), componentContext);
+                addInjections(persistenceUnitRefName, persistenceUnitRef.getInjectionTarget(), componentContext);
                 AbstractNameQuery persistenceUnitNameQuery;
                 GerPersistenceUnitRefType gerPersistenceUnitRef = gerPersistenceUnitRefsUntyped.remove(persistenceUnitRefName);
                 if (gerPersistenceUnitRef != null) {
                     persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceUnitRef);
                     checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
-                } else if (persistenceUnitRef.isSetPersistenceUnitName() && persistenceUnitRef.getPersistenceUnitName().getStringValue().trim().length() > 0) {
-                    String persistenceUnitName = persistenceUnitRef.getPersistenceUnitName().getStringValue().trim();
+                } else if (persistenceUnitRef.getPersistenceUnitName() != null && !persistenceUnitRef.getPersistenceUnitName().trim().isEmpty()) {
+                    String persistenceUnitName = persistenceUnitRef.getPersistenceUnitName().trim();
                     persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
                     if (!checkForGBean(localConfiguration, persistenceUnitNameQuery, strictMatching)) {
                         persistenceUnitName = "persistence/" + persistenceUnitName;
@@ -191,9 +189,9 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
         }
     }
 
-    private void processAnnotations(Module module) throws DeploymentException {
+    private void processAnnotations(JndiConsumer specDD, Module module) throws DeploymentException {
         // Process all the annotations for this naming builder type
-        PersistenceUnitAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
+        PersistenceUnitAnnotationHelper.processAnnotations(specDD, module.getClassFinder());
     }
 
     private AbstractNameQuery findPersistenceUnit(GerPersistenceUnitRefType gerPersistenceUnitRef) {

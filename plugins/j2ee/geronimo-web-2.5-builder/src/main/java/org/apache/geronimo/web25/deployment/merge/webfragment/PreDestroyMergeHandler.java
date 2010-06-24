@@ -19,32 +19,32 @@ package org.apache.geronimo.web25.deployment.merge.webfragment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
-import org.apache.geronimo.xbeans.javaee6.LifecycleCallbackType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.LifecycleCallback;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class PreDestroyMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class PreDestroyMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
         if (mergeContext.containsAttribute(createPreDestroyConfiguredInWebXMLKey())) {
             return;
         }
-        for (LifecycleCallbackType lifecycleCallback : webFragment.getPreDestroyArray()) {
-            webApp.addNewPreDestroy().set(lifecycleCallback);
+        for (LifecycleCallback lifecycleCallback : webFragment.getPreDestroy()) {
+            webApp.getPreDestroy().add(lifecycleCallback);
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        context.setAttribute(createPreDestroyConfiguredInWebXMLKey(), webApp.getPreDestroyArray().length > 0);
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        context.setAttribute(createPreDestroyConfiguredInWebXMLKey(), !webApp.getPreDestroy().isEmpty());
     }
 
     public static String createPreDestroyConfiguredInWebXMLKey() {

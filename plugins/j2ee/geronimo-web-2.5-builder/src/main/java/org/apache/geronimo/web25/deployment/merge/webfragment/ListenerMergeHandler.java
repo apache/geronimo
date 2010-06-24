@@ -19,37 +19,36 @@ package org.apache.geronimo.web25.deployment.merge.webfragment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
-import org.apache.geronimo.xbeans.javaee6.ListenerType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.Listener;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * According to the spec 8.2.3.g.vii
  * Multiple <listener> elements with the same <listener-class> are treated as a single <listener> declaration
  * @version $Rev$ $Date$
  */
-public class ListenerMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class ListenerMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (ListenerType listener : webFragment.getListenerArray()) {
-            String listenerClassName = listener.getListenerClass().getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (Listener listener : webFragment.getListener()) {
+            String listenerClassName = listener.getListenerClass();
             if (!mergeContext.containsAttribute(createListenerKey(listenerClassName))) {
-                ListenerType targetListener = webApp.addNewListener();
-                targetListener.addNewListenerClass().setStringValue(listenerClassName);
-                mergeContext.setAttribute(createListenerKey(listener.getListenerClass().getStringValue()), listener);
+                webApp.getListener().add(listener);
+                mergeContext.setAttribute(createListenerKey(listener.getListenerClass()), listener);
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (ListenerType listener : webApp.getListenerArray()) {
-            context.setAttribute(createListenerKey(listener.getListenerClass().getStringValue()), listener);
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (Listener listener : webApp.getListener()) {
+            context.setAttribute(createListenerKey(listener.getListenerClass()), listener);
         }
     }
 
@@ -61,7 +60,7 @@ public class ListenerMergeHandler implements WebFragmentMergeHandler<WebFragment
         return mergeContext.containsAttribute(createListenerKey(listenerClassName));
     }
 
-    public static void addListener(ListenerType listener, MergeContext mergeContext) {
-        mergeContext.setAttribute(createListenerKey(listener.getListenerClass().getStringValue()), listener);
+    public static void addListener(Listener listener, MergeContext mergeContext) {
+        mergeContext.setAttribute(createListenerKey(listener.getListenerClass()), listener);
     }
 }

@@ -23,47 +23,44 @@ import java.util.List;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
-import org.apache.geronimo.xbeans.javaee6.DispatcherType;
-import org.apache.geronimo.xbeans.javaee6.FilterMappingType;
-import org.apache.geronimo.xbeans.javaee6.ServletNameType;
-import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.FilterMapping;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class FilterMappingMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class FilterMappingMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
-    private List<SubMergeHandler<FilterMappingType, FilterMappingType>> subMergeHandlers;
+    private List<SubMergeHandler<FilterMapping, FilterMapping>> subMergeHandlers;
 
     public FilterMappingMergeHandler() {
-        subMergeHandlers = new ArrayList<SubMergeHandler<FilterMappingType, FilterMappingType>>();
+        subMergeHandlers = new ArrayList<SubMergeHandler<FilterMapping, FilterMapping>>();
         subMergeHandlers.add(new FilterMappingUrlPatternMergeHandler());
         subMergeHandlers.add(new FilterMappingServletNameMergeHandler());
         subMergeHandlers.add(new FilterMappingDispatcherMergeHandler());
     }
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (FilterMappingType srcFilterMapping : webFragment.getFilterMappingArray()) {
-            String filterName = srcFilterMapping.getFilterName().getStringValue();
-            FilterMappingType targetFilterMapping = (FilterMappingType) mergeContext.getAttribute(createFilterMappingKey(filterName));
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (FilterMapping srcFilterMapping : webFragment.getFilterMapping()) {
+            String filterName = srcFilterMapping.getFilterName();
+            FilterMapping targetFilterMapping = (FilterMapping) mergeContext.getAttribute(createFilterMappingKey(filterName));
             if (targetFilterMapping == null) {
-                targetFilterMapping = (FilterMappingType) webApp.addNewFilterMapping().set(srcFilterMapping);
-                mergeContext.setAttribute(createFilterMappingKey(filterName), targetFilterMapping);
-                for (SubMergeHandler<FilterMappingType, FilterMappingType> subMergeHandler : subMergeHandlers) {
-                    subMergeHandler.add(targetFilterMapping, mergeContext);
+                webApp.getFilterMapping().add(srcFilterMapping);
+                mergeContext.setAttribute(createFilterMappingKey(filterName), srcFilterMapping);
+                for (SubMergeHandler<FilterMapping, FilterMapping> subMergeHandler : subMergeHandlers) {
+                    subMergeHandler.add(srcFilterMapping, mergeContext);
                 }
             } else {
                 if (isFilterMappingFromAnnotation(filterName, mergeContext)) {
                     //If the current url-patterns configurations are from annotations, so let's drop them
-                    targetFilterMapping.setUrlPatternArray(new UrlPatternType[0]);
-                    targetFilterMapping.setDispatcherArray(new DispatcherType[0]);
-                    targetFilterMapping.setServletNameArray(new ServletNameType[0]);
+                    targetFilterMapping.getUrlPattern().clear();
+                    targetFilterMapping.getDispatcher().clear();
+                    targetFilterMapping.getServletName().clear();
                     mergeContext.removeAttribute(createFilterMappingSourceKey(filterName));
                 }
-                for (SubMergeHandler<FilterMappingType, FilterMappingType> subMergeHandler : subMergeHandlers) {
+                for (SubMergeHandler<FilterMapping, FilterMapping> subMergeHandler : subMergeHandlers) {
                     subMergeHandler.merge(srcFilterMapping, targetFilterMapping, mergeContext);
                 }
             }
@@ -71,19 +68,19 @@ public class FilterMappingMergeHandler implements WebFragmentMergeHandler<WebFra
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (SubMergeHandler<FilterMappingType, FilterMappingType> subMergeHandler : subMergeHandlers) {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (SubMergeHandler<FilterMapping, FilterMapping> subMergeHandler : subMergeHandlers) {
             subMergeHandler.postProcessWebXmlElement(webApp, context);
         }
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (FilterMappingType filterMapping : webApp.getFilterMappingArray()) {
-            String filterName = filterMapping.getFilterName().getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (FilterMapping filterMapping : webApp.getFilterMapping()) {
+            String filterName = filterMapping.getFilterName();
             context.setAttribute(createFilterMappingKey(filterName), filterMapping);
         }
-        for (SubMergeHandler<FilterMappingType, FilterMappingType> subMergeHandler : subMergeHandlers) {
+        for (SubMergeHandler<FilterMapping, FilterMapping> subMergeHandler : subMergeHandlers) {
             subMergeHandler.preProcessWebXmlElement(webApp, context);
         }
     }
@@ -96,8 +93,8 @@ public class FilterMappingMergeHandler implements WebFragmentMergeHandler<WebFra
         return mergeContext.containsAttribute(createFilterMappingKey(filterName));
     }
 
-    public static FilterMappingType getFilterMappingType(String filterName, MergeContext mergeContext) {
-        return (FilterMappingType) mergeContext.getAttribute(createFilterMappingKey(filterName));
+    public static FilterMapping getFilterMapping(String filterName, MergeContext mergeContext) {
+        return (FilterMapping) mergeContext.getAttribute(createFilterMappingKey(filterName));
     }
 
     public static String createFilterMappingSourceKey(String filterName) {
@@ -109,7 +106,7 @@ public class FilterMappingMergeHandler implements WebFragmentMergeHandler<WebFra
         return elementSource != null && elementSource.equals(ElementSource.ANNOTATION);
     }
 
-    public static void addFilterMapping(FilterMappingType filterMapping, MergeContext mergeContext) {
-        mergeContext.setAttribute(createFilterMappingKey(filterMapping.getFilterName().getStringValue()), filterMapping);
+    public static void addFilterMapping(FilterMapping filterMapping, MergeContext mergeContext) {
+        mergeContext.setAttribute(createFilterMappingKey(filterMapping.getFilterName()), filterMapping);
     }
 }

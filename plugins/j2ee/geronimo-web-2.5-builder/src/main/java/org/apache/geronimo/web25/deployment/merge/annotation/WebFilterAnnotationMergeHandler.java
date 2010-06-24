@@ -28,11 +28,12 @@ import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.webfragment.FilterInitParamMergeHandler;
 import org.apache.geronimo.web25.deployment.merge.webfragment.FilterMappingMergeHandler;
 import org.apache.geronimo.web25.deployment.merge.webfragment.FilterMergeHandler;
-import org.apache.geronimo.xbeans.javaee6.FilterMappingType;
-import org.apache.geronimo.xbeans.javaee6.FilterType;
-import org.apache.geronimo.xbeans.javaee6.IconType;
-import org.apache.geronimo.xbeans.javaee6.ParamValueType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.Dispatcher;
+import org.apache.openejb.jee.FilterMapping;
+import org.apache.openejb.jee.Icon;
+import org.apache.openejb.jee.ParamValue;
+import org.apache.openejb.jee.Text;
+import org.apache.openejb.jee.WebApp;
 
 /**
  * @version $Rev$ $Date$
@@ -40,7 +41,7 @@ import org.apache.geronimo.xbeans.javaee6.WebAppType;
 public class WebFilterAnnotationMergeHandler implements AnnotationMergeHandler {
 
     @Override
-    public void merge(Class<?>[] classes, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void merge(Class<?>[] classes, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
         for (Class<?> cls : classes) {
             if (!Filter.class.isAssignableFrom(cls)) {
                 throw new DeploymentException("The class " + cls.getName() + " with WebFilter annotation must implement javax.servlet.Filter");
@@ -59,62 +60,60 @@ public class WebFilterAnnotationMergeHandler implements AnnotationMergeHandler {
             String[] urlPatterns = valueAttributeConfigured ? webFilter.value() : webFilter.urlPatterns();
             if (FilterMergeHandler.isFilterConfigured(filterName, mergeContext)) {
                 //merge the filter annotation configuration to current web.xml
-                FilterType targetFilter = FilterMergeHandler.getFilter(filterName, mergeContext);
+                org.apache.openejb.jee.Filter targetFilter = FilterMergeHandler.getFilter(filterName, mergeContext);
                 //merge init-param
                 for (WebInitParam webInitParam : webFilter.initParams()) {
                     String paramName = webInitParam.name();
                     if (FilterInitParamMergeHandler.isFilterInitParamConfigured(filterName, paramName, mergeContext)) {
                         continue;
                     }
-                    ParamValueType newParamValue = targetFilter.addNewInitParam();
-                    newParamValue.addNewDescription().setStringValue(webInitParam.description());
-                    newParamValue.addNewParamName().setStringValue(webInitParam.name());
-                    newParamValue.addNewParamValue().setStringValue(webInitParam.value());
+                    ParamValue newParamValue = newParamValue(webInitParam);
+                    targetFilter.getInitParam().add(newParamValue);
                     FilterInitParamMergeHandler.addFilterInitParam(filterName, newParamValue, ElementSource.ANNOTATION, mergeContext.getCurrentJarUrl(), mergeContext);
                 }
             } else {
                 //Create filter element
-                FilterType newFilter = webApp.addNewFilter();
-                newFilter.addNewFilterName().setStringValue(filterName);
-                newFilter.addNewAsyncSupported().setBooleanValue(webFilter.asyncSupported());
+                org.apache.openejb.jee.Filter newFilter = new org.apache.openejb.jee.Filter();
+                webApp.getFilter().add(newFilter);
+                newFilter.setFilterName(filterName);
+                newFilter.setAsyncSupported(webFilter.asyncSupported());
                 if (!webFilter.description().isEmpty()) {
-                    newFilter.addNewDescription().setStringValue(webFilter.description());
+                    newFilter.addDescription(new Text(null, webFilter.description()));
                 }
                 if (!webFilter.displayName().isEmpty()) {
-                    newFilter.addNewDisplayName().setStringValue(webFilter.displayName());
+                    newFilter.addDisplayName(new Text(null, webFilter.displayName()));
                 }
-                newFilter.addNewFilterClass().setStringValue(cls.getName());
+                newFilter.setFilterClass(cls.getName());
                 for (WebInitParam webInitParam : webFilter.initParams()) {
-                    ParamValueType paramValue = newFilter.addNewInitParam();
-                    paramValue.addNewDescription().setStringValue(webInitParam.description());
-                    paramValue.addNewParamName().setStringValue(webInitParam.name());
-                    paramValue.addNewParamValue().setStringValue(webInitParam.value());
+                    newFilter.getInitParam().add(newParamValue(webInitParam));
                 }
                 if (!webFilter.smallIcon().isEmpty() || !webFilter.largeIcon().isEmpty()) {
-                    IconType iconType = newFilter.addNewIcon();
+                    Icon icon = new Icon();
                     if (!webFilter.smallIcon().isEmpty()) {
-                        iconType.addNewSmallIcon().setStringValue(webFilter.smallIcon());
+                        icon.setSmallIcon(webFilter.smallIcon());
                     }
                     if (!webFilter.largeIcon().isEmpty()) {
-                        iconType.addNewLargeIcon().setStringValue(webFilter.largeIcon());
+                        icon.setLargeIcon(webFilter.largeIcon());
                     }
+                    newFilter.getIconMap().put(null, icon);
                 }
                 FilterMergeHandler.addFilter(newFilter, mergeContext);
             }
             //filter-mapping configured in web.xml and web-fragment.xml will override the configurations from annotation
             if (!FilterMappingMergeHandler.isFilterMappingConfigured(filterName, mergeContext)) {
                 //create filter-mapping element
-                FilterMappingType filterMapping = webApp.addNewFilterMapping();
-                filterMapping.addNewFilterName().setStringValue(filterName);
+                FilterMapping filterMapping = new FilterMapping();
+                filterMapping.setFilterName(filterName);
                 for (String servletName : webFilter.servletNames()) {
-                    filterMapping.addNewServletName().setStringValue(servletName);
+                    filterMapping.getServletName().add(servletName);
                 }
                 for (DispatcherType dispatcherType : webFilter.dispatcherTypes()) {
-                    filterMapping.addNewDispatcher().setStringValue(dispatcherType.name());
+                    filterMapping.getDispatcher().add(Dispatcher.fromValue(dispatcherType.name()));
                 }
                 for (String urlPattern : urlPatterns) {
-                    filterMapping.addNewUrlPattern().setStringValue(urlPattern);
+                    filterMapping.getUrlPattern().add(urlPattern);
                 }
+                webApp.getFilterMapping().add(filterMapping);
                 FilterMappingMergeHandler.addFilterMapping(filterMapping, mergeContext);
                 //Set this tag, so that if any following web-fragment.xml has defined the url-patterns explicitly, it could drop the configurations from annotation
                 mergeContext.setAttribute(FilterMappingMergeHandler.createFilterMappingSourceKey(filterName), ElementSource.ANNOTATION);
@@ -122,11 +121,19 @@ public class WebFilterAnnotationMergeHandler implements AnnotationMergeHandler {
         }
     }
 
-    @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public static ParamValue newParamValue(WebInitParam webInitParam) {
+        ParamValue newParamValue = new ParamValue();
+        newParamValue.addDescription(new Text(null,webInitParam.description()));
+        newParamValue.setParamName(webInitParam.name());
+        newParamValue.setParamValue(webInitParam.value());
+        return newParamValue;
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+    }
+
+    @Override
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
     }
 }

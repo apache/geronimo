@@ -22,15 +22,15 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.ResourceRef;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ResourceRefMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class ResourceRefMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     public static final String RESOURCE_REF_NAME_PREFIX = "resource-ref.res-ref-name.";
 
@@ -42,9 +42,9 @@ public class ResourceRefMergeHandler implements WebFragmentMergeHandler<WebFragm
      * b. web.xml file should inherit it from the web-fragment.xml file
      */
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (ResourceRefType srcResourceRef : webFragment.getResourceRefArray()) {
-            String resourceRefName = srcResourceRef.getResRefName().getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (ResourceRef srcResourceRef : webFragment.getResourceRef()) {
+            String resourceRefName = srcResourceRef.getResRefName();
             String resourceRefKey = createResourceRefKey(resourceRefName);
             MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(resourceRefKey);
             if (mergeItem != null) {
@@ -52,43 +52,43 @@ public class ResourceRefMergeHandler implements WebFragmentMergeHandler<WebFragm
                     throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("resource-ref", resourceRefName, mergeItem.getBelongedURL(), mergeContext.getCurrentJarUrl()));
                 } else if (mergeItem.isFromWebXml() && !isResourceRefInjectTargetsConfiguredInInitialWebXML(resourceRefName, mergeContext)) {
                     //Merge InjectTarget
-                    ResourceRefType resourceRef = (ResourceRefType) mergeItem.getValue();
-                    for (InjectionTargetType injectTarget : srcResourceRef.getInjectionTargetArray()) {
-                        String resourceRefInjectTargetKey = createResourceRefInjectTargetKey(resourceRefName, injectTarget.getInjectionTargetClass().getStringValue(), injectTarget
-                                .getInjectionTargetName().getStringValue());
+                    ResourceRef resourceRef = (ResourceRef) mergeItem.getValue();
+                    for (InjectionTarget injectTarget : srcResourceRef.getInjectionTarget()) {
+                        String resourceRefInjectTargetKey = createResourceRefInjectTargetKey(resourceRefName, injectTarget.getInjectionTargetClass(), injectTarget
+                                .getInjectionTargetName());
                         if (!mergeContext.containsAttribute(resourceRefInjectTargetKey)) {
-                            resourceRef.addNewInjectionTarget().set(injectTarget);
+                            resourceRef.getInjectionTarget().add(injectTarget);
                             mergeContext.setAttribute(resourceRefInjectTargetKey, Boolean.TRUE);
                         }
                     }
                 }
             } else {
-                ResourceRefType targetResourceRef = (ResourceRefType) webApp.addNewResourceRef().set(srcResourceRef);
-                mergeContext.setAttribute(resourceRefKey, new MergeItem(targetResourceRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
-                for (InjectionTargetType injectionTarget : targetResourceRef.getInjectionTargetArray()) {
-                    mergeContext.setAttribute(createResourceRefInjectTargetKey(resourceRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                            .getStringValue()), Boolean.TRUE);
+                webApp.getResourceRef().add(srcResourceRef);
+                mergeContext.setAttribute(resourceRefKey, new MergeItem(srcResourceRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
+                for (InjectionTarget injectionTarget : srcResourceRef.getInjectionTarget()) {
+                    mergeContext.setAttribute(createResourceRefInjectTargetKey(resourceRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                            ), Boolean.TRUE);
                 }
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (ResourceRefType resourceRef : webApp.getResourceRefArray()) {
-            String resourceRefName = resourceRef.getResRefName().getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (ResourceRef resourceRef : webApp.getResourceRef()) {
+            String resourceRefName = resourceRef.getResRefName();
             mergeContext.setAttribute(createResourceRefKey(resourceRefName), new MergeItem(resourceRef, null, ElementSource.WEB_XML));
             //Create an attribute tag to indicate whether injectTarget is configured in web.xml file
-            if (resourceRef.getInjectionTargetArray().length > 0) {
+            if (!resourceRef.getInjectionTarget().isEmpty()) {
                 mergeContext.setAttribute(createResourceRefInjectTargetConfiguredInWebXMLKey(resourceRefName), Boolean.TRUE);
             }
-            for (InjectionTargetType injectionTarget : resourceRef.getInjectionTargetArray()) {
-                mergeContext.setAttribute(createResourceRefInjectTargetKey(resourceRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                        .getStringValue()), Boolean.TRUE);
+            for (InjectionTarget injectionTarget : resourceRef.getInjectionTarget()) {
+                mergeContext.setAttribute(createResourceRefInjectTargetKey(resourceRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                        ), Boolean.TRUE);
             }
         }
     }

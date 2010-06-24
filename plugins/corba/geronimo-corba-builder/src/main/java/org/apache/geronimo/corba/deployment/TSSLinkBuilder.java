@@ -22,11 +22,11 @@ package org.apache.geronimo.corba.deployment;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.Collections;
 
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.corba.TSSLinkGBean;
+import org.apache.geronimo.corba.xbeans.csiv2.tss.TSSTssDocument;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -40,8 +40,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
-import org.apache.geronimo.corba.TSSLinkGBean;
-import org.apache.geronimo.corba.xbeans.csiv2.tss.TSSTssDocument;
+import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlString;
@@ -62,7 +61,7 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
         super(defaultEnvironment);
     }
 
-    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) {
         return true;
 //        return hasTssLinks(plan);
     }
@@ -72,7 +71,7 @@ public class TSSLinkBuilder extends AbstractNamingBuilder {
 //                plan.selectChildren(TSS_QNAME).length > 0);
 //    }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
         if (plan == null) {
             return;
         }

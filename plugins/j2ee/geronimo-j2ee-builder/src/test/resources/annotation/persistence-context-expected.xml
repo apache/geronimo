@@ -21,11 +21,11 @@
    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
    version="2.5" >
 
-    <display-name>Empty web application</display-name>
     <description>Empty web application</description>
+    <display-name>Empty web application</display-name>
     <persistence-context-ref>
         <persistence-context-ref-name>PersistenceContext1</persistence-context-ref-name>
-        <persistence-context-type>Transaction</persistence-context-type>
+        <persistence-context-type>Transactional</persistence-context-type>
         <persistence-property>
             <name>property1</name>
             <value>value1</value>
@@ -51,7 +51,7 @@
     <persistence-context-ref>
         <persistence-context-ref-name>PersistenceContext4</persistence-context-ref-name>
         <persistence-unit-name>unitName5</persistence-unit-name>
-        <persistence-context-type>Transaction</persistence-context-type>
+        <persistence-context-type>Transactional</persistence-context-type>
         <persistence-property>
             <name>property9</name>
             <value>value9</value>
@@ -75,7 +75,7 @@
     </persistence-context-ref>
     <persistence-context-ref>
         <persistence-context-ref-name>PersistenceContext3</persistence-context-ref-name>
-        <persistence-context-type>Transaction</persistence-context-type>
+        <persistence-context-type>Transactional</persistence-context-type>
         <persistence-property>
             <name>property5</name>
             <value>value5</value>

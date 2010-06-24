@@ -33,22 +33,17 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.resource.ResourceException;
 import javax.xml.namespace.QName;
-
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -65,19 +60,18 @@ import org.apache.geronimo.naming.reference.URLReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.javaee6.DescriptionType;
-import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.JndiNameType;
-import org.apache.geronimo.xbeans.javaee6.ResAuthType;
-import org.apache.geronimo.xbeans.javaee6.ResSharingScopeType;
-import org.apache.geronimo.xbeans.javaee6.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee6.XsdStringType;
-import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.ResAuth;
+import org.apache.openejb.jee.ResSharingScope;
+import org.apache.openejb.jee.ResourceRef;
+import org.apache.openejb.jee.Text;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.omg.CORBA.ORB;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -97,9 +91,9 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
     private final SingleElementCollection<CorbaGBeanNameSource> corbaGBeanNameSourceCollection;
 
     public ResourceRefBuilder(
-            @ParamAttribute(name = "defaultEnvironment")Environment defaultEnvironment,
-            @ParamAttribute(name = "corbaEnvironment")Environment corbaEnvironment,
-            @ParamAttribute(name = "eeNamespaces")String[] eeNamespaces,
+            @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+            @ParamAttribute(name = "corbaEnvironment") Environment corbaEnvironment,
+            @ParamAttribute(name = "eeNamespaces") String[] eeNamespaces,
             @ParamReference(name = "CorbaGBeanNameSource", namingType = "") Collection<CorbaGBeanNameSource> corbaGBeanNameSourceCollection) {
         super(defaultEnvironment);
 
@@ -108,38 +102,38 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         this.corbaGBeanNameSourceCollection = new SingleElementCollection<CorbaGBeanNameSource>(corbaGBeanNameSourceCollection);
     }
 
-    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
-        return specDD.selectChildren(resourceRefQNameSet).length > 0;
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) {
+        return !specDD.getResourceRef().isEmpty();
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> componentContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> componentContext) throws DeploymentException {
 
         // Discover and process any @Resource annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
 
             // Process all the annotations for this naming builder type
             try {
-                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder(), ResourceRefProcessor.INSTANCE);
+                ResourceAnnotationHelper.processAnnotations(specDD, module.getClassFinder(), ResourceRefProcessor.INSTANCE);
             }
             catch (Exception e) {
                 log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
             }
         }
 
-        List<ResourceRefType> resourceRefsUntyped = convert(specDD.selectChildren(resourceRefQNameSet), J2EE_CONVERTER, ResourceRefType.class, ResourceRefType.type);
+        Collection<ResourceRef> resourceRefsUntyped = specDD.getResourceRef();
         XmlObject[] gerResourceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map<String, GerResourceRefType> refMap = mapResourceRefs(gerResourceRefsUntyped);
         List<String> unresolvedRefs = new ArrayList<String>();
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        for (ResourceRefType resourceRef : resourceRefsUntyped) {
+        for (ResourceRef resourceRef : resourceRefsUntyped) {
             String name = getStringValue(resourceRef.getResRefName());
             if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
                 continue;
             }
-            addInjections(name, resourceRef.getInjectionTargetArray(), componentContext);
+            addInjections(name, resourceRef.getInjectionTarget(), componentContext);
             String type = getStringValue(resourceRef.getResType());
-            type = inferAndCheckType(module, bundle, resourceRef.getInjectionTargetArray(), name, type);
+            type = inferAndCheckType(module, bundle, resourceRef.getInjectionTarget(), name, type);
             GerResourceRefType gerResourceRef = refMap.get(name);
             log.debug("trying to resolve " + name + ", type " + type + ", resourceRef " + gerResourceRef);
 
@@ -254,26 +248,26 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         return null;
     }
 
-    public void setResourceEnvironment(ResourceEnvironmentBuilder builder, XmlObject[] resourceRefs, GerResourceRefType[] gerResourceRefs) throws DeploymentException {
-        List<ResourceRefType> resourceRefList = convert(resourceRefs, J2EE_CONVERTER, ResourceRefType.class, ResourceRefType.type);
+    @Override
+    public void setResourceEnvironment(ResourceEnvironmentBuilder builder, Collection<ResourceRef> resourceRefList, GerResourceRefType[] gerResourceRefs) throws DeploymentException {
         Map refMap = mapResourceRefs(gerResourceRefs);
         Set<AbstractNameQuery> unshareableResources = new HashSet<AbstractNameQuery>();
         Set<AbstractNameQuery> applicationManagedSecurityResources = new HashSet<AbstractNameQuery>();
-        for (ResourceRefType resourceRefType : resourceRefList) {
+        for (ResourceRef resourceRef : resourceRefList) {
 
-            String type = resourceRefType.getResType().getStringValue().trim();
+            String type = resourceRef.getResType().trim();
 
             if (!URL.class.getName().equals(type)
                     && !"javax.mail.Session".equals(type)
                     && !JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
 
-                GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRefType.getResRefName().getStringValue());
-                AbstractNameQuery containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, null, gerResourceRef);
+                GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRef.getResRefName());
+                AbstractNameQuery containerId = getResourceContainerId(getStringValue(resourceRef.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, null, gerResourceRef);
 
-                if ("Unshareable".equals(getStringValue(resourceRefType.getResSharingScope()))) {
+                if (ResSharingScope.UNSHAREABLE.equals(resourceRef.getResSharingScope())) {
                     unshareableResources.add(containerId);
                 }
-                if ("Application".equals(getStringValue(resourceRefType.getResAuth()))) {
+                if (ResAuth.APPLICATION.equals(resourceRef.getResAuth())) {
                     applicationManagedSecurityResources.add(containerId);
                 }
             }
@@ -327,7 +321,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         private ResourceRefProcessor() {
         }
 
-        public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) {
+        public boolean processResource(JndiConsumer annotatedApp, Resource annotation, Class cls, Method method, Field field) {
             log.debug("processResource( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
                     "[annotation] " + annotation.toString() + "," + '\n' +
                     "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
@@ -348,13 +342,13 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 log.debug("processResource(): <resource-ref> found");
 
                 boolean exists = false;
-                ResourceRefType[] resourceRefs = annotatedApp.getResourceRefArray();
-                for (ResourceRefType resourceRef : resourceRefs) {
-                    if (resourceRef.getResRefName().getStringValue().trim().equals(resourceName)) {
+                Collection<ResourceRef> resourceRefs = annotatedApp.getResourceRef();
+                for (ResourceRef resourceRef : resourceRefs) {
+                    if (resourceRef.getResRefName().trim().equals(resourceName)) {
                         if (method != null || field != null) {
-                            InjectionTargetType[] targets = resourceRef.getInjectionTargetArray();
+                            List<InjectionTarget> targets = resourceRef.getInjectionTarget();
                             if (!hasTarget(method, field, targets)) {
-                                configureInjectionTarget(resourceRef.addNewInjectionTarget(), method, field);
+                                resourceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                             }
                         }
                         exists = true;
@@ -367,25 +361,22 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                         log.debug("processResource(): Does not exist in DD: " + resourceName);
 
                         // Doesn't exist in deployment descriptor -- add new
-                        ResourceRefType resourceRef = annotatedApp.addNewResourceRef();
+                        ResourceRef resourceRef = new ResourceRef();
 
                         //------------------------------------------------------------------------------
                         // <resource-ref> required elements:
                         //------------------------------------------------------------------------------
 
                         // resource-ref-name
-                        JndiNameType resourceRefName = resourceRef.addNewResRefName();
-                        resourceRefName.setStringValue(resourceName);
+                        resourceRef.setResRefName(resourceName);
 
-                        if (!resourceType.equals("")) {
+                        if (!resourceType.isEmpty()) {
                             // resource-ref-type
-                            FullyQualifiedClassType qualifiedClass = resourceRef.addNewResType();
-                            qualifiedClass.setStringValue(resourceType);
+                            resourceRef.setResType(resourceType);
                         }
                         if (method != null || field != null) {
                             // injectionTarget
-                            InjectionTargetType injectionTarget = resourceRef.addNewInjectionTarget();
-                            configureInjectionTarget(injectionTarget, method, field);
+                            resourceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                         }
 
                         //------------------------------------------------------------------------------
@@ -395,36 +386,31 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                         // description
                         String descriptionAnnotation = annotation.description();
                         if (!descriptionAnnotation.equals("")) {
-                            DescriptionType description = resourceRef.addNewDescription();
-                            description.setStringValue(descriptionAnnotation);
+                            resourceRef.setDescriptions(new Text[]{new Text(null, descriptionAnnotation)});
                         }
 
                         // authentication
                         if (annotation.authenticationType() == Resource.AuthenticationType.CONTAINER) {
-                            ResAuthType resAuth = resourceRef.addNewResAuth();
-                            resAuth.setStringValue("Container");
+                            resourceRef.setResAuth(ResAuth.CONTAINER);
                         } else if (annotation.authenticationType() == Resource.AuthenticationType.APPLICATION) {
-                            ResAuthType resAuth = resourceRef.addNewResAuth();
-                            resAuth.setStringValue("Application");
+                            resourceRef.setResAuth(ResAuth.APPLICATION);
                         }
 
                         // sharing scope
-                        ResSharingScopeType resScope = resourceRef.addNewResSharingScope();
-                        resScope.setStringValue(annotation.shareable() ? "Shareable" : "Unshareable");
+                        resourceRef.setResSharingScope(annotation.shareable() ? ResSharingScope.SHAREABLE : ResSharingScope.UNSHAREABLE);
 
                         // mappedName
                         String mappdedNameAnnotation = annotation.mappedName();
                         if (!mappdedNameAnnotation.equals("")) {
-                            XsdStringType mappedName = resourceRef.addNewMappedName();
-                            mappedName.setStringValue(mappdedNameAnnotation);
+                            resourceRef.setMappedName(mappdedNameAnnotation);
                         }
 
                         // lookup
                         String lookup = annotation.lookup();
                         if (!lookup.equals("")) {
-                            XsdStringType lookupName = resourceRef.addNewLookupName();
-                            lookupName.setStringValue(lookup);
+                            resourceRef.setLookupName(lookup);
                         }
+                        annotatedApp.getResourceRef().add(resourceRef);
                     }
                     catch (Exception anyException) {
                         log.debug("ResourceRefBuilder: Exception caught while processing <resource-ref>");

@@ -26,6 +26,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xbean.finder.AbstractFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
      * Update the deployment descriptor from Resource and Resources annotations
      * @throws Exception if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, AbstractFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
+    public static void processAnnotations(JndiConsumer annotatedApp, AbstractFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
         if (annotatedApp != null) {
             if (classFinder.isAnnotationPresent(Resources.class)) {
                 processResources(annotatedApp, classFinder, resourceProcessor);
@@ -90,7 +91,7 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
      * @param resourceProcessor
      * @throws Exception
      */
-    private static void processResource(AnnotatedApp annotatedApp, AbstractFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
+    private static void processResource(JndiConsumer annotatedApp, AbstractFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
         log.debug("processResource(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Class> classeswithResource = classFinder.findAnnotatedClasses(Resource.class);
@@ -122,7 +123,7 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
         }
 
         // Validate deployment descriptor to ensure it's still okay
-        validateDD(annotatedApp);
+//        validateDD(annotatedApp);
 
         log.debug("processResource(): Exit: AnnotatedApp: " + annotatedApp.toString());
     }
@@ -136,7 +137,7 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
      * @param resourceProcessor
      * @throws Exception
      */
-    private static void processResources(AnnotatedApp annotatedApp, AbstractFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
+    private static void processResources(JndiConsumer annotatedApp, AbstractFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
         log.debug("processResources(): Entry");
 
         List<Class> classeswithResources = classFinder.findAnnotatedClasses(Resources.class);
@@ -159,7 +160,7 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
 
     public abstract static class ResourceProcessor extends AnnotationHelper {
 
-        public abstract boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) throws DeploymentException;
+        public abstract boolean processResource(JndiConsumer jndiConsumer, Resource annotation, Class cls, Method method, Field field) throws DeploymentException;
 
         /**
          * Resource name:

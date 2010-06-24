@@ -22,43 +22,47 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.ErrorPageType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.ErrorPage;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ErrorPageMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class ErrorPageMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (ErrorPageType errorPage : webFragment.getErrorPageArray()) {
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (ErrorPage errorPage : webFragment.getErrorPage()) {
             MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(createErrorPageKey(errorPage));
             if (mergeItem != null) {
                 if (mergeItem.getSourceType().equals(ElementSource.WEB_XML)) {
                     continue;
-                } else if (mergeItem.getValue().equals(errorPage.getLocation().getStringValue())) {
+                } else if (mergeItem.getValue().equals(errorPage.getLocation())) {
                     boolean isErrorCodeConfigured = errorPage.getErrorCode() != null;
-                    throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage("error-page", isErrorCodeConfigured ? "error-code" : "exception-type", isErrorCodeConfigured ? errorPage
-                            .getErrorCode().getStringValue() : errorPage.getExceptionType().getStringValue(), "location", (String) mergeItem.getValue(), mergeItem.getBelongedURL(), errorPage
-                            .getLocation().getStringValue(), mergeContext.getCurrentJarUrl()));
+                    throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage("error-page",
+                            isErrorCodeConfigured ? "error-code" : "exception-type",
+                            isErrorCodeConfigured ? "" + errorPage.getErrorCode() : errorPage.getExceptionType(),
+                            "location",
+                            (String) mergeItem.getValue(), mergeItem.getBelongedURL(),
+                            errorPage.getLocation(),
+                            mergeContext.getCurrentJarUrl()));
                 }
             } else {
-                webApp.addNewErrorPage().set(errorPage);
-                mergeContext.setAttribute(createErrorPageKey(errorPage), new MergeItem(errorPage.getLocation().getStringValue(), mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
+                webApp.getErrorPage().add(errorPage);
+                mergeContext.setAttribute(createErrorPageKey(errorPage), new MergeItem(errorPage.getLocation(), mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (ErrorPageType errorPage : webApp.getErrorPageArray()) {
-            context.setAttribute(createErrorPageKey(errorPage), new MergeItem(errorPage.getLocation().getStringValue(), null, ElementSource.WEB_XML));
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (ErrorPage errorPage : webApp.getErrorPage()) {
+            context.setAttribute(createErrorPageKey(errorPage), new MergeItem(errorPage.getLocation(), null, ElementSource.WEB_XML));
         }
     }
 
@@ -70,7 +74,7 @@ public class ErrorPageMergeHandler implements WebFragmentMergeHandler<WebFragmen
         return "error-page.exception-type." + exceptionType;
     }
 
-    public static final String createErrorPageKey(ErrorPageType errorPage) {
-        return errorPage.getErrorCode() == null ? createExceptionTypeKey(errorPage.getExceptionType().getStringValue()) : createErrorCodeKey(errorPage.getErrorCode().getStringValue());
+    public static final String createErrorPageKey(ErrorPage errorPage) {
+        return errorPage.getErrorCode() == null ? createExceptionTypeKey(errorPage.getExceptionType()) : createErrorCodeKey("" + errorPage.getErrorCode());
     }
 }

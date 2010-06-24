@@ -27,12 +27,12 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.Servlet;
+import org.apache.openejb.jee.ServletMapping;
+import org.apache.openejb.jee.WebApp;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.osgi.framework.Bundle;
 
 public class AdvancedWARWebServiceFinder implements WebServiceFinder {
 
@@ -52,14 +52,14 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
                                          Map<String, PortInfo> map)
         throws DeploymentException {
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        WebAppType webApp = (WebAppType) module.getSpecDD();
+        WebApp webApp = (WebApp) module.getSpecDD();
 
-        if (webApp.isSetMetadataComplete()) {
+        if (webApp.isMetadataComplete()) {
             // full web.xml, just examine all servlet entries for web services
 
-            ServletType[] servletTypes = webApp.getServletArray();
-            for (ServletType servletType : servletTypes) {
-                String servletName = servletType.getServletName().getStringValue().trim();
+            List<Servlet> servletTypes = webApp.getServlet();
+            for (Servlet servletType : servletTypes) {
+                String servletName = servletType.getServletName().trim();
                 PortInfo portInfo = getPortInfo(servletType, bundle, portLocations);
                 if (portInfo != null) {
                     LOG.debug("Found POJO Web Service: {}", servletName);
@@ -87,17 +87,19 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
 
                     LOG.debug("POJO Web Service class {} is not mapped to any servlet", service.getName());
 
-                    ServletType servlet = webApp.addNewServlet();
-                    servlet.addNewServletName().setStringValue(service.getName());
-                    servlet.addNewServletClass().setStringValue(service.getName());
+                    Servlet servlet = new Servlet();
+                    servlet.setServletName(service.getName());
+                    servlet.setServletClass(service.getName());
+                    webApp.getServlet().add(servlet);
 
                     String location = (String)portLocations.get(service.getName());
                     if (location == null) {
                         // add new <servlet-mapping/> element
                         location = "/" + JAXWSUtils.getServiceName(service);
-                        ServletMappingType servletMapping = webApp.addNewServletMapping();
-                        servletMapping.addNewServletName().setStringValue(service.getName());
-                        servletMapping.addNewUrlPattern().setStringValue(location);
+                        ServletMapping servletMapping = new ServletMapping();
+                        servletMapping.setServletName(service.getName());
+                        servletMapping.getUrlPattern().add(location);
+                        webApp.getServletMapping().add(servletMapping);
                     } else {
                         // weird, there was no servlet entry for this class but
                         // servlet-mapping exists
@@ -119,9 +121,9 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
             }
 
             // double check servlets in case we missed something
-            ServletType[] servletTypes = webApp.getServletArray();
-            for (ServletType servletType : servletTypes) {
-                String servletName = servletType.getServletName().getStringValue().trim();
+            List<Servlet> servletTypes = webApp.getServlet();
+            for (Servlet servletType : servletTypes) {
+                String servletName = servletType.getServletName().trim();
                 if (map.get(servletName) == null) {
                     PortInfo portInfo = getPortInfo(servletType, bundle, portLocations);
                     if (portInfo != null) {
@@ -133,16 +135,16 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
         }
     }
 
-    private PortInfo getPortInfo(ServletType servletType,
+    private PortInfo getPortInfo(Servlet servletType,
                                  Bundle bundle,
                                  Map portLocations) throws DeploymentException {
         PortInfo portInfo = null;
-        if (servletType.isSetServletClass()) {
-            String servletClassName = servletType.getServletClass().getStringValue().trim();
+        if (servletType.getServletClass() != null) {
+            String servletClassName = servletType.getServletClass().trim();
             try {
                 Class servletClass = bundle.loadClass(servletClassName);
                 if (JAXWSUtils.isWebService(servletClass)) {
-                    String servletName = servletType.getServletName().getStringValue().trim();
+                    String servletName = servletType.getServletName().trim();
                     portInfo = createPortInfo(servletName, portLocations);
                 }
             } catch (ClassNotFoundException e) {
@@ -165,15 +167,15 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
     /*
      * Create servlet-class to servlet-names mapping
      */
-    private Map<String, List<String>> createClassServetMap(WebAppType webApp) {
+    private Map<String, List<String>> createClassServetMap(WebApp webApp) {
         Map<String, List<String>> map = new HashMap<String, List<String>>();
 
-        ServletType[] servletTypes = webApp.getServletArray();
+        List<Servlet> servletTypes = webApp.getServlet();
         if (servletTypes != null) {
-            for (ServletType servletType : servletTypes) {
-                String servletName = servletType.getServletName().getStringValue().trim();
-                if (servletType.isSetServletClass()) {
-                    String servletClassName = servletType.getServletClass().getStringValue().trim();
+            for (Servlet servletType : servletTypes) {
+                String servletName = servletType.getServletName().trim();
+                if (servletType.getServletClass() != null) {
+                    String servletClassName = servletType.getServletClass().trim();
                     List<String> servlets = map.get(servletClassName);
                     if (servlets == null) {
                         servlets = new ArrayList<String>();

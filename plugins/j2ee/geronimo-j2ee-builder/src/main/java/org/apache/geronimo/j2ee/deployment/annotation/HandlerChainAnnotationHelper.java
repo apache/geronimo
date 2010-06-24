@@ -17,27 +17,22 @@
 
 package org.apache.geronimo.j2ee.deployment.annotation;
 
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 
 import javax.jws.HandlerChain;
 import javax.xml.ws.WebServiceRef;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
-import org.apache.geronimo.xbeans.javaee.PortComponentHandlerType;
-import org.apache.geronimo.xbeans.javaee6.DescriptionType;
-import org.apache.geronimo.xbeans.javaee6.HandlerChainType;
-import org.apache.geronimo.xbeans.javaee6.HandlerChainsType;
-import org.apache.geronimo.xbeans.javaee6.HandlerType;
-import org.apache.geronimo.xbeans.javaee6.ParamValueType;
-import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee6.XsdQNameType;
+import org.apache.openejb.jee.HandlerChains;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.ServiceRef;
 import org.apache.xbean.finder.AbstractFinder;
-import org.apache.xmlbeans.XmlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +75,7 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
      * @param classFinder ClassFinder containing classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    public static void processAnnotations(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         if ( annotatedApp != null && classFinder.isAnnotationPresent(HandlerChain.class)) {
             processHandlerChain(annotatedApp, classFinder);
         }
@@ -94,7 +89,7 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
      * @param classFinder ClassFinder containing classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processHandlerChain(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processHandlerChain(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processHandlerChain(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Method> methodswithHandlerChain = classFinder.findAnnotatedMethods(HandlerChain.class);
@@ -118,7 +113,7 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
         }
 
         // Validate deployment descriptor to ensure it's still okay
-        validateDD(annotatedApp);
+//        validateDD(annotatedApp);
 
         log.debug("processHandlerChain(): Exit: AnnotatedApp: " + annotatedApp.toString());
     }
@@ -146,7 +141,7 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
      * @param method     Method name with the @HandlerChain annotation
      * @param field      Field name with the @HandlerChain annotation
      */
-    private static void addHandlerChain(AnnotatedApp annotatedApp, final HandlerChain annotation, Class cls, Method method, Field field) {
+    private static void addHandlerChain(JndiConsumer annotatedApp, final HandlerChain annotation, Class cls, Method method, Field field) {
         log.debug("addHandlerChain( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
                 "[annotation] " + annotation.toString() + "," + '\n' +
                 "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
@@ -208,10 +203,10 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
 
                 if (url != null) {
                     // Find the <service-ref> entry this handler chain belongs to and insert it
-                    ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
+                    Collection<ServiceRef> serviceRefs = annotatedApp.getServiceRef();
                     boolean exists = false;
-                    for ( ServiceRefType serviceRef : serviceRefs ) {
-                        if ( serviceRef.getServiceRefName().getStringValue().trim().equals(serviceRefName) && !serviceRef.isSetHandlerChains()) {
+                    for ( ServiceRef serviceRef : serviceRefs ) {
+                        if ( serviceRef.getServiceRefName().trim().equals(serviceRefName) && serviceRef.getHandlerChains() == null) {
                             insertHandlers(serviceRef, url);
                             exists = true;
                             break;
@@ -252,7 +247,7 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
         return url;
     }
     
-    public static void insertHandlers(ServiceRefType serviceRef, HandlerChain annotation, Class clazz) {
+    public static void insertHandlers(ServiceRef serviceRef, HandlerChain annotation, Class clazz) {
         String handlerChainFile = annotation.file();
         log.debug("handlerChainFile: " + handlerChainFile);
         if (handlerChainFile == null || handlerChainFile.trim().length() == 0) {
@@ -275,69 +270,16 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
         }
     }
     
-    public static void insertHandlers(ServiceRefType serviceRef, URL url) throws Exception {
-        // Bind the XML handler chain file to an XMLBeans document
-        XmlObject xml = XmlBeansUtil.parse(url, null);
-        HandlerChainsDocument hcd = (HandlerChainsDocument) XmlBeansUtil.typedCopy(xml, HandlerChainsDocument.type);
-        org.apache.geronimo.xbeans.javaee.HandlerChainsType handlerChains = hcd.getHandlerChains();
-
-        HandlerChainsType  serviceRefHandlerChains = serviceRef.addNewHandlerChains();
-        for (org.apache.geronimo.xbeans.javaee.HandlerChainType handlerChain : handlerChains.getHandlerChainArray()) {
-            HandlerChainType serviceRefHandlerChain = serviceRefHandlerChains.addNewHandlerChain();
-            if (handlerChain.getPortNamePattern() != null) {
-                serviceRefHandlerChain.setPortNamePattern(handlerChain.getPortNamePattern());
-            }
-            if (handlerChain.getServiceNamePattern() != null) {
-                serviceRefHandlerChain.setServiceNamePattern(handlerChain.getServiceNamePattern());
-            }
-            if (handlerChain.getProtocolBindings() != null) {
-                serviceRefHandlerChain.setProtocolBindings(handlerChain.getProtocolBindings());
-            }
-            for (PortComponentHandlerType srcHandler : handlerChain.getHandlerArray()) {
-                HandlerType serviceRefHandler = serviceRefHandlerChain.addNewHandler();
-                serviceRefHandler.setId(srcHandler.getId());
-                //Copy HandlerName
-                org.apache.geronimo.xbeans.javaee.String srcHandlerName = srcHandler.getHandlerName();
-                org.apache.geronimo.xbeans.javaee6.String desHandlerName = serviceRefHandler.addNewHandlerName();
-                desHandlerName.setStringValue(srcHandlerName.getStringValue());
-                desHandlerName.setId(srcHandlerName.getId());
-                //Copy HandlerClass
-                org.apache.geronimo.xbeans.javaee.String srcHandlerClass = srcHandler.getHandlerClass();
-                org.apache.geronimo.xbeans.javaee6.String desHandlerClass = serviceRefHandler.addNewHandlerClass();
-                desHandlerClass.setId(srcHandlerClass.getId());
-                desHandlerClass.setStringValue(srcHandlerClass.getStringValue());
-                //Copy DescriptionArray
-                for (org.apache.geronimo.xbeans.javaee.DescriptionType srcDescription : srcHandler.getDescriptionArray()) {
-                    DescriptionType desDescription = serviceRefHandler.addNewDescription();
-                    desDescription.setStringValue(srcDescription.getStringValue());
-                    desDescription.setId(srcDescription.getId());
-                }
-                //Copy InitParamArray
-                for (org.apache.geronimo.xbeans.javaee.ParamValueType srcParamValue : srcHandler.getInitParamArray()) {
-                    ParamValueType desParamValue = serviceRefHandler.addNewInitParam();
-                    srcParamValue.setId(desParamValue.getId());
-                    desParamValue.addNewParamName().setStringValue(srcParamValue.getParamName().getStringValue());
-                    desParamValue.addNewParamValue().setStringValue(srcParamValue.getParamValue().getStringValue());
-                    for (org.apache.geronimo.xbeans.javaee.DescriptionType srcDescription : srcParamValue.getDescriptionArray()) {
-                        DescriptionType desDescription = desParamValue.addNewDescription();
-                        desDescription.setId(srcDescription.getId());
-                        desDescription.setStringValue(srcDescription.getStringValue());
-                    }
-                }
-                //Copy SoapHeaderArray
-                for (org.apache.geronimo.xbeans.javaee.XsdQNameType srcSOAPHeader : srcHandler.getSoapHeaderArray()) {
-                    XsdQNameType desSOAPHeader = serviceRefHandler.addNewSoapHeader();
-                    desSOAPHeader.setId(srcSOAPHeader.getId());
-                    desSOAPHeader.setQNameValue(srcSOAPHeader.getQNameValue());
-                }
-                //Copy SoapRoleArray
-                for (org.apache.geronimo.xbeans.javaee.String srcSOAPRole : srcHandler.getSoapRoleArray()) {
-                    org.apache.geronimo.xbeans.javaee6.String desSOAPRole = serviceRefHandler.addNewSoapRole();
-                    desSOAPRole.setId(srcSOAPRole.getId());
-                    desSOAPRole.setStringValue(srcSOAPRole.getStringValue());
-                }
-            }
+    public static void insertHandlers(ServiceRef serviceRef, URL url) throws Exception {
+        HandlerChains handlerChains;
+        InputStream in = url.openStream();
+        try {
+            handlerChains = (HandlerChains) JaxbJavaee.unmarshal(HandlerChains.class, in);
+         } finally {
+            in.close();
         }
+
+        serviceRef.setHandlerChains(handlerChains);
     }
 
 }

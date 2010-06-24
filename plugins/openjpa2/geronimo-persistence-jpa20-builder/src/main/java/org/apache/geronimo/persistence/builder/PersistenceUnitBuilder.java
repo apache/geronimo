@@ -29,13 +29,16 @@ import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.DeployableBundle;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -53,13 +56,11 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.xbeans.persistence20.PersistenceDocument;
-import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
+import org.apache.openejb.jee.JAXBContextFactory;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.Persistence;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
 import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -85,7 +86,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
     };
 
-    private static final QName PERSISTENCE_QNAME = PersistenceDocument.type.getDocumentElementName();
+    private static final QName PERSISTENCE_QNAME = new QName("http://java.sun.com/xml/ns/persistence", "persistence");
 
     private final Environment defaultEnvironment;
     private final String defaultPersistenceProviderClassName;
@@ -132,15 +133,15 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         EARContext moduleContext = module.getEarContext();
         XmlObject[] raws = container.selectChildren(PERSISTENCE_QNAME);
 
-        Map<String, PersistenceDocument.Persistence.PersistenceUnit> overrides = new HashMap<String, PersistenceDocument.Persistence.PersistenceUnit>();
+        Map<String, Persistence.PersistenceUnit> overrides = new HashMap<String, Persistence.PersistenceUnit>();
         try {
             for (XmlObject raw : raws) {
-                PersistenceDocument.Persistence persistence = convertToPersistenceUnit(raw.copy());
-                for (PersistenceDocument.Persistence.PersistenceUnit unit : persistence.getPersistenceUnitArray()) {
+                Persistence persistence = fromXmlObject(raw);
+                for (Persistence.PersistenceUnit unit : persistence.getPersistenceUnit()) {
                     overrides.put(unit.getName().trim(), unit);
                 }
             }
-        } catch (XmlException e) {
+        } catch (JAXBException e) {
             throw new DeploymentException("Parse Persistence configuration file failed", e);
         }
         try {
@@ -182,14 +183,15 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             for (Map.Entry<URL, String> entry : persistenceURLs.entrySet()) {
                 URL persistenceUrl = entry.getKey();
                 String persistenceLocation = entry.getValue();
-                PersistenceDocument persistenceDocument;
+                Persistence persistence;
+                InputStream in = persistenceUrl.openStream();
                 try {
-                    XmlObject xmlObject = XmlBeansUtil.parse(persistenceUrl, new BundleClassLoader(moduleContext.getDeploymentBundle()));
-                    persistenceDocument = convertToPersistenceDocument(xmlObject);
-                } catch (XmlException e) {
+                    persistence = (Persistence) JaxbJavaee.unmarshal(Persistence.class, in);
+                } catch (JAXBException e) {
                     throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
+                } finally {
+                    in.close();
                 }
-                PersistenceDocument.Persistence persistence = persistenceDocument.getPersistence();
                 buildPersistenceUnits(persistence, overrides, module, persistenceLocation);
                 knownPersistenceUrls.add(persistenceUrl);
             }
@@ -197,7 +199,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             throw new DeploymentException("Could not look for META-INF/persistence.xml files", e);
         }
 
-        for (PersistenceDocument.Persistence.PersistenceUnit persistenceUnit : overrides.values()) {
+        for (Persistence.PersistenceUnit persistenceUnit : overrides.values()) {
             GBeanData data = installPersistenceUnitGBean(persistenceUnit, module, module.getTargetPath());
             respectExcludeUnlistedClasses(data);
         }
@@ -206,50 +208,9 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
     }
 
-    protected PersistenceDocument convertToPersistenceDocument(XmlObject xmlObject) throws XmlException {
-        XmlCursor cursor = null;
-        try {
-            cursor = xmlObject.newCursor();
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
-            XmlObject result = xmlObject.changeType(PersistenceDocument.type);
-            XmlBeansUtil.validateDD(result);
-            return (PersistenceDocument) result;
-        } finally {
-            if (cursor != null) {
-                try {
-                    cursor.dispose();
-                } catch (Exception e) {
-                    //ignore
-                }
-            }
-        }
-    }
-
-    protected PersistenceDocument.Persistence convertToPersistenceUnit(XmlObject xmlObject) throws XmlException {
-//        XmlCursor cursor = null;
-//        try {
-//            cursor = xmlObject.newCursor();
-//            cursor.toStartDoc();
-//            cursor.toFirstChild();
-//            SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JPA_PERSISTENCE_NAMESPACE, "http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd", "2.0");
-        XmlObject result = xmlObject.changeType(PersistenceDocument.Persistence.type);
-        XmlBeansUtil.validateDD(result);
-        return (PersistenceDocument.Persistence) result;
-//        } finally {
-//            if (cursor != null) {
-//                try {
-//                    cursor.dispose();
-//                } catch (Exception e) {
-//                }
-//            }
-//        }
-    }
-
-    private void buildPersistenceUnits(PersistenceDocument.Persistence persistence, Map<String, PersistenceDocument.Persistence.PersistenceUnit> overrides, Module module, String persistenceModulePath) throws DeploymentException {
-        PersistenceDocument.Persistence.PersistenceUnit[] persistenceUnits = persistence.getPersistenceUnitArray();
-        for (PersistenceDocument.Persistence.PersistenceUnit persistenceUnit : persistenceUnits) {
+    private void buildPersistenceUnits(Persistence persistence, Map<String, Persistence.PersistenceUnit> overrides, Module module, String persistenceModulePath) throws DeploymentException {
+        List<Persistence.PersistenceUnit> persistenceUnits = persistence.getPersistenceUnit();
+        for (Persistence.PersistenceUnit persistenceUnit : persistenceUnits) {
             GBeanData data = installPersistenceUnitGBean(persistenceUnit, module, persistenceModulePath);
             String unitName = persistenceUnit.getName().trim();
             if (overrides.get(unitName) != null) {
@@ -259,7 +220,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
     }
 
-    private GBeanData installPersistenceUnitGBean(PersistenceDocument.Persistence.PersistenceUnit persistenceUnit, Module module, String persistenceModulePath) throws DeploymentException {
+    private GBeanData installPersistenceUnitGBean(Persistence.PersistenceUnit persistenceUnit, Module module, String persistenceModulePath) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
         String persistenceUnitName = persistenceUnit.getName().trim();
         if (persistenceUnitName.length() == 0) {
@@ -307,14 +268,14 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         return gbeanData;
     }
 
-    private void setOverrideableProperties(PersistenceDocument.Persistence.PersistenceUnit persistenceUnit, GBeanData gbeanData) throws DeploymentException {
-        if (persistenceUnit.isSetProvider()) {
+    private void setOverrideableProperties(Persistence.PersistenceUnit persistenceUnit, GBeanData gbeanData) throws DeploymentException {
+        if (persistenceUnit.getProvider() != null) {
             gbeanData.setAttribute("persistenceProviderClassName", persistenceUnit.getProvider().trim());
         }
-        if (persistenceUnit.isSetTransactionType()) {
+        if (persistenceUnit.getTransactionType() != null) {
             gbeanData.setAttribute("persistenceUnitTransactionType", persistenceUnit.getTransactionType().toString());
         }
-        if (persistenceUnit.isSetJtaDataSource()) {
+        if (persistenceUnit.getJtaDataSource() != null) {
             String jtaDataSourceString = persistenceUnit.getJtaDataSource().trim();
             try {
                 AbstractNameQuery jtaDataSourceNameQuery = getAbstractNameQuery(jtaDataSourceString);
@@ -324,7 +285,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             }
         }
 
-        if (persistenceUnit.isSetNonJtaDataSource()) {
+        if (persistenceUnit.getNonJtaDataSource() != null) {
             String nonJtaDataSourceString = persistenceUnit.getNonJtaDataSource().trim();
             try {
                 AbstractNameQuery nonJtaDataSourceNameQuery = getAbstractNameQuery(nonJtaDataSourceString);
@@ -335,36 +296,33 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
 
         List<String> mappingFileNames = (List<String>) gbeanData.getAttribute("mappingFileNames");
-        String[] mappingFileNameStrings = persistenceUnit.getMappingFileArray();
+        List<String> mappingFileNameStrings = persistenceUnit.getMappingFile();
         for (String mappingFileNameString : mappingFileNameStrings) {
             mappingFileNames.add(mappingFileNameString.trim());
         }
 
-        if (persistenceUnit.isSetExcludeUnlistedClasses()) {
-            gbeanData.setAttribute("excludeUnlistedClasses", persistenceUnit.getExcludeUnlistedClasses());
+        if (persistenceUnit.isExcludeUnlistedClasses()) {
+            gbeanData.setAttribute("excludeUnlistedClasses", persistenceUnit.isExcludeUnlistedClasses());
         }
 
-        String[] managedClassNameStrings = persistenceUnit.getClass1Array();
+        List<String> managedClassNameStrings = persistenceUnit.getClazz();
         List<String> managedClassNames = (List<String>) gbeanData.getAttribute("managedClassNames");
         for (String managedClassNameString : managedClassNameStrings) {
             managedClassNames.add(managedClassNameString.trim());
         }
         List<String> jarFileUrls = (List<String>) gbeanData.getAttribute("jarFileUrls");
         //add the specified locations in the ear
-        String[] jarFileUrlStrings = persistenceUnit.getJarFileArray();
+        List<String> jarFileUrlStrings = persistenceUnit.getJarFile();
         for (String jarFileUrlString : jarFileUrlStrings) {
             jarFileUrls.add(jarFileUrlString.trim());
         }
 
-        if (persistenceUnit.isSetProperties()) {
             Properties properties = (Properties) gbeanData.getAttribute("properties");
-            PersistenceDocument.Persistence.PersistenceUnit.Properties.Property[] propertyObjects = persistenceUnit.getProperties().getPropertyArray();
-            for (PersistenceDocument.Persistence.PersistenceUnit.Properties.Property propertyObject : propertyObjects) {
+            for (Persistence.PersistenceUnit.Properties.Property propertyObject : persistenceUnit.getProperties().getProperty()) {
                 String key = propertyObject.getName().trim();
                 String value = propertyObject.getValue().trim();
                 properties.setProperty(key, value);
             }
-        }
 
     }
 
@@ -382,6 +340,13 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
         AbstractNameQuery dataSourceNameQuery = new AbstractNameQuery(new URI(dataSourceString + "#" + RESOURCE_SOURCE_CLASS_NAME));
         return dataSourceNameQuery;
+    }
+
+    private Persistence fromXmlObject(XmlObject xmlObject) throws JAXBException {
+        XMLStreamReader reader = xmlObject.newXMLStreamReader();
+        JAXBContext context = JAXBContextFactory.newInstance(Persistence.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        return (Persistence) unmarshaller.unmarshal(reader);
     }
 
     public QNameSet getSpecQNameSet() {

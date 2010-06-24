@@ -18,6 +18,7 @@ package org.apache.geronimo.client.builder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +35,13 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import javax.xml.bind.JAXBException;
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -65,7 +65,6 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApplicationClient;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
@@ -90,11 +89,9 @@ import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
-import org.apache.geronimo.xbeans.javaee6.ApplicationClientDocument;
-import org.apache.geronimo.xbeans.javaee6.ApplicationClientType;
-import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
+import org.apache.openejb.jee.ApplicationClient;
+import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -277,8 +274,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             throw new DeploymentException("Could not get manifest from app client module: " + moduleFile.getName(), e);
         }
 
-        String specDD;
-        ApplicationClientType appClient = null;
+        String specDD = null;
+        ApplicationClient appClient = null;
         try {
             if (specDDUrl == null) {
                 specDDUrl = JarUtils.createJarURL(moduleFile, "META-INF/application-client.xml");
@@ -289,20 +286,25 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             specDD = JarUtils.readAll(specDDUrl);
         } catch (Exception e) {
             //construct a default spec dd
-            ApplicationClientDocument appClientDoc = ApplicationClientDocument.Factory.newInstance();
-            appClientDoc.addNewApplicationClient();
-            appClient = appClientDoc.getApplicationClient();
-            specDD = appClientDoc.xmlText();
+            appClient = new ApplicationClient();
+            try {
+                specDD = JaxbJavaee.marshal(ApplicationClient.class, appClient);
+            } catch (JAXBException e1) {
+                //??
+            }
         }
 
         if (appClient == null) {
             //we found application-client.xml, if it won't parse it's an error.
             try {
                 // parse it
-                XmlObject xmlObject = XmlBeansUtil.parse(specDD);
-                ApplicationClientDocument appClientDoc = convertToApplicationClientSchema(xmlObject);
-                appClient = appClientDoc.getApplicationClient();
-            } catch (XmlException e) {
+                InputStream in = specDDUrl.openStream();
+                try {
+                    appClient = (ApplicationClient) JaxbJavaee.unmarshal(ApplicationClient.class, in);
+                } finally {
+                    in.close();
+                }
+            } catch (Exception e) {
                 throw new DeploymentException("Unable to parse application-client.xml", e);
             }
         }
@@ -344,18 +346,18 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         AbstractName clientBaseName = naming.createRootName(clientEnvironment.getConfigId(), clientEnvironment.getConfigId().toString(), NameFactory.J2EE_APPLICATION);
 
         // Create the AnnotatedApp interface for the AppClientModule
-        AnnotatedApplicationClient annotatedApplicationClient = new AnnotatedApplicationClient(appClient, mainClass);
+//        AnnotatedApplicationClient annotatedApplicationClient = new AnnotatedApplicationClient(appClient, mainClass);
 
         String name = null;
-        if (appClient.isSetModuleName()) {
-            name = appClient.getModuleName().getStringValue().trim();
+        if (appClient.getModuleName() != null) {
+            name = appClient.getModuleName().trim();
         } else if (standAlone) {
             name = FileUtils.removeExtension(new File(moduleFile.getName()).getName(), ".jar");
         } else {
             name = FileUtils.removeExtension(targetPath, ".jar");
         }
 
-        AppClientModule module = new AppClientModule(standAlone, moduleName, name, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, annotatedApplicationClient);
+        AppClientModule module = new AppClientModule(standAlone, moduleName, name, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD);
 
         //start installing the resource adapters in the client.
         GerResourceType[] resources = gerAppClient.getResourceArray();
@@ -414,7 +416,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     null,
                     null,
                     null,
-                    null,
                     null);
             appInfo.getModules().add(module);
             return appInfo;
@@ -430,7 +431,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         return s.trim();
     }
 
-    GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, Environment environment) throws DeploymentException {
+    GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClient appClient, Environment environment) throws DeploymentException {
         GerApplicationClientType gerAppClient;
         XmlObject rawPlan = null;
         try {
@@ -470,7 +471,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         return gerAppClient;
     }
 
-    private GerApplicationClientType createDefaultPlan(String name, ApplicationClientType appClient, boolean standAlone, Environment environment) {
+    private GerApplicationClientType createDefaultPlan(String name, ApplicationClient appClient, boolean standAlone, Environment environment) {
         String id = appClient == null ? null : appClient.getId();
         if (id == null) {
             id = name;
@@ -496,46 +497,6 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 //            geronimoAppClient.setConfigId(id);
 //        }
         return geronimoAppClient;
-    }
-
-    static ApplicationClientDocument convertToApplicationClientSchema(XmlObject xmlObject) throws XmlException {
-        XmlCursor cursor = xmlObject.newCursor();
-        XmlCursor moveable = xmlObject.newCursor();
-        String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/application-client_6.xsd";
-        String version = "6";
-        try {
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            if ("http://java.sun.com/xml/ns/javaee".equals(cursor.getName().getNamespaceURI())) {
-                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
-                XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
-                XmlBeansUtil.validateDD(result);
-                return (ApplicationClientDocument) result;
-            }
-            if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
-                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
-                XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
-                XmlBeansUtil.validateDD(result);
-                return (ApplicationClientDocument) result;
-            }
-
-            // otherwise assume DTD
-            SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
-            cursor.toStartDoc();
-            cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "application-client");
-            cursor.toFirstChild();
-            SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-            XmlObject result = xmlObject.changeType(ApplicationClientDocument.type);
-            if (result != null) {
-                XmlBeansUtil.validateDD(result);
-                return (ApplicationClientDocument) result;
-            }
-            XmlBeansUtil.validateDD(xmlObject);
-            return (ApplicationClientDocument) xmlObject;
-        } finally {
-            cursor.dispose();
-            moveable.dispose();
-        }
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories) throws DeploymentException {
@@ -632,7 +593,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         AppClientModule appClientModule = (AppClientModule) module;
         JarFile moduleFile = module.getModuleFile();
 
-        ApplicationClientType appClient = (ApplicationClientType) appClientModule.getSpecDD();
+        ApplicationClient appClient =  appClientModule.getSpecDD();
         GerApplicationClientType geronimoAppClient = (GerApplicationClientType) appClientModule.getVendorDD();
         //First, the silly gbean on the server that says there's an app client
         // generate the object name for the app client
@@ -717,7 +678,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     Configuration localConfiguration = appClientDeploymentContext.getConfiguration();
                     Configuration remoteConfiguration = earContext.getConfiguration();
 
-                    if (!appClient.getMetadataComplete()) {
+                    if (!appClient.isMetadataComplete()) {
                         // Create a classfinder and populate it for the naming builder(s). The absence of a
                         // classFinder in the module will convey whether metadata-complete is set
                         // (or not)
@@ -726,7 +687,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     appClientModule.getJndiScope(JndiScope.module).put("module/ModuleName", module.getName());
                     namingBuilders.buildNaming(appClient, geronimoAppClient, appClientModule, buildingContext);
 
-                    if (!appClient.getMetadataComplete()) {
+                    if (!appClient.isMetadataComplete()) {
                         appClient.setMetadataComplete(true);
                         module.setOriginalSpecDD(module.getSpecDD().toString());
                     }
@@ -750,8 +711,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     appClientContainerGBeanData.setAttribute("mainClassName", appClientModule.getMainClassName());
                     appClientContainerGBeanData.setAttribute("appClientModuleName", appClientModuleName);
                     String callbackHandlerClassName = null;
-                    if (appClient.isSetCallbackHandler()) {
-                        callbackHandlerClassName = appClient.getCallbackHandler().getStringValue().trim();
+                    if (appClient.getCallbackHandler() != null) {
+                        callbackHandlerClassName = appClient.getCallbackHandler().trim();
                     }
                     if (geronimoAppClient.isSetCallbackHandler()) {
                         callbackHandlerClassName = geronimoAppClient.getCallbackHandler().trim();
@@ -830,7 +791,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         return context;
     }
     
-    private ClassFinder createAppClientClassFinder(ApplicationClientType appClient, AppClientModule appClientModule) throws DeploymentException {
+    private ClassFinder createAppClientClassFinder(ApplicationClient appClient, AppClientModule appClientModule) throws DeploymentException {
 
         //------------------------------------------------------------------------------------
         // Find the list of classes from the application-client.xml we want to search for
@@ -856,14 +817,14 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         }
 
         // Get the callback-handler from the deployment descriptor
-        if (appClient.isSetCallbackHandler()) {
-            FullyQualifiedClassType cls = appClient.getCallbackHandler();
+        if (appClient.getCallbackHandler() != null) {
+            String cls = appClient.getCallbackHandler();
             Class<?> clas;
             try {
-                clas = bundle.loadClass(cls.getStringValue().trim());
+                clas = bundle.loadClass(cls.trim());
             }
             catch (ClassNotFoundException e) {
-                throw new DeploymentException("AppClientModuleBuilder: Could not load callback-handler class: " + cls.getStringValue(), e);
+                throw new DeploymentException("AppClientModuleBuilder: Could not load callback-handler class: " + cls, e);
             }
             classes.add(clas);
         }

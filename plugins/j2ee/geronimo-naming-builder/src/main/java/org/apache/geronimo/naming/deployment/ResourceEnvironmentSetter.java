@@ -16,6 +16,10 @@
  */
 package org.apache.geronimo.naming.deployment;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.openejb.jee.ResourceRef;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.common.DeploymentException;
@@ -25,6 +29,6 @@ import org.apache.geronimo.common.DeploymentException;
  */
 public interface ResourceEnvironmentSetter {
 
-    void setResourceEnvironment(ResourceEnvironmentBuilder builder, XmlObject[] resourceRefs, GerResourceRefType[] gerResourceRefs) throws DeploymentException;
+    void setResourceEnvironment(ResourceEnvironmentBuilder builder, Collection<ResourceRef> resourceRefs, GerResourceRefType[] gerResourceRefs) throws DeploymentException;
 
 }

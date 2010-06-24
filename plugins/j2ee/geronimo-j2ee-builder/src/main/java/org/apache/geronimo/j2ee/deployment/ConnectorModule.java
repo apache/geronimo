@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -39,11 +38,10 @@ public class ConnectorModule<T, U> extends Module<T, U> {
                            T specDD,
                            U vendorDD,
                            String originalSpecDD,
-                           AnnotatedApp annotatedApp,
                            Map<JndiKey, Map<String, Object>> jndiContext,
                            Module parentModule) {
         super(standAlone, moduleName, name, environment, moduleFile, 
-              targetPath, specDD, vendorDD, originalSpecDD, null, annotatedApp, jndiContext, parentModule);
+              targetPath, specDD, vendorDD, originalSpecDD, null, jndiContext, parentModule);
     }
 
     public ConfigurationModuleType getType() {

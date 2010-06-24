@@ -30,8 +30,9 @@ import javax.servlet.http.HttpSessionListener;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.webfragment.ListenerMergeHandler;
-import org.apache.geronimo.xbeans.javaee6.ListenerType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.Listener;
+import org.apache.openejb.jee.Text;
+import org.apache.openejb.jee.WebApp;
 
 /**
  * @version $Rev$ $Date$
@@ -42,7 +43,7 @@ public class WebListenerAnnotationMergeHandler implements AnnotationMergeHandler
             ServletRequestAttributeListener.class, HttpSessionListener.class, HttpSessionAttributeListener.class, javax.servlet.AsyncListener.class };
 
     @Override
-    public void merge(Class<?>[] classes, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void merge(Class<?>[] classes, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
         for (Class<?> cls : classes) {
             //Check whether any supported web listener interface is implemented
             Class<?> implementedWebListenerInterface = null;
@@ -60,29 +61,30 @@ public class WebListenerAnnotationMergeHandler implements AnnotationMergeHandler
             if (ListenerMergeHandler.isListenerConfigured(cls.getName(), mergeContext)) {
                 return;
             }
-            ListenerType newListener = webApp.addNewListener();
+            Listener newListener = new Listener();
             if (!webListener.value().isEmpty()) {
-                newListener.addNewDescription().setStringValue(webListener.value());
+                newListener.addDescription(new Text(null, webListener.value()));
             }
-            newListener.addNewListenerClass().setStringValue(cls.getName());
+            newListener.setListenerClass(cls.getName());
+            webApp.getListener().add(newListener);
             //
             ListenerMergeHandler.addListener(newListener, mergeContext);
         }
     }
 
     /* (non-Javadoc)
-     * @see org.apache.geronimo.web25.deployment.merge.annotation.AnnotationMergeHandler#postProcessWebXmlElement(org.apache.geronimo.xbeans.javaee6.WebAppType, org.apache.geronimo.web25.deployment.merge.MergeContext)
+     * @see org.apache.geronimo.web25.deployment.merge.annotation.AnnotationMergeHandler#postProcessWebXmlElement(org.apache.openejb.jee.WebApp, org.apache.geronimo.web25.deployment.merge.MergeContext)
      */
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
         // TODO Auto-generated method stub
     }
 
     /* (non-Javadoc)
-     * @see org.apache.geronimo.web25.deployment.merge.annotation.AnnotationMergeHandler#preProcessWebXmlElement(org.apache.geronimo.xbeans.javaee6.WebAppType, org.apache.geronimo.web25.deployment.merge.MergeContext)
+     * @see org.apache.geronimo.web25.deployment.merge.annotation.AnnotationMergeHandler#preProcessWebXmlElement(org.apache.openejb.jee.WebApp, org.apache.geronimo.web25.deployment.merge.MergeContext)
      */
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
         // TODO Auto-generated method stub
     }
 }

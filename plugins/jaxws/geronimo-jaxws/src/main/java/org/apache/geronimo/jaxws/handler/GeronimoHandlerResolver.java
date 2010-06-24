@@ -26,8 +26,8 @@ import javax.xml.ws.handler.HandlerResolver;
 
 import org.apache.geronimo.jaxws.annotations.AnnotationException;
 import org.apache.geronimo.jaxws.annotations.AnnotationProcessor;
-import org.apache.geronimo.xbeans.javaee.HandlerChainType;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
+import org.apache.openejb.jee.HandlerChain;
+import org.apache.openejb.jee.HandlerChains;
 import org.osgi.framework.Bundle;
 
 /**
@@ -35,7 +35,7 @@ import org.osgi.framework.Bundle;
  */
 public class GeronimoHandlerResolver implements HandlerResolver {
 
-    private HandlerChainsType handlerChains;
+    private HandlerChains handlerChains;
 
     private Bundle bundle;
 
@@ -45,7 +45,7 @@ public class GeronimoHandlerResolver implements HandlerResolver {
 
     public GeronimoHandlerResolver(Bundle bundle,
                                    Class serviceClass,
-                                   HandlerChainsType handlerChains,
+                                   HandlerChains handlerChains,
                                    AnnotationProcessor annotationProcessor) {
         this.bundle = bundle;
         this.serviceClass = serviceClass;
@@ -63,7 +63,7 @@ public class GeronimoHandlerResolver implements HandlerResolver {
             handlers = builder.buildHandlerChainFromClass(this.serviceClass);
         } else {
             handlers = new ArrayList<Handler>();
-            for (HandlerChainType handlerChain : this.handlerChains.getHandlerChainArray()) {
+            for (HandlerChain handlerChain : this.handlerChains.getHandlerChain()) {
                 handlers.addAll(builder.buildHandlerChainFromConfiguration(handlerChain));
             }
             handlers = builder.sortHandlers(handlers);

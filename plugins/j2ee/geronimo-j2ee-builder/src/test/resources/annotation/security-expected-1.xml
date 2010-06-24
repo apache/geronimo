@@ -21,8 +21,8 @@
    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
    version="2.5" >
 
-    <display-name>Empty web application</display-name>
     <description>Empty web application</description>
+    <display-name>Empty web application</display-name>
     <servlet>
         <servlet-name>SecurityAnnotationTest</servlet-name>
         <servlet-class>org.apache.geronimo.j2ee.deployment.annotation.SecurityAnnotationExample</servlet-class>

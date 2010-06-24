@@ -45,7 +45,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.components.jaspi.model.AuthModuleType;
 import org.apache.geronimo.components.jaspi.model.ConfigProviderType;
@@ -95,20 +94,14 @@ import org.apache.geronimo.web.security.SpecSecurityBuilder;
 import org.apache.geronimo.web25.deployment.merge.MergeHelper;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
-import org.apache.geronimo.xbeans.javaee6.FilterType;
-import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee6.ListenerType;
-import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.ServletMapping;
+import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.AbstractFinder;
 import org.apache.xbean.finder.BundleAnnotationFinder;
-import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -280,25 +273,25 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      * @param contextRoot context root for web app from application.xml or geronimo plan
      * @return map of servlet names to path mapped to them.  Possibly inaccurate except for web services.
      */
-    protected Map<String, String> buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
+    protected Map<String, String> buildServletNameToPathMap(WebApp webApp, String contextRoot) {
         if (contextRoot == null) {
             contextRoot = "";
         } else if (!contextRoot.startsWith("/")) {
             contextRoot = "/" + contextRoot;
         }
         Map<String, String> map = new HashMap<String, String>();
-        ServletMappingType[] servletMappings = webApp.getServletMappingArray();
-        for (ServletMappingType servletMapping : servletMappings) {
-            String servletName = servletMapping.getServletName().getStringValue().trim();
-            UrlPatternType[] urlPatterns = servletMapping.getUrlPatternArray();
-            for (int i = 0; urlPatterns != null && (i < urlPatterns.length); i++) {
-                map.put(servletName, contextRoot + urlPatterns[i].getStringValue().trim());
+        List<ServletMapping> servletMappings = webApp.getServletMapping();
+        for (ServletMapping servletMapping : servletMappings) {
+            String servletName = servletMapping.getServletName();
+            List<String> urlPatterns = servletMapping.getUrlPattern();
+            for (String urlPattern: urlPatterns) {
+                map.put(servletName, contextRoot + urlPattern);
             }
         }
         return map;
     }
 
-    protected String determineDefaultContextRoot(WebAppType webApp, boolean isStandAlone, JarFile moduleFile, String targetPath) {
+    protected String determineDefaultContextRoot(WebApp webApp, boolean isStandAlone, JarFile moduleFile, String targetPath) {
         if (webApp != null && webApp.getId() != null) {
             return webApp.getId();
         }
@@ -321,14 +314,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             path = path.substring(0, path.length() - 1);
         }
         return path;
-    }
-
-    protected String getModuleName(WebAppType webApp) {
-        if (webApp.sizeOfModuleNameArray() > 0) {
-            return webApp.getModuleNameArray()[0].getStringValue().trim();
-        } else {
-            return null;
-        }
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repositories)
@@ -432,9 +417,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         URI resolutionUri = invertURI(baseUri);
         earContext.getCompleteManifestClassPath(webModule.getDeployable(), baseUri, resolutionUri, manifestcp, moduleLocations);
         //Security Configuration Validation
-        WebAppType webApp = (WebAppType) webModule.getSpecDD();
+        WebApp webApp = webModule.getSpecDD();
         boolean hasSecurityRealmName = (Boolean) module.getEarContext().getGeneralData().get(WEB_MODULE_HAS_SECURITY_REALM);
-        if ((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0)) {
+        if ((!webApp.getSecurityConstraint().isEmpty() || !webApp.getSecurityRole().isEmpty())) {
             if (!hasSecurityRealmName) {
                 throw new DeploymentException("web.xml for web app " + webModule.getName()
                         + " includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
@@ -462,7 +447,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
         earContext.getGeneralData().put(INITIAL_WEB_XML_SCHEMA_VERSION, originalSpecDDVersion);
         //Process web fragments and annotations
-        if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f && !webApp.getMetadataComplete()) {
+        if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f && !webApp.isMetadataComplete()) {
             MergeHelper.processWebFragmentsAndAnnotations(earContext, webModule, bundle, webApp);
         }
         //TODO From my understanding, whether we scan ServletContainerInitializer has nothing to do with meta-complete/web.xml schema version
@@ -470,7 +455,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         MergeHelper.processServletContainerInitializer(earContext, webModule, bundle);
 
         //Process Web Service
-        Map servletNameToPathMap = buildServletNameToPathMap((WebAppType) webModule.getSpecDD(), webModule.getContextRoot());
+        Map servletNameToPathMap = buildServletNameToPathMap(webModule.getSpecDD(), webModule.getContextRoot());
         Map sharedContext = webModule.getSharedContext();
         for (WebServiceBuilder serviceBuilder : webServiceBuilder) {
             serviceBuilder.findWebServices(webModule, false, servletNameToPathMap, webModule.getEnvironment(), sharedContext);
@@ -486,24 +471,14 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return resolutionUri;
     }
 
-    protected String getSpecDDAsString(WebModule module) {
-        StringWriter writer = new StringWriter();
-        XmlOptions options = new XmlOptions();
-        QName webQName = new QName("http://java.sun.com/xml/ns/javaee", "web-app");
-        options.setSaveSyntheticDocumentElement(webQName);
-        options.setSavePrettyPrint();
-        options.setSavePrettyPrintIndent(4);
-        try {
-            module.getSpecDD().save(writer, options);
-        } catch (IOException e) {
-            // ignore
-        }
-        return writer.toString();
+    protected String getSpecDDAsString(WebModule module) throws JAXBException {
+        return JaxbJavaee.marshal(WebApp.class, module.getSpecDD());
     }
 
     /**
      * Identify the spec DD schema version, and save it in the EARContext
      * @param originalSpecDD text of original spec dd
+     * @return spec dd version
      */
     private float identifySpecDDSchemaVersion(String originalSpecDD) {
         float schemaVersion = 0f;
@@ -535,14 +510,15 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 try {
                     cursor.dispose();
                 } catch (Exception e) {
+                    //ignore
                 }
             }
         }
         return schemaVersion;
     }
 
-    protected ComponentPermissions buildSpecSecurityConfig(EARContext earContext, WebAppType webApp, Bundle bundle) {
-        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp, bundle, INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f && !webApp.getMetadataComplete());
+    protected ComponentPermissions buildSpecSecurityConfig(EARContext earContext, WebApp webApp, Bundle bundle) {
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp, bundle, INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f && !webApp.isMetadataComplete());
         return builder.buildSpecSecurityConfig();
     }
 
@@ -633,7 +609,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return true;
     }
 
-    protected AbstractFinder createWebAppClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
+    protected AbstractFinder createWebAppClassFinder(WebApp webApp, WebModule webModule) throws DeploymentException {
         // Get the classloader from the module's EARContext
         Bundle bundle = webModule.getEarContext().getDeploymentBundle();
 //        return createWebAppClassFinder(webApp, bundle);
@@ -644,62 +620,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     }
 
-//    public static ClassFinder createWebAppClassFinder(WebAppType webApp, Bundle bundle) throws DeploymentException {
-//        //------------------------------------------------------------------------------------
-//        // Find the list of classes from the web.xml we want to search for annotations in
-//        //------------------------------------------------------------------------------------
-//        List<Class> classes = new ArrayList<Class>();
-//        // Get all the servlets from the deployment descriptor
-//        ServletType[] servlets = webApp.getServletArray();
-//        for (ServletType servlet : servlets) {
-//            FullyQualifiedClassType cls = servlet.getServletClass();
-//            if (cls != null) { // Don't try this for JSPs
-//                Class<?> clas;
-//                try {
-//                    clas = bundle.loadClass(cls.getStringValue());
-//                } catch (ClassNotFoundException e) {
-//                    throw new DeploymentException("AbstractWebModuleBuilder: Could not load servlet class: " + cls.getStringValue(), e);
-//                }
-//                addClass(classes, clas);
-//            }
-//        }
-//        // Get all the listeners from the deployment descriptor
-//        ListenerType[] listeners = webApp.getListenerArray();
-//        for (ListenerType listener : listeners) {
-//            FullyQualifiedClassType cls = listener.getListenerClass();
-//            Class<?> clas;
-//            try {
-//                clas = bundle.loadClass(cls.getStringValue());
-//            } catch (ClassNotFoundException e) {
-//                throw new DeploymentException("AbstractWebModuleBuilder: Could not load listener class: " + cls.getStringValue(), e);
-//            }
-//            addClass(classes, clas);
-//        }
-//        // Get all the filters from the deployment descriptor
-//        FilterType[] filters = webApp.getFilterArray();
-//        for (FilterType filter : filters) {
-//            FullyQualifiedClassType cls = filter.getFilterClass();
-//            Class<?> clas;
-//            try {
-//                clas = bundle.loadClass(cls.getStringValue());
-//            } catch (ClassNotFoundException e) {
-//                throw new DeploymentException("AbstractWebModuleBuilder: Could not load filter class: " + cls.getStringValue(), e);
-//            }
-//            addClass(classes, clas);
-//        }
-//        // see https://issues.apache.org/jira/browse/GERONIMO-3421 .
-//        // if the user has botched her classloader config (perhaps by
-//        // not including a jar that her app needs) then ClassFinder
-//        // will throw NoClassDefFoundError.  we want to indicate that
-//        // it's the user's error and provide a little context to help
-//        // her fix it.
-//        try {
-//            return new ClassFinder(classes);
-//        } catch (NoClassDefFoundError e) {
-//            throw new DeploymentException("Classloader for " + webApp.getId() + "can't find " + e.getMessage(), e);
-//        }
-//    }
-
     private static void addClass(List<Class> classes, Class<?> clas) {
         while (clas != Object.class) {
             classes.add(clas);
@@ -707,12 +627,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     }
 
-    protected void configureBasicWebModuleAttributes(WebAppType webApp, XmlObject vendorPlan, EARContext moduleContext, EARContext earContext, WebModule webModule, GBeanData webModuleData)
+    protected void configureBasicWebModuleAttributes(WebApp webApp, XmlObject vendorPlan, EARContext moduleContext, EARContext earContext, WebModule webModule, GBeanData webModuleData)
             throws DeploymentException {
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleContext.getModuleName());
         webModule.getJndiContext().get(JndiScope.module).put("module/ModuleName", webModule.getName());
-        if (!webApp.getMetadataComplete()) {
+        if (!webApp.isMetadataComplete()) {
             // Create a classfinder and populate it for the naming builder(s). The absence of a
             // classFinder in the module will convey whether metadata-complete is set (or not)
             webModule.setClassFinder(createWebAppClassFinder(webApp, webModule));
@@ -755,15 +675,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
         webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
         webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext() ? null : webModule.getTargetPath());
-    }
-
-    private static Map<String, Object> getJndiContext(Map<JndiKey, Map<String, Object>> contexts, JndiScope scope) {
-        Map<String, Object> context = contexts.get(scope);
-        if (context == null) {
-            context = new HashMap<String, Object>();
-            contexts.put(scope, context);
-        }
-        return context;
     }
 
     private static class InternWrapper implements XMLStreamReader {

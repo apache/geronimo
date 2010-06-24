@@ -22,15 +22,15 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.MessageDestinationRefType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.MessageDestinationRef;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class MessageDestinationRefMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class MessageDestinationRefMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     public static final String MESSAGE_DESTINATION_REF_NAME_PREFIX = "message-destination-ref.message-destination-ref-name.";
 
@@ -42,9 +42,9 @@ public class MessageDestinationRefMergeHandler implements WebFragmentMergeHandle
      * b. web.xml file should inherit it from the web-fragment.xml file
      */
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (MessageDestinationRefType srcMessageDestinationRef : webFragment.getMessageDestinationRefArray()) {
-            String messageDestinationRefName = srcMessageDestinationRef.getMessageDestinationRefName().getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (MessageDestinationRef srcMessageDestinationRef : webFragment.getMessageDestinationRef()) {
+            String messageDestinationRefName = srcMessageDestinationRef.getMessageDestinationRefName();
             String messageDestinationRefKey = createMessageDestinationRefKey(messageDestinationRefName);
             MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(messageDestinationRefKey);
             if (mergeItem != null) {
@@ -52,43 +52,43 @@ public class MessageDestinationRefMergeHandler implements WebFragmentMergeHandle
                     throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("message-destination-ref", messageDestinationRefName, mergeItem.getBelongedURL(), mergeContext.getCurrentJarUrl()));
                 } else if (mergeItem.isFromWebXml() && !isMessageDestinationRefInjectTargetsConfiguredInInitialWebXML(messageDestinationRefName, mergeContext)) {
                     //Merge InjectTarget
-                    MessageDestinationRefType messageDestinationRef = (MessageDestinationRefType) mergeItem.getValue();
-                    for (InjectionTargetType injectTarget : srcMessageDestinationRef.getInjectionTargetArray()) {
-                        String messageDestinationRefInjectTargetKey = createMessageDestinationRefInjectTargetKey(messageDestinationRefName, injectTarget.getInjectionTargetClass().getStringValue(), injectTarget
-                                .getInjectionTargetName().getStringValue());
+                    MessageDestinationRef messageDestinationRef = (MessageDestinationRef) mergeItem.getValue();
+                    for (InjectionTarget injectTarget : srcMessageDestinationRef.getInjectionTarget()) {
+                        String messageDestinationRefInjectTargetKey = createMessageDestinationRefInjectTargetKey(messageDestinationRefName, injectTarget.getInjectionTargetClass(), injectTarget
+                                .getInjectionTargetName());
                         if (!mergeContext.containsAttribute(messageDestinationRefInjectTargetKey)) {
-                            messageDestinationRef.addNewInjectionTarget().set(injectTarget);
+                            messageDestinationRef.getInjectionTarget().add(injectTarget);
                             mergeContext.setAttribute(messageDestinationRefInjectTargetKey, Boolean.TRUE);
                         }
                     }
                 }
             } else {
-                MessageDestinationRefType targetMessageDestinationRef = (MessageDestinationRefType) webApp.addNewMessageDestinationRef().set(srcMessageDestinationRef);
-                mergeContext.setAttribute(messageDestinationRefKey, new MergeItem(targetMessageDestinationRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
-                for (InjectionTargetType injectionTarget : targetMessageDestinationRef.getInjectionTargetArray()) {
-                    mergeContext.setAttribute(createMessageDestinationRefInjectTargetKey(messageDestinationRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                            .getStringValue()), Boolean.TRUE);
+                webApp.getMessageDestinationRef().add(srcMessageDestinationRef);
+                mergeContext.setAttribute(messageDestinationRefKey, new MergeItem(srcMessageDestinationRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
+                for (InjectionTarget injectionTarget : srcMessageDestinationRef.getInjectionTarget()) {
+                    mergeContext.setAttribute(createMessageDestinationRefInjectTargetKey(messageDestinationRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                            ), Boolean.TRUE);
                 }
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (MessageDestinationRefType messageDestinationRef : webApp.getMessageDestinationRefArray()) {
-            String messageDestinationRefName = messageDestinationRef.getMessageDestinationRefName().getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (MessageDestinationRef messageDestinationRef : webApp.getMessageDestinationRef()) {
+            String messageDestinationRefName = messageDestinationRef.getMessageDestinationRefName();
             mergeContext.setAttribute(createMessageDestinationRefKey(messageDestinationRefName), new MergeItem(messageDestinationRef, null, ElementSource.WEB_XML));
             //Create an attribute tag to indicate whether injectTarget is configured in web.xml file
-            if (messageDestinationRef.getInjectionTargetArray().length > 0) {
+            if (!messageDestinationRef.getInjectionTarget().isEmpty()) {
                 mergeContext.setAttribute(createMessageDestinationRefInjectTargetConfiguredInWebXMLKey(messageDestinationRefName), Boolean.TRUE);
             }
-            for (InjectionTargetType injectionTarget : messageDestinationRef.getInjectionTargetArray()) {
-                mergeContext.setAttribute(createMessageDestinationRefInjectTargetKey(messageDestinationRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                        .getStringValue()), Boolean.TRUE);
+            for (InjectionTarget injectionTarget : messageDestinationRef.getInjectionTarget()) {
+                mergeContext.setAttribute(createMessageDestinationRefInjectTargetKey(messageDestinationRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                        ), Boolean.TRUE);
             }
         }
     }

@@ -22,15 +22,15 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.ServiceRef;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ServiceRefMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class ServiceRefMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     public static final String SERVICE_REF_NAME_PREFIX = "service-ref.service-ref-name.";
 
@@ -42,9 +42,9 @@ public class ServiceRefMergeHandler implements WebFragmentMergeHandler<WebFragme
      * b. web.xml file should inherit it from the web-fragment.xml file
      */
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (ServiceRefType srcServiceRef : webFragment.getServiceRefArray()) {
-            String serviceRefName = srcServiceRef.getServiceRefName().getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (ServiceRef srcServiceRef : webFragment.getServiceRef()) {
+            String serviceRefName = srcServiceRef.getServiceRefName();
             String serviceRefKey = createServiceRefKey(serviceRefName);
             MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(serviceRefKey);
             if (mergeItem != null) {
@@ -52,43 +52,43 @@ public class ServiceRefMergeHandler implements WebFragmentMergeHandler<WebFragme
                     throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("service-ref", serviceRefName, mergeItem.getBelongedURL(), mergeContext.getCurrentJarUrl()));
                 } else if (mergeItem.isFromWebXml() && !isServiceRefInjectTargetsConfiguredInInitialWebXML(serviceRefName, mergeContext)) {
                     //Merge InjectTarget
-                    ServiceRefType serviceRef = (ServiceRefType) mergeItem.getValue();
-                    for (InjectionTargetType injectTarget : srcServiceRef.getInjectionTargetArray()) {
-                        String serviceRefInjectTargetKey = createServiceRefInjectTargetKey(serviceRefName, injectTarget.getInjectionTargetClass().getStringValue(), injectTarget
-                                .getInjectionTargetName().getStringValue());
+                    ServiceRef serviceRef = (ServiceRef) mergeItem.getValue();
+                    for (InjectionTarget injectTarget : srcServiceRef.getInjectionTarget()) {
+                        String serviceRefInjectTargetKey = createServiceRefInjectTargetKey(serviceRefName, injectTarget.getInjectionTargetClass(), injectTarget
+                                .getInjectionTargetName());
                         if (!mergeContext.containsAttribute(serviceRefInjectTargetKey)) {
-                            serviceRef.addNewInjectionTarget().set(injectTarget);
+                            serviceRef.getInjectionTarget().add(injectTarget);
                             mergeContext.setAttribute(serviceRefInjectTargetKey, Boolean.TRUE);
                         }
                     }
                 }
             } else {
-                ServiceRefType targetServiceRef = (ServiceRefType) webApp.addNewServiceRef().set(srcServiceRef);
-                mergeContext.setAttribute(serviceRefKey, new MergeItem(targetServiceRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
-                for (InjectionTargetType injectionTarget : targetServiceRef.getInjectionTargetArray()) {
-                    mergeContext.setAttribute(createServiceRefInjectTargetKey(serviceRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                            .getStringValue()), Boolean.TRUE);
+                webApp.getServiceRef().add(srcServiceRef);
+                mergeContext.setAttribute(serviceRefKey, new MergeItem(srcServiceRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
+                for (InjectionTarget injectionTarget : srcServiceRef.getInjectionTarget()) {
+                    mergeContext.setAttribute(createServiceRefInjectTargetKey(serviceRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                            ), Boolean.TRUE);
                 }
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (ServiceRefType serviceRef : webApp.getServiceRefArray()) {
-            String serviceRefName = serviceRef.getServiceRefName().getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (ServiceRef serviceRef : webApp.getServiceRef()) {
+            String serviceRefName = serviceRef.getServiceRefName();
             mergeContext.setAttribute(createServiceRefKey(serviceRefName), new MergeItem(serviceRef, null, ElementSource.WEB_XML));
             //Create an attribute tag to indicate whether injectTarget is configured in web.xml file
-            if (serviceRef.getInjectionTargetArray().length > 0) {
+            if (!serviceRef.getInjectionTarget().isEmpty()) {
                 mergeContext.setAttribute(createServiceRefInjectTargetConfiguredInWebXMLKey(serviceRefName), Boolean.TRUE);
             }
-            for (InjectionTargetType injectionTarget : serviceRef.getInjectionTargetArray()) {
-                mergeContext.setAttribute(createServiceRefInjectTargetKey(serviceRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                        .getStringValue()), Boolean.TRUE);
+            for (InjectionTarget injectionTarget : serviceRef.getInjectionTarget()) {
+                mergeContext.setAttribute(createServiceRefInjectTargetKey(serviceRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                        ), Boolean.TRUE);
             }
         }
     }

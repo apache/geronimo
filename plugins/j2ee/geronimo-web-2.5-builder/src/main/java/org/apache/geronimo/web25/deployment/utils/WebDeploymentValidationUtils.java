@@ -17,15 +17,15 @@
 
 package org.apache.geronimo.web25.deployment.utils;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.javaee6.FilterMappingType;
-import org.apache.geronimo.xbeans.javaee6.SecurityConstraintType;
-import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
-import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebResourceCollectionType;
+import org.apache.openejb.jee.FilterMapping;
+import org.apache.openejb.jee.SecurityConstraint;
+import org.apache.openejb.jee.ServletMapping;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebResourceCollection;
 
 /**
  * @version $Rev$ $Date$
@@ -43,53 +43,53 @@ public class WebDeploymentValidationUtils {
         return HTTP_METHOD_PATTERN.matcher(httpMethod).matches();
     }
 
-    public static void validateWebApp(WebAppType webApp) throws DeploymentException {
+    public static void validateWebApp(WebApp webApp) throws DeploymentException {
         checkURLPattern(webApp);
         checkMultiplicities(webApp);
     }
 
-    private static void checkURLPattern(WebAppType webApp) throws DeploymentException {
-        FilterMappingType[] filterMappings = webApp.getFilterMappingArray();
-        for (FilterMappingType filterMapping : filterMappings) {
-            for (UrlPatternType urlPattern : filterMapping.getUrlPatternArray()) {
-                if (!isValidUrlPattern(urlPattern.getStringValue().trim())) {
-                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterMapping.getFilterName().getStringValue(), urlPattern
-                            .getStringValue(), "web.xml"));
+    private static void checkURLPattern(WebApp webApp) throws DeploymentException {
+        List<FilterMapping> filterMappings = webApp.getFilterMapping();
+        for (FilterMapping filterMapping : filterMappings) {
+            for (String urlPattern : filterMapping.getUrlPattern()) {
+                if (!isValidUrlPattern(urlPattern.trim())) {
+                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("filter-mapping", filterMapping.getFilterName(), urlPattern
+                            , "web.xml"));
                 }
             }
         }
-        ServletMappingType[] servletMappings = webApp.getServletMappingArray();
-        for (ServletMappingType servletMapping : servletMappings) {
-            for (UrlPatternType urlPattern : servletMapping.getUrlPatternArray()) {
-                if (!isValidUrlPattern(urlPattern.getStringValue().trim())) {
-                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletMapping.getServletName().getStringValue(), urlPattern
-                            .getStringValue(), "web.xml"));
+        List<ServletMapping> servletMappings = webApp.getServletMapping();
+        for (ServletMapping servletMapping : servletMappings) {
+            for (String urlPattern : servletMapping.getUrlPattern()) {
+                if (!isValidUrlPattern(urlPattern.trim())) {
+                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletMapping.getServletName(), urlPattern
+                            , "web.xml"));
                 }
             }
         }
-        SecurityConstraintType[] constraints = webApp.getSecurityConstraintArray();
-        for (SecurityConstraintType constraint : constraints) {
-            WebResourceCollectionType[] collections = constraint.getWebResourceCollectionArray();
-            for (WebResourceCollectionType collection : collections) {
-                UrlPatternType[] patterns = collection.getUrlPatternArray();
-                for (UrlPatternType pattern : patterns) {
-                    if (!isValidUrlPattern(pattern.getStringValue().trim())) {
-                        throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("security-constraint", collection.getWebResourceName().getStringValue(), pattern
-                                .getStringValue(), "web.xml"));
+        List<SecurityConstraint> constraints = webApp.getSecurityConstraint();
+        for (SecurityConstraint constraint : constraints) {
+            List<WebResourceCollection> collections = constraint.getWebResourceCollection();
+            for (WebResourceCollection collection : collections) {
+                List<String> patterns = collection.getUrlPattern();
+                for (String pattern : patterns) {
+                    if (!isValidUrlPattern(pattern.trim())) {
+                        throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("security-constraint", collection.getWebResourceName(), pattern
+                                , "web.xml"));
                     }
                 }
             }
         }
     }
 
-    private static void checkMultiplicities(WebAppType webApp) throws DeploymentException {
-        if (webApp.getSessionConfigArray().length > 1) {
+    private static void checkMultiplicities(WebApp webApp) throws DeploymentException {
+        if (webApp.getSessionConfig().size() > 1) {
             throw new DeploymentException(WebDeploymentMessageUtils.createMultipleConfigurationWebAppErrorMessage("session-config"));
         }
-        if (webApp.getJspConfigArray().length > 1) {
+        if (webApp.getJspConfig().size() > 1) {
             throw new DeploymentException(WebDeploymentMessageUtils.createMultipleConfigurationWebAppErrorMessage("jsp-config"));
         }
-        if (webApp.getLoginConfigArray().length > 1) {
+        if (webApp.getLoginConfig().size() > 1) {
             throw new DeploymentException(WebDeploymentMessageUtils.createMultipleConfigurationWebAppErrorMessage("login-config"));
         }
     }

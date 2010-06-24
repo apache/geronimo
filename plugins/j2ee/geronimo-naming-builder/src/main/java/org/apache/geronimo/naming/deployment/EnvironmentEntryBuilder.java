@@ -19,6 +19,7 @@ package org.apache.geronimo.naming.deployment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,6 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.reference.ClassReference;
@@ -40,12 +40,10 @@ import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.naming.reference.KernelReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEnvEntryDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEnvEntryType;
-import org.apache.geronimo.xbeans.javaee6.DescriptionType;
-import org.apache.geronimo.xbeans.javaee6.EnvEntryType;
-import org.apache.geronimo.xbeans.javaee6.EnvEntryTypeValuesType;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.JndiNameType;
-import org.apache.geronimo.xbeans.javaee6.XsdStringType;
+import org.apache.openejb.jee.EnvEntry;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.Text;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -87,14 +85,14 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         doStop();
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
 
         // Discover and process any @Resource annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
 
             // Process all the annotations for this naming builder type
             try {
-                ResourceAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder(), EnvEntryRefProcessor.INSTANCE);
+                ResourceAnnotationHelper.processAnnotations(specDD, module.getClassFinder(), EnvEntryRefProcessor.INSTANCE);
             }
             catch (Exception e) {
                 log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
@@ -102,10 +100,10 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         }
 
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        List<EnvEntryType> envEntriesUntyped = convert(specDD.selectChildren(envEntryQNameSet), JEE_CONVERTER, EnvEntryType.class, EnvEntryType.type);
+        Collection<EnvEntry> envEntriesUntyped = specDD.getEnvEntry();
         XmlObject[] gerEnvEntryUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ENV_ENTRY_QNAME_SET);
         Map<String, String> envEntryMap = mapEnvEntries(gerEnvEntryUntyped);
-        for (EnvEntryType envEntry : envEntriesUntyped) {
+        for (EnvEntry envEntry : envEntriesUntyped) {
             String name = getStringValue(envEntry.getEnvEntryName());
             String type = getStringValue(envEntry.getEnvEntryType());
 
@@ -114,10 +112,10 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
             String strValueOverride = envEntryMap.remove(name);
             String strValue = null;
             if (strValueOverride == null) {
-                strValue = getUntrimmedStringValue(envEntry.getEnvEntryValue());
+                strValue = envEntry.getEnvEntryValue();
                 String lookupName = getStringValue(envEntry.getLookupName());
                 if (strValue != null && lookupName != null) {
-                    throw new DeploymentException("You must specify an environment entry value or lookup name but not both. Component: " + module.getAnnotatedApp().toString() + ", name: " + name + ", env-entry-value: " + strValue + ", lookup-name: " + lookupName + "");
+                    throw new DeploymentException("You must specify an environment entry value or lookup name but not both. Component: " + module.toString() + ", name: " + name + ", env-entry-value: " + strValue + ", lookup-name: " + lookupName + "");
                 }
                 if (lookupName != null) {
                     //TODO better circular reference checking
@@ -130,7 +128,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 strValue = strValueOverride;
             }
 
-            type = inferAndCheckType(module, bundle, envEntry.getInjectionTargetArray(), name, type);
+            type = inferAndCheckType(module, bundle, envEntry.getInjectionTarget(), name, type);
 
 
             if (value == null) {
@@ -185,7 +183,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
             // perform resource injection only if there is a value specified
             // see Java EE 5 spec, section EE.5.4.1.3
             if (value != null) {
-                addInjections(name, envEntry.getInjectionTargetArray(), sharedContext);
+                addInjections(name, envEntry.getInjectionTarget(), sharedContext);
                 put(name, value, module.getJndiContext());
             }
         }
@@ -222,7 +220,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         private EnvEntryRefProcessor() {
         }
 
-        public boolean processResource(AnnotatedApp annotatedApp, Resource annotation, Class cls, Method method, Field field) {
+        public boolean processResource(JndiConsumer annotatedApp, Resource annotation, Class cls, Method method, Field field) {
             String resourceName = getResourceName(annotation, method, field);
             Class resourceType = getResourceTypeClass(annotation, method, field);
             if (resourceType.equals(String.class) ||
@@ -240,14 +238,14 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 log.debug("addResource(): <env-entry> found");
 
                 boolean exists = false;
-                EnvEntryType[] envEntries = annotatedApp.getEnvEntryArray();
-                for (EnvEntryType envEntry : envEntries) {
+                Collection<EnvEntry> envEntries = annotatedApp.getEnvEntry();
+                for (EnvEntry envEntry : envEntries) {
                     if (getStringValue(envEntry.getEnvEntryName()).equals(resourceName)) {
                         exists = true;
                         if (method != null || field != null) {
-                            InjectionTargetType[] targets = envEntry.getInjectionTargetArray();
+                            List<InjectionTarget> targets = envEntry.getInjectionTarget();
                             if (!hasTarget(method, field, targets)) {
-                                configureInjectionTarget(envEntry.addNewInjectionTarget(), method, field);
+                                targets.add(configureInjectionTarget(method, field));
                             }
                         }
                         break;
@@ -259,25 +257,22 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                         log.debug("addResource(): Does not exist in DD: " + resourceName);
 
                         // Doesn't exist in deployment descriptor -- add new
-                        EnvEntryType envEntry = annotatedApp.addNewEnvEntry();
+                        EnvEntry envEntry = new EnvEntry();
 
                         //------------------------------------------------------------------------------
                         // <env-entry> required elements:
                         //------------------------------------------------------------------------------
 
                         // env-entry-name
-                        JndiNameType envEntryName = envEntry.addNewEnvEntryName();
-                        envEntryName.setStringValue(resourceName);
+                        envEntry.setEnvEntryName(resourceName);
 
                         if (!resourceType.equals(Object.class)) {
                             // env-entry-type
-                            EnvEntryTypeValuesType envEntryType = envEntry.addNewEnvEntryType();
-                            envEntryType.setStringValue(resourceType.getCanonicalName());
+                            envEntry.setEnvEntryType(resourceType.getCanonicalName());
                         }
                         if (method != null || field != null) {
                             // injectionTarget
-                            InjectionTargetType injectionTarget = envEntry.addNewInjectionTarget();
-                            configureInjectionTarget(injectionTarget, method, field);
+                            envEntry.getInjectionTarget().add(configureInjectionTarget(method, field));
                         }
 
                         //------------------------------------------------------------------------------
@@ -287,23 +282,21 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                         // mappedName
                         String mappdedNameAnnotation = annotation.mappedName();
                         if (!mappdedNameAnnotation.equals("")) {
-                            XsdStringType mappedName = envEntry.addNewMappedName();
-                            mappedName.setStringValue(mappdedNameAnnotation);
+                            envEntry.setMappedName(mappdedNameAnnotation);
                         }
 
                         // description
                         String descriptionAnnotation = annotation.description();
                         if (!descriptionAnnotation.equals("")) {
-                            DescriptionType description = envEntry.addNewDescription();
-                            description.setStringValue(descriptionAnnotation);
+                            envEntry.setDescriptions(new Text[] {new Text(null, descriptionAnnotation)});
                         }
 
                         // lookup
                         String lookup = annotation.lookup();
                         if (!lookup.equals("")) {
-                            XsdStringType lookupName = envEntry.addNewLookupName();
-                            lookupName.setStringValue(lookup);
+                            envEntry.setLookupName(lookup);
                         }
+                        annotatedApp.getEnvEntry().add(envEntry);
                     }
                     catch (Exception anyException) {
                         log.debug("ResourceAnnotationHelper: Exception caught while processing <env-entry>");

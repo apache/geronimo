@@ -22,15 +22,15 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.EjbRefType;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.EjbRef;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class EjbRefMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class EjbRefMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     public static final String EJB_REF_NAME_PREFIX = "ejb-ref.ejb-ref-name.";
 
@@ -42,9 +42,9 @@ public class EjbRefMergeHandler implements WebFragmentMergeHandler<WebFragmentTy
      * b. web.xml file should inherit it from the web-fragment.xml file
      */
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (EjbRefType srcEjbRef : webFragment.getEjbRefArray()) {
-            String ejbRefName = srcEjbRef.getEjbRefName().getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (EjbRef srcEjbRef : webFragment.getEjbRef()) {
+            String ejbRefName = srcEjbRef.getEjbRefName();
             String ejbRefKey = createEjbRefKey(ejbRefName);
             MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(ejbRefKey);
             if (mergeItem != null) {
@@ -52,43 +52,43 @@ public class EjbRefMergeHandler implements WebFragmentMergeHandler<WebFragmentTy
                     throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("ejb-ref", ejbRefName, mergeItem.getBelongedURL(), mergeContext.getCurrentJarUrl()));
                 } else if (mergeItem.isFromWebXml() && !isEjbRefInjectTargetsConfiguredInInitialWebXML(ejbRefName, mergeContext)) {
                     //Merge InjectTarget
-                    EjbRefType ejbRef = (EjbRefType) mergeItem.getValue();
-                    for (InjectionTargetType injectTarget : srcEjbRef.getInjectionTargetArray()) {
-                        String ejbRefInjectTargetKey = createEjbRefInjectTargetKey(ejbRefName, injectTarget.getInjectionTargetClass().getStringValue(), injectTarget
-                                .getInjectionTargetName().getStringValue());
+                    EjbRef ejbRef = (EjbRef) mergeItem.getValue();
+                    for (InjectionTarget injectTarget : srcEjbRef.getInjectionTarget()) {
+                        String ejbRefInjectTargetKey = createEjbRefInjectTargetKey(ejbRefName, injectTarget.getInjectionTargetClass(), injectTarget
+                                .getInjectionTargetName());
                         if (!mergeContext.containsAttribute(ejbRefInjectTargetKey)) {
-                            ejbRef.addNewInjectionTarget().set(injectTarget);
+                            ejbRef.getInjectionTarget().add(injectTarget);
                             mergeContext.setAttribute(ejbRefInjectTargetKey, Boolean.TRUE);
                         }
                     }
                 }
             } else {
-                EjbRefType targetEjbRef = (EjbRefType) webApp.addNewEjbRef().set(srcEjbRef);
-                mergeContext.setAttribute(ejbRefKey, new MergeItem(targetEjbRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
-                for (InjectionTargetType injectionTarget : targetEjbRef.getInjectionTargetArray()) {
-                    mergeContext.setAttribute(createEjbRefInjectTargetKey(ejbRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                            .getStringValue()), Boolean.TRUE);
+                webApp.getEjbRef().add(srcEjbRef);
+                mergeContext.setAttribute(ejbRefKey, new MergeItem(srcEjbRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
+                for (InjectionTarget injectionTarget : srcEjbRef.getInjectionTarget()) {
+                    mergeContext.setAttribute(createEjbRefInjectTargetKey(ejbRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                            ), Boolean.TRUE);
                 }
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (EjbRefType ejbRef : webApp.getEjbRefArray()) {
-            String ejbRefName = ejbRef.getEjbRefName().getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (EjbRef ejbRef : webApp.getEjbRef()) {
+            String ejbRefName = ejbRef.getEjbRefName();
             mergeContext.setAttribute(createEjbRefKey(ejbRefName), new MergeItem(ejbRef, null, ElementSource.WEB_XML));
             //Create an attribute tag to indicate whether injectTarget is configured in web.xml file
-            if (ejbRef.getInjectionTargetArray().length > 0) {
+            if (ejbRef.getInjectionTarget().size() > 0) {
                 mergeContext.setAttribute(createEjbRefInjectTargetConfiguredInWebXMLKey(ejbRefName), Boolean.TRUE);
             }
-            for (InjectionTargetType injectionTarget : ejbRef.getInjectionTargetArray()) {
-                mergeContext.setAttribute(createEjbRefInjectTargetKey(ejbRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                        .getStringValue()), Boolean.TRUE);
+            for (InjectionTarget injectionTarget : ejbRef.getInjectionTarget()) {
+                mergeContext.setAttribute(createEjbRefInjectTargetKey(ejbRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                        ), Boolean.TRUE);
             }
         }
     }

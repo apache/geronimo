@@ -26,9 +26,8 @@ import javax.wsdl.Port;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
-import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
-import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
+import org.apache.openejb.jee.JavaWsdlMapping;
+import org.apache.openejb.jee.ServiceEndpointInterfaceMapping;
 
 /**
  * @version $Rev$ $Date$
@@ -37,23 +36,23 @@ public class PortInfo {
     private final String portComponentName;
     private final QName portQName;
     private final String seInterfaceName;
-    private final PortComponentHandlerType[] handlers;
+//    private final PortComponentHandler[] handlers;
     private final SharedPortInfo sharedPortInfo;
     
     // set after initialize is called
     private SchemaInfoBuilder schemaInfoBuilder;
-    private JavaWsdlMappingType javaWsdlMapping;
+    private JavaWsdlMapping javaWsdlMapping;
     private Port port;
-    private ServiceEndpointInterfaceMappingType seiMapping;
+    private ServiceEndpointInterfaceMapping seiMapping;
     private URI contextURI;
     private String location;
 
-    public PortInfo(SharedPortInfo sharedPortInfo, String portComponentName, QName portQName, String seiInterfaceName, PortComponentHandlerType[] handlers, String location) {
+    public PortInfo(SharedPortInfo sharedPortInfo, String portComponentName, QName portQName, String seiInterfaceName, /*PortComponentHandler[] handlers,*/ String location) {
         this.sharedPortInfo = sharedPortInfo;
         this.portComponentName = portComponentName;
         this.portQName = portQName;
         this.seInterfaceName = seiInterfaceName;
-        this.handlers = handlers;
+//        this.handlers = handlers;
         this.location = location;
     }
 
@@ -85,7 +84,7 @@ public class PortInfo {
         return schemaInfoBuilder.getDefinition();
     }
 
-    public JavaWsdlMappingType getJavaWsdlMapping() {
+    public JavaWsdlMapping getJavaWsdlMapping() {
         return javaWsdlMapping;
     }
 
@@ -93,13 +92,13 @@ public class PortInfo {
         return seInterfaceName;
     }
 
-    public ServiceEndpointInterfaceMappingType getServiceEndpointInterfaceMapping() {
+    public ServiceEndpointInterfaceMapping getServiceEndpointInterfaceMapping() {
         return seiMapping;
     }
 
-    public PortComponentHandlerType[] getHandlers() {
-        return handlers;
-    }
+//    public PortComponentHandler[] getHandlers() {
+//        return handlers;
+//    }
 
     public URI getContextURI() {
         return contextURI;

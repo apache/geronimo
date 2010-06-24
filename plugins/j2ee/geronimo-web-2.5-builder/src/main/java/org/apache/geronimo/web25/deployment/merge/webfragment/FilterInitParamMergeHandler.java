@@ -22,43 +22,43 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.FilterType;
-import org.apache.geronimo.xbeans.javaee6.ParamValueType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.Filter;
+import org.apache.openejb.jee.ParamValue;
+import org.apache.openejb.jee.WebApp;
 
 /**
  * @version $Rev$ $Date$
  */
-public class FilterInitParamMergeHandler implements SubMergeHandler<FilterType, FilterType> {
+public class FilterInitParamMergeHandler implements SubMergeHandler<Filter, Filter> {
 
     @Override
-    public void add(FilterType servlet, MergeContext mergeContext) throws DeploymentException {
-        String servletName = servlet.getFilterName().getStringValue();
-        for (ParamValueType paramValue : servlet.getInitParamArray()) {
+    public void add(Filter servlet, MergeContext mergeContext) throws DeploymentException {
+        String servletName = servlet.getFilterName();
+        for (ParamValue paramValue : servlet.getInitParam()) {
             addFilterInitParam(servletName, paramValue, ElementSource.WEB_FRAGMENT, mergeContext.getCurrentJarUrl(), mergeContext);
         }
     }
 
     @Override
-    public void merge(FilterType srcFilter, FilterType targetFilter, MergeContext mergeContext) throws DeploymentException {
-        String filterName = srcFilter.getFilterName().getStringValue();
-        for (ParamValueType paramValue : srcFilter.getInitParamArray()) {
-            MergeItem existedMergeItem = (MergeItem) mergeContext.getAttribute(createFilterInitParamKey(filterName, paramValue.getParamName().getStringValue()));
+    public void merge(Filter srcFilter, Filter targetFilter, MergeContext mergeContext) throws DeploymentException {
+        String filterName = srcFilter.getFilterName();
+        for (ParamValue paramValue : srcFilter.getInitParam()) {
+            MergeItem existedMergeItem = (MergeItem) mergeContext.getAttribute(createFilterInitParamKey(filterName, paramValue.getParamName()));
             if (existedMergeItem == null) {
-                targetFilter.addNewInitParam().set(paramValue);
+                targetFilter.getInitParam().add(paramValue);
                 addFilterInitParam(filterName, paramValue, ElementSource.WEB_FRAGMENT, mergeContext.getCurrentJarUrl(), mergeContext);
             } else {
-                ParamValueType existedParamValue = (ParamValueType) existedMergeItem.getValue();
+                ParamValue existedParamValue = (ParamValue) existedMergeItem.getValue();
                 switch (existedMergeItem.getSourceType()) {
                 case WEB_XML:
                     continue;
                 case WEB_FRAGMENT:
-                    if (existedParamValue.getParamValue().getStringValue().equals(paramValue.getParamValue().getStringValue())
+                    if (existedParamValue.getParamValue().equals(paramValue.getParamValue())
                             || existedMergeItem.getBelongedURL().equals(mergeContext.getCurrentJarUrl())) {
                         break;
                     } else {
-                        throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage("filter " + filterName, "param-name", paramValue.getParamName().getStringValue(),
-                                "param-value", existedParamValue.getParamValue().getStringValue(), existedMergeItem.getBelongedURL(), paramValue.getParamValue().getStringValue(), mergeContext
+                        throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage("filter " + filterName, "param-name", paramValue.getParamName(),
+                                "param-value", existedParamValue.getParamValue(), existedMergeItem.getBelongedURL(), paramValue.getParamValue(), mergeContext
                                         .getCurrentJarUrl()));
                     }
                 case ANNOTATION:
@@ -67,7 +67,7 @@ public class FilterInitParamMergeHandler implements SubMergeHandler<FilterType, 
                     //the name specified via the annotation. Init params are additive between the
                     //annotations and descriptors.
                     //In my understanding, the value of init-param should be overridden even if it is merged from annotation before the current web-fragment.xml file
-                    existedParamValue.getParamValue().set(paramValue.getParamValue());
+                    existedParamValue.setParamValue(paramValue.getParamValue());
                     existedMergeItem.setBelongedURL(mergeContext.getCurrentJarUrl());
                     existedMergeItem.setSourceType(ElementSource.WEB_FRAGMENT);
                 }
@@ -76,14 +76,14 @@ public class FilterInitParamMergeHandler implements SubMergeHandler<FilterType, 
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (FilterType filter : webApp.getFilterArray()) {
-            String filterName = filter.getFilterName().getStringValue();
-            for (ParamValueType paramValue : filter.getInitParamArray()) {
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (Filter filter : webApp.getFilter()) {
+            String filterName = filter.getFilterName();
+            for (ParamValue paramValue : filter.getInitParam()) {
                 addFilterInitParam(filterName, paramValue, ElementSource.WEB_XML, null, context);
             }
         }
@@ -97,7 +97,7 @@ public class FilterInitParamMergeHandler implements SubMergeHandler<FilterType, 
         return mergeContext.containsAttribute(createFilterInitParamKey(filterName, paramName));
     }
 
-    public static void addFilterInitParam(String filterName, ParamValueType paramValue, ElementSource source, String relativeUrl, MergeContext mergeContext) {
-        mergeContext.setAttribute(createFilterInitParamKey(filterName, paramValue.getParamName().getStringValue()), new MergeItem(paramValue, relativeUrl, source));
+    public static void addFilterInitParam(String filterName, ParamValue paramValue, ElementSource source, String relativeUrl, MergeContext mergeContext) {
+        mergeContext.setAttribute(createFilterInitParamKey(filterName, paramValue.getParamName()), new MergeItem(paramValue, relativeUrl, source));
     }
 }

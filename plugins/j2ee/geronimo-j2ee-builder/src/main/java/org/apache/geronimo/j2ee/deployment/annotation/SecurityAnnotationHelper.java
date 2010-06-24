@@ -23,11 +23,8 @@ import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RunAs;
 import javax.servlet.Servlet;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.javaee6.RoleNameType;
-import org.apache.geronimo.xbeans.javaee6.RunAsType;
-import org.apache.geronimo.xbeans.javaee6.SecurityRoleType;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.SecurityRole;
+import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.AbstractFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +68,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
      * @param classFinder  Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    public static void processAnnotations(WebAppType webApp, AbstractFinder classFinder) throws DeploymentException {
+    public static void processAnnotations(WebApp webApp, AbstractFinder classFinder) throws DeploymentException {
         if (webApp != null && classFinder != null) {
             if (classFinder.isAnnotationPresent(DeclareRoles.class)) {
                 processDeclareRoles(webApp, classFinder);
@@ -90,7 +87,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processDeclareRoles(WebAppType webApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processDeclareRoles(WebApp webApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processDeclareRoles(): Entry: webApp: " + webApp.toString());
 
         List<Class> classesWithDeclareRoles = classFinder.findAnnotatedClasses(DeclareRoles.class);
@@ -104,7 +101,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
         }
 
         // Validate deployment descriptor to ensure it's still okay
-        validateDD(new AnnotatedWebApp(webApp));
+//        validateDD(new AnnotatedWebApp(webApp));
 
         log.debug("processDeclareRoles(): Exit: webApp: " + webApp.toString());
     }
@@ -117,7 +114,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processRunAs(WebAppType webApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processRunAs(WebApp webApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processRunAs(): Entry: webApp: " + webApp.toString());
 
         List<Class> classesWithRunAs = classFinder.findAnnotatedClasses(RunAs.class);
@@ -131,7 +128,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
         }
 
         // Validate deployment descriptor to ensure it's still okay
-        validateDD(new AnnotatedWebApp(webApp));
+//        validateDD(new AnnotatedWebApp(webApp));
 
         log.debug("processRunAs(): Exit: webApp: " + webApp.toString());
     }
@@ -156,20 +153,20 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
      * @param annotation    @DeclareRoles annotation
      * @param cls           Class name with the @DeclareRoles annoation
      */
-    private static void addDeclareRoles(WebAppType webApp, DeclareRoles annotation, Class cls) {
+    private static void addDeclareRoles(WebApp webApp, DeclareRoles annotation, Class cls) {
         log.debug("addDeclareRoles( [webApp] " + webApp.toString() + "," + '\n' +
                   "[annotation] " + annotation.toString() + "," + '\n' +
                   "[cls] " + (cls != null ? cls.getName() : null) + "): Entry");
 
         // Get all the <security-role> tags from the deployment descriptor
-        SecurityRoleType[] securityRoles = webApp.getSecurityRoleArray();
+        List<SecurityRole> securityRoles = webApp.getSecurityRole();
 
         String[] annotationRoleNames = annotation.value();
         for (String annotationRoleName : annotationRoleNames) {
             if (!annotationRoleName.equals("")) {
                 boolean exists = false;
-                for (SecurityRoleType securityRole : securityRoles) {
-                    if (securityRole.getRoleName().getStringValue().trim().equals(annotationRoleName)) {
+                for (SecurityRole securityRole : securityRoles) {
+                    if (securityRole.getRoleName().trim().equals(annotationRoleName)) {
                         exists = true;
                         break;
                     }
@@ -179,9 +176,9 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
                 }
                 else {
                     log.debug("addDeclareRoles: <security-role> entry NOT found: " + annotationRoleName);
-                    SecurityRoleType securityRole = webApp.addNewSecurityRole();
-                    RoleNameType roleName = securityRole.addNewRoleName();
-                    roleName.setStringValue(annotationRoleName);
+                    SecurityRole securityRole = new SecurityRole();
+                    securityRole.setRoleName(annotationRoleName);
+                    webApp.getSecurityRole().add(securityRole);
                 }
             }
         }
@@ -210,21 +207,21 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
      * @param annotation    @RunAs annotation
      * @param cls           Class name with the @RunAs annoation
      */
-    private static void addRunAs(WebAppType webApp, RunAs annotation, Class cls) {
+    private static void addRunAs(WebApp webApp, RunAs annotation, Class cls) {
         log.debug("addRunAs( [webApp] " + webApp.toString() + "," + '\n' +
                   "[annotation] " + annotation.toString() + "," + '\n' +
                   "[cls] " + (cls != null ? cls.getName() : null) + "): Entry");
 
         String annotationRunAs = annotation.value();
         if (!annotationRunAs.equals("")) {
-            ServletType[] servlets = webApp.getServletArray();
+            List<org.apache.openejb.jee.Servlet> servlets = webApp.getServlet();
             boolean exists = false;
-            for (ServletType servlet : servlets) {
-                if (servlet.getServletClass().getStringValue().trim().equals(cls.getName())) {
-                    if (!servlet.isSetRunAs()) {
-                        RunAsType runAsType = servlet.addNewRunAs();
-                        RoleNameType roleName = runAsType.addNewRoleName();
-                        roleName.setStringValue(annotationRunAs);
+            for (org.apache.openejb.jee.Servlet servlet : servlets) {
+                if (servlet.getServletClass().trim().equals(cls.getName())) {
+                    if (servlet.getRunAs() == null) {
+                        org.apache.openejb.jee.RunAs runAs = new org.apache.openejb.jee.RunAs();
+                        runAs.setRoleName(annotationRunAs);
+                        servlet.setRunAs(runAs);
                     }
                     exists = true;
                     break;

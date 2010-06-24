@@ -22,15 +22,15 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.EnvEntryType;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.EnvEntry;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class EnvEntryMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class EnvEntryMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     public static final String ENV_ENTRY_NAME_PREFIX = "env-entry.env-entry-name.";
 
@@ -42,9 +42,9 @@ public class EnvEntryMergeHandler implements WebFragmentMergeHandler<WebFragment
      * b. web.xml file should inherit it from the web-fragment.xml file
      */
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (EnvEntryType srcEnvEntry : webFragment.getEnvEntryArray()) {
-            String envEntryName = srcEnvEntry.getEnvEntryName().getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (EnvEntry srcEnvEntry : webFragment.getEnvEntry()) {
+            String envEntryName = srcEnvEntry.getEnvEntryName();
             String envEntryKey = createEnvEntryKey(envEntryName);
             MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(envEntryKey);
             if (mergeItem != null) {
@@ -52,43 +52,43 @@ public class EnvEntryMergeHandler implements WebFragmentMergeHandler<WebFragment
                     throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("env-entry", envEntryName, mergeItem.getBelongedURL(), mergeContext.getCurrentJarUrl()));
                 } else if (mergeItem.isFromWebXml() && !isEnvEntryInjectTargetsConfiguredInInitialWebXML(envEntryName, mergeContext)) {
                     //Merge InjectTarget
-                    EnvEntryType envEntry = (EnvEntryType) mergeItem.getValue();
-                    for (InjectionTargetType injectTarget : srcEnvEntry.getInjectionTargetArray()) {
-                        String envEntryInjectTargetKey = createEnvEntryInjectTargetKey(envEntryName, injectTarget.getInjectionTargetClass().getStringValue(), injectTarget
-                                .getInjectionTargetName().getStringValue());
+                    EnvEntry envEntry = (EnvEntry) mergeItem.getValue();
+                    for (InjectionTarget injectTarget : srcEnvEntry.getInjectionTarget()) {
+                        String envEntryInjectTargetKey = createEnvEntryInjectTargetKey(envEntryName, injectTarget.getInjectionTargetClass(), injectTarget
+                                .getInjectionTargetName());
                         if (!mergeContext.containsAttribute(envEntryInjectTargetKey)) {
-                            envEntry.addNewInjectionTarget().set(injectTarget);
+                            envEntry.getInjectionTarget().add(injectTarget);
                             mergeContext.setAttribute(envEntryInjectTargetKey, Boolean.TRUE);
                         }
                     }
                 }
             } else {
-                EnvEntryType targetEnvEntry = (EnvEntryType) webApp.addNewEnvEntry().set(srcEnvEntry);
-                mergeContext.setAttribute(envEntryKey, new MergeItem(targetEnvEntry, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
-                for (InjectionTargetType injectionTarget : targetEnvEntry.getInjectionTargetArray()) {
-                    mergeContext.setAttribute(createEnvEntryInjectTargetKey(envEntryName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                            .getStringValue()), Boolean.TRUE);
+                webApp.getEnvEntry().add(srcEnvEntry);
+                mergeContext.setAttribute(envEntryKey, new MergeItem(srcEnvEntry, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
+                for (InjectionTarget injectionTarget : srcEnvEntry.getInjectionTarget()) {
+                    mergeContext.setAttribute(createEnvEntryInjectTargetKey(envEntryName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                            ), Boolean.TRUE);
                 }
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (EnvEntryType envEntry : webApp.getEnvEntryArray()) {
-            String envEntryName = envEntry.getEnvEntryName().getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (EnvEntry envEntry : webApp.getEnvEntry()) {
+            String envEntryName = envEntry.getEnvEntryName();
             mergeContext.setAttribute(createEnvEntryKey(envEntryName), new MergeItem(envEntry, null, ElementSource.WEB_XML));
             //Create an attribute tag to indicate whether injectTarget is configured in web.xml file
-            if (envEntry.getInjectionTargetArray().length > 0) {
+            if (envEntry.getInjectionTarget().size() > 0) {
                 mergeContext.setAttribute(createEnvEntryInjectTargetConfiguredInWebXMLKey(envEntryName), Boolean.TRUE);
             }
-            for (InjectionTargetType injectionTarget : envEntry.getInjectionTargetArray()) {
-                mergeContext.setAttribute(createEnvEntryInjectTargetKey(envEntryName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                        .getStringValue()), Boolean.TRUE);
+            for (InjectionTarget injectionTarget : envEntry.getInjectionTarget()) {
+                mergeContext.setAttribute(createEnvEntryInjectTargetKey(envEntryName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                        ), Boolean.TRUE);
             }
         }
     }

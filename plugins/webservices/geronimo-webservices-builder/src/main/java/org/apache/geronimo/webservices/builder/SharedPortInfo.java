@@ -18,14 +18,15 @@ package org.apache.geronimo.webservices.builder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
-import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
+import org.apache.openejb.jee.JavaWsdlMapping;
+import org.apache.openejb.jee.ServiceEndpointInterfaceMapping;
 
 /**
  * @version $Rev: 476049 $ $Date: 2006-11-16 23:35:17 -0500 (Thu, 16 Nov 2006) $
@@ -34,7 +35,7 @@ public class SharedPortInfo {
     
     private String jaxrpcMappingFile;
     private String wsdlLocation;
-    private JavaWsdlMappingType javaWsdlMapping;
+    private JavaWsdlMapping javaWsdlMapping;
     private SchemaInfoBuilder schemaInfoBuilder;
     private DescriptorVersion ddVersion;
 
@@ -93,7 +94,7 @@ public class SharedPortInfo {
         }
     }
     
-    public JavaWsdlMappingType getJavaWsdlMapping() {
+    public JavaWsdlMapping getJavaWsdlMapping() {
         return this.javaWsdlMapping;
     }
     
@@ -101,14 +102,14 @@ public class SharedPortInfo {
         return schemaInfoBuilder;
     }
     
-    public Map<String, ServiceEndpointInterfaceMappingType> getSEIMappings() {
+    public Map<String, ServiceEndpointInterfaceMapping> getSEIMappings() {
         if (this.javaWsdlMapping == null) {
             return Collections.emptyMap();
         }
-        HashMap<String, ServiceEndpointInterfaceMappingType> seiMappings = new HashMap<String, ServiceEndpointInterfaceMappingType>();
-        ServiceEndpointInterfaceMappingType[] mappings = this.javaWsdlMapping.getServiceEndpointInterfaceMappingArray();
-        for (ServiceEndpointInterfaceMappingType seiMapping : mappings) {
-            seiMappings.put(seiMapping.getServiceEndpointInterface().getStringValue().trim(), seiMapping);
+        HashMap<String, ServiceEndpointInterfaceMapping> seiMappings = new HashMap<String, ServiceEndpointInterfaceMapping>();
+        Collection<ServiceEndpointInterfaceMapping> mappings = this.javaWsdlMapping.getServiceEndpointInterfaceMapping();
+        for (ServiceEndpointInterfaceMapping seiMapping : mappings) {
+            seiMappings.put(seiMapping.getServiceEndpointInterface().trim(), seiMapping);
         }
         return seiMappings;
     }

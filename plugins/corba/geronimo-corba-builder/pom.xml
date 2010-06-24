@@ -66,8 +66,8 @@
                     <instructions>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Import-Package>
-                            org.w3.xml.x1998.namespace.impl,
-                            org.w3.xml.x1998.namespace,
+                            <!--org.w3.xml.x1998.namespace.impl,-->
+                            <!--org.w3.xml.x1998.namespace,-->
                             org.apache.xmlbeans.impl.schema;version="2.4",
                             *
                         </Import-Package>

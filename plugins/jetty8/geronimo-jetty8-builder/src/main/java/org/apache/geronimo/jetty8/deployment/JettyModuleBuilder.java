@@ -22,6 +22,7 @@ import static java.lang.Boolean.TRUE;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
@@ -40,6 +41,7 @@ import java.util.jar.JarFile;
 
 import javax.management.ObjectName;
 import javax.servlet.Servlet;
+import javax.xml.bind.JAXBException;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
@@ -67,7 +69,6 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty8.DefaultServletHolderWrapper;
 import org.apache.geronimo.jetty8.FilterHolderWrapper;
@@ -108,26 +109,7 @@ import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyAuthenticationType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
-import org.apache.geronimo.xbeans.javaee6.DispatcherType;
-import org.apache.geronimo.xbeans.javaee6.ErrorPageType;
-import org.apache.geronimo.xbeans.javaee6.FilterMappingType;
-import org.apache.geronimo.xbeans.javaee6.FilterType;
-import org.apache.geronimo.xbeans.javaee6.FormLoginConfigType;
-import org.apache.geronimo.xbeans.javaee6.JspConfigType;
-import org.apache.geronimo.xbeans.javaee6.JspPropertyGroupType;
-import org.apache.geronimo.xbeans.javaee6.ListenerType;
-import org.apache.geronimo.xbeans.javaee6.LocaleEncodingMappingListType;
-import org.apache.geronimo.xbeans.javaee6.LocaleEncodingMappingType;
-import org.apache.geronimo.xbeans.javaee6.LoginConfigType;
-import org.apache.geronimo.xbeans.javaee6.MimeMappingType;
-import org.apache.geronimo.xbeans.javaee6.ParamValueType;
-import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.TaglibType;
-import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WelcomeFileListType;
+import org.apache.openejb.jee.*;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -255,20 +237,21 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         }
 
         String specDD = null;
-        WebAppType webApp = null;
+        WebApp webApp = null;
 
         URL specDDUrl = BundleUtils.getEntry(bundle, "WEB-INF/web.xml");
         if (specDDUrl == null) {
-            webApp = WebAppType.Factory.newInstance();
+            webApp = new WebApp();
         } else {
             try {
                 specDD = JarUtils.readAll(specDDUrl);
-                XmlObject parsed = XmlBeansUtil.parse(specDD);
-                WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
-                webApp = webAppDoc.getWebApp();
-                WebDeploymentValidationUtils.validateWebApp(webApp);
-            } catch (XmlException e) {
-                throw new DeploymentException("Error parsing web.xml for " + bundle.getSymbolicName(), e);
+                InputStream in = specDDUrl.openStream();
+                try {
+                    webApp = (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+                } finally {
+                    in.close();
+                }
+//                WebDeploymentValidationUtils.validateWebApp(webApp);
             } catch (Exception e) {
                 throw new DeploymentException("Error reading web.xml for " + bundle.getSymbolicName(), e);
             }
@@ -285,7 +268,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         EnvironmentType environmentType = jettyWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
-        if (webApp.getDistributableArray().length == 1) {
+        if (webApp.getDistributable().size() == 1) {
             clusteringBuilders.buildEnvironment(jettyWebApp, environment);
         }
 
@@ -299,15 +282,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
-        // Create the AnnotatedApp interface for the WebModule
-        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
-
-        String name = getModuleName(webApp);
+        String name = webApp.getModuleName();
         if (name == null) {
             name = bundle.getSymbolicName();
         }
 
-        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextPath, JETTY_NAMESPACE, annotatedWebApp, shareJndi(null), null);
+        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextPath, JETTY_NAMESPACE, shareJndi(null), null);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, bundle, naming, idBuilder);
         }
@@ -321,7 +301,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
         // parse the spec dd
         String specDD = null;
-        WebAppType webApp = null;
+        WebApp webApp = null;
         try {
             if (specDDUrl == null) {
                 specDDUrl = JarUtils.createJarURL(moduleFile, "WEB-INF/web.xml");
@@ -332,11 +312,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             specDD = JarUtils.readAll(specDDUrl);
 
             // we found web.xml, if it won't parse that's an error.
-            XmlObject parsed = XmlBeansUtil.parse(specDD);
-            WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
-            webApp = webAppDoc.getWebApp();
-            WebDeploymentValidationUtils.validateWebApp(webApp);
-        } catch (XmlException e) {
+            InputStream in = specDDUrl.openStream();
+            try {
+                webApp = (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+            } finally {
+                in.close();
+            }
+//            WebDeploymentValidationUtils.validateWebApp(webApp);
+        } catch (JAXBException e) {
             // Output the target path in the error to make it clearer to the user which webapp
             // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
             // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
@@ -350,7 +333,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         }
 
         if (webApp == null) {
-            webApp = WebAppType.Factory.newInstance();
+            webApp = new WebApp();
         }
 
         Deployable deployable = new DeployableJarFile(moduleFile);
@@ -362,7 +345,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         EnvironmentType environmentType = jettyWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
-        if (webApp.getDistributableArray().length == 1) {
+        if (webApp.getDistributable().size() == 1) {
             clusteringBuilders.buildEnvironment(jettyWebApp, environment);
         }
 
@@ -388,10 +371,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
-        // Create the AnnotatedApp interface for the WebModule
-        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
-
-        String name = getModuleName(webApp);
+        String name = webApp.getModuleName();
         if (name == null) {
             if (standAlone) {
                 name = FileUtils.removeExtension(new File(moduleFile.getName()).getName(), ".war");
@@ -400,14 +380,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             }
         }
 
-        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextRoot, JETTY_NAMESPACE, annotatedWebApp, shareJndi(parentModule), parentModule);
+        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, jettyWebApp, specDD, contextRoot, JETTY_NAMESPACE, shareJndi(parentModule), parentModule);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
         }
         return module;
     }
 
-    String getContextRoot(JettyWebAppType jettyWebApp, String contextRoot, WebAppType webApp, boolean standAlone, JarFile moduleFile, String targetPath) {
+    String getContextRoot(JettyWebAppType jettyWebApp, String contextRoot, WebApp webApp, boolean standAlone, JarFile moduleFile, String targetPath) {
         if (jettyWebApp.isSetContextRoot()) {
             contextRoot = jettyWebApp.getContextRoot();
         } else if (contextRoot == null || contextRoot.trim().equals("")) {
@@ -418,7 +398,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         return contextRoot;
     }
 
-    JettyWebAppType getJettyWebApp(Object plan, Deployable deployable, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
+    JettyWebAppType getJettyWebApp(Object plan, Deployable deployable, boolean standAlone, String targetPath, WebApp webApp) throws DeploymentException {
         XmlObject rawPlan = null;
         try {
             // load the geronimo-web.xml from either the supplied plan or from the earFile
@@ -482,7 +462,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         AbstractName moduleName = module.getModuleName();
         WebModule webModule = (WebModule) module;
 
-        WebAppType webApp = (WebAppType) webModule.getSpecDD();
+        WebApp webApp = (WebApp) webModule.getSpecDD();
         JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
         GBeanData webModuleData = new GBeanData(moduleName, WebAppContextWrapper.class);
 
@@ -492,7 +472,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
         //N.B. use earContext not moduleContext
         //TODO fix this for javaee 5 !!!
-        resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
+        resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRef(), jettyWebApp.getResourceRefArray());
         try {
             moduleContext.addGBean(webModuleData);
 
@@ -527,9 +507,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 webModuleData.setReferencePattern("JettyContainer", jettyContainerObjectName);
             }
             //stuff that jetty used to do
-            if (webApp.getDisplayNameArray().length > 0) {
-                webModuleData.setAttribute("displayName", webApp.getDisplayNameArray()[0].getStringValue());
-            }
+            webModuleData.setAttribute("displayName", webApp.getDisplayName());
 
             // configure context parameters.
             configureContextParams(webApp, webModuleData);
@@ -538,11 +516,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             configureListeners(webApp, webModuleData);
 
             webModuleData.setAttribute(WebAppContextWrapper.GBEAN_ATTR_SESSION_TIMEOUT,
-                    (webApp.getSessionConfigArray().length == 1 && webApp.getSessionConfigArray(0).getSessionTimeout() != null) ?
-                            webApp.getSessionConfigArray(0).getSessionTimeout().getBigIntegerValue().intValue() * 60 :
+                    (webApp.getSessionConfig().size() == 1 && webApp.getSessionConfig().get(0).getSessionTimeout() != null) ?
+                            webApp.getSessionConfig().get(0).getSessionTimeout().intValue() * 60 :
                             defaultSessionTimeoutSeconds);
 
-            Boolean distributable = webApp.getDistributableArray().length == 1 ? TRUE : FALSE;
+            Boolean distributable = webApp.getDistributable().size() == 1 ? TRUE : FALSE;
             webModuleData.setAttribute("distributable", distributable);
             if (TRUE == distributable) {
                 clusteringBuilders.build(jettyWebApp, earContext, moduleContext);
@@ -638,8 +616,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             }
 
             //set up servlet gbeans.
-            ServletType[] servletTypes = webApp.getServletArray();
-            addServlets(moduleName, webModule, servletTypes, servletMappings, moduleContext);
+            List<org.apache.openejb.jee.Servlet> servlets = webApp.getServlet();
+            addServlets(moduleName, webModule, servlets, servletMappings, moduleContext);
 
             if (jettyWebApp.isSetSecurityRealmName()) {
                 configureSecurityRealm(earContext, webApp, jettyWebApp, bundle, webModuleData);
@@ -656,7 +634,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             }
 
             //not truly metadata complete until MBEs have run
-            if (!webApp.getMetadataComplete()) {
+            if (!webApp.isMetadataComplete()) {
                 webApp.setMetadataComplete(true);
                 if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f) {
                     String specDeploymentPlan = getSpecDDAsString(webModule);
@@ -684,7 +662,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 //        moduleContext.addGBean(beanData);
     }
 
-    private void configureSecurityRealm(EARContext earContext, WebAppType webApp, JettyWebAppType jettyWebApp, Bundle bundle, GBeanData webModuleData) throws DeploymentException {
+    private void configureSecurityRealm(EARContext earContext, WebApp webApp, JettyWebAppType jettyWebApp, Bundle bundle, GBeanData webModuleData) throws DeploymentException {
         AbstractName moduleName = webModuleData.getAbstractName();
         if (earContext.getSecurityConfiguration() == null) {
             throw new DeploymentException(
@@ -725,18 +703,18 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         return servletGBeanData;
     }
 
-    private void addFiltersGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, WebAppType webApp) throws GBeanAlreadyExistsException {
-        FilterType[] filterArray = webApp.getFilterArray();
-        for (FilterType filterType : filterArray) {
-            String filterName = filterType.getFilterName().getStringValue().trim();
+    private void addFiltersGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, WebApp webApp) throws GBeanAlreadyExistsException {
+        List<org.apache.openejb.jee.Filter> filters = webApp.getFilter();
+        for (org.apache.openejb.jee.Filter filter : filters) {
+            String filterName = filter.getFilterName().trim();
             AbstractName filterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
             GBeanData filterData = new GBeanData(filterAbstractName, FilterHolderWrapper.class);
             filterData.setAttribute("filterName", filterName);
-            filterData.setAttribute("filterClass", filterType.getFilterClass().getStringValue().trim());
+            filterData.setAttribute("filterClass", filter.getFilterClass().trim());
             Map<String, String> initParams = new HashMap<String, String>();
-            ParamValueType[] initParamArray = filterType.getInitParamArray();
-            for (ParamValueType paramValueType : initParamArray) {
-                initParams.put(paramValueType.getParamName().getStringValue().trim(), paramValueType.getParamValue().getStringValue().trim());
+            List<ParamValue> initParamArray = filter.getInitParam();
+            for (ParamValue paramValue : initParamArray) {
+                initParams.put(paramValue.getParamName().trim(), paramValue.getParamValue().trim());
             }
             filterData.setAttribute("initParams", initParams);
             filterData.setReferencePattern("JettyServletRegistration", moduleName);
@@ -744,10 +722,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         }
     }
 
-    private void addFilterMappingsGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, WebAppType webApp, AbstractName previous) throws GBeanAlreadyExistsException {
-        FilterMappingType[] filterMappingArray = webApp.getFilterMappingArray();
-        for (FilterMappingType filterMappingType : filterMappingArray) {
-            String filterName = filterMappingType.getFilterName().getStringValue().trim();
+    private void addFilterMappingsGBeans(EARContext earContext, EARContext moduleContext, AbstractName moduleName, WebApp webApp, AbstractName previous) throws GBeanAlreadyExistsException {
+        List<FilterMapping> filterMappingArray = webApp.getFilterMapping();
+        for (FilterMapping filterMapping : filterMappingArray) {
+            String filterName = filterMapping.getFilterName().trim();
             GBeanData filterMappingData = new GBeanData(JettyFilterMapping.class);
             if (previous != null) {
                 filterMappingData.addDependency(previous);
@@ -756,19 +734,16 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             AbstractName filterAbstractName = earContext.getNaming().createChildName(moduleName, filterName, NameFactory.WEB_FILTER);
 
             AbstractName filterMappingName = null;
-            if (filterMappingType.sizeOfUrlPatternArray() > 0) {
-                String[] urlPatterns = new String[filterMappingType.sizeOfUrlPatternArray()];
-                for (int j = 0; j < urlPatterns.length; j++) {
-                    urlPatterns[j] = filterMappingType.getUrlPatternArray(j).getStringValue().trim();
-                }
+            if (!filterMapping.getUrlPattern().isEmpty()) {
+                String[] urlPatterns = filterMapping.getUrlPattern().toArray(new String[filterMapping.getUrlPattern().size()]);
 
                 filterMappingData.setAttribute("urlPatterns", urlPatterns);
                 filterMappingName = earContext.getNaming().createChildName(filterAbstractName, ObjectName.quote(Arrays.deepToString(urlPatterns)), NameFactory.URL_WEB_FILTER_MAPPING);
             }
-            if (filterMappingType.sizeOfServletNameArray() > 0) {
+            if (!filterMapping.getServletName().isEmpty()) {
                 Set<AbstractName> servletNameSet = new HashSet<AbstractName>();
-                for (int j = 0; j < filterMappingType.sizeOfServletNameArray(); j++) {
-                    String servletName = filterMappingType.getServletNameArray(j).getStringValue().trim();
+                for (String servletName: filterMapping.getServletName()) {
+                    //TODO trim
                     AbstractName abstractServletName = earContext.getNaming().createChildName(moduleName, servletName, NameFactory.SERVLET);
                     servletNameSet.add(abstractServletName);
                     filterMappingData.addDependency(abstractServletName);
@@ -781,19 +756,18 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             filterMappingData.setAbstractName(filterMappingName);
             previous = filterMappingName;
 
-            boolean request = filterMappingType.getDispatcherArray().length == 0;
+            boolean request = filterMapping.getDispatcher().size() == 0;
             boolean forward = false;
             boolean include = false;
             boolean error = false;
-            for (int j = 0; j < filterMappingType.getDispatcherArray().length; j++) {
-                DispatcherType dispatcherType = filterMappingType.getDispatcherArray()[j];
-                if (dispatcherType.getStringValue().equals("REQUEST")) {
+            for (Dispatcher dispatcher : filterMapping.getDispatcher()) {
+                if (dispatcher.equals(Dispatcher.REQUEST)) {
                     request = true;
-                } else if (dispatcherType.getStringValue().equals("FORWARD")) {
+                } else if (dispatcher.equals(Dispatcher.FORWARD)) {
                     forward = true;
-                } else if (dispatcherType.getStringValue().equals("INCLUDE")) {
+                } else if (dispatcher.equals(Dispatcher.INCLUDE)) {
                     include = true;
-                } else if (dispatcherType.getStringValue().equals("ERROR")) {
+                } else if (dispatcher.equals(Dispatcher.ERROR)) {
                     error = true;
                 }
             }
@@ -838,29 +812,29 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         return previous;
     }
 
-    private void buildServletMappings(Module module, WebAppType webApp, Map<String, Set<String>> servletMappings, Set<String> knownServletMappings) throws DeploymentException {
-        ServletType[] servletTypes = webApp.getServletArray();
+    private void buildServletMappings(Module module, WebApp webApp, Map<String, Set<String>> servletMappings, Set<String> knownServletMappings) throws DeploymentException {
+        List<org.apache.openejb.jee.Servlet> servlets = webApp.getServlet();
         Set<String> knownServlets = new HashSet<String>();
-        for (ServletType type : servletTypes) {
-            knownServlets.add(type.getServletName().getStringValue().trim());
+        for (org.apache.openejb.jee.Servlet servlet : servlets) {
+            knownServlets.add(servlet.getServletName().trim());
         }
 
-        ServletMappingType[] servletMappingArray = webApp.getServletMappingArray();
-        for (ServletMappingType servletMappingType : servletMappingArray) {
-            String servletName = servletMappingType.getServletName().getStringValue().trim();
+        List<ServletMapping> servletMappingArray = webApp.getServletMapping();
+        for (ServletMapping servletMapping : servletMappingArray) {
+            String servletName = servletMapping.getServletName().trim();
             if (!knownServlets.contains(servletName)) {
                 throw new DeploymentException("Web app " + module.getName() +
                         " contains a servlet mapping that refers to servlet '" + servletName +
                         "' but no such servlet was found!");
             }
-            UrlPatternType[] urlPatterns = servletMappingType.getUrlPatternArray();
+            List<String> urlPatterns = servletMapping.getUrlPattern();
             addMappingsForServlet(servletName, urlPatterns, knownServletMappings, servletMappings);
         }
     }
 
-    private void addMappingsForServlet(String servletName, UrlPatternType[] urlPatterns, Set<String> knownServletMappings, Map<String, Set<String>> servletMappings) throws DeploymentException {
-        for (UrlPatternType patternType : urlPatterns) {
-            String urlPattern = patternType.getStringValue().trim();
+    private void addMappingsForServlet(String servletName, List<String> urlPatterns, Set<String> knownServletMappings, Map<String, Set<String>> servletMappings) throws DeploymentException {
+        for (String pattern : urlPatterns) {
+            String urlPattern = pattern.trim();
             if (!urlPattern.startsWith("*") && !urlPattern.startsWith("/")) {
                 urlPattern = "/" + urlPattern;
             }
@@ -880,14 +854,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         }
     }
 
-    private void configureAuthentication(Module module, WebAppType webApp, JettyWebAppType jettyWebApp, GBeanData webModuleData) throws DeploymentException, GBeanAlreadyExistsException {
+    private void configureAuthentication(Module module, WebApp webApp, JettyWebAppType jettyWebApp, GBeanData webModuleData) throws DeploymentException, GBeanAlreadyExistsException {
         EARContext moduleContext = module.getEarContext();
-        LoginConfigType[] loginConfigArray = webApp.getLoginConfigArray();
-        if (loginConfigArray.length > 1) {
-            throw new DeploymentException("Web app " + module.getName() + " cannot have more than one login-config element.  Currently has " + loginConfigArray.length + " login-config elements.");
+        List<LoginConfig> loginConfigs = webApp.getLoginConfig();
+        if (loginConfigs.size() > 1) {
+            throw new DeploymentException("Web app " + module.getName() + " cannot have more than one login-config element.  Currently has " + loginConfigs.size() + " login-config elements.");
         }
         JettyAuthenticationType authType = jettyWebApp.getAuthentication();
-        if (loginConfigArray.length == 1 || authType != null || jettyWebApp.isSetSecurityRealmName()) {
+        if (loginConfigs.size() == 1 || authType != null || jettyWebApp.isSetSecurityRealmName()) {
             AbstractName factoryName = moduleContext.getNaming().createChildName(module.getModuleName(), "securityHandlerFactory", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
             webModuleData.setReferencePattern("SecurityHandlerFactory", factoryName);
 
@@ -902,24 +876,24 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 configureLocalJaspicProvider(new JettyAuthenticationWrapper(authType), contextPath, module, securityFactoryData);
                 //otherwise rely on pre-configured jaspi
             } else {
-                LoginConfigType loginConfig = loginConfigArray.length == 1? loginConfigArray[0]: null;
+                LoginConfig loginConfig = loginConfigs.size() == 1? loginConfigs.get(0): null;
                 GBeanData securityFactoryData = new GBeanData(factoryName, JettySecurityHandlerFactory.class);
                 configureConfigurationFactory(jettyWebApp, loginConfig, securityFactoryData);
                 BuiltInAuthMethod auth = BuiltInAuthMethod.NONE;
                 if (loginConfig != null) {
-                    if (loginConfig.isSetAuthMethod()) {
-                        String authMethod = loginConfig.getAuthMethod().getStringValue().trim();
+                    if (loginConfig.getAuthMethod() != null) {
+                        String authMethod = loginConfig.getAuthMethod().trim();
                         auth = BuiltInAuthMethod.getValueOf(authMethod);
 
                         if (auth == BuiltInAuthMethod.BASIC) {
-                            securityFactoryData.setAttribute("realmName", loginConfig.getRealmName().getStringValue().trim());
+                            securityFactoryData.setAttribute("realmName", loginConfig.getRealmName().trim());
                         } else if (auth == BuiltInAuthMethod.DIGEST) {
-                            securityFactoryData.setAttribute("realmName", loginConfig.getRealmName().getStringValue().trim());
+                            securityFactoryData.setAttribute("realmName", loginConfig.getRealmName().trim());
                         } else if (auth == BuiltInAuthMethod.FORM) {
-                            if (loginConfig.isSetFormLoginConfig()) {
-                                FormLoginConfigType formLoginConfig = loginConfig.getFormLoginConfig();
-                                securityFactoryData.setAttribute("loginPage", formLoginConfig.getFormLoginPage().getStringValue());
-                                securityFactoryData.setAttribute("errorPage", formLoginConfig.getFormErrorPage().getStringValue());
+                            if (loginConfig.getFormLoginConfig() != null) {
+                                FormLoginConfig formLoginConfig = loginConfig.getFormLoginConfig();
+                                securityFactoryData.setAttribute("loginPage", formLoginConfig.getFormLoginPage());
+                                securityFactoryData.setAttribute("errorPage", formLoginConfig.getFormErrorPage());
                             }
                         } else if (auth == BuiltInAuthMethod.CLIENTCERT) {
                             //nothing to do
@@ -930,8 +904,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                     } else {
                         throw new DeploymentException("No auth method configured and no jaspi configured");
                     }
-                    if (loginConfig.isSetRealmName()) {
-                        webModuleData.setAttribute("realmName", loginConfig.getRealmName().getStringValue());
+                    if (loginConfig.getRealmName() != null) {
+                        webModuleData.setAttribute("realmName", loginConfig.getRealmName());
                     }
                 }
                 securityFactoryData.setAttribute("authMethod", auth);
@@ -980,70 +954,70 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         }
     }
 
-    private void configureConfigurationFactory(JettyWebAppType jettyWebApp, LoginConfigType loginConfig, GBeanData securityFactoryData) {
+    private void configureConfigurationFactory(JettyWebAppType jettyWebApp, LoginConfig loginConfig, GBeanData securityFactoryData) {
         String securityRealmName;
         if (jettyWebApp.isSetSecurityRealmName()) {
             securityRealmName = jettyWebApp.getSecurityRealmName().trim();
         } else {
             if (loginConfig == null) return;
-            securityRealmName = loginConfig.getRealmName().getStringValue().trim();
+            securityRealmName = loginConfig.getRealmName().trim();
         }
         AbstractNameQuery configurationFactoryName = new AbstractNameQuery(null, Collections.singletonMap("name", securityRealmName), ConfigurationFactory.class.getName());
         securityFactoryData.setReferencePattern("ConfigurationFactory", configurationFactoryName);
     }
 
-    private void configureTagLibs(Module module, WebAppType webApp, GBeanData webModuleData, Map<String, Set<String>> servletMappings, Set<String> knownServletMappings, String jspServletName) throws DeploymentException {
-        JspConfigType[] jspConfigArray = webApp.getJspConfigArray();
-        if (jspConfigArray.length > 1) {
-            throw new DeploymentException("Web app " + module.getName() + " cannot have more than one jsp-config element.  Currently has " + jspConfigArray.length + " jsp-config elements.");
+    private void configureTagLibs(Module module, WebApp webApp, GBeanData webModuleData, Map<String, Set<String>> servletMappings, Set<String> knownServletMappings, String jspServletName) throws DeploymentException {
+        List<JspConfig> jspConfigArray = webApp.getJspConfig();
+        if (jspConfigArray.size() > 1) {
+            throw new DeploymentException("Web app " + module.getName() + " cannot have more than one jsp-config element.  Currently has " + jspConfigArray.size() + " jsp-config elements.");
         }
         Map<String, String> tagLibMap = new HashMap<String, String>();
-        for (JspConfigType aJspConfigArray : jspConfigArray) {
-            TaglibType[] tagLibArray = aJspConfigArray.getTaglibArray();
-            for (TaglibType taglib : tagLibArray) {
-                tagLibMap.put(taglib.getTaglibUri().getStringValue().trim(), taglib.getTaglibLocation().getStringValue().trim());
+        for (JspConfig aJspConfigArray : jspConfigArray) {
+            List<Taglib> tagLibArray = aJspConfigArray.getTaglib();
+            for (Taglib taglib : tagLibArray) {
+                tagLibMap.put(taglib.getTaglibUri().trim(), taglib.getTaglibLocation().trim());
             }
-            for (JspPropertyGroupType propertyGroup : aJspConfigArray.getJspPropertyGroupArray()) {
-                UrlPatternType[] urlPatterns = propertyGroup.getUrlPatternArray();
+            for (JspPropertyGroup propertyGroup : aJspConfigArray.getJspPropertyGroup()) {
+                List<String> urlPatterns = propertyGroup.getUrlPattern();
                 addMappingsForServlet(jspServletName, urlPatterns, knownServletMappings, servletMappings);
             }
         }
         webModuleData.setAttribute("tagLibMap", tagLibMap);
     }
 
-    private void configureErrorPages(WebAppType webApp, GBeanData webModuleData) {
-        ErrorPageType[] errorPageArray = webApp.getErrorPageArray();
+    private void configureErrorPages(WebApp webApp, GBeanData webModuleData) {
+        List<ErrorPage> errorPageArray = webApp.getErrorPage();
         Map<String, String> errorPageMap = new HashMap<String, String>();
-        for (ErrorPageType errorPageType : errorPageArray) {
-            if (errorPageType.isSetErrorCode()) {
-                errorPageMap.put(errorPageType.getErrorCode().getStringValue().trim(), errorPageType.getLocation().getStringValue().trim());
+        for (ErrorPage errorPage : errorPageArray) {
+            if (errorPage.getErrorCode() != null) {
+                errorPageMap.put(errorPage.getErrorCode() + "", errorPage.getLocation().trim());
             } else {
-                errorPageMap.put(errorPageType.getExceptionType().getStringValue().trim(), errorPageType.getLocation().getStringValue().trim());
+                errorPageMap.put(errorPage.getExceptionType().trim(), errorPage.getLocation().trim());
             }
         }
         webModuleData.setAttribute("errorPages", errorPageMap);
     }
 
-    private void configureLocaleEncodingMappingLists(WebAppType webApp, GBeanData webModuleData) {
-        LocaleEncodingMappingListType[] localeEncodingMappingListArray = webApp.getLocaleEncodingMappingListArray();
+    private void configureLocaleEncodingMappingLists(WebApp webApp, GBeanData webModuleData) {
+        List<LocaleEncodingMappingList> localeEncodingMappingListArray = webApp.getLocaleEncodingMappingList();
         Map<String, String> localeEncodingMappingMap = new HashMap<String, String>(defaultLocaleEncodingMappings);
-        for (LocaleEncodingMappingListType aLocaleEncodingMappingListArray : localeEncodingMappingListArray) {
-            LocaleEncodingMappingType[] localeEncodingMappingArray = aLocaleEncodingMappingListArray.getLocaleEncodingMappingArray();
-            for (LocaleEncodingMappingType localeEncodingMapping : localeEncodingMappingArray) {
+        for (LocaleEncodingMappingList aLocaleEncodingMappingListArray : localeEncodingMappingListArray) {
+            List<LocaleEncodingMapping> localeEncodingMappingArray = aLocaleEncodingMappingListArray.getLocaleEncodingMapping();
+            for (LocaleEncodingMapping localeEncodingMapping : localeEncodingMappingArray) {
                 localeEncodingMappingMap.put(localeEncodingMapping.getLocale().trim(), localeEncodingMapping.getEncoding().trim());
             }
         }
         webModuleData.setAttribute("localeEncodingMapping", localeEncodingMappingMap);
     }
 
-    private void configureWelcomeFileLists(WebAppType webApp, GBeanData webModuleData) {
-        WelcomeFileListType[] welcomeFileArray = webApp.getWelcomeFileListArray();
+    private void configureWelcomeFileLists(WebApp webApp, GBeanData webModuleData) {
+        List<WelcomeFileList> welcomeFileArray = webApp.getWelcomeFileList();
         List<String> welcomeFiles;
-        if (welcomeFileArray.length > 0) {
+        if (welcomeFileArray.size() > 0) {
             welcomeFiles = new ArrayList<String>();
-            for (WelcomeFileListType aWelcomeFileArray : welcomeFileArray) {
-                String[] welcomeFileListType = aWelcomeFileArray.getWelcomeFileArray();
-                for (String welcomeFile : welcomeFileListType) {
+            for (WelcomeFileList aWelcomeFileArray : welcomeFileArray) {
+                List<String> welcomeFileList = aWelcomeFileArray.getWelcomeFile();
+                for (String welcomeFile : welcomeFileList) {
                     welcomeFiles.add(welcomeFile.trim());
                 }
             }
@@ -1053,29 +1027,29 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         webModuleData.setAttribute("welcomeFiles", welcomeFiles.toArray(new String[welcomeFiles.size()]));
     }
 
-    private void configureMimeMappings(WebAppType webApp, GBeanData webModuleData) {
-        MimeMappingType[] mimeMappingArray = webApp.getMimeMappingArray();
+    private void configureMimeMappings(WebApp webApp, GBeanData webModuleData) {
+        List<MimeMapping> mimeMappingArray = webApp.getMimeMapping();
         Map<String, String> mimeMappingMap = new HashMap<String, String>(defaultMimeTypeMappings);
-        for (MimeMappingType mimeMappingType : mimeMappingArray) {
-            mimeMappingMap.put(mimeMappingType.getExtension().getStringValue().trim(), mimeMappingType.getMimeType().getStringValue().trim());
+        for (MimeMapping mimeMapping : mimeMappingArray) {
+            mimeMappingMap.put(mimeMapping.getExtension().trim(), mimeMapping.getMimeType().trim());
         }
         webModuleData.setAttribute("mimeMap", mimeMappingMap);
     }
 
-    private void configureListeners(WebAppType webApp, GBeanData webModuleData) {
-        ListenerType[] listenerArray = webApp.getListenerArray();
+    private void configureListeners(WebApp webApp, GBeanData webModuleData) {
+        List<Listener> listenerArray = webApp.getListener();
         Collection<String> listeners = new ArrayList<String>();
-        for (ListenerType listenerType : listenerArray) {
-            listeners.add(listenerType.getListenerClass().getStringValue().trim());
+        for (Listener listener : listenerArray) {
+            listeners.add(listener.getListenerClass().trim());
         }
         webModuleData.setAttribute("listenerClassNames", listeners);
     }
 
-    private void configureContextParams(WebAppType webApp, GBeanData webModuleData) {
-        ParamValueType[] contextParamArray = webApp.getContextParamArray();
+    private void configureContextParams(WebApp webApp, GBeanData webModuleData) {
+        List<ParamValue> contextParamArray = webApp.getContextParam();
         Map<String, String> contextParams = new HashMap<String, String>();
-        for (ParamValueType contextParam : contextParamArray) {
-            contextParams.put(contextParam.getParamName().getStringValue().trim(), contextParam.getParamValue().getStringValue().trim());
+        for (ParamValue contextParam : contextParamArray) {
+            contextParams.put(contextParam.getParamName().trim(), contextParam.getParamValue().trim());
         }
         webModuleData.setAttribute("contextParamMap", contextParams);
     }
@@ -1109,23 +1083,23 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
      *
      * @param webModuleName   an <code>ObjectName</code> value
      * @param module          a <code>Module</code> value
-     * @param servletTypes    a <code>ServletType[]</code> value, contains the <code>servlet</code> entries from <code>web.xml</code>.
+     * @param servlets    a <code>Servlet[]</code> value, contains the <code>servlet</code> entries from <code>web.xml</code>.
      * @param servletMappings a <code>Map</code> value
      * @param moduleContext   an <code>EARContext</code> value
      * @throws DeploymentException if an error occurs
      */
     private void addServlets(AbstractName webModuleName,
                              Module module,
-                             ServletType[] servletTypes,
+                             List<org.apache.openejb.jee.Servlet> servlets,
                              Map<String, Set<String>> servletMappings,
                              EARContext moduleContext) throws DeploymentException {
 
-        // this TreeSet will order the ServletTypes based on whether
+        // this TreeSet will order the Servlets based on whether
         // they have a load-on-startup element and what its value is
-        TreeSet<ServletType> loadOrder = new TreeSet<ServletType>(new StartupOrderComparator());
+        TreeSet<org.apache.openejb.jee.Servlet> loadOrder = new TreeSet<org.apache.openejb.jee.Servlet>(new StartupOrderComparator());
 
         // add all of the servlets to the sorted set
-        loadOrder.addAll(Arrays.asList(servletTypes));
+        loadOrder.addAll(servlets);
 
         // now that they're sorted, read them in order and add them to
         // the context.  we'll use a GBean reference to enforce the
@@ -1137,9 +1111,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         // of how to do this.
         // http://issues.apache.org/jira/browse/GERONIMO-645
         AbstractName previousServlet = null;
-        for (Object aLoadOrder : loadOrder) {
-            ServletType servletType = (ServletType) aLoadOrder;
-            previousServlet = addServlet(webModuleName, module, previousServlet, servletType, servletMappings, moduleContext);
+        for (org.apache.openejb.jee.Servlet servlet : loadOrder) {
+            previousServlet = addServlet(webModuleName, module, previousServlet, servlet, servletMappings, moduleContext);
         }
     }
 
@@ -1147,7 +1120,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
      * @param webModuleName   AbstractName of the web module
      * @param module          the web module being added
      * @param previousServlet the servlet to start before this one in init order
-     * @param servletType     XMLObject specifying the servlet configuration
+     * @param servlet     XMLObject specifying the servlet configuration
      * @param servletMappings Map of servlet name to set of ServletMapping strings for this web app
      * @param moduleContext   deployment context for this module
      * @return AbstractName of servlet gbean added
@@ -1156,16 +1129,16 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
     private AbstractName addServlet(AbstractName webModuleName,
                                     Module module,
                                     AbstractName previousServlet,
-                                    ServletType servletType,
+                                    org.apache.openejb.jee.Servlet servlet,
                                     Map<String, Set<String>> servletMappings,
                                     EARContext moduleContext) throws DeploymentException {
-        String servletName = servletType.getServletName().getStringValue().trim();
+        String servletName = servlet.getServletName().trim();
         AbstractName servletAbstractName = moduleContext.getNaming().createChildName(webModuleName, servletName, NameFactory.SERVLET);
         GBeanData servletData;
         Map<String, String> initParams = new HashMap<String, String>();
-        if (servletType.isSetServletClass()) {
+        if (servlet.getServletClass() != null) {
             Bundle webBundle = moduleContext.getDeploymentBundle();
-            String servletClassName = servletType.getServletClass().getStringValue().trim();
+            String servletClassName = servlet.getServletClass().trim();
             Class servletClass;
             try {
                 servletClass = webBundle.loadClass(servletClassName);
@@ -1201,9 +1174,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                     throw new DeploymentException("POJO web service: " + servletName + " not configured by any web service builder");
                 }
             }
-        } else if (servletType.isSetJspFile()) {
+        } else if (servlet.getJspFile() != null) {
             servletData = new GBeanData(servletAbstractName, ServletHolderWrapper.class);
-            servletData.setAttribute("jspFile", servletType.getJspFile().getStringValue().trim());
+            servletData.setAttribute("jspFile", servlet.getJspFile().trim());
             servletData.setAttribute("servletClass", jspServlet.getServletClassName());
             initParams.put("development", "false");
         } else {
@@ -1220,13 +1193,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         //TODO in init param setter, add classpath if jspFile is not null.
         servletData.setReferencePattern("JettyServletRegistration", webModuleName);
         servletData.setAttribute("servletName", servletName);
-        ParamValueType[] initParamArray = servletType.getInitParamArray();
-        for (ParamValueType paramValueType : initParamArray) {
-            initParams.put(paramValueType.getParamName().getStringValue().trim(), paramValueType.getParamValue().getStringValue().trim());
+        List<ParamValue> initParamArray = servlet.getInitParam();
+        for (ParamValue paramValue : initParamArray) {
+            initParams.put(paramValue.getParamName().trim(), paramValue.getParamValue().trim());
         }
         servletData.setAttribute("initParams", initParams);
-        if (servletType.isSetLoadOnStartup()) {
-            Integer loadOnStartup = new Integer(servletType.xgetLoadOnStartup().getStringValue());
+        if (servlet.getLoadOnStartup() != null) {
+            Integer loadOnStartup = servlet.getLoadOnStartup();
             servletData.setAttribute("loadOnStartup", loadOnStartup);
         }
 
@@ -1234,8 +1207,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         servletData.setAttribute("servletMappings", mappings == null ? Collections.EMPTY_SET : mappings);
 
         //run-as
-        if (servletType.isSetRunAs()) {
-            String runAsRole = servletType.getRunAs().getRoleName().getStringValue().trim();
+        if (servlet.getRunAs() != null) {
+            String runAsRole = servlet.getRunAs().getRoleName().trim();
             servletData.setAttribute("runAsRole", runAsRole);
         }
 
@@ -1248,42 +1221,42 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
     }
 
 
-    static class StartupOrderComparator implements Comparator<ServletType>, Serializable {
+    static class StartupOrderComparator implements Comparator<org.apache.openejb.jee.Servlet>, Serializable {
         /**
          * comparator that compares first on the basis of startup order, and then on the lexicographical
          * ordering of servlet name.  Since the servlet names have a uniqueness constraint, this should
          * provide a total ordering consistent with equals.  All servlets with no startup order are after
          * all servlets with a startup order.
          *
-         * @param s1 first ServletType object
-         * @param s2 second ServletType object
+         * @param s1 first Servlet object
+         * @param s2 second Servlet object
          * @return an int < 0 if o1 precedes o2, 0 if they are equal, and > 0 if o2 preceeds o1.
          */
-        public int compare(ServletType s1, ServletType s2) {
+        public int compare(org.apache.openejb.jee.Servlet s1, org.apache.openejb.jee.Servlet s2) {
 
             // load-on-startup is set for neither.  the
             // ordering at this point doesn't matter, but we
             // should return "0" only if the two objects say
             // they are equal
-            if (!s1.isSetLoadOnStartup() && !s2.isSetLoadOnStartup()) {
-                return s1.equals(s2) ? 0 : s1.getServletName().getStringValue().trim().compareTo(s2.getServletName().getStringValue().trim());
+            if (s1.getLoadOnStartup() == null && s2.getLoadOnStartup() == null) {
+                return s1.equals(s2) ? 0 : s1.getServletName().trim().compareTo(s2.getServletName().trim());
             }
 
             // load-on-startup is set for one but not the
             // other.  whichever one is set will be "less
             // than", i.e. it will be loaded first
-            if (s1.isSetLoadOnStartup() && !s2.isSetLoadOnStartup()) {
+            if (s1.getLoadOnStartup() != null && s2.getLoadOnStartup() == null) {
                 return -1;
             }
-            if (!s1.isSetLoadOnStartup() && s2.isSetLoadOnStartup()) {
+            if (s1.getLoadOnStartup() == null && s2.getLoadOnStartup() != null) {
                 return 1;
             }
 
             // load-on-startup is set for both.  whichever one
             // has a smaller value is "less than"
-            int comp = new Integer(s1.xgetLoadOnStartup().getStringValue()).compareTo(new Integer(s2.xgetLoadOnStartup().getStringValue()));
+            int comp = new Integer(s1.getLoadOnStartup()).compareTo(s2.getLoadOnStartup());
             if (comp == 0) {
-                return s1.getServletName().getStringValue().trim().compareTo(s2.getServletName().getStringValue().trim());
+                return s1.getServletName().trim().compareTo(s2.getServletName().trim());
             }
             return comp;
         }

@@ -17,13 +17,14 @@
 
 package org.apache.geronimo.web.security;
 
+import java.io.InputStream;
 import java.net.URL;
 
+import javax.xml.bind.JAXBException;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.testsupport.TestSupport;
-import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.xmlbeans.XmlOptions;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.WebApp;
 
 /**
  * @version $Rev$ $Date$
@@ -32,13 +33,16 @@ public class SecurityConfigTest extends TestSupport {
 
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
-    private XmlOptions options = new XmlOptions();
 
     public void testNoSecConstraint() throws Exception {
-        URL srcXml = classLoader.getResource("security/web-nosecurity.xml");
-        WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
-        WebAppType webApp = webAppDoc.getWebApp();
-        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp);
-        ComponentPermissions componentPermissions = builder.buildSpecSecurityConfig();
+        URL specDDUrl = classLoader.getResource("security/web-nosecurity.xml");
+        InputStream in = specDDUrl.openStream();
+        try {
+            WebApp webApp = (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+            SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp);
+            ComponentPermissions componentPermissions = builder.buildSpecSecurityConfig();
+        } finally {
+            in.close();
+        }
     }
 }

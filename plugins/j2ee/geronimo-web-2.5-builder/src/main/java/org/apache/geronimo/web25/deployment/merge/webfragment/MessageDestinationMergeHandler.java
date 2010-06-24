@@ -22,42 +22,42 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.MessageDestinationType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.MessageDestination;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class MessageDestinationMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class MessageDestinationMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (MessageDestinationType messageDestination : webApp.getMessageDestinationArray()) {
-            String messageDestinationName = messageDestination.getMessageDestinationName().getStringValue();
-            if (mergeContext.containsAttribute(createMessageDestinationConfiguredInWebXMLKey(messageDestination.getMessageDestinationName().getStringValue()))) {
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (MessageDestination messageDestination : webApp.getMessageDestination()) {
+            String messageDestinationName = messageDestination.getMessageDestinationName();
+            if (mergeContext.containsAttribute(createMessageDestinationConfiguredInWebXMLKey(messageDestination.getMessageDestinationName()))) {
                 continue;
             }
             if (mergeContext.containsAttribute(createMessageDestinationConfiguredInWebFragmentXMLKey(messageDestinationName))) {
                 MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(createMessageDestinationConfiguredInWebFragmentXMLKey(messageDestinationName));
                 throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("message-destination", messageDestinationName, mergeItem.getBelongedURL(), mergeContext.getCurrentJarUrl()));
             } else {
-                MessageDestinationType newMessageDestination = (MessageDestinationType) webApp.addNewMessageDestination().set(messageDestination);
-                mergeContext.setAttribute(createMessageDestinationConfiguredInWebFragmentXMLKey(messageDestinationName), new MergeItem(newMessageDestination, mergeContext.getCurrentJarUrl(),
+                 webApp.getMessageDestination().add(messageDestination);
+                mergeContext.setAttribute(createMessageDestinationConfiguredInWebFragmentXMLKey(messageDestinationName), new MergeItem(messageDestination, mergeContext.getCurrentJarUrl(),
                         ElementSource.WEB_FRAGMENT));
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
         // TODO Auto-generated method stub
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (MessageDestinationType messageDestination : webApp.getMessageDestinationArray()) {
-            context.setAttribute(createMessageDestinationConfiguredInWebXMLKey(messageDestination.getMessageDestinationName().getStringValue()), Boolean.TRUE);
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (MessageDestination messageDestination : webApp.getMessageDestination()) {
+            context.setAttribute(createMessageDestinationConfiguredInWebXMLKey(messageDestination.getMessageDestinationName()), Boolean.TRUE);
         }
     }
 

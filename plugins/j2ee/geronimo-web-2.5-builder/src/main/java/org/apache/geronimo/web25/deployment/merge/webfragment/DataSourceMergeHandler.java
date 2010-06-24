@@ -22,41 +22,41 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.DataSourceType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.DataSource;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class DataSourceMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class DataSourceMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (DataSourceType srcDataSource : webFragment.getDataSourceArray()) {
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (DataSource srcDataSource : webFragment.getDataSource()) {
             String dataSourceKey = createDataSourceKey(srcDataSource, mergeContext);
             MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(dataSourceKey);
             if (mergeItem != null && mergeItem.isFromWebFragment()) {
-                throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("data-source", srcDataSource.getName().getStringValue(), mergeContext.getCurrentJarUrl(), mergeItem
+                throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("data-source", srcDataSource.getName(), mergeContext.getCurrentJarUrl(), mergeItem
                         .getBelongedURL()));
             }
-            DataSourceType targetDataSource = (DataSourceType) webApp.addNewDataSource().set(srcDataSource);
-            mergeContext.setAttribute(dataSourceKey, new MergeItem(targetDataSource, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
+            webApp.getDataSource().add(srcDataSource);
+            mergeContext.setAttribute(dataSourceKey, new MergeItem(srcDataSource, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (DataSourceType dataSource : webApp.getDataSourceArray()) {
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (DataSource dataSource : webApp.getDataSource()) {
             mergeContext.setAttribute(createDataSourceKey(dataSource, mergeContext), new MergeItem(dataSource, null, ElementSource.WEB_XML));
         }
     }
 
-    public static String createDataSourceKey(DataSourceType dataSource, MergeContext mergeContext) {
-        return "data-source.name." + dataSource.getName().getStringValue();
+    public static String createDataSourceKey(DataSource dataSource, MergeContext mergeContext) {
+        return "data-source.name." + dataSource.getName();
     }
 }

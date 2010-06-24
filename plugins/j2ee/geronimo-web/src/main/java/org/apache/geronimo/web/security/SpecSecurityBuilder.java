@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,7 +37,6 @@ import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.HttpMethodConstraintElement;
-import javax.servlet.Servlet;
 import javax.servlet.ServletSecurityElement;
 import javax.servlet.annotation.HttpConstraint;
 import javax.servlet.annotation.HttpMethodConstraint;
@@ -47,17 +47,15 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.xbeans.javaee6.AuthConstraintType;
-import org.apache.geronimo.xbeans.javaee6.RoleNameType;
-import org.apache.geronimo.xbeans.javaee6.SecurityConstraintType;
-import org.apache.geronimo.xbeans.javaee6.SecurityRoleRefType;
-import org.apache.geronimo.xbeans.javaee6.SecurityRoleType;
-import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebResourceCollectionType;
+import org.apache.openejb.jee.AuthConstraint;
+import org.apache.openejb.jee.SecurityConstraint;
+import org.apache.openejb.jee.SecurityRoleRef;
+import org.apache.openejb.jee.SecurityRole;
+import org.apache.openejb.jee.ServletMapping;
+import org.apache.openejb.jee.Servlet;
+import org.apache.openejb.jee.UserDataConstraint;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebResourceCollection;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -93,7 +91,7 @@ public class SpecSecurityBuilder {
     /**
      * webApp is xmlbean object of the initial web.xml ( May be merged all the web-fragment.xml files)
      */
-    private WebAppType initialWebApp;
+    private WebApp initialWebApp;
 
     private Bundle bundle;
 
@@ -104,64 +102,24 @@ public class SpecSecurityBuilder {
     /**
      *   dynamicSecurityWebApp contains all the servlet security constraints configured by ServletRegistration.Dynamic interface
      */
-    private WebAppType dynamicSecurityWebApp;
+    private WebApp dynamicSecurityWebApp;
 
     /**
      * annotationSecurityWebApp contains all the servlet security constraints configured by ServletConstraint annotation
      */
-    private WebAppType annotationSecurityWebApp;
+    private WebApp annotationSecurityWebApp;
 
-    public SpecSecurityBuilder(WebAppType webApp) {
+    public SpecSecurityBuilder(WebApp webApp) {
         this(webApp, null, false);
     }
 
-    public SpecSecurityBuilder(WebAppType initialWebApp, Bundle bundle, boolean annotationScanRequired) {
+    public SpecSecurityBuilder(WebApp initialWebApp, Bundle bundle, boolean annotationScanRequired) {
         this.initialWebApp = initialWebApp;
         if (annotationScanRequired && bundle == null) {
             throw new IllegalArgumentException("Bundle parameter could not be null while annotation scanning is required");
         }
         this.bundle = bundle;
         this.annotationScanRequired = annotationScanRequired;
-        initialize();
-    }
-
-    public SpecSecurityBuilder(Bundle bundle, boolean annotationScanRequired) {
-        this.bundle = bundle;
-        this.annotationScanRequired = annotationScanRequired;
-        URL specDDUrl = BundleUtils.getEntry(bundle, "WEB-INF/web.xml");
-        if (specDDUrl == null) {
-            initialWebApp = WebAppType.Factory.newInstance();
-        } else {
-            try {
-                String specDD = JarUtils.readAll(specDDUrl);
-                XmlObject parsed = XmlBeansUtil.parse(specDD);
-                WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
-                initialWebApp = webAppDoc.getWebApp();
-            } catch (XmlException e) {
-                throw new IllegalArgumentException("Error parsing web.xml for " + bundle.getSymbolicName(), e);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Error reading web.xml for " + bundle.getSymbolicName(), e);
-            }
-        }
-        initialize();
-    }
-
-    public SpecSecurityBuilder(Bundle bundle, String deploymentDescriptor, boolean annotationScanRequired) {
-        this.bundle = bundle;
-        this.annotationScanRequired = annotationScanRequired;
-        if (deploymentDescriptor == null || deploymentDescriptor.length() == 0) {
-            initialWebApp = WebAppType.Factory.newInstance();
-        } else {
-            try {
-                XmlObject parsed = XmlBeansUtil.parse(deploymentDescriptor);
-                WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
-                initialWebApp = webAppDoc.getWebApp();
-            } catch (XmlException e) {
-                throw new IllegalArgumentException("Error parsing web.xml for " + bundle.getSymbolicName(), e);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Error reading web.xml for " + bundle.getSymbolicName(), e);
-            }
-        }
         initialize();
     }
 
@@ -177,7 +135,7 @@ public class SpecSecurityBuilder {
 
     public Set<String> setServletSecurity(ServletSecurityElement constraint, Collection<String> urlPatterns) {
         if (dynamicSecurityWebApp == null) {
-            dynamicSecurityWebApp = WebAppType.Factory.newInstance();
+            dynamicSecurityWebApp = new WebApp();
         }
         Set<String> uneffectedUrlPatterns = new HashSet<String>();
         for (String urlPattern : urlPatterns) {
@@ -217,25 +175,25 @@ public class SpecSecurityBuilder {
         return uneffectedUrlPatterns;
     }
 
-    private void overrideSecurityConstraints(WebAppType webApp, Collection<String> urlPatterns) {
-        for (SecurityConstraintType securityConstraint : webApp.getSecurityConstraintArray()) {
+    private void overrideSecurityConstraints(WebApp webApp, Collection<String> urlPatterns) {
+        for (SecurityConstraint securityConstraint : webApp.getSecurityConstraint()) {
             int iCurrentWebResourceCollectionIndex = 0;
-            for (WebResourceCollectionType webResourceCollection : securityConstraint.getWebResourceCollectionArray()) {
+            for (WebResourceCollection webResourceCollection : securityConstraint.getWebResourceCollection()) {
                 Set<String> validateAnnotationUrlPatterns = new HashSet<String>();
-                for (UrlPatternType urlPattern : webResourceCollection.getUrlPatternArray()) {
-                    if (!urlPatterns.contains(urlPattern.getStringValue())) {
-                        validateAnnotationUrlPatterns.add(urlPattern.getStringValue());
+                for (String urlPattern : webResourceCollection.getUrlPattern()) {
+                    if (!urlPatterns.contains(urlPattern)) {
+                        validateAnnotationUrlPatterns.add(urlPattern);
                     }
                 }
                 if (validateAnnotationUrlPatterns.size() == 0) {
-                    securityConstraint.removeWebResourceCollection(iCurrentWebResourceCollectionIndex);
+                    securityConstraint.getWebResourceCollection().remove(iCurrentWebResourceCollectionIndex);
                     continue;
-                } else if (validateAnnotationUrlPatterns.size() < webResourceCollection.getUrlPatternArray().length) {
-                    for (int i = 0, iLoopSize = webResourceCollection.getUrlPatternArray().length; i < iLoopSize; i++) {
-                        webResourceCollection.removeUrlPattern(0);
+                } else if (validateAnnotationUrlPatterns.size() < webResourceCollection.getUrlPattern().size()) {
+                    for (int i = 0, iLoopSize = webResourceCollection.getUrlPattern().size(); i < iLoopSize; i++) {
+                        webResourceCollection.getUrlPattern().remove(0);
                     }
                     for (String validateAnnotationUrlPattern : validateAnnotationUrlPatterns) {
-                        webResourceCollection.addNewUrlPattern().setStringValue(validateAnnotationUrlPattern);
+                        webResourceCollection.getUrlPattern().add(validateAnnotationUrlPattern);
                     }
                 }
                 iCurrentWebResourceCollectionIndex++;
@@ -245,23 +203,23 @@ public class SpecSecurityBuilder {
 
     public ComponentPermissions buildSpecSecurityConfig() {
         if (dynamicSecurityWebApp != null) {
-            for (SecurityConstraintType securityConstraint : dynamicSecurityWebApp.getSecurityConstraintArray()) {
-                initialWebApp.addNewSecurityConstraint().set(securityConstraint);
+            for (SecurityConstraint securityConstraint : dynamicSecurityWebApp.getSecurityConstraint()) {
+                initialWebApp.getSecurityConstraint().add(securityConstraint);
             }
         }
         if (annotationSecurityWebApp != null) {
-            for (SecurityConstraintType securityConstraint : annotationSecurityWebApp.getSecurityConstraintArray()) {
-                initialWebApp.addNewSecurityConstraint().set(securityConstraint);
+            for (SecurityConstraint securityConstraint : annotationSecurityWebApp.getSecurityConstraint()) {
+                initialWebApp.getSecurityConstraint().add(securityConstraint);
             }
         }
-        collectRoleNames(initialWebApp.getSecurityRoleArray());
+        collectRoleNames(initialWebApp.getSecurityRole());
         try {
-            for (ServletType servletType : initialWebApp.getServletArray()) {
-                processRoleRefPermissions(servletType);
+            for (Servlet Servlet : initialWebApp.getServlet()) {
+                processRoleRefPermissions(Servlet);
             }
             //add the role-ref permissions for unmapped jsps
             addUnmappedJSPPermissions();
-            analyzeSecurityConstraints(initialWebApp.getSecurityConstraintArray());
+            analyzeSecurityConstraints(initialWebApp.getSecurityConstraint());
             removeExcludedDups();
             return buildComponentPermissions();
         } catch (PolicyContextException e) {
@@ -269,11 +227,11 @@ public class SpecSecurityBuilder {
         }
     }
 
-    private void analyzeSecurityConstraints(SecurityConstraintType[] securityConstraintArray) {
-        for (SecurityConstraintType securityConstraintType : securityConstraintArray) {
+    private void analyzeSecurityConstraints(List<SecurityConstraint> securityConstraintArray) {
+        for (SecurityConstraint SecurityConstraint : securityConstraintArray) {
             Map<String, URLPattern> currentPatterns;
-            if (securityConstraintType.isSetAuthConstraint()) {
-                if (securityConstraintType.getAuthConstraint().getRoleNameArray().length == 0) {
+            if (SecurityConstraint.getAuthConstraint() != null) {
+                if (SecurityConstraint.getAuthConstraint().getRoleName().size() == 0) {
                     currentPatterns = excludedPatterns;
                 } else {
                     currentPatterns = rolesPatterns;
@@ -281,33 +239,33 @@ public class SpecSecurityBuilder {
             } else {
                 currentPatterns = uncheckedPatterns;
             }
-            String transport = "";
-            if (securityConstraintType.isSetUserDataConstraint()) {
-                transport = securityConstraintType.getUserDataConstraint().getTransportGuarantee().getStringValue().trim().toUpperCase();
+            org.apache.openejb.jee.TransportGuarantee transport = org.apache.openejb.jee.TransportGuarantee.NONE;
+            if (SecurityConstraint.getUserDataConstraint() != null) {
+                transport = SecurityConstraint.getUserDataConstraint().getTransportGuarantee();
             }
-            WebResourceCollectionType[] webResourceCollectionTypeArray = securityConstraintType.getWebResourceCollectionArray();
-            for (WebResourceCollectionType webResourceCollectionType : webResourceCollectionTypeArray) {
+            List<WebResourceCollection> WebResourceCollectionArray = SecurityConstraint.getWebResourceCollection();
+            for (WebResourceCollection WebResourceCollection : WebResourceCollectionArray) {
                 //Calculate HTTP methods list
                 Set<String> httpMethods = new HashSet<String>();
                 //While using HTTP omission methods and empty methods (which means all methods) as the configurations, isExcluded value is true
                 //While using HTTP methods as the configurations, isExcluded value is false
                 boolean isExcludedList = true;
-                if (webResourceCollectionType.getHttpMethodArray().length > 0) {
+                if (WebResourceCollection.getHttpMethod().size() > 0) {
                     isExcludedList = false;
-                    for (String httpMethod : webResourceCollectionType.getHttpMethodArray()) {
+                    for (String httpMethod : WebResourceCollection.getHttpMethod()) {
                         if (httpMethod != null) {
                             httpMethods.add(httpMethod.trim());
                         }
                     }
-                } else if (webResourceCollectionType.getHttpMethodOmissionArray().length > 0) {
-                    for (String httpMethodOmission : webResourceCollectionType.getHttpMethodOmissionArray()) {
+                } else if (WebResourceCollection.getHttpMethodOmission().size() > 0) {
+                    for (String httpMethodOmission : WebResourceCollection.getHttpMethodOmission()) {
                         if (httpMethodOmission != null) {
                             httpMethods.add(httpMethodOmission.trim());
                         }
                     }
                 }
-                for (UrlPatternType urlPatternType : webResourceCollectionType.getUrlPatternArray()) {
-                    String url = urlPatternType.getStringValue().trim();
+                for (String urlPatternType : WebResourceCollection.getUrlPattern()) {
+                    String url = urlPatternType.trim();
                     URLPattern pattern = currentPatterns.get(url);
                     if (pattern == null) {
                         pattern = new URLPattern(url, httpMethods, isExcludedList);
@@ -324,9 +282,9 @@ public class SpecSecurityBuilder {
                         allPattern.addMethods(httpMethods, isExcludedList);
                     }
                     if (currentPatterns == rolesPatterns) {
-                        RoleNameType[] roleNameTypeArray = securityConstraintType.getAuthConstraint().getRoleNameArray();
-                        for (RoleNameType roleNameType : roleNameTypeArray) {
-                            String role = roleNameType.getStringValue().trim();
+                        List<String> roleNameTypeArray = SecurityConstraint.getAuthConstraint().getRoleName();
+                        for (String roleNameType : roleNameTypeArray) {
+                            String role = roleNameType.trim();
                             if (role.equals("*")) {
                                 pattern.addAllRoles(securityRoles);
                             } else {
@@ -334,7 +292,7 @@ public class SpecSecurityBuilder {
                             }
                         }
                     }
-                    pattern.setTransport(transport);
+                    pattern.setTransport(transport.value());
                 }
             }
         }
@@ -433,14 +391,14 @@ public class SpecSecurityBuilder {
         }
     }
 
-    protected void processRoleRefPermissions(ServletType servletType) throws PolicyContextException {
-        String servletName = servletType.getServletName().getStringValue().trim();
+    protected void processRoleRefPermissions(Servlet Servlet) throws PolicyContextException {
+        String servletName = Servlet.getServletName().trim();
         //WebRoleRefPermissions
-        SecurityRoleRefType[] securityRoleRefTypeArray = servletType.getSecurityRoleRefArray();
+        List<SecurityRoleRef> SecurityRoleRefArray = Servlet.getSecurityRoleRef();
         Set<String> unmappedRoles = new HashSet<String>(securityRoles);
-        for (SecurityRoleRefType securityRoleRefType : securityRoleRefTypeArray) {
-            String roleName = securityRoleRefType.getRoleName().getStringValue().trim();
-            String roleLink = securityRoleRefType.getRoleLink().getStringValue().trim();
+        for (SecurityRoleRef SecurityRoleRef : SecurityRoleRefArray) {
+            String roleName = SecurityRoleRef.getRoleName().trim();
+            String roleLink = SecurityRoleRef.getRoleLink().trim();
             //jacc 3.1.3.2
             /*   The name of the WebRoleRefPermission must be the servlet-name in whose
             * context the security-role-ref is defined. The actions of the  WebRoleRefPermission
@@ -463,9 +421,9 @@ public class SpecSecurityBuilder {
         }
     }
 
-    protected void collectRoleNames(SecurityRoleType[] securityRoles) {
-        for (SecurityRoleType securityRole : securityRoles) {
-            this.securityRoles.add(securityRole.getRoleName().getStringValue().trim());
+    protected void collectRoleNames(List<SecurityRole> securityRoles) {
+        for (SecurityRole securityRole : securityRoles) {
+            this.securityRoles.add(securityRole.getRoleName());
         }
     }
 
@@ -475,16 +433,16 @@ public class SpecSecurityBuilder {
      */
     private void initialize() {
         // Initialize urlPatternsConfiguredInDeploymentPlans map, which contains all the url patterns configured in portable deployment plan
-        for (SecurityConstraintType secuirtyConstrait : initialWebApp.getSecurityConstraintArray()) {
-            for (WebResourceCollectionType webResourceCollection : secuirtyConstrait.getWebResourceCollectionArray()) {
-                for (UrlPatternType urlPattern : webResourceCollection.getUrlPatternArray()) {
-                    urlPatternsConfiguredInDeploymentPlans.add(urlPattern.getStringValue());
+        for (SecurityConstraint secuirtyConstrait : initialWebApp.getSecurityConstraint()) {
+            for (WebResourceCollection webResourceCollection : secuirtyConstrait.getWebResourceCollection()) {
+                for (String urlPattern : webResourceCollection.getUrlPattern()) {
+                    urlPatternsConfiguredInDeploymentPlans.add(urlPattern);
                 }
             }
         }
         //Scan ServletConstraint annotations if required
         if (annotationScanRequired) {
-            annotationSecurityWebApp = WebAppType.Factory.newInstance();
+            annotationSecurityWebApp = new WebApp();
             scanServletConstraintAnnotations();
         }
     }
@@ -492,11 +450,11 @@ public class SpecSecurityBuilder {
     private void scanServletConstraintAnnotations() {
         try {
             Map<String, Set<String>> servletClassNameUrlPatternsMap = genetateServletClassUrlPatternsMap();
-            for (ServletType servlet : initialWebApp.getServletArray()) {
-                if (servlet.getServletClass() == null || servlet.getServletClass().getStringValue().isEmpty()) {
+            for (Servlet servlet : initialWebApp.getServlet()) {
+                if (servlet.getServletClass() == null || servlet.getServletClass().isEmpty()) {
                     continue;
                 }
-                String servletClassName = servlet.getServletClass().getStringValue();
+                String servletClassName = servlet.getServletClass();
                 Class<?> cls = bundle.loadClass(servletClassName);
                 if (!Servlet.class.isAssignableFrom(cls)) {
                     continue;
@@ -540,61 +498,56 @@ public class SpecSecurityBuilder {
      * @param rolesAllowed
      * @param transportGuarantee
      * @param emptyRoleSemantic
+     * @param force
      * @return null when emptyRoleSemantic=PERMIT AND rolesAllowed={} AND transportGuarantee=NONE
      */
-    private SecurityConstraintType addNewSecurityConstraint(WebAppType webApp, String[] rolesAllowed, TransportGuarantee transportGuarantee, ServletSecurity.EmptyRoleSemantic emptyRoleSemantic) {
+    private SecurityConstraint addNewSecurityConstraint(WebApp webApp, String[] rolesAllowed, TransportGuarantee transportGuarantee, ServletSecurity.EmptyRoleSemantic emptyRoleSemantic, boolean force) {
         //IF emptyRoleSemantic=PERMIT AND rolesAllowed={} AND transportGuarantee=NONE then
         //  No Constraint
         //END IF
-        if (rolesAllowed.length > 0 || transportGuarantee.equals(TransportGuarantee.CONFIDENTIAL) || emptyRoleSemantic.equals(ServletSecurity.EmptyRoleSemantic.DENY)) {
-            SecurityConstraintType securityConstraint = webApp.addNewSecurityConstraint();
+        if (force || rolesAllowed.length > 0 || transportGuarantee.equals(TransportGuarantee.CONFIDENTIAL) || emptyRoleSemantic.equals(ServletSecurity.EmptyRoleSemantic.DENY)) {
+            SecurityConstraint securityConstraint = new SecurityConstraint();
+            WebResourceCollection webResourceCollection = new WebResourceCollection();
+            securityConstraint.getWebResourceCollection().add(webResourceCollection);
+            webApp.getSecurityConstraint().add(securityConstraint);
             if (transportGuarantee.equals(TransportGuarantee.CONFIDENTIAL)) {
-                securityConstraint.addNewUserDataConstraint().addNewTransportGuarantee().setStringValue(TransportGuarantee.CONFIDENTIAL.name());
+                UserDataConstraint udc = new UserDataConstraint();
+                udc.setTransportGuarantee(org.apache.openejb.jee.TransportGuarantee.fromValue(TransportGuarantee.CONFIDENTIAL.name()));
+                securityConstraint.setUserDataConstraint(udc);
             }
             if (emptyRoleSemantic.equals(ServletSecurity.EmptyRoleSemantic.DENY)) {
-                securityConstraint.addNewAuthConstraint();
+                securityConstraint.setAuthConstraint(new AuthConstraint());
             } else {
-                AuthConstraintType authConstraint = securityConstraint.addNewAuthConstraint();
+                AuthConstraint authConstraint = new AuthConstraint();
                 for (String roleAllowed : rolesAllowed) {
-                    authConstraint.addNewRoleName().setStringValue(roleAllowed);
+                    authConstraint.getRoleName().add(roleAllowed);
                 }
+                securityConstraint.setAuthConstraint(authConstraint);
             }
             return securityConstraint;
         }
         return null;
     }
 
-    private SecurityConstraintType addNewHTTPSecurityConstraint(WebAppType webApp, String[] rolesAllowed, TransportGuarantee transportGuarantee, ServletSecurity.EmptyRoleSemantic emptyRoleSemantic,
+    private SecurityConstraint addNewHTTPSecurityConstraint(WebApp webApp, String[] rolesAllowed, TransportGuarantee transportGuarantee, ServletSecurity.EmptyRoleSemantic emptyRoleSemantic,
             String[] omissionMethods, Collection<String> urlPatterns) {
-        SecurityConstraintType securityConstraint = addNewSecurityConstraint(webApp, rolesAllowed, transportGuarantee, emptyRoleSemantic);
-        if (omissionMethods.length > 0 || securityConstraint != null) {
-            if (securityConstraint == null) {
-                securityConstraint = webApp.addNewSecurityConstraint();
-            }
-            WebResourceCollectionType webResourceCollection = securityConstraint.getWebResourceCollectionArray().length == 0 ? securityConstraint.addNewWebResourceCollection() : securityConstraint
-                    .getWebResourceCollectionArray(0);
+        SecurityConstraint securityConstraint = addNewSecurityConstraint(webApp, rolesAllowed, transportGuarantee, emptyRoleSemantic, omissionMethods.length > 0);
+        if (securityConstraint != null) {
+            WebResourceCollection webResourceCollection = securityConstraint.getWebResourceCollection().get(0);
             for (String omissionMethod : omissionMethods) {
-                webResourceCollection.addNewHttpMethodOmission().setStringValue(omissionMethod);
+                webResourceCollection.getHttpMethodOmission().add(omissionMethod);
             }
-            for (String urlPattern : urlPatterns) {
-                webResourceCollection.addNewUrlPattern().setStringValue(urlPattern);
-            }
+            webResourceCollection.getUrlPattern().addAll(urlPatterns);
         }
         return securityConstraint;
     }
 
-    private SecurityConstraintType addNewHTTPMethodSecurityConstraint(WebAppType webApp, String[] rolesAllowed, TransportGuarantee transportGuarantee,
+    private SecurityConstraint addNewHTTPMethodSecurityConstraint(WebApp webApp, String[] rolesAllowed, TransportGuarantee transportGuarantee,
             ServletSecurity.EmptyRoleSemantic emptyRoleSemantic, String httpMethod, Collection<String> urlPatterns) {
-        SecurityConstraintType securityConstraint = addNewSecurityConstraint(webApp, rolesAllowed, transportGuarantee, emptyRoleSemantic);
-        if (securityConstraint == null) {
-            securityConstraint = webApp.addNewSecurityConstraint();
-        }
-        WebResourceCollectionType webResourceCollection = securityConstraint.getWebResourceCollectionArray().length == 0 ? securityConstraint.addNewWebResourceCollection() : securityConstraint
-                .getWebResourceCollectionArray(0);
-        for (String urlPattern : urlPatterns) {
-            webResourceCollection.addNewUrlPattern().setStringValue(urlPattern);
-        }
-        webResourceCollection.addNewHttpMethod().setStringValue(httpMethod);
+        SecurityConstraint securityConstraint = addNewSecurityConstraint(webApp, rolesAllowed, transportGuarantee, emptyRoleSemantic, true);
+        WebResourceCollection webResourceCollection = securityConstraint.getWebResourceCollection().get(0);
+        webResourceCollection.getUrlPattern().addAll(urlPatterns);
+        webResourceCollection.getHttpMethod().add(httpMethod);
         return securityConstraint;
     }
 
@@ -605,31 +558,31 @@ public class SpecSecurityBuilder {
      */
     private Map<String, Set<String>> genetateServletClassUrlPatternsMap() {
         Map<String, Set<String>> servletNameUrlPatternsMap = new HashMap<String, Set<String>>();
-        for (ServletMappingType servletMapping : initialWebApp.getServletMappingArray()) {
-            String servletName = servletMapping.getServletName().getStringValue();
+        for (ServletMapping servletMapping : initialWebApp.getServletMapping()) {
+            String servletName = servletMapping.getServletName();
             Set<String> urlPatterns = servletNameUrlPatternsMap.get(servletName);
             if (urlPatterns == null) {
                 urlPatterns = new HashSet<String>();
                 servletNameUrlPatternsMap.put(servletName, urlPatterns);
             }
-            for (UrlPatternType urlPattern : servletMapping.getUrlPatternArray()) {
-                if (!urlPatternsConfiguredInDeploymentPlans.contains(urlPattern.getStringValue())) {
-                    urlPatterns.add(urlPattern.getStringValue());
+            for (String urlPattern : servletMapping.getUrlPattern()) {
+                if (!urlPatternsConfiguredInDeploymentPlans.contains(urlPattern)) {
+                    urlPatterns.add(urlPattern);
                 }
             }
         }
         Map<String, Set<String>> servletClassUrlPatternsMap = new HashMap<String, Set<String>>();
-        for (ServletType servlet : initialWebApp.getServletArray()) {
-            if (servlet.getServletClass() == null || servlet.getServletClass().getStringValue().isEmpty()) {
+        for (Servlet servlet : initialWebApp.getServlet()) {
+            if (servlet.getServletClass() == null || servlet.getServletClass().isEmpty()) {
                 continue;
             }
-            String servletClassName = servlet.getServletClass().getStringValue();
-            Set<String> urlPatterns = servletClassUrlPatternsMap.get(servlet.getServletClass().getStringValue());
+            String servletClassName = servlet.getServletClass();
+            Set<String> urlPatterns = servletClassUrlPatternsMap.get(servlet.getServletClass());
             if (urlPatterns == null) {
                 urlPatterns = new HashSet<String>();
                 servletClassUrlPatternsMap.put(servletClassName, urlPatterns);
             }
-            Set<String> servletMappingUrlPatterns = servletNameUrlPatternsMap.get(servlet.getServletName().getStringValue());
+            Set<String> servletMappingUrlPatterns = servletNameUrlPatternsMap.get(servlet.getServletName());
             if (servletMappingUrlPatterns != null) {
                 urlPatterns.addAll(servletMappingUrlPatterns);
             }

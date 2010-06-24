@@ -24,34 +24,34 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.Servlet;
+import org.apache.openejb.jee.WebApp;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ServletLoadOnStartupMergeHandler implements SubMergeHandler<ServletType, ServletType> {
+public class ServletLoadOnStartupMergeHandler implements SubMergeHandler<Servlet, Servlet> {
 
     /**
      *  This method will be invoked while a new servlet is found in the current webfragment.xml, while it is not found in the web.xml file and those merged web-fragment.xml files
      */
     @Override
-    public void add(ServletType servlet, MergeContext mergeContext) throws DeploymentException {
+    public void add(Servlet servlet, MergeContext mergeContext) throws DeploymentException {
         if (servlet.getLoadOnStartup() != null) {
-            mergeContext.setAttribute(createServletLoadOnStartupKey(servlet.getServletName().getStringValue()), new MergeItem(servlet.getLoadOnStartup(), mergeContext.getCurrentJarUrl(),
+            mergeContext.setAttribute(createServletLoadOnStartupKey(servlet.getServletName()), new MergeItem(servlet.getLoadOnStartup(), mergeContext.getCurrentJarUrl(),
                     ElementSource.WEB_FRAGMENT));
         }
     }
 
     @Override
-    public void merge(ServletType srcServlet, ServletType targetServlet, MergeContext mergeContext) throws DeploymentException {
-        String servletName = srcServlet.getServletName().getStringValue();
+    public void merge(Servlet srcServlet, Servlet targetServlet, MergeContext mergeContext) throws DeploymentException {
+        String servletName = srcServlet.getServletName();
         //If the same servlet in the initial web.xml has already set the load-on-startup option, then we just ignore the setting in webfragment.xml file
         if (isServletLoadOnStartupConfiguredInWebXML(servletName, mergeContext)) {
             return;
         }
         if (srcServlet.getLoadOnStartup() != null) {
-            BigInteger srcLoadOnStartupValue = (BigInteger) srcServlet.getLoadOnStartup();
+            Integer srcLoadOnStartupValue = srcServlet.getLoadOnStartup();
             MergeItem existedLoadOnStartup = (MergeItem) mergeContext.getAttribute(createServletLoadOnStartupKey(servletName));
             if (existedLoadOnStartup == null) {
                 targetServlet.setLoadOnStartup(srcLoadOnStartupValue);
@@ -64,14 +64,14 @@ public class ServletLoadOnStartupMergeHandler implements SubMergeHandler<Servlet
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (ServletType servlet : webApp.getServletArray()) {
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (Servlet servlet : webApp.getServlet()) {
             if (servlet.getLoadOnStartup() != null) {
-                context.setAttribute(createServletLoadOnStartupConfiguredInWebXMLKey(servlet.getServletName().getStringValue()), Boolean.TRUE);
+                context.setAttribute(createServletLoadOnStartupConfiguredInWebXMLKey(servlet.getServletName()), Boolean.TRUE);
             }
         }
     }

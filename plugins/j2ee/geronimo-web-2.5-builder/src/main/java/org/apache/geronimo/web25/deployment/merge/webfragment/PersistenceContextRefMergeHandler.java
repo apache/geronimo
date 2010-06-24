@@ -22,15 +22,15 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.PersistenceContextRefType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.PersistenceContextRef;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class PersistenceContextRefMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class PersistenceContextRefMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     public static final String PERSISTENCE_CONTEXT_REF_NAME_PREFIX = "persistence-context-ref.persistence-context-ref-name.";
 
@@ -42,9 +42,9 @@ public class PersistenceContextRefMergeHandler implements WebFragmentMergeHandle
      * b. web.xml file should inherit it from the web-fragment.xml file
      */
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (PersistenceContextRefType srcPersistenceContextRef : webFragment.getPersistenceContextRefArray()) {
-            String persistenceContextRefName = srcPersistenceContextRef.getPersistenceContextRefName().getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (PersistenceContextRef srcPersistenceContextRef : webFragment.getPersistenceContextRef()) {
+            String persistenceContextRefName = srcPersistenceContextRef.getPersistenceContextRefName();
             String persistenceContextRefKey = createPersistenceContextRefKey(persistenceContextRefName);
             MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(persistenceContextRefKey);
             if (mergeItem != null) {
@@ -52,43 +52,43 @@ public class PersistenceContextRefMergeHandler implements WebFragmentMergeHandle
                     throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("persistence-context-ref", persistenceContextRefName, mergeItem.getBelongedURL(), mergeContext.getCurrentJarUrl()));
                 } else if (mergeItem.isFromWebXml() && !isPersistenceContextRefInjectTargetsConfiguredInInitialWebXML(persistenceContextRefName, mergeContext)) {
                     //Merge InjectTarget
-                    PersistenceContextRefType persistenceContextRef = (PersistenceContextRefType) mergeItem.getValue();
-                    for (InjectionTargetType injectTarget : srcPersistenceContextRef.getInjectionTargetArray()) {
-                        String persistenceContextRefInjectTargetKey = createPersistenceContextRefInjectTargetKey(persistenceContextRefName, injectTarget.getInjectionTargetClass().getStringValue(), injectTarget
-                                .getInjectionTargetName().getStringValue());
+                    PersistenceContextRef persistenceContextRef = (PersistenceContextRef) mergeItem.getValue();
+                    for (InjectionTarget injectTarget : srcPersistenceContextRef.getInjectionTarget()) {
+                        String persistenceContextRefInjectTargetKey = createPersistenceContextRefInjectTargetKey(persistenceContextRefName, injectTarget.getInjectionTargetClass(), injectTarget
+                                .getInjectionTargetName());
                         if (!mergeContext.containsAttribute(persistenceContextRefInjectTargetKey)) {
-                            persistenceContextRef.addNewInjectionTarget().set(injectTarget);
+                            persistenceContextRef.getInjectionTarget().add(injectTarget);
                             mergeContext.setAttribute(persistenceContextRefInjectTargetKey, Boolean.TRUE);
                         }
                     }
                 }
             } else {
-                PersistenceContextRefType targetPersistenceContextRef = (PersistenceContextRefType) webApp.addNewPersistenceContextRef().set(srcPersistenceContextRef);
-                mergeContext.setAttribute(persistenceContextRefKey, new MergeItem(targetPersistenceContextRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
-                for (InjectionTargetType injectionTarget : targetPersistenceContextRef.getInjectionTargetArray()) {
-                    mergeContext.setAttribute(createPersistenceContextRefInjectTargetKey(persistenceContextRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                            .getStringValue()), Boolean.TRUE);
+                webApp.getPersistenceContextRef().add(srcPersistenceContextRef);
+                mergeContext.setAttribute(persistenceContextRefKey, new MergeItem(srcPersistenceContextRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
+                for (InjectionTarget injectionTarget : srcPersistenceContextRef.getInjectionTarget()) {
+                    mergeContext.setAttribute(createPersistenceContextRefInjectTargetKey(persistenceContextRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                            ), Boolean.TRUE);
                 }
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (PersistenceContextRefType persistenceContextRef : webApp.getPersistenceContextRefArray()) {
-            String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName().getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (PersistenceContextRef persistenceContextRef : webApp.getPersistenceContextRef()) {
+            String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName();
             mergeContext.setAttribute(createPersistenceContextRefKey(persistenceContextRefName), new MergeItem(persistenceContextRef, null, ElementSource.WEB_XML));
             //Create an attribute tag to indicate whether injectTarget is configured in web.xml file
-            if (persistenceContextRef.getInjectionTargetArray().length > 0) {
+            if (!persistenceContextRef.getInjectionTarget().isEmpty()) {
                 mergeContext.setAttribute(createPersistenceContextRefInjectTargetConfiguredInWebXMLKey(persistenceContextRefName), Boolean.TRUE);
             }
-            for (InjectionTargetType injectionTarget : persistenceContextRef.getInjectionTargetArray()) {
-                mergeContext.setAttribute(createPersistenceContextRefInjectTargetKey(persistenceContextRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                        .getStringValue()), Boolean.TRUE);
+            for (InjectionTarget injectionTarget : persistenceContextRef.getInjectionTarget()) {
+                mergeContext.setAttribute(createPersistenceContextRefInjectTargetKey(persistenceContextRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                        ), Boolean.TRUE);
             }
         }
     }

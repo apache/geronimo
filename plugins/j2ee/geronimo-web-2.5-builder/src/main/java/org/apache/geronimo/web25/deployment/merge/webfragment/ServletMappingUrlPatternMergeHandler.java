@@ -21,59 +21,55 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentValidationUtils;
-import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
-import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.ServletMapping;
+import org.apache.openejb.jee.WebApp;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ServletMappingUrlPatternMergeHandler implements SubMergeHandler<ServletMappingType, ServletMappingType> {
+public class ServletMappingUrlPatternMergeHandler implements SubMergeHandler<ServletMapping, ServletMapping> {
 
     @Override
-    public void add(ServletMappingType servletMapping, MergeContext mergeContext) throws DeploymentException {
-        String servletName = servletMapping.getServletName().getStringValue();
-        for (UrlPatternType urlPattern : servletMapping.getUrlPatternArray()) {
-            String urlPatternStr = urlPattern.getStringValue();
-            if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
-                throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletName, urlPatternStr, "web-fragment.xml located in "
+    public void add(ServletMapping servletMapping, MergeContext mergeContext) throws DeploymentException {
+        String servletName = servletMapping.getServletName();
+        for (String urlPattern : servletMapping.getUrlPattern()) {
+            if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
+                throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletName, urlPattern, "web-fragment.xml located in "
                         + mergeContext.getCurrentJarUrl()));
             }
-            mergeContext.setAttribute(createServletMappingUrlPatternKey(servletName, urlPattern.getStringValue()), urlPattern);
+            mergeContext.setAttribute(createServletMappingUrlPatternKey(servletName, urlPattern), urlPattern);
         }
     }
 
     @Override
-    public void merge(ServletMappingType srcServletMapping, ServletMappingType targetServletMapping, MergeContext mergeContext) throws DeploymentException {
-        String servletName = srcServletMapping.getServletName().getStringValue();
-        for (UrlPatternType urlPattern : srcServletMapping.getUrlPatternArray()) {
-            String urlPatternStr = urlPattern.getStringValue();
-            String servletMappingUrlPatternKey = createServletMappingUrlPatternKey(servletName, urlPatternStr);
+    public void merge(ServletMapping srcServletMapping, ServletMapping targetServletMapping, MergeContext mergeContext) throws DeploymentException {
+        String servletName = srcServletMapping.getServletName();
+        for (String urlPattern : srcServletMapping.getUrlPattern()) {
+            String servletMappingUrlPatternKey = createServletMappingUrlPatternKey(servletName, urlPattern);
             if (!mergeContext.containsAttribute(servletMappingUrlPatternKey)) {
-                UrlPatternType newUrlPattern = (UrlPatternType) targetServletMapping.addNewUrlPattern().set(urlPattern);
-                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
-                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletName, urlPatternStr, "web-fragment.xml located in "
+                 targetServletMapping.getUrlPattern().add(urlPattern);
+                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
+                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletName, urlPattern, "web-fragment.xml located in "
                             + mergeContext.getCurrentJarUrl()));
                 }
-                mergeContext.setAttribute(servletMappingUrlPatternKey, newUrlPattern);
+                mergeContext.setAttribute(servletMappingUrlPatternKey, urlPattern);
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (ServletMappingType servletMapping : webApp.getServletMappingArray()) {
-            String servletName = servletMapping.getServletName().getStringValue();
-            for (UrlPatternType urlPattern : servletMapping.getUrlPatternArray()) {
-                String urlPatternStr = urlPattern.getStringValue();
-                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPatternStr)) {
-                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletName, urlPatternStr, "web.xml"));
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (ServletMapping servletMapping : webApp.getServletMapping()) {
+            String servletName = servletMapping.getServletName();
+            for (String urlPattern : servletMapping.getUrlPattern()) {
+                if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
+                    throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("servlet-mapping", servletName, urlPattern, "web.xml"));
                 }
-                context.setAttribute(createServletMappingUrlPatternKey(servletName, urlPatternStr), urlPattern);
+                context.setAttribute(createServletMappingUrlPatternKey(servletName, urlPattern), urlPattern);
             }
         }
     }

@@ -21,11 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.net.URL;
 
-import javax.xml.namespace.QName;
-
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.geronimo.xbeans.javaee6.EjbJarType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 
@@ -134,14 +131,6 @@ public class SchemaConversionUtilsTest extends XmlBeansTestSupport {
         }
     }
     
-    public void testGetNestedObjectAsType() throws Exception {
-        URL srcXml = classLoader.getResource("geronimo/ejb-naming-pre.xml");
-//        URL expectedOutputXml = classLoader.getResource("geronimo/ejb-naming-post.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        //this is not a usable type, we'll see what happens though
-        xmlObject = SchemaConversionUtils.getNestedObjectAsType(xmlObject, new QName("http://openejb.apache.org/xml/ns/openejb-jar-2.3", "openejb-jar"), EjbJarType.type);
-    }
-
     public void testSecurityElementConverter() throws Exception {
         URL srcXml = classLoader.getResource("geronimo/security-pre.xml");
         URL expectedOutputXml = classLoader.getResource("geronimo/security-post.xml");

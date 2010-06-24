@@ -16,7 +16,9 @@
  */
 package org.apache.geronimo.connector.deployment;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +31,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.Jsr77Naming;
@@ -45,6 +46,8 @@ import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.WebApp;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -54,6 +57,8 @@ import org.osgi.framework.BundleContext;
  * @version $Rev:390932 $ $Date$
  */
 public class MessageDestinationTest extends TestCase {
+
+    private final ClassLoader classLoader = getClass().getClassLoader();
 
     private static final Naming naming = new Jsr77Naming();
     protected static MockConfigStore configStore = new MockConfigStore();
@@ -74,7 +79,7 @@ public class MessageDestinationTest extends TestCase {
         locations.put(null, artifact);
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, locations);
         Artifact id = new Artifact("test", "test", "", "car");
-        module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, null, "foo", null, null, null, null, null, null);
+        module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, null, "foo", null, null, null, null, null);
         ConfigurationManager configurationManager = new MockConfigurationManager();
         EARContext earContext = new EARContext(new File("foo"),
             null,
@@ -95,7 +100,7 @@ public class MessageDestinationTest extends TestCase {
         baseName = naming.createRootName(configuration.getId(), "testRoot", NameFactory.RESOURCE_ADAPTER_MODULE);
     }
 
-    private static final String SPECDD1 = "<tmp xmlns=\"http://java.sun.com/xml/ns/j2ee\">" +
+    private static final String SPECDD1 = "<web-app xmlns=\"http://java.sun.com/xml/ns/j2ee\">" +
             "<message-destination><message-destination-name>d1</message-destination-name></message-destination>" +
             "<message-destination><message-destination-name>d2</message-destination-name></message-destination>" +
             "<message-destination-ref>" +
@@ -110,9 +115,9 @@ public class MessageDestinationTest extends TestCase {
             "  <message-destination-usage>Consumes</message-destination-usage>" +
             "  <message-destination-link>d2</message-destination-link>" +
             "</message-destination-ref>" +
-            "</tmp>";
+            "</web-app>";
 
-    private static final String PLAN1 = "<tmp xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+    private static final String PLAN1 = "<web-app xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
             "<message-destination>" +
             "  <message-destination-name>d1</message-destination-name>" +
             "  <admin-object-link>l1</admin-object-link>" +
@@ -121,10 +126,10 @@ public class MessageDestinationTest extends TestCase {
             "  <message-destination-name>d2</message-destination-name>" +
             "  <admin-object-link>l2</admin-object-link>" +
             "</message-destination>" +
-            "</tmp>";
+            "</web-app>";
 
     public void testMessageDestinations() throws Exception {
-        XmlObject specDD = parse(SPECDD1);
+        WebApp specDD = load(SPECDD1, WebApp.class);
         XmlObject plan = parse(PLAN1);
         adminObjectRefBuilder.initContext(specDD, plan, module);
         AbstractName n1 = naming.createChildName(baseName, "l1", NameFactory.JCA_ADMIN_OBJECT);
@@ -148,7 +153,7 @@ public class MessageDestinationTest extends TestCase {
             "</message-destination>" +
             "</tmp>";
     public void testMessageDestinationsWithModule() throws Exception {
-        XmlObject specDD = parse(SPECDD1);
+        WebApp specDD = load(SPECDD1, WebApp.class);
         XmlObject plan = parse(PLAN2);
         adminObjectRefBuilder.initContext(specDD, plan, module);
         AbstractName n1 = naming.createChildName(baseName, "l1", NameFactory.JCA_ADMIN_OBJECT);
@@ -159,12 +164,12 @@ public class MessageDestinationTest extends TestCase {
         assertEquals(2, module.getJndiScope(JndiScope.comp).size());
     }
 
-    private static final String SPECDD2 = "<tmp xmlns=\"http://java.sun.com/xml/ns/j2ee\">" +
-            "</tmp>";
+    private static final String SPECDD2 = "<web-app xmlns=\"http://java.sun.com/xml/ns/j2ee\">" +
+            "</web-app>";
 
 
     public void testMessageDestinationsMatch() throws Exception {
-        XmlObject specDD = parse(SPECDD2);
+        WebApp specDD = load(SPECDD2, WebApp.class);
         XmlObject plan = parse(PLAN1);
         try {
             adminObjectRefBuilder.initContext(specDD, plan, module);
@@ -182,6 +187,22 @@ public class MessageDestinationTest extends TestCase {
             return xmlCursor.getObject();
         } finally {
             xmlCursor.dispose();
+        }
+    }
+//    private boolean compareXmlObjects(WebApp webApp, XmlObject expected, List problems) throws JAXBException, XmlException {
+//        String xml = JaxbJavaee.marshal(WebApp.class, webApp);
+////        log.debug("[Source XML] " + '\n' + xml + '\n');
+////        log.debug("[Expected XML]" + '\n' + expected.toString() + '\n');
+//        XmlObject actual = XmlObject.Factory.parse(xml);
+//        return compareXmlObjects(actual, expected, problems);
+//    }
+
+    private <T> T load(String dd, Class<T> clazz) throws Exception {
+        InputStream in = new ByteArrayInputStream(dd.getBytes());
+        try {
+            return (T) JaxbJavaee.unmarshal(clazz, in);
+        } finally {
+            in.close();
         }
     }
 

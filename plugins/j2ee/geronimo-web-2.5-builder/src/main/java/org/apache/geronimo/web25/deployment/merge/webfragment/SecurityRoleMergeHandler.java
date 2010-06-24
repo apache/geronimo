@@ -19,35 +19,35 @@ package org.apache.geronimo.web25.deployment.merge.webfragment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
-import org.apache.geronimo.xbeans.javaee6.SecurityRoleType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.SecurityRole;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class SecurityRoleMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class SecurityRoleMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (SecurityRoleType securityRole : webFragment.getSecurityRoleArray()) {
-            String securityRoleKey = createSecurityRoleKey(securityRole.getRoleName().getStringValue());
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (SecurityRole securityRole : webFragment.getSecurityRole()) {
+            String securityRoleKey = createSecurityRoleKey(securityRole.getRoleName());
             if (!mergeContext.containsAttribute(securityRoleKey)) {
                 mergeContext.setAttribute(securityRoleKey, Boolean.TRUE);
-                webApp.addNewSecurityRole().set(securityRole);
+                webApp.getSecurityRole().add(securityRole);
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
         // TODO Auto-generated method stub
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (SecurityRoleType securityRole : webApp.getSecurityRoleArray()) {
-            context.setAttribute(createSecurityRoleKey(securityRole.getRoleName().getStringValue()), Boolean.TRUE);
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (SecurityRole securityRole : webApp.getSecurityRole()) {
+            context.setAttribute(createSecurityRoleKey(securityRole.getRoleName()), Boolean.TRUE);
         }
     }
 

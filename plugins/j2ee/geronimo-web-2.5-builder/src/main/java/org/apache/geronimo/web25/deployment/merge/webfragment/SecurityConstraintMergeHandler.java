@@ -17,62 +17,61 @@
 
 package org.apache.geronimo.web25.deployment.merge.webfragment;
 
+import java.util.List;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentValidationUtils;
-import org.apache.geronimo.xbeans.javaee6.SecurityConstraintType;
-import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
-import org.apache.geronimo.xbeans.javaee6.WebResourceCollectionType;
+import org.apache.openejb.jee.SecurityConstraint;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
+import org.apache.openejb.jee.WebResourceCollection;
 
 /**
  * FIXME For security-constraint, we just need to merge them to web.xml file, please correct me if I miss anything
  * @version $Rev$ $Date$
  */
-public class SecurityConstraintMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class SecurityConstraintMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (SecurityConstraintType securityConstraint : webApp.getSecurityConstraintArray()) {
-            for (WebResourceCollectionType webResourceCollection : securityConstraint.getWebResourceCollectionArray()) {
-                for (UrlPatternType pattern : webResourceCollection.getUrlPatternArray()) {
-                    String urlPattern = pattern.getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (SecurityConstraint securityConstraint : webApp.getSecurityConstraint()) {
+            for (WebResourceCollection webResourceCollection : securityConstraint.getWebResourceCollection()) {
+                for (String urlPattern : webResourceCollection.getUrlPattern()) {
                     if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
-                        throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("security-constraint", webResourceCollection.getWebResourceName().getStringValue(),
+                        throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("security-constraint", webResourceCollection.getWebResourceName(),
                                 urlPattern, "web-fragment.xml located in " + mergeContext.getCurrentJarUrl()));
                     }
                 }
-                validateHTTPMethods(webResourceCollection.getHttpMethodArray(), mergeContext.getCurrentJarUrl());
-                validateHTTPMethods(webResourceCollection.getHttpMethodOmissionArray(), mergeContext.getCurrentJarUrl());
+                validateHTTPMethods(webResourceCollection.getHttpMethod(), mergeContext.getCurrentJarUrl());
+                validateHTTPMethods(webResourceCollection.getHttpMethodOmission(), mergeContext.getCurrentJarUrl());
             }
-            webApp.addNewSecurityConstraint().set(securityConstraint);
+            webApp.getSecurityConstraint().add(securityConstraint);
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (SecurityConstraintType securityConstraint : webApp.getSecurityConstraintArray()) {
-            for (WebResourceCollectionType webResourceCollection : securityConstraint.getWebResourceCollectionArray()) {
-                for (UrlPatternType pattern : webResourceCollection.getUrlPatternArray()) {
-                    String urlPattern = pattern.getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (SecurityConstraint securityConstraint : webApp.getSecurityConstraint()) {
+            for (WebResourceCollection webResourceCollection : securityConstraint.getWebResourceCollection()) {
+                for (String urlPattern : webResourceCollection.getUrlPattern()) {
                     if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
-                        throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("security-constraint", webResourceCollection.getWebResourceName().getStringValue(),
+                        throw new DeploymentException(WebDeploymentMessageUtils.createInvalidUrlPatternErrorMessage("security-constraint", webResourceCollection.getWebResourceName(),
                                 urlPattern, "web.xml "));
                     }
                 }
-                validateHTTPMethods(webResourceCollection.getHttpMethodArray(), "web.xml");
-                validateHTTPMethods(webResourceCollection.getHttpMethodOmissionArray(), "web.xml");
+                validateHTTPMethods(webResourceCollection.getHttpMethod(), "web.xml");
+                validateHTTPMethods(webResourceCollection.getHttpMethodOmission(), "web.xml");
             }
         }
     }
 
-    private void validateHTTPMethods(String[] httpMethods, String source) throws DeploymentException {
+    private void validateHTTPMethods(List<String> httpMethods, String source) throws DeploymentException {
         for (String httpMethod : httpMethods) {
             if (!WebDeploymentValidationUtils.isValidHTTPMethod(httpMethod)) {
                 throw new DeploymentException("Invalid HTTP method value is found in " + source);

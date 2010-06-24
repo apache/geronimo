@@ -37,8 +37,6 @@ public class ResourceAnnotationExample {
 
     @Resource(name = "Resource3",
               type = java.lang.Object.class,
-              authenticationType = Resource.AuthenticationType.CONTAINER,
-              shareable = true,
               mappedName = "mappedName3")
     boolean annotatedField1;
 

@@ -17,7 +17,7 @@
 package org.apache.geronimo.jetty8.deployment;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
+import org.apache.openejb.jee.Servlet;
 
 /**
  * @version $Rev$ $Date$
@@ -27,41 +27,41 @@ public class StartupOrderComparatorTest extends TestCase {
     private final JettyModuleBuilder.StartupOrderComparator c = new JettyModuleBuilder.StartupOrderComparator();
 
     public void testNoOrders() throws Exception {
-        ServletType s1 = makeServletType("a", -1);
-        ServletType s2 = makeServletType("b", -1);
-        ServletType s3 = makeServletType("c", -1);
+        Servlet s1 = makeServlet("a", -1);
+        Servlet s2 = makeServlet("b", -1);
+        Servlet s3 = makeServlet("c", -1);
         checkOrdering(s1, s2, s3);
     }
 
     public void testIdenticalOrders() throws Exception {
-        ServletType s1 = makeServletType("a", 1);
-        ServletType s2 = makeServletType("b", 1);
-        ServletType s3 = makeServletType("c", 1);
+        Servlet s1 = makeServlet("a", 1);
+        Servlet s2 = makeServlet("b", 1);
+        Servlet s3 = makeServlet("c", 1);
         checkOrdering(s1, s2, s3);
     }
 
     public void testDistinctOrders() throws Exception {
-        ServletType s1 = makeServletType("c", 1);
-        ServletType s2 = makeServletType("b", 2);
-        ServletType s3 = makeServletType("a", 3);
+        Servlet s1 = makeServlet("c", 1);
+        Servlet s2 = makeServlet("b", 2);
+        Servlet s3 = makeServlet("a", 3);
         checkOrdering(s1, s2, s3);
     }
 
     public void testMixedOrders1() throws Exception {
-        ServletType s1 = makeServletType("c", 1);
-        ServletType s2 = makeServletType("b", 2);
-        ServletType s3 = makeServletType("a", -1);
+        Servlet s1 = makeServlet("c", 1);
+        Servlet s2 = makeServlet("b", 2);
+        Servlet s3 = makeServlet("a", -1);
         checkOrdering(s1, s2, s3);
     }
 
     public void testMixedOrders2() throws Exception {
-        ServletType s1 = makeServletType("c", 1);
-        ServletType s2 = makeServletType("a", -1);
-        ServletType s3 = makeServletType("b", -1);
+        Servlet s1 = makeServlet("c", 1);
+        Servlet s2 = makeServlet("a", -1);
+        Servlet s3 = makeServlet("b", -1);
         checkOrdering(s1, s2, s3);
     }
 
-    private void checkOrdering(ServletType s1, ServletType s2, ServletType s3) {
+    private void checkOrdering(Servlet s1, Servlet s2, Servlet s3) {
         //symmetric
         assertTrue(c.compare(s1, s2) < 0);
         assertTrue(c.compare(s2, s1) > 0);
@@ -72,11 +72,11 @@ public class StartupOrderComparatorTest extends TestCase {
         assertTrue(c.compare(s1, s3) < 0);
     }
 
-    private ServletType makeServletType(String servletName, int order) {
-        ServletType s1 = ServletType.Factory.newInstance();
-        s1.addNewServletName().setStringValue(servletName);
+    private Servlet makeServlet(String servletName, int order) {
+        Servlet s1 = new Servlet();
+        s1.setServletName(servletName);
         if (order > -1) {
-            s1.setLoadOnStartup(Integer.valueOf(order));
+            s1.setLoadOnStartup(order);
         }
         return s1;
     }

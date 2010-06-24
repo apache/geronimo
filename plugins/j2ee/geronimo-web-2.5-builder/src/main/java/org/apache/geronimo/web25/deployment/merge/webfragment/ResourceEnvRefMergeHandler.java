@@ -22,15 +22,15 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.ResourceEnvRefType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.ResourceEnvRef;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ResourceEnvRefMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class ResourceEnvRefMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     public static final String RESOURCE_ENV_REF_NAME_PREFIX = "resource-env-ref.resource-env-ref-name.";
 
@@ -42,9 +42,9 @@ public class ResourceEnvRefMergeHandler implements WebFragmentMergeHandler<WebFr
      * b. web.xml file should inherit it from the web-fragment.xml file
      */
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (ResourceEnvRefType srcResourceEnvRef : webFragment.getResourceEnvRefArray()) {
-            String resourceEnvRefName = srcResourceEnvRef.getResourceEnvRefName().getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (ResourceEnvRef srcResourceEnvRef : webFragment.getResourceEnvRef()) {
+            String resourceEnvRefName = srcResourceEnvRef.getResourceEnvRefName();
             String resourceEnvRefKey = createResourceEnvRefKey(resourceEnvRefName);
             MergeItem mergeItem = (MergeItem) mergeContext.getAttribute(resourceEnvRefKey);
             if (mergeItem != null) {
@@ -52,43 +52,43 @@ public class ResourceEnvRefMergeHandler implements WebFragmentMergeHandler<WebFr
                     throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateJNDIRefMessage("resource-env-ref", resourceEnvRefName, mergeItem.getBelongedURL(), mergeContext.getCurrentJarUrl()));
                 } else if (mergeItem.isFromWebXml() && !isResourceEnvRefInjectTargetsConfiguredInInitialWebXML(resourceEnvRefName, mergeContext)) {
                     //Merge InjectTarget
-                    ResourceEnvRefType resourceEnvRef = (ResourceEnvRefType) mergeItem.getValue();
-                    for (InjectionTargetType injectTarget : srcResourceEnvRef.getInjectionTargetArray()) {
-                        String resourceEnvRefInjectTargetKey = createResourceEnvRefInjectTargetKey(resourceEnvRefName, injectTarget.getInjectionTargetClass().getStringValue(), injectTarget
-                                .getInjectionTargetName().getStringValue());
+                    ResourceEnvRef resourceEnvRef = (ResourceEnvRef) mergeItem.getValue();
+                    for (InjectionTarget injectTarget : srcResourceEnvRef.getInjectionTarget()) {
+                        String resourceEnvRefInjectTargetKey = createResourceEnvRefInjectTargetKey(resourceEnvRefName, injectTarget.getInjectionTargetClass(), injectTarget
+                                .getInjectionTargetName());
                         if (!mergeContext.containsAttribute(resourceEnvRefInjectTargetKey)) {
-                            resourceEnvRef.addNewInjectionTarget().set(injectTarget);
+                            resourceEnvRef.getInjectionTarget().add(injectTarget);
                             mergeContext.setAttribute(resourceEnvRefInjectTargetKey, Boolean.TRUE);
                         }
                     }
                 }
             } else {
-                ResourceEnvRefType targetResourceEnvRef = (ResourceEnvRefType) webApp.addNewResourceEnvRef().set(srcResourceEnvRef);
-                mergeContext.setAttribute(resourceEnvRefKey, new MergeItem(targetResourceEnvRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
-                for (InjectionTargetType injectionTarget : targetResourceEnvRef.getInjectionTargetArray()) {
-                    mergeContext.setAttribute(createResourceEnvRefInjectTargetKey(resourceEnvRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                            .getStringValue()), Boolean.TRUE);
+                webApp.getResourceEnvRef().add(srcResourceEnvRef);
+                mergeContext.setAttribute(resourceEnvRefKey, new MergeItem(srcResourceEnvRef, mergeContext.getCurrentJarUrl(), ElementSource.WEB_FRAGMENT));
+                for (InjectionTarget injectionTarget : srcResourceEnvRef.getInjectionTarget()) {
+                    mergeContext.setAttribute(createResourceEnvRefInjectTargetKey(resourceEnvRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                            ), Boolean.TRUE);
                 }
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (ResourceEnvRefType resourceEnvRef : webApp.getResourceEnvRefArray()) {
-            String resourceEnvRefName = resourceEnvRef.getResourceEnvRefName().getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (ResourceEnvRef resourceEnvRef : webApp.getResourceEnvRef()) {
+            String resourceEnvRefName = resourceEnvRef.getResourceEnvRefName();
             mergeContext.setAttribute(createResourceEnvRefKey(resourceEnvRefName), new MergeItem(resourceEnvRef, null, ElementSource.WEB_XML));
             //Create an attribute tag to indicate whether injectTarget is configured in web.xml file
-            if (resourceEnvRef.getInjectionTargetArray().length > 0) {
+            if (!resourceEnvRef.getInjectionTarget().isEmpty()) {
                 mergeContext.setAttribute(createResourceEnvRefInjectTargetConfiguredInWebXMLKey(resourceEnvRefName), Boolean.TRUE);
             }
-            for (InjectionTargetType injectionTarget : resourceEnvRef.getInjectionTargetArray()) {
-                mergeContext.setAttribute(createResourceEnvRefInjectTargetKey(resourceEnvRefName, injectionTarget.getInjectionTargetClass().getStringValue(), injectionTarget.getInjectionTargetName()
-                        .getStringValue()), Boolean.TRUE);
+            for (InjectionTarget injectionTarget : resourceEnvRef.getInjectionTarget()) {
+                mergeContext.setAttribute(createResourceEnvRefInjectTargetKey(resourceEnvRefName, injectionTarget.getInjectionTargetClass(), injectionTarget.getInjectionTargetName()
+                        ), Boolean.TRUE);
             }
         }
     }

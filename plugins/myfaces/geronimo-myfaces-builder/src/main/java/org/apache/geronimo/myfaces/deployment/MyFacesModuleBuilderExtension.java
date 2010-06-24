@@ -18,6 +18,7 @@
 package org.apache.geronimo.myfaces.deployment;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,17 +29,18 @@ import java.util.StringTokenizer;
 import java.util.jar.JarFile;
 
 import javax.faces.webapp.FacesServlet;
-
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -46,34 +48,31 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.myfaces.LifecycleProviderGBean;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.xbeans.javaee.FacesConfigDocument;
-import org.apache.geronimo.xbeans.javaee.FacesConfigManagedBeanType;
-import org.apache.geronimo.xbeans.javaee.FacesConfigType;
-import org.apache.geronimo.xbeans.javaee.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee6.ParamValueType;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
 import org.apache.myfaces.webapp.StartupServletContextListener;
+import org.apache.openejb.jee.FacesConfig;
+import org.apache.openejb.jee.FacesManagedBean;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.ParamValue;
+import org.apache.openejb.jee.Servlet;
+import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * @version $Rev $Date
  */
-public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
+public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     private static final Logger log = LoggerFactory.getLogger(MyFacesModuleBuilderExtension.class);
 
     private final Environment defaultEnvironment;
@@ -85,7 +84,9 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     private static final String VERSION = "2.0";
 
 
-    public MyFacesModuleBuilderExtension(Environment defaultEnvironment, AbstractNameQuery providerFactoryNameQuery, NamingBuilder namingBuilders) {
+    public MyFacesModuleBuilderExtension(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+                                         @ParamAttribute(name = "providerFactoryNameQuery") AbstractNameQuery providerFactoryNameQuery,
+                                         @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
         this.providerFactoryNameQuery = providerFactoryNameQuery;
         this.namingBuilders = namingBuilders;
@@ -105,7 +106,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             return;
         }
         WebModule webModule = (WebModule) module;
-        WebAppType webApp = (WebAppType) webModule.getSpecDD();
+        WebApp webApp = webModule.getSpecDD();
         if (!hasFacesServlet(webApp)) {
             return;
         }
@@ -125,7 +126,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             return;
         }
         WebModule webModule = (WebModule) module;
-        WebAppType webApp = (WebAppType) webModule.getSpecDD();
+        WebApp webApp = webModule.getSpecDD();
         if (!hasFacesServlet(webApp)) {
             return;
         }
@@ -171,9 +172,9 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
     }
 
-    private boolean hasFacesServlet(WebAppType webApp) {
-        for (ServletType servlet : webApp.getServletArray()) {
-            if (servlet.isSetServletClass() && FACES_SERVLET_NAME.equals(servlet.getServletClass().getStringValue().trim())) {
+    private boolean hasFacesServlet(WebApp webApp) {
+        for (Servlet servlet : webApp.getServlet()) {
+            if ( servlet.getServletClass() != null && FACES_SERVLET_NAME.equals(servlet.getServletClass().trim())) {
                 return true;
             }
         }
@@ -181,7 +182,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
 
-    protected ClassFinder createMyFacesClassFinder(WebAppType webApp, WebModule webModule) throws DeploymentException {
+    protected ClassFinder createMyFacesClassFinder(WebApp webApp, WebModule webModule) throws DeploymentException {
 
         List<Class> classes = getFacesClasses(webApp, webModule);
         return new ClassFinder(classes);
@@ -209,9 +210,9 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
      * @throws org.apache.geronimo.common.DeploymentException
      *          if a faces-config.xml file is located but cannot be parsed.
      */
-    private List<Class> getFacesClasses(WebAppType webApp, WebModule webModule) throws DeploymentException {
+    private List<Class> getFacesClasses(WebApp webApp, WebModule webModule) throws DeploymentException {
         log.debug("getFacesClasses( " + webApp.toString() + "," + '\n' +
-                           (webModule != null ? webModule.getName() : null) + " ): Entry");
+                (webModule != null ? webModule.getName() : null) + " ): Entry");
 
         Deployable deployable = webModule.getDeployable();
         Bundle bundle = webModule.getEarContext().getDeploymentBundle();
@@ -230,10 +231,10 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         }
 
         // 3. javax.faces.CONFIG_FILES
-        ParamValueType[] paramValues = webApp.getContextParamArray();
-        for (ParamValueType paramValue : paramValues) {
-            if (paramValue.getParamName().getStringValue().trim().equals("javax.faces.CONFIG_FILES")) {
-                String configFiles = paramValue.getParamValue().getStringValue().trim();
+        List<ParamValue> paramValues = webApp.getContextParam();
+        for (ParamValue paramValue : paramValues) {
+            if (paramValue.getParamName().trim().equals("javax.faces.CONFIG_FILES")) {
+                String configFiles = paramValue.getParamValue().trim();
                 StringTokenizer st = new StringTokenizer(configFiles, ",", false);
                 while (st.hasMoreTokens()) {
                     String configfile = st.nextToken().trim();
@@ -257,19 +258,22 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         return classes;
     }
 
-    private void parseConfigFile(URL url,  Bundle bundle, List<Class> classes) throws DeploymentException {
+    private void parseConfigFile(URL url, Bundle bundle, List<Class> classes) throws DeploymentException {
         log.debug("parseConfigFile( " + url.toString() + " ): Entry");
 
         try {
-            XmlObject xml = XmlBeansUtil.parse(url, null);
-            FacesConfigDocument fcd = convertToFacesConfigSchema(xml);
-            FacesConfigType facesConfig = fcd.getFacesConfig();
+            InputStream in = url.openStream();
+            FacesConfig facesConfig = null;
+            try {
+                facesConfig = (FacesConfig) JaxbJavaee.unmarshal(FacesConfig.class, in);
+            } finally {
+                in.close();
+            }
 
             // Get all the managed beans from the faces configuration file
-            FacesConfigManagedBeanType[] managedBeans = facesConfig.getManagedBeanArray();
-            for (FacesConfigManagedBeanType managedBean : managedBeans) {
-                FullyQualifiedClassType cls = managedBean.getManagedBeanClass();
-                String className = cls.getStringValue().trim();
+            List<FacesManagedBean> managedBeans = facesConfig.getManagedBean();
+            for (FacesManagedBean managedBean : managedBeans) {
+                String className = managedBean.getManagedBeanClass().trim();
                 Class<?> clas;
                 try {
                     clas = bundle.loadClass(className);
@@ -277,12 +281,18 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                     //TODO do we need superclasses?
                 }
                 catch (ClassNotFoundException e) {
-                    log.warn("MyFacesModuleBuilderExtension: Could not load managed bean class: " + className  + " mentioned in faces-config.xml file at " + url.toString());
+                    log.warn("MyFacesModuleBuilderExtension: Could not load managed bean class: " + className + " mentioned in faces-config.xml file at " + url.toString());
                 }
             }
-        }
-        catch (XmlException xmle) {
-            throw new DeploymentException("Could not parse alleged faces-config.xml at " + url.toString(), xmle);
+        } catch (ParserConfigurationException e) {
+            throw new DeploymentException("Could not parse alleged faces-config.xml at " + url.toString(), e);
+
+        } catch (SAXException e) {
+            throw new DeploymentException("Could not parse alleged faces-config.xml at " + url.toString(), e);
+
+        } catch (JAXBException e) {
+            throw new DeploymentException("Could not parse alleged faces-config.xml at " + url.toString(), e);
+
         }
         catch (IOException ioe) {
             throw new DeploymentException("Error reading jsf configuration file " + url, ioe);
@@ -290,52 +300,5 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
         log.debug("parseConfigFile(): Exit");
     }
-
-    protected static FacesConfigDocument convertToFacesConfigSchema(XmlObject xmlObject) throws XmlException {
-        log.debug("convertToFacesConfigSchema( " + xmlObject.toString() + " ): Entry");
-        XmlCursor cursor = xmlObject.newCursor();
-        try {
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            String nameSpaceURI = cursor.getName().getNamespaceURI();
-            if (SchemaConversionUtils.JAVAEE_NAMESPACE.equals(nameSpaceURI) || SchemaConversionUtils.J2EE_NAMESPACE.equals(nameSpaceURI)) {
-                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, SCHEMA_LOCATION_URL, VERSION);
-            } else {
-                // otherwise assume DTD
-                SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, SCHEMA_LOCATION_URL, VERSION);
-            }
-        } finally {
-            cursor.dispose();
-        }
-        XmlObject result = xmlObject.changeType(FacesConfigDocument.type);
-        if (result != null) {
-            XmlBeansUtil.validateDD(result);
-            log.debug("convertToFacesConfigSchema(): Exit 2");
-            return (FacesConfigDocument) result;
-        }
-        XmlBeansUtil.validateDD(xmlObject);
-        log.debug("convertToFacesConfigSchema(): Exit 3");
-        return (FacesConfigDocument) xmlObject;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MyFacesModuleBuilderExtension.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("providerFactoryNameQuery", AbstractNameQuery.class, true, true);
-        infoBuilder.addReference("NamingBuilders", NamingBuilder.class, NameFactory.MODULE_BUILDER);
-
-        infoBuilder.setConstructor(new String[]{
-                "defaultEnvironment",
-                "providerFactoryNameQuery",
-                "NamingBuilders"});
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 
 }

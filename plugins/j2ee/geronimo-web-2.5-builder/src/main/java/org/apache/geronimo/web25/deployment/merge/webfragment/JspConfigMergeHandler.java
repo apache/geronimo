@@ -23,64 +23,66 @@ import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeHelper;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.JspConfigType;
-import org.apache.geronimo.xbeans.javaee6.JspPropertyGroupType;
-import org.apache.geronimo.xbeans.javaee6.TaglibType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.JspConfig;
+import org.apache.openejb.jee.JspPropertyGroup;
+import org.apache.openejb.jee.Taglib;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
-public class JspConfigMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class JspConfigMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     private static final Logger logger = LoggerFactory.getLogger(JspConfigMergeHandler.class);
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        if (webFragment.getJspConfigArray().length == 0) {
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        if (webFragment.getJspConfig().isEmpty()) {
             return;
         }
-        if (webFragment.getJspConfigArray().length > 1) {
+        if (webFragment.getJspConfig().size() > 1) {
             logger.warn(WebDeploymentMessageUtils.createMultipleConfigurationWarningMessage("jsp-config", mergeContext.getCurrentJarUrl()));
         }
-        JspConfigType srcJspConfig = webFragment.getJspConfigArray(0);
-        JspConfigType targetJspConfig = webApp.getJspConfigArray().length == 0 ? webApp.addNewJspConfig() : webApp.getJspConfigArray(0);
+        JspConfig srcJspConfig = webFragment.getJspConfig().get(0);
+        if (webApp.getJspConfig().isEmpty()) {
+            webApp.getJspConfig().add( new JspConfig());
+        }
+        JspConfig targetJspConfig = webApp.getJspConfig().get(0);
         //Merge Tag lib configurations
-        for (TaglibType taglib : srcJspConfig.getTaglibArray()) {
-            if (MergeHelper.mergeRequired(createTaglibKey(taglib), "jsp-config/tag-lib", "taglib-uri", taglib.getTaglibUri().getStringValue(), "taglib-location", taglib.getTaglibLocation()
-                    .getStringValue(), mergeContext)) {
-                TaglibType newTaglib = targetJspConfig.addNewTaglib();
-                newTaglib.set(taglib);
+        for (Taglib taglib : srcJspConfig.getTaglib()) {
+            if (MergeHelper.mergeRequired(createTaglibKey(taglib), "jsp-config/tag-lib", "taglib-uri", taglib.getTaglibUri(), "taglib-location", taglib.getTaglibLocation()
+                    , mergeContext)) {
+                targetJspConfig.getTaglib().add(taglib);
             }
         }
         //Merge jsp-property-group configurations, seem that no merge actions are required, just add them to the web.xml file
-        for (JspPropertyGroupType srcJspPropertyGroup : srcJspConfig.getJspPropertyGroupArray()) {
-            targetJspConfig.addNewJspPropertyGroup().set(srcJspPropertyGroup);
+        for (JspPropertyGroup srcJspPropertyGroup : srcJspConfig.getJspPropertyGroup()) {
+            targetJspConfig.getJspPropertyGroup().add(srcJspPropertyGroup);
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        if (webApp.getJspConfigArray().length == 0) {
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        if (webApp.getJspConfig().isEmpty()) {
             return;
         }
-        if (webApp.getJspConfigArray().length > 1) {
+        if (webApp.getJspConfig().size() > 1) {
             throw new DeploymentException(WebDeploymentMessageUtils.createMultipleConfigurationWebAppErrorMessage("jsp-config"));
         }
-        JspConfigType jspConfig = webApp.getJspConfigArray(0);
-        for (TaglibType taglib : jspConfig.getTaglibArray()) {
-            context.setAttribute(createTaglibKey(taglib), new MergeItem(taglib.getTaglibLocation().getStringValue(), null, ElementSource.WEB_XML));
+        JspConfig jspConfig = webApp.getJspConfig().get(0);
+        for (Taglib taglib : jspConfig.getTaglib()) {
+            context.setAttribute(createTaglibKey(taglib), new MergeItem(taglib.getTaglibLocation(), null, ElementSource.WEB_XML));
         }
     }
 
-    public static String createTaglibKey(TaglibType taglib) {
-        return "jsp-config.taglib.taglib-uri." + taglib.getTaglibUri().getStringValue();
+    public static String createTaglibKey(Taglib taglib) {
+        return "jsp-config.taglib.taglib-uri." + taglib.getTaglibUri();
     }
 }

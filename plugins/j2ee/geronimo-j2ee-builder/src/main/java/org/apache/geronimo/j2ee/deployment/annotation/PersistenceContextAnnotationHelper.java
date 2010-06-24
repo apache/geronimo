@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.PersistenceContext;
@@ -28,12 +29,10 @@ import javax.persistence.PersistenceContextType;
 import javax.persistence.PersistenceContexts;
 import javax.persistence.PersistenceProperty;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.JndiNameType;
-import org.apache.geronimo.xbeans.javaee6.PersistenceContextRefType;
-import org.apache.geronimo.xbeans.javaee6.PersistenceContextTypeType;
-import org.apache.geronimo.xbeans.javaee6.PropertyType;
-import org.apache.geronimo.xbeans.javaee6.XsdStringType;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.PersistenceContextRef;
+import org.apache.openejb.jee.Property;
 import org.apache.xbean.finder.AbstractFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +80,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    public static void processAnnotations(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         if (annotatedApp != null) {
             if (classFinder.isAnnotationPresent(PersistenceContexts.class)) {
                 processPersistenceContexts(annotatedApp, classFinder);
@@ -100,7 +99,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processPersistenceContext(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processPersistenceContext(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceContext(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Class> classeswithPersistenceContext = classFinder.findAnnotatedClasses(PersistenceContext.class);
@@ -132,7 +131,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
         }
 
         // Validate deployment descriptor to ensure it's still okay
-        validateDD(annotatedApp);
+//        validateDD(annotatedApp);
 
         log.debug("processPersistenceContext(): Exit: AnnotatedApp: " + annotatedApp.toString());
     }
@@ -145,7 +144,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processPersistenceContexts(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processPersistenceContexts(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceContexts(): Entry");
 
         List<Class> classeswithPersistenceContexts = classFinder.findAnnotatedClasses(PersistenceContexts.class);
@@ -188,7 +187,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
      * @param field      Field name with the @PersistenceContext annoation
      * @param annotatedApp  Access to the specc dd
      */
-    private static void addPersistenceContext(AnnotatedApp annotatedApp, PersistenceContext annotation, Class cls, Method method, Field field) {
+    private static void addPersistenceContext(JndiConsumer annotatedApp, PersistenceContext annotation, Class cls, Method method, Field field) {
         log.debug("addPersistenceContext( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
                 "[annotation] " + annotation.toString() + "," + '\n' +
                 "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
@@ -209,13 +208,13 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
         log.debug("addPersistenceContext(): PersistenceContextRefName: " + persistenceContextRefName);
 
         // If there is already xml for the persistence context ref, just add injection targets and return.
-        PersistenceContextRefType[] persistenceContextRefs = annotatedApp.getPersistenceContextRefArray();
-        for (PersistenceContextRefType persistenceContextRef : persistenceContextRefs) {
-            if (persistenceContextRef.getPersistenceContextRefName().getStringValue().trim().equals(persistenceContextRefName)) {
+        Collection<PersistenceContextRef> persistenceContextRefs = annotatedApp.getPersistenceContextRef();
+        for (PersistenceContextRef persistenceContextRef : persistenceContextRefs) {
+            if (persistenceContextRef.getPersistenceContextRefName().trim().equals(persistenceContextRefName)) {
                 if (method != null || field != null) {
-                    InjectionTargetType[] targets = persistenceContextRef.getInjectionTargetArray();
+                    List<InjectionTarget> targets = persistenceContextRef.getInjectionTarget();
                     if (!hasTarget(method, field, targets)) {
-                        configureInjectionTarget(persistenceContextRef.addNewInjectionTarget(), method, field);
+                        persistenceContextRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }
                 }
                 return;
@@ -223,15 +222,14 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
         }
 
         // Doesn't exist in deployment descriptor -- add new
-        PersistenceContextRefType persistenceContextRef = annotatedApp.addNewPersistenceContextRef();
+        PersistenceContextRef persistenceContextRef = new PersistenceContextRef();
 
         //------------------------------------------------------------------------------
         // <persistence-context-ref> required elements:
         //------------------------------------------------------------------------------
 
         // persistence-context-ref-name
-        JndiNameType unitRefName = persistenceContextRef.addNewPersistenceContextRefName();
-        unitRefName.setStringValue(persistenceContextRefName);
+        persistenceContextRef.setPersistenceContextRefName(persistenceContextRefName);
 
         //------------------------------------------------------------------------------
         // <persistence-context-ref> optional elements:
@@ -239,36 +237,31 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
 
         // persistence-unit-name
         String unitNameAnnotation = annotation.unitName();
-        if (!unitNameAnnotation.equals("")) {
-            org.apache.geronimo.xbeans.javaee6.String persistenceUnitName = persistenceContextRef.addNewPersistenceUnitName();
-            persistenceUnitName.setStringValue(unitNameAnnotation);
+        if (!unitNameAnnotation.isEmpty()) {
+            persistenceContextRef.setPersistenceUnitName(unitNameAnnotation);
         }
 
         // persistence-context-type
         if (annotation.type() == PersistenceContextType.TRANSACTION) {
-            PersistenceContextTypeType persistenceContextType = persistenceContextRef.addNewPersistenceContextType();
-            persistenceContextType.setStringValue("Transaction");
-            persistenceContextRef.setPersistenceContextType(persistenceContextType);
+            persistenceContextRef.setPersistenceContextType(org.apache.openejb.jee.PersistenceContextType.TRANSACTION);
         } else if (annotation.type() == PersistenceContextType.EXTENDED) {
-            PersistenceContextTypeType persistenceContextType = persistenceContextRef.addNewPersistenceContextType();
-            persistenceContextType.setStringValue("Extended");
-            persistenceContextRef.setPersistenceContextType(persistenceContextType);
+            persistenceContextRef.setPersistenceContextType(org.apache.openejb.jee.PersistenceContextType.EXTENDED);
         }
 
         // persistence-context-properties
         PersistenceProperty[] properties = annotation.properties();
         for (PersistenceProperty property : properties) {
-            PropertyType propertyType = persistenceContextRef.addNewPersistenceProperty();
-            XsdStringType propertyName = propertyType.addNewName();
-            propertyName.setStringValue(property.name());
-            XsdStringType propertyValue = propertyType.addNewValue();
-            propertyValue.setStringValue(property.value());
+            Property prop = new Property();
+            prop.setName(property.name());
+            prop.setValue(property.value());
+            persistenceContextRef.getPersistenceProperty().add(prop);
         }
 
         // injection targets
         if (method != null || field != null) {
-            configureInjectionTarget(persistenceContextRef.addNewInjectionTarget(), method, field);
+            persistenceContextRef.getInjectionTarget().add(configureInjectionTarget(method, field));
         }
+        annotatedApp.getPersistenceContextRef().add(persistenceContextRef);
 
     }
 

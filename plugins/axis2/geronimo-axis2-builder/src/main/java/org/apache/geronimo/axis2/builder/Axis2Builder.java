@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.axis2.builder;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -26,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainerFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
@@ -33,8 +33,10 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
@@ -43,13 +45,12 @@ import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorOptions;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.xbeans.javaee6.PortComponentType;
-import org.apache.geronimo.xbeans.javaee6.ServiceImplBeanType;
-import org.apache.geronimo.xbeans.javaee6.WebserviceDescriptionType;
-import org.apache.geronimo.xbeans.javaee6.WebservicesDocument;
-import org.apache.geronimo.xbeans.javaee6.WebservicesType;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.openejb.jee.HandlerChains;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.PortComponent;
+import org.apache.openejb.jee.ServiceImplBean;
+import org.apache.openejb.jee.WebserviceDescription;
+import org.apache.openejb.jee.Webservices;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,15 +58,17 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev$ $Date$
  */
-public class Axis2Builder extends JAXWSServiceBuilder {
 
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
+public class Axis2Builder extends JAXWSServiceBuilder {
     private static final Logger log = LoggerFactory.getLogger(Axis2Builder.class);
 
     protected Collection<WsdlGenerator> wsdlGenerators;
 
     private GBeanInfo defaultContainerFactoryGBeanInfo;
 
-    public Axis2Builder(Environment defaultEnviroment, Collection<WsdlGenerator> wsdlGenerators) {
+    public Axis2Builder(@ParamAttribute(name = "defaultEnvironment")Environment defaultEnviroment,
+                        @ParamReference(name="WsdlGenerator", namingType = GBeanInfoBuilder.DEFAULT_J2EE_TYPE)Collection<WsdlGenerator> wsdlGenerators) {
         super(defaultEnviroment);
         this.wsdlGenerators = wsdlGenerators;
         this.webServiceFinder = new WARWebServiceFinder();
@@ -91,68 +94,57 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         log.debug("Parsing descriptor " + wsDDUrl);
 
         Map<String, PortInfo> map = null;
-        XmlCursor cursor = null;
 
         try {
-            XmlObject xobj = XmlObject.Factory.parse(in);
-
-            cursor = xobj.newCursor();
-            cursor.toStartDoc();
-            cursor.toFirstChild();
             //the checking is needed as we also send JAX-RPC based webservices.xml here
-            if ("http://java.sun.com/xml/ns/javaee".equals(cursor.getName().getNamespaceURI())) {
-                WebservicesDocument wd = (WebservicesDocument)xobj.changeType(WebservicesDocument.type);
-                WebservicesType wst = wd.getWebservices();
+//            if ("http://java.sun.com/xml/ns/javaee".equals(cursor.getName().getNamespaceURI())) {
+                Webservices wst = (Webservices) JaxbJavaee.unmarshal(Webservices.class, in);
 
-                for (WebserviceDescriptionType desc : wst.getWebserviceDescriptionArray()) {
+                for (WebserviceDescription desc : wst.getWebserviceDescription()) {
                     String wsdlFile = null;
                     if (desc.getWsdlFile() != null) {
-                        wsdlFile = getString(desc.getWsdlFile().getStringValue());
+                        wsdlFile = getString(desc.getWsdlFile());
                     }
 
-                    String serviceName = desc.getWebserviceDescriptionName().getStringValue();
+                    String serviceName = desc.getWebserviceDescriptionName();
 
-                    for (PortComponentType port : desc.getPortComponentArray()) {
+                    for (PortComponent port : desc.getPortComponent()) {
 
                         PortInfo portInfo = new PortInfo();
                         String serviceLink = null;
-                        ServiceImplBeanType beanType = port.getServiceImplBean();
+                        ServiceImplBean beanType = port.getServiceImplBean();
                         if (beanType.getEjbLink() != null) {
-                            serviceLink = beanType.getEjbLink().getStringValue();
-                        } else if (beanType.getServletLink().getStringValue() != null) {
-                            serviceLink = beanType.getServletLink().getStringValue();
+                            serviceLink = beanType.getEjbLink();
+                        } else if (beanType.getServletLink() != null) {
+                            serviceLink = beanType.getServletLink();
                         }
                         portInfo.setServiceLink(serviceLink);
 
                         if (port.getServiceEndpointInterface() != null) {
-                            String sei = port.getServiceEndpointInterface().getStringValue();
+                            String sei = port.getServiceEndpointInterface();
                             portInfo.setServiceEndpointInterfaceName(sei);
                         }
 
-                        String portName = port.getPortComponentName().getStringValue();
+                        String portName = port.getPortComponentName();
                         portInfo.setPortName(portName);
 
                         portInfo.setProtocolBinding(port.getProtocolBinding());
                         portInfo.setServiceName(serviceName);
                         portInfo.setWsdlFile(wsdlFile);
 
-                        if (port.getEnableMtom() != null) {
-                            portInfo.setEnableMTOM(port.getEnableMtom().getBooleanValue());
-                        }
+                        portInfo.setEnableMTOM(port.isEnableMtom());
 
                         if (port.getHandlerChains() != null) {
-                            StringBuffer chains = new StringBuffer("<handler-chains xmlns=\"http://java.sun.com/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
-                            chains.append(port.getHandlerChains().xmlText());
-                            chains.append("</handler-chains>");
-                            portInfo.setHandlersAsXML(chains.toString());
+                            String handlerChains = JaxbJavaee.marshal(HandlerChains.class, port.getHandlerChains());
+                            portInfo.setHandlersAsXML(handlerChains);
                         }
 
                         if (port.getWsdlPort() != null) {
-                            portInfo.setWsdlPort(port.getWsdlPort().getQNameValue());
+                            portInfo.setWsdlPort(port.getWsdlPort());
                         }
 
                         if (port.getWsdlService() != null) {
-                            portInfo.setWsdlService(port.getWsdlService().getQNameValue());
+                            portInfo.setWsdlService(port.getWsdlService());
                         }
 
                         String location = (String) correctedPortLocations.get(serviceLink);
@@ -165,21 +157,19 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                         map.put(serviceLink, portInfo);
                     }
                 }
-            } else {
-                log.debug("Descriptor ignored (not a Java EE 5 descriptor)");
-            }
+//            } else {
+//                log.debug("Descriptor ignored (not a Java EE 5 descriptor)");
+//            }
 
             return map;
-        } catch (FileNotFoundException e) {
+            
+        } catch (JAXBException e) {
+            //we hope it's jax-rpc
+            log.debug("Descriptor ignored (not a Java EE 5 descriptor)");
             return Collections.emptyMap();
-        } catch (IOException ex) {
-            throw new DeploymentException("Unable to read " + wsDDUrl, ex);
         } catch (Exception ex) {
             throw new DeploymentException("Unknown deployment error", ex);
         } finally {
-            if (cursor != null) {
-                cursor.dispose();
-            }
             try {
                 in.close();
             } catch (IOException e) {
@@ -248,18 +238,4 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         log.debug("Generated " + wsdlFile + " for service " + serviceName);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(Axis2Builder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addInterface(WebServiceBuilder.class);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.addReference("WsdlGenerator", WsdlGenerator.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "WsdlGenerator"});
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

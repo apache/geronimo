@@ -18,6 +18,7 @@
 package org.apache.geronimo.persistence.builder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -26,17 +27,13 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -51,9 +48,10 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextRefDocume
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextTypeType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPropertyType;
-import org.apache.geronimo.xbeans.javaee6.PersistenceContextRefType;
-import org.apache.geronimo.xbeans.javaee6.PersistenceContextTypeType;
-import org.apache.geronimo.xbeans.javaee6.PropertyType;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.PersistenceContextRef;
+import org.apache.openejb.jee.PersistenceContextType;
+import org.apache.openejb.jee.Property;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -71,41 +69,41 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
     private final boolean strictMatching;
 
     public PersistenceContextRefBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
-                                     @ParamAttribute(name = "defaultPersistenceUnitAbstractNameQuery") AbstractNameQuery defaultPersistenceUnitAbstractNameQuery,
-                                     @ParamAttribute(name = "strictMatching") boolean strictMatching) {
+                                        @ParamAttribute(name = "defaultPersistenceUnitAbstractNameQuery") AbstractNameQuery defaultPersistenceUnitAbstractNameQuery,
+                                        @ParamAttribute(name = "strictMatching") boolean strictMatching) {
         super(defaultEnvironment);
         this.defaultPersistenceUnitAbstractNameQuery = defaultPersistenceUnitAbstractNameQuery;
         this.strictMatching = strictMatching;
     }
 
-    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
-        return plan != null && plan.selectChildren(PersistenceContextRefBuilder.GER_PERSISTENCE_CONTEXT_REF_QNAME_SET).length > 0;
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) throws DeploymentException {
+        return specDD != null && specDD.getPersistenceContextRef().size() > 0;
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
 
         // Discover and process any @PersistenceContextRef annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
-            processAnnotations(module);
+            processAnnotations(specDD, module);
         }
 
-        List<PersistenceContextRefType> specPersistenceContextRefsUntyped = convert(specDD.selectChildren(PERSISTENCE_CONTEXT_REF_QNAME_SET), JEE_CONVERTER, PersistenceContextRefType.class, PersistenceContextRefType.type);
+        Collection<PersistenceContextRef> specPersistenceContextRefsUntyped = specDD.getPersistenceContextRef();
         Map<String, GerPersistenceContextRefType> gerPersistenceContextRefsUntyped = getGerPersistenceContextRefs(plan);
         List<DeploymentException> problems = new ArrayList<DeploymentException>();
         Configuration localConfiguration = module.getEarContext().getConfiguration();
-        for (PersistenceContextRefType persistenceContextRef : specPersistenceContextRefsUntyped) {
+        for (PersistenceContextRef persistenceContextRef : specPersistenceContextRefsUntyped) {
             try {
-                String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName().getStringValue().trim();
+                String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName().trim();
 
-                addInjections(persistenceContextRefName, persistenceContextRef.getInjectionTargetArray(), componentContext);
-                PersistenceContextTypeType persistenceContextType = persistenceContextRef.getPersistenceContextType();
-                boolean transactionScoped = persistenceContextType == null || !persistenceContextType.getStringValue().equalsIgnoreCase("extended");
+                addInjections(persistenceContextRefName, persistenceContextRef.getInjectionTarget(), componentContext);
+                PersistenceContextType persistenceContextType = persistenceContextRef.getPersistenceContextType();
+                boolean transactionScoped = persistenceContextType == null || persistenceContextType.equals(PersistenceContextType.TRANSACTION);
 
-                PropertyType[] propertyTypes = persistenceContextRef.getPersistencePropertyArray();
+                List<Property> propertyTypes = persistenceContextRef.getPersistenceProperty();
                 Map<String, String> properties = new HashMap<String, String>();
-                for (PropertyType propertyType : propertyTypes) {
-                    String key = propertyType.getName().getStringValue();
-                    String value = propertyType.getValue().getStringValue();
+                for (Property propertyType : propertyTypes) {
+                    String key = propertyType.getName();
+                    String value = propertyType.getValue();
                     properties.put(key, value);
                 }
 
@@ -115,8 +113,8 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
                     persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceContextRef);
                     addProperties(gerPersistenceContextRef, properties);
                     checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
-                } else if (persistenceContextRef.isSetPersistenceUnitName() && persistenceContextRef.getPersistenceUnitName().getStringValue().trim().length() > 0) {
-                    String persistenceUnitName = persistenceContextRef.getPersistenceUnitName().getStringValue().trim();
+                } else if (persistenceContextRef.getPersistenceUnitName() != null && persistenceContextRef.getPersistenceUnitName().trim().length() > 0) {
+                    String persistenceUnitName = persistenceContextRef.getPersistenceUnitName().trim();
                     persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
                     if (!checkForGBean(localConfiguration, persistenceUnitNameQuery, strictMatching)) {
                         persistenceUnitName = "persistence/" + persistenceUnitName;
@@ -246,9 +244,9 @@ public class PersistenceContextRefBuilder extends AbstractNamingBuilder {
         return persistenceUnitNameQuery;
     }
 
-    private void processAnnotations(Module module) throws DeploymentException {
+    private void processAnnotations(JndiConsumer specDD, Module module) throws DeploymentException {
         // Process all the annotations for this naming builder type
-        PersistenceContextAnnotationHelper.processAnnotations(module.getAnnotatedApp(), module.getClassFinder());
+        PersistenceContextAnnotationHelper.processAnnotations(specDD, module.getClassFinder());
     }
 
     public QNameSet getSpecQNameSet() {

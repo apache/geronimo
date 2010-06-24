@@ -22,19 +22,19 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.MimeMappingType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.MimeMapping;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class MimeMappingMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class MimeMappingMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (MimeMappingType mimeMapping : webFragment.getMimeMappingArray()) {
-            String extension = mimeMapping.getExtension().getStringValue();
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (MimeMapping mimeMapping : webFragment.getMimeMapping()) {
+            String extension = mimeMapping.getExtension();
             if (isMimeMappingConfiguredInWebXML(extension, mergeContext)) {
                 continue;
             }
@@ -42,23 +42,23 @@ public class MimeMappingMergeHandler implements WebFragmentMergeHandler<WebFragm
             String qualifedMimeMappingName = createMimeMappingConfiguredInWebFragmentXMLKey(extension);
             MergeItem existedMimeMapping = (MergeItem) mergeContext.getAttribute(qualifedMimeMappingName);
             if (existedMimeMapping == null) {
-                mergeContext.setAttribute(qualifedMimeMappingName, new MergeItem(mimeMapping.getMimeType().getStringValue(), jarUrl, ElementSource.WEB_FRAGMENT));
-                webApp.addNewMimeMapping().set(mimeMapping);
-            } else if (!mimeMapping.getMimeType().getStringValue().equals(existedMimeMapping.getValue())) {
+                mergeContext.setAttribute(qualifedMimeMappingName, new MergeItem(mimeMapping.getMimeType(), jarUrl, ElementSource.WEB_FRAGMENT));
+                webApp.getMimeMapping().add(mimeMapping);
+            } else if (!mimeMapping.getMimeType().equals(existedMimeMapping.getValue())) {
                 throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage("mime-mapping", "extension", extension, "mime-type", (String) existedMimeMapping.getValue(), existedMimeMapping
-                        .getBelongedURL(), mimeMapping.getMimeType().getStringValue(), jarUrl));
+                        .getBelongedURL(), mimeMapping.getMimeType(), jarUrl));
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (MimeMappingType mimeMapping : webApp.getMimeMappingArray()) {
-            context.setAttribute(createMimeMappingConfiguredInWebXMLKey(mimeMapping.getExtension().getStringValue()), Boolean.TRUE);
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (MimeMapping mimeMapping : webApp.getMimeMapping()) {
+            context.setAttribute(createMimeMappingConfiguredInWebXMLKey(mimeMapping.getExtension()), Boolean.TRUE);
         }
     }
 

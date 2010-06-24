@@ -22,36 +22,36 @@ import java.util.List;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.Servlet;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ServletMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class ServletMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
-    private List<SubMergeHandler<ServletType, ServletType>> subMergeHandlers;
+    private List<SubMergeHandler<Servlet, Servlet>> subMergeHandlers;
 
     public ServletMergeHandler() {
-        subMergeHandlers = new ArrayList<SubMergeHandler<ServletType, ServletType>>();
+        subMergeHandlers = new ArrayList<SubMergeHandler<Servlet, Servlet>>();
         subMergeHandlers.add(new ServletInitParamMergeHandler());
         subMergeHandlers.add(new ServletLoadOnStartupMergeHandler());
     }
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (ServletType srcServlet : webFragment.getServletArray()) {
-            String servletName = srcServlet.getServletName().getStringValue();
-            ServletType targetServlet = (ServletType) mergeContext.getAttribute(createServletKey(servletName));
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (Servlet srcServlet : webFragment.getServlet()) {
+            String servletName = srcServlet.getServletName();
+            Servlet targetServlet = (Servlet) mergeContext.getAttribute(createServletKey(servletName));
             if (targetServlet == null) {
-                targetServlet = (ServletType) webApp.addNewServlet().set(srcServlet);
-                mergeContext.setAttribute(createServletKey(servletName), targetServlet);
-                for (SubMergeHandler<ServletType, ServletType> subMergeHandler : subMergeHandlers) {
-                    subMergeHandler.add(targetServlet, mergeContext);
+                webApp.getServlet().add(srcServlet);
+                mergeContext.setAttribute(createServletKey(servletName), srcServlet);
+                for (SubMergeHandler<Servlet, Servlet> subMergeHandler : subMergeHandlers) {
+                    subMergeHandler.add(srcServlet, mergeContext);
                 }
             } else {
-                for (SubMergeHandler<ServletType, ServletType> subMergeHandler : subMergeHandlers) {
+                for (SubMergeHandler<Servlet, Servlet> subMergeHandler : subMergeHandlers) {
                     subMergeHandler.merge(srcServlet, targetServlet, mergeContext);
                 }
             }
@@ -59,18 +59,18 @@ public class ServletMergeHandler implements WebFragmentMergeHandler<WebFragmentT
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (SubMergeHandler<ServletType, ServletType> subMergeHandler : subMergeHandlers) {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (SubMergeHandler<Servlet, Servlet> subMergeHandler : subMergeHandlers) {
             subMergeHandler.postProcessWebXmlElement(webApp, mergeContext);
         }
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (ServletType servlet : webApp.getServletArray()) {
-            mergeContext.setAttribute(createServletKey(servlet.getServletName().getStringValue()), servlet);
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (Servlet servlet : webApp.getServlet()) {
+            mergeContext.setAttribute(createServletKey(servlet.getServletName()), servlet);
         }
-        for (SubMergeHandler<ServletType, ServletType> subMergeHandler : subMergeHandlers) {
+        for (SubMergeHandler<Servlet, Servlet> subMergeHandler : subMergeHandlers) {
             subMergeHandler.preProcessWebXmlElement(webApp, mergeContext);
         }
     }
@@ -83,11 +83,11 @@ public class ServletMergeHandler implements WebFragmentMergeHandler<WebFragmentT
         return mergeContext.containsAttribute(createServletKey(servletName));
     }
 
-    public static ServletType getServlet(String servletName, MergeContext mergeContext) {
-        return (ServletType) mergeContext.getAttribute(createServletKey(servletName));
+    public static Servlet getServlet(String servletName, MergeContext mergeContext) {
+        return (Servlet) mergeContext.getAttribute(createServletKey(servletName));
     }
 
-    public static void addServlet(ServletType servlet, MergeContext mergeContext) {
-        mergeContext.setAttribute(createServletKey(servlet.getServletName().getStringValue()), servlet);
+    public static void addServlet(Servlet servlet, MergeContext mergeContext) {
+        mergeContext.setAttribute(createServletKey(servlet.getServletName()), servlet);
     }
 }

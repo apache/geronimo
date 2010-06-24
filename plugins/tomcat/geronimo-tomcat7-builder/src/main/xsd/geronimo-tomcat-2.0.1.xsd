@@ -24,9 +24,9 @@
     xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
     xmlns:jaspi="http://geronimo.apache.org/xml/ns/geronimo-jaspi"
-    xmlns:ee="http://java.sun.com/xml/ns/persistence"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
     attributeFormDefault="unqualified" version="1.1">
+    <!--xmlns:ee="http://java.sun.com/xml/ns/persistence"-->
 
     <xs:annotation>
         <xs:documentation>
@@ -78,7 +78,7 @@
         </xs:annotation>
     </xs:import>
 
-    <xs:import namespace="http://java.sun.com/xml/ns/persistence" schemaLocation="http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"/>
+    <!--<xs:import namespace="http://java.sun.com/xml/ns/persistence" schemaLocation="http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"/>-->
     <xs:import namespace="http://geronimo.apache.org/xml/ns/geronimo-jaspi" schemaLocation="geronimo-jaspi.xsd"/>
   
     <xs:element name="web-app" type="tomcat:web-appType">
@@ -269,7 +269,7 @@
             </xs:sequence>
 
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="sys:service" minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="sys:service">
                     <xs:annotation>
                         <xs:documentation>
                             Reference to abstract service element defined in imported
@@ -277,7 +277,8 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element ref="ee:persistence"/>
+                <!--<xs:element ref="ee:persistence"/>-->
+                <xs:any namespace="http://java.sun.com/xml/ns/persistence"/>
             </xs:choice>
         </xs:sequence>
     </xs:complexType>

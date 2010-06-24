@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.web25.deployment.merge.webfragment;
 
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
@@ -29,11 +29,11 @@ public class WebFragmentEntry {
     //If the name element is defined in the web-fragment.xml, its value is the same with the webfragment's name. If not, a temporary unique name is assigned
     private String name;
 
-    private WebFragmentType webFragment;
+    private WebFragment webFragment;
 
     private String webFragmentName;
 
-    public WebFragmentEntry(String name, String webFragmentName, WebFragmentType webFragment, String jarURL) {
+    public WebFragmentEntry(String name, String webFragmentName, WebFragment webFragment, String jarURL) {
         this.name = name;
         this.jarURL = jarURL;
         this.webFragment = webFragment;
@@ -48,7 +48,7 @@ public class WebFragmentEntry {
         return name;
     }
 
-    public WebFragmentType getWebFragment() {
+    public WebFragment getWebFragment() {
         return webFragment;
     }
 
@@ -64,7 +64,7 @@ public class WebFragmentEntry {
         this.name = name;
     }
 
-    public void setWebFragment(WebFragmentType webFragment) {
+    public void setWebFragment(WebFragment webFragment) {
         this.webFragment = webFragment;
     }
 

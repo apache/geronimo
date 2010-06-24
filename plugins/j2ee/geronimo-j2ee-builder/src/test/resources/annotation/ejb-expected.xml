@@ -21,14 +21,33 @@
    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
    version="2.5" >
 
-    <display-name>Empty web application</display-name>
     <description>Empty web application</description>
+    <display-name>Empty web application</display-name>
     <ejb-ref>
         <description>description1</description>
         <ejb-ref-name>EJB1</ejb-ref-name>
         <remote>javax.ejb.EJBHome</remote>
         <ejb-link>beanName1</ejb-link>
         <mapped-name>mappedName1</mapped-name>
+    </ejb-ref>
+    <ejb-ref>
+        <description>description5</description>
+        <ejb-ref-name>EJB5</ejb-ref-name>
+        <remote>javax.ejb.EJBHome</remote>
+        <ejb-link>beanName5</ejb-link>
+        <mapped-name>mappedName5</mapped-name>
+    </ejb-ref>
+    <ejb-ref>
+        <ejb-ref-name>myejb2</ejb-ref-name>
+        <remote>javax.ejb.EJBHome</remote>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
+            <injection-target-name>annotatedField5</injection-target-name>
+        </injection-target>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
+            <injection-target-name>annotatedField6</injection-target-name>
+        </injection-target>
     </ejb-ref>
     <ejb-local-ref>
         <description>description2</description>
@@ -44,13 +63,6 @@
         <ejb-link>beanName4</ejb-link>
         <mapped-name>mappedName4</mapped-name>
     </ejb-local-ref>
-    <ejb-ref>
-        <description>description5</description>
-        <ejb-ref-name>EJB5</ejb-ref-name>
-        <remote>javax.ejb.EJBHome</remote>
-        <ejb-link>beanName5</ejb-link>
-        <mapped-name>mappedName5</mapped-name>
-    </ejb-ref>
     <ejb-local-ref>
         <description>description6</description>
         <ejb-ref-name>EJB6</ejb-ref-name>
@@ -80,17 +92,5 @@
             <injection-target-name>annotatedField4</injection-target-name>
         </injection-target>
     </ejb-local-ref>
-    <ejb-ref>
-        <ejb-ref-name>myejb2</ejb-ref-name>
-        <remote>javax.ejb.EJBHome</remote>
-        <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
-            <injection-target-name>annotatedField5</injection-target-name>
-        </injection-target>
-        <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
-            <injection-target-name>annotatedField6</injection-target-name>
-        </injection-target>
-    </ejb-ref>
 
 </web-app>

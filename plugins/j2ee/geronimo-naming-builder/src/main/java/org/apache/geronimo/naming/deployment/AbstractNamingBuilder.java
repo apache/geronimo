@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -48,10 +47,10 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryType;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.XsdStringType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
@@ -84,7 +83,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return this.defaultEnvironment;
     }
 
-    public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException {
+    public void buildEnvironment(JndiConsumer specDD, XmlObject plan, Environment environment) throws DeploymentException {
         // TODO Currently this method is called before the xml is metadata complete, so will not contain all refs
         // Just always call mergeEnvironment until this is fixed
         //
@@ -93,7 +92,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         // }
     }
 
-    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) throws DeploymentException {
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) throws DeploymentException {
         return false;
     }
 
@@ -124,7 +123,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return false;
     }
 
-    public void initContext(XmlObject specDD, XmlObject plan, Module module) throws DeploymentException {
+    public void initContext(JndiConsumer specDD, XmlObject plan, Module module) throws DeploymentException {
     }
     
     public int getPriority() {
@@ -269,35 +268,10 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return xmlObject;
     }
 
-    protected static String getStringValue(org.apache.geronimo.xbeans.javaee6.String string) {
-        if (string == null) {
-            return null;
-        }
-        String s = string.getStringValue();
-        return s == null ? null : s.trim();
-    }
-
-    protected static String getUntrimmedStringValue(org.apache.geronimo.xbeans.javaee6.String string) {
-        if (string == null) {
-            return null;
-        }
-        return string.getStringValue();
-    }
-
-    protected static String getStringValue(XsdStringType string) {
-        if (string == null) {
-            return null;
-        }
-        String s = string.getStringValue();
+    protected static String getStringValue(String s) {
         return s == null ? null : s.trim();
     }
     
-    protected static String getUntrimmedStringValue(XsdStringType string) {
-        if (string == null) {
-            return null;
-        }
-        return string.getStringValue();
-    }
 
     public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType, Set interfaceTypes) {
         return ENCConfigBuilder.buildAbstractNameQueryFromPattern(pattern, null, type, moduleType, interfaceTypes);
@@ -333,11 +307,11 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
 
-    protected void addInjections(String jndiName, InjectionTargetType[] injectionTargetArray, Map<EARContext.Key, Object> sharedContext) {
+    protected void addInjections(String jndiName, List<InjectionTarget> injectionTargetArray, Map<EARContext.Key, Object> sharedContext) {
         Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
-        for (InjectionTargetType injectionTarget : injectionTargetArray) {
-            String targetName = injectionTarget.getInjectionTargetName().getStringValue().trim();
-            String targetClassName = injectionTarget.getInjectionTargetClass().getStringValue().trim();
+        for (InjectionTarget injectionTarget : injectionTargetArray) {
+            String targetName = injectionTarget.getInjectionTargetName().trim();
+            String targetClassName = injectionTarget.getInjectionTargetClass().trim();
             holder.addInjection(targetClassName, new Injection(targetClassName, targetName, jndiName));
         }
     }
@@ -354,7 +328,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return BASE_NAMING_QNAME;
     }
 
-    protected String inferAndCheckType(Module module, Bundle bundle, InjectionTargetType[] injectionTargets, String name, String typeName) throws DeploymentException {
+    protected String inferAndCheckType(Module module, Bundle bundle, List<InjectionTarget> injectionTargets, String name, String typeName) throws DeploymentException {
         Class<?> type = null;
         if (typeName != null) {
             try {
@@ -363,14 +337,13 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
                 throw new DeploymentException("could not load type class for env entry named: " + name, e);
             }
         }
-        for (InjectionTargetType injectionTarget : injectionTargets) {
+        for (InjectionTarget injectionTarget : injectionTargets) {
             String className = getStringValue(injectionTarget.getInjectionTargetClass());
             try {
                 Class<?> clazz = bundle.loadClass(className);
                 String fieldName = getStringValue(injectionTarget.getInjectionTargetName());
                 Field field = getField(clazz, fieldName);
-                Class<?> fieldType = field.getType();
-                fieldType = fieldType.isPrimitive()? primitives.get(fieldType): fieldType;
+                Class<?> fieldType = deprimitivize(field.getType());
                 if (type == null) {
                     type = fieldType;
                 } else if (!fieldType.equals(type)) {
@@ -389,9 +362,14 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             }
         }
         if (type == null) {
-            throw new DeploymentException("No way to determine type of env-entry " + name + " in component " + module.getAnnotatedApp().toString());
+            throw new DeploymentException("No way to determine type of env-entry " + name + " in component " + module.toString());
         }
         return type.getName();
+    }
+
+    //duplicated in ResourceAnnotationHelper
+    private static Class<?> deprimitivize(Class<?> fieldType) {
+        return fieldType = fieldType.isPrimitive()? primitives.get(fieldType): fieldType;
     }
 
     private static final Map<Class<?>, Class<?>> primitives = new HashMap<Class<?>, Class<?>>();

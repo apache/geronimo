@@ -19,31 +19,29 @@ package org.apache.geronimo.corba.deployment;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.corba.proxy.CORBAProxyReference;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.deployment.EjbRefBuilder;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
-import org.apache.geronimo.xbeans.javaee6.EjbRefType;
-import org.apache.geronimo.corba.proxy.CORBAProxyReference;
+import org.apache.openejb.jee.EjbRef;
+import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -83,7 +81,7 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
     }
 
 
-    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan)  {
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan)  {
 //        return hasCssRefs(plan);
         return true;
     }
@@ -99,17 +97,16 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
 //        return false;
 //    }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
-        XmlObject[] ejbRefsUntyped = convert(specDD.selectChildren(ejbRefQNameSet), JEE_CONVERTER, EjbRefType.type);
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+        Collection<EjbRef> ejbRefsUntyped = specDD.getEjbRef();
         XmlObject[] gerEjbRefsUntyped = plan == null ? NO_REFS : convert(plan.selectChildren(GER_EJB_REF_QNAME_SET), OPENEJB_CONVERTER, GerEjbRefType.type);
         Map ejbRefMap = mapEjbRefs(gerEjbRefsUntyped);
         Bundle bundle = module.getEarContext().getDeploymentBundle();
 
-        for (XmlObject anEjbRefsUntyped : ejbRefsUntyped) {
-            EjbRefType ejbRef = (EjbRefType) anEjbRefsUntyped;
+        for (EjbRef ejbRef : ejbRefsUntyped) {
 
             String ejbRefName = getStringValue(ejbRef.getEjbRefName());
-            addInjections(ejbRefName, ejbRef.getInjectionTargetArray(), sharedContext);
+            addInjections(ejbRefName, ejbRef.getInjectionTarget(), sharedContext);
             GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
 
             Reference ejbReference = addEJBRef(module, ejbRef, remoteRef, bundle);
@@ -119,7 +116,7 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
         }
     }
 
-    private Reference addEJBRef(Module module, EjbRefType ejbRef, GerEjbRefType remoteRef, Bundle bundle) throws DeploymentException {
+    private Reference addEJBRef(Module module, EjbRef ejbRef, GerEjbRefType remoteRef, Bundle bundle) throws DeploymentException {
         Reference ejbReference = null;
         if (remoteRef != null && remoteRef.isSetNsCorbaloc()) {
             String refName = getStringValue(ejbRef.getEjbRefName());

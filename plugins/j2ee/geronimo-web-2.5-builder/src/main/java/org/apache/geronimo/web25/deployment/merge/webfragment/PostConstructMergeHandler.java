@@ -19,33 +19,33 @@ package org.apache.geronimo.web25.deployment.merge.webfragment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
-import org.apache.geronimo.xbeans.javaee6.LifecycleCallbackType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.LifecycleCallback;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class PostConstructMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class PostConstructMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
         if (mergeContext.containsAttribute(createPostConstructorConfiguredInWebXMLKey())) {
             return;
         }
-        for (LifecycleCallbackType lifecycleCallback : webFragment.getPostConstructArray()) {
-            webApp.addNewPostConstruct().set(lifecycleCallback);
+        for (LifecycleCallback lifecycleCallback : webFragment.getPostConstruct()) {
+            webApp.getPostConstruct().add(lifecycleCallback);
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
         // TODO Auto-generated method stub
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        context.setAttribute(createPostConstructorConfiguredInWebXMLKey(), webApp.getPostConstructArray().length > 0);
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        context.setAttribute(createPostConstructorConfiguredInWebXMLKey(), !webApp.getPostConstruct().isEmpty());
     }
 
     public static String createPostConstructorConfiguredInWebXMLKey() {

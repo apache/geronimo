@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.jaxws.handler;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,12 +28,10 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 
+import org.apache.openejb.jee.HandlerChains;
+import org.apache.openejb.jee.JaxbJavaee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.geronimo.xbeans.javaee.HandlerChainType;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsDocument;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
-import org.apache.geronimo.xbeans.javaee.PortComponentHandlerType;
 
 /**
  * @version $Rev$ $Date$
@@ -61,14 +60,20 @@ public class AnnotationHandlerChainBuilder
 
             try {
                 URL handlerFileURL = clz.getResource(hcAnn.getFileName());
-                HandlerChainsType handlerChainsType = HandlerChainsDocument.Factory.parse(handlerFileURL).getHandlerChains();
+                InputStream in = handlerFileURL.openStream();
+                HandlerChains handlerChainsType;
+                try {
+                    handlerChainsType = (HandlerChains) JaxbJavaee.unmarshal(HandlerChains.class, in);
+                } finally {
+                    in.close();
+                }
 
-                if (null == handlerChainsType || handlerChainsType.getHandlerChainArray() == null) {
+                if (null == handlerChainsType || handlerChainsType.getHandlerChain().isEmpty()) {
                     throw new WebServiceException("Chain not specified");
                 }
 
                 chain = new ArrayList<Handler>();
-                for (HandlerChainType hc : handlerChainsType.getHandlerChainArray()) {
+                for (org.apache.openejb.jee.HandlerChain hc : handlerChainsType.getHandlerChain()) {
                     chain.addAll(buildHandlerChain(hc, clz.getClassLoader()));
                 }
 
@@ -135,15 +140,14 @@ public class AnnotationHandlerChainBuilder
         return hcAnn;
     }
 
-    protected List<Handler> buildHandlerChain(HandlerChainType hc, ClassLoader classLoader) {
+    protected List<Handler> buildHandlerChain(org.apache.openejb.jee.HandlerChain hc, ClassLoader classLoader) {
         List<Handler> handlerChain = new ArrayList<Handler>();
-        for (PortComponentHandlerType ht : hc.getHandlerArray()) {
+        for (org.apache.openejb.jee.Handler ht : hc.getHandler()) {
             try {
-                log.debug("loading handler :" + trimString(ht.getHandlerName().getStringValue()));
+                log.debug("loading handler :" + trimString(ht.getHandlerName()));
 
                 Class<? extends Handler> handlerClass = Class.forName(
-                        trimString(ht.getHandlerClass()
-                                .getStringValue()), true, classLoader)
+                        trimString(ht.getHandlerClass()), true, classLoader)
                         .asSubclass(Handler.class);
 
                 Handler handler = handlerClass.newInstance();

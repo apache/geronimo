@@ -109,7 +109,7 @@ public class ServerType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link org.apache.geronimo.tomcat.modelxx.ListenerType }
+     * {@link org.apache.geronimo.tomcat.model.ListenerType }
      *
      *
      */

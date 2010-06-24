@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.j2ee.deployment.annotation;
 
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -35,13 +36,14 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContexts;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.PersistenceUnits;
+import javax.xml.bind.JAXBException;
 import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.WebServiceRefs;
-
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
-import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.ClassFinder;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
@@ -109,16 +111,15 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are processed correctly
         //-------------------------------------------------
-        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
-        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
-        WebAppType webApp = webAppDoc.getWebApp();
-        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
-        EJBAnnotationHelper.processAnnotations(annotatedWebApp, classFinder);
+//        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
+//        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
+//        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
+        WebApp webApp = load("annotation/empty-web-src.xml", WebApp.class);
+        EJBAnnotationHelper.processAnnotations(webApp, classFinder);
         URL expectedXML = classLoader.getResource("annotation/ejb-expected.xml");
         XmlObject expected = XmlObject.Factory.parse(expectedXML);
-        log.debug("[@EJB Source XML] " + '\n' + webApp.toString() + '\n');
-        log.debug("[@EJB Expected XML]" + '\n' + expected.toString() + '\n');
+//        log.debug("[@EJB Source XML] " + '\n' + webApp.toString() + '\n');
+//        log.debug("[@EJB Expected XML]" + '\n' + expected.toString() + '\n');
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webApp, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -150,16 +151,17 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are processed correctly
         //-------------------------------------------------
-        URL srcXML = classLoader.getResource("annotation/handler-chain-src.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
-        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
-        WebAppType webApp = webAppDoc.getWebApp();
-        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
-        HandlerChainAnnotationHelper.processAnnotations(annotatedWebApp, classFinder);
+//        URL srcXML = classLoader.getResource("annotation/handler-chain-src.xml");
+//        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
+//        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
+//        WebAppType webApp = webAppDoc.getWebApp();
+//        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
+        WebApp webApp = load("annotation/handler-chain-src.xml", WebApp.class);
+        HandlerChainAnnotationHelper.processAnnotations(webApp, classFinder);
         URL expectedXML = classLoader.getResource("annotation/handler-chain-expected.xml");
         XmlObject expected = XmlObject.Factory.parse(expectedXML);
-        log.debug("[@HandlerChain Source XML] " + '\n' + webApp.toString() + '\n');
-        log.debug("[@HandlerChain Expected XML]" + '\n' + expected.toString() + '\n');
+//        log.debug("[@HandlerChain Source XML] " + '\n' + webApp.toString() + '\n');
+//        log.debug("[@HandlerChain Expected XML]" + '\n' + expected.toString() + '\n');
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webApp, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -191,16 +193,17 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are processed correctly
         //-------------------------------------------------
-        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
-        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
-        WebAppType webApp = webAppDoc.getWebApp();
-        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
-        PersistenceContextAnnotationHelper.processAnnotations(annotatedWebApp, classFinder);
+//        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
+//        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
+//        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
+//        WebAppType webApp = webAppDoc.getWebApp();
+//        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
+        WebApp webApp = load("annotation/empty-web-src.xml", WebApp.class);
+        PersistenceContextAnnotationHelper.processAnnotations(webApp, classFinder);
         URL expectedXML = classLoader.getResource("annotation/persistence-context-expected.xml");
         XmlObject expected = XmlObject.Factory.parse(expectedXML);
-        log.debug("[@PersistenceContext Source XML] " + '\n' + webApp.toString() + '\n');
-        log.debug("[@PersistenceContext Expected XML]" + '\n' + expected.toString() + '\n');
+//        log.debug("[@PersistenceContext Source XML] " + '\n' + webApp.toString() + '\n');
+//        log.debug("[@PersistenceContext Expected XML]" + '\n' + expected.toString() + '\n');
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webApp, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -229,16 +232,17 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are processed correctly
         //-------------------------------------------------
-        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
-        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
-        WebAppType webApp = webAppDoc.getWebApp();
-        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
-        PersistenceUnitAnnotationHelper.processAnnotations(annotatedWebApp, classFinder);
+//        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
+//        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
+//        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
+//        WebAppType webApp = webAppDoc.getWebApp();
+//        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
+        WebApp webApp = load("annotation/empty-web-src.xml", WebApp.class);
+        PersistenceUnitAnnotationHelper.processAnnotations(webApp, classFinder);
         URL expectedXML = classLoader.getResource("annotation/persistence-unit-expected.xml");
         XmlObject expected = XmlObject.Factory.parse(expectedXML);
-        log.debug("[@PersistenceUnit Source XML] " + '\n' + webApp.toString() + '\n');
-        log.debug("[@PersistenceUnit Expected XML]" + '\n' + expected.toString() + '\n');
+//        log.debug("[@PersistenceUnit Source XML] " + '\n' + webApp.toString() + '\n');
+//        log.debug("[@PersistenceUnit Expected XML]" + '\n' + expected.toString() + '\n');
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webApp, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -274,16 +278,17 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are processed correctly
         //-------------------------------------------------
-        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
-        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
-        WebAppType webApp = webAppDoc.getWebApp();
-        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
-        WebServiceRefAnnotationHelper.processAnnotations(annotatedWebApp, classFinder);
+//        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
+//        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
+//        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
+//        WebAppType webApp = webAppDoc.getWebApp();
+//        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
+        WebApp webApp = load("annotation/empty-web-src.xml", WebApp.class);
+        WebServiceRefAnnotationHelper.processAnnotations(webApp, classFinder);
         URL expectedXML = classLoader.getResource("annotation/webservice-ref-expected.xml");
         XmlObject expected = XmlObject.Factory.parse(expectedXML);
-        log.debug("[@WebServiceRef Source XML] " + '\n' + webApp.toString() + '\n');
-        log.debug("[@WebServiceRef Expected XML]" + '\n' + expected.toString() + '\n');
+//        log.debug("[@WebServiceRef Source XML] " + '\n' + webApp.toString() + '\n');
+//        log.debug("[@WebServiceRef Expected XML]" + '\n' + expected.toString() + '\n');
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webApp, expected, problems);
         assertTrue("Differences: " + problems, ok);
@@ -309,30 +314,49 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are processed correctly
         //-------------------------------------------------
-        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
-        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
-        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
-        WebAppType webApp = webAppDoc.getWebApp();
+//        URL srcXML = classLoader.getResource("annotation/empty-web-src.xml");
+//        XmlObject xmlObject = XmlObject.Factory.parse(srcXML, options);
+//        WebAppDocument webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
+//        WebAppType webApp = webAppDoc.getWebApp();
+        WebApp webApp = load("annotation/empty-web-src.xml", WebApp.class);
         SecurityAnnotationHelper.processAnnotations(webApp, classFinder);
         URL expectedXML = classLoader.getResource("annotation/security-expected.xml");
         XmlObject expected = XmlObject.Factory.parse(expectedXML);
-        log.debug("[Security Source XML] " + '\n' + webApp.toString() + '\n');
-        log.debug("[Security Expected XML]" + '\n' + expected.toString() + '\n');
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webApp, expected, problems);
         assertTrue("Differences: " + problems, ok);
 
-        srcXML = classLoader.getResource("annotation/security-src.xml");
-        xmlObject = XmlObject.Factory.parse(srcXML, options);
-        webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
-        webApp = webAppDoc.getWebApp();
+//        srcXML = classLoader.getResource("annotation/security-src.xml");
+//        xmlObject = XmlObject.Factory.parse(srcXML, options);
+//        webAppDoc = (WebAppDocument) xmlObject.changeType(WebAppDocument.type);
+//        webApp = webAppDoc.getWebApp();
+        webApp = load("annotation/security-src.xml", WebApp.class);
         SecurityAnnotationHelper.processAnnotations(webApp, classFinder);
         expectedXML = classLoader.getResource("annotation/security-expected-1.xml");
         expected = XmlObject.Factory.parse(expectedXML);
-        log.debug("[Security Source XML] " + '\n' + webApp.toString() + '\n');
-        log.debug("[Security Expected XML]" + '\n' + expected.toString() + '\n');
+//        log.debug("[Security Source XML] " + '\n' + webApp.toString() + '\n');
+//        log.debug("[Security Expected XML]" + '\n' + expected.toString() + '\n');
         problems = new ArrayList();
         ok = compareXmlObjects(webApp, expected, problems);
         assertTrue("Differences: " + problems, ok);
     }
+
+    private boolean compareXmlObjects(WebApp webApp, XmlObject expected, List problems) throws JAXBException, XmlException {
+        String xml = JaxbJavaee.marshal(WebApp.class, webApp);
+        log.debug("[Source XML] " + '\n' + xml + '\n');
+        log.debug("[Expected XML]" + '\n' + expected.toString() + '\n');
+        XmlObject actual = XmlObject.Factory.parse(xml);
+        return compareXmlObjects(actual, expected, problems);
+    }
+
+    private <T> T load(String url, Class<T> clazz) throws Exception {
+        URL srcXml = classLoader.getResource(url);
+        InputStream in = srcXml.openStream();
+        try {
+            return (T) JaxbJavaee.unmarshal(clazz, in);
+        } finally {
+            in.close();
+        }
+    }
+
 }

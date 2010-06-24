@@ -47,7 +47,11 @@
             <artifactId>geronimo-web-2.5-builder</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-jee</artifactId>
+        </dependency>
+   
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jsp_2.2_spec</artifactId>
@@ -111,16 +115,6 @@
                     </systemProperties>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",*</Import-Package>
-                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                    </instructions>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -182,14 +176,6 @@
                     <instructions>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Import-Package>
-                            org.apache.geronimo.xbeans.javaee.impl,
-                            org.apache.geronimo.xbeans.javaee,
-                            org.apache.geronimo.xbeans.persistence.impl,
-                            org.apache.geronimo.xbeans.persistence,
-                            org.apache.geronimo.xbeans.j2ee.impl,
-                            org.apache.geronimo.xbeans.j2ee,
-                            org.w3.xml.x1998.namespace.impl,
-                            org.w3.xml.x1998.namespace,
                             org.apache.geronimo.deployment.xbeans.impl,
                             org.apache.geronimo.deployment.javabean.xbeans.impl,
                             org.apache.geronimo.deployment.xbeans,

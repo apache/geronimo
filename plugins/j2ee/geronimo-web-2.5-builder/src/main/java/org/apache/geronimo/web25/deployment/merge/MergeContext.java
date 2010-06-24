@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.web25.deployment.merge.webfragment.WebFragmentEntry;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.WebFragment;
 import org.osgi.framework.Bundle;
 
 /**
@@ -46,7 +46,7 @@ public class MergeContext {
         return bundle;
     }
 
-    public WebFragmentType getCurrentWebFragment() {
+    public WebFragment getCurrentWebFragment() {
         return webFragmentEntry.getWebFragment();
     }
 

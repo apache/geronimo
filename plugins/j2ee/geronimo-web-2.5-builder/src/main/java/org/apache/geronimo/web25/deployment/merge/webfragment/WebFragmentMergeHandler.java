@@ -19,7 +19,7 @@ package org.apache.geronimo.web25.deployment.merge.webfragment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.WebApp;
 
 /**
  * @version $Rev$ $Date$
@@ -28,7 +28,7 @@ public interface WebFragmentMergeHandler<S, T> {
 
     public void merge(S srcElement, T targetElement, MergeContext mergeContext) throws DeploymentException;
 
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException;
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException;
 
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException;
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException;
 }

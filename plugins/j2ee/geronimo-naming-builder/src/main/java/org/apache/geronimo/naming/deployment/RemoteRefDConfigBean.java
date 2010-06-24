@@ -75,6 +75,6 @@ public class RemoteRefDConfigBean extends DConfigBeanSupport {
     }
 
     protected SchemaTypeLoader getSchemaTypeLoader() {
-        return ENCHelper.SCHEMA_TYPE_LOADER;
+        return null;// ENCHelper.SCHEMA_TYPE_LOADER;
     }
 }

@@ -18,6 +18,7 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -39,7 +40,9 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -64,8 +67,6 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEAR;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
@@ -96,10 +97,10 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
-import org.apache.geronimo.xbeans.javaee6.ApplicationDocument;
-import org.apache.geronimo.xbeans.javaee6.ApplicationType;
-import org.apache.geronimo.xbeans.javaee6.ModuleType;
-import org.apache.geronimo.xbeans.javaee6.WebType;
+import org.apache.openejb.jee.Application;
+//import org.apache.openejb.jee.Module;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.Web;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -107,6 +108,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * @version $Rev$ $Date$
@@ -354,31 +356,41 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 jarFile,
                 null,
                 null,
-                null,
-                null);
+                null
+        );
         applicationInfo.getModules().add(module);
         return applicationInfo;
     }
 
     private ApplicationInfo getEarPlan(File planFile, JarFile earFile, ModuleIDBuilder idBuilder) throws DeploymentException {
         String specDD;
-        ApplicationType application = null;
+        Application application = null;
         if (earFile != null) {
             try {
                 URL applicationXmlUrl = JarUtils.createJarURL(earFile, "META-INF/application.xml");
                 specDD = JarUtils.readAll(applicationXmlUrl);
                 //we found something called application.xml in the right place, if we can't parse it it's an error
-                XmlObject xmlObject = XmlBeansUtil.parse(specDD);
-                application = convertToApplicationSchema(xmlObject).getApplication();
-            } catch (XmlException e) {
+                InputStream in = applicationXmlUrl.openStream();
+                try {
+                    application = (Application) JaxbJavaee.unmarshal(Application.class, in);
+                 } finally {
+                    in.close();
+                }
+
+            } catch (ParserConfigurationException e) {
+                throw new DeploymentException("Could not parse application.xml", e);
+             } catch (SAXException e) {
+                throw new DeploymentException("Could not parse application.xml", e);
+             } catch (JAXBException e) {
                 throw new DeploymentException("Could not parse application.xml", e);
             } catch (Exception e) {
-                //ee5 spec allows optional application.xml, continue with application == null
+//                ee5 spec allows optional application.xml, continue with application == null
                 if (!earFile.getName().endsWith(".ear")) {
                     return null;
                 }
-                application = ApplicationType.Factory.newInstance();
+                application = new Application();
             }
+
         }
 
         GerApplicationType gerApplication = null;
@@ -424,14 +436,13 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         // todo change module so you can extract the real module path back out.. then we can eliminate
         // the moduleLocations and have addModules return the modules
         String applicationName = null;
-        if (application.isSetApplicationName()) {
-            applicationName = application.getApplicationName().getStringValue().trim();
+        if (application.getApplicationName() != null) {
+            applicationName = application.getApplicationName().trim();
         } else if (earFile != null) {
             applicationName = FileUtils.removeExtension(new File(earFile.getName()).getName(), ".ear");
         } else {
             applicationName = artifact.toString();
         }
-        AnnotatedApp annotatedApp = new AnnotatedEAR(application);
         ApplicationInfo applicationInfo = new ApplicationInfo(ConfigurationModuleType.EAR,
                 environment,
                 earName,
@@ -439,8 +450,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 earFile,
                 application,
                 gerApplication,
-                application.toString(),
-                annotatedApp);
+                application.toString()
+        );
         try {
             addModules(earFile, application, gerApplication, environment, applicationInfo, idBuilder);
             if (applicationInfo.getModules().isEmpty()) {
@@ -467,26 +478,28 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         return applicationInfo;
     }
 
-    private void addModulesToDefaultPlan(ApplicationType application, Set<Module<?, ?>> modules) {
+    private void addModulesToDefaultPlan(Application application, Set<Module<?, ?>> modules) {
         for (Module module : modules) {
             ConfigurationModuleType configurationModuleType = module.getType();
-            ModuleType moduleType = application.addNewModule();
+            org.apache.openejb.jee.Module newModule = new org.apache.openejb.jee.Module();
             if (configurationModuleType.equals(ConfigurationModuleType.WAR)) {
                 WebModule webModule = (WebModule) module;
-                WebType web = moduleType.addNewWeb();
-                web.addNewContextRoot().setStringValue(webModule.getContextRoot());
-                web.addNewWebUri().setStringValue(webModule.getTargetPath());
+                Web web = new Web();
+                web.setContextRoot(webModule.getContextRoot());
+                web.setWebUri(webModule.getTargetPath());
+                newModule.setWeb(web);
             } else if (configurationModuleType.equals(ConfigurationModuleType.EJB)) {
-                moduleType.addNewEjb().setStringValue(module.getTargetPath());
+                newModule.setEjb(module.getTargetPath());
             } else if (configurationModuleType.equals(ConfigurationModuleType.RAR)) {
-                moduleType.addNewConnector().setStringValue(module.getTargetPath());
+                newModule.setConnector(module.getTargetPath());
             } else if (configurationModuleType.equals(ConfigurationModuleType.CAR)) {
-                moduleType.addNewJava().setStringValue(module.getTargetPath());
+                newModule.setJava(module.getTargetPath());
             }
+            application.getModule().add(newModule);
         }
     }
 
-    private GerApplicationType createDefaultPlan(ApplicationType application, JarFile module) {
+    private GerApplicationType createDefaultPlan(Application application, JarFile module) {
         // construct the empty geronimo-application.xml
         GerApplicationType gerApplication = GerApplicationType.Factory.newInstance();
         EnvironmentType environmentType = gerApplication.addNewEnvironment();
@@ -511,41 +524,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         artifactType.setVersion("" + System.currentTimeMillis());
         artifactType.setType("car");
         return gerApplication;
-    }
-
-    static ApplicationDocument convertToApplicationSchema(XmlObject xmlObject) throws XmlException {
-        XmlCursor cursor = xmlObject.newCursor();
-        XmlCursor moveable = xmlObject.newCursor();
-        String schemaLocationURL = "http://java.sun.com/xml/ns/javaee/application_6.xsd";
-        String version = "6";
-        try {
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            String nameSpaceURI = cursor.getName().getNamespaceURI();
-            if ("http://java.sun.com/xml/ns/javaee".equals(nameSpaceURI) || "http://java.sun.com/xml/ns/j2ee".equals(nameSpaceURI)) {
-                SchemaConversionUtils.convertSchemaVersion(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
-                XmlObject result = xmlObject.changeType(ApplicationDocument.type);
-                XmlBeansUtil.validateDD(result);
-                return (ApplicationDocument) result;
-            }
-
-            // otherwise assume DTD
-            SchemaConversionUtils.convertToSchema(cursor, SchemaConversionUtils.JAVAEE_NAMESPACE, schemaLocationURL, version);
-            cursor.toStartDoc();
-            cursor.toChild(SchemaConversionUtils.JAVAEE_NAMESPACE, "application");
-            cursor.toFirstChild();
-            SchemaConversionUtils.convertToDescriptionGroup(SchemaConversionUtils.JAVAEE_NAMESPACE, cursor, moveable);
-        } finally {
-            cursor.dispose();
-            moveable.dispose();
-        }
-        XmlObject result = xmlObject.changeType(ApplicationDocument.type);
-        if (result != null) {
-            XmlBeansUtil.validateDD(result);
-            return (ApplicationDocument) result;
-        }
-        XmlBeansUtil.validateDD(xmlObject);
-        return (ApplicationDocument) xmlObject;
     }
 
     public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
@@ -600,7 +578,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             ModuleList moduleLocations = applicationInfo.getModuleLocations();
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
                 //get the value of the library-directory element in spec DD
-                ApplicationType specDD = (ApplicationType) applicationInfo.getSpecDD();
+                Application specDD = (Application) applicationInfo.getSpecDD();
                 String libDir = getLibraryDirectory(specDD);
                 ClassPathList libClasspath = new ClassPathList();
                 for (Enumeration<JarEntry> e = earFile.entries(); e.hasMoreElements();) {
@@ -758,14 +736,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         }
     }
 
-    private String getLibraryDirectory(ApplicationType specDD) {
-        if (specDD == null || !specDD.isSetLibraryDirectory()) {
+    private String getLibraryDirectory(Application specDD) {
+        if (specDD == null || specDD.getLibraryDirectory() == null) {
             //value 'lib' is used if element not set or ear does not contain a dd
             return "lib";
         }
 
         //only set if not empty value, empty value implies no library directory
-        String value = specDD.getLibraryDirectory().getStringValue();
+        String value = specDD.getLibraryDirectory();
         return value.trim().length() > 0 ? value : null;
     }
 
@@ -821,45 +799,45 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         return filter;
     }
 
-    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Environment environment, Module applicationInfo, ModuleIDBuilder idBuilder) throws DeploymentException {
+    private void addModules(JarFile earFile, Application application, GerApplicationType gerApplication, Environment environment, Module applicationInfo, ModuleIDBuilder idBuilder) throws DeploymentException {
         Map<String, Object> altVendorDDs = new HashMap<String, Object>();
         try {
             mapVendorPlans(gerApplication, altVendorDDs, earFile);
             if (earFile != null) {
-                if (application.getModuleArray().length != 0) {
-                    ModuleType[] moduleTypes = application.getModuleArray();
+                if (application.getModule().size() != 0) {
+                    List<org.apache.openejb.jee.Module> Modules = application.getModule();
 
                     //get a set containing all of the files in the ear that are actually modules
-                    for (ModuleType moduleXml : moduleTypes) {
+                    for (org.apache.openejb.jee.Module moduleXml : Modules) {
                         String modulePath;
                         ModuleBuilder builder;
 
                         Object moduleContextInfo = null;
                         String moduleTypeName;
-                        if (moduleXml.isSetEjb()) {
-                            modulePath = moduleXml.getEjb().getStringValue();
+                        if (moduleXml.getEjb() != null) {
+                            modulePath = moduleXml.getEjb();
                             builder = getEjbConfigBuilder();
                             if (builder == null) {
                                 throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + modulePath);
                             }
                             moduleTypeName = "an EJB";
-                        } else if (moduleXml.isSetWeb()) {
-                            modulePath = moduleXml.getWeb().getWebUri().getStringValue();
+                        } else if (moduleXml.getWeb() != null) {
+                            modulePath = moduleXml.getWeb().getWebUri();
                             if (getWebConfigBuilder() == null) {
                                 throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + modulePath);
                             }
                             builder = getWebConfigBuilder();
                             moduleTypeName = "a war";
-                            moduleContextInfo = moduleXml.getWeb().getContextRoot().getStringValue().trim();
-                        } else if (moduleXml.isSetConnector()) {
-                            modulePath = moduleXml.getConnector().getStringValue();
+                            moduleContextInfo = moduleXml.getWeb().getContextRoot().trim();
+                        } else if (moduleXml.getConnector() != null) {
+                            modulePath = moduleXml.getConnector();
                             if (getConnectorConfigBuilder() == null) {
                                 throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + modulePath);
                             }
                             builder = getConnectorConfigBuilder();
                             moduleTypeName = "a connector";
-                        } else if (moduleXml.isSetJava()) {
-                            modulePath = moduleXml.getJava().getStringValue();
+                        } else if (moduleXml.getJava() != null) {
+                            modulePath = moduleXml.getJava();
                             if (getAppClientConfigBuilder() == null) {
                                 throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + modulePath);
                             }
@@ -1113,7 +1091,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         return s.trim();
     }
 
-    private boolean isLibraryEntry(ApplicationType application, ZipEntry entry) {
+    private boolean isLibraryEntry(Application application, ZipEntry entry) {
         String libDir = getLibraryDirectory(application);
         return libDir != null && entry.getName().startsWith(libDir);
     }
@@ -1153,12 +1131,12 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         }
     }
 
-    private URL getAltSpecDDURL(JarFile earFile, ModuleType moduleXml) throws DeploymentException {
-        if (moduleXml != null && moduleXml.isSetAltDd()) {
+    private URL getAltSpecDDURL(JarFile earFile, org.apache.openejb.jee.Module moduleXml) throws DeploymentException {
+        if (moduleXml != null && moduleXml.getAltDd() != null) {
             try {
-                return JarUtils.createJarURL(earFile, moduleXml.getAltDd().getStringValue());
+                return JarUtils.createJarURL(earFile, moduleXml.getAltDd());
             } catch (MalformedURLException e) {
-                throw new DeploymentException("Invalid alt sped dd url: " + moduleXml.getAltDd().getStringValue(), e);
+                throw new DeploymentException("Invalid alt sped dd url: " + moduleXml.getAltDd(), e);
             }
         }
         return null;

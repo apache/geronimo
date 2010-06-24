@@ -23,41 +23,40 @@ import java.util.List;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
-import org.apache.geronimo.xbeans.javaee6.ServletMappingType;
-import org.apache.geronimo.xbeans.javaee6.UrlPatternType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
+import org.apache.openejb.jee.ServletMapping;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ServletMappingMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class ServletMappingMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
-    private List<SubMergeHandler<ServletMappingType, ServletMappingType>> subMergeHandlers;
+    private List<SubMergeHandler<ServletMapping, ServletMapping>> subMergeHandlers;
 
     public ServletMappingMergeHandler() {
-        subMergeHandlers = new ArrayList<SubMergeHandler<ServletMappingType, ServletMappingType>>();
+        subMergeHandlers = new ArrayList<SubMergeHandler<ServletMapping, ServletMapping>>();
         subMergeHandlers.add(new ServletMappingUrlPatternMergeHandler());
     }
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        for (ServletMappingType srcServletMapping : webFragment.getServletMappingArray()) {
-            String servletName = srcServletMapping.getServletName().getStringValue();
-            ServletMappingType targetServletMapping = (ServletMappingType) mergeContext.getAttribute(createServletMappingKey(servletName));
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        for (ServletMapping srcServletMapping : webFragment.getServletMapping()) {
+            String servletName = srcServletMapping.getServletName();
+            ServletMapping targetServletMapping = (ServletMapping) mergeContext.getAttribute(createServletMappingKey(servletName));
             if (targetServletMapping == null) {
-                targetServletMapping = (ServletMappingType) webApp.addNewServletMapping().set(srcServletMapping);
-                mergeContext.setAttribute(createServletMappingKey(servletName), targetServletMapping);
-                for (SubMergeHandler<ServletMappingType, ServletMappingType> subMergeHandler : subMergeHandlers) {
-                    subMergeHandler.add(targetServletMapping, mergeContext);
+                webApp.getServletMapping().add(srcServletMapping);
+                mergeContext.setAttribute(createServletMappingKey(servletName), srcServletMapping);
+                for (SubMergeHandler<ServletMapping, ServletMapping> subMergeHandler : subMergeHandlers) {
+                    subMergeHandler.add(srcServletMapping, mergeContext);
                 }
             } else {
-                if (isServletMappingFromAnnotation(servletName, mergeContext) && srcServletMapping.getUrlPatternArray().length > 0) {
+                if (isServletMappingFromAnnotation(servletName, mergeContext) && !srcServletMapping.getUrlPattern().isEmpty()) {
                     //If the current url-patterns configurations are from annotations, so let's drop them
-                    targetServletMapping.setUrlPatternArray(new UrlPatternType[0]);
+                    targetServletMapping.getUrlPattern().clear();
                     mergeContext.removeAttribute(createServletMappingSourceKey(servletName));
                 }
-                for (SubMergeHandler<ServletMappingType, ServletMappingType> subMergeHandler : subMergeHandlers) {
+                for (SubMergeHandler<ServletMapping, ServletMapping> subMergeHandler : subMergeHandlers) {
                     subMergeHandler.merge(srcServletMapping, targetServletMapping, mergeContext);
                 }
             }
@@ -65,19 +64,19 @@ public class ServletMappingMergeHandler implements WebFragmentMergeHandler<WebFr
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (SubMergeHandler<ServletMappingType, ServletMappingType> subMergeHandler : subMergeHandlers) {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (SubMergeHandler<ServletMapping, ServletMapping> subMergeHandler : subMergeHandlers) {
             subMergeHandler.postProcessWebXmlElement(webApp, context);
         }
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (ServletMappingType servletMapping : webApp.getServletMappingArray()) {
-            String filterName = servletMapping.getServletName().getStringValue();
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (ServletMapping servletMapping : webApp.getServletMapping()) {
+            String filterName = servletMapping.getServletName();
             context.setAttribute(createServletMappingKey(filterName), servletMapping);
         }
-        for (SubMergeHandler<ServletMappingType, ServletMappingType> subMergeHandler : subMergeHandlers) {
+        for (SubMergeHandler<ServletMapping, ServletMapping> subMergeHandler : subMergeHandlers) {
             subMergeHandler.preProcessWebXmlElement(webApp, context);
         }
     }
@@ -90,8 +89,8 @@ public class ServletMappingMergeHandler implements WebFragmentMergeHandler<WebFr
         return "servlet-mapping.servlet-name." + servletName + ".sources";
     }
 
-    public static void addServletMapping(ServletMappingType servletMapping, MergeContext mergeContext) {
-        mergeContext.setAttribute(createServletMappingKey(servletMapping.getServletName().getStringValue()), servletMapping);
+    public static void addServletMapping(ServletMapping servletMapping, MergeContext mergeContext) {
+        mergeContext.setAttribute(createServletMappingKey(servletMapping.getServletName()), servletMapping);
     }
 
     public static boolean isServletMappingConfigured(String servletName, MergeContext mergeContext) {

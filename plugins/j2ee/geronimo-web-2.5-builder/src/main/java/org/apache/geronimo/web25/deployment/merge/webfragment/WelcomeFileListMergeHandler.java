@@ -19,59 +19,55 @@ package org.apache.geronimo.web25.deployment.merge.webfragment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
-import org.apache.geronimo.xbeans.javaee6.WebFragmentType;
-import org.apache.geronimo.xbeans.javaee6.WelcomeFileListType;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebFragment;
+import org.apache.openejb.jee.WelcomeFileList;
 
 /**
  * TODO 8.1.6 By default all applications will have index.htm(l) and index.jsp in the list of  welcome-file-list.
  * The descriptor may to be used to override these default settings. So do we need to add them if none is found
  * @version $Rev$ $Date$
  */
-public class WelcomeFileListMergeHandler implements WebFragmentMergeHandler<WebFragmentType, WebAppType> {
+public class WelcomeFileListMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
     @Override
-    public void merge(WebFragmentType webFragment, WebAppType webApp, MergeContext mergeContext) throws DeploymentException {
-        WelcomeFileListType targetWelcomeFileList = null;
-        for (WelcomeFileListType welcomeFileList : webFragment.getWelcomeFileListArray()) {
-            for (String welcomeFile : welcomeFileList.getWelcomeFileArray()) {
+    public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
+        WelcomeFileList targetWelcomeFileList = webApp.getWelcomeFileList().isEmpty() ? null: webApp.getWelcomeFileList().get(0);
+        for (WelcomeFileList welcomeFileList : webFragment.getWelcomeFileList()) {
+            for (String welcomeFile : welcomeFileList.getWelcomeFile()) {
                 String welcomeFileKey = createWelcomeFileKey(welcomeFile);
                 if (mergeContext.containsAttribute(welcomeFileKey)) {
                     continue;
                 }
                 if (targetWelcomeFileList == null) {
-                    targetWelcomeFileList = webApp.getWelcomeFileListArray().length > 0 ? webApp.getWelcomeFileListArray(0) : webApp.addNewWelcomeFileList();
+                    targetWelcomeFileList = new WelcomeFileList();
+                    webApp.getWelcomeFileList().add(targetWelcomeFileList);
                 }
-                targetWelcomeFileList.addNewWelcomeFile().setStringValue(welcomeFile);
+                targetWelcomeFileList.getWelcomeFile().add(welcomeFile);
             }
         }
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType parentElement, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp parentElement, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        WelcomeFileListType[] welcomeFileLists = webApp.getWelcomeFileListArray();
-        if (welcomeFileLists.length == 0) {
-            return;
-        }
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        WelcomeFileList welcomeFileList = null;
         //Spec 14.2 While multiple welcome file lists are found, we need to concatenate the items
-        if (welcomeFileLists.length > 1) {
-            WelcomeFileListType targetWelcomeFileList = welcomeFileLists[0];
-            for (int i = 1; i < welcomeFileLists.length; i++) {
-                WelcomeFileListType welcomeFileList = welcomeFileLists[i];
-                for (String welcomeFile : welcomeFileList.getWelcomeFileArray()) {
-                    targetWelcomeFileList.addNewWelcomeFile().setStringValue(welcomeFile);
-                }
-            }
-            for (int i = 1, iLength = welcomeFileLists.length; i < iLength; i++) {
-                webApp.removeWelcomeFileList(1);
+        for (WelcomeFileList list: webApp.getWelcomeFileList()) {
+            if (welcomeFileList == null) {
+                welcomeFileList = list;
+            } else {
+                welcomeFileList.getWelcomeFile().addAll(list.getWelcomeFile());
             }
         }
-        for (String welcomeFile : welcomeFileLists[0].getWelcomeFileArray()) {
-            context.setAttribute(createWelcomeFileKey(welcomeFile), Boolean.TRUE);
+        webApp.getWelcomeFileList();
+        if (welcomeFileList != null) {
+            for (String welcomeFile : welcomeFileList.getWelcomeFile()) {
+                context.setAttribute(createWelcomeFileKey(welcomeFile), Boolean.TRUE);
+            }
         }
     }
 

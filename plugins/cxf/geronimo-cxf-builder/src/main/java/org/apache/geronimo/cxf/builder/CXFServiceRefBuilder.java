@@ -17,12 +17,11 @@
 
 package org.apache.geronimo.cxf.builder;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.cxf.client.CXFServiceReference;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -35,8 +34,8 @@ import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee6.PortComponentRefType;
-import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
+import org.apache.openejb.jee.PortComponentRef;
+import org.apache.openejb.jee.ServiceRef;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,11 +48,12 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
                                 String[] eeNamespaces) {
         super(defaultEnvironment, eeNamespaces);
     }
-       
-    public Object createService(ServiceRefType serviceRef, GerServiceRefType gerServiceRef, 
+
+    @Override
+    public Object createService(ServiceRef serviceRef, GerServiceRefType gerServiceRef,
                                 Module module, Bundle bundle, Class serviceInterface, 
                                 QName serviceQName, URI wsdlURI, Class serviceReference, 
-                                Map<Class, PortComponentRefType> portComponentRefMap) throws DeploymentException {
+                                Map<Class, PortComponentRef> portComponentRefMap) throws DeploymentException {
         EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterface,
                 gerServiceRef, portComponentRefMap, module, bundle, 
                 wsdlURI, serviceQName);
@@ -66,7 +66,7 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
         String handlerChainsXML = null;
         try {
             handlerChainsXML = getHandlerChainAsString(serviceRef.getHandlerChains());
-        } catch (IOException e) {
+        } catch (JAXBException e) {
             // this should not happen
             LOG.warn("Failed to serialize handler chains", e);
         }

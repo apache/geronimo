@@ -39,8 +39,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedEjbJar;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
@@ -58,24 +56,19 @@ import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.javaee6.EjbJarType;
-import org.apache.geronimo.xbeans.javaee6.EnterpriseBeansType;
-import org.apache.geronimo.xbeans.javaee6.EntityBeanType;
-import org.apache.geronimo.xbeans.javaee6.MessageDrivenBeanType;
-import org.apache.geronimo.xbeans.javaee6.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee6.SessionBeanType;
 import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.EntityBean;
 import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.MethodPermission;
 import org.apache.openejb.jee.RemoteBean;
+import org.apache.openejb.jee.ResourceRef;
 import org.apache.openejb.jee.SecurityIdentity;
 import org.apache.openejb.jee.SessionBean;
 import org.apache.openejb.jee.SessionType;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 
 /**
@@ -371,47 +364,29 @@ public class EjbDeploymentBuilder {
         // XMLBeans types must be use because Geronimo naming building is coupled via XMLBeans objects
         //
 
-        EjbJarType ejbJarType = (EjbJarType) ejbModule.getSpecDD();
+        EjbJar ejbJar =  ejbModule.getSpecDD();
 
-        if (!ejbJarType.getMetadataComplete()) {
+        if (!ejbJar.isMetadataComplete()) {
             // Create a classfinder and populate it for the naming builder(s). The absence of a
             // classFinder in the module will convey whether metadata-complete is set (or not)
 //            ejbModule.setClassFinder(createEjbJarClassFinder(ejbModule));
         }
+        for (EnterpriseBean bean : ejbJar.getEnterpriseBeans()) {
 
-        EnterpriseBeansType enterpriseBeans = ejbJarType.getEnterpriseBeans();
-        if (enterpriseBeans != null) {
-            for (SessionBeanType xmlbeansEjb : enterpriseBeans.getSessionArray()) {
-                String ejbName = xmlbeansEjb.getEjbName().getStringValue().trim();
-                String beanClass = xmlbeansEjb.getEjbClass().getStringValue().trim();
-                GBeanData gbean = getEjbGBean(ejbName);
-                ResourceRefType[] resourceRefs = xmlbeansEjb.getResourceRefArray();
-                addEnc(gbean, beanClass, xmlbeansEjb, resourceRefs);
-            }
-            for (MessageDrivenBeanType xmlbeansEjb : enterpriseBeans.getMessageDrivenArray()) {
-                String ejbName = xmlbeansEjb.getEjbName().getStringValue().trim();
-                String beanClass = xmlbeansEjb.getEjbClass().getStringValue().trim();
-                GBeanData gbean = getEjbGBean(ejbName);
-                ResourceRefType[] resourceRefs = xmlbeansEjb.getResourceRefArray();
-                addEnc(gbean, beanClass, xmlbeansEjb, resourceRefs);
-            }
-            for (EntityBeanType xmlbeansEjb : enterpriseBeans.getEntityArray()) {
-                String ejbName = xmlbeansEjb.getEjbName().getStringValue().trim();
-                String beanClass = xmlbeansEjb.getEjbClass().getStringValue().trim();
-                GBeanData gbean = getEjbGBean(ejbName);
-                ResourceRefType[] resourceRefs = xmlbeansEjb.getResourceRefArray();
-                addEnc(gbean, beanClass, xmlbeansEjb, resourceRefs);
-            }
-
+            String ejbName = bean.getEjbName().trim();
+            String beanClass = bean.getEjbClass().trim();
+            GBeanData gbean = getEjbGBean(ejbName);
+            Collection<ResourceRef> resourceRefs = bean.getResourceRef();
+            addEnc(gbean, beanClass, bean, resourceRefs);
         }
 
-        if (!ejbJarType.getMetadataComplete()) {
-            ejbJarType.setMetadataComplete(true);
+        if (!ejbJar.isMetadataComplete()) {
+            ejbJar.setMetadataComplete(true);
             ejbModule.setOriginalSpecDD(ejbModule.getSpecDD().toString());
         }
     }
 
-    private void addEnc(GBeanData gbean, String beanClass, XmlObject xmlbeansEjb, ResourceRefType[] resourceRefs) throws DeploymentException {
+    private void addEnc(GBeanData gbean, String beanClass, EnterpriseBean bean, Collection<ResourceRef> resourceRefs) throws DeploymentException {
         OpenejbGeronimoEjbJarType geronimoOpenejb = ejbModule.getVendorDD();
 
         //
@@ -432,11 +407,11 @@ public class EjbDeploymentBuilder {
         }
 
         ClassFinder finder = new ClassFinder(classes);
-        AnnotatedApp annotatedApp = AnnotatedEjbJar.getAnnotatedApp(xmlbeansEjb); 
+//        AnnotatedApp annotatedApp = AnnotatedEjbJar.getAnnotatedApp(xmlbeansEjb);
 
 
-        Module module = ejbModule.newEJb(finder, annotatedApp);
-        namingBuilder.buildNaming(xmlbeansEjb,
+        Module module = ejbModule.newEJb(finder, bean);
+        namingBuilder.buildNaming(bean,
                 geronimoOpenejb,
                 module,
                 buildingContext);

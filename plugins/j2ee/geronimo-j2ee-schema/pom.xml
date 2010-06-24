@@ -46,20 +46,20 @@
             <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.schema</groupId>
-            <artifactId>geronimo-schema-javaee_6</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.schema</groupId>-->
+            <!--<artifactId>geronimo-schema-javaee_6</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.schema</groupId>
-            <artifactId>geronimo-schema-jee_5</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.schema</groupId>-->
+            <!--<artifactId>geronimo-schema-jee_5</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.schema</groupId>
-            <artifactId>geronimo-schema-j2ee_1.4</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.schema</groupId>-->
+            <!--<artifactId>geronimo-schema-j2ee_1.4</artifactId>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -72,14 +72,6 @@
                         <!--packages containing "impl" or "internal" are excluded by default -->
                         <Import-Package>
                             org.apache.xmlbeans.impl.schema;version="2.4",
-                            org.apache.geronimo.xbeans.j2ee.impl,
-                            org.apache.geronimo.xbeans.j2ee,
-                            org.w3.xml.x1998.namespace.impl,
-                            org.w3.xml.x1998.namespace,
-                            org.apache.geronimo.xbeans.javaee.impl,
-                            org.apache.geronimo.xbeans.javaee,
-                            org.apache.geronimo.xbeans.persistence.impl,
-                            org.apache.geronimo.xbeans.persistence,
                             *
                         </Import-Package>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>

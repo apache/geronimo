@@ -36,6 +36,7 @@ import org.apache.geronimo.naming.reference.GBeanReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
+import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -49,7 +50,7 @@ public class GBeanRefBuilder extends AbstractNamingBuilder {
     private static final QNameSet GBEAN_REF_QNAME_SET = QNameSet.singleton(GBEAN_REF_QNAME);
 
     @Override
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         if (plan == null) {
             return;
         }

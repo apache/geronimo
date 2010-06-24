@@ -19,6 +19,8 @@ package org.apache.geronimo.corba.deployment.security.config.css;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 import org.apache.geronimo.corba.security.config.css.CSSASMechConfig;
 import org.apache.geronimo.corba.security.config.css.CSSCompoundSecMechConfig;
 import org.apache.geronimo.corba.security.config.css.CSSCompoundSecMechListConfig;
@@ -34,7 +36,20 @@ import org.apache.geronimo.corba.security.config.css.CSSSASITTPrincipalNameStati
 import org.apache.geronimo.corba.security.config.css.CSSSASMechConfig;
 import org.apache.geronimo.corba.security.config.css.CSSSSLTransportConfig;
 import org.apache.geronimo.corba.security.config.css.CSSTransportMechConfig;
+import org.apache.geronimo.corba.xbeans.csiv2.css.CSSCompoundSecMechType;
+import org.apache.geronimo.corba.xbeans.csiv2.css.CSSCssDocument;
+import org.apache.geronimo.corba.xbeans.csiv2.css.CSSCssType;
+import org.apache.geronimo.corba.xbeans.csiv2.css.CSSGSSUPDynamicType;
+import org.apache.geronimo.corba.xbeans.csiv2.css.CSSGSSUPStaticType;
+import org.apache.geronimo.corba.xbeans.csiv2.css.CSSITTPrincipalNameDynamicType;
+import org.apache.geronimo.corba.xbeans.csiv2.css.CSSITTPrincipalNameStaticType;
+import org.apache.geronimo.corba.xbeans.csiv2.css.CSSSSLType;
+import org.apache.geronimo.corba.xbeans.csiv2.css.CSSSasMechType;
+import org.apache.geronimo.corba.xbeans.csiv2.tss.TSSAssociationOption;
+import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.omg.CSIIOP.CompositeDelegation;
@@ -47,25 +62,6 @@ import org.omg.CSIIOP.Integrity;
 import org.omg.CSIIOP.NoDelegation;
 import org.omg.CSIIOP.NoProtection;
 import org.omg.CSIIOP.SimpleDelegation;
-
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
-import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.ClassLoading;
-
-import org.apache.geronimo.corba.xbeans.csiv2.css.CSSCompoundSecMechType;
-import org.apache.geronimo.corba.xbeans.csiv2.css.CSSCssType;
-import org.apache.geronimo.corba.xbeans.csiv2.css.CSSGSSUPDynamicType;
-import org.apache.geronimo.corba.xbeans.csiv2.css.CSSGSSUPStaticType;
-import org.apache.geronimo.corba.xbeans.csiv2.css.CSSITTPrincipalNameDynamicType;
-import org.apache.geronimo.corba.xbeans.csiv2.css.CSSITTPrincipalNameStaticType;
-import org.apache.geronimo.corba.xbeans.csiv2.css.CSSSSLType;
-import org.apache.geronimo.corba.xbeans.csiv2.css.CSSSasMechType;
-import org.apache.geronimo.corba.xbeans.csiv2.css.CSSCssDocument;
-import org.apache.geronimo.corba.xbeans.csiv2.tss.TSSAssociationOption;
 import org.osgi.framework.Bundle;
 
 

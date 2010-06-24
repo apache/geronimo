@@ -16,13 +16,12 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.util.Collection;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApplicationClient;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.openejb.jee.ApplicationClient;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -30,7 +29,7 @@ import org.apache.xmlbeans.XmlObject;
  *
  * @version $Rev$ $Date$
  */
-public class AppClientModule extends Module<XmlObject, XmlObject> {
+public class AppClientModule extends Module<ApplicationClient, XmlObject> {
     private final Environment serverEnvironment;
     private JarFile earFile;
     private final AbstractName appClientName;
@@ -44,13 +43,12 @@ public class AppClientModule extends Module<XmlObject, XmlObject> {
                            Environment clientEnvironment, 
                            JarFile moduleFile, 
                            String targetPath, 
-                           XmlObject specDD, 
+                           ApplicationClient specDD, 
                            String mainClassName, 
                            XmlObject vendorDD, 
-                           String originalSpecDD, 
-                           AnnotatedApplicationClient annotatedAppClient ) {
+                           String originalSpecDD) {
         super(standAlone, moduleName, name, clientEnvironment, moduleFile, targetPath, 
-              specDD, vendorDD, originalSpecDD, null, annotatedAppClient, null, null);
+              specDD, vendorDD, originalSpecDD, null, null, null);
         this.serverEnvironment = serverEnvironment;
         this.appClientName = appClientName;
         this.mainClassName = mainClassName;

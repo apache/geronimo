@@ -41,7 +41,7 @@ import org.apache.xmlbeans.XmlObject;
  * */
 public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {
-        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.javaee6.String.class.getClassLoader()),
+//        XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.javaee6.String.class.getClassLoader()),
         XmlBeans.typeLoaderForClassLoader(GerConnectorDocument.class.getClassLoader())
     });
 
@@ -78,7 +78,7 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
     private void replaceResourceAdapterDConfigBean(GerResourceadapterType resourceAdapter) {
         DDBean ddBean = getDDBean();
         String path = getXpaths()[0];
-        System.out.println("********** Searching XPath "+path+" -- "+ddBean.getChildBean(path));
+//        System.out.println("********** Searching XPath "+path+" -- "+ddBean.getChildBean(path));
         DDBean childDDBean = ddBean.getChildBean(path)[0];
         resourceAdapterDConfigBean = new ResourceAdapterDConfigBean(childDDBean, resourceAdapter);
     }

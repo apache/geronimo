@@ -25,6 +25,7 @@ import javax.naming.NamingException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.HandlerResolver;
 
+import org.apache.openejb.jee.HandlerChains;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
@@ -40,7 +41,6 @@ import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
 import org.apache.geronimo.jaxws.client.PortMethodInterceptor;
 import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
-import org.apache.geronimo.xbeans.javaee.HandlerChainsType;
 
 public class CXFServiceReference extends JAXWSServiceReference {
 
@@ -77,10 +77,10 @@ public class CXFServiceReference extends JAXWSServiceReference {
         }
     }
 
-    protected HandlerChainsType getHandlerChains() {
-        HandlerChainsType types = null;
+    protected HandlerChains getHandlerChains() {
+        HandlerChains types = null;
         try {
-            types = HandlerChainsUtils.getHandlerChains(this.handlerChainsXML);
+            types = HandlerChainsUtils.toHandlerChains(this.handlerChainsXML, HandlerChains.class);
         } catch (Exception e) {
             LOG.warn("Failed to deserialize handler chains", e);
         }

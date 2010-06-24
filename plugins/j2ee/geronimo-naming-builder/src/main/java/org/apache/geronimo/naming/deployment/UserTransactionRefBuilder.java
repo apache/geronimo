@@ -25,6 +25,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
@@ -33,7 +34,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class UserTransactionRefBuilder extends AbstractNamingBuilder {
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
 //        EARContext rootContext = module.getRootEarContext();
 //        UserTransaction userTransaction = rootContext.getUserTransaction();
 //        if (userTransaction != null) {

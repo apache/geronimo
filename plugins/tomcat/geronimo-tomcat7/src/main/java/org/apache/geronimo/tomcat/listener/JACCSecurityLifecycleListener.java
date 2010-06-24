@@ -22,15 +22,16 @@ import java.util.Map;
 
 import javax.security.auth.login.LoginException;
 import javax.security.jacc.PolicyContextException;
-
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.tomcat.GeronimoStandardContext;
 import org.apache.geronimo.tomcat.core.GeronimoApplicationContext;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
+import org.apache.openejb.jee.WebApp;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,15 +52,15 @@ public class JACCSecurityLifecycleListener implements LifecycleListener {
 
     private ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
 
-    private String deploymentDescriptor;
+    private WebApp deploymentDescriptor;
 
-    public JACCSecurityLifecycleListener(Bundle bundle, String deploymentDescriptor, boolean annotationScanRequired, ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager,
-            String contextId) {
+    public JACCSecurityLifecycleListener(Bundle bundle, WebApp deploymentDescriptor, boolean annotationScanRequired, ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager,
+            String contextId) throws DeploymentException {
         this.bundle = bundle;
         this.contextId = contextId;
         this.annotationScanRequired = annotationScanRequired;
         this.applicationPolicyConfigurationManager = applicationPolicyConfigurationManager;
-        this.deploymentDescriptor = deploymentDescriptor;
+        this.deploymentDescriptor = deploymentDescriptor == null? new WebApp(): deploymentDescriptor;
     }
 
     @Override
@@ -67,7 +68,7 @@ public class JACCSecurityLifecycleListener implements LifecycleListener {
         String lifecycleEventType = lifecycleEvent.getType();
         if (lifecycleEventType.equals(Lifecycle.BEFORE_START_EVENT)) {
             //Initialize SpecSecurityBuilder
-            SpecSecurityBuilder specSecurityBuilder = new SpecSecurityBuilder(bundle, deploymentDescriptor, annotationScanRequired);
+            SpecSecurityBuilder specSecurityBuilder = new SpecSecurityBuilder(deploymentDescriptor, bundle, annotationScanRequired);
             GeronimoStandardContext standardContext = (GeronimoStandardContext) lifecycleEvent.getSource();
             GeronimoApplicationContext applicationContext = (GeronimoApplicationContext) standardContext.getInternalServletContext();
             applicationContext.setSpecSecurityBuilder(specSecurityBuilder);

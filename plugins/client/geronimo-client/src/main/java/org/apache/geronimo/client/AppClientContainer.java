@@ -44,11 +44,14 @@ import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 import org.apache.xbean.recipe.StaticRecipe;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public final class AppClientContainer implements GBeanLifecycle {
+    private static final Logger log = LoggerFactory.getLogger(AppClientContainer.class);
     private static final Class[] MAIN_ARGS = {String[].class};
     
     private LoginContext loginContext;
@@ -150,20 +153,14 @@ public final class AppClientContainer implements GBeanLifecycle {
             if (injections != null) {
                 List<NamingException> problems = new ArrayList<NamingException>();
                 for (Injection injection : injections) {
+                    String jndiName = injection.getJndiName();
                     try {
-                        String jndiName = injection.getJndiName();
                         //TODO this may not be correct due to module, app, and global jndi names.
                         //our componentContext is attached to jndi at "java:" so we remove that when looking stuff up in it
                         Object object = componentContext.lookup("comp/env/" + jndiName);
-                        if (object instanceof String) {
-                            String string = (String) object;
-                            // Pass it in raw so it could be potentially converted to
-                            // another data type by an xbean-reflect property editor
-                            objectRecipe.setProperty(injection.getTargetName(), string);
-                        } else {
-                            objectRecipe.setProperty(injection.getTargetName(), new StaticRecipe(object));
-                        }
+                        objectRecipe.setProperty(injection.getTargetName(), object);
                     } catch (NamingException e) {
+                        log.info("Injection problem for jndiName: " + jndiName, e);
                         problems.add(e);
                     }
                 }

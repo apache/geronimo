@@ -28,7 +28,6 @@ import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -36,7 +35,6 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xbean.finder.AbstractFinder;
-import org.apache.xbean.finder.ClassFinder;
 
 /**
  * @version $Rev$ $Date$
@@ -58,7 +56,6 @@ public abstract class Module<T, U> {
     private EARContext rootEarContext;
     private T specDD;
     private String originalSpecDD;
-    private AnnotatedApp annotatedApp;
     private AbstractFinder classFinder;
 
     protected final Map sharedContext = new HashMap();
@@ -78,11 +75,10 @@ public abstract class Module<T, U> {
                      U vendorDD,
                      String originalSpecDD,
                      String namespace,
-                     AnnotatedApp annotatedApp,
                      Map<JndiKey, Map<String, Object>> jndiContext,
                      Module<?, ?> parentModule) {
         this(standAlone, moduleName, name, environment, new DeployableJarFile(moduleFile),
-                targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedApp, jndiContext, parentModule);
+                targetPath, specDD, vendorDD, originalSpecDD, namespace, jndiContext, parentModule);
     }
 
     protected Module(boolean standAlone,
@@ -95,7 +91,6 @@ public abstract class Module<T, U> {
                      U vendorDD,
                      String originalSpecDD,
                      String namespace,
-                     AnnotatedApp annotatedApp,
                      Map<JndiKey, Map<String, Object>> jndiContext, Module<?, ?> parentModule) {
         assert targetPath != null : "targetPath is null";
         assert moduleName != null : "moduleName is null";
@@ -119,7 +114,6 @@ public abstract class Module<T, U> {
         }
 
         targetPathURI = URI.create(targetPath + "/");
-        this.annotatedApp = annotatedApp;
         this.moduleLocations = new ModuleList();
         this.modules = new LinkedHashSet<Module<?, ?>>();
         if (jndiContext != null) {
@@ -241,14 +235,6 @@ public abstract class Module<T, U> {
 
     public void setOriginalSpecDD(String originalSpecDD) {
         this.originalSpecDD = originalSpecDD;
-    }
-
-    public AnnotatedApp getAnnotatedApp() {
-        return annotatedApp;
-    }
-
-    public void setAnnotatedApp(AnnotatedApp annotatedApp) {
-        this.annotatedApp = annotatedApp;
     }
 
     public AbstractFinder getClassFinder() {

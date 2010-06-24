@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -29,15 +30,11 @@ import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBs;
 import javax.ejb.Local;
 import javax.ejb.Remote;
-import org.apache.geronimo.xbeans.javaee6.DescriptionType;
-import org.apache.geronimo.xbeans.javaee6.EjbLinkType;
-import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
-import org.apache.geronimo.xbeans.javaee6.EjbRefNameType;
-import org.apache.geronimo.xbeans.javaee6.EjbRefType;
-import org.apache.geronimo.xbeans.javaee6.InjectionTargetType;
-import org.apache.geronimo.xbeans.javaee6.LocalType;
-import org.apache.geronimo.xbeans.javaee6.RemoteType;
-import org.apache.geronimo.xbeans.javaee6.XsdStringType;
+import org.apache.openejb.jee.EjbLocalRef;
+import org.apache.openejb.jee.EjbRef;
+import org.apache.openejb.jee.InjectionTarget;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.Text;
 import org.apache.xbean.finder.AbstractFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +94,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
      * @return Updated deployment descriptor
      * @throws Exception if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws Exception {
+    public static void processAnnotations(JndiConsumer annotatedApp, AbstractFinder classFinder) throws Exception {
         if (annotatedApp != null) {
             processEJBs(annotatedApp, classFinder);
             processEJB(annotatedApp, classFinder);
@@ -112,7 +109,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
      * @param classFinder
      * @throws Exception
      */
-    private static void processEJB(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws Exception {
+    private static void processEJB(JndiConsumer annotatedApp, AbstractFinder classFinder) throws Exception {
         log.debug("processEJB(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Class> classesWithEJB = classFinder.findAnnotatedClasses(EJB.class);
@@ -144,7 +141,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
         }
 
         // Validate deployment descriptor to ensure it's still okay
-        validateDD(annotatedApp);
+//        validateDD(annotatedApp);
 
         log.debug("processEJB(): Exit: AnnotatedApp: " + annotatedApp.toString());
     }
@@ -157,7 +154,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
      * @param classFinder
      * @throws Exception
      */
-    private static void processEJBs(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws Exception {
+    private static void processEJBs(JndiConsumer annotatedApp, AbstractFinder classFinder) throws Exception {
         log.debug("processEJBs(): Entry");
 
         List<Class> classesWithEJBs = classFinder.findAnnotatedClasses(EJBs.class);
@@ -202,7 +199,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
      * @param method       Method name with the @EJB annoation
      * @param field        Field name with the @EJB annoation
      */
-    private static void addEJB(AnnotatedApp annotatedApp, EJB annotation, Class cls, Method method, Field field) {
+    private static void addEJB(JndiConsumer annotatedApp, EJB annotation, Class cls, Method method, Field field) {
         log.debug("addEJB( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
                 "[annotation] " + annotation.toString() + "," + '\n' +
                 "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
@@ -263,11 +260,11 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
 
             String localRefName = getName(annotation.name(), method, field);
 
-            EjbLocalRefType ejbLocalRef = null;
+            EjbLocalRef ejbLocalRef = null;
             
-            EjbLocalRefType[] ejbLocalRefEntries = annotatedApp.getEjbLocalRefArray();
-            for (EjbLocalRefType ejbLocalRefEntry : ejbLocalRefEntries) {
-                if (ejbLocalRefEntry.getEjbRefName().getStringValue().trim().equals(localRefName)) {
+            Collection<EjbLocalRef> ejbLocalRefEntries = annotatedApp.getEjbLocalRef();
+            for (EjbLocalRef ejbLocalRefEntry : ejbLocalRefEntries) {
+                if (ejbLocalRefEntry.getEjbRefName().trim().equals(localRefName)) {
                     ejbLocalRef = ejbLocalRefEntry;
                     break;
                 }
@@ -278,16 +275,14 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                     log.debug("addEJB(): Does not exist in DD: " + localRefName);
 
                     // Doesn't exist in deployment descriptor -- add new
-                    ejbLocalRef = annotatedApp.addNewEjbLocalRef();
+                    ejbLocalRef = new EjbLocalRef();
 
                     //------------------------------------------------------------------------------
                     // <ejb-local-ref> required elements:
                     //------------------------------------------------------------------------------
 
                     // ejb-ref-name
-                    EjbRefNameType ejbRefName = ejbLocalRef.addNewEjbRefName();
-                    ejbRefName.setStringValue(localRefName);
-                    ejbLocalRef.setEjbRefName(ejbRefName);
+                    ejbLocalRef.setEjbRefName(localRefName);
 
                     //------------------------------------------------------------------------------
                     // <ejb-local-ref> optional elements:
@@ -296,35 +291,29 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                     // local
                     if (interfce != null) {
                         String localAnnotation = interfce.getName();
-                        if (!localAnnotation.equals("")) {
-                            LocalType local = ejbLocalRef.addNewLocal();
-                            local.setStringValue(localAnnotation);
-                            ejbLocalRef.setLocal(local);
+                        if (!localAnnotation.isEmpty()) {
+                            ejbLocalRef.setLocal(localAnnotation);
                         }
                     }
 
                     // ejb-link
                     String beanName = annotation.beanName();
-                    if (!beanName.equals("")) {
-                        EjbLinkType ejbLink = ejbLocalRef.addNewEjbLink();
-                        ejbLink.setStringValue(beanName);
-                        ejbLocalRef.setEjbLink(ejbLink);
+                    if (!beanName.isEmpty()) {
+                        ejbLocalRef.setEjbLink(beanName);
                     }
 
                     // mappedName
                     String mappdedNameAnnotation = annotation.mappedName();
-                    if (!mappdedNameAnnotation.equals("")) {
-                        XsdStringType mappedName = ejbLocalRef.addNewMappedName();
-                        mappedName.setStringValue(mappdedNameAnnotation);
-                        ejbLocalRef.setMappedName(mappedName);
+                    if (!mappdedNameAnnotation.isEmpty()) {
+                        ejbLocalRef.setMappedName(mappdedNameAnnotation);
                     }
 
                     // description
                     String descriptionAnnotation = annotation.description();
-                    if (!descriptionAnnotation.equals("")) {
-                        DescriptionType description = ejbLocalRef.addNewDescription();
-                        description.setStringValue(descriptionAnnotation);
+                    if (!descriptionAnnotation.isEmpty()) {
+                        ejbLocalRef.setDescriptions(new Text[] {new Text(null, descriptionAnnotation)});
                     }
+                    annotatedApp.getEjbLocalRef().add(ejbLocalRef);
                 }
                 catch (Exception e) {
                     log.debug("EJBAnnotationHelper: Exception caught while processing <ejb-local-ref>", e);
@@ -333,9 +322,9 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
             
             // injectionTarget
             if (method != null || field != null) {
-                InjectionTargetType[] targets = ejbLocalRef.getInjectionTargetArray();
+                List<InjectionTarget> targets = ejbLocalRef.getInjectionTarget();
                 if (!hasTarget(method, field, targets)) {
-                    configureInjectionTarget(ejbLocalRef.addNewInjectionTarget(), method, field);
+                    ejbLocalRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                 }
             }
         }                                                                           // end if local
@@ -349,11 +338,11 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
 
             String remoteRefName = getName(annotation.name(), method, field);
 
-            EjbRefType ejbRef = null;
+            EjbRef ejbRef = null;
 
-            EjbRefType[] ejbRefEntries = annotatedApp.getEjbRefArray();
-            for (EjbRefType ejbRefEntry : ejbRefEntries) {
-                if (ejbRefEntry.getEjbRefName().getStringValue().trim().equals(remoteRefName)) {
+            Collection<EjbRef> ejbRefEntries = annotatedApp.getEjbRef();
+            for (EjbRef ejbRefEntry : ejbRefEntries) {
+                if (ejbRefEntry.getEjbRefName().trim().equals(remoteRefName)) {
                     ejbRef = ejbRefEntry;
                     break;
                 }
@@ -364,16 +353,14 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                     log.debug("addEJB(): Does not exist in DD: " + remoteRefName);
 
                     // Doesn't exist in deployment descriptor -- add new
-                    ejbRef = annotatedApp.addNewEjbRef();
+                    ejbRef = new EjbRef();
 
                     //------------------------------------------------------------------------------
                     // <ejb-ref> required elements:
                     //------------------------------------------------------------------------------
 
                     // ejb-ref-name
-                    EjbRefNameType ejbRefName = ejbRef.addNewEjbRefName();
-                    ejbRefName.setStringValue(remoteRefName);
-                    ejbRef.setEjbRefName(ejbRefName);
+                    ejbRef.setEjbRefName(remoteRefName);
 
                     //------------------------------------------------------------------------------
                     // <ejb-ref> optional elements:
@@ -382,35 +369,29 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                     // remote
                     if (interfce != null) {
                         String remoteAnnotation = interfce.getName();
-                        if (!remoteAnnotation.equals("")) {
-                            RemoteType remote = ejbRef.addNewRemote();
-                            remote.setStringValue(remoteAnnotation);
-                            ejbRef.setRemote(remote);
+                        if (!remoteAnnotation.isEmpty()) {
+                            ejbRef.setRemote(remoteAnnotation);
                         }
                     }
 
                     // ejb-link
                     String beanName = annotation.beanName();
-                    if (!beanName.equals("")) {
-                        EjbLinkType ejbLink = ejbRef.addNewEjbLink();
-                        ejbLink.setStringValue(beanName);
-                        ejbRef.setEjbLink(ejbLink);
+                    if (!beanName.isEmpty()) {
+                        ejbRef.setEjbLink(beanName);
                     }
 
                     // mappedName
                     String mappdedNameAnnotation = annotation.mappedName();
-                    if (!mappdedNameAnnotation.equals("")) {
-                        XsdStringType mappedName = ejbRef.addNewMappedName();
-                        mappedName.setStringValue(mappdedNameAnnotation);
-                        ejbRef.setMappedName(mappedName);
+                    if (!mappdedNameAnnotation.isEmpty()) {
+                        ejbRef.setMappedName(mappdedNameAnnotation);
                     }
 
                     // description
                     String descriptionAnnotation = annotation.description();
-                    if (!descriptionAnnotation.equals("")) {
-                        DescriptionType description = ejbRef.addNewDescription();
-                        description.setStringValue(descriptionAnnotation);
+                    if (!descriptionAnnotation.isEmpty()) {
+                        ejbRef.setDescriptions(new Text[] {new Text(null, descriptionAnnotation) });
                     }
+                    annotatedApp.getEjbRef().add(ejbRef);
                 }
                 catch (Exception e) {
                     log.debug("EJBAnnotationHelper: Exception caught while processing <ejb-ref>", e);
@@ -419,9 +400,9 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
             
             // injectionTarget
             if (method != null || field != null) {
-                InjectionTargetType[] targets = ejbRef.getInjectionTargetArray();
+                List<InjectionTarget> targets = ejbRef.getInjectionTarget();
                 if (!hasTarget(method, field, targets)) {
-                    configureInjectionTarget(ejbRef.addNewInjectionTarget(), method, field);
+                    ejbRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                 }
             }
         }                                                                           // end if remote
@@ -434,11 +415,11 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
 
             String remoteRefName = getName(annotation.name(), method, field);
 
-            EjbRefType ejbRef = null;
+            EjbRef ejbRef = null;
 
-            EjbRefType[] ejbRefEntries = annotatedApp.getEjbRefArray();
-            for (EjbRefType ejbRefEntry : ejbRefEntries) {
-                if (ejbRefEntry.getEjbRefName().getStringValue().trim().equals(remoteRefName)) {
+            Collection<EjbRef> ejbRefEntries = annotatedApp.getEjbRef();
+            for (EjbRef ejbRefEntry : ejbRefEntries) {
+                if (ejbRefEntry.getEjbRefName().trim().equals(remoteRefName)) {
                     ejbRef = ejbRefEntry;
                     break;
                 }
@@ -450,17 +431,16 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
 
                     // Doesn't exist in deployment descriptor -- add as an <ejb-ref> to the
                     // ambiguous list so that it can be resolved later
-                    ejbRef = EjbRefType.Factory.newInstance();
-                    annotatedApp.getAmbiguousEjbRefs().add(ejbRef);
+                    ejbRef = new EjbRef();
+                    //TODO how to deal with this?
+//                    annotatedApp.getAmbiguousEjbRefs().add(ejbRef);
 
                     //------------------------------------------------------------------------------
                     // <ejb-ref> required elements:
                     //------------------------------------------------------------------------------
 
                     // ejb-ref-name
-                    EjbRefNameType ejbRefName = ejbRef.addNewEjbRefName();
-                    ejbRefName.setStringValue(remoteRefName);
-                    ejbRef.setEjbRefName(ejbRefName);
+                    ejbRef.setEjbRefName(remoteRefName);
 
                     //------------------------------------------------------------------------------
                     // <ejb-ref> optional elements:
@@ -469,34 +449,27 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                     // remote
                     if (interfce != null) {
                         String remoteAnnotation = interfce.getName();
-                        if (!remoteAnnotation.equals("")) {
-                            RemoteType remote = ejbRef.addNewRemote();
-                            remote.setStringValue(remoteAnnotation);
-                            ejbRef.setRemote(remote);
+                        if (!remoteAnnotation.isEmpty()) {
+                            ejbRef.setRemote(remoteAnnotation);
                         }
                     }
 
                     // ejb-link
                     String beanName = annotation.beanName();
-                    if (!beanName.equals("")) {
-                        EjbLinkType ejbLink = ejbRef.addNewEjbLink();
-                        ejbLink.setStringValue(beanName);
-                        ejbRef.setEjbLink(ejbLink);
+                    if (!beanName.isEmpty()) {
+                        ejbRef.setEjbLink(beanName);
                     }
 
                     // mappedName
                     String mappdedNameAnnotation = annotation.mappedName();
-                    if (!mappdedNameAnnotation.equals("")) {
-                        XsdStringType mappedName = ejbRef.addNewMappedName();
-                        mappedName.setStringValue(mappdedNameAnnotation);
-                        ejbRef.setMappedName(mappedName);
+                    if (!mappdedNameAnnotation.isEmpty()) {
+                        ejbRef.setMappedName(mappdedNameAnnotation);
                     }
 
                     // description
                     String descriptionAnnotation = annotation.description();
-                    if (!descriptionAnnotation.equals("")) {
-                        DescriptionType description = ejbRef.addNewDescription();
-                        description.setStringValue(descriptionAnnotation);
+                    if (!descriptionAnnotation.isEmpty()) {
+                        ejbRef.setDescriptions(new Text[] {new Text(null, descriptionAnnotation) });
                     }
                 }
                 catch (Exception e) {
@@ -506,9 +479,9 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
             
             // injectionTarget
             if (method != null || field != null) {
-                InjectionTargetType[] targets = ejbRef.getInjectionTargetArray();
+                List<InjectionTarget> targets = ejbRef.getInjectionTarget();
                 if (!hasTarget(method, field, targets)) {
-                    configureInjectionTarget(ejbRef.addNewInjectionTarget(), method, field);
+                    ejbRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                 }
             }
 

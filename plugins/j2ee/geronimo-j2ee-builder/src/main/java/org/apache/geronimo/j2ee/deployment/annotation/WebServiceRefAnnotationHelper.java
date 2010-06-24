@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.jws.HandlerChain;
@@ -28,11 +29,8 @@ import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.WebServiceRefs;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee6.JndiNameType;
-import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee6.XsdAnyURIType;
-import org.apache.geronimo.xbeans.javaee6.XsdStringType;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.ServiceRef;
 import org.apache.xbean.finder.AbstractFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,17 +74,17 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
     /**
      * Update the deployment descriptor from the WebServiceRef and WebServiceRefs annotations
      *
-     * @param annotatedApp Access to the spec dd
+     * @param specDD Access to the spec dd
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    public static void processAnnotations(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
-        if (annotatedApp != null) {
+    public static void processAnnotations(JndiConsumer specDD, AbstractFinder classFinder) throws DeploymentException {
+        if (specDD != null) {
             if (classFinder.isAnnotationPresent(WebServiceRefs.class)) {
-                processWebServiceRefs(annotatedApp, classFinder);
+                processWebServiceRefs(specDD, classFinder);
             }
             if (classFinder.isAnnotationPresent(WebServiceRef.class)) {
-                processWebServiceRef(annotatedApp, classFinder);
+                processWebServiceRef(specDD, classFinder);
             }
         }
     }
@@ -99,7 +97,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processWebServiceRef(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processWebServiceRef(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processWebServiceRef(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
         List<Class> classeswithWebServiceRef = classFinder.findAnnotatedClasses(WebServiceRef.class);
@@ -131,7 +129,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         }
 
         // Validate deployment descriptor to ensure it's still okay
-        validateDD(annotatedApp);
+//        validateDD(annotatedApp);
 
         log.debug("processWebServiceRef(): Exit: AnnotatedApp: " + annotatedApp.toString());
     }
@@ -144,7 +142,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
      * @param classFinder Access to the classes of interest
      * @throws DeploymentException if parsing or validation error
      */
-    private static void processWebServiceRefs(AnnotatedApp annotatedApp, AbstractFinder classFinder) throws DeploymentException {
+    private static void processWebServiceRefs(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processWebServiceRefs(): Entry");
 
         List<Class> classeswithWebServiceRefs = classFinder.findAnnotatedClasses(WebServiceRefs.class);
@@ -187,7 +185,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
      * @param field      Field name with the @WebServiceRef annoation
      * @param annotatedApp  Access to the specc dd
      */
-    private static void addWebServiceRef(AnnotatedApp annotatedApp, WebServiceRef annotation, Class cls, Method method, Field field) {
+    private static void addWebServiceRef(JndiConsumer annotatedApp, WebServiceRef annotation, Class cls, Method method, Field field) {
         log.debug("addWebServiceRef( [annotatedApp] " + annotatedApp.toString() + "," + '\n' +
                 "[annotation] " + annotation.toString() + "," + '\n' +
                 "[cls] " + (cls != null ? cls.getName() : null) + "," + '\n' +
@@ -243,11 +241,11 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         // 1. <service-ref>
         //------------------------------------------------------------------------------------------
 
-        ServiceRefType serviceRef = null;
+        ServiceRef serviceRef = null;
 
-        ServiceRefType[] serviceRefs = annotatedApp.getServiceRefArray();
-        for (ServiceRefType currServiceRef : serviceRefs) {
-            if (currServiceRef.getServiceRefName().getStringValue().trim().equals(webServiceRefName)) {
+        Collection<ServiceRef> serviceRefs = annotatedApp.getServiceRef();
+        for (ServiceRef currServiceRef : serviceRefs) {
+            if (currServiceRef.getServiceRefName().trim().equals(webServiceRefName)) {
                 serviceRef = currServiceRef;
                 break;
             }
@@ -255,27 +253,22 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
 
         if (serviceRef == null) {
             // Doesn't exist in deployment descriptor -- add new
-            serviceRef = annotatedApp.addNewServiceRef();
+            serviceRef = new ServiceRef();
 
             // ------------------------------------------------------------------------------
             // <service-ref> required elements:
             // ------------------------------------------------------------------------------
 
             // service-ref-name
-            JndiNameType serviceRefName = serviceRef.addNewServiceRefName();
-            serviceRefName.setStringValue(webServiceRefName);
-            serviceRef.setServiceRefName(serviceRefName);
+            serviceRef.setServiceRefName(webServiceRefName);
 
             // service-ref-interface
             if (!webServiceRefValue.equals(Object.class)) {
-                FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
-                qualifiedClass.setStringValue(webServiceRefValue.getName());
-                serviceRef.setServiceInterface(qualifiedClass);
+                serviceRef.setServiceInterface(webServiceRefValue.getName());
             } else {
-                FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceInterface();
-                qualifiedClass.setStringValue(webServiceRefType.getName());
-                serviceRef.setServiceInterface(qualifiedClass);
+                serviceRef.setServiceInterface(webServiceRefType.getName());
             }
+            annotatedApp.getServiceRef().add(serviceRef);
         }
 
         //------------------------------------------------------------------------------
@@ -283,21 +276,17 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         //------------------------------------------------------------------------------
 
         // service-ref-type
-        if (!serviceRef.isSetServiceRefType() && !webServiceRefType.equals(Object.class)) {
-            FullyQualifiedClassType qualifiedClass = serviceRef.addNewServiceRefType();
-            qualifiedClass.setStringValue(webServiceRefType.getName());
-            serviceRef.setServiceRefType(qualifiedClass);
+        if (serviceRef.getServiceRefType() == null && !webServiceRefType.equals(Object.class)) {
+            serviceRef.setServiceRefType(webServiceRefType.getName());
         }
 
         // mapped-name
-        if (!serviceRef.isSetMappedName() && annotation.mappedName().trim().length() > 0) {
-            XsdStringType mappedName = serviceRef.addNewMappedName();
-            mappedName.setStringValue(annotation.mappedName().trim());
-            serviceRef.setMappedName(mappedName);
+        if (serviceRef.getMappedName() == null && annotation.mappedName().trim().length() > 0) {
+            serviceRef.setMappedName(annotation.mappedName().trim());
         }
 
         // WSDL document location
-        if (!serviceRef.isSetWsdlFile()) {
+        if (serviceRef.getWsdlFile() == null) {
             String wsdlLocation = annotation.wsdlLocation();
 
             if (wsdlLocation == null || wsdlLocation.trim().length() == 0) {
@@ -315,14 +304,12 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
             }
 
             if (wsdlLocation != null && wsdlLocation.trim().length() > 0) {
-                XsdAnyURIType wsdlFile = serviceRef.addNewWsdlFile();
-                wsdlFile.setStringValue(wsdlLocation);
-                serviceRef.setWsdlFile(wsdlFile);
+                serviceRef.setWsdlFile(wsdlLocation);
             }
         }
 
         // handler-chains
-        if (!serviceRef.isSetHandlerChains()) {
+        if (serviceRef.getHandlerChains() == null) {
             HandlerChain handlerChain = null;
             Class annotatedClass = null;
             if (method != null) {
@@ -350,7 +337,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
         }
         
         if (method != null || field != null) {
-            configureInjectionTarget(serviceRef.addNewInjectionTarget(), method, field);
+            serviceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
         }
 
     }

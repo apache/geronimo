@@ -17,7 +17,9 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
@@ -49,6 +51,8 @@ import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.WebApp;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.BundleContext;
@@ -60,7 +64,7 @@ public class EnvironmentEntryBuilderTest extends TestCase {
     private Map<EARContext.Key, Object> componentContext = new HashMap<EARContext.Key, Object>();
     private NamingBuilder environmentEntryBuilder = new EnvironmentEntryBuilder(new String[]{AbstractNamingBuilder.JEE_NAMESPACE});
 
-    private static final String TEST = "<tmp xmlns=\"http://java.sun.com/xml/ns/javaee\">" +
+    private static final String TEST = "<web-app xmlns=\"http://java.sun.com/xml/ns/javaee\">" +
             "<env-entry>" +
             "<env-entry-name>string</env-entry-name>" +
             "<env-entry-type>java.lang.String</env-entry-type>" +
@@ -126,7 +130,7 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             "<env-entry-type>java.util.concurrent.TimeUnit</env-entry-type>" +
             "<env-entry-value>NANOSECONDS</env-entry-value>" +
             "</env-entry>" +
-            "</tmp>";
+            "</web-app>";
 
     private static final String TEST_PLAN = "<tmp xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
             "<env-entry>" +
@@ -195,7 +199,7 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         locations.put(null, artifact);
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, locations);
         Artifact id = new Artifact("test", "test", "", "car");
-        module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, null, "foo", null, null, null, null, null, null);
+        module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, null, "foo", null, null, null, null, null);
         ConfigurationManager configurationManager = new MockConfigurationManager();
         EARContext earContext = new EARContext(new File("foo"),
             null,
@@ -226,15 +230,8 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         Double doubleVal = new Double(12345.6789);
         Boolean booleanVal = Boolean.TRUE;
 
-        XmlObject doc = XmlObject.Factory.parse(TEST);
-        XmlCursor cursor = doc.newCursor();
-        try {
-            cursor.toFirstChild();
-            doc = cursor.getObject();
-        } finally {
-            cursor.dispose();
-        }
-        environmentEntryBuilder.buildNaming(doc, null, module, componentContext);
+        WebApp webApp = load(TEST, WebApp.class);
+        environmentEntryBuilder.buildNaming(webApp, null, module, componentContext);
         Context context = EnterpriseNamingContext.livenReferences(module.getJndiScope(JndiScope.comp), null, null, getClass().getClassLoader(), null, "comp/");
         Set actual = new HashSet();
         for (NamingEnumeration e = context.listBindings("comp/env"); e.hasMore();) {
@@ -268,23 +265,16 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         Double doubleVal = new Double(9876.54321);
         Boolean booleanVal = Boolean.FALSE;
 
-        XmlObject doc = XmlObject.Factory.parse(TEST);
-        XmlCursor cursor = doc.newCursor();
-        try {
-            cursor.toFirstChild();
-            doc = cursor.getObject();
-        } finally {
-            cursor.dispose();
-        }
+        WebApp webApp = load(TEST, WebApp.class);
         XmlObject plan = XmlObject.Factory.parse(TEST_PLAN);
-        cursor = plan.newCursor();
+        XmlCursor cursor = plan.newCursor();
         try {
             cursor.toFirstChild();
             plan = cursor.getObject();
         } finally {
             cursor.dispose();
         }
-        environmentEntryBuilder.buildNaming(doc, plan, module, componentContext);
+        environmentEntryBuilder.buildNaming(webApp, plan, module, componentContext);
         Context context = EnterpriseNamingContext.livenReferences(module.getJndiScope(JndiScope.comp), null, null, getClass().getClassLoader(), null, "comp/");
         Set actual = new HashSet();
         for (NamingEnumeration e = context.listBindings("comp/env"); e.hasMore();) {
@@ -311,4 +301,15 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         Context env = (Context) context.lookup("comp/env");
         assertNotNull(env);
     }
+
+    private <T> T load(String text, Class<T> clazz) throws Exception {
+        InputStream in = new ByteArrayInputStream(text.getBytes());
+        try {
+            return (T) JaxbJavaee.unmarshal(clazz, in);
+        } finally {
+            in.close();
+        }
+    }
+
+
 }

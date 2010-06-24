@@ -19,12 +19,14 @@ package org.apache.geronimo.tomcat.deployment;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
 
@@ -56,7 +58,6 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
@@ -66,7 +67,6 @@ import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.tomcat.LifecycleListenerGBean;
@@ -80,7 +80,6 @@ import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
-import org.apache.geronimo.web25.deployment.utils.WebDeploymentValidationUtils;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiAuthModuleType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiConfigProviderType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthConfigType;
@@ -89,9 +88,8 @@ import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatAuthenticationType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.WebAppDocument;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -100,7 +98,6 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 /**
@@ -170,20 +167,23 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         }
 
         String specDD = null;
-        WebAppType webApp = null;
+        WebApp webApp = null;
 
         URL specDDUrl = BundleUtils.getEntry(bundle, "WEB-INF/web.xml");
         if (specDDUrl == null) {
-            webApp = WebAppType.Factory.newInstance();
+            webApp = new WebApp();
         } else {
             try {
                 specDD = JarUtils.readAll(specDDUrl);
-                XmlObject parsed = XmlBeansUtil.parse(specDD);
-                WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
-                webApp = webAppDoc.getWebApp();
-                WebDeploymentValidationUtils.validateWebApp(webApp);
-            } catch (XmlException e) {
-                throw new DeploymentException("Error parsing web.xml for " + bundle.getSymbolicName(), e);
+//                XmlObject parsed = XmlBeansUtil.parse(specDD);
+//                WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
+                InputStream in = specDDUrl.openStream();
+                try {
+                    webApp = (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+                } finally {
+                    in.close();
+                }
+//                WebDeploymentValidationUtils.validateWebApp(webApp);
             } catch (Exception e) {
                 throw new DeploymentException("Error reading web.xml for " + bundle.getSymbolicName(), e);
             }
@@ -200,7 +200,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         EnvironmentType environmentType = tomcatWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
-        if (webApp.getDistributableArray().length == 1) {
+        if (webApp.getDistributable().size() == 1) {
             clusteringBuilders.buildEnvironment(tomcatWebApp, environment);
         }
 
@@ -214,15 +214,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
-        // Create the AnnotatedApp interface for the WebModule
-        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
-
-        String name = getModuleName(webApp);
+        String name = webApp.getModuleName();
         if (name == null) {
             name = bundle.getSymbolicName();
         }
 
-        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, tomcatWebApp, specDD, contextPath, TOMCAT_NAMESPACE, annotatedWebApp, shareJndi(null), null);
+        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, tomcatWebApp, specDD, contextPath, TOMCAT_NAMESPACE, shareJndi(null), null);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, bundle, naming, idBuilder);
         }
@@ -236,37 +233,32 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
         // parse the spec dd
         String specDD = null;
-        WebAppType webApp = null;
+        WebApp webApp = null;
         try {
             if (specDDUrl == null) {
                 specDDUrl = JarUtils.createJarURL(moduleFile, "WEB-INF/web.xml");
             }
-
-            // read in the entire specDD as a string, we need this for getDeploymentDescriptor
-            // on the J2ee management object
-            specDD = JarUtils.readAll(specDDUrl);
-
-            // we found web.xml, if it won't parse that's an error.
-            XmlObject parsed = XmlBeansUtil.parse(specDD);
-
-            WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
-            webApp = webAppDoc.getWebApp();
-            WebDeploymentValidationUtils.validateWebApp(webApp);
-        } catch (XmlException e) {
-            // Output the target path in the error to make it clearer to the user which webapp
-            // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
-            // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
-            throw new DeploymentException("Error parsing web.xml for " + targetPath, e);
-        } catch (Exception e) {
-            if (!moduleFile.getName().endsWith(".war")) {
-                //not for us
-                return null;
+            if (specDDUrl == null) {
+                if (!moduleFile.getName().endsWith(".war")) {
+                    //not for us
+                    return null;
+                }
+                webApp = new WebApp();
+            } else {
+                // read in the entire specDD as a string, we need this for getDeploymentDescriptor
+                // on the J2ee management object
+                specDD = JarUtils.readAll(specDDUrl);
+                InputStream in = specDDUrl.openStream();
+                try {
+                    webApp = (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+                } finally {
+                    in.close();
+                }
             }
-            //else ignore as jee5 allows optional spec dd for .war's
-        }
 
-        if (webApp == null) {
-            webApp = WebAppType.Factory.newInstance();
+//            WebDeploymentValidationUtils.validateWebApp(webApp);
+        } catch (Exception e) {
+            throw new DeploymentException("Error parsing web.xml for " + targetPath, e);
         }
 
         Deployable deployable = new DeployableJarFile(moduleFile);
@@ -278,7 +270,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         EnvironmentType environmentType = tomcatWebApp.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
-        if (webApp.getDistributableArray().length == 1) {
+        if (webApp.getDistributable().size() == 1) {
             clusteringBuilders.buildEnvironment(tomcatWebApp, environment);
         }
 
@@ -304,10 +296,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             moduleName = naming.createChildName(earName, targetPath, NameFactory.WEB_MODULE);
         }
 
-        // Create the AnnotatedApp interface for the WebModule
-        AnnotatedWebApp annotatedWebApp = new AnnotatedWebApp(webApp);
-
-        String name = getModuleName(webApp);
+        String name = webApp.getModuleName();
         if (name == null) {
             if (standAlone) {
                 name = FileUtils.removeExtension(new File(moduleFile.getName()).getName(), ".war");
@@ -316,14 +305,14 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             }
         }
 
-        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, tomcatWebApp, specDD, contextRoot, TOMCAT_NAMESPACE, annotatedWebApp, shareJndi(parentModule), parentModule);
+        WebModule module = new WebModule(standAlone, moduleName, name, environment, deployable, targetPath, webApp, tomcatWebApp, specDD, contextRoot, TOMCAT_NAMESPACE, shareJndi(parentModule), parentModule);
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, contextRoot, earName, naming, idBuilder);
         }
         return module;
     }
 
-    private String getContextRoot(TomcatWebAppType tomcatWebApp, String contextRoot, WebAppType webApp, boolean standAlone, JarFile moduleFile, String targetPath) {
+    private String getContextRoot(TomcatWebAppType tomcatWebApp, String contextRoot, WebApp webApp, boolean standAlone, JarFile moduleFile, String targetPath) {
         //If we have a context root, override everything
         if (tomcatWebApp.isSetContextRoot()) {
             contextRoot = tomcatWebApp.getContextRoot();
@@ -344,7 +333,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     }
 
 
-    TomcatWebAppType getTomcatWebApp(Object plan, Deployable deployable, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
+    TomcatWebAppType getTomcatWebApp(Object plan, Deployable deployable, boolean standAlone, String targetPath, WebApp webApp) throws DeploymentException {
         XmlObject rawPlan = null;
         try {
             // load the geronimo-web.xml from either the supplied plan or from the earFile
@@ -409,7 +398,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         AbstractName moduleName = module.getModuleName();
         WebModule webModule = (WebModule) module;
 
-        WebAppType webApp = (WebAppType) webModule.getSpecDD();
+        WebApp webApp = webModule.getSpecDD();
 
         TomcatWebAppType tomcatWebApp = (TomcatWebAppType) webModule.getVendorDD();
 
@@ -425,7 +414,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
-            resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
+            resourceEnvironmentSetter.setResourceEnvironment(rebuilder, webApp.getResourceRef(), tomcatWebApp.getResourceRefArray());
 
             if (tomcatWebApp.isSetWebContainer()) {
                 AbstractNameQuery webContainerName = ENCConfigBuilder.getGBeanQuery(GBeanInfoBuilder.DEFAULT_J2EE_TYPE, tomcatWebApp.getWebContainer());
@@ -435,8 +424,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             }
 
             //get Tomcat display-name
-            if (webApp.getDisplayNameArray().length > 0) {
-                webModuleData.setAttribute("displayName", webApp.getDisplayNameArray()[0].getStringValue());
+            if (webApp.getDisplayNames().length > 0) {
+                webModuleData.setAttribute("displayName", webApp.getDisplayName());
             }
 
             // Process the Tomcat container-config elements
@@ -483,7 +472,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 webModuleData.setReferencePattern(TomcatWebAppContext.GBEAN_REF_MANAGER_RETRIEVER, managerName);
             }
 
-            Boolean distributable = webApp.getDistributableArray().length == 1 ? TRUE : FALSE;
+            Boolean distributable = !webApp.getDistributable().isEmpty();
             if (TRUE == distributable) {
                 clusteringBuilders.build(tomcatWebApp, earContext, moduleContext);
                 if (null == webModuleData.getReferencePatterns(TomcatWebAppContext.GBEAN_REF_CLUSTERED_VALVE_RETRIEVER)) {
@@ -495,7 +484,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             webModuleData.setAttribute("listenerClassNames", listeners);
 
             //Handle the role permissions and webservices on the servlets.
-            ServletType[] servletTypes = webApp.getServletArray();
+            List<org.apache.openejb.jee.Servlet> servletTypes = webApp.getServlet();
             Map<String, AbstractName> webServices = new HashMap<String, AbstractName>();
             Class baseServletClass;
             try {
@@ -503,11 +492,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load javax.servlet.Servlet in bundle " + bundle, e);
             }
-            for (ServletType servletType : servletTypes) {
+            for (org.apache.openejb.jee.Servlet servletType : servletTypes) {
 
-                if (servletType.isSetServletClass()) {
-                    String servletName = servletType.getServletName().getStringValue().trim();
-                    String servletClassName = servletType.getServletClass().getStringValue().trim();
+                if (servletType.getServletClass() != null) {
+                    String servletName = servletType.getServletName().trim();
+                    String servletClassName = servletType.getServletClass().trim();
                     Class servletClass;
                     try {
                         servletClass = webBundle.loadClass(servletClassName);
@@ -579,7 +568,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
             //Save Deployment Attributes
             Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
-            deploymentAttributes.put(WebAttributeName.META_COMPLETE.name(), webApp.getMetadataComplete());
+            deploymentAttributes.put(WebAttributeName.META_COMPLETE.name(), webApp.isMetadataComplete());
             deploymentAttributes.put(WebAttributeName.SCHEMA_VERSION.name(), INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()));
             deploymentAttributes.put(WebAttributeName.ORDERED_LIBS.name(), AbstractWebModuleBuilder.ORDERED_LIBS.get(earContext.getGeneralData()));
             deploymentAttributes.put(WebAttributeName.SERVLET_CONTAINER_INITIALIZERS.name(), AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS.get(earContext.getGeneralData()));
@@ -594,7 +583,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 webModuleData.setReferencePattern("applicationPolicyConfigurationManager", EARContext.JACC_MANAGER_NAME_KEY.get(earContext.getGeneralData()));
             }
             //not truly metadata complete until MBEs have run
-            if (!webApp.getMetadataComplete()) {
+            if (!webApp.isMetadataComplete()) {
                 webApp.setMetadataComplete(true);
                 if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f) {
                     String specDeploymentPlan = getSpecDDAsString(webModule);

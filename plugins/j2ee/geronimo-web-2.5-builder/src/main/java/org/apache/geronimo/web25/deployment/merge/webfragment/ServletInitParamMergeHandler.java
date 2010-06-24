@@ -22,43 +22,43 @@ import org.apache.geronimo.web25.deployment.merge.ElementSource;
 import org.apache.geronimo.web25.deployment.merge.MergeContext;
 import org.apache.geronimo.web25.deployment.merge.MergeItem;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
-import org.apache.geronimo.xbeans.javaee6.ParamValueType;
-import org.apache.geronimo.xbeans.javaee6.ServletType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.ParamValue;
+import org.apache.openejb.jee.Servlet;
+import org.apache.openejb.jee.WebApp;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ServletInitParamMergeHandler implements SubMergeHandler<ServletType, ServletType> {
+public class ServletInitParamMergeHandler implements SubMergeHandler<Servlet, Servlet> {
 
     @Override
-    public void add(ServletType servlet, MergeContext mergeContext) throws DeploymentException {
-        String servletName = servlet.getServletName().getStringValue();
-        for (ParamValueType paramValue : servlet.getInitParamArray()) {
+    public void add(Servlet servlet, MergeContext mergeContext) throws DeploymentException {
+        String servletName = servlet.getServletName();
+        for (ParamValue paramValue : servlet.getInitParam()) {
             addServletInitParam(servletName, paramValue, ElementSource.WEB_FRAGMENT, mergeContext.getCurrentJarUrl(), mergeContext);
         }
     }
 
     @Override
-    public void merge(ServletType srcServlet, ServletType targetServlet, MergeContext mergeContext) throws DeploymentException {
-        String servletName = srcServlet.getServletName().getStringValue();
-        for (ParamValueType paramValue : srcServlet.getInitParamArray()) {
-            MergeItem existedMergeItem = (MergeItem) mergeContext.getAttribute(createServletInitParamKey(servletName, paramValue.getParamName().getStringValue()));
+    public void merge(Servlet srcServlet, Servlet targetServlet, MergeContext mergeContext) throws DeploymentException {
+        String servletName = srcServlet.getServletName();
+        for (ParamValue paramValue : srcServlet.getInitParam()) {
+            MergeItem existedMergeItem = (MergeItem) mergeContext.getAttribute(createServletInitParamKey(servletName, paramValue.getParamName()));
             if (existedMergeItem == null) {
-                targetServlet.addNewInitParam().set(paramValue);
+                targetServlet.getInitParam().add(paramValue);
                 addServletInitParam(servletName, paramValue, ElementSource.WEB_FRAGMENT, mergeContext.getCurrentJarUrl(), mergeContext);
             } else {
-                ParamValueType existedParamValue = (ParamValueType) existedMergeItem.getValue();
+                ParamValue existedParamValue = (ParamValue) existedMergeItem.getValue();
                 switch (existedMergeItem.getSourceType()) {
                 case WEB_XML:
                     continue;
                 case WEB_FRAGMENT:
-                    if (existedParamValue.getParamValue().getStringValue().equals(paramValue.getParamValue().getStringValue())
+                    if (existedParamValue.getParamValue().equals(paramValue.getParamValue())
                             || existedMergeItem.getBelongedURL().equals(mergeContext.getCurrentJarUrl())) {
                         break;
                     } else {
-                        throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage("servlet " + servletName, "param-name", paramValue.getParamName().getStringValue(),
-                                "param-value", existedParamValue.getParamValue().getStringValue(), existedMergeItem.getBelongedURL(), paramValue.getParamValue().getStringValue(), mergeContext
+                        throw new DeploymentException(WebDeploymentMessageUtils.createDuplicateKeyValueMessage("servlet " + servletName, "param-name", paramValue.getParamName(),
+                                "param-value", existedParamValue.getParamValue(), existedMergeItem.getBelongedURL(), paramValue.getParamValue(), mergeContext
                                         .getCurrentJarUrl()));
                     }
                 case ANNOTATION:
@@ -67,7 +67,7 @@ public class ServletInitParamMergeHandler implements SubMergeHandler<ServletType
                     //the name specified via the annotation. Init params are additive between the
                     //annotations and descriptors.
                     //In my understanding, the value of init-param should be overridden even if it is merged from annotation before the current web-fragment.xml file
-                    existedParamValue.getParamValue().set(paramValue.getParamValue());
+                    existedParamValue.setParamValue(paramValue.getParamValue());
                     existedMergeItem.setBelongedURL(mergeContext.getCurrentJarUrl());
                     existedMergeItem.setSourceType(ElementSource.WEB_FRAGMENT);
                 }
@@ -76,14 +76,14 @@ public class ServletInitParamMergeHandler implements SubMergeHandler<ServletType
     }
 
     @Override
-    public void postProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
+    public void postProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
     }
 
     @Override
-    public void preProcessWebXmlElement(WebAppType webApp, MergeContext context) throws DeploymentException {
-        for (ServletType servlet : webApp.getServletArray()) {
-            String servletName = servlet.getServletName().getStringValue();
-            for (ParamValueType paramValue : servlet.getInitParamArray()) {
+    public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
+        for (Servlet servlet : webApp.getServlet()) {
+            String servletName = servlet.getServletName();
+            for (ParamValue paramValue : servlet.getInitParam()) {
                 addServletInitParam(servletName, paramValue, ElementSource.WEB_XML, null, context);
             }
         }
@@ -97,7 +97,7 @@ public class ServletInitParamMergeHandler implements SubMergeHandler<ServletType
         return mergeContext.containsAttribute(createServletInitParamKey(servletName, paramName));
     }
 
-    public static void addServletInitParam(String servletName, ParamValueType paramValue, ElementSource source, String relativeUrl, MergeContext mergeContext) {
-        mergeContext.setAttribute(createServletInitParamKey(servletName, paramValue.getParamName().getStringValue()), new MergeItem(paramValue, relativeUrl, source));
+    public static void addServletInitParam(String servletName, ParamValue paramValue, ElementSource source, String relativeUrl, MergeContext mergeContext) {
+        mergeContext.setAttribute(createServletInitParamKey(servletName, paramValue.getParamName()), new MergeItem(paramValue, relativeUrl, source));
     }
 }

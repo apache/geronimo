@@ -21,6 +21,7 @@
 package org.apache.geronimo.naming.deployment;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,12 +35,10 @@ import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee6.JavaIdentifierType;
-import org.apache.geronimo.xbeans.javaee6.LifecycleCallbackType;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.Lifecycle;
+import org.apache.openejb.jee.LifecycleCallback;
 import org.apache.xbean.finder.AbstractFinder;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
@@ -51,31 +50,30 @@ import org.apache.xmlbeans.XmlObject;
 public class LifecycleMethodBuilder extends AbstractNamingBuilder {
 
     @Override
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         // skip ejb modules... they have already been processed
         //skip ears, they have no standalone components
-        if (module.getType() == ConfigurationModuleType.EJB || module.getType() == ConfigurationModuleType.EAR) {
+//        if (module.getType() == ConfigurationModuleType.EJB || module.getType() == ConfigurationModuleType.EAR) {
+//            return;
+//        }
+        if (!(specDD instanceof Lifecycle)) {
             return;
         }
-
+        Lifecycle lifecycle = (Lifecycle) specDD;
         AbstractFinder classFinder = module.getClassFinder();
-        AnnotatedApp annotatedApp = module.getAnnotatedApp();
-        if (annotatedApp == null) {
-            throw new NullPointerException("No AnnotatedApp supplied");
-        }
-        Map<String, LifecycleCallbackType> postConstructMap = mapLifecycleCallbacks(annotatedApp.getPostConstructArray(), annotatedApp.getComponentType());
-        Map<String, LifecycleCallbackType> preDestroyMap = mapLifecycleCallbacks(annotatedApp.getPreDestroyArray(), annotatedApp.getComponentType());
+        //TODO what is the component type???
+        Map<String, LifecycleCallback> postConstructMap = mapLifecycleCallbacks(lifecycle.getPostConstruct(), null/*annotatedApp.getComponentType()*/);
+        Map<String, LifecycleCallback> preDestroyMap = mapLifecycleCallbacks(lifecycle.getPreDestroy(), null/*annotatedApp.getComponentType()*/);
         if (module.getClassFinder() != null) {
             List<Method> postConstructs = classFinder.findAnnotatedMethods(PostConstruct.class);
             for (Method m : postConstructs) {
                 String methodName = m.getName();
                 String className = m.getDeclaringClass().getName();
                 if (!postConstructMap.containsKey(className)) {
-                    LifecycleCallbackType callback = annotatedApp.addPostConstruct();
-                    FullyQualifiedClassType classType = callback.addNewLifecycleCallbackClass();
-                    classType.setStringValue(className);
-                    JavaIdentifierType method = callback.addNewLifecycleCallbackMethod();
-                    method.setStringValue(methodName);
+                    LifecycleCallback callback = new LifecycleCallback();
+                    callback.setLifecycleCallbackClass(className);
+                    callback.setLifecycleCallbackMethod(methodName);
+                    lifecycle.getPostConstruct().add(callback);
                     postConstructMap.put(className, callback);
                 }
             }
@@ -84,12 +82,11 @@ public class LifecycleMethodBuilder extends AbstractNamingBuilder {
                 String methodName = m.getName();
                 String className = m.getDeclaringClass().getName();
                 if (!preDestroyMap.containsKey(className)) {
-                    LifecycleCallbackType callback = annotatedApp.addPreDestroy();
-                    FullyQualifiedClassType classType = callback.addNewLifecycleCallbackClass();
-                    classType.setStringValue(className);
-                    JavaIdentifierType method = callback.addNewLifecycleCallbackMethod();
-                    method.setStringValue(methodName);
+                    LifecycleCallback callback = new LifecycleCallback();
+                    callback.setLifecycleCallbackClass(className);
+                    callback.setLifecycleCallbackMethod(methodName);
                     preDestroyMap.put(className, callback);
+                    lifecycle.getPreDestroy().add(callback);
                 }
             }
         }
@@ -100,26 +97,26 @@ public class LifecycleMethodBuilder extends AbstractNamingBuilder {
         holder.addPreDestroys(preDestroys);
     }
 
-    private Map<String, LifecycleMethod> map(Map<String, LifecycleCallbackType> lifecycleCallbackTypes) {
-        if (lifecycleCallbackTypes.isEmpty()) {
+    private Map<String, LifecycleMethod> map(Map<String, LifecycleCallback> LifecycleCallbacks) {
+        if (LifecycleCallbacks.isEmpty()) {
             return null;
         }
         Map<String, LifecycleMethod> map = new HashMap<String, LifecycleMethod>();
-        for (Map.Entry<String, LifecycleCallbackType> entry : lifecycleCallbackTypes.entrySet()) {
+        for (Map.Entry<String, LifecycleCallback> entry : LifecycleCallbacks.entrySet()) {
             String className = entry.getKey();
-            LifecycleCallbackType callback = entry.getValue();
-            LifecycleMethod method = new LifecycleMethod(className, callback.getLifecycleCallbackMethod().getStringValue().trim());
+            LifecycleCallback callback = entry.getValue();
+            LifecycleMethod method = new LifecycleMethod(className, callback.getLifecycleCallbackMethod().trim());
             map.put(className, method);
         }
         return map;
     }
 
-    private Map<String, LifecycleCallbackType> mapLifecycleCallbacks(LifecycleCallbackType[] callbackArray, String componentType) throws DeploymentException {
-        Map<String, LifecycleCallbackType> map = new HashMap<String, LifecycleCallbackType>();
-        for (LifecycleCallbackType callback : callbackArray) {
+    private Map<String, LifecycleCallback> mapLifecycleCallbacks(Collection<LifecycleCallback> callbackArray, String componentType) throws DeploymentException {
+        Map<String, LifecycleCallback> map = new HashMap<String, LifecycleCallback>();
+        for (LifecycleCallback callback : callbackArray) {
             String className;
-            if (callback.isSetLifecycleCallbackClass()) {
-                className = callback.getLifecycleCallbackClass().getStringValue().trim();
+            if (callback.getLifecycleCallbackClass() != null) {
+                className = callback.getLifecycleCallbackClass().trim();
             } else {
                 if (componentType == null) {
                     throw new DeploymentException("No component type available and none in  lifecycle callback");

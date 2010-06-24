@@ -32,7 +32,7 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 public class BasicTest extends TestCase {
     
     public void testMyFacesModuleBuilderExtension() throws Exception {
-        GBeanInfo gBeanInfo = MyFacesModuleBuilderExtension.getGBeanInfo();
+//        GBeanInfo gBeanInfo = MyFacesModuleBuilderExtension.getGBeanInfo();
         MyFacesModuleBuilderExtension instance = new MyFacesModuleBuilderExtension(null, null, new NamingBuilderCollection(Collections.EMPTY_SET));
     }
 

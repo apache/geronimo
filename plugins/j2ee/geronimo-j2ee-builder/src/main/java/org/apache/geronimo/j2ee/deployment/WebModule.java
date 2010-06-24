@@ -22,16 +22,16 @@ import java.util.jar.JarFile;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.openejb.jee.WebApp;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
-public class WebModule extends Module<XmlObject, XmlObject> {
+public class WebModule extends Module<WebApp, XmlObject> {
     private final String contextRoot;
     public static final String WEB_APP_DATA = "WEB_APP_DATA";
 
@@ -41,16 +41,15 @@ public class WebModule extends Module<XmlObject, XmlObject> {
                      Environment environment,
                      JarFile moduleFile,
                      String targetPath,
-                     XmlObject specDD,
+                     WebApp specDD,
                      XmlObject vendorDD,
                      String originalSpecDD,
                      String contextRoot,
                      String namespace,
-                     AnnotatedWebApp annotatedWebApp,
                      Map<JndiKey, Map<String, Object>> jndiContext,
                      Module parentModule) {
-        this(standAlone, moduleName, name, environment, new DeployableJarFile(moduleFile), 
-             targetPath, specDD, vendorDD, originalSpecDD, contextRoot, namespace, annotatedWebApp, jndiContext, parentModule);
+        this(standAlone, moduleName, name, environment, new DeployableJarFile(moduleFile),
+             targetPath, specDD, vendorDD, originalSpecDD, contextRoot, namespace, jndiContext, parentModule);
     }
     
     public WebModule(boolean standAlone,
@@ -59,16 +58,15 @@ public class WebModule extends Module<XmlObject, XmlObject> {
                      Environment environment,
                      Deployable deployable,
                      String targetPath,
-                     XmlObject specDD,
+                     WebApp specDD,
                      XmlObject vendorDD,
                      String originalSpecDD,
                      String contextRoot,
                      String namespace,
-                     AnnotatedWebApp annotatedWebApp,
                      Map<JndiKey, Map<String, Object>> jndiContext
             , Module parentModule) {
         super(standAlone, moduleName, name, environment, deployable, 
-              targetPath, specDD, vendorDD, originalSpecDD, namespace, annotatedWebApp, jndiContext, parentModule);
+              targetPath, specDD, vendorDD, originalSpecDD, namespace, jndiContext, parentModule);
         this.contextRoot = contextRoot;
     }
 

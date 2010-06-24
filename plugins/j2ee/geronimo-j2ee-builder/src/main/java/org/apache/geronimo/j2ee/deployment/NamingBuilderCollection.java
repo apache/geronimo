@@ -32,6 +32,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -44,19 +45,19 @@ public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBui
         super(builders);
     }
 
-    public void buildEnvironment(XmlObject specDD, XmlObject plan, Environment environment) throws DeploymentException {
+    public void buildEnvironment(JndiConsumer specDD, XmlObject plan, Environment environment) throws DeploymentException {
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             namingBuilder.buildEnvironment(specDD, plan, environment);
         }
     }
 
-    public void initContext(XmlObject specDD, XmlObject plan, Module module) throws DeploymentException {
+    public void initContext(JndiConsumer specDD, XmlObject plan, Module module) throws DeploymentException {
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             namingBuilder.initContext(specDD, plan, module);
         }
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             if (EARConfigBuilder.createPlanMode.get().booleanValue()) {
                 try {
