@@ -23,9 +23,9 @@ import java.rmi.dgc.VMID;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-
 import com.agical.rmock.core.Action;
 import com.agical.rmock.core.MethodHandle;
 import com.agical.rmock.core.describe.ExpressionDescriber;
@@ -35,11 +35,14 @@ import org.apache.geronimo.clustering.Session;
 import org.apache.geronimo.clustering.SessionListener;
 import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.openejb.cluster.stateful.container.ClusteredStatefulContainerTest.SFSB;
+import org.apache.openejb.core.AppContext;
+import org.apache.openejb.core.BeanContext;
 import org.apache.openejb.core.CoreDeploymentInfo;
-import org.apache.openejb.core.DeploymentContext;
+import org.apache.openejb.core.ModuleContext;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.stateful.Cache.CacheListener;
 import org.apache.openejb.core.stateful.Instance;
+import org.apache.openejb.loader.SystemInstance;
 
 /**
  * @version $Rev$ $Date$
@@ -68,7 +71,7 @@ public class WadiCacheTest extends RMockTestCase {
         });
 
         deploymentId = "deploymentId";
-        deploymentInfo = new CoreDeploymentInfo(new DeploymentContext(deploymentId, null, null),
+        deploymentInfo = new CoreDeploymentInfo(new BeanContext(deploymentId, null, new ModuleContext(deploymentId, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader()))),
             SFSB.class,
             null,
             null,
