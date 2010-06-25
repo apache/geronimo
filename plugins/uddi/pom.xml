@@ -41,7 +41,6 @@
 
     <dependencyManagement>
         <dependencies>
-
             <dependency>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>system-database</artifactId>
