@@ -48,7 +48,6 @@ import org.apache.openejb.jee.IsolationLevel;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.Property;
 import org.apache.openejb.jee.Text;
-import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -98,36 +97,29 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
     
     public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
                         
-        Bundle bundle = module.getEarContext().getDeploymentBundle();
-        
-        BundleAnnotationFinder classFinder;
-        try {
-            classFinder = new BundleAnnotationFinder(packageAdmin, bundle);
-        } catch (Exception e) {
-            throw new DeploymentException("could not create class finder " + bundle, e);
-        }
-        
-
         // step 1: process annotations and update deployment descriptor
-        List<Class> classes;        
-        classes = classFinder.findAnnotatedClasses(DataSourceDefinitions.class);
-        if (classes != null) {
-            for (Class clazz : classes) {
-                DataSourceDefinitions dsDefinitions = (DataSourceDefinitions) clazz.getAnnotation(DataSourceDefinitions.class);
-                for (DataSourceDefinition dsDefinition : dsDefinitions.value()) {
+        if ((module != null) && (module.getClassFinder() != null)) {
+
+            List<Class> classes;        
+            classes = module.getClassFinder().findAnnotatedClasses(DataSourceDefinitions.class);
+            if (classes != null) {
+                for (Class clazz : classes) {
+                    DataSourceDefinitions dsDefinitions = (DataSourceDefinitions) clazz.getAnnotation(DataSourceDefinitions.class);
+                    for (DataSourceDefinition dsDefinition : dsDefinitions.value()) {
+                        processDefinition(dsDefinition, specDD);
+                    }
+
+                }
+            }
+            classes = module.getClassFinder().findAnnotatedClasses(DataSourceDefinition.class);
+            if (classes != null) {
+                for (Class clazz : classes) {
+                    DataSourceDefinition dsDefinition = (DataSourceDefinition) clazz.getAnnotation(DataSourceDefinition.class);
                     processDefinition(dsDefinition, specDD);
                 }
-                
             }
         }
-        classes = classFinder.findAnnotatedClasses(DataSourceDefinition.class);
-        if (classes != null) {
-            for (Class clazz : classes) {
-                DataSourceDefinition dsDefinition = (DataSourceDefinition) clazz.getAnnotation(DataSourceDefinition.class);
-                processDefinition(dsDefinition, specDD);
-            }
-        }
-        
+
         // step 2: bind all defined data sources into jndi
         Collection<DataSource> dataSources = specDD.getDataSource();
         if (dataSources != null) {
