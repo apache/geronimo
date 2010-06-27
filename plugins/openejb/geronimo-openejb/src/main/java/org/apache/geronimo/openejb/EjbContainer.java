@@ -19,6 +19,7 @@ package org.apache.geronimo.openejb;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.openejb.assembler.classic.ContainerInfo;
+import org.apache.openejb.assembler.classic.ManagedContainerInfo;
 import org.apache.openejb.assembler.classic.StatelessSessionContainerInfo;
 import org.apache.openejb.assembler.classic.StatefulSessionContainerInfo;
 import org.apache.openejb.assembler.classic.BmpEntityContainerInfo;
@@ -99,6 +100,7 @@ public class EjbContainer implements GBeanLifecycle {
         if ("CMP_ENTITY".equalsIgnoreCase(type)) return CmpEntityContainerInfo.class;
         if ("CMP2_ENTITY".equalsIgnoreCase(type)) return CmpEntityContainerInfo.class;
         if ("MESSAGE".equalsIgnoreCase(type)) return MdbContainerInfo.class;
+        if ("MANAGED".equalsIgnoreCase(type)) return ManagedContainerInfo.class;
 
         String className = type; // EjbModuleBuilder will pass in the className of the gbean
         if (className.endsWith("StatelessContainerGBean")) return StatelessSessionContainerInfo.class;
@@ -106,6 +108,7 @@ public class EjbContainer implements GBeanLifecycle {
         if (className.endsWith("SingletonContainerGBean")) return SingletonSessionContainerInfo.class;
         if (className.endsWith("BmpContainerGBean")) return BmpEntityContainerInfo.class;
         if (className.endsWith("CmpContainerGBean")) return CmpEntityContainerInfo.class;
+        if (className.endsWith("ManagedContainerGBean")) return ManagedContainerInfo.class;
 
         else return ContainerInfo.class;
     }

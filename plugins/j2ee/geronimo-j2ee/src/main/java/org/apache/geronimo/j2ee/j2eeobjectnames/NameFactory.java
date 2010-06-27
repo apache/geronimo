@@ -47,6 +47,7 @@ public class NameFactory {
     public static final String STATELESS_SESSION_BEAN = "StatelessSessionBean";
     public static final String MESSAGE_DRIVEN_BEAN = "MessageDrivenBean";
     public static final String SINGLETON_BEAN = "SingletonBean";
+    public static final String MANAGED_BEAN = "MaangedBean";
     public static final String SERVLET = "Servlet";
     public static final String RESOURCE_ADAPTER = "ResourceAdapter";
     public static final String JAVA_MAIL_RESOURCE = "JavaMailResource";

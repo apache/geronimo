@@ -74,6 +74,11 @@
             <name>OpenEjbSystem</name>
         </reference>
     </gbean>
+    <gbean name="DefaultManagedContainer" class="org.apache.geronimo.openejb.ManagedContainerGBean">
+        <reference name="OpenEjbSystem">
+            <name>OpenEjbSystem</name>
+        </reference>
+    </gbean>
 
     <gbean name="EJBNetworkService" class="org.apache.geronimo.openejb.EjbDaemonGBean">
         <attribute name="port">${planOpenEJBPort}</attribute>

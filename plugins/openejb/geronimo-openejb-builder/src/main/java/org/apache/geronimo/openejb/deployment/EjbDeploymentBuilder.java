@@ -46,6 +46,7 @@ import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.EntityDeploymentGBean;
+import org.apache.geronimo.openejb.ManagedDeploymentGBean;
 import org.apache.geronimo.openejb.MessageDrivenDeploymentGBean;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.SingletonDeploymentGBean;
@@ -107,6 +108,9 @@ public class EjbDeploymentBuilder {
                         break;
                     case SINGLETON:
                         gbean = new GBeanData(abstractName, SingletonDeploymentGBean.GBEAN_INFO);
+                        break;
+                    case MANAGED:
+                        gbean = new GBeanData(abstractName, ManagedDeploymentGBean.GBEAN_INFO);
                         break;
                 }
             } else if (enterpriseBean instanceof EntityBean) {

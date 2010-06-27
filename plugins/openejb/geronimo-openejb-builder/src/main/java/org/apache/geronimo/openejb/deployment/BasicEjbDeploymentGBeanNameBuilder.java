@@ -24,6 +24,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.EntityBean;
+import org.apache.openejb.jee.ManagedBean;
 import org.apache.openejb.jee.MessageDrivenBean;
 import org.apache.openejb.jee.SessionBean;
 import org.apache.openejb.jee.SingletonBean;
@@ -48,6 +49,9 @@ public class BasicEjbDeploymentGBeanNameBuilder implements EjbDeploymentGBeanNam
                     break;
                 case SINGLETON:
                     type = NameFactory.SINGLETON_BEAN;
+                    break;
+                case MANAGED:
+                    type = NameFactory.MANAGED_BEAN;
                     break;
             }
         } else if (enterpriseBean instanceof EntityBean) {

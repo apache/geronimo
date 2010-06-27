@@ -16,38 +16,31 @@
  */
 package org.apache.geronimo.openejb;
 
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.openejb.assembler.classic.BmpEntityContainerInfo;
-import org.apache.openejb.assembler.classic.CmpEntityContainerInfo;
-import org.apache.openejb.assembler.classic.ContainerInfo;
-import org.apache.openejb.assembler.classic.MdbContainerInfo;
-import org.apache.openejb.assembler.classic.StatefulSessionContainerInfo;
-import org.apache.openejb.assembler.classic.StatelessSessionContainerInfo;
-
-import java.util.Properties;
+import org.apache.openejb.assembler.classic.ManagedContainerInfo;
+import org.apache.openejb.util.Duration;
 
 /**
  * @version $Rev$ $Date$
  */
 @GBean
-public class GenericContainerGBean extends EjbContainer {
+public class ManagedContainerGBean extends EjbContainer {
 
-    public GenericContainerGBean(
+
+    public ManagedContainerGBean(
             @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abstractName,
             @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
             @ParamAttribute(name = "provider") String provider,
-            @ParamAttribute(name = "type") String type,
             @ParamAttribute(name = "properties") Properties properties) {
-        super(abstractName, getInfoType(type), openEjbSystem, provider, type, new Properties());
-        if (properties != null) {
-            getProperties().putAll(properties);
-        }
+        super(abstractName, ManagedContainerInfo.class, openEjbSystem, provider, "MANAGED", properties);
     }
-
 
 }
