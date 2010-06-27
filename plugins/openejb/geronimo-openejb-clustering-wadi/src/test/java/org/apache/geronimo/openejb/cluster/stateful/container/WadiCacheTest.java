@@ -36,7 +36,6 @@ import org.apache.geronimo.clustering.SessionListener;
 import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.openejb.cluster.stateful.container.ClusteredStatefulContainerTest.SFSB;
 import org.apache.openejb.core.AppContext;
-import org.apache.openejb.core.BeanContext;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ModuleContext;
 import org.apache.openejb.core.ThreadContext;
@@ -71,7 +70,7 @@ public class WadiCacheTest extends RMockTestCase {
         });
 
         deploymentId = "deploymentId";
-        deploymentInfo = new CoreDeploymentInfo(new BeanContext(deploymentId, null, new ModuleContext(deploymentId, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader()))),
+        deploymentInfo = new CoreDeploymentInfo(deploymentId, null, new ModuleContext(deploymentId, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader())),
             SFSB.class,
             null,
             null,
