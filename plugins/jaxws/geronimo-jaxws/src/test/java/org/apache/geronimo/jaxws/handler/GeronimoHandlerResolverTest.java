@@ -173,7 +173,7 @@ public class GeronimoHandlerResolverTest extends TestSupport {
     }
 
     private static HandlerChains toHandlerChains(InputStream input) throws Exception {
-        return (HandlerChains) JaxbJavaee.unmarshal(HandlerChains.class, input);
+        return (HandlerChains) JaxbJavaee.unmarshalJavaee(HandlerChains.class, input);
     }
 
     private static class TestPortInfo implements PortInfo {

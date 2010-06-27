@@ -200,7 +200,7 @@ public class MessageDestinationTest extends TestCase {
     private <T> T load(String dd, Class<T> clazz) throws Exception {
         InputStream in = new ByteArrayInputStream(dd.getBytes());
         try {
-            return (T) JaxbJavaee.unmarshal(clazz, in);
+            return (T) JaxbJavaee.unmarshalJavaee(clazz, in);
         } finally {
             in.close();
         }

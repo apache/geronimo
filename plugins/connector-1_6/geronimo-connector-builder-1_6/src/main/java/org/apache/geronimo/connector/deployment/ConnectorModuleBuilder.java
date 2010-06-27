@@ -292,11 +292,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             try {
                 InputStream in = specDDUrl.openStream();
                 try {
-                    connector = (Connector) JaxbJavaee.unmarshal(Connector16.class, in);
+                    connector = (Connector) JaxbJavaee.unmarshalJavaee(Connector16.class, in);
                 } catch (JAXBException e) {
                     in.close();
                     in = specDDUrl.openStream();
-                    connector = (Connector) JaxbJavaee.unmarshal(Connector10.class, in);
+                    connector = (Connector) JaxbJavaee.unmarshalJavaee(Connector10.class, in);
                 } finally {
                     in.close();
                 }

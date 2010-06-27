@@ -334,7 +334,7 @@ public class PlanParsingTest extends XmlBeansTestSupport {
         URL specDDUrl = JarUtils.createJarURL(dummyFile, "WEB-INF/web.xml");
         InputStream in = specDDUrl.openStream();
         try {
-            return (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+            return (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
 
         } finally {
             in.close();

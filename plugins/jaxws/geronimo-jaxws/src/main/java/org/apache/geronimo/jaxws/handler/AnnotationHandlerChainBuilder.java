@@ -63,7 +63,7 @@ public class AnnotationHandlerChainBuilder
                 InputStream in = handlerFileURL.openStream();
                 HandlerChains handlerChainsType;
                 try {
-                    handlerChainsType = (HandlerChains) JaxbJavaee.unmarshal(HandlerChains.class, in);
+                    handlerChainsType = (HandlerChains) JaxbJavaee.unmarshalJavaee(HandlerChains.class, in);
                 } finally {
                     in.close();
                 }

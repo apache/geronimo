@@ -38,7 +38,7 @@ public class SecurityConfigTest extends TestSupport {
         URL specDDUrl = classLoader.getResource("security/web-nosecurity.xml");
         InputStream in = specDDUrl.openStream();
         try {
-            WebApp webApp = (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+            WebApp webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
             SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp);
             ComponentPermissions componentPermissions = builder.buildSpecSecurityConfig();
         } finally {

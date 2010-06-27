@@ -179,7 +179,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 //                WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
                 InputStream in = specDDUrl.openStream();
                 try {
-                    webApp = (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+                    webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
                 } finally {
                     in.close();
                 }
@@ -250,7 +250,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 specDD = JarUtils.readAll(specDDUrl);
                 InputStream in = specDDUrl.openStream();
                 try {
-                    webApp = (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+                    webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
                 } finally {
                     in.close();
                 }

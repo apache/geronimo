@@ -103,7 +103,7 @@ public class WSDescriptorParser {
             throw new DeploymentException("Could not open stream to jaxrpc mapping document", e);
         }
         try {
-            return  (JavaWsdlMapping) JaxbJavaee.unmarshal(JavaWsdlMapping.class, jaxrpcInputStream);
+            return  (JavaWsdlMapping) JaxbJavaee.unmarshalJavaee(JavaWsdlMapping.class, jaxrpcInputStream);
         } catch (Exception e) {
             throw new DeploymentException("Could not parse jaxrpc mapping document", e);
     } finally {
@@ -425,7 +425,7 @@ public class WSDescriptorParser {
         try {
             InputStream in = wsDDUrl.openStream();
             try {
-                return (Webservices) JaxbJavaee.unmarshal(Webservices.class, in);
+                return (Webservices) JaxbJavaee.unmarshalJavaee(Webservices.class, in);
             } catch (Exception e) {
                 throw new DeploymentException("Could not read descriptor document", e);
             } finally {

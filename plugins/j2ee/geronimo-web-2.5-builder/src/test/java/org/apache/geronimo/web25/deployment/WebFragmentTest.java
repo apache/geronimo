@@ -202,7 +202,7 @@ public class WebFragmentTest extends XmlBeansTestSupport {
         URL srcXml = classLoader.getResource(url);
         InputStream in = srcXml.openStream();
         try {
-            return (T) JaxbJavaee.unmarshal(clazz, in);
+            return (T) JaxbJavaee.unmarshalJavaee(clazz, in);
         } finally {
             in.close();
         }

@@ -265,7 +265,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             InputStream in = url.openStream();
             FacesConfig facesConfig = null;
             try {
-                facesConfig = (FacesConfig) JaxbJavaee.unmarshal(FacesConfig.class, in);
+                facesConfig = (FacesConfig) JaxbJavaee.unmarshalJavaee(FacesConfig.class, in);
             } finally {
                 in.close();
             }

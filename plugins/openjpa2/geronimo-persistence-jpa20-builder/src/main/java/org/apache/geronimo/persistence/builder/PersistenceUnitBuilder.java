@@ -186,7 +186,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                 Persistence persistence;
                 InputStream in = persistenceUrl.openStream();
                 try {
-                    persistence = (Persistence) JaxbJavaee.unmarshal(Persistence.class, in);
+                    persistence = (Persistence) JaxbJavaee.unmarshal(Persistence.class, in, true);
                 } catch (JAXBException e) {
                     throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
                 } finally {
@@ -301,7 +301,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             mappingFileNames.add(mappingFileNameString.trim());
         }
 
-        if (persistenceUnit.isExcludeUnlistedClasses()) {
+        if (persistenceUnit.isExcludeUnlistedClasses() != null && persistenceUnit.isExcludeUnlistedClasses()) {
             gbeanData.setAttribute("excludeUnlistedClasses", persistenceUnit.isExcludeUnlistedClasses());
         }
 

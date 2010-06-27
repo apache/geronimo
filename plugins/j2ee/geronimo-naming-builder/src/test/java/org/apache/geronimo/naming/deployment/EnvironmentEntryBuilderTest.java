@@ -305,7 +305,7 @@ public class EnvironmentEntryBuilderTest extends TestCase {
     private <T> T load(String text, Class<T> clazz) throws Exception {
         InputStream in = new ByteArrayInputStream(text.getBytes());
         try {
-            return (T) JaxbJavaee.unmarshal(clazz, in);
+            return (T) JaxbJavaee.unmarshalJavaee(clazz, in);
         } finally {
             in.close();
         }

@@ -372,7 +372,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 //we found something called application.xml in the right place, if we can't parse it it's an error
                 InputStream in = applicationXmlUrl.openStream();
                 try {
-                    application = (Application) JaxbJavaee.unmarshal(Application.class, in);
+                    application = (Application) JaxbJavaee.unmarshalJavaee(Application.class, in);
                  } finally {
                     in.close();
                 }

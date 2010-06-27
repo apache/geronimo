@@ -274,7 +274,7 @@ public final class HandlerChainAnnotationHelper extends AnnotationHelper {
         HandlerChains handlerChains;
         InputStream in = url.openStream();
         try {
-            handlerChains = (HandlerChains) JaxbJavaee.unmarshal(HandlerChains.class, in);
+            handlerChains = (HandlerChains) JaxbJavaee.unmarshalJavaee(HandlerChains.class, in);
          } finally {
             in.close();
         }

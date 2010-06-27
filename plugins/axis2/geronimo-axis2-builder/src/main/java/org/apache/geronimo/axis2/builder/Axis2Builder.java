@@ -98,7 +98,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         try {
             //the checking is needed as we also send JAX-RPC based webservices.xml here
 //            if ("http://java.sun.com/xml/ns/javaee".equals(cursor.getName().getNamespaceURI())) {
-                Webservices wst = (Webservices) JaxbJavaee.unmarshal(Webservices.class, in);
+                Webservices wst = (Webservices) JaxbJavaee.unmarshalJavaee(Webservices.class, in);
 
                 for (WebserviceDescription desc : wst.getWebserviceDescription()) {
                     String wsdlFile = null;

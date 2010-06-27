@@ -163,7 +163,7 @@ public class SpecSecurityParsingTest extends TestCase {
         URL specDDUrl = classLoader.getResource(resource);
         InputStream in = specDDUrl.openStream();
         try {
-            return (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+            return (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
         } finally {
             in.close();
         }

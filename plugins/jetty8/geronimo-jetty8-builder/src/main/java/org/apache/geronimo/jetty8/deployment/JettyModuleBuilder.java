@@ -247,7 +247,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 specDD = JarUtils.readAll(specDDUrl);
                 InputStream in = specDDUrl.openStream();
                 try {
-                    webApp = (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+                    webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
                 } finally {
                     in.close();
                 }
@@ -314,7 +314,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             // we found web.xml, if it won't parse that's an error.
             InputStream in = specDDUrl.openStream();
             try {
-                webApp = (WebApp) JaxbJavaee.unmarshal(WebApp.class, in);
+                webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
             } finally {
                 in.close();
             }

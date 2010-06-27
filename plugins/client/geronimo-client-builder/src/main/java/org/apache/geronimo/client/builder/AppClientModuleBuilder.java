@@ -300,7 +300,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 // parse it
                 InputStream in = specDDUrl.openStream();
                 try {
-                    appClient = (ApplicationClient) JaxbJavaee.unmarshal(ApplicationClient.class, in);
+                    appClient = (ApplicationClient) JaxbJavaee.unmarshalJavaee(ApplicationClient.class, in);
                 } finally {
                     in.close();
                 }
