@@ -259,8 +259,8 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             dataSource.setLoginTimeout(dsDefinition.loginTimeout());
         }
         
-        if (dataSource.getIsolationLevel() == null && dsDefinition.isolationLevel() != -1) {
-            dataSource.setIsolationLevel(IsolationLevel.values()[dsDefinition.isolationLevel()]); 
+        if (dataSource.getIsolationLevel() == null) {
+            dataSource.setIsolationLevel(IsolationLevel.fromFlag(dsDefinition.isolationLevel())); 
         }
         
         if (dataSource.getTransactional() == null) {
