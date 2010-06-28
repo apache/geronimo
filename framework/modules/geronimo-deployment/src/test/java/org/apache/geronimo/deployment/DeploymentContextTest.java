@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.jar.JarFile;
 
 import junit.framework.TestCase;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Jsr77Naming;
@@ -156,21 +156,21 @@ public class DeploymentContextTest extends TestCase {
     public void testManifestClassPath1() throws Exception {
         MockJarFile start = new MockJarFile(URI.create("ejb.jar"), "lib1.jar");
         URI resolutionURI = URI.create(".");
-        ModuleList exclusions = new ModuleList();
+        LinkedHashSet<String> exclusions = new LinkedHashSet<String>();
         Map<URI, String> data = new HashMap<URI, String>();
         data.put(URI.create("lib1.jar"), "lib1.jar lib2.jar");
 
         ClassPathUtils.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager(), bundleContext);
-        ClassPathList classPathList = new ClassPathList();
-        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
+        ArrayList<String> classPathList = new ArrayList<String>();
+        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory);
         assertEquals(2, classPathList.size());
     }
 
     public void testManifestClassPath2() throws Exception {
         MockJarFile start = new MockJarFile(URI.create("ejb1/ejb1/ejb1.jar"), "../../lib1/lib1/lib1.jar");
         URI resolutionURI = URI.create(".");
-        ModuleList exclusions = new ModuleList();
+        LinkedHashSet<String> exclusions = new LinkedHashSet<String>();
         Map<URI, String> data = new HashMap<URI, String>();
         data.put(URI.create("lib1/lib1/lib1.jar"), "../../lib2/lib2.jar");
         data.put(URI.create("lib2/lib2.jar"), "lib2a.jar");
@@ -178,8 +178,8 @@ public class DeploymentContextTest extends TestCase {
 
         ClassPathUtils.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager(), bundleContext);
-        ClassPathList classPathList = new ClassPathList();
-        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
+        ArrayList<String> classPathList = new ArrayList<String>();
+        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory);
         assertEquals(4, classPathList.size());
         assertEquals("lib1/lib1/lib1.jar", classPathList.get(0));
         assertEquals("lib2/lib2.jar", classPathList.get(1));
@@ -190,7 +190,7 @@ public class DeploymentContextTest extends TestCase {
     public void testMainfestClassPath3() throws Exception {
         MockJarFile start = new MockJarFile(URI.create("ejb1/ejb1/ejb1.jar"), "../../lib1/lib1/lib1.jar ../../libfolder");
         URI resolutionURI = URI.create(".");
-        ModuleList exclusions = new ModuleList();
+        LinkedHashSet<String> exclusions = new LinkedHashSet<String>();
         Map<URI, String> data = new HashMap<URI, String>();
         data.put(URI.create("lib1/lib1/lib1.jar"), "../../lib2/lib2.jar");
         data.put(URI.create("lib2/lib2.jar"), "lib2a.jar");
@@ -200,8 +200,8 @@ public class DeploymentContextTest extends TestCase {
 
         ClassPathUtils.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager(), bundleContext);
-        ClassPathList classPathList = new ClassPathList();
-        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
+        ArrayList<String> classPathList = new ArrayList<String>();
+        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory);
         assertEquals(6, classPathList.size());
         assertEquals("lib1/lib1/lib1.jar", classPathList.get(0));
         assertEquals("lib2/lib2.jar", classPathList.get(1));
@@ -215,14 +215,14 @@ public class DeploymentContextTest extends TestCase {
     public void testManifestClassPathWar1() throws Exception {
         MockJarFile start = new MockJarFile(URI.create("war1.war"), "lib1.jar");
         URI resolutionURI = URI.create("../");
-        ModuleList exclusions = new ModuleList();
+        LinkedHashSet<String> exclusions = new LinkedHashSet<String>();
         Map<URI, String> data = new HashMap<URI, String>();
         data.put(URI.create("lib1.jar"), "lib1.jar lib2.jar");
 
         ClassPathUtils.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager(), bundleContext);
-        ClassPathList classPathList = new ClassPathList();
-        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
+        ArrayList<String> classPathList = new ArrayList<String>();
+        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory);
         assertEquals(2, classPathList.size());
         assertEquals("../lib1.jar", classPathList.get(0));
         assertEquals("../lib2.jar", classPathList.get(1));
@@ -232,7 +232,7 @@ public class DeploymentContextTest extends TestCase {
     public void testManifestClassPathWar2() throws Exception {
         MockJarFile start = new MockJarFile(URI.create("war1/war1/war1.war"), "../../lib1/lib1/lib1.jar");
         URI resolutionURI = URI.create("../../../");
-        ModuleList exclusions = new ModuleList();
+        LinkedHashSet<String> exclusions = new LinkedHashSet<String>();
         Map<URI, String> data = new HashMap<URI, String>();
         data.put(URI.create("lib1/lib1/lib1.jar"), "../../lib2/lib2/lib2.jar");
         data.put(URI.create("lib2/lib2/lib2.jar"), "../lib2a/lib2a.jar");
@@ -240,8 +240,8 @@ public class DeploymentContextTest extends TestCase {
 
         ClassPathUtils.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager(), bundleContext);
-        ClassPathList classPathList = new ClassPathList();
-        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
+        ArrayList<String> classPathList = new ArrayList<String>();
+        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory);
         assertEquals(4, classPathList.size());
         assertEquals("../../../lib1/lib1/lib1.jar", classPathList.get(0));
         assertEquals("../../../lib2/lib2/lib2.jar", classPathList.get(1));
@@ -252,7 +252,7 @@ public class DeploymentContextTest extends TestCase {
     public void testManifestClassPathWar3() throws Exception {
         MockJarFile start = new MockJarFile(URI.create("war1/war1/war1.war"), "../../lib1/lib1/lib1.jar");
         URI resolutionURI = URI.create("../../../");
-        ModuleList exclusions = new ModuleList();
+        LinkedHashSet<String> exclusions = new LinkedHashSet<String>();
         Map<URI, String> data = new HashMap<URI, String>();
         data.put(URI.create("lib1/lib1/lib1.jar"), "../../lib2/lib2.jar");
         data.put(URI.create("lib2/lib2.jar"), "lib2a.jar");
@@ -260,8 +260,8 @@ public class DeploymentContextTest extends TestCase {
 
         ClassPathUtils.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager(), bundleContext);
-        ClassPathList classPathList = new ClassPathList();
-        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
+        ArrayList<String> classPathList = new ArrayList<String>();
+        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory);
         assertEquals(4, classPathList.size());
         assertEquals("../../../lib1/lib1/lib1.jar", classPathList.get(0));
         assertEquals("../../../lib2/lib2.jar", classPathList.get(1));
@@ -272,7 +272,7 @@ public class DeploymentContextTest extends TestCase {
     public void testManifestClassPathExcludeModules1() throws Exception {
         MockJarFile start = new MockJarFile(URI.create("ejb1.jar"), "lib1.jar");
         URI resolutionURI = URI.create(".");
-        ModuleList exclusions = new ModuleList();
+        LinkedHashSet<String> exclusions = new LinkedHashSet<String>();
         exclusions.add("ejb1.jar");
         exclusions.add("ejb2.jar");
         Map<URI, String> data = new HashMap<URI, String>();
@@ -282,8 +282,8 @@ public class DeploymentContextTest extends TestCase {
 
         ClassPathUtils.JarFileFactory factory = new MockJarFileFactory(data);
         DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1/ear")), new AbstractName(URI.create("test/foo/1/ear?name=test")), ConfigurationModuleType.EAR, new Jsr77Naming(), new MockConfigurationManager(), bundleContext);
-        ClassPathList classPathList = new ClassPathList();
-        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory, new ArrayList<DeploymentException>());
+        ArrayList<String> classPathList = new ArrayList<String>();
+        ClassPathUtils.getCompleteManifestClassPath(start, start.getRelativeURI(), resolutionURI, classPathList, exclusions, factory);
         assertEquals(2, classPathList.size());
     }
 

@@ -46,9 +46,10 @@ public class AppClientModule extends Module<ApplicationClient, XmlObject> {
                            ApplicationClient specDD, 
                            String mainClassName, 
                            XmlObject vendorDD, 
-                           String originalSpecDD) {
+                           String originalSpecDD,
+                           Module<?, ?> parentModule) {
         super(standAlone, moduleName, name, clientEnvironment, moduleFile, targetPath, 
-              specDD, vendorDD, originalSpecDD, null, null, null);
+              specDD, vendorDD, originalSpecDD, null, null, parentModule);
         this.serverEnvironment = serverEnvironment;
         this.appClientName = appClientName;
         this.mainClassName = mainClassName;

@@ -41,9 +41,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceContext;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
-import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -635,13 +633,12 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             // Add extra gbean declared in the geronimo-openejb.xml file
             serviceBuilders.build(ejbModule.getVendorDD(), earContext, ejbModule.getEarContext());
 
-            ClassPathList manifestcp = new ClassPathList();
+            Collection<String> manifestcp = module.getClassPath();
             manifestcp.add(module.getTargetPath());
             EARContext moduleContext = module.getEarContext();
-            ModuleList moduleLocations = EARContext.MODULE_LIST_KEY.get(module.getRootEarContext().getGeneralData());
+            Collection<String> moduleLocations = EARContext.MODULE_LIST_KEY.get(module.getRootEarContext().getGeneralData());
             URI baseUri = URI.create(module.getTargetPath());
             moduleContext.getCompleteManifestClassPath(module.getDeployable(), baseUri, URI.create("."), manifestcp, moduleLocations);
-            moduleContext.getGeneralData().put(EARContext.CLASS_PATH_LIST_KEY, manifestcp);
 
             for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
                 try {

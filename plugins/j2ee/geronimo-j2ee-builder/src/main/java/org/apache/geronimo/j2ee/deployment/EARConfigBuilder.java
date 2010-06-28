@@ -44,11 +44,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -101,7 +99,6 @@ import org.apache.openejb.jee.Application;
 //import org.apache.openejb.jee.Module;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.Web;
-import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -575,12 +572,12 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             earContext.getGeneralData().put(EARContext.MODULE_LIST_KEY, applicationInfo.getModuleLocations());
 
             // Copy over all files that are _NOT_ modules (e.g. META-INF and APP-INF files)
-            ModuleList moduleLocations = applicationInfo.getModuleLocations();
+            LinkedHashSet<String> moduleLocations = applicationInfo.getModuleLocations();
             if (ConfigurationModuleType.EAR == applicationType && earFile != null) {
                 //get the value of the library-directory element in spec DD
                 Application specDD = (Application) applicationInfo.getSpecDD();
                 String libDir = getLibraryDirectory(specDD);
-                ClassPathList libClasspath = new ClassPathList();
+                Collection<String> libClasspath = applicationInfo.getClassPath();
                 for (Enumeration<JarEntry> e = earFile.entries(); e.hasMoreElements();) {
                     ZipEntry entry = e.nextElement();
                     String entryName = entry.getName();
@@ -599,7 +596,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                         earContext.addFile(URI.create(entry.getName()), earFile, entry);
                     }
                 }
-                earContext.getGeneralData().put(EARContext.CLASS_PATH_LIST_KEY, libClasspath);
             }
 
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
@@ -608,6 +604,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             for (Module module : applicationInfo.getModules()) {
                 getBuilder(module).installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repositories);
             }
+            //push the module classpaths into the appropriate ear context
+            applicationInfo.accumulateClassPath();
 
             earContext.flush();
             earContext.initializeConfiguration();

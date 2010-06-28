@@ -101,6 +101,7 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
                     checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
                 } else if (persistenceUnitRef.getPersistenceUnitName() != null && !persistenceUnitRef.getPersistenceUnitName().trim().isEmpty()) {
                     String persistenceUnitName = persistenceUnitRef.getPersistenceUnitName().trim();
+                    module.get
                     persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", persistenceUnitName), PERSISTENCE_UNIT_INTERFACE_TYPES);
                     if (!checkForGBean(localConfiguration, persistenceUnitNameQuery, strictMatching)) {
                         persistenceUnitName = "persistence/" + persistenceUnitName;
@@ -153,8 +154,7 @@ public class PersistenceUnitRefBuilder extends AbstractNamingBuilder {
 
         }
         if (!problems.isEmpty()) {
-            //TODO make DeploymentException accept a list of exceptions as causes.
-            throw new DeploymentException("At least one deployment problem:" + problems);
+            throw new DeploymentException("At least one deployment problem:", problems);
         }
     }
 

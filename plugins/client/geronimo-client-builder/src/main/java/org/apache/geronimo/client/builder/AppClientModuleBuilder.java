@@ -39,7 +39,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
@@ -357,7 +356,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             name = FileUtils.removeExtension(targetPath, ".jar");
         }
 
-        AppClientModule module = new AppClientModule(standAlone, moduleName, name, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD);
+        AppClientModule module = new AppClientModule(standAlone, moduleName, name, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, parentModule);
 
         //start installing the resource adapters in the client.
         GerResourceType[] resources = gerAppClient.getResourceArray();
@@ -548,8 +547,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             } catch (IOException e) {
                 throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName(), e);
             }
-            ClassPathList libClasspath = EARContext.CLASS_PATH_LIST_KEY.get(earContext.getGeneralData());
-            if (libClasspath != null) {
+            if (module.getParentModule() != null) {
+                Collection<String> libClasspath = module.getParentModule().getClassPath();
                 for (String libEntryPath : libClasspath) {
                     try {
                         NestedJarFile library = new NestedJarFile(earFile, libEntryPath);
@@ -558,6 +557,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                         throw new DeploymentException("Could not add to app client library classpath: " + libEntryPath, e);
                     }
                 }
+                module.getClassPath().addAll(libClasspath);
             }
         } catch (DeploymentException e) {
             cleanupAppClientDir(appClientDir);

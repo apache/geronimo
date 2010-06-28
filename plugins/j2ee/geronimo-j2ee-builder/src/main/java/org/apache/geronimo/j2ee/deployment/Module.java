@@ -26,7 +26,6 @@ import java.util.jar.JarFile;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableJarFile;
-import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
@@ -60,7 +59,8 @@ public abstract class Module<T, U> {
 
     protected final Map sharedContext = new HashMap();
     protected final LinkedHashSet<Module<?, ?>> modules;
-    protected final ModuleList moduleLocations;
+    protected final LinkedHashSet<String> moduleLocations;
+    protected final LinkedHashSet<String> classpath;
 
     private final Map<JndiKey, Map<String, Object>> jndiContext;
     private final Module<?, ?> parentModule;
@@ -114,8 +114,9 @@ public abstract class Module<T, U> {
         }
 
         targetPathURI = URI.create(targetPath + "/");
-        this.moduleLocations = new ModuleList();
+        this.moduleLocations = new LinkedHashSet<String>();
         this.modules = new LinkedHashSet<Module<?, ?>>();
+        this.classpath = new LinkedHashSet<String>();
         if (jndiContext != null) {
             this.jndiContext = jndiContext;
         } else {
@@ -281,8 +282,19 @@ public abstract class Module<T, U> {
         return modules;
     }
 
-    public ModuleList getModuleLocations() {
+    public LinkedHashSet<String> getModuleLocations() {
         return moduleLocations;
+    }
+
+    public LinkedHashSet<String> getClassPath() {
+        return classpath;
+    }
+
+    public void accumulateClassPath() {
+        earContext.getBundleClassPath().addAll(this.classpath);
+        for (Module module: modules) {
+                module.accumulateClassPath();
+        }
     }
 
     public Map<JndiKey, Map<String, Object>> getJndiContext() {

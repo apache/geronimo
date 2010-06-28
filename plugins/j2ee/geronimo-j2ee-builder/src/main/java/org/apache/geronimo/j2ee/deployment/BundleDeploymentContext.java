@@ -17,13 +17,12 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.BundleResourceContext;
-import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.Deployable;
-import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Naming;
@@ -76,8 +75,8 @@ public class BundleDeploymentContext extends EARContext {
     public void getCompleteManifestClassPath(Deployable deployable, 
                                              URI moduleBaseUri, 
                                              URI resolutionUri, 
-                                             ClassPathList classpath, 
-                                             ModuleList exclusions) throws DeploymentException {
+                                             Collection<String> classpath, 
+                                             Collection<String> exclusions) throws DeploymentException {
     }
     
 }

@@ -93,7 +93,7 @@ public class DeploymentContext {
     protected final Naming naming;
     protected final List<ConfigurationData> additionalDeployment = new ArrayList<ConfigurationData>();
     protected final AbstractName moduleName;
-    protected final LinkedHashSet<String> classPath = new LinkedHashSet<String>();
+    protected final LinkedHashSet<String> bundleClassPath = new LinkedHashSet<String>();
     protected final ConfigurationModuleType moduleType;
     protected final Environment environment;
     //This provides services such as loading more bundles, it is NOT for the configuration we are constructing here.
@@ -233,7 +233,7 @@ public class DeploymentContext {
         Environment env = new Environment(environment);
         Artifact id = env.getConfigId();
         env.setConfigId(new Artifact(id.getGroupId(), id.getArtifactId() + "-DEPLOYMENT", id.getVersion(), id.getType()));
-        env.addToBundleClassPath(classPath);
+        env.addToBundleClassPath(bundleClassPath);
         env.setBundleActivator(null);
 
         Manifest manifest;
@@ -275,8 +275,8 @@ public class DeploymentContext {
         return inPlaceConfigurationDir;
     }
 
-    public LinkedHashSet<String> getClassPath() {
-        return new LinkedHashSet<String>(classPath);
+    public LinkedHashSet<String> getBundleClassPath() {
+        return new LinkedHashSet<String>(bundleClassPath);
     }
 
     public Naming getNaming() {
@@ -436,35 +436,20 @@ public class DeploymentContext {
         }
     }
 
-    public void getCompleteManifestClassPath(Deployable deployable, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions) throws DeploymentException {
+    public void getCompleteManifestClassPath(Deployable deployable, URI moduleBaseUri, URI resolutionUri, Collection<String> classpath, Collection<String> exclusions) throws DeploymentException {
         if (!(deployable instanceof DeployableJarFile)) {
             throw new IllegalArgumentException("Expected DeployableJarFile");
         }
         JarFile moduleFile = ((DeployableJarFile) deployable).getJarFile();
-        List<DeploymentException> problems = new ArrayList<DeploymentException>();
-        ClassPathUtils.getCompleteManifestClassPath(moduleFile, moduleBaseUri, resolutionUri, classpath, exclusions, new DefaultJarFileFactory(), problems);
-        if (!problems.isEmpty()) {
-            if (problems.size() == 1) {
-                throw problems.get(0);
-            }
-            throw new DeploymentException("Determining complete manifest classpath unsuccessful: ", problems);
-        }
+        ClassPathUtils.getCompleteManifestClassPath(moduleFile, moduleBaseUri, resolutionUri, classpath, exclusions, new DefaultJarFileFactory());
     }
 
-
-    public void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri) throws DeploymentException {
-        List<DeploymentException> problems = new ArrayList<DeploymentException>();
-        ClassPathUtils.addManifestClassPath(moduleFile, moduleBaseUri, classPath, new DefaultJarFileFactory(), problems);
-        if (!problems.isEmpty()) {
-            if (problems.size() == 1) {
-                throw problems.get(0);
-            }
-            throw new DeploymentException("Determining complete manifest classpath unsuccessful: ", problems);
-        }
+    public void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri, Collection<String> manifestClasspath) throws DeploymentException {
+        ClassPathUtils.addManifestClassPath(moduleFile, moduleBaseUri, manifestClasspath, new DefaultJarFileFactory());
     }
 
     public void addToClassPath(String target) {
-        classPath.add(target);
+        bundleClassPath.add(target);
     }
 
     public void addFile(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
@@ -553,7 +538,7 @@ public class DeploymentContext {
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
         // TODO OSGI figure out exports
         environment.addImportPackages(getImports(gbeans));
-        environment.addToBundleClassPath(classPath);
+        environment.addToBundleClassPath(bundleClassPath);
         //TODO OSGI leave out if we use a extender mechanism
         if (environment.getBundleActivator() == null) {
             environment.setBundleActivator(ConfigurationActivator.class.getName());

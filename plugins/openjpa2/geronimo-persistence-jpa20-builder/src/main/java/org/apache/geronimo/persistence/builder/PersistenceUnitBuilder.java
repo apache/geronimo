@@ -35,7 +35,6 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.DeployableBundle;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -146,11 +145,8 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
         try {
             URI moduleBaseURI = moduleContext.getBaseDir().toURI();
-            ClassPathList manifestcp = EARContext.CLASS_PATH_LIST_KEY.get(module.getEarContext().getGeneralData());
-            if (manifestcp == null) {
-                manifestcp = new ClassPathList();
-                manifestcp.add(module.getTargetPath());
-            }
+            Collection<String> manifestcp = module.getClassPath();
+            manifestcp.add(module.getTargetPath());
 //            URL[] urls = new URL[manifestcp.size()];
 //            int i = 0;
 //            for (String path : manifestcp) {
@@ -317,12 +313,14 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             jarFileUrls.add(jarFileUrlString.trim());
         }
 
+        if (persistenceUnit.getProperties() != null) {
             Properties properties = (Properties) gbeanData.getAttribute("properties");
             for (Persistence.PersistenceUnit.Properties.Property propertyObject : persistenceUnit.getProperties().getProperty()) {
                 String key = propertyObject.getName().trim();
                 String value = propertyObject.getValue().trim();
                 properties.setProperty(key, value);
             }
+        }
 
     }
 

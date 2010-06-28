@@ -51,9 +51,8 @@ import org.apache.geronimo.components.jaspi.model.ConfigProviderType;
 import org.apache.geronimo.components.jaspi.model.JaspiXmlUtil;
 import org.apache.geronimo.components.jaspi.model.ServerAuthConfigType;
 import org.apache.geronimo.components.jaspi.model.ServerAuthContextType;
-import org.apache.geronimo.deployment.ClassPathList;
+import org.apache.geronimo.deployment.ClassPathUtils;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -345,7 +344,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         module.setEarContext(moduleContext);
         module.setRootEarContext(earContext);
         try {
-            ClassPathList manifestcp = new ClassPathList();
+            Collection<String> manifestcp = module.getClassPath();
             // add the warfile's content to the configuration
             JarFile warFile = module.getModuleFile();
             Enumeration<JarEntry> entries = warFile.entries();
@@ -378,8 +377,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // we have to explicitly add these since we are unpacking the web module
             // and the url class loader will not pick up a manifest from an unpacked dir
             //GERONIMO-4972 this can't be correct for one-bundle deployments.
-            moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI);
-            moduleContext.getGeneralData().put(EARContext.CLASS_PATH_LIST_KEY, manifestcp);
+            moduleContext.addManifestClassPath(warFile, RELATIVE_MODULE_BASE_URI, manifestcp);
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
         } finally {
@@ -411,8 +409,8 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         WebModule webModule = (WebModule) module;
         //complete manifest classpath
         EARContext moduleContext = webModule.getEarContext();
-        ClassPathList manifestcp = EARContext.CLASS_PATH_LIST_KEY.get(moduleContext.getGeneralData());
-        ModuleList moduleLocations = EARContext.MODULE_LIST_KEY.get(webModule.getRootEarContext().getGeneralData());
+        Collection<String> manifestcp = module.getClassPath();
+        Collection<String> moduleLocations = EARContext.MODULE_LIST_KEY.get(webModule.getRootEarContext().getGeneralData());
         URI baseUri = URI.create(webModule.getTargetPath());
         URI resolutionUri = invertURI(baseUri);
         earContext.getCompleteManifestClassPath(webModule.getDeployable(), baseUri, resolutionUri, manifestcp, moduleLocations);

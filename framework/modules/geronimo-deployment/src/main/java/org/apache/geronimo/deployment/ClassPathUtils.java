@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -83,11 +85,22 @@ public class ClassPathUtils {
      * @param moduleBaseUri the base for the imported classpath
      * @param factory       the factory for constructing JarFiles and the way to extract the manifest classpath from a JarFile. Introduced to make
      *                      testing plausible, but may be useful for in-IDE deployment.
-     * @param problems      List to save all the problems we encounter.
      * @throws DeploymentException if there is a problem with the classpath in
      *                             the manifest
      */
-    public static void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri, LinkedHashSet<String> classPath, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
+    public static void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri, Collection<String> manifestClasspath, JarFileFactory factory) throws DeploymentException {
+        List<DeploymentException> problems = new ArrayList<DeploymentException>();
+        ClassPathUtils.addManifestClassPath(moduleFile, moduleBaseUri, manifestClasspath, factory, problems);
+        if (!problems.isEmpty()) {
+            if (problems.size() == 1) {
+                throw problems.get(0);
+            }
+            throw new DeploymentException("Determining complete manifest classpath unsuccessful: ", problems);
+        }
+
+    }
+
+    private static void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri, Collection<String> classPath, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
         String manifestClassPath;
         try {
             manifestClassPath = factory.getManifestClassPath(moduleFile);
@@ -176,11 +189,22 @@ public class ClassPathUtils {
      * @param exclusions    the paths to not investigate.  These are typically the other modules in the ear/car file: they will have their contents processed for themselves.
      * @param factory       the factory for constructing JarFiles and the way to extract the manifest classpath from a JarFile. Introduced to make
      *                      testing plausible, but may be useful for in-IDE deployment.
-     * @param problems      List to save all the problems we encounter.
      * @throws org.apache.geronimo.common.DeploymentException
      *          if something goes wrong.
      */
-    public static void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, ClassPathList classpath, ModuleList exclusions, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
+    public static void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, Collection<String> classpath, Collection<String> exclusions, JarFileFactory factory) throws DeploymentException {
+        List<DeploymentException> problems = new ArrayList<DeploymentException>();
+        ClassPathUtils.getCompleteManifestClassPath(moduleFile, moduleBaseUri, resolutionUri, classpath, exclusions, factory, problems);
+        if (!problems.isEmpty()) {
+            if (problems.size() == 1) {
+                throw problems.get(0);
+            }
+            throw new DeploymentException("Determining complete manifest classpath unsuccessful: ", problems);
+        }
+
+    }
+
+    private static void getCompleteManifestClassPath(JarFile moduleFile, URI moduleBaseUri, URI resolutionUri, Collection<String> classpath, Collection<String> exclusions, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
         String manifestClassPath;
         try {
             manifestClassPath = factory.getManifestClassPath(moduleFile);
@@ -255,7 +279,7 @@ public class ClassPathUtils {
         }
     }
 
-    private static void addToClassPath(URI moduleBaseUri, URI resolutionUri, URI targetUri, ClassPathList classpath, ModuleList exclusions, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
+    private static void addToClassPath(URI moduleBaseUri, URI resolutionUri, URI targetUri, Collection<String> classpath, Collection<String> exclusions, JarFileFactory factory, List<DeploymentException> problems) throws DeploymentException {
         String targetEntry = targetUri.toString();
         if (exclusions.contains(targetEntry)) {
             return;
@@ -287,7 +311,7 @@ public class ClassPathUtils {
         getCompleteManifestClassPath(classPathJarFile, targetUri, resolutionUri, classpath, exclusions, factory, problems);
     }
 
-    private static String printInfo(String message, URI moduleBaseUri, ClassPathList classpath, ModuleList exclusions) {
+    private static String printInfo(String message, URI moduleBaseUri, Collection<String> classpath, Collection<String> exclusions) {
         StringBuffer buf = new StringBuffer(message).append("\n");
         buf.append("    looking at: ").append(moduleBaseUri);
         buf.append("    current classpath: ").append(classpath);

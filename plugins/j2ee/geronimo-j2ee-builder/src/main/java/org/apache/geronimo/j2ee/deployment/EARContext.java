@@ -17,13 +17,12 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.ClassPathList;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.ModuleList;
 import org.apache.geronimo.deployment.ResourceContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -47,7 +46,8 @@ public class EARContext extends DeploymentContext {
     private Object securityConfiguration;
     private boolean hasSecurity;
 
-    private final Map  messageDestinations;
+    //TODO what is the map?
+    private final Map<String, Map>  messageDestinations;
 
     private final Map<Key,Object> generalData = new HashMap<Key,Object>();
 
@@ -215,18 +215,11 @@ public class EARContext extends DeploymentContext {
         T get(Map<Key, Object> context);
     }
 
-    public static final Key<ClassPathList> CLASS_PATH_LIST_KEY = new Key<ClassPathList>() {
+    public static final Key<Collection<String>> MODULE_LIST_KEY = new Key<Collection<String>>() {
 
         @Override
-        public ClassPathList get(Map<Key, Object> context) {
-            return (ClassPathList) context.get(this);
-        }
-    };
-    public static final Key<ModuleList> MODULE_LIST_KEY = new Key<ModuleList>() {
-
-        @Override
-        public ModuleList get(Map<Key, Object> context) {
-            return (ModuleList) context.get(this);
+        public Collection<String> get(Map<Key, Object> context) {
+            return (Collection<String>) context.get(this);
         }
     };
 

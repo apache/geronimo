@@ -400,7 +400,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             // N.B. If we ever introduce a separate configuration/module for a rar inside an ear
             // this will need to be modified to use "../" instead of module.getTargetPath().
             // See AbstractWebModuleBuilder.
-            earContext.addManifestClassPath(moduleFile, URI.create(module.getTargetPath()));
+            earContext.addManifestClassPath(moduleFile, URI.create(module.getTargetPath()), module.getClassPath());
 
             boolean looseClasses = false;
             Enumeration entries = moduleFile.entries();
