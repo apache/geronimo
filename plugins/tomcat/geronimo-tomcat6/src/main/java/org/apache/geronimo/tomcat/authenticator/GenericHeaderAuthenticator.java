@@ -12,8 +12,9 @@ import org.apache.catalina.deploy.LoginConfig;
 import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
 
 /*
- * An Authenticator which utilizes HttpRequest to perform authentication. This authentication
- * is non-interactive and does not require any user intervention.
+ * An Authenticator which utilizes HttpRequest headers to perform authentication.
+ * In web.xml use the <auth-method>GENERIC</auth-method> to invoke this
+ * authenticator.
  */
 public class GenericHeaderAuthenticator extends AuthenticatorBase {
    
