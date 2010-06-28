@@ -16,8 +16,16 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.catalina.Context;
 import org.apache.catalina.Lifecycle;
+import org.apache.catalina.Valve;
 import org.apache.catalina.startup.ContextConfig;
 import org.apache.catalina.startup.Embedded;
 import org.apache.commons.logging.Log;
@@ -45,13 +53,42 @@ public class TomcatGeronimoEmbedded extends Embedded{
         if (cl != null)
             context.setParentClassLoader(cl);
         
+        // Add WAS CE specific authenticators
+        InputStream is=this.getClass().getClassLoader().getResourceAsStream("org/apache/geronimo/tomcat/GeronimoCustomAuthenticator.properties");
+        Properties props= new Properties();
+        try {
+            props.load(is);
+        } catch (IOException e) {
+           log.error("Unable to access GeronimoCustomAuthenticator.properties",e );
+        }
+        Map<String,String> customAuthenticators= new HashMap<String,String>((Map)props);
+        Map<String,Valve> customAuthenticatorValves=new HashMap<String,Valve>();
+        Iterator iterator=customAuthenticators.keySet().iterator();
+        while(iterator.hasNext()){
+            Object key=iterator.next();
+            String value=customAuthenticators.get(key);
+            Class authenticatorClass=null;
+            Valve valve=null;
+            try {
+                authenticatorClass = Class.forName(value);
+            } catch (ClassNotFoundException e) {
+                log.error(MessageFormat.format("Unable to access class {0}",value),e);
+            }
+            try {
+                valve = (Valve)authenticatorClass.newInstance();
+            } catch (IllegalAccessException e) {
+                log.error(MessageFormat.format("Unable to create an instance of the class {0}",value),e);
+            } catch (InstantiationException e) {
+                log.error(MessageFormat.format("Unable to access the constructor for the class {0}",value),e);
+            }            
+            customAuthenticatorValves.put((String)key, valve);
+        }
         ContextConfig config = new ContextConfig();
-        config.setCustomAuthenticators(authenticators);
+        config.setCustomAuthenticators(customAuthenticatorValves);
         ((Lifecycle) context).addLifecycleListener(config);
 
         context.setDelegate(true);
         return (context);
-
     }
 
    public Context createEJBWebServiceContext(String contextPath, 

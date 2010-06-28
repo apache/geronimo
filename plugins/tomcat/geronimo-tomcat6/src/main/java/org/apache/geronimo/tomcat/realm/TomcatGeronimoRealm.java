@@ -21,6 +21,8 @@ import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
+import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
@@ -34,6 +36,7 @@ import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
@@ -48,9 +51,9 @@ import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.realm.providers.CertificateChainCallbackHandler;
 import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
+import org.apache.geronimo.security.realm.providers.RequestCallbackHandler;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
 import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
-
 
 public class TomcatGeronimoRealm extends JAASRealm {
 
@@ -80,34 +83,38 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
     /**
      * Enforce any user data constraint required by the security constraint
-     * guarding this request URI.  Return <code>true</code> if this constraint
-     * was not violated and processing should continue, or <code>false</code>
-     * if we have created a response already.
-     *
-     * @param request     Request we are processing
-     * @param response    Response we are creating
-     * @param constraints Security constraint being checked
-     * @throws IOException if an input/output error occurs
+     * guarding this request URI. Return <code>true</code> if this constraint
+     * was not violated and processing should continue, or <code>false</code> if
+     * we have created a response already.
+     * 
+     * @param request
+     *            Request we are processing
+     * @param response
+     *            Response we are creating
+     * @param constraints
+     *            Security constraint being checked
+     * @throws IOException
+     *             if an input/output error occurs
      */
-    public boolean hasUserDataPermission(Request request,
-                                         Response response,
-                                         SecurityConstraint[] constraints)
+    public boolean hasUserDataPermission(Request request, Response response, SecurityConstraint[] constraints)
             throws IOException {
 
-        //Get an authenticated subject, if there is one
+        // Get an authenticated subject, if there is one
         Subject subject = null;
         try {
 
-            //We will use the PolicyContextHandlerContainerSubject.HANDLER_KEY to see if a user
-            //has authenticated, since a request.getUserPrincipal() will not pick up the user
-            //unless its using a cached session.
+            // We will use the PolicyContextHandlerContainerSubject.HANDLER_KEY
+            // to see if a user
+            // has authenticated, since a request.getUserPrincipal() will not
+            // pick up the user
+            // unless its using a cached session.
             subject = (Subject) PolicyContext.getContext(PolicyContextHandlerContainerSubject.HANDLER_KEY);
 
         } catch (PolicyContextException e) {
             log.error(e);
         }
 
-        //If nothing has authenticated yet, do the normal
+        // If nothing has authenticated yet, do the normal
         if (subject == null)
             return super.hasUserDataPermission(request, response, constraints);
 
@@ -135,24 +142,25 @@ public class TomcatGeronimoRealm extends JAASRealm {
      * Perform access control based on the specified authorization constraint.
      * Return <code>true</code> if this constraint is satisfied and processing
      * should continue, or <code>false</code> otherwise.
-     *
-     * @param request     Request we are processing
-     * @param response    Response we are creating
-     * @param constraints Security constraints we are enforcing
-     * @param context     The Context to which client of this class is attached.
-     * @throws java.io.IOException if an input/output error occurs
+     * 
+     * @param request
+     *            Request we are processing
+     * @param response
+     *            Response we are creating
+     * @param constraints
+     *            Security constraints we are enforcing
+     * @param context
+     *            The Context to which client of this class is attached.
+     * @throws java.io.IOException
+     *             if an input/output error occurs
      */
-    public boolean hasResourcePermission(Request request,
-                                         Response response,
-                                         SecurityConstraint[] constraints,
-                                         Context context)
-            throws IOException {
+    public boolean hasResourcePermission(Request request, Response response, SecurityConstraint[] constraints,
+            Context context) throws IOException {
 
         // Specifically allow access to the form login and form error pages
         // and the "j_security_check" action
         LoginConfig config = context.getLoginConfig();
-        if ((config != null) &&
-                (org.apache.catalina.realm.Constants.FORM_METHOD.equals(config.getAuthMethod()))) {
+        if ((config != null) && (org.apache.catalina.realm.Constants.FORM_METHOD.equals(config.getAuthMethod()))) {
             String requestURI = request.getDecodedRequestURI();
             String loginPage = context.getPath() + config.getLoginPage();
             if (loginPage.equals(requestURI)) {
@@ -173,13 +181,13 @@ public class TomcatGeronimoRealm extends JAASRealm {
             }
         }
 
-        //Set the current wrapper name (Servlet mapping)
+        // Set the current wrapper name (Servlet mapping)
         currentRequestWrapperName.set(request.getWrapper().getName());
 
         // Which user principal have we already authenticated?
         Principal principal = request.getUserPrincipal();
 
-        //If we have no principal, then we should use the default.
+        // If we have no principal, then we should use the default.
         if (principal == null) {
             Subject defaultSubject = (Subject) request.getAttribute(PolicyContextBeforeAfter.DEFAULT_SUBJECT);
             ContextManager.setCallers(defaultSubject, defaultSubject);
@@ -210,9 +218,11 @@ public class TomcatGeronimoRealm extends JAASRealm {
      * Return <code>true</code> if the specified Principal has the specified
      * security role, within the context of this Realm; otherwise return
      * <code>false</code>.
-     *
-     * @param principal Principal for whom the role is to be checked
-     * @param role      Security role to be checked
+     * 
+     * @param principal
+     *            Principal for whom the role is to be checked
+     * @param role
+     *            Security role to be checked
      */
     public boolean hasRole(Principal principal, String role) {
 
@@ -240,24 +250,103 @@ public class TomcatGeronimoRealm extends JAASRealm {
     }
 
     /**
-     * Return the <code>Principal</code> associated with the specified
-     * username and credentials, if there is one; otherwise return
-     * <code>null</code>.
+     * Return the <code>Principal</code> associated with the specified username
+     * and credentials, if there is one; otherwise return <code>null</code>.
      * <p/>
      * If there are any errors with the JDBC connection, executing the query or
      * anything we return null (don't authenticate). This event is also logged,
      * and the connection will be closed so that a subsequent request will
      * automatically re-open it.
-     *
-     * @param username    Username of the <code>Principal</code> to look up
-     * @param credentials Password or other credentials to use in authenticating this
-     *                    username
+     * 
+     * @param username
+     *            Username of the <code>Principal</code> to look up
+     * @param credentials
+     *            Password or other credentials to use in authenticating this
+     *            username
      */
     public Principal authenticate(String username, String credentials) {
 
         char[] cred = credentials == null ? null : credentials.toCharArray();
         CallbackHandler callbackHandler = new PasswordCallbackHandler(username, cred);
         return authenticate(callbackHandler, username);
+    }
+
+    /**
+     * Return the <code>Principal</code> associated with the specified HTTP
+     * request.
+     * 
+     * @param httpRequest
+     * @return
+     */
+    public Principal authenticate(HttpServletRequest httpRequest) {
+        if (httpRequest == null) {
+            return null;
+        }
+        CallbackHandler callbackHandler = new RequestCallbackHandler(httpRequest);
+        String hostName = httpRequest.getRemoteHost();
+        try {
+            LoginContext loginContext = null;
+            if (appName == null)
+                appName = "Tomcat";
+
+            if (log.isDebugEnabled())
+                log.debug(MessageFormat.format(
+                        "JAASRealm login requested for host {0} using LoginContext for application {1} ", hostName,
+                        appName));
+
+            ClassLoader ocl = null;
+
+            if (isUseContextClassLoader()) {
+                ocl = Thread.currentThread().getContextClassLoader();
+                Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+            }
+
+            try {
+                loginContext = ContextManager.login(appName, callbackHandler);
+            } catch (AccountExpiredException e) {
+                if (log.isDebugEnabled())
+                    log.debug(MessageFormat.format("Host {0} NOT authenticated due to expired account", hostName), e);
+                return (null);
+            } catch (CredentialExpiredException e) {
+                if (log.isDebugEnabled())
+                    log.debug(MessageFormat.format("Host {0} NOT authenticated due to expired credential",hostName), e);
+                return (null);
+            } catch (FailedLoginException e) {
+                if (log.isDebugEnabled())
+                    log.debug(MessageFormat.format("Host {0} NOT authenticated due to failed login", hostName), e);
+                return (null);
+            } catch (LoginException e) {
+                log.warn(MessageFormat.format("Login exception authenticating host {0} with the following exception ",hostName), e);
+                return (null);
+            } catch (Throwable e) {
+                log.error(sm.getString("jaasRealm.unexpectedError"), e);
+                return (null);
+            } finally {
+                if (isUseContextClassLoader()) {
+                    Thread.currentThread().setContextClassLoader(ocl);
+                }
+            }
+
+            if (log.isDebugEnabled())
+                log.debug("Login context created for host " + hostName);
+
+            // Negotiate a login via this LoginContext
+            Subject subject = loginContext.getSubject();
+            ContextManager.setCallers(subject, subject);
+            String principal = subject.getPublicCredentials().iterator().toString();
+            if (log.isDebugEnabled())
+                log.debug(sm.getString("jaasRealm.loginContextCreated", principal));
+
+            // Return the appropriate Principal for this authenticated Subject
+            JAASTomcatPrincipal jaasPrincipal = new JAASTomcatPrincipal(principal);
+            jaasPrincipal.setSubject(subject);
+
+            return (jaasPrincipal);
+
+        } catch (Throwable t) {
+            log.error("error ", t);
+            return null;
+        }
     }
 
     public Principal authenticate(X509Certificate[] certs) {
@@ -326,7 +415,8 @@ public class TomcatGeronimoRealm extends JAASRealm {
                 if (log.isDebugEnabled())
                     log.debug(sm.getString("jaasRealm.loginContextCreated", principalName));
 
-                // Return the appropriate Principal for this authenticated Subject
+                // Return the appropriate Principal for this authenticated
+                // Subject
                 JAASTomcatPrincipal jaasPrincipal = new JAASTomcatPrincipal(principalName);
                 jaasPrincipal.setSubject(subject);
 
@@ -344,11 +434,12 @@ public class TomcatGeronimoRealm extends JAASRealm {
     }
 
     /**
-     * Prepare for active use of the public methods of this <code>Component</code>.
-     *
+     * Prepare for active use of the public methods of this
+     * <code>Component</code>.
+     * 
      * @throws org.apache.catalina.LifecycleException
-     *          if this component detects a fatal error
-     *          that prevents it from being started
+     *             if this component detects a fatal error that prevents it from
+     *             being started
      */
     public void start() throws LifecycleException {
 
@@ -358,10 +449,12 @@ public class TomcatGeronimoRealm extends JAASRealm {
     }
 
     /**
-     * Gracefully shut down active use of the public methods of this <code>Component</code>.
-     *
-     * @throws LifecycleException if this component detects a fatal error
-     *                            that needs to be reported
+     * Gracefully shut down active use of the public methods of this
+     * <code>Component</code>.
+     * 
+     * @throws LifecycleException
+     *             if this component detects a fatal error that needs to be
+     *             reported
      */
     public void stop() throws LifecycleException {
 
