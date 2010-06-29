@@ -41,6 +41,8 @@ import org.apache.geronimo.gbean.SingleElementCollection;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -89,17 +91,20 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
     private final QNameSet resourceRefQNameSet;
     private final Environment corbaEnvironment;
     private final SingleElementCollection<CorbaGBeanNameSource> corbaGBeanNameSourceCollection;
+    private final Bundle bundle;
 
     public ResourceRefBuilder(
             @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
             @ParamAttribute(name = "corbaEnvironment") Environment corbaEnvironment,
             @ParamAttribute(name = "eeNamespaces") String[] eeNamespaces,
-            @ParamReference(name = "CorbaGBeanNameSource", namingType = "") Collection<CorbaGBeanNameSource> corbaGBeanNameSourceCollection) {
+            @ParamReference(name = "CorbaGBeanNameSource", namingType = "") Collection<CorbaGBeanNameSource> corbaGBeanNameSourceCollection,
+            @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle) {
         super(defaultEnvironment);
 
         resourceRefQNameSet = buildQNameSet(eeNamespaces, "resource-ref");
         this.corbaEnvironment = corbaEnvironment;
         this.corbaGBeanNameSourceCollection = new SingleElementCollection<CorbaGBeanNameSource>(corbaGBeanNameSourceCollection);
+        this.bundle = bundle;
     }
 
     protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) {
@@ -188,7 +193,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 throw new DeploymentException("Could not convert " + url + " to URL", e);
             }
             return new URLReference(url);
-        } else if (ORB.class.isAssignableFrom(iface)) {
+        } else if (isOrbReference(iface)) {
             CorbaGBeanNameSource corbaGBeanNameSource = corbaGBeanNameSourceCollection.getElement();
             if (corbaGBeanNameSource == null) {
                 throw new DeploymentException("No orb setup but there is a orb reference");
@@ -246,6 +251,15 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         }
 
         return null;
+    }
+
+    private boolean isOrbReference(Class iface) {
+        try {
+            Class orbClass = bundle.loadClass("org.omg.CORBA.ORB");
+            return orbClass.isAssignableFrom(iface);
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     @Override

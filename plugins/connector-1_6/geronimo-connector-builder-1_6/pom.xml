@@ -41,9 +41,9 @@
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-deploy-config</artifactId>-->
-            <!--<version>${project.version}</version>-->
+        <!--<groupId>org.apache.geronimo.framework</groupId>-->
+        <!--<artifactId>geronimo-deploy-config</artifactId>-->
+        <!--<version>${project.version}</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -163,19 +163,20 @@
                     <instructions>
                         <!--packages containing "impl" or "internal" are excluded by default -->
                         <Import-Package>
-                              org.apache.xmlbeans.impl.schema;version="2.4",
-                              org.apache.geronimo.deployment.xbeans.impl,
-                              org.apache.geronimo.deployment.javabean.xbeans.impl,
-                              org.apache.geronimo.deployment.xbeans,
-                              org.apache.geronimo.deployment.javabean.xbeans,
-                              org.apache.geronimo.deployment.dconfigbean,
-                              org.apache.geronimo.deployment.service,
-                              org.apache.geronimo.deployment.service.jsr88,
-                              org.apache.geronimo.xbeans.geronimo.naming,
-                              org.apache.geronimo.xbeans.geronimo.naming.impl,
-                              org.apache.geronimo.naming.deployment,
-                              org.apache.geronimo.naming.deployment.jsr88,
-                              *
+                            org.apache.xmlbeans.impl.schema;version="2.4",
+                            org.apache.geronimo.deployment.xbeans.impl,
+                            org.apache.geronimo.deployment.javabean.xbeans.impl,
+                            org.apache.geronimo.deployment.xbeans,
+                            org.apache.geronimo.deployment.javabean.xbeans,
+                            org.apache.geronimo.deployment.dconfigbean,
+                            org.apache.geronimo.deployment.service,
+                            org.apache.geronimo.deployment.service.jsr88,
+                            org.apache.geronimo.xbeans.geronimo.naming,
+                            org.apache.geronimo.xbeans.geronimo.naming.impl,
+                            org.apache.geronimo.naming.deployment,
+                            org.apache.geronimo.naming.deployment.jsr88,
+                            !org.omg.CORBA,
+                            *
                         </Import-Package>
                         <Export-Package>
                             org.apache.geronimo.connector.deployment,
@@ -185,7 +186,8 @@
                             org.apache.geronimo.xbeans.connector,
                             org.apache.geronimo.xbeans.connector.impl
                         </Export-Package>
-                        <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
+                        <DynamicImport-Package>schemaorg_apache_xmlbeans.*,
+                            org.omg.CORBA</DynamicImport-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                     </instructions>
                 </configuration>

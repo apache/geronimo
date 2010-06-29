@@ -117,43 +117,43 @@
                     </instructions>
                     <instance>
                         <plugin-artifact>
-                            <config-xml-content>
-                                <gbean name="ResourceRefBuilder">
-                                    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-                                    <attribute name="corbaEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">
-                                        <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-                                            <dependencies>
-                                                <dependency>
-                                                    <groupId>org.apache.geronimo.configs</groupId>
-                                                    <artifactId>j2ee-corba-yoko</artifactId>
-                                                    <version>${project.version}</version>
-                                                    <type>car</type>
-                                                </dependency>
-                                            </dependencies>
-                                        </environment>
-                                    </attribute>
-                                </gbean>
+                            <!--<config-xml-content>-->
+                                <!--<gbean name="ResourceRefBuilder">-->
+                                    <!--<attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>-->
+                                    <!--<attribute name="corbaEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">-->
+                                        <!--<environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">-->
+                                            <!--<dependencies>-->
+                                                <!--<dependency>-->
+                                                    <!--<groupId>org.apache.geronimo.configs</groupId>-->
+                                                    <!--<artifactId>j2ee-corba-yoko</artifactId>-->
+                                                    <!--<version>${project.version}</version>-->
+                                                    <!--<type>car</type>-->
+                                                <!--</dependency>-->
+                                            <!--</dependencies>-->
+                                        <!--</environment>-->
+                                    <!--</attribute>-->
+                                <!--</gbean>-->
 
-                                <gbean name="AdminObjectRefBuilder">
-                                    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-                                </gbean>
+                                <!--<gbean name="AdminObjectRefBuilder">-->
+                                    <!--<attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>-->
+                                <!--</gbean>-->
 
-                                <gbean name="ClientResourceRefBuilder">
-                                    <attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>
-                                    <attribute name="corbaEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">
-                                        <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-                                            <dependencies>
-                                                <dependency>
-                                                    <groupId>org.apache.geronimo.configs</groupId>
-                                                    <artifactId>client-corba-yoko</artifactId>
-                                                    <version>${project.version}</version>
-                                                    <type>car</type>
-                                                </dependency>
-                                            </dependencies>
-                                        </environment>
-                                    </attribute>
-                                </gbean>
-                            </config-xml-content>
+                                <!--<gbean name="ClientResourceRefBuilder">-->
+                                    <!--<attribute name="eeNamespaces">http://java.sun.com/xml/ns/j2ee,http://java.sun.com/xml/ns/javaee</attribute>-->
+                                    <!--<attribute name="corbaEnvironment" propertyEditor="org.apache.geronimo.deployment.service.EnvironmentBuilder">-->
+                                        <!--<environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">-->
+                                            <!--<dependencies>-->
+                                                <!--<dependency>-->
+                                                    <!--<groupId>org.apache.geronimo.configs</groupId>-->
+                                                    <!--<artifactId>client-corba-yoko</artifactId>-->
+                                                    <!--<version>${project.version}</version>-->
+                                                    <!--<type>car</type>-->
+                                                <!--</dependency>-->
+                                            <!--</dependencies>-->
+                                        <!--</environment>-->
+                                    <!--</attribute>-->
+                                <!--</gbean>-->
+                            <!--</config-xml-content>-->
                             <config-xml-content server="offline"/>
                             <copy-file dest-dir="schema">schema/schemaorg_apache_xmlbeans/src/</copy-file>
                         </plugin-artifact>
