@@ -25,6 +25,7 @@
     <gbean name="RMIRegistry" class="org.apache.geronimo.kernel.rmi.RMIRegistryService">
         <attribute name="port">${planNamingPort}</attribute>
         <attribute name="host">${ServerHostname}</attribute>
+        <attribute name="classLoaderSpi">org.apache.geronimo.kernel.rmi.RMIClassLoaderSpiImpl</attribute>
     </gbean>
 
     <gbean name="JavaGlobalContext" class="org.apache.geronimo.gjndi.FederatedContextGBean">

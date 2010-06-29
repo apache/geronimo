@@ -36,10 +36,12 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  * @version $Rev$ $Date$
  */
 public class RMIRegistryService implements GBeanLifecycle {
+    
     private static final Logger log = LoggerFactory.getLogger(RMIRegistryService.class);
     
     private int port = Registry.REGISTRY_PORT;
     private String host = "0.0.0.0";
+    private String classLoaderSpi;
     private Registry registry;
 
     public int getPort() {
@@ -62,8 +64,18 @@ public class RMIRegistryService implements GBeanLifecycle {
         return "rmi";
     }
 
+    public String getClassLoaderSpi() {
+        return classLoaderSpi;
+    }
+    
+    public void setClassLoaderSpi(String classLoaderSpi) {
+        this.classLoaderSpi = classLoaderSpi;
+    }
+    
     public void doStart() throws Exception {
-        System.setProperty("java.rmi.server.RMIClassLoaderSpi",RMIClassLoaderSpiImpl.class.getName());
+        if (classLoaderSpi != null) {
+            System.setProperty("java.rmi.server.RMIClassLoaderSpi", classLoaderSpi);
+        }
         if (System.getProperty("java.rmi.server.hostname") == null && host != null && !host.equals("0.0.0.0")) {
             System.setProperty("java.rmi.server.hostname", host);
         }
@@ -97,6 +109,7 @@ public class RMIRegistryService implements GBeanLifecycle {
         infoFactory.addAttribute("host", String.class, true, true);
         infoFactory.addAttribute("protocol", String.class, false);
         infoFactory.addAttribute("port", int.class, true, true);
+        infoFactory.addAttribute("classLoaderSpi", String.class, true);
         infoFactory.addAttribute("listenAddress", InetSocketAddress.class, false);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
