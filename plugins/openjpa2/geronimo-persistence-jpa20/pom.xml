@@ -88,12 +88,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${project.version}</version>

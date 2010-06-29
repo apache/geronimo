@@ -69,7 +69,6 @@
                     
                         <groupId>org.apache.ws.commons.schema</groupId>
                         <artifactId>XmlSchema</artifactId>
-                        <version>1.4.3</version>
 
                         <groupId>org.apache.geronimo.specs</groupId>    
                         <artifactId>geronimo-activation_1.1_spec</artifactId>
@@ -82,6 +81,12 @@
    
                     <!-- geronimo specs,
                             their versions are not the same with those in root pom -->
+                            
+                    <exclusion>
+                        <groupId>org.apache.ws.commons.schema</groupId>
+                        <artifactId>XmlSchema</artifactId>
+                    </exclusion>
+                    
                     <exclusion>
                         <groupId>org.apache.geronimo.specs</groupId>    
                         <artifactId>geronimo-annotation_1.0_spec</artifactId>   
@@ -163,8 +168,7 @@
                     <exclusion>
                         <groupId>commons-pool</groupId>
                         <artifactId>commons-pool</artifactId>
-                    </exclusion>
-                
+                    </exclusion> 
                     <!-- sun jars -->
                     <exclusion>
                         <groupId>com.sun.xml.bind</groupId>

@@ -73,10 +73,10 @@
         <openejbVersion>3.2-SNAPSHOT</openejbVersion>
         <openjpaVersion>2.0.0</openjpaVersion>
         <derbyVersion>10.5.3.0_1</derbyVersion>
-        <cxfVersion>2.1.4</cxfVersion>
+        <cxfVersion>2.1.10</cxfVersion>
         <axis2Version>1.5</axis2Version>
         <axiomVersion>1.2.8</axiomVersion>
-        <springVersion>2.5.6</springVersion>
+        <springVersion>2.5.6-SEC02</springVersion>
         <xbeanVersion>3.7</xbeanVersion>
         <jetty>jetty8</jetty>
         <txmanagerVersion>3.0</txmanagerVersion>
@@ -84,7 +84,7 @@
         <tranqlDerbyVersion>1.6</tranqlDerbyVersion>
 
         <monitoringConsoleVersion>${project.version}</monitoringConsoleVersion>
-        <pax.logging.version>1.5.0</pax.logging.version>
+        <pax.logging.version>1.5.2</pax.logging.version>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${project.version}/car
@@ -628,31 +628,7 @@
 
             <dependency>
                 <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-simple</artifactId>
-                <version>1.5.5</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.5.5</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>1.5.5</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.5.5</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jul-to-slf4j</artifactId>
                 <version>1.5.5</version>
             </dependency>
 
@@ -900,6 +876,12 @@
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
                 <version>2.5</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>commons-pool</groupId>
+                <artifactId>commons-pool</artifactId>
+                <version>1.5.3</version>
             </dependency>
 
             <dependency>

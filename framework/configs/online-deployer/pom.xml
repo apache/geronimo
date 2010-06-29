@@ -161,22 +161,6 @@
                             <groupId>cglib</groupId>
                             <artifactId>cglib-nodep</artifactId>
                         </element>
-                        <!--<element>-->
-                            <!--<groupId>org.slf4j</groupId>-->
-                            <!--<artifactId>slf4j-api</artifactId>-->
-                        <!--</element>-->
-                        <!--<element>-->
-                            <!--<groupId>org.slf4j</groupId>-->
-                            <!--<artifactId>slf4j-log4j12</artifactId>-->
-                        <!--</element>-->
-                        <!--<element>-->
-                            <!--<groupId>org.slf4j</groupId>-->
-                            <!--<artifactId>jcl-over-slf4j</artifactId>-->
-                        <!--</element>-->
-                        <!--<element>-->
-                            <!--<groupId>log4j</groupId>-->
-                            <!--<artifactId>log4j</artifactId>-->
-                        <!--</element>-->
                         <element>
                             <groupId>xpp3</groupId>
                             <artifactId>xpp3_min</artifactId>

@@ -7,8 +7,8 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>bouncycastle</groupId>
-        <artifactId>bcprov-jdk14</artifactId>
+        <groupId>commons-pool</groupId>
+        <artifactId>commons-pool</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -99,6 +99,11 @@
     <dependency>
         <groupId>org.apache.ws.security</groupId>
         <artifactId>wss4j</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk15</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

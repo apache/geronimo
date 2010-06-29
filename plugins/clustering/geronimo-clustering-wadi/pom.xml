@@ -69,13 +69,6 @@
             <groupId>${tomcatGroupId}</groupId>
             <artifactId>tribes</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
     </dependencies>
 
 </project>

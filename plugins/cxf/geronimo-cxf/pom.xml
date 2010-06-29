@@ -72,6 +72,16 @@
             <groupId>org.apache.geronimo.javamail</groupId>
             <artifactId>geronimo-javamail_1.4_mail</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ws.commons.schema</groupId>
+            <artifactId>XmlSchema</artifactId>
+        </dependency>
             
         <dependency>
             <groupId>org.apache.cxf</groupId>
