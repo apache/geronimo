@@ -42,7 +42,7 @@
                 <name>GBeanRefBuilder</name>
             </pattern>
             <pattern>
-                <name>PersistenceUnitRefBuilder</name>
+                <name>PersistenceRefBuilder</name>
             </pattern>
             <pattern>
                 <name>ClientResourceRefBuilder</name>
