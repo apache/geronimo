@@ -21,8 +21,10 @@ package org.apache.geronimo.testsupport;
 
 import com.thoughtworks.selenium.Selenium;
 import com.thoughtworks.selenium.DefaultSelenium;
+import com.thoughtworks.selenium.SeleniumException;
 
 import org.openqa.selenium.server.SeleniumServer;
+import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 
 /**
  * Provides custom extentions to Selenium.
@@ -47,5 +49,24 @@ public class ExtendedSelenium
      */
     public void removeCookie(final String name, final String path) {
         this.getEval("selenium.removeCookie('" + name + "', '" + path + "')");
+    }
+    
+    // Override click method in order to add link verification logic for geronimo console specifically.
+    @Override
+    public void click(String locator){
+    	try {
+    		super.click(locator);
+    	} catch (SeleniumException se){
+    		if (se.getMessage().lastIndexOf("not found") > 0){
+    			String linkKey = locator;
+    			if (ConsoleTestSupport.link2URL.containsKey(linkKey)) {
+    				super.open(ConsoleTestSupport.link2URL.get(linkKey).toString());
+    			} else {
+    				throw se;
+    			}
+    		} else {
+    			throw se;
+    		}
+    	}
     }
 }
