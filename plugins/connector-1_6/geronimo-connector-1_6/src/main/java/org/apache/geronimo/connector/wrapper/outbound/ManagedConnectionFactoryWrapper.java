@@ -103,7 +103,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         this.connectionImplClass = connectionImplClass;
         this.jndiName = jndiName;
 
-        allImplementedInterfaces.add(cl.loadClass(connectionFactoryInterface));
         for (String interfaceName: implementedInterfaces) {
             allImplementedInterfaces.add(cl.loadClass(interfaceName));
         }

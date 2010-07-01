@@ -378,7 +378,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
         boolean standAlone = earEnvironment == null;
 
-        String name = null;
+        String name;
         if (connector != null && connector.getModuleName() != null) {
             name = connector.getModuleName();
         } else if (standAlone) {
@@ -1258,16 +1258,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
         Object driver = managedConnectionFactoryInstanceGBeanData.getAttribute("Driver");
         if (driver != null && driver instanceof String) {
-            try {
-                bundle.loadClass((String) driver);
-            } catch (ClassNotFoundException e1) {
-                log.warn("Problem loading driver class '" + driver + "', possibly due to a missing dependency on the driver jar!!", e1);
-            }
+            checkClass(bundle, (String)driver);
         }
 
         Set<String> implementedInterfaces = new HashSet<String>();
-        implementedInterfaces.add((String) managedConnectionFactoryInstanceGBeanData.getAttribute("connectionFactoryInterface"));
-        implementedInterfaces.add((String) managedConnectionFactoryInstanceGBeanData.getAttribute("connectionFactoryImplClass"));
+        implementedInterfaces.add(checkClass(bundle, (String) managedConnectionFactoryInstanceGBeanData.getAttribute("connectionFactoryInterface")));
+        implementedInterfaces.add(checkClass(bundle, (String) managedConnectionFactoryInstanceGBeanData.getAttribute("connectionFactoryImplClass")));
         try {
             if (resourceAdapterAbstractName != null) {
                 managedConnectionFactoryInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterAbstractName);
@@ -1276,9 +1272,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             String[] additionalInterfaces = connectiondefinitionInstance.getImplementedInterfaceArray();
             if (additionalInterfaces != null) {
                 for (int i = 0; i < additionalInterfaces.length; i++) {
-                    implementedInterfaces.add(additionalInterfaces[i].trim());
+                    implementedInterfaces.add(checkClass(bundle, additionalInterfaces[i].trim()));
                 }
             }
+            //in case some class was not loadable
+            implementedInterfaces.remove(null);
             managedConnectionFactoryInstanceGBeanData.setAttribute("implementedInterfaces", implementedInterfaces.toArray(new String[implementedInterfaces.size()]));
 
         } catch (Exception e) {
@@ -1305,6 +1303,22 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Could not add connection factory gbean to context", e);
         }
+    }
+
+    /**
+     * check class is loadable: return null and log warning if not.
+     * @param bundle to use to load the class
+     * @param clazz name of class to try to load
+     * @return clazz if loadable, null otherwise.
+     */
+    private String checkClass(Bundle bundle, String clazz) {
+        try {
+            bundle.loadClass(clazz);
+            return clazz;
+        } catch (ClassNotFoundException e1) {
+            log.warn("Problem loading class: " + clazz, e1);
+        }
+        return null;
     }
 
     public GBeanData locateActivationSpecInfo(AbstractNameQuery resourceAdapterInstanceQuery, String messageListenerInterface, Configuration configuration) throws DeploymentException {
