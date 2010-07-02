@@ -48,7 +48,6 @@
 
     <dependencies>
         <dependency>
-        <dependency>
             <groupId>org.apache.myfaces.core</groupId>
             <artifactId>myfaces-api</artifactId>
             <scope>provided</scope>
