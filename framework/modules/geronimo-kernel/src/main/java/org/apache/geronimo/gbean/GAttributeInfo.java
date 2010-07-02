@@ -86,7 +86,7 @@ public class GAttributeInfo implements Serializable {
      * @return
      */
     private static boolean defaultEncrypted(String name, String type) {
-        if (name != null && (name.toLowerCase().contains("password") || name.toLowerCase().contains("keystorepass")) && "java.lang.String".equals(type)) {
+        if (name != null && (name.toLowerCase().contains("password") || name.toLowerCase().contains("keystorepass") || name.toLowerCase().contains("truststorepass")) && "java.lang.String".equals(type)) {
             return true;
         } else {
            return false;
