@@ -38,6 +38,7 @@ import org.apache.geronimo.j2ee.deployment.annotation.PersistenceContextAnnotati
 import org.apache.geronimo.j2ee.deployment.annotation.PersistenceUnitAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
@@ -210,7 +211,10 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
                 checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
             }
         } else {
-            persistenceUnitNameQuery = new AbstractNameQuery(null, Collections.EMPTY_MAP, PERSISTENCE_UNIT_INTERFACE_TYPES);
+            AbstractName childName = module.getEarContext().getNaming().createChildName(module.getModuleName(), "", NameFactory.PERSISTENCE_UNIT);
+            Map<String, String> name = new HashMap<String, String>(childName.getName());
+            name.remove(NameFactory.J2EE_NAME);
+            persistenceUnitNameQuery = new AbstractNameQuery(null, name, PERSISTENCE_UNIT_INTERFACE_TYPES);
             Set<AbstractNameQuery> patterns = Collections.singleton(persistenceUnitNameQuery);
             LinkedHashSet<GBeanData> gbeans = localConfiguration.findGBeanDatas(localConfiguration, patterns);
             persistenceUnitNameQuery = checkForDefaultPersistenceUnit(gbeans);

@@ -23,7 +23,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -75,19 +74,6 @@ import org.osgi.service.packageadmin.PackageAdmin;
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class PersistenceUnitBuilder implements ModuleBuilderExtension {
 
-//    private static final EARContext.Key<List<URL>> PERSISTENCE_URL_LIST_KEY = new EARContext.Key<List<URL>>() {
-//
-//        @Override
-//        public List<URL> get(Map<EARContext.Key, Object> keyObjectMap) {
-//            List<URL> list = (List<URL>) keyObjectMap.get(this);
-//            if (list == null) {
-//                list = new ArrayList<URL>();
-//                keyObjectMap.put(this, list);
-//            }
-//            return list;
-//        }
-//    };
-
     private static final QName PERSISTENCE_QNAME = new QName("http://java.sun.com/xml/ns/persistence", "persistence");
 
     private final Environment defaultEnvironment;
@@ -132,7 +118,6 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             return;
         }
         XmlObject container = (XmlObject) module.getVendorDD();
-        EARContext moduleContext = module.getEarContext();
         XmlObject[] raws = container.selectChildren(PERSISTENCE_QNAME);
 
         Map<String, Persistence.PersistenceUnit> overrides = new HashMap<String, Persistence.PersistenceUnit>();
@@ -148,12 +133,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         }
         try {
 
-            final Collection<String> manifestcp = new LinkedHashSet<String>();
-            for (Module m = module; m != null; m = m.getParentModule()){
-                manifestcp.addAll(m.getClassPath());
-            }
-            //should not be needed??
-//            manifestcp.add(module.getTargetPath());
+            final Collection<String> manifestcp = module.getClassPath();
             BundleResourceFinder finder = new BundleResourceFinder(packageAdmin, bundle, "", "META-INF/persistence.xml", new ResourceDiscoveryFilter() {
 
                 @Override
@@ -171,7 +151,6 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                     return manifestcp.contains(s);
                 }
             });
-//            List<URL> knownPersistenceUrls = PERSISTENCE_URL_LIST_KEY.get(module.getRootEarContext().getGeneralData());
             final Map<URL, String> persistenceURLs = new HashMap<URL, String>();
             finder.find(new BundleResourceFinder.ResourceFinderCallback() {
 
@@ -187,7 +166,6 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                     persistenceURLs.put(url, jarName);
                 }
             });
-//            persistenceURLs.keySet().removeAll(knownPersistenceUrls);
             if (raws.length > 0 || persistenceURLs.size() > 0) {
                 EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
             }
@@ -204,7 +182,6 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                     in.close();
                 }
                 buildPersistenceUnits(persistence, overrides, module, persistenceLocation);
-//                knownPersistenceUrls.add(persistenceUrl);
             }
         } catch (Exception e) {
             throw new DeploymentException("Could not look for META-INF/persistence.xml files", e);

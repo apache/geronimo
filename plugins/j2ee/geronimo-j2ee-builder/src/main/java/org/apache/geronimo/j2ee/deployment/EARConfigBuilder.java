@@ -646,6 +646,9 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 for (ModuleBuilderExtension mbe : persistenceUnitBuilders) {
                     mbe.initContext(earContext, applicationInfo, earContext.getDeploymentBundle());
                 }
+                for (ModuleBuilderExtension mbe : persistenceUnitBuilders) {
+                    mbe.addGBeans(earContext, applicationInfo, earContext.getDeploymentBundle(), repositories);
+                }
 
                 // Create the J2EEApplication managed object
                 GBeanData gbeanData = new GBeanData(earContext.getModuleName(), J2EEApplicationImpl.class);
