@@ -16,9 +16,11 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.jee.ApplicationClient;
@@ -47,9 +49,10 @@ public class AppClientModule extends Module<ApplicationClient, XmlObject> {
                            String mainClassName, 
                            XmlObject vendorDD, 
                            String originalSpecDD,
+                           Map<JndiKey, Map<String, Object>> jndiContext,
                            Module<?, ?> parentModule) {
         super(standAlone, moduleName, name, clientEnvironment, moduleFile, targetPath, 
-              specDD, vendorDD, originalSpecDD, null, null, parentModule);
+              specDD, vendorDD, originalSpecDD, null, jndiContext, parentModule);
         this.serverEnvironment = serverEnvironment;
         this.appClientName = appClientName;
         this.mainClassName = mainClassName;

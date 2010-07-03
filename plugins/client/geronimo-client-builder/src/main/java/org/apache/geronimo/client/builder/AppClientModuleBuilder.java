@@ -355,8 +355,22 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         } else {
             name = FileUtils.removeExtension(targetPath, ".jar");
         }
+        Map<JndiKey, Map<String, Object>> jndiContext = Module.share(Module.APP, parentModule == null? null: parentModule.getJndiContext());
 
-        AppClientModule module = new AppClientModule(standAlone, moduleName, name, clientBaseName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, mainClass, gerAppClient, specDD, parentModule);
+        AppClientModule module = new AppClientModule(standAlone,
+                moduleName,
+                name,
+                clientBaseName,
+                serverEnvironment,
+                clientEnvironment,
+                moduleFile,
+                targetPath,
+                appClient,
+                mainClass,
+                gerAppClient,
+                specDD,
+                jndiContext,
+                parentModule);
 
         //start installing the resource adapters in the client.
         GerResourceType[] resources = gerAppClient.getResourceArray();
