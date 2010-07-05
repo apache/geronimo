@@ -104,7 +104,7 @@
             http://activemq.apache.org/persistence.html 
         -->
         <persistenceAdapter>
-            <amqPersistenceAdapter syncOnWrite="false" directory="${activemq.data}" maxFileLength="20 mb"/>
+            <kahaDB directory="${activemq.data}"/>
         </persistenceAdapter>
 
         <!-- 
