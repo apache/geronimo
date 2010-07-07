@@ -179,9 +179,9 @@ public class ConnectorPortlet extends BasePortlet {
                     // set the string form of the attribute's value as submitted by the browser
                     if (value == null || value.trim().length()<1) {
                         // special case for KeystoreManager gbean
-                        if ("trustStore".equals(attribute.getAttributeName())) {
+                       // if ("trustStore".equals(attribute.getAttributeName())) {
                             setProperty(connector,name,null);
-                        }
+                        //}
                     } else {
                         // set the string value on the ConnectorAttribute so 
                         // it can handle type conversion via getValue()

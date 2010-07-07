@@ -158,7 +158,10 @@ public abstract class AbstractHttp11ConnectorGBean extends BaseHttp11ConnectorGB
     public void setTruststorePass(String truststorePass) {
         if (truststorePass!= null && truststorePass.equals("")) 
             truststorePass = null;
-        connector.setAttribute("truststorePass", truststorePass);
+        if(truststorePass==null)
+            connector.setAttribute("truststorePass", "");
+        else
+            connector.setAttribute("truststorePass", truststorePass);
     }
 
     public void setTruststoreType(String truststoreType) {
