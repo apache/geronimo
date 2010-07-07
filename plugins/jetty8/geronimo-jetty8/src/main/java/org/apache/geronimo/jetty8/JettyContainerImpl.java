@@ -21,19 +21,20 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.security.Permission;
-import java.security.Permissions;
-import java.security.PermissionCollection;
 
 import javax.management.j2ee.statistics.Stats;
-import javax.security.jacc.WebUserDataPermission;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.jetty8.handler.EJBServletHandler;
+import org.apache.geronimo.jetty8.handler.EJBWebServiceContext;
+import org.apache.geronimo.jetty8.security.BuiltInAuthMethod;
+import org.apache.geronimo.jetty8.security.JettySecurityHandlerFactory;
 import org.apache.geronimo.management.LazyStatisticsProvider;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
@@ -42,10 +43,7 @@ import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.jetty8.handler.EJBServletHandler;
-import org.apache.geronimo.jetty8.handler.EJBWebServiceContext;
-import org.apache.geronimo.jetty8.security.JettySecurityHandlerFactory;
-import org.apache.geronimo.jetty8.security.BuiltInAuthMethod;
+import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.RequestLog;
@@ -56,15 +54,17 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
-import org.eclipse.jetty.security.SecurityHandler;
-
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceFactory;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * @version $Rev$ $Date$
  */
 @GBean
-public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLifecycle, LazyStatisticsProvider {
+@OsgiService(serviceInterfaces = {"org.eclipse.jetty.server.handler.ContextHandlerCollection"})
+public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLifecycle, LazyStatisticsProvider, ServiceFactory {
     /**
      * The default value of JETTY_HOME variable
      */
@@ -307,5 +307,14 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
      */
     public BundleContext getBundleContext() {
         return bundleContext;
+    }
+
+    @Override
+    public Object getService(Bundle bundle, ServiceRegistration serviceRegistration) {
+        return contextHandlerCollection;
+    }
+
+    @Override
+    public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object o) {
     }
 }
