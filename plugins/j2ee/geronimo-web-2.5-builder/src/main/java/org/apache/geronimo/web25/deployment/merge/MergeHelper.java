@@ -40,9 +40,9 @@ import javax.servlet.annotation.HandlesTypes;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.annotation.WebServlet;
-
+import javax.xml.bind.JAXBException;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.util.IOUtils;
@@ -83,26 +83,25 @@ import org.apache.geronimo.web25.deployment.merge.webfragment.WebFragmentMergeHa
 import org.apache.geronimo.web25.deployment.merge.webfragment.WelcomeFileListMergeHandler;
 import org.apache.geronimo.web25.deployment.utils.WebDeploymentMessageUtils;
 import org.apache.openejb.jee.AbsoluteOrdering;
-import org.apache.openejb.jee.OrderingOrdering;
+import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.Ordering;
+import org.apache.openejb.jee.OrderingOrdering;
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.jee.WebFragment;
 import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xbean.finder.BundleAssignableClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
 import org.apache.xbean.osgi.bundle.util.ClassDiscoveryFilter;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
-import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
-import org.apache.xmlbeans.XmlException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * @version $Rev$ $Date$
@@ -173,7 +172,7 @@ public class MergeHelper {
                 excludedURLs.add(excludedFragment.getJarURL());
         }
 
-        WebFragmentEntry[] webFragmentEntries = orderedWebFragments.toArray(new WebFragmentEntry[0]);
+        WebFragmentEntry[] webFragmentEntries = orderedWebFragments.toArray(new WebFragmentEntry[orderedWebFragments.size()]);
         saveOrderedLibAttribute(earContext, webFragmentEntries);
         return webFragmentEntries;
     }
@@ -344,14 +343,20 @@ public class MergeHelper {
                     ZipEntry entry;
                     while ((entry = in.getNextEntry()) != null) {
                         if (entry.getName().equals("META-INF/web-fragment.xml")) {
-                            webFragment = (WebFragment) XmlBeansUtil.parse(in);
+                            webFragment = (WebFragment) JaxbJavaee.unmarshal(WebFragment.class, in, true);
                             break;
                         }
                     }
                 } catch (IOException e) {
                     logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
                     throw new DeploymentException("Fail to scan web-fragment.xml files", e);
-                } catch (XmlException e) {
+                } catch (ParserConfigurationException e) {
+                    logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
+                    throw new DeploymentException("Fail to scan web-fragment.xml files", e);
+                } catch (SAXException e) {
+                    logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
+                    throw new DeploymentException("Fail to scan web-fragment.xml files", e);
+                } catch (JAXBException e) {
                     logger.error("Fail to parse web-fragment.xml files in jar " + url, e);
                     throw new DeploymentException("Fail to scan web-fragment.xml files", e);
                 } finally {
