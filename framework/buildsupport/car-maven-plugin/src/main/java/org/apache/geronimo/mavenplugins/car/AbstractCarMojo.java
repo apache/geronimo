@@ -963,6 +963,10 @@ public abstract class AbstractCarMojo
 //        new org.ops4j.pax.url.mvn.internal.Activator().start(framework.getBundleContext());
         //don't allow mvn urls
         System.setProperty("geronimo.build.car", "true");
+        //Fix JIRA GERONIMO-5400
+        if (null == System.getProperty("openejb.log.factory")) {
+            System.setProperty("openejb.log.factory", "org.apache.openejb.util.PaxLogStreamFactory");
+        }
 
         return framework;
     }
