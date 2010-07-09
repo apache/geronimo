@@ -131,7 +131,6 @@ import org.apache.openejb.jee.ConfigProperty;
 import org.apache.openejb.jee.ConnectionDefinition;
 import org.apache.openejb.jee.Connector;
 import org.apache.openejb.jee.Connector10;
-import org.apache.openejb.jee.Connector16;
 import org.apache.openejb.jee.InboundResourceadapter;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.MessageAdapter;
@@ -281,22 +280,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         //we found ra.xml, if it won't parse it's an error.
         // parse it
         if (specDD != null) {
-//            XmlObject xmlObject;
-//            try {
-//                xmlObject = XmlBeansUtil.parse(specDD);
-//                xmlObject = convertToConnectorSchema(xmlObject);
-//            } catch (XmlException e) {
-//                throw new DeploymentException("Could not read or convert ra.xml with xmlbeans: "  + specDDUrl.toExternalForm(), e);
-//            }
-//            InputStream in = xmlObject.newInputStream();
             try {
                 InputStream in = specDDUrl.openStream();
                 try {
-                    connector = (Connector) JaxbJavaee.unmarshalJavaee(Connector16.class, in);
+                    connector = (Connector) JaxbJavaee.unmarshalJavaee(Connector.class, in);
                 } catch (JAXBException e) {
                     in.close();
                     in = specDDUrl.openStream();
-                    connector = (Connector) JaxbJavaee.unmarshalJavaee(Connector10.class, in);
+                    Connector10 connector10 = (Connector10) JaxbJavaee.unmarshalJavaee(Connector10.class, in);
+                    connector = Connector.newConnector(connector10);
                 } finally {
                     in.close();
                 }
@@ -304,8 +296,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 throw new DeploymentException("Cannot parse the ra.xml file: " + specDDUrl.toExternalForm(), e);
             } catch (JAXBException e) {
                 throw new DeploymentException("Cannot unmarshall the ra.xml file: " + specDDUrl.toExternalForm(), e);
-//            } catch (IOException e) {
-//                throw new DeploymentException("Cannot read the ra.xml file: " + specDDUrl.toExternalForm(), e);
             } catch (Exception e) {
                 throw new DeploymentException("Encountered unknown error parsing the ra.xml file: " + specDDUrl.toExternalForm(), e);
             }
@@ -848,6 +838,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     }
 
     private void addConnectorGBeans(EARContext earContext, AbstractName jcaResourceName, GBeanData resourceAdapterModuleData, Connector connector, GerConnectorType geronimoConnector, Bundle bundle) throws DeploymentException {
+        List<GBeanData> raBeans = new ArrayList<GBeanData>();
+
         org.apache.openejb.jee.ResourceAdapter resourceAdapter = connector.getResourceAdapter();
 
         GerResourceadapterType[] geronimoResourceAdapters = geronimoConnector.getResourceadapterArray();
@@ -879,11 +871,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
                 resourceAdapterAbstractName = earContext.getNaming().createChildName(jcaResourceName, resourceAdapterName, NameFactory.JCA_RESOURCE_ADAPTER);
                 resourceAdapterInstanceGBeanData.setAbstractName(resourceAdapterAbstractName);
-                try {
-                    earContext.addGBean(resourceAdapterInstanceGBeanData);
-                } catch (GBeanAlreadyExistsException e) {
-                    throw new DeploymentException("Could not add resource adapter instance gbean to context", e);
-                }
+                raBeans.add(resourceAdapterInstanceGBeanData);
             }
 
             // Outbound Managed Connection Factories (think JDBC data source or JMS connection factory)
@@ -907,19 +895,30 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                     for (int j = 0; j < geronimoConnectionDefinition.getConnectiondefinitionInstanceArray().length; j++) {
                         GerConnectiondefinitionInstanceType connectionfactoryInstance = geronimoConnectionDefinition.getConnectiondefinitionInstanceArray()[j];
 
-                        addOutboundGBeans(earContext, jcaResourceName, resourceAdapterAbstractName, connectionFactoryGBeanData, connectionfactoryInstance, transactionSupport, bundle);
+                        addOutboundGBeans(raBeans, earContext.getNaming(), jcaResourceName, resourceAdapterAbstractName, connectionFactoryGBeanData, connectionfactoryInstance, transactionSupport, bundle, earContext.getConnectionTrackerName(), earContext.getTransactionManagerName());
                     }
                 }
             }
-            addAdminObjectGBeans(earContext, jcaResourceName, resourceAdapterModuleData, bundle, resourceAdapterAbstractName, geronimoResourceAdapter.getAdminobjectArray());
+            addAdminObjectGBeans(raBeans, earContext.getNaming(), jcaResourceName, resourceAdapterModuleData, bundle, resourceAdapterAbstractName, geronimoResourceAdapter.getAdminobjectArray());
         }
         // admin objects (think message queues and topics)
 
         // add configured admin objects
-        addAdminObjectGBeans(earContext, jcaResourceName, resourceAdapterModuleData, bundle, null, geronimoConnector.getAdminobjectArray());
+        addAdminObjectGBeans(raBeans, earContext.getNaming(), jcaResourceName, resourceAdapterModuleData, bundle, null, geronimoConnector.getAdminobjectArray());
+        List<Exception> problems = new ArrayList<Exception>();
+        for (GBeanData data: raBeans) {
+            try {
+                earContext.addGBean(data);
+            } catch (GBeanAlreadyExistsException e) {
+                problems.add(e);
+            }
+        }
+        if (!problems.isEmpty()) {
+            throw new DeploymentException("Could not add gbeans to configuration: ", problems);
+        }
     }
 
-    private void addAdminObjectGBeans(EARContext earContext, AbstractName jcaResourceName, GBeanData resourceAdapterModuleData, Bundle bundle, AbstractName resourceAdapterAbstractName, GerAdminobjectType[] adminObjects) throws DeploymentException {
+    private void addAdminObjectGBeans(List<GBeanData> raBeans, Naming naming, AbstractName jcaResourceName, GBeanData resourceAdapterModuleData, Bundle bundle, AbstractName resourceAdapterAbstractName, GerAdminobjectType[] adminObjects) throws DeploymentException {
         for (GerAdminobjectType gerAdminObject : adminObjects) {
             String adminObjectInterface = gerAdminObject.getAdminobjectInterface().trim();
             GBeanData adminObjectGBeanData = locateAdminObjectInfo(resourceAdapterModuleData, adminObjectInterface);
@@ -932,16 +931,19 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 GBeanData adminObjectInstanceGBeanData = new GBeanData(adminObjectGBeanData);
                 setDynamicGBeanDataAttributes(adminObjectInstanceGBeanData, gerAdminObjectInstance.getConfigPropertySettingArray(), bundle);
                 // add it
-                AbstractName adminObjectAbstractName = earContext.getNaming().createChildName(jcaResourceName, gerAdminObjectInstance.getMessageDestinationName().trim(), NameFactory.JCA_ADMIN_OBJECT);
+                AbstractName adminObjectAbstractName = naming.createChildName(jcaResourceName, gerAdminObjectInstance.getMessageDestinationName().trim(), NameFactory.JCA_ADMIN_OBJECT);
                 adminObjectInstanceGBeanData.setAbstractName(adminObjectAbstractName);
                 if (resourceAdapterAbstractName != null) {
                     adminObjectInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterAbstractName);
                 }
-                try {
-                    earContext.addGBean(adminObjectInstanceGBeanData);
-                } catch (GBeanAlreadyExistsException e) {
-                    throw new DeploymentException("Could not add admin object gbean to context", e);
-                }
+                Set<String> implementedInterfaces = new HashSet<String>();
+                implementedInterfaces.add(checkClass(bundle, (String) adminObjectInstanceGBeanData.getAttribute("adminObjectInterface")));
+                implementedInterfaces.add(checkClass(bundle, (String) adminObjectInstanceGBeanData.getAttribute("adminObjectClass")));
+                adminObjectInstanceGBeanData.setServiceInterfaces(implementedInterfaces.toArray(new String[implementedInterfaces.size()]));
+                String jndiName = naming.toOsgiJndiName(adminObjectAbstractName);
+                //TODO allow specifying osig jndi name directly, like for connection factories
+                adminObjectInstanceGBeanData.getServiceProperties().put(OSGI_JNDI_SERVICE_NAME, jndiName);
+                raBeans.add(adminObjectInstanceGBeanData);
             }
         }
     }
@@ -1138,7 +1140,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         return editor.getValue();
     }
 
-    private AbstractName configureConnectionManager(EARContext earContext, AbstractName managedConnectionFactoryName, String ddTransactionSupport, GerConnectiondefinitionInstanceType connectionfactoryInstance, Bundle bundle) throws DeploymentException {
+    private AbstractName configureConnectionManager(List<GBeanData> raBeans, Naming naming, AbstractName managedConnectionFactoryName, String ddTransactionSupport, GerConnectiondefinitionInstanceType connectionfactoryInstance, AbstractNameQuery connectionTrackerName, AbstractNameQuery transactionManagerName) throws DeploymentException {
 //        if (connectionfactoryInstance.getConnectionmanagerRef() != null) {
         //we don't configure anything, just use the supplied gbean
 //            try {
@@ -1149,7 +1151,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 //        }
 
         // create the object name for our connection manager
-        AbstractName connectionManagerAbstractName = earContext.getNaming().createChildName(managedConnectionFactoryName, connectionfactoryInstance.getName().trim(), NameFactory.JCA_CONNECTION_MANAGER);
+        AbstractName connectionManagerAbstractName = naming.createChildName(managedConnectionFactoryName, connectionfactoryInstance.getName().trim(), NameFactory.JCA_CONNECTION_MANAGER);
 
         // create the data holder for our connection manager
         GBeanData connectionManagerGBean = new GBeanData(connectionManagerAbstractName, GenericConnectionManagerGBean.class);
@@ -1218,36 +1220,29 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         try {
             connectionManagerGBean.setAttribute("transactionSupport", transactionSupport);
             connectionManagerGBean.setAttribute("pooling", pooling);
-            connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerName());
+            connectionManagerGBean.setReferencePattern("ConnectionTracker", connectionTrackerName);
             connectionManagerGBean.setAttribute("containerManagedSecurity", connectionManager.isSetContainerManagedSecurity());
-            connectionManagerGBean.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
+            connectionManagerGBean.setReferencePattern("TransactionManager", transactionManagerName);
             connectionManagerGBean.setReferencePattern("ManagedConnectionFactory", managedConnectionFactoryName);
         } catch (Exception e) {
             throw new DeploymentException("Problem setting up ConnectionManager named " + connectionfactoryInstance.getName().trim(), e);
         }
 
-        try {
-            earContext.addGBean(connectionManagerGBean);
-        } catch (GBeanAlreadyExistsException e) {
-            throw new DeploymentException("Could not add connection manager gbean to context: name: " + connectionfactoryInstance.getName().trim(), e);
-        }
+        raBeans.add(connectionManagerGBean);
         return connectionManagerAbstractName;
     }
 
-    private void addOutboundGBeans(EARContext earContext, AbstractName jcaResourceName, AbstractName resourceAdapterAbstractName, GBeanData managedConnectionFactoryPrototypeGBeanData, GerConnectiondefinitionInstanceType connectiondefinitionInstance, String transactionSupport, Bundle bundle) throws DeploymentException {
+    private void addOutboundGBeans(List<GBeanData> raBeans, Naming naming, AbstractName jcaResourceName, AbstractName resourceAdapterAbstractName, GBeanData managedConnectionFactoryPrototypeGBeanData, GerConnectiondefinitionInstanceType connectiondefinitionInstance, String transactionSupport, Bundle bundle, AbstractNameQuery connectionTrackerName, AbstractNameQuery transactionManagerName) throws DeploymentException {
         GBeanData managedConnectionFactoryInstanceGBeanData = new GBeanData(managedConnectionFactoryPrototypeGBeanData);
-        AbstractName connectionFactoryAbstractName = earContext.getNaming().createChildName(jcaResourceName, connectiondefinitionInstance.getName().trim(), NameFactory.JCA_CONNECTION_FACTORY);
-        AbstractName managedConnectionFactoryAbstractName = earContext.getNaming().createChildName(connectionFactoryAbstractName, connectiondefinitionInstance.getName().trim(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        AbstractName connectionFactoryAbstractName = naming.createChildName(jcaResourceName, connectiondefinitionInstance.getName().trim(), NameFactory.JCA_CONNECTION_FACTORY);
+        AbstractName managedConnectionFactoryAbstractName = naming.createChildName(connectionFactoryAbstractName, connectiondefinitionInstance.getName().trim(), NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
 
         // ManagedConnectionFactory
         setDynamicGBeanDataAttributes(managedConnectionFactoryInstanceGBeanData, connectiondefinitionInstance.getConfigPropertySettingArray(), bundle);
 
         String jndiName = connectiondefinitionInstance.getJndiName();
         if (jndiName == null) {
-            jndiName = connectionFactoryAbstractName.getArtifact().getGroupId() + "/" +
-                            connectionFactoryAbstractName.getArtifact().getArtifactId() + "/" +
-                            connectionFactoryAbstractName.getNameProperty("j2eeType") + "/" +
-                            connectionFactoryAbstractName.getNameProperty("name");
+            jndiName = naming.toOsgiJndiName(connectionFactoryAbstractName);
         } else {
             jndiName = jndiName.trim();
         }
@@ -1271,8 +1266,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             //additional interfaces implemented by connection factory
             String[] additionalInterfaces = connectiondefinitionInstance.getImplementedInterfaceArray();
             if (additionalInterfaces != null) {
-                for (int i = 0; i < additionalInterfaces.length; i++) {
-                    implementedInterfaces.add(checkClass(bundle, additionalInterfaces[i].trim()));
+                for (String additionalInterface : additionalInterfaces) {
+                    implementedInterfaces.add(checkClass(bundle, additionalInterface.trim()));
                 }
             }
             //in case some class was not loadable
@@ -1284,13 +1279,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         }
 
         managedConnectionFactoryInstanceGBeanData.setAbstractName(managedConnectionFactoryAbstractName);
-        try {
-            earContext.addGBean(managedConnectionFactoryInstanceGBeanData);
-        } catch (GBeanAlreadyExistsException e) {
-            throw new DeploymentException("Could not add managed connection factory gbean to context", e);
-        }
+        raBeans.add(managedConnectionFactoryInstanceGBeanData);
         // ConnectionManager
-        AbstractName connectionManagerName = configureConnectionManager(earContext, managedConnectionFactoryAbstractName, transactionSupport, connectiondefinitionInstance, bundle);
+        AbstractName connectionManagerName = configureConnectionManager(raBeans, naming, managedConnectionFactoryAbstractName, transactionSupport, connectiondefinitionInstance, connectionTrackerName, transactionManagerName);
 
         // ConnectionFactory
         GBeanData connectionFactoryGBeanData = new GBeanData(connectionFactoryAbstractName, JCAConnectionFactoryImpl.class);
@@ -1298,11 +1289,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         connectionFactoryGBeanData.setServiceInterfaces(implementedInterfaces.toArray(new String[implementedInterfaces.size()]));
         connectionFactoryGBeanData.getServiceProperties().put(OSGI_JNDI_SERVICE_NAME, jndiName);
 
-        try {
-            earContext.addGBean(connectionFactoryGBeanData);
-        } catch (GBeanAlreadyExistsException e) {
-            throw new DeploymentException("Could not add connection factory gbean to context", e);
-        }
+        raBeans.add(connectionFactoryGBeanData);
     }
 
     /**

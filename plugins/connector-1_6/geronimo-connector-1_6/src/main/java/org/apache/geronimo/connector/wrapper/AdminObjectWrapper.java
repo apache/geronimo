@@ -27,10 +27,14 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceFactory;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * Wrapper around AdminObject that exposes its config-properties as GBeanAttributes and
@@ -38,7 +42,8 @@ import org.apache.geronimo.connector.ResourceAdapterWrapper;
  *
  * @version $Rev$ $Date$
  */
-public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, ResourceSource<RuntimeException>, GBeanLifecycle {
+@OsgiService
+public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, ResourceSource<RuntimeException>, GBeanLifecycle, ServiceFactory {
 
     private final String adminObjectInterface;
     private final String adminObjectClass;
@@ -226,5 +231,14 @@ public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject, Resourc
      * Fails the GBean.  This informs the GBean that it is about to transition to the failed state.
      */
     public void doFail() {
+    }
+
+    @Override
+    public Object getService(Bundle bundle, ServiceRegistration serviceRegistration) {
+        return adminObject;
+    }
+
+    @Override
+    public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object o) {
     }
 }

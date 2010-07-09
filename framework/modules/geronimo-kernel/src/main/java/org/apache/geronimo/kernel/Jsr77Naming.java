@@ -91,6 +91,14 @@ public class Jsr77Naming extends Naming {
                 createObjectName(nameMap));
     }
 
+    @Override
+    public String toOsgiJndiName(AbstractName abstractName) {
+        return abstractName.getArtifact().getGroupId() + "/" +
+                            abstractName.getArtifact().getArtifactId() + "/" +
+                            abstractName.getNameProperty("j2eeType") + "/" +
+                            abstractName.getNameProperty("name");
+    }
+
     /**
      * @deprecated objectnames are being removed
      */
