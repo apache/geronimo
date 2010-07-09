@@ -20,6 +20,8 @@ package org.apache.geronimo.activemq;
 import java.io.File;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 
@@ -54,6 +56,8 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
     private final String objectName;
     private final BrokerService brokerService;
     private final boolean asyncStartup;
+    private final int asyncStartupDelay;
+    private final CountDownLatch asyncStarted = new CountDownLatch(1);
     private final AtomicBoolean active = new AtomicBoolean(false);
     private Thread asyncStartThread;
     private JMSManager manager;
@@ -64,6 +68,7 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
                                   @ParamAttribute (name="amqConfigFile") String amqConfigFile, 
                                   @ParamAttribute (name="useShutdownHook") boolean useShutdownHook,
                                   @ParamAttribute (name="asyncStartup") boolean asyncStartup,
+                                  @ParamAttribute (name="asyncStartupDelay") int asyncStartupDelay,
                                   @ParamReference (name="ServerInfo") ServerInfo serverInfo,
                                   @ParamReference (name="MBeanServerReference") MBeanServerReference mbeanServerReference,
                                   @ParamSpecial (type= SpecialAttributeType.objectName) String objectName,
@@ -72,6 +77,7 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
         
         this.objectName = objectName;
         this.asyncStartup = asyncStartup;
+        this.asyncStartupDelay = asyncStartupDelay;
         URI baseDir = serverInfo.resolveServer(amqBaseDir);
         URI dataDir = baseDir.resolve(amqDataDir);
         URI amqConfigUri = baseDir.resolve(amqConfigFile);
@@ -127,6 +133,7 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
             }, "AsyncStartThread-" + getBrokerName());
             asyncStartThread.setDaemon(true);
             asyncStartThread.start();
+            asyncStarted.await(asyncStartupDelay, TimeUnit.SECONDS);
         }
     }
 
@@ -160,6 +167,7 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
             try {
                 brokerService.start();
                 log.info("brokerService started");
+                asyncStarted.countDown();
                 brokerService.waitUntilStopped();
                 if (active.get()) {
                     log.warn("brokerService stopped");
