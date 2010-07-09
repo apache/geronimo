@@ -18,7 +18,6 @@
 package org.apache.geronimo.persistence;
 
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -39,15 +38,17 @@ public class CMPEntityManagerExtended implements EntityManager {
     private final ExtendedEntityManagerRegistry entityManagerRegistry;
     private final EntityManagerFactory entityManagerFactory;
     private final Map entityManagerProperties;
+    private final String persistenceUnitName;
 
-    public CMPEntityManagerExtended(ExtendedEntityManagerRegistry entityManagerRegistry, EntityManagerFactory entityManagerFactory, Map entityManagerProperties) {
+    public CMPEntityManagerExtended(ExtendedEntityManagerRegistry entityManagerRegistry, EntityManagerFactory entityManagerFactory, Map entityManagerProperties, String persistenceUnitName) {
         this.entityManagerRegistry = entityManagerRegistry;
         this.entityManagerFactory = entityManagerFactory;
         this.entityManagerProperties = entityManagerProperties;
+        this.persistenceUnitName = persistenceUnitName;
     }
 
     private EntityManager getEntityManager() {
-        return entityManagerRegistry.getEntityManager(entityManagerFactory, entityManagerProperties);
+        return entityManagerRegistry.getEntityManager(entityManagerFactory, entityManagerProperties, persistenceUnitName);
     }
 
     @Override

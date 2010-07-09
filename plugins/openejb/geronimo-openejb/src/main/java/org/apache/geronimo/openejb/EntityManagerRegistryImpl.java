@@ -48,8 +48,8 @@ public class EntityManagerRegistryImpl implements ExtendedEntityManagerRegistry 
         this.entityManagerRegistry = entityManagerRegistry;
     }
 
-    public EntityManager getEntityManager(EntityManagerFactory entityManagerFactory, Map properties) throws IllegalStateException {
-        return entityManagerRegistry.getEntityManager(entityManagerFactory, properties, true);
+    public EntityManager getEntityManager(EntityManagerFactory entityManagerFactory, Map properties, String persistenceUnitName) throws IllegalStateException {
+        return entityManagerRegistry.getEntityManager(entityManagerFactory, properties, true, persistenceUnitName);
     }
 
     public static final GBeanInfo GBEAN_INFO;

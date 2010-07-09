@@ -157,7 +157,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         if (transactionScoped) {
             return new CMPEntityManagerTxScoped(transactionManager, getPersistenceUnitName(), entityManagerFactory, properties);
         } else if (entityManagerRegistry.getElement() != null) {
-            return new CMPEntityManagerExtended(entityManagerRegistry.getElement(), entityManagerFactory, properties);
+            return new CMPEntityManagerExtended(entityManagerRegistry.getElement(), entityManagerFactory, properties, persistenceUnitInfo.getPersistenceUnitName());
         } else {
             throw new NullPointerException("No ExtendedEntityManagerRegistry supplied, you cannot use extended persistence contexts");
         }

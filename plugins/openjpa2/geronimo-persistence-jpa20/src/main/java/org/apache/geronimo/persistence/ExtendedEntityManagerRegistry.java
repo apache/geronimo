@@ -30,6 +30,6 @@ import javax.persistence.EntityManagerFactory;
  */
 public interface ExtendedEntityManagerRegistry {
 
-    EntityManager getEntityManager(EntityManagerFactory entityManagerFactory, Map properties) throws IllegalStateException;
+    EntityManager getEntityManager(EntityManagerFactory entityManagerFactory, Map properties, String persistenceUnitName) throws IllegalStateException;
 
 }
