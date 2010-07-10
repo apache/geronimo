@@ -452,7 +452,9 @@ public class MergeHelper {
             // b. A -> B -> A
             // c. A -> B ->  C -> A
             for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryList) {
-                detectCircusAfterDependency(webFragmentOrderEntry, webFragmentOrderEntry, webFragmentOrderEntryMap, new HashSet<String>());
+                Set<String> allAfterEntryNames = new HashSet<String>();
+                detectCircusAfterDependency(webFragmentOrderEntry, webFragmentOrderEntry, webFragmentOrderEntryMap, allAfterEntryNames);
+                webFragmentOrderEntry.afterEntryNames.addAll(allAfterEntryNames);
             }
             //Step 4: Sort the webFragment depending on the after configurations
             //TODO The Sort algorithm might need to improve.
@@ -565,7 +567,7 @@ public class MergeHelper {
         }
         if (iShouldAfterIndex < iShouldBeforeIndex) {
             WebFragmentOrderEntry webFragmentOrderEntry = webFragmentOrderEntries.remove(iShouldAfterIndex);
-            webFragmentOrderEntries.add(iShouldBeforeIndex + 1, webFragmentOrderEntry);
+            webFragmentOrderEntries.add(iShouldBeforeIndex, webFragmentOrderEntry);
         }
     }
 
