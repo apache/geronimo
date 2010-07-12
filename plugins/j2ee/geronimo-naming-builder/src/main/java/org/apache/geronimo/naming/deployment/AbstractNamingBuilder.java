@@ -17,7 +17,9 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import java.beans.Introspector;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -342,8 +344,8 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             try {
                 Class<?> clazz = bundle.loadClass(className);
                 String fieldName = getStringValue(injectionTarget.getInjectionTargetName());
-                Field field = getField(clazz, fieldName);
-                Class<?> fieldType = deprimitivize(field.getType());
+                Class<?> fieldType = getField(clazz, fieldName);
+                fieldType = deprimitivize(fieldType);
                 if (type == null) {
                     type = fieldType;
                 } else if (!fieldType.equals(type)) {
@@ -385,12 +387,23 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         primitives.put(short.class, Short.class);
     }
 
-    private Field getField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+    private Class<?> getField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
         do {
             try {
-                return clazz.getDeclaredField(fieldName);
+                return clazz.getDeclaredField(fieldName).getType();
             } catch (NoSuchFieldException e) {
                 //look at superclass
+            }
+            for (Method method: clazz.getDeclaredMethods()) {
+                if (method.getReturnType() == void.class && method.getParameterTypes().length == 1) {
+                    String methodName = method.getName();
+                    if (methodName.startsWith("set")) {
+                        String type = Introspector.decapitalize(methodName.substring(3));
+                        if (fieldName.equals(type)) {
+                            return method.getParameterTypes()[0];
+                        }
+                    }
+                }
             }
             clazz = clazz.getSuperclass();
         } while (clazz != null);
