@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
-import javax.resource.ResourceException;
 import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -57,7 +56,6 @@ import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.naming.reference.ORBReference;
-import org.apache.geronimo.naming.reference.ResourceReferenceFactory;
 import org.apache.geronimo.naming.reference.URLReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefDocument;
@@ -70,7 +68,6 @@ import org.apache.openejb.jee.ResourceRef;
 import org.apache.openejb.jee.Text;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
-import org.omg.CORBA.ORB;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -218,9 +215,11 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             try {
                 AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, null, gerResourceRef);
 
-                module.getEarContext().findGBean(containerId);
+                AbstractName abstractName = module.getEarContext().findGBean(containerId);
+                String osgiJndiName = "aries:services/" + module.getEarContext().getNaming().toOsgiJndiName(abstractName);
 
-                return new ResourceReferenceFactory<ResourceException>(module.getConfigId(), containerId, iface);
+                return new JndiReference(osgiJndiName);
+                        //ResourceReferenceFactory<ResourceException>(module.getConfigId(), containerId, iface);
             } catch (GBeanNotFoundException e) {
                 StringBuffer errorMessage = new StringBuffer("Unable to resolve resource reference '");
                 errorMessage.append(name);

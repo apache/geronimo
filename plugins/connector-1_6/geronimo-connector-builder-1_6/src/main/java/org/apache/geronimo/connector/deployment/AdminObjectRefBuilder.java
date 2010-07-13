@@ -32,6 +32,7 @@ import javax.naming.StringRefAddr;
 import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -44,7 +45,6 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.reference.JndiReference;
-import org.apache.geronimo.naming.reference.ResourceReferenceFactory;
 import org.apache.geronimo.naming.reference.UserTransactionReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
@@ -268,7 +268,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         }
         try {
             AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
-            ResourceReferenceFactory<RuntimeException> ref = buildAdminObjectReference(module, containerId, iface);
+            Reference ref = buildAdminObjectReference(module, containerId);
             return ref;
         } catch (UnresolvedReferenceException e) {
             throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")", e);
@@ -308,7 +308,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         //try to resolve ref based only matching resource-ref-name
         //throws exception if it can't locate ref.
         AbstractNameQuery containerId = buildAbstractNameQuery(null, moduleURI, linkName, NameFactory.JCA_ADMIN_OBJECT, NameFactory.RESOURCE_ADAPTER_MODULE);
-        ResourceReferenceFactory<RuntimeException> ref = buildAdminObjectReference(module, containerId, iface);
+        Reference ref = buildAdminObjectReference(module, containerId);
         return ref;
     }
 
@@ -344,14 +344,15 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
 
-    private ResourceReferenceFactory<RuntimeException> buildAdminObjectReference(Module module, AbstractNameQuery containerId, Class iface) throws DeploymentException {
+    private Reference buildAdminObjectReference(Module module, AbstractNameQuery containerId) throws DeploymentException {
         Configuration localConfiguration = module.getEarContext().getConfiguration();
         try {
-            localConfiguration.findGBean(containerId);
+            AbstractName abstractName = localConfiguration.findGBean(containerId);
+            String osgiJndiName = "aries:services/" + module.getEarContext().getNaming().toOsgiJndiName(abstractName);
+            return new JndiReference(osgiJndiName);
         } catch (GBeanNotFoundException e) {
             throw new DeploymentException("Can not resolve admin object ref " + containerId + " in configuration " + localConfiguration.getId(), e);
         }
-        return new ResourceReferenceFactory<RuntimeException>(module.getConfigId(), containerId, iface);
     }
 
     private static AbstractNameQuery getAdminObjectContainerId(String name, GerResourceEnvRefType gerResourceEnvRef) {
