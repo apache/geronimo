@@ -30,6 +30,8 @@ import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * Base class for CLI deployer commands.  Tracks some simple properties and
@@ -46,6 +48,26 @@ public abstract class AbstractCommand implements DeployCommand {
         return false;
     }
 
+    protected boolean isOffline(ServerConnection connection) {
+        if (connection instanceof OfflineServerConnection) {
+            return ((OfflineServerConnection) connection).isOfflineDeployerStarted();
+        } else {
+            return false;
+        }
+    }
+    
+    protected Kernel getKernel(ServerConnection connection) {
+        Kernel kernel = null;
+        DeploymentManager dm = connection.getDeploymentManager();
+        if (dm instanceof JMXDeploymentManager) {
+            kernel = ((JMXDeploymentManager) dm).getKernel();
+        }
+        if (kernel == null) {
+            throw new NullPointerException("Could not get kernel instance");
+        }
+        return kernel;
+    }
+    
     protected void emit(ConsoleReader out, String message) throws IOException {
         out.printString(DeployUtils.reformat(message, 4, 72));
         out.flushConsole();

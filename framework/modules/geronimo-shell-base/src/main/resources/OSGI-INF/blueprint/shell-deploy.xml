@@ -93,6 +93,10 @@
             <action class="org.apache.geronimo.shell.deploy.EncryptCommand">
             </action>
         </command>
+        <command name="deploy/unlock-keystore">
+            <action class="org.apache.geronimo.shell.deploy.UnlockKeystoreCommand">
+            </action>
+        </command>
     </command-bundle>
 
 </blueprint>

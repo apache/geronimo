@@ -17,12 +17,9 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import javax.enterprise.deploy.spi.DeploymentManager;
-
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.crypto.EncryptionManager;
-import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.util.ConfiguredEncryption;
 
@@ -44,10 +41,9 @@ public class CommandEncrypt extends AbstractCommand {
             }
             
             consoleReader.printString(DeployUtils.reformat("String to encrypt: "+commandArgs.getArgs()[0], 4, 72));
-            DeploymentManager dm = connection.getDeploymentManager();
-            if (dm instanceof RemoteDeploymentManager) {
-                // Online encryption
-                Kernel k = ((RemoteDeploymentManager)dm).getKernel();
+            if (!isOffline(connection)) {
+                // Online encryption            
+                Kernel k = getKernel(connection);
                 Object ret = k.invoke(ConfiguredEncryption.class, "encrypt", new Object[] {commandArgs.getArgs()[0]}, new String[] {"java.lang.String"});
                 consoleReader.printString(DeployUtils.reformat("Online encryption result: "+ret, 4, 72));
             } else {

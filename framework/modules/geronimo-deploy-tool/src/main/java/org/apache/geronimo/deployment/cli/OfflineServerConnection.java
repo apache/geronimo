@@ -31,6 +31,8 @@ import org.apache.geronimo.kernel.Kernel;
  */
 public class OfflineServerConnection extends ServerConnection {
 
+    private final boolean startOfflineDeployer;
+    
     public OfflineServerConnection(Kernel kernel, boolean startDeployer) throws DeploymentException {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
@@ -43,8 +45,13 @@ public class OfflineServerConnection extends ServerConnection {
         } catch (IOException e) {
             throw new DeploymentException(e);
         }
+        startOfflineDeployer = startDeployer;
     }
 
+    public boolean isOfflineDeployerStarted() {
+        return startOfflineDeployer;
+    }
+    
     protected void startOfflineDeployer(Kernel kernel) throws DeploymentException {
         try {
             OfflineDeployerStarter offlineDeployerStarter = new OfflineDeployerStarter(kernel);

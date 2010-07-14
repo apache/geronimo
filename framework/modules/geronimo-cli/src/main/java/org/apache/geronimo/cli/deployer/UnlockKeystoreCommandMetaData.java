@@ -26,7 +26,7 @@ public class UnlockKeystoreCommandMetaData extends BaseCommandMetaData {
     public static final CommandMetaData META_DATA = new UnlockKeystoreCommandMetaData();
 
     private UnlockKeystoreCommandMetaData() {
-        super("unlockKeystore", "2. Other Commands", "[keyStoreName][AliasName1][AliasName2]....",
+        super("unlock-keystore", "2. Other Commands", "[keyStoreName][AliasName1][AliasName2]....",
                 "Command to unlock a keystore and its associated private key.\n" +
                 "The usage of javax.net.ssl.keyStorePassword and javax.net.ssl.trustStorePassword " +
                 "in a command line has been deprecated.\n"+

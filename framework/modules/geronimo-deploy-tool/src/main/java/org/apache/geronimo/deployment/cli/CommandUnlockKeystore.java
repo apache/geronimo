@@ -24,12 +24,9 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.enterprise.deploy.spi.DeploymentManager;
-
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.crypto.EncryptionManager;
-import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -54,11 +51,7 @@ public class CommandUnlockKeystore extends AbstractCommand {
         if (args.length == 0) {
             throw new DeploymentException("Specify the key store name to be unlocked");
         }
-        DeploymentManager dm = connection.getDeploymentManager();
-        Kernel kernel = null;
-        if (dm instanceof RemoteDeploymentManager) {
-            kernel = ((RemoteDeploymentManager) dm).getKernel();
-        }
+        Kernel kernel = getKernel(connection);
         AbstractNameQuery anq = new AbstractNameQuery("org.apache.geronimo.management.geronimo.KeystoreManager");
         Set<AbstractName> it = kernel.listGBeans(anq);
         AbstractName an = (AbstractName) it.iterator().next();
