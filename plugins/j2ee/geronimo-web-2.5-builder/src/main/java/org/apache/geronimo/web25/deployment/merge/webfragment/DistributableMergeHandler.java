@@ -57,6 +57,6 @@ public class DistributableMergeHandler implements WebFragmentMergeHandler<WebFra
 
     @Override
     public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
-        context.setAttribute(CURRENT_MERGED_DISTRIBUTABLE_VALUE, webApp.getDistributable().size() > 0);
+        context.setAttribute(APPLICATION_DISTRIBUTABLE_VALUE, webApp.getDistributable().size() > 0);
     }
 }
