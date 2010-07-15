@@ -226,7 +226,9 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
         //stuff from spec dd
         setDisplayName(displayName);
-        webAppContext.setInitParams(contextParamMap);
+        if (contextParamMap != null) {
+            webAppContext.getInitParams().putAll(contextParamMap);
+        }
         setListenerClassNames(listenerClassNames);
         webAppContext.setDistributable(distributable);
         webAppContext.setWelcomeFiles(welcomeFiles);
