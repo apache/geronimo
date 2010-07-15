@@ -175,7 +175,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
                 Persistence persistence;
                 InputStream in = persistenceUrl.openStream();
                 try {
-                    persistence = (Persistence) JaxbJavaee.unmarshal(Persistence.class, in, true);
+                    persistence = (Persistence) JaxbJavaee.unmarshal(Persistence.class, in, false);
                 } catch (JAXBException e) {
                     throw new DeploymentException("Could not parse persistence.xml file: " + persistenceUrl, e);
                 } finally {
