@@ -30,14 +30,14 @@ in tomcat, this class be dropped.
 /**
  * @version $Rev$ $Date$
  */
-public class DisableMcastInterceptor extends ChannelInterceptorBase { 
+public class DisableMcastInterceptor extends ChannelInterceptorBase {
     
-    public DisableMcastInterceptor() { 
-        super(); 
+    public DisableMcastInterceptor() {
+        super();
     }
 
-public void start(int svc) throws ChannelException { 
-    svc = (svc & (~Channel.MBR_TX_SEQ)); 
+public void start(int svc) throws ChannelException {
+    svc = (svc & (~Channel.MBR_TX_SEQ) & (~Channel.MBR_RX_SEQ));
     super.start(svc);
-    } 
-} 
+    }
+}
