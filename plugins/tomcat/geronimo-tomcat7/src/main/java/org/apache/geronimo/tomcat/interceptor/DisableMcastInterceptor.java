@@ -37,7 +37,7 @@ public class DisableMcastInterceptor extends ChannelInterceptorBase {
     }
 
 public void start(int svc) throws ChannelException { 
-    svc = (svc & (~Channel.MBR_TX_SEQ)); 
+    svc = (svc & (~Channel.MBR_TX_SEQ) & (~Channel.MBR_RX_SEQ));
     super.start(svc);
     } 
 } 
