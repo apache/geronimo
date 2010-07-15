@@ -28,19 +28,19 @@ import org.apache.openejb.jee.WebFragment;
  */
 public class DistributableMergeHandler implements WebFragmentMergeHandler<WebFragment, WebApp> {
 
-    public static final String CURRENT_MERGED_DISTRIBUTABLE_VALUE = "CURRENT_MERGED_DISTRIBUTABLE_VALUE";
+    public static final String APPLICATION_DISTRIBUTABLE_VALUE = "distributable";
 
     @Override
     public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
-        boolean currentMergedDistributableValue = (Boolean) mergeContext.getAttribute(CURRENT_MERGED_DISTRIBUTABLE_VALUE);
+        boolean currentMergedDistributableValue = (Boolean) mergeContext.getAttribute(APPLICATION_DISTRIBUTABLE_VALUE);
         if (currentMergedDistributableValue) {
-            mergeContext.setAttribute(CURRENT_MERGED_DISTRIBUTABLE_VALUE, webFragment.getDistributable().size() > 0);
+            mergeContext.setAttribute(APPLICATION_DISTRIBUTABLE_VALUE, webFragment.getDistributable().size() > 0);
         }
     }
 
     @Override
     public void postProcessWebXmlElement(WebApp webApp, MergeContext mergeContext) throws DeploymentException {
-        boolean currentMergedDistributableValue = (Boolean) mergeContext.getAttribute(CURRENT_MERGED_DISTRIBUTABLE_VALUE);
+        boolean currentMergedDistributableValue = (Boolean) mergeContext.getAttribute(APPLICATION_DISTRIBUTABLE_VALUE);
         boolean distributableInWebXml = webApp.getDistributable().size() > 0;
         if (currentMergedDistributableValue) {
             if (!distributableInWebXml) {
@@ -57,6 +57,6 @@ public class DistributableMergeHandler implements WebFragmentMergeHandler<WebFra
 
     @Override
     public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
-        context.setAttribute(CURRENT_MERGED_DISTRIBUTABLE_VALUE, Boolean.TRUE);
+        context.setAttribute(CURRENT_MERGED_DISTRIBUTABLE_VALUE, webApp.getDistributable().size() > 0);
     }
 }
