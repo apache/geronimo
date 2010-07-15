@@ -31,6 +31,7 @@ public class ConfigManagerPortletRARTest
 {
     @Test
     public void testConfigManagerRARLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Applications"));
         selenium.click("link=J2EE Connectors");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

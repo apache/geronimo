@@ -31,6 +31,7 @@ public class WelcomePortletTest
 {
     @Test
     public void testWelcomeLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
         selenium.click("link=Java System Info");
         waitForPageLoad();
         selenium.open("/console");

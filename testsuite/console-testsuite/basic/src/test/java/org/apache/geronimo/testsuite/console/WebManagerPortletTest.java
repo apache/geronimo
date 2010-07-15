@@ -31,6 +31,7 @@ public class WebManagerPortletTest
 {
     @Test
     public void testWebManagerLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
         selenium.click("link=Web Server");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

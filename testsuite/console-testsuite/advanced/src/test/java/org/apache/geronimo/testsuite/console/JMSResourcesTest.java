@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 public class JMSResourcesTest extends TestSupport {
     @Test
     public void testNewJMSResource() throws Exception {
+    	selenium.click(getNavigationTreeNodeLocation("Services"));
         selenium.click("link=JMS Resources");
         waitForPageLoad();
         selenium.click("link=For ActiveMQ");
@@ -52,8 +53,12 @@ public class JMSResourcesTest extends TestSupport {
         waitForPageLoad();
         selenium.click("//input[@value='Deploy Now']");
         waitForPageLoad();
+        selenium.selectFrame("index=0");
         assertTrue(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/car)"));
+       //return to main window
+        selenium.selectWindow("null");
         selenium.open("/console");
+        selenium.click(getNavigationTreeNodeLocation("Applications"));
         selenium.click("link=J2EE Connectors");
         waitForPageLoad();
         selenium.click("link=Uninstall"); 
@@ -63,7 +68,10 @@ public class JMSResourcesTest extends TestSupport {
         selenium.open("/console");
         selenium.click("link=JMS Resources");
         waitForPageLoad();
+        selenium.selectFrame("index=0");
         assertFalse(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/car)"));
+        //return to main window
+        selenium.selectWindow("null");
     }
 
     private boolean waitForButton() throws InterruptedException {

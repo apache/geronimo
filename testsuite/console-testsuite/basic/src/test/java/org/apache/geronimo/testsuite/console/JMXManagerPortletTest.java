@@ -31,6 +31,7 @@ public class JMXManagerPortletTest
 {
     @Test
     public void testJMXManagerLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Debug Views"));
         selenium.click("link=JMX Viewer");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

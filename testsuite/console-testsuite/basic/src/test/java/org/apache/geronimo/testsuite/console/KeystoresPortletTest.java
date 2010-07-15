@@ -31,6 +31,7 @@ public class KeystoresPortletTest
 {
     @Test
     public void testKeystoresLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Security"));
         selenium.click("link=Keystores");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

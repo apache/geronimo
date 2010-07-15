@@ -31,6 +31,7 @@ public class ApacheConfigPortletTest
 {
     @Test
     public void testApacheConfigLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
         selenium.click("link=Apache HTTP");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

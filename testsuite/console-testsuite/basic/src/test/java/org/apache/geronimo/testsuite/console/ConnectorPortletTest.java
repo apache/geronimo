@@ -31,6 +31,7 @@ public class ConnectorPortletTest
 {
     @Test
     public void testConnectorLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
         selenium.click("link=Web Server");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

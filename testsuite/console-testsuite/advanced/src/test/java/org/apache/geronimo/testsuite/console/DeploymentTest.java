@@ -27,10 +27,14 @@ import org.testng.annotations.Test;
 public class DeploymentTest extends TestSupport {
     @Test
     public void testEmptyDeployment() throws Exception {
+      	selenium.click(getNavigationTreeNodeLocation("Applications"));
         selenium.click("link=Deployer");
         waitForPageLoad();
         selenium.click("//input[@value='Install']");
         waitForPageLoad();
+        selenium.selectFrame("index=0");
         assertTrue(selenium.isTextPresent("The application was not deployed"));
+        //return to main window
+        selenium.selectWindow("null");
     }
 }

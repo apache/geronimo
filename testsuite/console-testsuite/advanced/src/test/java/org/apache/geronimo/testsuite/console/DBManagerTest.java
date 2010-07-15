@@ -27,8 +27,10 @@ import org.testng.annotations.Test;
 public class DBManagerTest extends TestSupport {
     @Test
     public void testNewDB() throws Exception {
+    	selenium.click(getNavigationTreeNodeLocation("Embedded DB"));
         selenium.click("link=DB Manager");
         waitForPageLoad();
+        selenium.selectFrame("index=0");
         selenium.type("createDB", "MyUniqueDB");
         selenium.click("//input[@value = 'Create']");
         waitForPageLoad();
@@ -39,6 +41,7 @@ public class DBManagerTest extends TestSupport {
         waitForPageLoad();
         //selenium.click("link=Application");
         selenium.click("//a[contains(@href, 'db=MyUniqueDB')]");
+        
         waitForPageLoad();
         assertTrue(selenium.isTextPresent("MYTABLE"));
         selenium.select("deleteDB", "label=MyUniqueDB");
@@ -47,16 +50,22 @@ public class DBManagerTest extends TestSupport {
         assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete this database[\\s\\S]$"));
         waitForPageLoad();
         assertTrue(selenium.isTextPresent("Database deleted: MyUniqueDB"));
+        //return to main window
+        selenium.selectWindow("null");
     }
     
     @Test
     public void testRunSQL() throws Exception {
+    	selenium.click(getNavigationTreeNodeLocation("Embedded DB"));
         selenium.click("link=DB Manager");
         waitForPageLoad();
+        selenium.selectFrame("index=0");
         selenium.select("useDB", "label=SystemDatabase");
         selenium.type("sqlStmts", "select * from SYS.SYSDEPENDS;");
         selenium.click("//input[@value = 'Run SQL']");
         waitForPageLoad();
         assertTrue(selenium.isTextPresent("SQL command(s) executed successfully"));
+        //return to main window
+        selenium.selectWindow("null");
     }
 }

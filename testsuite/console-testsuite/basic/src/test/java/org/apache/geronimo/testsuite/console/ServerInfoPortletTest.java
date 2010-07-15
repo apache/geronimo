@@ -31,6 +31,7 @@ public class ServerInfoPortletTest
 {
     @Test
     public void testServerInfoLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
         selenium.click("link=Information");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

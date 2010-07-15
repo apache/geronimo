@@ -31,6 +31,7 @@ public class ImportExportPortletTest
 {
     @Test
     public void testImportExportLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Applications"));
         selenium.click("link=Plugins");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

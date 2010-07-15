@@ -29,7 +29,7 @@ public class DatabasePoolTest extends TestSupport {
     public void testNewDBPool() throws Exception {
         String geronimoVersion = System.getProperty("geronimoVersion");
         assertNotNull(geronimoVersion);
-        
+        selenium.click(getNavigationTreeNodeLocation("Services"));
         selenium.click("link=Database Pools");
         waitForPageLoad();
         selenium.click("link=Using the Geronimo database pool wizard");
@@ -42,21 +42,28 @@ public class DatabasePoolTest extends TestSupport {
         selenium.type("property-DatabaseName", "SystemDatabase");
         selenium.click("//input[@value='Deploy']");
         waitForPageLoad();
+        selenium.selectFrame("index=0");
         assertTrue(selenium.isTextPresent("UniquePool"));
         selenium.click("//tr[td[1] = 'UniquePool']/td[4]/a[3]");
         waitForPageLoad();
         assertFalse(selenium.isTextPresent("UniquePool"));
+        //return to main window
+        selenium.selectWindow("null");
     }
 
     @Test
     public void testRunSQLDS() throws Exception {
+    	selenium.click(getNavigationTreeNodeLocation("Services"));
         selenium.click("link=Database Pools");
         waitForPageLoad();
         selenium.select("useDB", "label=SystemDatasource");
         selenium.type("sqlStmts", "select * from SYS.SYSDEPENDS;");
         selenium.click("//input[@value = 'Run SQL']");
         waitForPageLoad();
+        selenium.selectFrame("index=0");
         assertTrue(selenium.isTextPresent("SQL command(s) executed successfully"));
+        //return to main window
+        selenium.selectWindow("null");
     }
 
     /*

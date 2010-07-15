@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 public class ConsoleRealmTest extends TestSupport {
     @Test
     public void testNewUser() throws Exception {
+    	selenium.click(getNavigationTreeNodeLocation("Security"));
         selenium.click("link=Users and Groups");
         waitForPageLoad();
         selenium.click("link=Create New User");
@@ -36,18 +37,23 @@ public class ConsoleRealmTest extends TestSupport {
         selenium.type("confirm-password", "myuser");
         selenium.click("//input[@value='Add']");
         waitForPageLoad();
+        selenium.selectFrame("index=0");
         assertTrue(selenium.isTextPresent("myuser"));
         selenium.click("//a[@onclick=\"return confirm('Confirm Delete user myuser?');\"]");
         waitForPageLoad();
         assertTrue(selenium.getConfirmation().matches("^Confirm Delete user myuser[\\s\\S]$"));
         waitForPageLoad();
         assertFalse(selenium.isTextPresent("myuser"));
+        //return to main window
+        selenium.selectWindow("null");
     }
 
     @Test
-    public void testNewGroup() throws Exception {
+     public void testNewGroup() throws Exception {
+    	selenium.click(getNavigationTreeNodeLocation("Security"));
         selenium.click("link=Users and Groups");
         waitForPageLoad();
+        selenium.selectFrame("index=0");
         selenium.click("link=Create New Group");
         waitForPageLoad();
         selenium.type("group", "mygroup");
@@ -58,6 +64,8 @@ public class ConsoleRealmTest extends TestSupport {
         waitForPageLoad();
         assertTrue(selenium.getConfirmation().matches("^Confirm Delete group mygroup[\\s\\S]$"));
         waitForPageLoad();
-        assertFalse(selenium.isTextPresent("mygroup"));
+        assertFalse(selenium.isTextPresent("mygroup"));    //return to main window
+        selenium.selectWindow("null");
+        
     }
 }

@@ -31,6 +31,7 @@ public class InternalDBPortletTest
 {
     @Test
     public void testInternalDBLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Embedded DB"));
         selenium.click("link=DB Info");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

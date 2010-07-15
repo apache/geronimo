@@ -31,6 +31,7 @@ public class RepositoryViewPortletTest
 {
     @Test
     public void testRepositoryViewLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Services"));
         selenium.click("link=Repository");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

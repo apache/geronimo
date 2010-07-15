@@ -31,6 +31,7 @@ public class ServerManagerPortletTest
 {
     @Test
     public void testServerManagerLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
         selenium.click("link=Shutdown");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

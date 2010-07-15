@@ -31,6 +31,7 @@ public class SEGroupsPortletTest
 {
     @Test
     public void testSEGroupsLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Security"));
         selenium.click("link=Users and Groups");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

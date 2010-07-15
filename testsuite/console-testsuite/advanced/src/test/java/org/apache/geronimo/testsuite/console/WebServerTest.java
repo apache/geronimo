@@ -36,6 +36,8 @@ public class WebServerTest
         addConnector(name, 8081);
         
         deleteConnector(name);
+      //return to main window
+        selenium.selectWindow("null");
     }
 
     @Test
@@ -62,6 +64,8 @@ public class WebServerTest
         assertTrue(selenium.isTextPresent("8009"));
 
         deleteConnector(name);
+      //return to main window
+        selenium.selectWindow("null");
     }
     
     @Test
@@ -80,12 +84,16 @@ public class WebServerTest
         assertEquals("running", selenium.getText(connectorSelector + "/td[4]"));
 
         deleteConnector(name);
+        //return to main window
+        selenium.selectWindow("null");
     }
 
     private void addConnector(String name, int port) throws Exception {
+    	selenium.click(getNavigationTreeNodeLocation("Server"));
         selenium.click("link=Web Server");
         waitForPageLoad();
         String container = JETTY;
+        selenium.selectFrame("index=0");
         if (selenium.isTextPresent(TOMCAT)) {
             container = TOMCAT;
         }

@@ -21,7 +21,6 @@ package org.apache.geronimo.testsuite.console;
 
 import org.testng.annotations.Test;
 import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
-
 /**
  * @version $Rev$ $Date$
  */
@@ -34,21 +33,25 @@ public class SimpleLoginTest
         logout();
     }
     
-    @Test(dependsOnMethods = { "testLoginAndLogout" })
+  //  @Test(dependsOnMethods = { "testLoginAndLogout" })
+    @Test
     public void testClickSomeLinks() throws Exception {
         try {
+        	login();
+            logout();
             login();
-            
+            selenium.click(new BasicConsoleTestSupport().getNavigationTreeNodeLocation("Server"));
             selenium.click("link=Information");
             waitForPageLoad();            
             assertEquals("Geronimo Console", selenium.getTitle());
             
-            selenium.open("/console");
+           // selenium.open("/console");
             selenium.click("link=Java System Info");
             waitForPageLoad();
             assertEquals("Geronimo Console", selenium.getTitle());
             
-            selenium.open("/console");
+            //selenium.open("/console");
+            selenium.click(new BasicConsoleTestSupport().getNavigationTreeNodeLocation("Embedded DB"));
             selenium.click("link=DB Info");
             waitForPageLoad();
             assertEquals("Geronimo Console", selenium.getTitle());            

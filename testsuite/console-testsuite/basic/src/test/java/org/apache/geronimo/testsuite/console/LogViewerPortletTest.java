@@ -31,6 +31,7 @@ public class LogViewerPortletTest
 {
     @Test
     public void testLogViewerLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
         selenium.click("link=Server Logs");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

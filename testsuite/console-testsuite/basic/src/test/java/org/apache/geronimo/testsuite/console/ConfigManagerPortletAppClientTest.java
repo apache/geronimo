@@ -31,6 +31,8 @@ public class ConfigManagerPortletAppClientTest
 {
     @Test
     public void testConfigManagerAppClientLink() throws Exception {
+    	
+    	selenium.click(this.getNavigationTreeNodeLocation("Applications"));
         selenium.click("link=App Clients");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

@@ -30,20 +30,23 @@ public class PluginsTest extends TestSupport {
         String link = "http://geronimo-server:8080/plugin/maven-repo/";
         String actualLink = "http://localhost:8080/plugin/maven-repo/";
         String updatedLink = "http://geronimo.apache.org/plugins/geronimo-";
-            
+        selenium.click(getNavigationTreeNodeLocation("Applications")); 
         selenium.click("link=Plugins");
         waitForPageLoad();
+        selenium.selectFrame("index=0");
         assertTrue(selenium.isTextPresent(link));
         
         selenium.click("link=Update Repository List");
         waitForPageLoad();
         assertTrue(selenium.isTextPresent(updatedLink));        
-        
+        //return to main window
+        selenium.selectWindow("null");
         selenium.open("/console");
         selenium.click("link=Plugins");
         waitForPageLoad();
         selenium.click("link=Add repository");
         waitForPageLoad();
+        selenium.selectFrame("index=0");
         assertTrue(selenium.isTextPresent(link));
                     
         selenium.type("newRepository", actualLink);
@@ -66,5 +69,7 @@ public class PluginsTest extends TestSupport {
         waitForPageLoad();
         
         assertTrue(selenium.isTextPresent("Geronimo-Versions"));
+      //return to main window
+        selenium.selectWindow("null");
     }
 }

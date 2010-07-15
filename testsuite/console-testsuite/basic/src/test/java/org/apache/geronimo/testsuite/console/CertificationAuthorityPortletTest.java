@@ -31,6 +31,7 @@ public class CertificationAuthorityPortletTest
 {
     @Test
     public void testCertificationAuthorityLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Security"));
         selenium.click("link=Certificate Authority");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
