@@ -25,13 +25,11 @@ import java.util.Map;
 
 import javax.annotation.sql.DataSourceDefinition;
 import javax.annotation.sql.DataSourceDefinitions;
-import javax.resource.ResourceException;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.deployment.ConnectorModuleBuilder;
 import org.apache.geronimo.datasource.DataSourceDescription;
 import org.apache.geronimo.datasource.DataSourceGBean;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -42,7 +40,7 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
-import org.apache.geronimo.naming.reference.ResourceReferenceFactory;
+import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.openejb.jee.DataSource;
 import org.apache.openejb.jee.IsolationLevel;
 import org.apache.openejb.jee.JndiConsumer;
@@ -169,16 +167,13 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             osgiJndiName = dsDescription.getProperties().get(ConnectorModuleBuilder.OSGI_JNDI_SERVICE_NAME);
         }
         if (osgiJndiName == null) {
-            osgiJndiName = dataSourceAbstractName.getArtifact().getGroupId() + "/" +
-                     dataSourceAbstractName.getArtifact().getArtifactId() + "/" +
-                     dataSourceAbstractName.getNameProperty("j2eeType") + "/" +
-                     dataSourceAbstractName.getNameProperty("name");
+            osgiJndiName = module.getEarContext().getNaming().toOsgiJndiName(dataSourceAbstractName);
         }
         dataSourceGBean.getServiceProperties().put(ConnectorModuleBuilder.OSGI_JNDI_SERVICE_NAME, osgiJndiName);
         
         earContext.addGBean(dataSourceGBean);
                 
-        Object ref = new ResourceReferenceFactory<ResourceException>(module.getConfigId(), new AbstractNameQuery(dataSourceAbstractName), DataSource.class);
+        Object ref = new JndiReference("aries:services/" + osgiJndiName);
         put(jndiName, ref, module.getJndiContext());
     }
     
