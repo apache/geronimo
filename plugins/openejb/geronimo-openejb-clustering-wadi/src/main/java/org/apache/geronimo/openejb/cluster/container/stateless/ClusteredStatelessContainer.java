@@ -59,7 +59,7 @@ public class ClusteredStatelessContainer extends StatelessContainer implements S
 
     private static Pool.Builder builder(int poolSize, boolean strictPooling) {
         final Pool.Builder builder = new Pool.Builder();
-        builder.setPoolMax(poolSize);
+        builder.setMaxSize(poolSize);
         builder.setStrictPooling(strictPooling);
         return builder;
     }
