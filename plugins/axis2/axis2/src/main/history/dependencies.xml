@@ -27,11 +27,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.axis2</groupId>
         <artifactId>addressing</artifactId>
         <type>mar</type>
