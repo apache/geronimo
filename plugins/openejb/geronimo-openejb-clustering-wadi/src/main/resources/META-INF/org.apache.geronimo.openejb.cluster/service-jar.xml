@@ -68,7 +68,7 @@
     # Specifies the size of the bean pools for this
     # stateless SessionBean container.
 
-    PoolSize 10
+    MaxSize 10
 
     # StrictPooling tells the container what to do when the pool
     # reaches it's maximum size and there are incoming requests
@@ -99,7 +99,7 @@
     # Replacement is done in a background queue using the number of
     # threads specified by CallbackThreads.
     
-    PoolMin 0
+    MinSize 0
     
 
   </ServiceProvider>

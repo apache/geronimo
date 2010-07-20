@@ -65,8 +65,8 @@ public class EjbHelper extends BaseRemoteProxy {
 
     private static final Logger log = LoggerFactory.getLogger(EjbHelper.class);
     
-    private static final String POOLSIZE = "PoolSize";
-    private static final String POOLMIN = "PoolMin";
+    private static final String POOLSIZE = "MaxSize";
+    private static final String POOLMIN = "MinSize";
     private static final String BULKPASSIVATE = "BulkPassivate";
     private static final String CAPACITY = "Capacity";
     private static final String CLOSETIMEOUT = "CloseTimeout";

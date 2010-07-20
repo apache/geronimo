@@ -185,8 +185,8 @@
                                 <gbean name="DefaultStatelessContainer">
                                     <attribute name="accessTimeout">${StatelessAccessTimeout}</attribute>
                                     <attribute name="closeTimeout">${StatelessCloseTimeout}</attribute>                                    
-                                    <attribute name="poolSize">${StatelessPoolSize}</attribute>
-                                    <attribute name="poolMin">${StatelessMinPoolSize}</attribute>                                    
+                                    <attribute name="maxSize">${StatelessPoolSize}</attribute>
+                                    <attribute name="minSize">${StatelessMinPoolSize}</attribute>                                    
                                     <attribute name="strictPooling">${StatelessStrictPooling}</attribute>
                                     <attribute name="idleTimeout">${StatelessIdleTimeout}</attribute>                                      
 				                </gbean>
