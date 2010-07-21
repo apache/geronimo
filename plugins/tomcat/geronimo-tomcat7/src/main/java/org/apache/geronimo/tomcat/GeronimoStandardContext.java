@@ -17,6 +17,7 @@
 package org.apache.geronimo.tomcat;
 
 import java.beans.PropertyChangeListener;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,7 +41,6 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-
 import org.apache.catalina.Container;
 import org.apache.catalina.ContainerListener;
 import org.apache.catalina.Engine;
@@ -82,6 +82,8 @@ import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 import org.apache.naming.resources.FileDirContext;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.WebApp;
 import org.apache.tomcat.InstanceManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceRegistration;
@@ -307,11 +309,17 @@ public class GeronimoStandardContext extends StandardContext {
     private void addJACCSecurityLifecycleListener(TomcatWebAppContext tomcatWebAppContext) throws DeploymentException {
         float schemaVersion = (Float) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.SCHEMA_VERSION.name());
         boolean metaComplete = (Boolean) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.META_COMPLETE.name());
-        addLifecycleListener(new JACCSecurityLifecycleListener(bundle,
-                null, 
-                schemaVersion >= 2.5f && !metaComplete,
-                tomcatWebAppContext.getApplicationPolicyConfigurationManager(),
-                tomcatWebAppContext.getSecurityHolder().getPolicyContextID()));
+        try {
+            WebApp webApp = tomcatWebAppContext.getDeploymentDescriptor() == null ? null : (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, new ByteArrayInputStream(tomcatWebAppContext
+                    .getDeploymentDescriptor().getBytes()));
+            addLifecycleListener(new JACCSecurityLifecycleListener(bundle, webApp, schemaVersion >= 2.5f && !metaComplete, tomcatWebAppContext.getApplicationPolicyConfigurationManager(),
+                    tomcatWebAppContext.getSecurityHolder().getPolicyContextID()));
+        } catch (DeploymentException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("fail to parse the web.xml file while starting the web application", e);
+            throw new DeploymentException("fail to parse the web.xml file while starting the web application", e);
+        }
     }
 
     private final Object instanceListenersLock = new Object();

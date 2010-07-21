@@ -265,32 +265,31 @@ public class TomcatManagerImpl implements WebManager {
         if(protocol == null) {
             return getConnectors();
         }
-        List result = new ArrayList();
+        List<TomcatWebConnector> result = new ArrayList<TomcatWebConnector>();
         ProxyManager proxyManager = kernel.getProxyManager();
         AbstractNameQuery query = new AbstractNameQuery(TomcatWebConnector.class.getName());
-        Set names = kernel.listGBeans(query);
-        for (Iterator it = names.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
+        Set<AbstractName> names = kernel.listGBeans(query);
+        for (AbstractName name : names) {
             try {
                 if (kernel.getAttribute(name, "protocol").equals(protocol)) {
-                    result.add(proxyManager.createProxy(name, TomcatWebConnector.class.getClassLoader()));
+                    result.add((TomcatWebConnector)proxyManager.createProxy(name, TomcatWebConnector.class.getClassLoader()));
                 }
             } catch (Exception e) {
                 log.error("Unable to check the protocol for a connector", e);
             }
         }
-        return (TomcatWebConnector[]) result.toArray(new TomcatWebConnector[names.size()]);
+        return result.toArray(new TomcatWebConnector[names.size()]);
     }
 
     public WebAccessLog getAccessLog(WebContainer container) {
         AbstractNameQuery query = new AbstractNameQuery(TomcatLogManager.class.getName());
-        Set names = kernel.listGBeans(query);
+        Set<AbstractName> names = kernel.listGBeans(query);
         if(names.size() == 0) {
             return null;
         } else if(names.size() > 1) {
             throw new IllegalStateException("Should not be more than one Tomcat access log manager");
         }
-        return (WebAccessLog) kernel.getProxyManager().createProxy((AbstractName)names.iterator().next(), TomcatLogManager.class.getClassLoader());
+        return (WebAccessLog) kernel.getProxyManager().createProxy(names.iterator().next(), TomcatLogManager.class.getClassLoader());
     }
 
     public List<ConnectorType> getConnectorTypes() {

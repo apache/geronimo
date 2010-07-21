@@ -40,44 +40,44 @@ import org.slf4j.LoggerFactory;
 public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
     private static final Logger log = LoggerFactory.getLogger(HostGBean.class);
-    
+
     public static final String J2EE_TYPE = "Host";
     private static final String WORKDIR = "workDir";
     private static final String NAME = "name";
-    
+
     private final Host host;
     private final EngineGBean engine;
-    
+
     public HostGBean(){
         host = null;
         engine = null;
     }
 
-    public HostGBean(String className, 
-            Map initParams, 
-            ArrayList aliases,
-            ObjectRetriever realmGBean,            
+    public HostGBean(String className,
+            Map initParams,
+            ArrayList<String> aliases,
+            ObjectRetriever realmGBean,
             ValveGBean tomcatValveChain,
             LifecycleListenerGBean listenerChain,
             CatalinaClusterGBean clusterGBean,
             ManagerGBean manager,
             EngineGBean engine) throws Exception {
         super(); // TODO: make it an attribute
-        
+
         //Validate
         if (className == null){
             className = "org.apache.catalina.core.StandardHost";
         }
-        
+
         if (initParams == null){
             throw new IllegalArgumentException("Must have a 'name' value in initParams.");
         }
-        
+
         //Be sure the name has been declared.
         if (!initParams.containsKey(NAME)){
             throw new IllegalArgumentException("Must have a 'name' value initParams.");
         }
-        
+
         //Be sure we have a default working directory
         if (!initParams.containsKey(WORKDIR)){
             initParams.put(WORKDIR, "work");
@@ -85,10 +85,10 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
 
         //Create the Host object
         host = (Host)Class.forName(className).newInstance();
-        
+
         //Set the parameters
         setParameters(host, initParams);
-        
+
         //Add aliases, if any
         if (aliases != null){
             for (Iterator iter = aliases.iterator(); iter.hasNext();) {
@@ -96,13 +96,13 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
                 host.addAlias(alias);
             }
         }
-        
+
         if (realmGBean != null)
             host.setRealm((Realm)realmGBean.getInternalObject());
 
         //Add the valve list
         if (host instanceof StandardHost){
-            
+
             if (tomcatValveChain != null){
                 ValveGBean valveGBean = tomcatValveChain;
                 while(valveGBean != null){
@@ -110,7 +110,7 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
                     valveGBean = valveGBean.getNextValve();
                 }
             }
-            
+
             if (listenerChain != null){
                 LifecycleListenerGBean listenerGBean = listenerChain;
                 while(listenerGBean != null){
@@ -118,14 +118,14 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
                     listenerGBean = listenerGBean.getNextListener();
                 }
             }
-            
+
        }
 
         //Add clustering
         if (clusterGBean != null){
             host.setCluster((Cluster)clusterGBean.getInternalObject());
         }
-        
+
         //Add manager
         if (manager != null)
             host.setManager((Manager)manager.getInternalObject());
@@ -169,11 +169,11 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
         infoFactory.addReference("Manager", ManagerGBean.class, ManagerGBean.J2EE_TYPE);
         infoFactory.addReference("Engine", EngineGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { 
-                "className", 
-                "initParams", 
-                "aliases", 
-                "RealmGBean", 
+        infoFactory.setConstructor(new String[] {
+                "className",
+                "initParams",
+                "aliases",
+                "RealmGBean",
                 "TomcatValveChain",
                 "LifecycleListenerChain",
                 "CatalinaCluster",
