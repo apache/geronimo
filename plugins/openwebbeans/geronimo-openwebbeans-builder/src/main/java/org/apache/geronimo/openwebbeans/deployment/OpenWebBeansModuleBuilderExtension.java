@@ -107,6 +107,12 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
             // not a web module, nothing to do
             return;
         }
+        
+        // Don't do anything for now
+        if (true) {
+            return;
+        }
+        
         WebModule webModule = (WebModule) module;
         WebApp webApp = (WebApp) webModule.getSpecDD();
 
@@ -116,7 +122,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         // add the ServletContextListener to the web app context
         GBeanData webAppData = (GBeanData) sharedContext.get(WebModule.WEB_APP_DATA);
 
-        // jetty specific support
+        // add web beans listener
         Object value = webAppData.getAttribute("listenerClassNames");
         if (value instanceof Collection && !((Collection) value).contains(CONTEXT_LISTENER_NAME)) {
             ((Collection<String>) value).add(CONTEXT_LISTENER_NAME);
