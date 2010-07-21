@@ -116,6 +116,72 @@
                     </configuration>
                 </plugin>
 
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>selenium-maven-plugin</artifactId>
+                            <!--<inherited>false</inherited>-->
+                            <executions>
+                                <execution>
+                                    <id>start-selenium</id>
+                                    <phase>pre-integration-test</phase>
+                                    <goals>
+                                        <goal>start-server</goal>
+                                    </goals>
+                                    <configuration>
+                                        <logOutput>true</logOutput>
+                                        <background>true</background>
+                                        <systemProperties>
+                                            <property>
+                                                <name>browser</name>
+                                                <value>${browser}</value>
+                                            </property>
+                                        </systemProperties>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>stop-selenium</id>
+                                    <phase>post-integration-test</phase>
+                                    <goals>
+                                        <goal>stop-server</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <version>2.5</version>
+                            <configuration>
+                                <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                                <forkMode>once</forkMode>
+                                <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
+                                <argLine>-enableassertions</argLine>
+                                <failIfNoTests>false</failIfNoTests>
+                                <testFailureIgnore>true</testFailureIgnore>
+                                <workingDirectory>${project.build.directory}</workingDirectory>
+                                <includes>
+                                    <include>**/Test*.java</include>
+                                    <include>**/*Test.java</include>
+                                </includes>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>integration-test</id>
+                                    <goals>
+                                        <goal>integration-test</goal>
+                                    </goals>
+                                </execution>
+                                <execution>
+                                    <id>verify</id>
+                                    <phase>install</phase>
+                                    <goals>
+                                        <goal>verify</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+
             </plugins>
         </pluginManagement>
 
@@ -197,74 +263,12 @@
     <profiles>
         <profile>
             <id>it</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <pluginManagement>
                     <plugins>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>selenium-maven-plugin</artifactId>
-                            <inherited>false</inherited>
-                            <executions>
-                                <execution>
-                                    <id>start-selenium</id>
-                                    <phase>pre-integration-test</phase>
-                                    <goals>
-                                        <goal>start-server</goal>
-                                    </goals>
-                                    <configuration>
-                                        <logOutput>true</logOutput>
-                                        <background>true</background>
-                                        <systemProperties>
-                                            <property>
-                                                <name>browser</name>
-                                                <value>${browser}</value>
-                                            </property>
-                                        </systemProperties>
-                                    </configuration>
-                                </execution>
-                                <execution>
-                                    <id>stop-selenium</id>
-                                    <phase>post-integration-test</phase>
-                                    <goals>
-                                        <goal>stop-server</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                        </plugin>
-
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-failsafe-plugin</artifactId>
-                            <version>2.5</version>
-                            <configuration>
-                                <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                                <forkMode>once</forkMode>
-                                <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
-                                <argLine>-enableassertions</argLine>
-                                <failIfNoTests>false</failIfNoTests>
-                                <workingDirectory>${project.build.directory}</workingDirectory>
-                                <includes>
-                                    <include>**/Test*.java</include>
-                                    <include>**/*Test.java</include>
-                                </includes>
-                            </configuration>
-                            <executions>
-                                <execution>
-                                    <id>integration-test</id>
-                                    <goals>
-                                        <goal>integration-test</goal>
-                                    </goals>
-                                </execution>
-                                <execution>
-                                    <id>verify</id>
-                                    <phase>install</phase>
-                                    <goals>
-                                        <goal>verify</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                        </plugin>
-
                         <plugin>
                             <groupId>org.apache.geronimo.buildsupport</groupId>
                             <artifactId>geronimo-maven-plugin</artifactId>
@@ -302,14 +306,12 @@
                         </plugin>
 
                     </plugins>
-                </pluginManagement>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                    </plugin>
-                </plugins>
+                </pluginManagement>                
             </build>
+        </profile>
+
+        <profile>
+            <id>it-manual</id>            
         </profile>
 
         <profile>
@@ -358,5 +360,44 @@
             </properties>
         </profile>
     </profiles>
+
+    <!--<repositories>
+        <repository>
+            <releases>
+                <enabled>false</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+            <id>codehausSnapshots</id>
+            <name>Codehaus Snapshots</name>
+            <url>http://snapshots.maven.codehaus.org/maven2</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>-->
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>ApacheSnapshots</id>
+            <name>Apache Snapshots</name>
+            <url>https://repository.apache.org/content/repositories/snapshots</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>false</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>            
+        </pluginRepository>
+    </pluginRepositories>
+
 
 </project>

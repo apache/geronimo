@@ -47,41 +47,19 @@
         </dependency>
     </dependencies>
     
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.aries</groupId>
-                <artifactId>eba-maven-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <generateManifest>true</generateManifest>
-                    <instructions>
-                        <Application-Version>1.0.0</Application-Version>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <profiles>
-        <profile>
-            <id>it</id>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-failsafe-plugin</artifactId>
-                            <configuration>
-                                <systemPropertyVariables>
-                                    <webAppName>simple</webAppName>
-                                </systemPropertyVariables>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-
+            <build>               
                 <plugins>
+                    <plugin>
+                        <groupId>org.apache.aries</groupId>
+                        <artifactId>eba-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <generateManifest>true</generateManifest>
+                            <instructions>
+                                <Application-Version>1.0.0</Application-Version>
+                            </instructions>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
@@ -108,9 +86,16 @@
                             </execution>
                         </executions>
                     </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-failsafe-plugin</artifactId>
+                            <configuration>
+                                <systemPropertyVariables>
+                                    <webAppName>simple</webAppName>
+                                </systemPropertyVariables>
+                            </configuration>
+                        </plugin>
                 </plugins>
-            </build>
-        </profile>
-    </profiles>
+            </build>        
     
 </project>

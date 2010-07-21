@@ -60,12 +60,8 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>it</id>
             <build>
-                <pluginManagement>
-                    <plugins>
+                <plugins>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-failsafe-plugin</artifactId>
@@ -75,10 +71,6 @@
                                 </suiteXmlFiles>
                             </configuration>
                         </plugin>
-                    </plugins>
-                </pluginManagement>
-
-                <plugins>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>selenium-maven-plugin</artifactId>
@@ -112,7 +104,5 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-    </profiles>
 
 </project>

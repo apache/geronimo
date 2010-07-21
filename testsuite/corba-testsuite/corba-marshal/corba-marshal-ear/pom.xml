@@ -83,15 +83,6 @@
                     </modules>
                 </configuration>
             </plugin>
-
-        </plugins>
-    </build>
-    <profiles>
-        <profile>
-            <id>it</id>
-            <build>
-                <plugins>
-                    <!-- Deploy the ear and invoke the imbedded CORBA app client -->
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
@@ -138,9 +129,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+        </plugins>
+    </build>    
 
 </project>

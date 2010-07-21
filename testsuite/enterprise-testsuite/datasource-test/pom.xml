@@ -41,13 +41,9 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>it</id>
-            <build>
-                <pluginManagement>
-                    <plugins>
+    
+            <build>                         
+                <plugins>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-failsafe-plugin</artifactId>
@@ -60,10 +56,6 @@
                                 </systemProperties>
                             </configuration>
                         </plugin>
-                    </plugins>
-                </pluginManagement>
-                
-                <plugins>
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
@@ -91,8 +83,6 @@
                         </executions>
                     </plugin>
                 </plugins>
-            </build>
-        </profile>
-    </profiles>
+            </build>        
 
 </project>
