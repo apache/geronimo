@@ -7,23 +7,23 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>openwebbeans-impl</artifactId>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>openwebbeans-jsf</artifactId>
+        <artifactId>commons-digester</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>openwebbeans-spi</artifactId>
+        <artifactId>commons-discovery</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>openwebbeans-web</artifactId>
+        <artifactId>jstl</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -39,6 +39,11 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-openwebbeans</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-annotation_1.1_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -72,6 +77,51 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.myfaces.core</groupId>
+        <artifactId>myfaces-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.myfaces.core</groupId>
+        <artifactId>myfaces-impl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-impl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-jsf</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-osgi</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-spi</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-web</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.commons-beanutils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.commons-codec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.dom4j</artifactId>
         <type>jar</type>
@@ -79,11 +129,6 @@
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>xml-apis</groupId>
-        <artifactId>xml-apis</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

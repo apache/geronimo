@@ -40,20 +40,8 @@
     <dependencies>
         <!--plugin groups-->
         <dependency>
-            <groupId>org.apache.geronimo.framework.plugingroups</groupId>
-            <artifactId>framework</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>eba-jetty</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>console-jetty</artifactId>
+            <artifactId>javaee6-web-jetty</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
@@ -71,13 +59,6 @@
             <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
-
-        <dependency>
-            <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>ejb</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.plugingroups</groupId>
@@ -99,9 +80,6 @@
             <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
-        <!-- end plugin groups -->
-
-        <!--other plugins-->
 
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
@@ -117,19 +95,6 @@
             <!--<type>car</type>-->
         <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>jmx-security</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>bval-deployer</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
-
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.plugins.monitoring</groupId>-->
             <!--<artifactId>agent-car-ejb</artifactId>-->
@@ -144,12 +109,6 @@
             <!--<type>car</type>-->
         <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>welcome-jetty</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
     </dependencies>
 
     <build>

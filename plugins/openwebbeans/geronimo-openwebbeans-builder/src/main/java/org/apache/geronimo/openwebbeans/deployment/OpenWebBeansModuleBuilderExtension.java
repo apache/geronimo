@@ -18,16 +18,12 @@
 package org.apache.geronimo.openwebbeans.deployment;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.jar.JarFile;
-
-import javax.enterprise.inject.spi.Bean;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -47,9 +43,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.xbeans.javaee6.FullyQualifiedClassType;
-import org.apache.geronimo.xbeans.javaee6.ListenerType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
+import org.apache.openejb.jee.WebApp;
 import org.apache.webbeans.servlet.WebBeansConfigurationListener;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
@@ -98,7 +92,6 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         }
 
         EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
-
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores,
@@ -115,7 +108,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
             return;
         }
         WebModule webModule = (WebModule) module;
-        WebAppType webApp = (WebAppType) webModule.getSpecDD();
+        WebApp webApp = (WebApp) webModule.getSpecDD();
 
         EARContext moduleContext = module.getEarContext();
         Map sharedContext = module.getSharedContext();
@@ -127,37 +120,25 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         Object value = webAppData.getAttribute("listenerClassNames");
         if (value instanceof Collection && !((Collection) value).contains(CONTEXT_LISTENER_NAME)) {
             ((Collection<String>) value).add(CONTEXT_LISTENER_NAME);
-        } else {
-            // try to add listener to the web app xml
-            ListenerType listenerType = webApp.addNewListener();
-            FullyQualifiedClassType className = listenerType.addNewListenerClass();
-            className.setStringValue(CONTEXT_LISTENER_NAME);
         }
-
         AbstractName moduleName = moduleContext.getModuleName();
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
 
-        // use the same jndi context as the web app
-        Map compContext = NamingBuilder.JNDI_KEY.get(module.getSharedContext());
-        buildingContext.put(NamingBuilder.JNDI_KEY, compContext);
-
-        // use the same holder object as the web app.
+        //use the same holder object as the web app.
         Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
         buildingContext.put(NamingBuilder.INJECTION_KEY, holder);
-
+        
         XmlObject jettyWebApp = webModule.getVendorDD();
 
         ClassFinder classFinder = createOpenWebBeansClassFinder(webApp, webModule);
         webModule.setClassFinder(classFinder);
 
         namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);
-
     }
 
-    protected ClassFinder createOpenWebBeansClassFinder(WebAppType webApp, WebModule webModule)
+    protected ClassFinder createOpenWebBeansClassFinder(WebApp webApp, WebModule webModule)
             throws DeploymentException {
-
         List<Class> classes = getManagedClasses(webApp, webModule);
         return new ClassFinder(classes);
     }
@@ -185,11 +166,8 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
      * @throws org.apache.geronimo.common.DeploymentException
      *           
      */
-    private List<Class> getManagedClasses(WebAppType webApp, WebModule webModule) throws DeploymentException {
-     
+    private List<Class> getManagedClasses(WebApp webApp, WebModule webModule) throws DeploymentException {     
         return Collections.EMPTY_LIST;
-    }
-
-    
+    }    
 
 }

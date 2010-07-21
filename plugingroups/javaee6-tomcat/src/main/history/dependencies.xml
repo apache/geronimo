@@ -8,27 +8,7 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>bval-deployer</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>javamail</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>welcome-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework</groupId>
-        <artifactId>jmx-security</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.framework.plugingroups</groupId>
-        <artifactId>framework</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -38,17 +18,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>console-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>eba-tomcat</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.plugingroups</groupId>
-        <artifactId>ejb</artifactId>
+        <artifactId>javaee6-web-tomcat</artifactId>
         <type>car</type>
     </dependency>
     <dependency>

@@ -34,7 +34,7 @@
     <name>Geronimo Plugin Group :: WAB Jetty</name>
 
     <description>
-        This plugin group provides the OSGi RFC66 WAB on Jetty functionality.
+        This plugin group provides support for OSGi Web Applications on Jetty.
     </description>
 
     <dependencies>

@@ -13,6 +13,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>openwebbeans-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>welcome-jetty</artifactId>
         <type>car</type>
     </dependency>

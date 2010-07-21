@@ -70,7 +70,6 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jta_1.1_spec</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -86,14 +85,48 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-annotation_1.1_spec</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-validation_1.0_spec</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-impl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>jstl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.commons-beanutils</artifactId>
+        </dependency>
         
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.commons-codec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>commons-digester</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>commons-discovery</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.dom4j</artifactId>
@@ -105,28 +138,33 @@
         </dependency>
         
         <dependency>
-             <groupId>org.apache.geronimo.bundles</groupId>
-             <artifactId>scannotation</artifactId>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>scannotation</artifactId>
         </dependency>
 
         <dependency>
-             <groupId>org.apache.geronimo.bundles</groupId>
+            <groupId>org.apache.openwebbeans</groupId>
             <artifactId>openwebbeans-spi</artifactId>           
         </dependency>         
     
         <dependency>
-             <groupId>org.apache.geronimo.bundles</groupId>
-             <artifactId>openwebbeans-impl</artifactId>
+            <groupId>org.apache.openwebbeans</groupId>
+            <artifactId>openwebbeans-impl</artifactId>
         </dependency>
 
         <dependency>
-             <groupId>org.apache.geronimo.bundles</groupId>
+            <groupId>org.apache.openwebbeans</groupId>
             <artifactId>openwebbeans-web</artifactId>         
         </dependency>  
       
         <dependency>
-             <groupId>org.apache.geronimo.bundles</groupId>
+            <groupId>org.apache.openwebbeans</groupId>
             <artifactId>openwebbeans-jsf</artifactId>        
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.openwebbeans</groupId>
+            <artifactId>openwebbeans-osgi</artifactId>        
         </dependency>
 
     </dependencies>

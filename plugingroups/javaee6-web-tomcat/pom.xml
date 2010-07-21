@@ -58,14 +58,6 @@
             <type>car</type>
         </dependency>
 
-        <!-- TODO - Should this be in Web Profile?
-        <dependency>
-            <groupId>org.apache.geronimo.plugingroups</groupId>
-            <artifactId>client</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency> -->
-
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.plugingroups</groupId>-->
             <!--<artifactId>clustering-tomcat</artifactId>-->
@@ -84,6 +76,13 @@
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>bval-deployer</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openwebbeans-deployer</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
