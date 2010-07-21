@@ -74,6 +74,9 @@ import org.osgi.framework.BundleContext;
 public final class GBeanInstance implements StateManageable {
     private static final Logger log = LoggerFactory.getLogger(GBeanInstance.class);
 
+    private static final String ABSTRACT_NAME_PROPERTY = "org.apache.geronimo.abstractName";
+    private static final String OSGI_JNDI_NAME_PROPERTY = "osgi.jndi.service.name";
+    
     private static final int DESTROYED = 0;
     private static final int CREATING = 1;
     private static final int RUNNING = 2;
@@ -1001,7 +1004,10 @@ public final class GBeanInstance implements StateManageable {
                         serviceProperties = this.serviceProperties;
                     } else {
                         serviceProperties = new Hashtable();
-                        serviceProperties.put("org.apache.geronimo.abstractName", abstractName);
+                    }
+                    serviceProperties.put(ABSTRACT_NAME_PROPERTY, abstractName.toString());
+                    if (serviceProperties.get(OSGI_JNDI_NAME_PROPERTY) == null) {
+                        serviceProperties.put(OSGI_JNDI_NAME_PROPERTY, kernel.getNaming().toOsgiJndiName(abstractName));
                     }
                     serviceRegistration = bundleContext.registerService(serviceInterfaces, instance, serviceProperties);
                     log.debug("Registered gbean " + abstractName + " as osgi service under interfaces " + Arrays.asList(serviceInterfaces) + " with properties " + serviceProperties);
