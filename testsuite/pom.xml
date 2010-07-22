@@ -263,9 +263,9 @@
     <profiles>
         <profile>
             <id>it</id>
-            <activation>
+            <!--<activation>
                 <activeByDefault>true</activeByDefault>
-            </activation>
+            </activation>-->
             <build>
                 <pluginManagement>
                     <plugins>
