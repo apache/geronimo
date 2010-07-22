@@ -45,7 +45,7 @@
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.framework</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.0-SNAPSHOT</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.osgi</groupId>
@@ -113,13 +113,13 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>sxc-jaxb</artifactId>
-                <version>0.7.2_1</version>
+                <version>${sxcVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>sxc-runtime</artifactId>
-                <version>0.7.2_1</version>
+                <version>${sxcVersion}</version>
             </dependency>
 
             <dependency>

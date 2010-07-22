@@ -7,6 +7,16 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.aries</groupId>
         <artifactId>org.apache.aries.util</artifactId>
         <type>jar</type>
@@ -14,6 +24,11 @@
     <dependency>
         <groupId>org.apache.aries.jndi</groupId>
         <artifactId>org.apache.aries.jndi</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.bval</groupId>
+        <artifactId>org.apache.bval.bundle</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

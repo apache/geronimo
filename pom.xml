@@ -72,7 +72,7 @@
 
         <openejbVersion>3.2-SNAPSHOT</openejbVersion>
         <openjpaVersion>2.0.0</openjpaVersion>
-        <derbyVersion>10.5.3.0_1</derbyVersion>
+        <derbyVersion>10.6.1.0</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
         <axis2Version>1.5</axis2Version>
         <axiomVersion>1.2.8</axiomVersion>
@@ -85,6 +85,8 @@
 
         <monitoringConsoleVersion>${project.version}</monitoringConsoleVersion>
         <pax.logging.version>1.5.2</pax.logging.version>
+        <woodstoxVersion>3.2.9_1</woodstoxVersion>
+        <sxcVersion>0.7.3_1</sxcVersion>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${project.version}/car
@@ -531,13 +533,13 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>aspectjrt</artifactId>
-                <version>1.6.2_1</version>
+                <version>1.6.8_1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.6.2_1</version>
+                <version>1.6.8_1</version>
             </dependency>
 
             <dependency>
@@ -1256,7 +1258,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>woodstox</artifactId>
-                <version>3.2.9_1</version>
+                <version>${woodstoxVersion}</version>
             </dependency>
 
             <dependency>
@@ -1295,29 +1297,6 @@
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>jaxb-impl</artifactId>
                 <version>2.2_1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.envoisolutions.sxc</groupId>
-                <artifactId>sxc-jaxb</artifactId>
-                <version>0.7.3</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>stax</groupId>
-                        <artifactId>stax-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.envoisolutions.sxc</groupId>
-                <artifactId>sxc-runtime</artifactId>
-                <version>0.7.3</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>stax</groupId>
-                        <artifactId>stax-api</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>

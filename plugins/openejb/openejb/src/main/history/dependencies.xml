@@ -122,11 +122,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.xbean</groupId>
-        <artifactId>xbean-bundleutils</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.yoko</groupId>
         <artifactId>yoko-spec-corba</artifactId>
         <type>jar</type>
