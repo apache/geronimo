@@ -55,7 +55,7 @@
         <module>jpa-tests</module>
         <!--<module>sec-client-tests</module>-->
         <module>datasource-test</module>
-        <!--<module>appname-tests</module>-->
+        <module>appname-tests</module>
     </modules>
 
 </project>
