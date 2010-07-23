@@ -67,6 +67,11 @@
     <profiles>
         <profile>
             <id>it</id>
+            <activation>
+                <property>
+                    <name>it</name>
+                </property>
+            </activation>
             <build>
                 <plugins>
 
