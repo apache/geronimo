@@ -422,6 +422,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
             mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, clientEnvironment, null, earName, naming, idBuilder);
         }
         if (standAlone) {
+            Map<JndiKey, Map<String, Object>> appJndiContext = Module.share(Module.APP, module.getJndiContext());
+            
             ApplicationInfo appInfo = new ApplicationInfo(ConfigurationModuleType.CAR,
                     serverEnvironment,
                     earName,
@@ -429,7 +431,8 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                     null,
                     null,
                     null,
-                    null);
+                    null,
+                    appJndiContext);
             appInfo.getModules().add(module);
             return appInfo;
         } else {

@@ -67,6 +67,7 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
@@ -346,6 +347,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             return module;
         }
 
+        Map<JndiKey, Map<String, Object>> jndiContext = Module.share(Module.APP, module.getJndiContext());
+
         ApplicationInfo applicationInfo = new ApplicationInfo(module.getType(),
                 module.getEnvironment(),
                 module.getModuleName(),
@@ -353,7 +356,8 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 jarFile,
                 null,
                 null,
-                null
+                null,
+                jndiContext
         );
         applicationInfo.getModules().add(module);
         return applicationInfo;

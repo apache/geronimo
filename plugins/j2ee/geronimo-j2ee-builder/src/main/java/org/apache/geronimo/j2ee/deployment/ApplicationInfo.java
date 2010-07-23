@@ -16,9 +16,11 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.jee.Application;
@@ -38,9 +40,20 @@ public class ApplicationInfo extends Module<Application, XmlObject> {
                            JarFile earFile,
                            Application specDD,
                            XmlObject vendorDD,
-                           String originalSpecDD
-    ) {
-        super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, null, null);
+                           String originalSpecDD) {
+        this(type, environment, baseName, name, earFile, specDD, vendorDD, originalSpecDD, null);        
+    }
+    
+    public ApplicationInfo(ConfigurationModuleType type,
+                           Environment environment,
+                           AbstractName baseName,
+                           String name,
+                           JarFile earFile,
+                           Application specDD,
+                           XmlObject vendorDD,
+                           String originalSpecDD,
+                           Map<JndiKey, Map<String, Object>> jndiContext) {
+        super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, jndiContext, null);
         assert type != null;
         assert environment != null;
         assert modules != null;
