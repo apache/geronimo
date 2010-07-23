@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import javax.servlet.Servlet;
+import javax.xml.bind.JAXBException;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableBundle;
@@ -175,8 +177,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         } else {
             try {
                 specDD = JarUtils.readAll(specDDUrl);
-//                XmlObject parsed = XmlBeansUtil.parse(specDD);
-//                WebAppDocument webAppDoc = SchemaConversionUtils.convertToServletSchema(parsed);
+
                 InputStream in = specDDUrl.openStream();
                 try {
                     webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
@@ -238,27 +239,34 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             if (specDDUrl == null) {
                 specDDUrl = JarUtils.createJarURL(moduleFile, "WEB-INF/web.xml");
             }
-            if (specDDUrl == null) {
-                if (!moduleFile.getName().endsWith(".war")) {
-                    //not for us
-                    return null;
-                }
-                webApp = new WebApp();
-            } else {
-                // read in the entire specDD as a string, we need this for getDeploymentDescriptor
-                // on the J2ee management object
-                specDD = JarUtils.readAll(specDDUrl);
-                InputStream in = specDDUrl.openStream();
-                try {
-                    webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
-                } finally {
-                    in.close();
-                }
-            }
 
+            // read in the entire specDD as a string, we need this for getDeploymentDescriptor
+            // on the J2ee management object
+            specDD = JarUtils.readAll(specDDUrl);
+
+            // we found web.xml, if it won't parse that's an error.
+            InputStream in = specDDUrl.openStream();
+            try {
+                webApp = (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, in);
+            } finally {
+                in.close();
+            }
 //            WebDeploymentValidationUtils.validateWebApp(webApp);
-        } catch (Exception e) {
+        } catch (JAXBException e) {
+            // Output the target path in the error to make it clearer to the user which webapp
+            // has the problem.  The targetPath is used, as moduleFile may have an unhelpful
+            // value such as C:\geronimo-1.1\var\temp\geronimo-deploymentUtil22826.tmpdir
             throw new DeploymentException("Error parsing web.xml for " + targetPath, e);
+        } catch (Exception e) {
+            if (!moduleFile.getName().endsWith(".war")) {
+                //not for us
+                return null;
+            }
+            //else ignore as jee5 allows optional spec dd for .war's
+        }
+        
+        if (webApp == null) {
+            webApp = new WebApp();
         }
 
         Deployable deployable = new DeployableJarFile(moduleFile);
