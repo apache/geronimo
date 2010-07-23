@@ -118,6 +118,24 @@
                     </execution>
                 </executions>
             </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>it</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                    </plugin>
+
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
@@ -144,8 +162,10 @@
                             </execution>
                         </executions>
                     </plugin>
-        </plugins>
-    </build>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
 

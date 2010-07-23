@@ -115,15 +115,28 @@
                     </execution>
                 </executions>
             </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-failsafe-plugin</artifactId>
-                            <configuration>
-                                <suiteXmlFiles>
-                                    <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
-                                </suiteXmlFiles>
-                            </configuration>
-                        </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>it</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
+                            </suiteXmlFiles>
+                        </configuration>
+                    </plugin>
 
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
@@ -156,7 +169,9 @@
                             </execution>
                         </executions>
                     </plugin>
-        </plugins>
-    </build>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

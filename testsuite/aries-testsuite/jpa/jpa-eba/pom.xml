@@ -45,21 +45,44 @@
             <artifactId>jpa-wab</artifactId>
             <version>${project.version}</version>
         </dependency>
-    </dependencies>    
+    </dependencies>
     
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.aries</groupId>
+                <artifactId>eba-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <generateManifest>true</generateManifest>
+                    <instructions>
+                        <Application-Version>1.0.0</Application-Version>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>it</name>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.aries</groupId>
-                        <artifactId>eba-maven-plugin</artifactId>
-                        <extensions>true</extensions>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <generateManifest>true</generateManifest>
-                            <instructions>
-                                <Application-Version>1.0.0</Application-Version>
-                            </instructions>
+                            <systemPropertyVariables>
+                                <webAppName>jpa</webAppName>
+                            </systemPropertyVariables>
                         </configuration>
                     </plugin>
+
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
@@ -135,17 +158,9 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <webAppName>jpa</webAppName>
-                            </systemPropertyVariables>
-                        </configuration>
-                    </plugin>
                 </plugins>
             </build>
-        
+        </profile>
+    </profiles>
     
 </project>

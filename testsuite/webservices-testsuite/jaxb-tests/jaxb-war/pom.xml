@@ -43,21 +43,29 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-            
+
+    <profiles>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>it</name>
+                </property>
+            </activation>
             <build>
                 <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-failsafe-plugin</artifactId>
-                            <configuration>
-                                <systemProperties>
-                                    <property>
-                                        <name>webAppName</name>
-                                        <value>${project.artifactId}-${project.version}</value>
-                                    </property>
-                                </systemProperties>
-                            </configuration>
-                        </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemProperties>
+                                <property>
+                                    <name>webAppName</name>
+                                    <value>${project.artifactId}-${project.version}</value>
+                                </property>
+                            </systemProperties>
+                        </configuration>
+                    </plugin>
 
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
@@ -87,6 +95,8 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+    </profiles>
 
 </project>
 

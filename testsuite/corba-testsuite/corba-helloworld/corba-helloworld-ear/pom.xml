@@ -109,6 +109,37 @@
                     </execution>
                 </executions>
             </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>it</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Deploy the ear and invoke the imbedded CORBA app client  -->
+                    <!-- ======================================================== -->
+                    <!-- ===================================================================== -->
+                    <!-- Setup the client log file location for access by the CORBA app client -->
+                    <!-- ===================================================================== -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemProperties>
+                                <property>
+                                    <name>clientLogFile</name>
+                                    <value>${clientLogFile}</value>
+                                </property>
+                            </systemProperties>
+                        </configuration>
+                    </plugin>
+
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
                         <artifactId>geronimo-maven-plugin</artifactId>
@@ -182,23 +213,10 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- Deploy the ear and invoke the imbedded CORBA app client  -->
-                    <!-- ======================================================== -->
-                    <!-- ===================================================================== -->
-                    <!-- Setup the client log file location for access by the CORBA app client -->
-                    <!-- ===================================================================== -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <systemProperties>
-                                <property>
-                                    <name>clientLogFile</name>
-                                    <value>${clientLogFile}</value>
-                                </property>
-                            </systemProperties>
-                        </configuration>
-                    </plugin>
-        </plugins>
-    </build>
+                    
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
