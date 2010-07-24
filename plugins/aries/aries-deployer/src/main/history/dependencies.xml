@@ -23,6 +23,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.aries.application</groupId>
+        <artifactId>org.apache.aries.application.resolver.obr</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.aries.application</groupId>
         <artifactId>org.apache.aries.application.utils</artifactId>
         <type>jar</type>
     </dependency>
@@ -79,11 +84,6 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-aries-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-aries-resolver</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

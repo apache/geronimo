@@ -43,8 +43,10 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.ServiceException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,18 +74,42 @@ public class ApplicationGBean implements GBeanLifecycle {
         this.installer = installer;
         this.configId = configId;
                 
-        // XXX: fix me
         BundleContext bundleContext = bundle.getBundleContext();
-        DeploymentMetadataFactory deploymentFactory = getDeploymentMetadataFactory(bundleContext);
-        ApplicationMetadataFactory applicationFactory = getApplicationMetadataFactory(bundleContext);
+
+        DeploymentMetadataFactory deploymentFactory = null;
+        ApplicationMetadataFactory applicationFactory  = null;
         
-        this.application = new GeronimoApplication(bundle, applicationFactory, deploymentFactory);
+        ServiceReference deploymentFactoryReference = 
+            bundleContext.getServiceReference(DeploymentMetadataFactory.class.getName());
+        ServiceReference applicationFactoryReference =
+            bundleContext.getServiceReference(ApplicationMetadataFactory.class.getName());
+        
+        try {
+            deploymentFactory = getService(deploymentFactoryReference, DeploymentMetadataFactory.class);
+            applicationFactory = getService(applicationFactoryReference, ApplicationMetadataFactory.class);
+        
+            this.application = new GeronimoApplication(bundle, applicationFactory, deploymentFactory);
+        } finally {
+            if (deploymentFactory != null) {
+                bundleContext.ungetService(deploymentFactoryReference);
+            }
+            if (applicationFactory != null) {
+                bundleContext.ungetService(applicationFactoryReference);
+            }
+        }
         
         install();
+                        
+        ServiceReference applicationManagerReference = 
+            bundleContext.getServiceReference(AriesApplicationContextManager.class.getName());
         
         GeronimoApplicationContextManager applicationManager = 
-            (GeronimoApplicationContextManager) getApplicationContextManager(bundleContext);
-        applicationManager.registerApplicationContext(new GeronimoApplicationContext(this));
+            getService(applicationManagerReference, GeronimoApplicationContextManager.class);
+        try {
+            applicationManager.registerApplicationContext(new GeronimoApplicationContext(this));
+        } finally {
+            bundleContext.ungetService(applicationManagerReference);
+        }
     }
     
     protected Bundle getBundle() {
@@ -101,53 +127,17 @@ public class ApplicationGBean implements GBeanLifecycle {
     protected ApplicationState getApplicationState() {
         return applicationState;
     }
-        
-    private AriesApplicationContextManager getApplicationContextManager(BundleContext bundleContext) {
-        ServiceReference ref = 
-            bundleContext.getServiceReference(AriesApplicationContextManager.class.getName());
-        if (ref != null) {
-            return (AriesApplicationContextManager) bundleContext.getService(ref);
-        } else {
-            return null;
-        }
-    }
-    
-    private DeploymentMetadataFactory getDeploymentMetadataFactory(BundleContext bundleContext) {
-        ServiceReference ref = 
-            bundleContext.getServiceReference(DeploymentMetadataFactory.class.getName());
-        if (ref != null) {
-            return (DeploymentMetadataFactory) bundleContext.getService(ref);
-        } else {
-            return null;
-        }
-    }
-    
-    private ApplicationMetadataFactory getApplicationMetadataFactory(BundleContext bundleContext) {
-        ServiceReference ref = 
-            bundleContext.getServiceReference(ApplicationMetadataFactory.class.getName());
-        if (ref != null) {
-            return (ApplicationMetadataFactory) bundleContext.getService(ref);
-        } else {
-            return null;
-        }
-    }
-    
+            
     private void install() throws Exception {
 
         BundleContext bundleContext = bundle.getBundleContext();
         
         AriesApplicationResolver resolver = null;
-
-        ServiceReference ref = bundleContext.getServiceReference(AriesApplicationResolver.class.getName());
-
-        if (ref != null) {
-            resolver = (AriesApplicationResolver) bundleContext.getService(ref);
-        }
-
-        if (resolver == null) {
-            throw new ManagementException("AriesApplicationResolver service not found");
-        }
-
+        PackageAdmin packageAdmin = null;
+        
+        ServiceReference resolverRef = bundleContext.getServiceReference(AriesApplicationResolver.class.getName());
+        ServiceReference packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class.getName());
+                
         DeploymentMetadata meta = application.getDeploymentMetadata();
         
         List<DeploymentContent> bundlesToInstall = new ArrayList<DeploymentContent>();
@@ -156,29 +146,29 @@ public class ApplicationGBean implements GBeanLifecycle {
         
         applicationBundles = new HashSet<Bundle>();
         try {
+            resolver = getService(resolverRef, AriesApplicationResolver.class);
+            packageAdmin = getService(packageAdminRef, PackageAdmin.class);
+            
             for (DeploymentContent content : bundlesToInstall) {
                 String bundleSymbolicName = content.getContentName();
                 Version bundleVersion = content.getExactVersion();
 
-                BundleInfo bundleInfo = null;
-
-                for (BundleInfo info : application.getBundleInfo()) {
-                    if (info.getSymbolicName().equals(bundleSymbolicName)
-                        && info.getVersion().equals(bundleVersion)) {
-                        bundleInfo = info;
-                        break;
-                    }
+                // Step 1: See if bundle is already installed in the framework
+                if (findBundleInFramework(packageAdmin, bundleSymbolicName, bundleVersion) != null) {
+                    continue;
                 }
-
+                
+                // Step 2: See if the bundle is included in the application
+                BundleInfo bundleInfo = findBundleInfoInApplication(bundleSymbolicName, bundleVersion);
                 if (bundleInfo == null) {
-                    // call out to the bundle repository.
-                    bundleInfo = resolver.getBundleInfo(bundleSymbolicName, bundleVersion);
+                    // Step 3: Lookup bundle location using the resolver
+                    bundleInfo = findBundleInfoUsingResolver(resolver, bundleSymbolicName, bundleVersion);
                 }
-
+                
                 if (bundleInfo == null) {
                     throw new ManagementException("Cound not find bundles: " + bundleSymbolicName + "_" + bundleVersion);
                 }
-
+                    
                 Bundle bundle = bundleContext.installBundle(bundleInfo.getLocation());
 
                 applicationBundles.add(bundle);
@@ -193,11 +183,51 @@ public class ApplicationGBean implements GBeanLifecycle {
             throw be;
         } finally {
             if (resolver != null) {
-                bundleContext.ungetService(ref);
+                bundleContext.ungetService(resolverRef);
+            }
+            if (packageAdmin != null) {
+                bundleContext.ungetService(packageAdminRef);
             }
         }
 
         applicationState = ApplicationState.INSTALLED;
+    }
+    
+    private Bundle findBundleInFramework(PackageAdmin admin, String symbolicName, Version version) {
+        String exactVersion = "[" + version + "," + version + "]";
+        Bundle[] bundles = admin.getBundles(symbolicName, exactVersion);
+        if (bundles != null && bundles.length == 1) {
+            return bundles[0];
+        } else {
+            return null;
+        }
+    }
+    
+    private BundleInfo findBundleInfoInApplication(String symbolicName, Version version) {
+        for (BundleInfo info : application.getBundleInfo()) {
+            if (info.getSymbolicName().equals(symbolicName)
+                && info.getVersion().equals(version)) {
+                return info;
+            }
+        }
+        return null;
+    }
+    
+    private BundleInfo findBundleInfoUsingResolver(AriesApplicationResolver resolver, String symbolicName, Version version) {
+        return resolver.getBundleInfo(symbolicName, version);
+    }
+    
+    private <T> T getService(ServiceReference ref, Class<T> type) throws ManagementException {
+        Object service = null;
+        if (ref != null) {
+            service = bundle.getBundleContext().getService(ref);
+        }
+        
+        if (service == null) {
+            throw new ManagementException(new ServiceException(type.getName(), ServiceException.UNREGISTERED));
+        }
+        
+        return type.cast(service);
     }
     
     public void doStart() throws Exception {

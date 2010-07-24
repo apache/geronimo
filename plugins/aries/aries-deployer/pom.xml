@@ -55,10 +55,10 @@
             <version>${project.version}</version>
         </dependency>
 -->
+
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-aries-resolver</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.aries.application</groupId>
+            <artifactId>org.apache.aries.application.resolver.obr</artifactId>
         </dependency>
 
         <dependency>

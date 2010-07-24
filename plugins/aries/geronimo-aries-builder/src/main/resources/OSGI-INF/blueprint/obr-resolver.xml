@@ -19,14 +19,14 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="obr-resolver" class="org.apache.geronimo.aries.resolver.GeronimoOBRResolver" scope="singleton"
+    <bean id="obr-resolver" class="org.apache.aries.application.resolver.obr.OBRAriesResolver" scope="singleton"
           activation="eager">
         <argument>
             <reference interface="org.apache.felix.bundlerepository.RepositoryAdmin"/>
         </argument>
-        <property name="includeOptional" value="false"/>
+        <property name="returnOptionalResources" value="false"/>
     </bean>
 
-    <service interface="org.apache.aries.application.management.AriesApplicationResolver" ref="obr-resolver"/>
+    <service interface="org.apache.aries.application.management.AriesApplicationResolver" ref="obr-resolver" ranking="5" />
 
 </blueprint>
