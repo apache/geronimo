@@ -52,7 +52,7 @@
     </description>
 
     <modules>
-        <!--<module></module>-->
+        <module>beanvalidation-test</module>
     </modules>
 
 </project>
