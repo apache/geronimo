@@ -54,6 +54,8 @@
     <modules>
         <module>beanvalidation-test</module>
         <module>servlet3.0-test</module>
+        <module>servlet3.0-security-test</module>
+        <module>ejb3.1lite-test</module>
     </modules>
 
 </project>

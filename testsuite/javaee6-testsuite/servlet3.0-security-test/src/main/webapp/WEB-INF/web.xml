@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="3.0" metadata-complete="false">
+    <display-name>SampleServlet</display-name>  
+    <servlet>
+        <description></description>
+        <display-name>SampleServlet1</display-name>
+        <servlet-name>SampleServlet1</servlet-name>
+        <servlet-class>org.apache.geronimo.testsuite.servlet30.main.SampleServlet1</servlet-class>
+    </servlet>
+    <servlet>
+        <description></description>
+        <display-name>SampleServlet2</display-name>
+        <servlet-name>SampleServlet2</servlet-name>
+        <servlet-class>org.apache.geronimo.testsuite.servlet30.main.SampleServlet2</servlet-class>
+    </servlet>
+    <servlet>
+        <description></description>
+        <display-name>SampleServlet3</display-name>
+        <servlet-name>SampleServlet3</servlet-name>
+        <servlet-class>org.apache.geronimo.testsuite.servlet30.main.SampleServlet3</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SampleServlet1</servlet-name>
+        <url-pattern>/SampleServlet1</url-pattern>
+        <url-pattern>/SampleServlet1/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SampleServlet2</servlet-name>
+        <url-pattern>/SampleServlet2</url-pattern>
+        <url-pattern>/SampleServlet2/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SampleServlet3</servlet-name>
+        <url-pattern>/SampleServlet3</url-pattern>
+        <url-pattern>/SampleServlet3/*</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.htm</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>resource1</web-resource-name>
+            <url-pattern>/SampleServlet1</url-pattern>
+            <url-pattern>/SampleServlet3Dynamic</url-pattern>
+            <http-method-omission>POST</http-method-omission>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+        
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>resource2</web-resource-name>
+            <url-pattern>/SampleServlet2</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>RoleA</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>demo-properties-realm</realm-name>
+    </login-config>
+    <security-role>
+        <role-name>RoleA</role-name>
+    </security-role>
+    <security-role>
+        <role-name>RoleB</role-name>
+    </security-role>
+    <security-role>
+        <role-name>RoleC</role-name>
+    </security-role>
+</web-app>
