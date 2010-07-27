@@ -24,6 +24,7 @@ import java.util.Collections;
 import com.agical.rmock.extension.junit.RMockTestCase;
 import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.openejb.cluster.infra.NetworkConnectorTracker;
+import org.apache.openejb.assembler.classic.JndiEncBuilder;
 import org.apache.openejb.core.AppContext;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ModuleContext;
@@ -65,7 +66,7 @@ public class ClusteredStatefulContainerTest extends RMockTestCase {
         container = (ClusteredStatefulContainer) intercept(ClusteredStatefulContainer.class, new Object[] {"id",
                 securityService});
         deploymentId = "deploymentId";
-        deploymentInfo = new CoreDeploymentInfo(deploymentId, null, new ModuleContext(deploymentId, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader())),
+        deploymentInfo = new CoreDeploymentInfo(deploymentId, null, new ModuleContext(deploymentId, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader(), null, null), null),
             SFSB.class,
             null,
             null,

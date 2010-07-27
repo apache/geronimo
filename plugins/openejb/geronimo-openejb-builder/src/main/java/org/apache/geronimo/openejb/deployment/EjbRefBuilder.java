@@ -117,21 +117,22 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 ejbJars = earData.getEjbJars();
             }
 
-
             AppInfo appInfo = new AppInfo();
             appInfo.ejbJars.addAll(ejbJars);
 
             JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(appInfo);
-            JndiEncInfo jndiEncInfo;
-            if (module.isStandAlone()) {
-                jndiEncInfo = jndiEncInfoBuilder.build(specDD, "GeronimoEnc", null);
-            } else {
-                jndiEncInfo = jndiEncInfoBuilder.build(specDD, "GeronimoEnc", module.getTargetPath());
-            }
+            String moduleId = (module.isStandAlone()) ? null : module.getTargetPath();
+            JndiEncInfo moduleJndiEnc = new JndiEncInfo();
+            JndiEncInfo compJndiEnc = new JndiEncInfo();       
 
+            jndiEncInfoBuilder.build(specDD, "GeronimoEnc", moduleId, moduleJndiEnc, compJndiEnc);
+            
             JndiEncInfo ejbEncInfo = new JndiEncInfo();
-            ejbEncInfo.ejbReferences.addAll(jndiEncInfo.ejbReferences);
-            ejbEncInfo.ejbLocalReferences.addAll(jndiEncInfo.ejbLocalReferences);
+            ejbEncInfo.ejbReferences.addAll(moduleJndiEnc.ejbReferences);
+            ejbEncInfo.ejbLocalReferences.addAll(moduleJndiEnc.ejbLocalReferences);
+            
+            ejbEncInfo.ejbReferences.addAll(compJndiEnc.ejbReferences);
+            ejbEncInfo.ejbLocalReferences.addAll(compJndiEnc.ejbLocalReferences);
 
             JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(ejbEncInfo, null, module.getName(), getClass().getClassLoader());
 
@@ -147,7 +148,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             // work with names prefixed with java:comp/
             if (name.startsWith("env/") ||
                     name.startsWith("java:global/") ||
-                    name.startsWith("java:application/") ||
+                    name.startsWith("java:app/") ||
                     name.startsWith("java:module/") ||
                     name.startsWith("java:comp/")) {
                 if (uri != null) {
