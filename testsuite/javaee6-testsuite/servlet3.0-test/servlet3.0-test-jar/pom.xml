@@ -26,34 +26,16 @@
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>testsuite</artifactId>
+        <artifactId>servlet3.0-test</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
-    <artifactId>javaee6-testsuite</artifactId>
-    <name>Geronimo TestSuite :: Java EE 6 New Features Testsuite</name>
-    <packaging>pom</packaging>
-    
-    <description>
-        Java EE 6 new features are planning on these aspects:
-        1. The new features in Servlet 3.0
-        2. The new features in JSP 2.2
-        3. The new features in EL 2.2
-        4. The new features in JSTL 1.2
-        5. The new features in JSF 2.0
-        6. The new features in EJB 3.1
-        7. The new features in JPA 2.0
-        8. Bean validation 1.0
-        9. Managed Beans 1.0
-        10. Web Beans 1.0
-        11. Dependency Injection for Java 1.0
-        12. Common Annotations for theJava Platform (JSR-250) 1.1
-        13. Interceptors 1.1
-    </description>
 
-    <modules>
-        <module>beanvalidation-test</module>
-        <module>servlet3.0-test</module>
-    </modules>
+    <artifactId>servlet3.0-test-jar</artifactId>
+    <name>Geronimo TestSuite :: Java EE 6 Testsuite :: servlet3.0-test-jar</name>
+    <packaging>jar</packaging>
+
+    <description>Geronimo Testsuite. A Module Including META-INF/resources</description>
+
 
 </project>
+
