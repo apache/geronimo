@@ -161,7 +161,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         dataSourceGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerName());
         dataSourceGBean.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
 
-        dataSourceGBean.setServiceInterfaces(new String[] {DataSource.class.getName()});
+        dataSourceGBean.setServiceInterfaces(new String[] { javax.sql.DataSource.class.getName() });
         String osgiJndiName = null;
         if (dsDescription.getProperties() != null) {
             osgiJndiName = dsDescription.getProperties().get(ConnectorModuleBuilder.OSGI_JNDI_SERVICE_NAME);
