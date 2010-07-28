@@ -19,29 +19,39 @@
 
 package org.apache.geronimo.testsuite.security;
 
-
-import org.apache.geronimo.testsupport.SeleniumTestSupport;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.testng.annotations.Test;
 
-public class TestSecurity extends SeleniumTestSupport {
+public class TestSecurity extends TestSupport {
     
     @Test
     public void testLogin() throws Exception {
-        selenium.open("/demo/protect/hello.html");
-        selenium.type("j_username", "george");
-        selenium.type("j_password", "bone");
-        selenium.click("submit");
-        waitForPageLoad();
-        assertEquals("hello world.", selenium.getText("xpath=/html"));
-        selenium.deleteAllVisibleCookies();
-        selenium.refresh();
-    }
+        HttpClient httpClient = new HttpClient();
+                
+        PostMethod postMethod = login(httpClient, "george", "bone");
+        
+        int statusCode = httpClient.executeMethod(postMethod);
+        assertTrue(statusCode >= 300 || statusCode < 310);
+        
+        postMethod.releaseConnection();         
+        Header locationHeader = postMethod.getResponseHeader("location");
+        assertNotNull("Expected location header is not present", locationHeader);
 
+        String response;
+        
+        response = doGet(httpClient, locationHeader.getValue());
+        assertTrue(response.contains("hello world"));
+    }
+   
     @Test
     public void testBadPasswordLogin() throws Exception {   
         testFailure("george", "bonee");
     }
-    
+
     @Test
     public void testBadUser() throws Exception {  
         testFailure("doesnotexist", "bonee");
@@ -68,18 +78,40 @@ public class TestSecurity extends SeleniumTestSupport {
     }
     
     private void testFailure(String username, String password) throws Exception {
-        selenium.open("/demo/protect/hello.html");
-        waitForPageLoad();
+        HttpClient httpClient = new HttpClient();
+                
+        PostMethod postMethod = login(httpClient, username, password);
+        
+        assertEquals(200, httpClient.executeMethod(postMethod));
+        String response = postMethod.getResponseBodyAsString();
+        postMethod.releaseConnection();  
+        
+        boolean authError = response.contains("Authentication ERROR");              
+        assertTrue("Expected authentication error", authError);
+    }
+
+    private PostMethod login(HttpClient httpClient, String username, String password) throws Exception {
+        String response = doGet(httpClient, "http://localhost:8080/demo/protect/hello.html");
+        assertTrue("Expected authentication form", response.contains("FORM Authentication demo"));
+        
+        PostMethod postMethod = new PostMethod("http://localhost:8080/demo/j_security_check");
         if (username != null) {
-            selenium.type("j_username", username);
+            postMethod.addParameter("j_username", username);
         }
         if (password != null) {
-            selenium.type("j_password", password);
+            postMethod.addParameter("j_password", password);
         }
-        selenium.click("submit");
-        waitForPageLoad();
         
-        assertTrue(selenium.isTextPresent("Authentication ERROR"));
+        return postMethod;        
     }
     
+    private String doGet(HttpClient httpClient, String url) throws Exception {
+        GetMethod getMethod = new GetMethod(url);
+        getMethod.setFollowRedirects(true);
+        
+        assertEquals(200, httpClient.executeMethod(getMethod));
+        String response = getMethod.getResponseBodyAsString();
+        getMethod.releaseConnection();
+        return response;
+    }
 }

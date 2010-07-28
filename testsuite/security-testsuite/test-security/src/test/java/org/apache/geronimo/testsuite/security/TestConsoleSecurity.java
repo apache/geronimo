@@ -19,25 +19,35 @@
 
 package org.apache.geronimo.testsuite.security;
 
-
-import org.apache.geronimo.testsupport.SeleniumTestSupport;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.geronimo.testsupport.TestSupport;
 import org.testng.annotations.Test;
 
-public class TestConsoleSecurity extends SeleniumTestSupport {
+public class TestConsoleSecurity extends TestSupport {
     
     @Test
     public void testLogin() throws Exception {
-        selenium.open("/console");
-        waitForPageLoad();
-        assertFalse(selenium.isTextPresent("Deploy New"));
-        selenium.type("j_username", "system");
-        selenium.type("j_password", "manager");
-        selenium.click("submit");
-        waitForPageLoad();
-        assertTrue(selenium.isTextPresent("Deploy New"));
-        selenium.click("//a[contains(@href, '/console/logout.jsp')]");
-        waitForPageLoad();
-        assertEquals("Geronimo Console Login", selenium.getTitle());
+        HttpClient httpClient = new HttpClient();
+        
+        PostMethod postMethod = login(httpClient, "system", "manager");
+        
+        int statusCode = httpClient.executeMethod(postMethod);
+        assertTrue(statusCode >= 300 || statusCode < 310);
+        
+        postMethod.releaseConnection();         
+        Header locationHeader = postMethod.getResponseHeader("location");
+        assertNotNull("Expected location header is not present", locationHeader);
+
+        String response;
+        
+        response = doGet(httpClient, locationHeader.getValue());
+        assertTrue(response.contains("Deployer"));
+        
+        response = doGet(httpClient, "http://localhost:8080/console/logout.jsp");
+        assertTrue(response.contains("Geronimo Console Login"));
     }
 
     @Test
@@ -69,20 +79,42 @@ public class TestConsoleSecurity extends SeleniumTestSupport {
     public void testEmptyCredentialsLogin() throws Exception {        
         testFailure("", "");
     }
-    
+        
     private void testFailure(String username, String password) throws Exception {
-        selenium.open("/console");
-        waitForPageLoad();
+        HttpClient httpClient = new HttpClient();
+                
+        PostMethod postMethod = login(httpClient, username, password);
+        
+        assertEquals(200, httpClient.executeMethod(postMethod));
+        String response = postMethod.getResponseBodyAsString();
+        postMethod.releaseConnection();  
+        
+        boolean authError = response.contains("Invalid User Name and");              
+        assertTrue("Expected authentication error", authError);
+    }
+
+    private PostMethod login(HttpClient httpClient, String username, String password) throws Exception {
+        String response = doGet(httpClient, "http://localhost:8080/console");
+        assertTrue("Expected login form", response.contains("Geronimo Console Login"));
+        
+        PostMethod postMethod = new PostMethod("http://localhost:8080/console/j_security_check");
         if (username != null) {
-            selenium.type("j_username", username);
+            postMethod.addParameter("j_username", username);
         }
         if (password != null) {
-            selenium.type("j_password", password);
+            postMethod.addParameter("j_password", password);
         }
-        selenium.click("submit");
-        waitForPageLoad();
         
-        assertTrue(selenium.isTextPresent("Invalid User Name and"));
+        return postMethod;        
     }
     
+    private String doGet(HttpClient httpClient, String url) throws Exception {
+        GetMethod getMethod = new GetMethod(url);
+        getMethod.setFollowRedirects(true);
+        
+        assertEquals(200, httpClient.executeMethod(getMethod));
+        String response = getMethod.getResponseBodyAsString();
+        getMethod.releaseConnection();
+        return response;
+    }
 }
