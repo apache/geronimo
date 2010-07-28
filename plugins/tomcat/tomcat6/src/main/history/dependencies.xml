@@ -66,4 +66,9 @@
         <artifactId>clustering</artifactId>
         <type>pom</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-javamail_1.4_spec</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

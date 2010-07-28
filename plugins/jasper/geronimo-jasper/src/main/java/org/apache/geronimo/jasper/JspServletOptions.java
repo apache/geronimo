@@ -77,6 +77,11 @@ public class JspServletOptions implements Options {
         return delegate.getCompilerTargetVM();
     }
 
+
+    public boolean getRecompileOnFail() {
+        return delegate.getRecompileOnFail();
+    }
+    
     public boolean getDevelopment() {
         return delegate.getDevelopment();
     }
