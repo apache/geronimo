@@ -50,7 +50,7 @@ public class GeronimoLoginService implements LoginService {
     }
 
     public UserIdentity login(String userName, String password) {
-        return login(new PasswordCallbackHandler(userName, password.toCharArray()));
+        return login(new PasswordCallbackHandler(userName, (password == null) ? null : password.toCharArray()));
     }
 
     public UserIdentity login(X509Certificate[] certs) {

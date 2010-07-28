@@ -51,6 +51,8 @@ public class PasswordCallbackHandler implements ClearableCallbackHandler {
     }
 
     public void clear() {
-        Arrays.fill(password, '\0');
+        if (password != null) {
+            Arrays.fill(password, '\0');
+        }
     }
 }
