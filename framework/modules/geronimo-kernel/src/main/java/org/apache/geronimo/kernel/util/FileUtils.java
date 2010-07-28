@@ -17,12 +17,17 @@
 
 package org.apache.geronimo.kernel.util;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -287,6 +292,46 @@ public class FileUtils {
         }
     }
 
+    public static String readFileAsString(File file, String encoding, String fileSeparator) {
+        if (file == null || !file.exists()) {
+            return null;
+        }
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
+            StringBuilder stringBuilder = new StringBuilder();
+            String currentLine = null;
+            while ((currentLine = reader.readLine()) != null) {
+                stringBuilder.append(currentLine).append(fileSeparator);
+            }
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            logger.error("Fail to read file " + file.getAbsolutePath() + " as a string", e);
+            return null;
+        } finally {
+            IOUtils.close(reader);
+        }
+    }
+
+    public static String readFileAsString(File file) {
+        return readFileAsString(file, "iso-8859-1", File.separator);
+    }
+
+    public static void writeStringToFile(File file, String line) {
+        writeStringToFile(file, line, "iso-8859-1");
+    }
+
+    public static void writeStringToFile(File file, String line, String encoding) {
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), encoding));
+            writer.write(line);
+        } catch (IOException e) {
+        } finally {
+            IOUtils.close(writer);
+        }
+    }
+
     private static boolean deleteFile(File file) {
         boolean fileDeleted = file.delete();
         if (fileDeleted) {
@@ -361,7 +406,7 @@ public class FileUtils {
             return name;
         }
     }
-    
+
     private FileUtils() {
     }
 }

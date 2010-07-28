@@ -16,6 +16,10 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.beans.PropertyChangeListener;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -601,7 +605,26 @@ public class GeronimoStandardContext extends StandardContext {
         File resourceRootDirectory = new File(tomcatHome + File.separator + "resources" + File.separator + serviceName + File.separator + engineName + File.separator + hostName + File.separator
                 + (getName().equals("/") ? "_" : getName()));
         File completeFlagFile = new File(resourceRootDirectory, "complete.flag");
+
+        boolean extractionRequired = true;
+        if (completeFlagFile.exists()) {
+            String extractedTimeString = FileUtils.readFileAsString(completeFlagFile, "iso-8859-1", "");
+            if (extractedTimeString != null) {
+                try {
+                    long extractedTime = Long.parseLong(extractedTimeString);
+                    long lastModifiedTime = bundle.getLastModified();
+                    if (extractedTime > lastModifiedTime) {
+                        extractionRequired = false;
+                    }
+                } catch (Exception e) {
+                    logger.warn("Unable to compare the timestamp in the file " + completeFlagFile.getAbsolutePath() + ", resources will be re-extracted", e);
+                    //ignore
+                }
+            }
+        }
+
         //if (!resourceRootDirectory.exists() || FLUSH_STATIC_RESOURCES_ON_STARTUP || !completeFlagFile.exists()) {
+        if (extractionRequired) {
             try {
                 completeFlagFile.delete();
                 FileUtils.recursiveDelete(resourceRootDirectory);
@@ -640,9 +663,11 @@ public class GeronimoStandardContext extends StandardContext {
                     }
                 }
                 completeFlagFile.createNewFile();
+                FileUtils.writeStringToFile(completeFlagFile, String.valueOf(System.currentTimeMillis()), "iso-8859-1");
             } catch (IOException e) {
                 throw new DeploymentException("Fail to create static resoruce cache for jar files in WEB-INF folder", e);
             }
+        }
         //}
         for (File resourceDirectory : resourceRootDirectory.listFiles()) {
             if (resourceDirectory.isDirectory() && resourceDirectory.getName().endsWith(".jar") && resourceDirectory.listFiles().length > 0) {
