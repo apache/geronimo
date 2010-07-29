@@ -264,7 +264,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             }
             //else ignore as jee5 allows optional spec dd for .war's
         }
-        
+
         if (webApp == null) {
             webApp = new WebApp();
         }
@@ -591,14 +591,29 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 webModuleData.setReferencePattern("applicationPolicyConfigurationManager", EARContext.JACC_MANAGER_NAME_KEY.get(earContext.getGeneralData()));
             }
             //not truly metadata complete until MBEs have run
-            if (!webApp.isMetadataComplete()) {
-                webApp.setMetadataComplete(true);
-                if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f) {
-                    String specDeploymentPlan = getSpecDDAsString(webModule);
-                    module.setOriginalSpecDD(specDeploymentPlan);
-                    earContext.addFile(new URI("./WEB-INF/web.xml"), specDeploymentPlan);
-                }
-            }
+            //Those elements have been processed by Geronimo, Tomatt no need to do it now.
+            //Also, currently, it seems that Tomcat could not handle those jndi elements correctly
+            webApp.getEjbLocalRef().clear();
+            webApp.getEjbRef().clear();
+            webApp.getEnvEntry().clear();
+            webApp.getMessageDestination().clear();
+            webApp.getMessageDestinationRef().clear();
+            webApp.getPersistenceContextRef().clear();
+            webApp.getPersistenceUnitRef().clear();
+            webApp.getPostConstruct().clear();
+            webApp.getPreDestroy().clear();
+            webApp.getResourceEnvRef().clear();
+            webApp.getResourceRef().clear();
+            webApp.getServiceRef().clear();
+            webApp.getDataSource().clear();
+            //if (!webApp.isMetadataComplete()) {
+            webApp.setMetadataComplete(true);
+            //if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f) {
+            String specDeploymentPlan = getSpecDDAsString(webModule);
+            module.setOriginalSpecDD(specDeploymentPlan);
+            earContext.addFile(new URI("./WEB-INF/web.xml"), specDeploymentPlan);
+            //}
+            //}
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             module.addAsChildConfiguration();
         } catch (DeploymentException de) {
