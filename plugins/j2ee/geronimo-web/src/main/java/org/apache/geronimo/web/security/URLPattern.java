@@ -76,21 +76,20 @@ public class URLPattern {
         if (type == EXACT) {
             return pattern;
         } else {
-            //HashSet<String> bucket = new HashSet<String>();
+            HashSet<String> bucket = new HashSet<String>();
             StringBuilder result = new StringBuilder(pattern);
+            
             // Collect a set of qualifying patterns, depending on the type of this pattern.
             for (URLPattern p : patterns) {
                 if (type.check(this, p)) {
-                    //bucket.add(p.pattern);
-                    result.append(':');
-                    result.append(p.pattern);
+                    bucket.add(p.pattern);
                 }
             }
             // append the set of qualifying patterns
-            /*for (String aBucket : bucket) {
+            for (String aBucket : bucket) {
                 result.append(':');
                 result.append(aBucket);
-            }*/
+            }
             return result.toString();
         }
     }
