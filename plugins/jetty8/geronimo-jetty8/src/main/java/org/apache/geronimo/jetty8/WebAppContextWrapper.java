@@ -93,6 +93,8 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
     private final Set<String> servletNames = new HashSet<String>();
 
     private final IntegrationContext integrationContext;
+    //hack to keep jasper happy.  This is from org.apache.tomcat.util.scan.Constants in the tomcat util jar.
+    private static final String JASPER_WEB_XML_NAME = "org.apache.tomcat.util.scan.MergedWebXml";
 
 
     public WebAppContextWrapper(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
@@ -239,7 +241,8 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         if (!distributable) {
             setSessionTimeoutSeconds(sessionTimeoutSeconds);
         }
-
+        //supply web.xml to jasper
+        webAppContext.setAttribute(JASPER_WEB_XML_NAME, originalSpecDD);
     }
 
 
