@@ -23,7 +23,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 
 <suite name="Suite1" verbose="5">
-    <test name="web-testsuite.servlets">
+    <test name="javaee6-testsuite.servlet3.0-security">
         <packages>
             <package name="org.apache.geronimo.testsuite.servlets"/>
         </packages>
