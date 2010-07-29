@@ -56,6 +56,8 @@
         <module>servlet3.0-test</module>
         <module>servlet3.0-security-test</module>
         <module>ejb3.1lite-test</module>
+        <module>el2.2-test</module>
+        <module>jsp2.2-test</module>
     </modules>
 
 </project>
