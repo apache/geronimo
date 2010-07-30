@@ -90,11 +90,16 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
     private final Environment defaultEnvironment;
     private final NamingBuilder namingBuilders;
+    private final Set<String> excludedListenerNames = new HashSet<String>();
 
     public JspModuleBuilderExtension(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+                                     @ParamAttribute(name = "excludedListenerNames") Collection<String> excludedListenerNames,
                                      @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
         this.namingBuilders = namingBuilders;
+        if (excludedListenerNames != null) {
+            this.excludedListenerNames.addAll(excludedListenerNames);
+        }
     }
 
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -233,9 +238,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         tldURLs.addAll(scanModule(webModule));
 
         // 4. All TLD files in all META-INF(s)
-	/*
         tldURLs.addAll(scanGlobalTlds(webModule.getEarContext().getDeploymentBundle()));
-        */
         log.debug("getTldFiles() Exit: URL[" + tldURLs.size() + "]: " + tldURLs.toString());
         return tldURLs;
     }
@@ -319,13 +322,15 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             List<Listener> listeners = tl.getListener();
             for (Listener listener : listeners) {
                 String className = listener.getListenerClass();
-                try {
-                    Class clas = bundle.loadClass(className);
-                    classes.add(clas);
-                    listenerNames.add(className);
-                }
-                catch (ClassNotFoundException e) {
-                    log.warn("JspModuleBuilderExtension: Could not load listener class: " + className + " mentioned in TLD file at " + url.toString());
+                if (!excludedListenerNames.contains(className)) {
+                    try {
+                        Class clas = bundle.loadClass(className);
+                        classes.add(clas);
+                        listenerNames.add(className);
+                    }
+                    catch (ClassNotFoundException e) {
+                        log.warn("JspModuleBuilderExtension: Could not load listener class: " + className + " mentioned in TLD file at " + url.toString());
+                    }
                 }
             }
 

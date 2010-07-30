@@ -20,7 +20,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -42,9 +44,9 @@ public class TldRegistration implements GBeanLifecycle {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TldRegistration.class);
     
-    private Bundle bundle;
-    private String packageNameList;
-    
+    private final Bundle bundle;
+    private final String packageNameList;
+
     public TldRegistration(@ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
                            @ParamAttribute(name = "packageNameList") String packageNameList) throws Exception {
         this.bundle = bundle;
@@ -86,12 +88,11 @@ public class TldRegistration implements GBeanLifecycle {
     public void doStop() throws Exception {
     }
              
-    private class TldResourceFinderCallback implements ResourceFinderCallback, TldProvider {
+    private static class TldResourceFinderCallback implements ResourceFinderCallback, TldProvider {
 
-        private List<TldProvider.TldEntry> tlds;
-        
+        private final List<TldProvider.TldEntry> tlds = new ArrayList<TldProvider.TldEntry>();
+
         private TldResourceFinderCallback() {
-            tlds = new ArrayList<TldProvider.TldEntry>();
         }
         
         public Collection<TldProvider.TldEntry> getTlds() {

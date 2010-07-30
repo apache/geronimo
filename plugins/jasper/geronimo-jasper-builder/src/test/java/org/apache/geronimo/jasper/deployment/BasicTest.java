@@ -31,7 +31,7 @@ import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 public class BasicTest extends TestCase {
     
     public void testMyFacesModuleBuilderExtension() throws Exception {
-        JspModuleBuilderExtension instance = new JspModuleBuilderExtension(null, new NamingBuilderCollection(Collections.EMPTY_SET));
+        JspModuleBuilderExtension instance = new JspModuleBuilderExtension(null, null, new NamingBuilderCollection(Collections.EMPTY_SET));
     }
 
 }

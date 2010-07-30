@@ -21,6 +21,7 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="JspModuleBuilderExtension" class="org.apache.geronimo.jasper.deployment.JspModuleBuilderExtension">
+        <attribute name="excludedListenerNames">org.apache.myfaces.webapp.StartupServletContextListener</attribute>
         <reference name="NamingBuilders">
             <name>NamingBuilders</name>
         </reference>
