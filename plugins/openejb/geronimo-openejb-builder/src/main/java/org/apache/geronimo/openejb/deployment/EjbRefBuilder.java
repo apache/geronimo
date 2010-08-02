@@ -128,9 +128,20 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             jndiEncInfoBuilder.build(specDD, "GeronimoEnc", moduleId, moduleJndiEnc, compJndiEnc);
             
             JndiEncInfo ejbEncInfo = new JndiEncInfo();
+            
+            // add java:global/
+            ejbEncInfo.ejbReferences.addAll(appInfo.globalJndiEnc.ejbReferences);
+            ejbEncInfo.ejbLocalReferences.addAll(appInfo.globalJndiEnc.ejbLocalReferences);
+            
+            // add java:app/
+            ejbEncInfo.ejbReferences.addAll(appInfo.appJndiEnc.ejbReferences);
+            ejbEncInfo.ejbLocalReferences.addAll(appInfo.appJndiEnc.ejbLocalReferences);
+            
+            // add java:module/            
             ejbEncInfo.ejbReferences.addAll(moduleJndiEnc.ejbReferences);
             ejbEncInfo.ejbLocalReferences.addAll(moduleJndiEnc.ejbLocalReferences);
             
+            // add java:comp/
             ejbEncInfo.ejbReferences.addAll(compJndiEnc.ejbReferences);
             ejbEncInfo.ejbLocalReferences.addAll(compJndiEnc.ejbLocalReferences);
 
@@ -145,17 +156,16 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             String name = entry.getKey();
             Object value = entry.getValue();
 
-            // work with names prefixed with java:comp/
-            if (name.startsWith("env/") ||
-                    name.startsWith("java:global/") ||
-                    name.startsWith("java:app/") ||
-                    name.startsWith("java:module/") ||
-                    name.startsWith("java:comp/")) {
+            // work with names in different namespaces
+            if (name.startsWith("global/") ||
+                    name.startsWith("app/") ||
+                    name.startsWith("module/") ||
+                    name.startsWith("comp/")) {
                 if (uri != null) {
                     value = createClientRef(value);
                 }
                 if (value instanceof Serializable) {
-                    put(name, value, module.getJndiContext());
+                    put("java:" + name, value, module.getJndiContext());
                 }
             }
         }
