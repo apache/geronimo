@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.management.EJB;
@@ -103,7 +104,8 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
                          @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
                          @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
                          @ParamReference(name = "TrackedConnectionAssociator") TrackedConnectionAssociator trackedConnectionAssociator,
-                         @ParamReference(name = "TransactionManager") GeronimoTransactionManager transactionManager,
+                         @ParamReference(name = "TransactionManager", namingType = NameFactory.JTA_RESOURCE) GeronimoTransactionManager transactionManager,
+                         @ParamAttribute(name = "beanManagedTransactions") boolean beanManagedTransactions,
                          @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
                          @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws LoginException, NamingException {
         this.objectName = objectName;
@@ -123,8 +125,8 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         }
         this.defaultSubject = defaultRole == null ? runAsSource.getDefaultSubject() : runAsSource.getSubjectForRole(defaultRole);
         this.runAs = runAsSource.getSubjectForRole(runAsRole);
-        this.componentContext = EnterpriseNamingContext.livenReferences(compContext, transactionManager, kernel, classLoader, bundle, "comp/");
-        this.moduleContext = EnterpriseNamingContext.livenReferences(moduleJndi, transactionManager, kernel, classLoader, bundle, "module/");
+        this.componentContext = EnterpriseNamingContext.livenReferences(compContext, (beanManagedTransactions) ? transactionManager : null, kernel, classLoader, bundle, "comp/");
+        this.moduleContext = EnterpriseNamingContext.livenReferences(moduleJndi, null, kernel, classLoader, bundle, "module/");
         this.applicationContext = applicationJndi.getApplicationContext();
         this.globalContext = applicationJndi.getGlobalContext();
         this.unshareableResources = unshareableResources;

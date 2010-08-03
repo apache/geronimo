@@ -68,6 +68,7 @@ import org.apache.openejb.jee.ResourceRef;
 import org.apache.openejb.jee.SecurityIdentity;
 import org.apache.openejb.jee.SessionBean;
 import org.apache.openejb.jee.SessionType;
+import org.apache.openejb.jee.TransactionType;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.xbean.finder.ClassFinder;
 import org.osgi.framework.Bundle;
@@ -424,7 +425,10 @@ public class EjbDeploymentBuilder {
         gbean.setReferencePattern("ApplicationJndi", applicationJndiName);
         gbean.setAttribute("moduleContextMap", module.getJndiScope(JndiScope.module));
         gbean.setAttribute("componentContextMap", module.getJndiScope(JndiScope.comp));
-
+        
+        gbean.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
+        gbean.setAttribute("beanManagedTransactions", bean.getTransactionType() == TransactionType.BEAN);
+        
         //
         // Process resource refs
         //
