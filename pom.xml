@@ -2141,21 +2141,6 @@
         </site>
     </distributionManagement>
 
-    <repositories>
-        <repository>
-              <id>tomcat-parent-6.0.29</id>
-              <name>External Tomcat</name>
-              <url>https://repository.apache.org/content/repositories/orgapachegeronimo-028</url>
-              <layout>default</layout>
-              <releases>
-                  <enabled>true</enabled>
-              </releases>
-              <snapshots>
-                  <enabled>false</enabled>
-              </snapshots>
-        </repository>
-    </repositories>
-
     <pluginRepositories>
         <!-- required for clean build unless you want to bootstrap the car-maven-plugin -->
         <pluginRepository>
