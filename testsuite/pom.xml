@@ -434,6 +434,17 @@
 								</execution>
 							</executions>
 						</plugin>
+
+ 				                <plugin>
+					            <groupId>org.apache.geronimo.genesis.plugins</groupId>
+					            <artifactId>maven-maven-plugin</artifactId>
+					            <configuration>
+						        <profiles>
+							    <profile>child</profile>
+                                                            <profile>headless</profile>
+						        </profiles>
+					            </configuration>
+   				                </plugin>
 					</plugins>
 				</pluginManagement>
 			</build>
