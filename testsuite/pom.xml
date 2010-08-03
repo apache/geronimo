@@ -1,45 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	<!--
-		Licensed to the Apache Software Foundation (ASF) under one or more
-		contributor license agreements. See the NOTICE file distributed with
-		this work for additional information regarding copyright ownership.
-		The ASF licenses this file to you under the Apache License, Version
-		2.0 (the "License"); you may not use this file except in compliance
-		with the License. You may obtain a copy of the License at
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
 
-		http://www.apache.org/licenses/LICENSE-2.0 Unless required by
-		applicable law or agreed to in writing, software distributed under the
-		License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-		CONDITIONS OF ANY KIND, either express or implied. See the License for
-		the specific language governing permissions and limitations under the
-		License.
-	-->
+       http://www.apache.org/licenses/LICENSE-2.0
 
-	<!--
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!--
 		$Rev$ $Date$
 	-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo</artifactId>
+        <version>2.2.2-SNAPSHOT</version>
+    </parent>
 
-	<modelVersion>4.0.0</modelVersion>
-
-	<parent>
-		<groupId>org.apache.geronimo</groupId>
-		<artifactId>geronimo</artifactId>
-		<version>2.2.2-SNAPSHOT</version>
-	</parent>
-
-	<groupId>org.apache.geronimo.testsuite</groupId>
-	<artifactId>testsuite</artifactId>
-	<name>Geronimo TestSuite</name>
-	<packaging>pom</packaging>
-
-	<description>
+    <groupId>org.apache.geronimo.testsuite</groupId>
+    <artifactId>testsuite</artifactId>
+    <name>Geronimo TestSuite</name>
+    <packaging>pom</packaging>
+    <description>
         Geronimo integration testsuite.
     </description>
 
-	<!--
+    <!--
     NOTE: Override the following on the cmdline to only run specific
           testsuite buckets.
 
@@ -75,88 +71,84 @@
             mvn clean install -Pchild
 
     -->
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.testsupport</groupId>
+            <artifactId>testsupport-selenium</artifactId>
+            <version>${version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy.maven.support</groupId>
+            <artifactId>slf4j-gossip</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.geronimo.testsupport</groupId>
-			<artifactId>testsupport-selenium</artifactId>
-			<version>${version}</version>
-			<scope>test</scope>
-		</dependency>
+    <modules>
+        <module>commands-testsuite</module>
+        <module>concurrent-testsuite</module>
+        <module>console-testsuite</module>
+        <module>corba-testsuite</module>
+        <module>deployment-testsuite</module>
+        <module>enterprise-testsuite</module>
+        <module>security-testsuite</module>
+        <module>web-testsuite</module>
+        <module>webservices-testsuite</module>
+    </modules>
 
-		<dependency>
-			<groupId>org.codehaus.groovy.maven.support</groupId>
-			<artifactId>slf4j-gossip</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/filtered-resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 
-	<modules>
-		<module>commands-testsuite</module>
-		<module>concurrent-testsuite</module>
-		<module>console-testsuite</module>
-		<module>corba-testsuite</module>
-		<module>deployment-testsuite</module>
-		<module>enterprise-testsuite</module>
-		<module>security-testsuite</module>
-		<module>web-testsuite</module>
-		<module>webservices-testsuite</module>
-	</modules>
-
-	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-			<resource>
-				<directory>src/main/filtered-resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
-
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.geronimo.buildsupport</groupId>
-					<artifactId>testsuite-maven-plugin</artifactId>
-					<version>${version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-ear-plugin</artifactId>
-					<configuration>
-						<resourcesDir>${project.build.outputDirectory}</resourcesDir>
-					</configuration>
-				</plugin>
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-war-plugin</artifactId>
-					<configuration>
-						<webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
-						<webResources>
-							<resource>
-								<directory>${pom.basedir}/src/main/webapp</directory>
-								<filtering>true</filtering>
-							</resource>
-							<resource>
-								<directory>${project.build.outputDirectory}</directory>
-							</resource>
-						</webResources>
-					</configuration>
-				</plugin>
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.5</version>
-					<configuration>
-						<!-- Disable surefire plugin and make it not run in the testsuites -->
-						<skip>true</skip>
-					</configuration>
-					<!-- By default, use failsafe plugin -->
-					<!--
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                    <artifactId>testsuite-maven-plugin</artifactId>
+                    <version>${version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-ear-plugin</artifactId>
+                    <configuration>
+                        <resourcesDir>${project.build.outputDirectory}</resourcesDir>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <configuration>
+                        <webXml>${pom.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
+                        <webResources>
+                            <resource>
+                                <directory>${pom.basedir}/src/main/webapp</directory>
+                                <filtering>true</filtering>
+                            </resource>
+                            <resource>
+                                <directory>${project.build.outputDirectory}</directory>
+                            </resource>
+                        </webResources>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.5</version>
+                    <configuration>
+                        <!-- Disable surefire plugin and make it not run in the testsuites -->
+                        <skip>true</skip>
+                    </configuration>
+                    <!-- By default, use failsafe plugin -->
+                    <!--
 						<executions> <execution> <id>test</id> <phase>test</phase> <goals>
 						<goal>test</goal> </goals> <configuration> <skip>true</skip>
 						</configuration> </execution> <execution> <id>integration</id>
@@ -164,318 +156,310 @@
 						<configuration> <testFailureIgnore>true</testFailureIgnore>
 						<skip>false</skip> </configuration> </execution> </executions>
 					-->
-				</plugin>
-
-				<!--
+                </plugin>
+                <!--
 					m-m-p is used to launch all of tests in one testsuite, while just
 					start/stop server only one time, it saves time
 				-->
-				<plugin>
-					<groupId>org.apache.geronimo.genesis.plugins</groupId>
-					<artifactId>maven-maven-plugin</artifactId>
-					<version>1.5</version>
-					<configuration>
-						<fileset>
-							<basedir>${pom.basedir}</basedir>
-							<includes>
-								<include>*/pom.xml</include>
-							</includes>
-						</fileset>
-						<profiles>
-							<profile>child</profile>
-						</profiles>
-					</configuration>
-					<executions>
-						<execution>
-							<phase>integration-test</phase>
-							<goals>
-								<goal>invoke</goal>
-							</goals>
-						</execution>
-						<execution>
-							<id>site-deploy</id>
-							<phase>site-deploy</phase>
-							<goals>
-								<goal>invoke</goal>
-							</goals>
-							<configuration>
-								<goals>
-									<goal>site-deploy</goal>
-								</goals>
-								<parameters>
-									<buildNumber>${buildNumber}</buildNumber>
-								</parameters>
-							</configuration>
-						</execution>
-						<execution>
-							<id>clean</id>
-							<phase>clean</phase>
-							<goals>
-								<goal>invoke</goal>
-							</goals>
-							<configuration>
-								<goals>
-									<goal>clean</goal>
-								</goals>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-
-				<plugin>
-					<groupId>org.apache.geronimo.buildsupport</groupId>
-					<artifactId>geronimo-maven-plugin</artifactId>
-					<configuration>
-						<!--
+                <plugin>
+                    <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                    <artifactId>maven-maven-plugin</artifactId>
+                    <version>1.5</version>
+                    <configuration>
+                        <fileset>
+                            <basedir>${pom.basedir}</basedir>
+                            <includes>
+                                <include>*/pom.xml</include>
+                            </includes>
+                        </fileset>
+                        <profiles>
+                            <profile>child</profile>
+                        </profiles>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>integration-test</phase>
+                            <goals>
+                                <goal>invoke</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>site-deploy</id>
+                            <phase>site-deploy</phase>
+                            <goals>
+                                <goal>invoke</goal>
+                            </goals>
+                            <configuration>
+                                <goals>
+                                    <goal>site-deploy</goal>
+                                </goals>
+                                <parameters>
+                                    <buildNumber>${buildNumber}</buildNumber>
+                                </parameters>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>clean</id>
+                            <phase>clean</phase>
+                            <goals>
+                                <goal>invoke</goal>
+                            </goals>
+                            <configuration>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.geronimo.buildsupport</groupId>
+                    <artifactId>geronimo-maven-plugin</artifactId>
+                    <configuration>
+                        <!--
 							this reporter is used to generate server start/stop information
 							when using surefire plugin
 						-->
-						<reporters>
-							<reporter
-								implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
-								<reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-							</reporter>
-						</reporters>
-					</configuration>
-				</plugin>
-
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>selenium-maven-plugin</artifactId>
-					<executions>
-						<execution>
-							<id>start</id>
-							<phase>pre-integration-test</phase>
-							<goals>
-								<goal>start-server</goal>
-							</goals>
-							<configuration>
-								<logOutput>true</logOutput>
-								<background>true</background>
-							</configuration>
-						</execution>
-						<execution>
-							<id>stop</id>
-							<phase>post-integration-test</phase>
-							<goals>
-								<goal>stop-server</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>2.5</version>
-					<configuration>
-						<redirectTestOutputToFile>true</redirectTestOutputToFile>
-						<forkMode>once</forkMode>
-						<argLine>-enableassertions</argLine>
-						<failIfNoTests>false</failIfNoTests>
-						<testFailureIgnore>true</testFailureIgnore>
-						<workingDirectory>${project.build.directory}</workingDirectory>
-						<excludes>
-							<exclude>**/Abstract*.java</exclude>
-							<exclude>**/Test*.java</exclude>
-						</excludes>
-						<includes>
-							<include>**/*Test.java</include>
-						</includes>
-                                <!-- TestNG suiteXML config overrides includes/excludes above -->
-						<!--
+                        <reporters>
+                            <reporter implementation="org.apache.geronimo.mavenplugins.geronimo.reporting.SurefireReporter">
+                                <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                            </reporter>
+                        </reporters>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>selenium-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>start</id>
+                            <phase>pre-integration-test</phase>
+                            <goals>
+                                <goal>start-server</goal>
+                            </goals>
+                            <configuration>
+                                <logOutput>true</logOutput>
+                                <background>true</background>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>stop</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>stop-server</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.5</version>
+                    <configuration>
+                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                        <forkMode>once</forkMode>
+                        <argLine>-enableassertions</argLine>
+                        <failIfNoTests>false</failIfNoTests>
+                        <testFailureIgnore>true</testFailureIgnore>
+                        <workingDirectory>${project.build.directory}</workingDirectory>
+                        <excludes>
+                            <exclude>**/Abstract*.java</exclude>
+                            <exclude>**/Test*.java</exclude>
+                        </excludes>
+                        <includes>
+                            <include>**/*Test.java</include>
+                        </includes>
+                        <!-- TestNG suiteXML config overrides includes/excludes above -->
+                        <!--
 							<suiteXmlFiles>
 							<suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
 							</suiteXmlFiles>
 						-->
-						<systemPropertyVariables>
-							<geronimoVersion>${project.version}</geronimoVersion>								
-						</systemPropertyVariables>
-					</configuration>
-					<executions>
-						<execution>
-							<id>integration-test</id>
-							<goals>
-								<goal>integration-test</goal>
-							</goals>
-						</execution>
-						<execution>
-							<id>verify</id>
-							<phase>verify</phase>
-							<goals>
-								<goal>verify</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+                        <systemPropertyVariables>
+                            <geronimoVersion>${project.version}</geronimoVersion>
+                        </systemPropertyVariables>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>integration-test</id>
+                            <goals>
+                                <goal>integration-test</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>verify</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>ianal-maven-plugin</artifactId>
-				<configuration>
-					<!-- Don't bother checking legal muck here, we never publish them. -->
-					<skip>true</skip>
-				</configuration>
-			</plugin>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>ianal-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Don't bother checking legal muck here, we never publish them. -->
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <!-- We never release testsuite artifacts -->
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<configuration>
-					<!-- We never release testsuite artifacts -->
-					<skip>true</skip>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <distributionManagement>
+        <site>
+            <id>website</id>
+            <url>scp://people.apache.org/www/people.apache.org/builds/geronimo/server/testsuite/${buildNumber}</url>
+        </site>
+    </distributionManagement>
 
-	<distributionManagement>
-		<site>
-			<id>website</id>
-			<url>scp://people.apache.org/www/people.apache.org/builds/geronimo/server/testsuite/${buildNumber}</url>
-		</site>
-	</distributionManagement>
+    <reporting>
+        <plugins>
+            <!-- Use t-m-p to generate human readable report -->
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>testsuite-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
 
-	<reporting>
-		<plugins>
-			<!-- Use t-m-p to generate human readable report -->
-			<plugin>
-				<groupId>org.apache.geronimo.buildsupport</groupId>
-				<artifactId>testsuite-maven-plugin</artifactId>
-			</plugin>
+    <profiles>
+        <profile>
+            <id>it</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.geronimo.buildsupport</groupId>
+                            <artifactId>geronimo-maven-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>start</id>
+                                    <phase>pre-integration-test</phase>
+                                    <goals>
+                                        <goal>start-server</goal>
+                                    </goals>
+                                    <configuration>
+                                        <logOutput>true</logOutput>
+                                        <background>true</background>
+                                        <verifyTimeout>300</verifyTimeout>
+                                        <refresh>true</refresh>
+                                        <optionSets>
+                                            <optionSet>
+                                                <id>default</id>
+                                                <options>
+                                                    <option>-XX:MaxPermSize=160m</option>
+                                                </options>
+                                            </optionSet>
+                                        </optionSets>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>stop</id>
+                                    <phase>install</phase>
+                                    <goals>
+                                        <goal>stop-server</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>testsuite-maven-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>summarize</id>
+                                <phase>post-site</phase>
+                                <goals>
+                                    <goal>summarize</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
-		</plugins>
-	</reporting>
+        <profile>
+            <id>it-manual</id>
+        </profile>
 
-	<profiles>
-		<profile>
-			<id>it</id>
-			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.apache.geronimo.buildsupport</groupId>
-							<artifactId>geronimo-maven-plugin</artifactId>
-							<executions>
-								<execution>
-									<id>start</id>
-									<phase>pre-integration-test</phase>
-									<goals>
-										<goal>start-server</goal>
-									</goals>
-									<configuration>
-										<logOutput>true</logOutput>
-										<background>true</background>
-										<verifyTimeout>300</verifyTimeout>
-										<refresh>true</refresh>
-										<optionSets>
-											<optionSet>
-												<id>default</id>
-												<options>
-													<option>-XX:MaxPermSize=160m</option>
-												</options>
-											</optionSet>
-										</optionSets>
-									</configuration>
-								</execution>
-								<execution>
-									<id>stop</id>
-									<phase>install</phase>
-									<goals>
-										<goal>stop-server</goal>
-									</goals>
-								</execution>
-							</executions>
-						</plugin>
-					</plugins>
-				</pluginManagement>
+        <profile>
+            <id>headless</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>selenium-maven-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>xvfb</id>
+                                    <phase>process-test-sources</phase>
+                                    <goals>
+                                        <goal>xvfb</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                            <artifactId>maven-maven-plugin</artifactId>
+                            <configuration>
+                                <profiles>
+                                    <profile>child</profile>
+                                    <profile>headless</profile>
+                                </profiles>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
 
-				<plugins>
-					<plugin>
-						<groupId>org.apache.geronimo.buildsupport</groupId>
-						<artifactId>testsuite-maven-plugin</artifactId>
-						<inherited>false</inherited>
-						<executions>
-							<execution>
-								<id>summarize</id>
-								<phase>post-site</phase>
-								<goals>
-									<goal>summarize</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
+        <profile>
+            <id>firefox</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <browser>*firefox</browser>
+            </properties>
+        </profile>
 
-		<profile>
-			<id>it-manual</id>
-		</profile>
+        <profile>
+            <id>iexplore</id>
+            <properties>
+                <browser>*iexplore</browser>
+            </properties>
+        </profile>
 
-		<profile>
-			<id>headless</id>
-			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.codehaus.mojo</groupId>
-							<artifactId>selenium-maven-plugin</artifactId>
-							<executions>
-								<execution>
-									<id>xvfb</id>
-									<phase>process-test-sources</phase>
-									<goals>
-										<goal>xvfb</goal>
-									</goals>
-								</execution>
-							</executions>
-						</plugin>
+        <profile>
+            <id>otherbrowser</id>
+            <properties>
+                <browser>${browserPath}</browser>
+            </properties>
+        </profile>
 
- 				                <plugin>
-					            <groupId>org.apache.geronimo.genesis.plugins</groupId>
-					            <artifactId>maven-maven-plugin</artifactId>
-					            <configuration>
-						        <profiles>
-							    <profile>child</profile>
-                                                            <profile>headless</profile>
-						        </profiles>
-					            </configuration>
-   				                </plugin>
-					</plugins>
-				</pluginManagement>
-			</build>
-		</profile>
+        <profile>
+            <id>all-subprojects</id>
+        </profile>
 
-		<profile>
-			<id>firefox</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<browser>*firefox</browser>
-			</properties>
-		</profile>
-		<profile>
-			<id>iexplore</id>
-			<properties>
-				<browser>*iexplore</browser>
-			</properties>
-		</profile>
-		<profile>
-			<id>otherbrowser</id>
-			<properties>
-				<browser>${browserPath}</browser>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>all-subprojects</id>
-		</profile>
-
-	</profiles>
-
+    </profiles>
 </project>
