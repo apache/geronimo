@@ -45,9 +45,9 @@ public class FilterMergeHandler implements WebFragmentMergeHandler<WebFragment, 
             Filter targetFilter = (Filter) mergeContext.getAttribute(createFilterKey(filterName));
             if (targetFilter == null) {
                 webApp.getFilter().add(srcFilter);
-                mergeContext.setAttribute(createFilterKey(filterName), targetFilter);
+                mergeContext.setAttribute(createFilterKey(filterName), srcFilter);
                 for (SubMergeHandler<Filter, Filter> subMergeHandler : subMergeHandlers) {
-                    subMergeHandler.add(targetFilter, mergeContext);
+                    subMergeHandler.add(srcFilter, mergeContext);
                 }
             } else {
                 for (SubMergeHandler<Filter, Filter> subMergeHandler : subMergeHandlers) {

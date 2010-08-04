@@ -258,11 +258,11 @@ public class MergeHelper {
                         BufferedReader bufferedReader = null;
                         try {
                             bufferedReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-                            String servletContainerInitializer = null;
-                            while ((servletContainerInitializer = bufferedReader.readLine()) != null) {
-                                servletContainerInitializer = servletContainerInitializer.trim();
-                                if (!servletContainerInitializer.isEmpty()) {
-                                    servletContainerInitializers.add(servletContainerInitializer);
+                            String line = null;
+                            while ((line = bufferedReader.readLine()) != null) {
+                                line = line.trim();                                
+                                if (!line.isEmpty() && !line.startsWith("#")) {
+                                    servletContainerInitializers.add(line);
                                 }
                             }
                         } catch (IOException e) {
@@ -343,7 +343,7 @@ public class MergeHelper {
                     ZipEntry entry;
                     while ((entry = in.getNextEntry()) != null) {
                         if (entry.getName().equals("META-INF/web-fragment.xml")) {
-                            webFragment = (WebFragment) JaxbJavaee.unmarshal(WebFragment.class, in, true);
+                            webFragment = (WebFragment) JaxbJavaee.unmarshalJavaee(WebFragment.class, in);
                             break;
                         }
                     }
