@@ -53,6 +53,7 @@
 
     <modules>
         <module>beanvalidation-test</module>
+<!--
         <module>servlet3.0-test</module>
         <module>servlet3.0-security-test</module>
         <module>ejb3.1lite-test</module>
@@ -60,6 +61,7 @@
         <module>jsp2.2-test</module>
         <module>managedbean1.0-test</module>
         <module>di1.0-test</module>
+-->
         <module>commonannotation1.1-test</module>
     </modules>
 

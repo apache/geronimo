@@ -256,6 +256,7 @@
         <module>web-testsuite</module>
         <module>webservices-testsuite</module>
         <module>aries-testsuite</module>
+        <module>javaee6-testsuite</module>
     </modules>
 
     <profiles>
