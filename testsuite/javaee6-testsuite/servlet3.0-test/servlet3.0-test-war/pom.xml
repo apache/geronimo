@@ -18,121 +18,111 @@
     under the License.
 -->
 <!-- $Rev$ $Date$ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>org.apache.geronimo.testsuite</groupId>
+        <artifactId>servlet3.0-test</artifactId>
+        <version>3.0-SNAPSHOT</version>
+    </parent>
 
-	<modelVersion>4.0.0</modelVersion>
+    <artifactId>servlet3.0-test-war</artifactId>
+    <name>Geronimo TestSuite :: Java EE 6 Testsuite :: servlet3.0-test-war</name>
+    <packaging>war</packaging>
 
-	<parent>
-		<groupId>org.apache.geronimo.testsuite</groupId>
-		<artifactId>servlet3.0-test</artifactId>
-		<version>3.0-SNAPSHOT</version>
-	</parent>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_3.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsp_2.2_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>servlet3.0-test-jar</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>fragment1</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>fragment2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>fragment3</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
-	<artifactId>servlet3.0-test-war</artifactId>
-	<name>Geronimo TestSuite :: Java EE 6 Testsuite :: servlet3.0-test-war</name>
-	<packaging>war</packaging>
-
-	<dependencies>
-
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-servlet_3.0_spec</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-ejb_3.1_spec</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-jsp_2.2_spec</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.geronimo.testsuite</groupId>
-			<artifactId>servlet3.0-test-jar</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.geronimo.testsuite</groupId>
-			<artifactId>fragment1</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.geronimo.testsuite</groupId>
-			<artifactId>fragment2</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.geronimo.testsuite</groupId>
-			<artifactId>fragment3</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-	</dependencies>	
-
-	<profiles>
-		<profile>
-			<id>it</id>
-			<activation>
-				<property>
-					<name>it</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>selenium-maven-plugin</artifactId>
-					</plugin>
-
-					<plugin>
-						<groupId>org.apache.geronimo.buildsupport</groupId>
-						<artifactId>geronimo-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>deploy-wars</id>
-								<phase>pre-integration-test</phase>
-								<goals>
-									<goal>deploy-module</goal>
-								</goals>
-								<configuration>
-									<moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.war</moduleArchive>
-								</configuration>
-							</execution>
-							<execution>
-								<id>undeploy-war-as-moduleId</id>
-								<phase>post-integration-test</phase>
-								<goals>
-									<goal>undeploy-module</goal>
-								</goals>
-								<configuration>
-									<moduleId>${project.groupId}/${project.artifactId}/${project.version}/car</moduleId>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
+    <profiles>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>it</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
                     <plugin>
-				        <groupId>org.apache.maven.plugins</groupId>
-				        <artifactId>maven-failsafe-plugin</artifactId>
-				        <configuration>
-					        <suiteXmlFiles>
-						        <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
-					        </suiteXmlFiles>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>selenium-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>deploy-wars</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.war</moduleArchive>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>undeploy-war-as-moduleId</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>${project.groupId}/${project.artifactId}/${project.version}/car</moduleId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
+                            </suiteXmlFiles>
                             <systemPropertyVariables>
                                 <appContext>${project.artifactId}</appContext>
                             </systemPropertyVariables>
-				        </configuration>
-			        </plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
