@@ -71,7 +71,8 @@ public class ClusteredStatefulDeployment extends EjbDeployment {
                          @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
                          @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
                          @ParamReference(name = "OpenEjbSystem") TrackedConnectionAssociator trackedConnectionAssociator,
-                         @ParamReference(name = "TransactionManager") GeronimoTransactionManager transactionManager,
+                         @ParamReference(name = "TransactionManager", namingType = NameFactory.JTA_RESOURCE) GeronimoTransactionManager transactionManager,
+                         @ParamAttribute(name = "beanManagedTransactions") boolean beanManagedTransactions,
                          @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
                          @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                          @ParamReference(name = GBEAN_REF_SESSION_MANAGER) SessionManager sessionManager) throws Exception {
@@ -97,6 +98,7 @@ public class ClusteredStatefulDeployment extends EjbDeployment {
                 applicationManagedSecurityResources,
                 trackedConnectionAssociator,
                 transactionManager,
+                beanManagedTransactions,
                 openEjbSystem,
                 kernel);
         if (null == sessionManager) {
