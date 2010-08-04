@@ -36,7 +36,7 @@ public class SecurityConstraintMergeHandler implements WebFragmentMergeHandler<W
 
     @Override
     public void merge(WebFragment webFragment, WebApp webApp, MergeContext mergeContext) throws DeploymentException {
-        for (SecurityConstraint securityConstraint : webApp.getSecurityConstraint()) {
+        for (SecurityConstraint securityConstraint : webFragment.getSecurityConstraint()) {
             for (WebResourceCollection webResourceCollection : securityConstraint.getWebResourceCollection()) {
                 for (String urlPattern : webResourceCollection.getUrlPattern()) {
                     if (!WebDeploymentValidationUtils.isValidUrlPattern(urlPattern)) {
