@@ -47,7 +47,7 @@
         9. Managed Beans 1.0
         10. Web Beans 1.0
         11. Dependency Injection for Java 1.0
-        12. Common Annotations for theJava Platform (JSR-250) 1.1
+        12. Common Annotations for the Java Platform (JSR-250) 1.1
         13. Interceptors 1.1
     </description>
 
@@ -60,6 +60,7 @@
         <module>jsp2.2-test</module>
         <module>managedbean1.0-test</module>
         <module>di1.0-test</module>
+        <module>commonannotation1.1-test</module>
     </modules>
 
 </project>

@@ -25,6 +25,6 @@
     </dep:moduleId>
   </dep:environment>
 
-  <context-root>/datasource</context-root>
+   <context-root>/${pom.artifactId}</context-root>
 
 </web-app>

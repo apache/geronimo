@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.test.datasource;
+package org.apache.geronimo.sample.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import javax.annotation.Resource;
-import javax.annotation.sql.DataSourceDefinition;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -37,22 +35,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
-@DataSourceDefinition(name="java:app/MyDataSource",
-   className="org.apache.derby.jdbc.ClientDataSource",
-   portNumber=1527,
-   description="this is my data source",
-   user="system",
-   databaseName="MyDatabase",
-   properties = { "osgi.jndi.service.name = mydatasource", "createDatabase = create" },
-   serverName="localhost")
-public class DataSourceServlet extends HttpServlet {
+public abstract class BaseServlet extends HttpServlet {
 
-    @Resource(lookup="java:app/MyDataSource")
-    DataSource dataSource1;
-
-    @Resource(lookup="osgi:service/mydatasource")
-    DataSource dataSource2;
-
+    abstract DataSource getDataSourceA();
+    
+    abstract DataSource getDataSourceB();
+      
+    String getTitle() {
+        return getClass().getName();
+    }
+    
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doPost(request,response);
     }
@@ -60,8 +52,9 @@ public class DataSourceServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         PrintWriter out = response.getWriter();
-        out.println("<html><head><title>Sample DataSourceDefinition Application</title></head></html>");
-        out.println("<body>");
+        out.println("<html><head><title>");
+        out.println(getTitle());
+        out.println("</title></head></html><body>");
 
         try {
             initDB();
@@ -90,7 +83,7 @@ public class DataSourceServlet extends HttpServlet {
     }
 	    
     public void initDB() throws SQLException {
-        Connection con = dataSource1.getConnection();
+        Connection con = getDataSourceA().getConnection();
         Statement stmt = con.createStatement();
 
         try {
@@ -113,7 +106,7 @@ public class DataSourceServlet extends HttpServlet {
 
     public List<Contact> getContacts() throws SQLException {
         List<Contact> contacts = new ArrayList<Contact>();
-        Connection con = dataSource2.getConnection();
+        Connection con = getDataSourceB().getConnection();
         Statement stmt = con.createStatement();
         try {
             ResultSet rs = stmt.executeQuery(
@@ -135,7 +128,7 @@ public class DataSourceServlet extends HttpServlet {
     }
 
     public void addContact(String firstName, String lastName, String phone) throws SQLException {
-        Connection con = dataSource1.getConnection();
+        Connection con = getDataSourceA().getConnection();
         PreparedStatement pstmt = con.prepareStatement(
             "INSERT INTO CONTACTS (FIRSTNAME, LASTNAME, PHONE) VALUES (?, ?, ?)");
         try {
