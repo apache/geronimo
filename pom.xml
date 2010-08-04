@@ -1049,7 +1049,7 @@
                         <artifactId>xbean-asm-shaded</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>quartz</groupId>
+                        <groupId>org.quartz-scheduler</groupId>
                         <artifactId>quartz</artifactId>
                     </exclusion>
                 </exclusions>
