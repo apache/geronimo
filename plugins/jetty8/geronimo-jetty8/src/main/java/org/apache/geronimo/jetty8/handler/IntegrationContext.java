@@ -33,6 +33,7 @@ import javax.resource.ResourceException;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
+import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.naming.java.RootContext;
 import org.eclipse.jetty.server.Request;
 import org.osgi.framework.Bundle;
@@ -48,14 +49,16 @@ public class IntegrationContext {
     private final TrackedConnectionAssociator trackedConnectionAssociator;
     private final UserTransaction userTransaction;
     private final Bundle bundle;
+    private final Holder holder;
 
-    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle) {
+    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder) {
         this.componentContext = componentContext;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
         this.userTransaction = userTransaction;
         this.bundle = bundle;
+        this.holder = holder;
     }
 
     public Context getComponentContext() {
@@ -80,6 +83,10 @@ public class IntegrationContext {
 
     public Bundle getBundle() {
         return bundle;
+    }
+
+    public Holder getHolder() {
+        return holder;
     }
 
     public SharedConnectorInstanceContext newConnectorInstanceContext(Request baseRequest) {

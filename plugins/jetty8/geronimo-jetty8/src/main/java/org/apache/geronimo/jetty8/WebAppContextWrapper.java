@@ -177,7 +177,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
         this.componentContext = contextSource.getContext();
         UserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
-        integrationContext = new IntegrationContext(this.componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle);
+        integrationContext = new IntegrationContext(this.componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder);
         webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.

@@ -41,9 +41,9 @@ public class GeronimoServletHolder extends ServletHolder {
         }
     }
 
-    public synchronized Servlet newInstance() throws InstantiationException, IllegalAccessException {
-        return (Servlet) servletRegistration.newInstance(_className);
-    }
+//    public synchronized Servlet newInstance() throws InstantiationException, IllegalAccessException {
+//        return (Servlet) servletRegistration.newInstance(_className);
+//    }
 
     public void destroyInstance(Object o) throws Exception {
         super.destroyInstance(o);

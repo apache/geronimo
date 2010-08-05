@@ -37,6 +37,7 @@ import javax.servlet.ServletResponse;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
+import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.j2ee.jndi.WebContextSource;
 import org.apache.geronimo.jetty8.connector.HTTPSocketConnector;
@@ -172,7 +173,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 policyContextId,
                 securityHandlerFactory,
                 runAsSource,
-                null,
+                new Holder(),
                 null,
                 connectionTrackingCoordinator,
                 container,

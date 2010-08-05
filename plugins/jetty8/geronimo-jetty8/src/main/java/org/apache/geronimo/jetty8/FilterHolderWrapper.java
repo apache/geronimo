@@ -81,11 +81,7 @@ public class FilterHolderWrapper implements GBeanLifecycle {
             }
         }
 
-
-        public synchronized Object newInstance() throws InstantiationException, IllegalAccessException {
-            return servletRegistration.newInstance(_className);
-        }
-
+        @Override
         public void destroyInstance(Object o) throws Exception {
             if (!destroyed) {
                 super.destroyInstance(o);

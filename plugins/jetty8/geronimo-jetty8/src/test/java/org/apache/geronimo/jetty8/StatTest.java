@@ -32,20 +32,20 @@ import org.apache.geronimo.management.LazyStatisticsProvider;
 public class StatTest extends AbstractWebModuleTest {
 
     private ObjectName webModuleName;
-    
+
     public void testContainerStats() throws Exception {
-	statsTest(container);
+        statsTest(container);
     }
 
     public void testConnectorStats() throws Exception {
-	statsTest(connector);
+        statsTest(connector);
     }
-    
-    public void statsTest(LazyStatisticsProvider component) throws Exception {       
+
+    public void statsTest(LazyStatisticsProvider component) throws Exception {
         // start statistics collection
         if (component instanceof LazyStatisticsProvider) {
-        assertTrue("Stats should be off initially", !component.isStatsOn());
-        component.setStatsOn(true);
+            assertTrue("Stats should be off initially", !component.isStatsOn());
+            component.setStatsOn(true);
         }
         int n = 4; // no of connections
         for (int k = 0; k < n; k++) {
@@ -54,7 +54,7 @@ public class StatTest extends AbstractWebModuleTest {
             assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             assertEquals("Hello World", reader.readLine());
-            
+
             Stats stats = component.getStats();
             Statistic[] stts = stats.getStatistics();
             Statistic aStts;
@@ -64,9 +64,9 @@ public class StatTest extends AbstractWebModuleTest {
                 String sttsName = sttsNames[i];
                 assertFalse(sttsName.equals(stts[i].getName()));
                 try {
-                stats.getClass().getMethod("get" + sttsName, new Class[0]);
+                    stats.getClass().getMethod("get" + sttsName, new Class[0]);
                 } catch (NoSuchMethodException e) {
-            	continue; // ignore this statistics for now, JSR77.6.10.1.1
+                    continue; // ignore this statistics for now, JSR77.6.10.1.1
                 }
                 aStts = stats.getStatistic(sttsName);
                 assertTrue("startTime was not set for " + sttsName, aStts.getStartTime() != 0);
@@ -75,10 +75,10 @@ public class StatTest extends AbstractWebModuleTest {
             	    "  startTime = " + aStts.getStartTime());
                 System.out.println(aStts);*/
             }
-            if (k == n-2) component.resetStats(); // test reset
+            if (k == n - 2) component.resetStats(); // test reset
             connection.disconnect();
             Thread.sleep(1000);  // connection interval
-        }       
+        }
     }
 
     protected void setUp() throws Exception {
