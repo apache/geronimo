@@ -20,6 +20,7 @@
 
 package org.apache.geronimo.bval.deployment;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.geronimo.bval.DefaultValidatorFactoryReference;
@@ -33,6 +34,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
+import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
@@ -48,9 +50,9 @@ public class BValNamingBuilder extends AbstractNamingBuilder {
     }
 
     @Override
-    public void buildNaming(JndiConsumer specDD, XmlObject xmlObject1, Module module, Map<EARContext.Key, Object> keyObjectMap) throws DeploymentException {
-        put("java:comp/Validator", new DefaultValidatorReference(), module.getJndiContext());
-        put("java:comp/ValidatorFactory", new DefaultValidatorFactoryReference(), module.getJndiContext());
+    public void buildNaming(JndiConsumer specDD, XmlObject xmlObject1, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+        put("java:comp/Validator", new DefaultValidatorReference(), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+        put("java:comp/ValidatorFactory", new DefaultValidatorFactoryReference(), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
     }
 
     @Override

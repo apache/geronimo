@@ -18,6 +18,7 @@
 package org.apache.geronimo.naming.deployment;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,7 @@ import org.apache.geronimo.naming.reference.GBeanReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
+import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
@@ -90,7 +92,7 @@ public class GBeanRefBuilder extends AbstractNamingBuilder {
 
             String refName = gbeanRef.getRefName();
 
-            put(refName, new GBeanReference(module.getConfigId(), queries, gBeanType), module.getJndiContext());
+            put(refName, new GBeanReference(module.getConfigId(), queries, gBeanType), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
 
         }
     }

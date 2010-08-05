@@ -48,9 +48,9 @@
         <module>tomcat7-clustering-wadi</module>
         <module>tomcat7-clustering-builder-wadi</module>
     </modules>
-    <properties>
-        <tomcatVersion>7.0.0.1</tomcatVersion>
-    </properties>
+    <!--<properties>-->
+        <!--<tomcatVersion>7.0.0.2-SNAPSHOT</tomcatVersion>-->
+    <!--</properties>-->
     <dependencyManagement>
         <dependencies>
             <!-- Tomcat web container -->

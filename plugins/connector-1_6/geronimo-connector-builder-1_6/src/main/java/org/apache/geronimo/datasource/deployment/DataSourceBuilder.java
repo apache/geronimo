@@ -19,6 +19,7 @@ package org.apache.geronimo.datasource.deployment;
 
 import java.sql.Connection;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.openejb.jee.DataSource;
+import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.IsolationLevel;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.Property;
@@ -93,7 +95,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         this.dataSourceQNameSet = buildQNameSet(eeNamespaces, "data-source");
     }
     
-    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
                         
         // step 1: process annotations and update deployment descriptor
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -124,7 +126,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             int i = 0;
             for (DataSource dataSource: dataSources) {
                 try {
-                    addDataSourceGBean(module, componentContext, dataSource, "DataSource-" + i++);
+                    addDataSourceGBean(module, sharedContext, dataSource, "DataSource-" + i++);
                 } catch (GBeanAlreadyExistsException e) {
                     throw new DeploymentException("Error creating DataSource gbean", e);
                 }
@@ -132,7 +134,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         }        
     }
 
-    private void addDataSourceGBean(Module module, Map componentContext, DataSource ds, String name)
+    private void addDataSourceGBean(Module module, Map<EARContext.Key, Object> sharedContext, DataSource ds, String name)
         throws GBeanAlreadyExistsException {
                         
         String jndiName = ds.getName();
@@ -174,7 +176,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         earContext.addGBean(dataSourceGBean);
                 
         Object ref = new JndiReference("aries:services/" + osgiJndiName);
-        put(jndiName, ref, module.getJndiContext());
+        put(jndiName, ref, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
     }
     
     private DataSource processDefinition(DataSourceDefinition dsDefinition, JndiConsumer annotatedApp) {

@@ -93,11 +93,15 @@ import org.apache.geronimo.web.security.SpecSecurityBuilder;
 import org.apache.geronimo.web25.deployment.merge.MergeHelper;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
+import org.apache.openejb.jee.Filter;
 import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.Listener;
+import org.apache.openejb.jee.Servlet;
 import org.apache.openejb.jee.ServletMapping;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.AbstractFinder;
 import org.apache.xbean.finder.BundleAnnotationFinder;
+import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlObject;
@@ -162,7 +166,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     };
 
-    public static final EARContext.Key<List<String>> ORDERED_LIBS = new EARContext.Key<List<String>> () {
+    public static final EARContext.Key<List<String>> ORDERED_LIBS = new EARContext.Key<List<String>>() {
         @Override
         public List<String> get(Map<EARContext.Key, Object> context) {
             return (List<String>) context.get(this);
@@ -178,8 +182,23 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected static final AbstractNameQuery STATELESS_SESSION_BEAN_PATTERN;
 
     protected static final AbstractNameQuery STATEFUL_SESSION_BEAN_PATTERN;
+    protected static final AbstractNameQuery SINGLETON_BEAN_PATTERN;
+    protected static final AbstractNameQuery MANAGED_BEAN_PATTERN;
 
     protected static final AbstractNameQuery ENTITY_BEAN_PATTERN;
+
+    protected static final AbstractNameQuery EJB_MODULE_PATTERN;
+
+    static {
+        MANAGED_CONNECTION_FACTORY_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_MANAGED_CONNECTION_FACTORY));
+        ADMIN_OBJECT_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_ADMIN_OBJECT));
+        STATELESS_SESSION_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATELESS_SESSION_BEAN));
+        STATEFUL_SESSION_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATEFUL_SESSION_BEAN));
+        SINGLETON_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.SINGLETON_BEAN));
+        MANAGED_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.MANAGED_BEAN));
+        ENTITY_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.ENTITY_BEAN));
+        EJB_MODULE_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.EJB_MODULE));
+    }
 
     protected final Kernel kernel;
 
@@ -207,7 +226,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     public static final String MESSAGE_LAYER = "HttpServlet";
 
     protected AbstractWebModuleBuilder(Kernel kernel, Collection<NamespaceDrivenBuilder> serviceBuilders, NamingBuilder namingBuilders, ResourceEnvironmentSetter resourceEnvironmentSetter,
-            Collection<WebServiceBuilder> webServiceBuilder, Collection<ModuleBuilderExtension> moduleBuilderExtensions, BundleContext bundleContext) {
+                                       Collection<WebServiceBuilder> webServiceBuilder, Collection<ModuleBuilderExtension> moduleBuilderExtensions, BundleContext bundleContext) {
         this.kernel = kernel;
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
         this.namingBuilders = namingBuilders;
@@ -216,14 +235,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         this.moduleBuilderExtensions = moduleBuilderExtensions == null ? new ArrayList<ModuleBuilderExtension>() : moduleBuilderExtensions;
         ServiceReference sr = bundleContext.getServiceReference(PackageAdmin.class.getName());
         packageAdmin = (PackageAdmin) bundleContext.getService(sr);
-    }
-
-    static {
-        MANAGED_CONNECTION_FACTORY_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_MANAGED_CONNECTION_FACTORY));
-        ADMIN_OBJECT_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_ADMIN_OBJECT));
-        STATELESS_SESSION_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATELESS_SESSION_BEAN));
-        STATEFUL_SESSION_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATEFUL_SESSION_BEAN));
-        ENTITY_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.ENTITY_BEAN));
     }
 
     public NamingBuilder getNamingBuilders() {
@@ -236,7 +247,10 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         addDependencies(earContext.findGBeanDatas(earConfiguration, ADMIN_OBJECT_PATTERN), webModuleData);
         addDependencies(earContext.findGBeanDatas(earConfiguration, STATELESS_SESSION_BEAN_PATTERN), webModuleData);
         addDependencies(earContext.findGBeanDatas(earConfiguration, STATEFUL_SESSION_BEAN_PATTERN), webModuleData);
+        addDependencies(earContext.findGBeanDatas(earConfiguration, SINGLETON_BEAN_PATTERN), webModuleData);
+        addDependencies(earContext.findGBeanDatas(earConfiguration, MANAGED_BEAN_PATTERN), webModuleData);
         addDependencies(earContext.findGBeanDatas(earConfiguration, ENTITY_BEAN_PATTERN), webModuleData);
+        addDependencies(earContext.findGBeanDatas(earConfiguration, EJB_MODULE_PATTERN), webModuleData);
     }
 
     private void addDependencies(LinkedHashSet<GBeanData> dependencies, GBeanData webModuleData) {
@@ -253,15 +267,15 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     @Override
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, Module parentModule, Naming naming,
-            ModuleIDBuilder idBuilder) throws DeploymentException {
+                               ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, targetPath, specDDUrl, environment, (String) moduleContextInfo, parentModule, naming, idBuilder);
     }
 
     protected abstract Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, String contextRoot, Module parentModule, Naming naming,
-            ModuleIDBuilder idBuilder) throws DeploymentException;
+                                           ModuleIDBuilder idBuilder) throws DeploymentException;
 
     protected static Map<JndiKey, Map<String, Object>> shareJndi(Module parent) {
-        return Module.share(Module.APP, parent == null? null: parent.getJndiContext());
+        return Module.share(Module.APP, parent == null ? null : parent.getJndiContext());
     }
 
     /**
@@ -283,7 +297,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         for (ServletMapping servletMapping : servletMappings) {
             String servletName = servletMapping.getServletName();
             List<String> urlPatterns = servletMapping.getUrlPattern();
-            for (String urlPattern: urlPatterns) {
+            for (String urlPattern : urlPatterns) {
                 map.put(servletName, contextRoot + urlPattern);
             }
         }
@@ -452,6 +466,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         //Might need double-check !
         MergeHelper.processServletContainerInitializer(earContext, webModule, bundle);
 
+        //web.xml should now list all the classes we need to create instances of.
         //Process Web Service
         Map servletNameToPathMap = buildServletNameToPathMap(webModule.getSpecDD(), webModule.getContextRoot());
         Map sharedContext = webModule.getSharedContext();
@@ -475,6 +490,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     /**
      * Identify the spec DD schema version, and save it in the EARContext
+     *
      * @param originalSpecDD text of original spec dd
      * @return spec dd version
      */
@@ -612,16 +628,29 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         Bundle bundle = webModule.getEarContext().getDeploymentBundle();
 //        return createWebAppClassFinder(webApp, bundle);
         try {
-            return new BundleAnnotationFinder(packageAdmin, bundle);
+            LinkedHashSet<Class<?>> classes = new LinkedHashSet<Class<?>>();
+            for (Servlet servlet : webApp.getServlet()) {
+                if (servlet.getServletClass() != null) {
+                    addClass(bundle, classes, servlet.getServletClass());
+                }
+            }
+            for (Filter filter : webApp.getFilter()) {
+                addClass(bundle, classes, filter.getFilterClass());
+            }
+            for (Listener listener : webApp.getListener()) {
+                addClass(bundle, classes, listener.getListenerClass());
+            }
+            return new ClassFinder(new ArrayList<Class>(classes));
         } catch (Exception e) {
             throw new DeploymentException(e);
         }
     }
 
-    private static void addClass(List<Class> classes, Class<?> clas) {
-        while (clas != Object.class) {
-            classes.add(clas);
-            clas = clas.getSuperclass();
+    private void addClass(Bundle bundle, LinkedHashSet<Class<?>> classes, String className) throws ClassNotFoundException {
+        Class<?> cl = bundle.loadClass(className);
+        while (cl != Object.class) {
+            classes.add(cl);
+            cl = cl.getSuperclass();
         }
     }
 

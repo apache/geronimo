@@ -120,7 +120,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
     }
 
 
-    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map sharedContext) throws DeploymentException {
         XmlObject[] gerResourceEnvRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map<String, GerResourceEnvRefType> refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
         Map<String, Map<String, GerMessageDestinationType>> messageDestinations = module.getRootEarContext().getMessageDestinations();
@@ -137,16 +137,15 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
         }
 
-        Collection<ResourceEnvRef> resourceEnvRefsUntyped = specDD.getResourceEnvRef();
         List<String> unresolvedRefs = new ArrayList<String>();
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        for (ResourceEnvRef resourceEnvRef : resourceEnvRefsUntyped) {
-            String name = getStringValue(resourceEnvRef.getResourceEnvRefName());
+        for (Map.Entry<String, ResourceEnvRef> entry : specDD.getResourceEnvRefMap().entrySet()) {
+            String name = entry.getKey();
             if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
                 continue;
             }
-            addInjections(name, resourceEnvRef.getInjectionTarget(), componentContext);
+            ResourceEnvRef resourceEnvRef = entry.getValue();
             String type = getStringValue(resourceEnvRef.getResourceEnvRefType());
             type = inferAndCheckType(module, bundle, resourceEnvRef.getInjectionTarget(), name, type);
             GerResourceEnvRefType gerResourceEnvRef = refMap.remove(name);
@@ -169,7 +168,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             if (value == null) {
                 unresolvedRefs.add(name);
             } else {
-                put(name, value, module.getJndiContext());
+                put(name, value, module.getJndiContext(), resourceEnvRef.getInjectionTarget(), sharedContext);
             }
         }
 
@@ -178,15 +177,14 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         }
 
         //message-destination-refs
-        Collection<MessageDestinationRef> messageDestinationRefsUntyped = specDD.getMessageDestinationRef();
 
-        for (MessageDestinationRef messageDestinationRef : messageDestinationRefsUntyped) {
-            String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
+        for (Map.Entry<String, MessageDestinationRef> entry : specDD.getMessageDestinationRefMap().entrySet()) {
+            String name = entry.getKey();
             if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
                 continue;
             }
-            addInjections(name, messageDestinationRef.getInjectionTarget(), componentContext);
+            MessageDestinationRef messageDestinationRef = entry.getValue();
             String linkName = getStringValue(messageDestinationRef.getMessageDestinationLink());
             //TODO figure out something better to do here!
             if (linkName == null) {
@@ -213,7 +211,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
             }
 
             if (value != null) {
-                put(name, value, module.getJndiContext());
+                put(name, value, module.getJndiContext(), messageDestinationRef.getInjectionTarget(), sharedContext);
             }
         }
 

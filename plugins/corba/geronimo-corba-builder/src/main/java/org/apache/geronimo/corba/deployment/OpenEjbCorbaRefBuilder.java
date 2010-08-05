@@ -106,12 +106,11 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
         for (EjbRef ejbRef : ejbRefsUntyped) {
 
             String ejbRefName = getStringValue(ejbRef.getEjbRefName());
-            addInjections(ejbRefName, ejbRef.getInjectionTarget(), sharedContext);
             GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
 
             Reference ejbReference = addEJBRef(module, ejbRef, remoteRef, bundle);
             if (ejbReference != null) {
-                put(ejbRefName, ejbReference, module.getJndiContext());
+                put(ejbRefName, ejbReference, module.getJndiContext(), ejbRef.getInjectionTarget(), sharedContext);
             }
         }
     }

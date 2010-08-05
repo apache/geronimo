@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -184,8 +185,8 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
     protected ClassFinder createMyFacesClassFinder(WebApp webApp, WebModule webModule) throws DeploymentException {
 
-        List<Class> classes = getFacesClasses(webApp, webModule);
-        return new ClassFinder(classes);
+        LinkedHashSet<Class> classes = getFacesClasses(webApp, webModule);
+        return new ClassFinder(new ArrayList<Class>(classes));
     }
 
 
@@ -210,7 +211,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
      * @throws org.apache.geronimo.common.DeploymentException
      *          if a faces-config.xml file is located but cannot be parsed.
      */
-    private List<Class> getFacesClasses(WebApp webApp, WebModule webModule) throws DeploymentException {
+    private LinkedHashSet<Class> getFacesClasses(WebApp webApp, WebModule webModule) throws DeploymentException {
         log.debug("getFacesClasses( " + webApp.toString() + "," + '\n' +
                 (webModule != null ? webModule.getName() : null) + " ): Entry");
 
@@ -218,7 +219,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         Bundle bundle = webModule.getEarContext().getDeploymentBundle();
 
         // 1. META-INF/faces-config.xml
-        List<Class> classes = new ArrayList<Class>();
+        LinkedHashSet<Class> classes = new LinkedHashSet<Class>();
         URL url = deployable.getResource("META-INF/faces-config.xml");
         if (url != null) {
             parseConfigFile(url, bundle, classes);
@@ -258,7 +259,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         return classes;
     }
 
-    private void parseConfigFile(URL url, Bundle bundle, List<Class> classes) throws DeploymentException {
+    private void parseConfigFile(URL url, Bundle bundle, LinkedHashSet<Class> classes) throws DeploymentException {
         log.debug("parseConfigFile( " + url.toString() + " ): Entry");
 
         try {
@@ -277,8 +278,10 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                 Class<?> clas;
                 try {
                     clas = bundle.loadClass(className);
-                    classes.add(clas);
-                    //TODO do we need superclasses?
+                    while (clas != null) {
+                        classes.add(clas);
+                        clas = clas.getSuperclass();
+                    }
                 }
                 catch (ClassNotFoundException e) {
                     log.warn("MyFacesModuleBuilderExtension: Could not load managed bean class: " + className + " mentioned in faces-config.xml file at " + url.toString());

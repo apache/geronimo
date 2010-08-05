@@ -51,8 +51,8 @@ import org.apache.openejb.config.JndiEncInfoBuilder;
 import org.apache.openejb.core.ivm.naming.IntraVmJndiReference;
 import org.apache.openejb.jee.EjbLocalRef;
 import org.apache.openejb.jee.EjbRef;
+import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
-import org.apache.openejb.jee.SessionBean;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.slf4j.Logger;
@@ -109,6 +109,17 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             processAnnotations(specDD, module);
         }
 
+        Map<String, List<InjectionTarget>> injectionsMap = new HashMap<String, List<InjectionTarget>>();
+        for (Map.Entry<String, EjbRef> entry: specDD.getEjbRefMap().entrySet()) {
+            if (!entry.getValue().getInjectionTarget().isEmpty()) {
+                injectionsMap.put(entry.getKey(), entry.getValue().getInjectionTarget());
+            }
+        }
+        for (Map.Entry<String, EjbLocalRef> entry: specDD.getEjbLocalRefMap().entrySet()) {
+            if (!entry.getValue().getInjectionTarget().isEmpty()) {
+                injectionsMap.put(entry.getKey(), entry.getValue().getInjectionTarget());
+            }
+        }
         Map<String, Object> map = null;
         try {
             EjbModuleBuilder.EarData earData = EjbModuleBuilder.EarData.KEY.get(module.getRootEarContext().getGeneralData());
@@ -121,29 +132,21 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             appInfo.ejbJars.addAll(ejbJars);
 
             JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(appInfo);
-            String moduleId = (module.isStandAlone()) ? null : module.getTargetPath();
-            JndiEncInfo moduleJndiEnc = new JndiEncInfo();
-            JndiEncInfo compJndiEnc = new JndiEncInfo();       
+            JndiEncInfo moduleJndi = new JndiEncInfo();
+            JndiEncInfo compJndi = new JndiEncInfo();
 
-            jndiEncInfoBuilder.build(specDD, "GeronimoEnc", moduleId, moduleJndiEnc, compJndiEnc);
+            String moduleId = module.getName();
+            jndiEncInfoBuilder.build(specDD, "GeronimoEnc", moduleId, moduleJndi, compJndi);
             
             JndiEncInfo ejbEncInfo = new JndiEncInfo();
-            
-            // add java:global/
             ejbEncInfo.ejbReferences.addAll(appInfo.globalJndiEnc.ejbReferences);
-            ejbEncInfo.ejbLocalReferences.addAll(appInfo.globalJndiEnc.ejbLocalReferences);
-            
-            // add java:app/
             ejbEncInfo.ejbReferences.addAll(appInfo.appJndiEnc.ejbReferences);
+            ejbEncInfo.ejbReferences.addAll(moduleJndi.ejbReferences);
+            ejbEncInfo.ejbReferences.addAll(compJndi.ejbReferences);
+            ejbEncInfo.ejbLocalReferences.addAll(appInfo.globalJndiEnc.ejbLocalReferences);
             ejbEncInfo.ejbLocalReferences.addAll(appInfo.appJndiEnc.ejbLocalReferences);
-            
-            // add java:module/            
-            ejbEncInfo.ejbReferences.addAll(moduleJndiEnc.ejbReferences);
-            ejbEncInfo.ejbLocalReferences.addAll(moduleJndiEnc.ejbLocalReferences);
-            
-            // add java:comp/
-            ejbEncInfo.ejbReferences.addAll(compJndiEnc.ejbReferences);
-            ejbEncInfo.ejbLocalReferences.addAll(compJndiEnc.ejbLocalReferences);
+            ejbEncInfo.ejbLocalReferences.addAll(moduleJndi.ejbLocalReferences);
+            ejbEncInfo.ejbLocalReferences.addAll(compJndi.ejbLocalReferences);
 
             JndiEncBuilder jndiEncBuilder = new JndiEncBuilder(ejbEncInfo, null, module.getName(), getClass().getClassLoader());
 
@@ -164,8 +167,9 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 if (uri != null) {
                     value = createClientRef(value);
                 }
+                name = "java:" + name;
                 if (value instanceof Serializable) {
-                    put("java:" + name, value, module.getJndiContext());
+                    put(name, value, module.getJndiContext(), injectionsMap.get(name), sharedContext);
                 }
             }
         }

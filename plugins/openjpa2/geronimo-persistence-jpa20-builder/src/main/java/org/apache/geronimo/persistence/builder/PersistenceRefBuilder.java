@@ -53,6 +53,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceContextTypeType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceUnitRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPersistenceUnitRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPropertyType;
+import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.PersistenceContextRef;
 import org.apache.openejb.jee.PersistenceContextType;
@@ -93,7 +94,7 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
         return plan != null && plan.selectChildren(PersistenceRefBuilder.GER_PERSISTENCE_UNIT_REF_QNAME_SET).length > 0;
     }
 
-    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> componentContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         Configuration localConfiguration = module.getEarContext().getConfiguration();
         List<DeploymentException> problems = new ArrayList<DeploymentException>();
 
@@ -105,11 +106,10 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
         //persistenceUnit refs
         Collection<PersistenceUnitRef> specPersistenceUnitRefsUntyped = specDD.getPersistenceUnitRef();
         Map<String, GerPersistenceUnitRefType> gerPersistenceUnitRefsUntyped = getGerPersistenceUnitRefs(plan);
-        for (PersistenceUnitRef persistenceUnitRef : specPersistenceUnitRefsUntyped) {
+        for (Map.Entry<String, PersistenceUnitRef> entry : specDD.getPersistenceUnitRefMap().entrySet()) {
             try {
-                String persistenceUnitRefName = persistenceUnitRef.getPersistenceUnitRefName().trim();
-
-                addInjections(persistenceUnitRefName, persistenceUnitRef.getInjectionTarget(), componentContext);
+                String persistenceUnitRefName = entry.getKey();
+                PersistenceUnitRef persistenceUnitRef = entry.getValue();
                 AbstractNameQuery persistenceUnitNameQuery;
                 GerPersistenceUnitRefType gerPersistenceUnitRef = gerPersistenceUnitRefsUntyped.remove(persistenceUnitRefName);
                 if (gerPersistenceUnitRef != null) {
@@ -121,19 +121,20 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
 
                 PersistenceUnitReference reference = new PersistenceUnitReference(module.getConfigId(), persistenceUnitNameQuery);
 
-                put(persistenceUnitRefName, reference, module.getJndiContext());
+                put(persistenceUnitRefName, reference, module.getJndiContext(), persistenceUnitRef.getInjectionTarget(), sharedContext);
             } catch (DeploymentException e) {
                 problems.add(e);
             }
 
         }
+        //geronimo-only persistence unit refs have no injections
         for (GerPersistenceUnitRefType gerPersistenceUnitRef : gerPersistenceUnitRefsUntyped.values()) {
             try {
-                String PersistenceUnitRefName = gerPersistenceUnitRef.getPersistenceUnitRefName();
+                String persistenceUnitRefName = gerPersistenceUnitRef.getPersistenceUnitRefName();
                 AbstractNameQuery persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceUnitRef);
                 checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
                 PersistenceUnitReference reference = new PersistenceUnitReference(module.getConfigId(), persistenceUnitNameQuery);
-                put(PersistenceUnitRefName, reference, module.getJndiContext());
+                put(persistenceUnitRefName, reference, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
             } catch (DeploymentException e) {
                 problems.add(e);
             }
@@ -143,11 +144,10 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
         //persistence context refs
         Collection<PersistenceContextRef> specPersistenceContextRefsUntyped = specDD.getPersistenceContextRef();
         Map<String, GerPersistenceContextRefType> gerPersistenceContextRefsUntyped = getGerPersistenceContextRefs(plan);
-        for (PersistenceContextRef persistenceContextRef : specPersistenceContextRefsUntyped) {
+        for (Map.Entry<String, PersistenceContextRef> entry : specDD.getPersistenceContextRefMap().entrySet()) {
             try {
-                String persistenceContextRefName = persistenceContextRef.getPersistenceContextRefName().trim();
-
-                addInjections(persistenceContextRefName, persistenceContextRef.getInjectionTarget(), componentContext);
+                String persistenceContextRefName = entry.getKey();
+                PersistenceContextRef persistenceContextRef = entry.getValue();
                 PersistenceContextType persistenceContextType = persistenceContextRef.getPersistenceContextType();
                 boolean transactionScoped = persistenceContextType == null || persistenceContextType.equals(PersistenceContextType.TRANSACTION);
 
@@ -169,7 +169,7 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
                     persistenceUnitNameQuery = findPersistenceUnitQuery(module, localConfiguration, persistenceContextRef);
                 }
                 PersistenceContextReference reference = new PersistenceContextReference(module.getConfigId(), persistenceUnitNameQuery, transactionScoped, properties);
-                put(persistenceContextRefName, reference, module.getJndiContext());
+                put(persistenceContextRefName, reference, module.getJndiContext(), persistenceContextRef.getInjectionTarget(), sharedContext);
             } catch (DeploymentException e) {
                 problems.add(e);
             }
@@ -186,7 +186,7 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
                 AbstractNameQuery persistenceUnitNameQuery = findPersistenceUnit(gerPersistenceContextRef);
                 checkForGBean(localConfiguration, persistenceUnitNameQuery, true);
                 PersistenceContextReference reference = new PersistenceContextReference(module.getConfigId(), persistenceUnitNameQuery, transactionScoped, properties);
-                put(persistenceContextRefName, reference, module.getJndiContext());
+                put(persistenceContextRefName, reference, module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
             } catch (DeploymentException e) {
                 problems.add(e);
             }

@@ -21,11 +21,14 @@
 package org.apache.geronimo.openejb;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
+import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.openejb.SystemException;
 import org.apache.openejb.core.JndiFactory;
 import org.apache.xbean.naming.context.ImmutableFederatedContext;

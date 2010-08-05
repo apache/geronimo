@@ -32,6 +32,7 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import org.apache.openejb.jee.EjbLocalRef;
 import org.apache.openejb.jee.EjbRef;
+import org.apache.openejb.jee.EjbReference;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.Text;
@@ -313,6 +314,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                     if (!descriptionAnnotation.isEmpty()) {
                         ejbLocalRef.setDescriptions(new Text[] {new Text(null, descriptionAnnotation)});
                     }
+                    ejbLocalRef.setRefType(EjbReference.Type.LOCAL);
                     annotatedApp.getEjbLocalRef().add(ejbLocalRef);
                 }
                 catch (Exception e) {
@@ -391,6 +393,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                     if (!descriptionAnnotation.isEmpty()) {
                         ejbRef.setDescriptions(new Text[] {new Text(null, descriptionAnnotation) });
                     }
+                    ejbRef.setRefType(EjbReference.Type.REMOTE);
                     annotatedApp.getEjbRef().add(ejbRef);
                 }
                 catch (Exception e) {
@@ -432,8 +435,6 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                     // Doesn't exist in deployment descriptor -- add as an <ejb-ref> to the
                     // ambiguous list so that it can be resolved later
                     ejbRef = new EjbRef();
-                    //TODO how to deal with this?
-//                    annotatedApp.getAmbiguousEjbRefs().add(ejbRef);
 
                     //------------------------------------------------------------------------------
                     // <ejb-ref> required elements:
@@ -471,6 +472,9 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                     if (!descriptionAnnotation.isEmpty()) {
                         ejbRef.setDescriptions(new Text[] {new Text(null, descriptionAnnotation) });
                     }
+                    ejbRef.setRefType(EjbReference.Type.UNKNOWN);
+                    //openejb sorts out ambiguous ejb refs.
+                    annotatedApp.getEjbRef().add(ejbRef);
                 }
                 catch (Exception e) {
                     log.debug("EJBAnnotationHelper: Exception caught while processing <UNKNOWN>", e);

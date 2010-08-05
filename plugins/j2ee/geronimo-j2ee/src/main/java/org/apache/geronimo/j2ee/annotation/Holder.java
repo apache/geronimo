@@ -189,8 +189,7 @@ public class Holder implements Serializable {
             for (Injection injection : callbackHandlerinjections) {
                 try {
                     String jndiName = injection.getJndiName();
-                    //our componentContext is attached to jndi at "java:" so we remove that when looking stuff up in it
-                    Object object = context.lookup("comp/env/" + jndiName);
+                    Object object = context.lookup(jndiName);
                     objectRecipe.setProperty(injection.getTargetName(), object);
                 } catch (NamingException e) {
                     log.info("Could not look up " + injection.getJndiName(), e);

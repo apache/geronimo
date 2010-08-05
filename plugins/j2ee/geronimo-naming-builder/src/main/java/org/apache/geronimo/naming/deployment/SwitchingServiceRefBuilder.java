@@ -120,15 +120,12 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
             String serviceInterfaceName = serviceRef.getServiceInterface();
             Class serviceInterfaceClass = loadClass(serviceInterfaceName, bundle);
 
-            List<InjectionTarget> injections = serviceRef.getInjectionTarget();
-            addInjections(name, injections, sharedContext);
-
             if (jaxrpcClass.isAssignableFrom(serviceInterfaceClass)) {
                 // class jaxrpc handler
                 ServiceRefBuilder jaxrpcBuilder = getJAXRCPBuilder();
                 jaxrpcBuilder.buildNaming(serviceRef, gerServiceRefType, module, sharedContext);
             } else if (jaxwsClass.isAssignableFrom(serviceInterfaceClass)) {
-                // calll jaxws handler
+                // call jaxws handler
                 ServiceRefBuilder jaxwsBuilder = getJAXWSBuilder();
                 jaxwsBuilder.buildNaming(serviceRef, gerServiceRefType, module, sharedContext);
             } else {

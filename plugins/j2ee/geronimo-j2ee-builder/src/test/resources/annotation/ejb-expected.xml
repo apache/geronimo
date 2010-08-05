@@ -16,11 +16,7 @@
    limitations under the License.
 -->
 
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-   version="2.5" >
-
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
     <description>Empty web application</description>
     <display-name>Empty web application</display-name>
     <ejb-ref>
@@ -31,11 +27,53 @@
         <mapped-name>mappedName1</mapped-name>
     </ejb-ref>
     <ejb-ref>
+        <description>description3</description>
+        <ejb-ref-name>EJB3</ejb-ref-name>
+        <ejb-link>beanName3</ejb-link>
+        <mapped-name>mappedName3</mapped-name>
+    </ejb-ref>
+    <ejb-ref>
         <description>description5</description>
         <ejb-ref-name>EJB5</ejb-ref-name>
         <remote>javax.ejb.EJBHome</remote>
         <ejb-link>beanName5</ejb-link>
         <mapped-name>mappedName5</mapped-name>
+    </ejb-ref>
+    <ejb-ref>
+        <description>description7</description>
+        <ejb-ref-name>EJB7</ejb-ref-name>
+        <ejb-link>beanName7</ejb-link>
+        <mapped-name>mappedName7</mapped-name>
+    </ejb-ref>
+    <ejb-ref>
+        <description>description11</description>
+        <ejb-ref-name>EJB11</ejb-ref-name>
+        <remote>java.lang.String</remote>
+        <ejb-link>beanName11</ejb-link>
+        <mapped-name>mappedName11</mapped-name>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
+            <injection-target-name>annotatedMethod2</injection-target-name>
+        </injection-target>
+    </ejb-ref>
+    <ejb-ref>
+        <ejb-ref-name>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample/annotatedField1</ejb-ref-name>
+        <remote>java.lang.String</remote>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
+            <injection-target-name>annotatedField1</injection-target-name>
+        </injection-target>
+    </ejb-ref>
+    <ejb-ref>
+        <description>description9</description>
+        <ejb-ref-name>EJB9</ejb-ref-name>
+        <remote>java.lang.String</remote>
+        <ejb-link>beanName9</ejb-link>
+        <mapped-name>mappedName9</mapped-name>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
+            <injection-target-name>annotatedField2</injection-target-name>
+        </injection-target>
     </ejb-ref>
     <ejb-ref>
         <ejb-ref-name>myejb2</ejb-ref-name>
@@ -77,7 +115,7 @@
         <mapped-name>mappedName10</mapped-name>
         <injection-target>
             <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.EJBAnnotationExample</injection-target-class>
-            <injection-target-name>AnnotatedMethod1</injection-target-name>
+            <injection-target-name>annotatedMethod1</injection-target-name>
         </injection-target>
     </ejb-local-ref>
     <ejb-local-ref>
@@ -92,5 +130,4 @@
             <injection-target-name>annotatedField4</injection-target-name>
         </injection-target>
     </ejb-local-ref>
-
 </web-app>

@@ -100,11 +100,11 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         }
 
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        Collection<EnvEntry> envEntriesUntyped = specDD.getEnvEntry();
         XmlObject[] gerEnvEntryUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ENV_ENTRY_QNAME_SET);
         Map<String, String> envEntryMap = mapEnvEntries(gerEnvEntryUntyped);
-        for (EnvEntry envEntry : envEntriesUntyped) {
-            String name = getStringValue(envEntry.getEnvEntryName());
+        for (Map.Entry<String, EnvEntry> entry : specDD.getEnvEntryMap().entrySet()) {
+            String name = entry.getKey();
+            EnvEntry envEntry = entry.getValue();
             String type = getStringValue(envEntry.getEnvEntryType());
 
             Object value = null;
@@ -183,8 +183,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
             // perform resource injection only if there is a value specified
             // see Java EE 5 spec, section EE.5.4.1.3
             if (value != null) {
-                addInjections(name, envEntry.getInjectionTarget(), sharedContext);
-                put(name, value, module.getJndiContext());
+                put(name, value, module.getJndiContext(), envEntry.getInjectionTarget(), sharedContext);
             }
         }
 
@@ -199,10 +198,15 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         if (refs != null) {
             for (XmlObject ref1 : refs) {
                 GerEnvEntryType ref = (GerEnvEntryType) ref1.copy().changeType(GerEnvEntryType.type);
-                envEntryMap.put(ref.getEnvEntryName().trim(), ref.getEnvEntryValue());
+                envEntryMap.put(gNormalize(ref.getEnvEntryName().trim()), ref.getEnvEntryValue());
             }
         }
         return envEntryMap;
+    }
+
+    private String gNormalize(String s) {
+        if (s.startsWith("java:")) return s;
+        return "java:comp/env/" + s;
     }
 
     public QNameSet getSpecQNameSet() {

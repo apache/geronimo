@@ -181,8 +181,8 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
     protected ClassFinder createJspClassFinder(WebApp webApp, WebModule webModule, Set<String> listenerNames) throws DeploymentException {
         Collection<URL> urls = getTldFiles(webApp, webModule);
-        List<Class> classes = getListenerClasses(webApp, webModule, urls, listenerNames);
-        return new ClassFinder(classes);
+        LinkedHashSet<Class> classes = getListenerClasses(webApp, webModule, urls, listenerNames);
+        return new ClassFinder(new ArrayList<Class>(classes));
     }
 
 
@@ -286,7 +286,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         return tldURLs;
     }
     
-    private List<Class> getListenerClasses(WebApp webApp, WebModule webModule, Collection<URL> urls, Set<String> listenerNames) throws DeploymentException {
+    private LinkedHashSet<Class> getListenerClasses(WebApp webApp, WebModule webModule, Collection<URL> urls, Set<String> listenerNames) throws DeploymentException {
         if (log.isDebugEnabled()) {
             log.debug("getListenerClasses( " + webApp.toString() + "," + '\n' +
                     webModule.getName() + " ): Entry");
@@ -294,7 +294,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         // Get the classloader from the module's EARContext
         Bundle bundle = webModule.getEarContext().getDeploymentBundle();
-        List<Class> classes = new ArrayList<Class>();
+        LinkedHashSet<Class> classes = new LinkedHashSet<Class>();
 
         for (URL url : urls) {
             parseTldFile(url, bundle, classes, listenerNames);
@@ -306,7 +306,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         return classes;
     }
 
-    private void parseTldFile(URL url, Bundle bundle, List<Class> classes, Set<String> listenerNames) throws DeploymentException {
+    private void parseTldFile(URL url, Bundle bundle, LinkedHashSet<Class> classes, Set<String> listenerNames) throws DeploymentException {
         log.debug("parseTLDFile( " + url.toString() + " ): Entry");
 
         try {
@@ -325,7 +325,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 if (!excludedListenerNames.contains(className)) {
                     try {
                         Class clas = bundle.loadClass(className);
-                        classes.add(clas);
+                        while (clas != null) {
+                            classes.add(clas);
+                            clas = clas.getSuperclass();
+                        }
                         listenerNames.add(className);
                     }
                     catch (ClassNotFoundException e) {
@@ -340,7 +343,10 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
                 String className = tag.getTagClass();
                 try {
                     Class clas = bundle.loadClass(className);
-                    classes.add(clas);
+                    while (clas != null) {
+                        classes.add(clas);
+                        clas = clas.getSuperclass();
+                    }
                 }
                 catch (ClassNotFoundException e) {
                     log.warn("JspModuleBuilderExtension: Could not load tag class: " + className + " mentioned in TLD file at " + url.toString());

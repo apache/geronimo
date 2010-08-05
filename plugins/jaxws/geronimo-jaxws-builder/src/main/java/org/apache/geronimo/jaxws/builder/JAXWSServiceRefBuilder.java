@@ -78,7 +78,6 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
 
         for (ServiceRef serviceRef : serviceRefsUntyped) {
             String name = getStringValue(serviceRef.getServiceRefName());
-            addInjections(name, serviceRef.getInjectionTarget(), componentContext);
             GerServiceRefType serviceRefType = serviceRefMap.remove(name);
             buildNaming(serviceRef, serviceRefType, module, componentContext);
         }
@@ -97,9 +96,10 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
     }
 
     @Override
-    public void buildNaming(ServiceRef serviceRef, GerServiceRefType gerServiceRef, Module module, Map<EARContext.Key, Object> componentContext) throws DeploymentException {
+    public void buildNaming(ServiceRef serviceRef, GerServiceRefType gerServiceRef, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        String name = getStringValue(serviceRef.getServiceRefName());
+        //TODO normalize or use normalized name from jee's map
+        String name = normalize(getStringValue(serviceRef.getServiceRefName()));
 
         String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
         Class serviceInterfaceClass = loadClass(serviceInterfaceName, bundle, "service");
@@ -151,7 +151,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         Object ref = createService(serviceRef, gerServiceRef, module, bundle,
                                    serviceInterfaceClass, serviceQName,
                                    wsdlURI, serviceReferenceType, portComponentRefMap);
-        put(name, ref, module.getJndiContext());
+        put(name, ref, module.getJndiContext(), serviceRef.getInjectionTarget(), sharedContext);
     }
 
     public abstract Object createService(ServiceRef serviceRef, GerServiceRefType gerServiceRef,

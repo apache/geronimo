@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.naming.NamingException;
+import javax.naming.Reference;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.gbean.AbstractName;
@@ -40,11 +42,13 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.openejb.EntityDeploymentGBean;
 import org.apache.geronimo.openejb.ManagedDeploymentGBean;
 import org.apache.geronimo.openejb.MessageDrivenDeploymentGBean;
@@ -58,6 +62,9 @@ import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.InterfaceType;
+import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.EntityBean;
@@ -72,6 +79,8 @@ import org.apache.openejb.jee.TransactionType;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.xbean.finder.ClassFinder;
 import org.osgi.framework.Bundle;
+
+import static org.apache.openejb.assembler.classic.JndiBuilder.format;
 
 /**
  * Handles building ejb deployment gbeans.
@@ -376,14 +385,24 @@ public class EjbDeploymentBuilder {
             // classFinder in the module will convey whether metadata-complete is set (or not)
 //            ejbModule.setClassFinder(createEjbJarClassFinder(ejbModule));
         }
+        //TODO well, what is the appName?
+        String appName = null;
+        EjbJarInfo ejbJarInfo = ejbModule.getEjbJarInfo();
         for (EnterpriseBean bean : ejbJar.getEnterpriseBeans()) {
+            String ejbName = bean.getEjbName();
+            String deploymentId = getDeploymentId(ejbName, ejbJarInfo);
+            GBeanData gbean = getEjbGBean(ejbName);
+            addEnc(gbean, bean, appName, deploymentId);
+        }
 
+        OpenejbGeronimoEjbJarType geronimoOpenejb = ejbModule.getVendorDD();
+        for (EnterpriseBean bean: ejbJar.getEnterpriseBeans()) {
             String ejbName = bean.getEjbName().trim();
-            String beanClass = bean.getEjbClass().trim();
             GBeanData gbean = getEjbGBean(ejbName);
             Collection<ResourceRef> resourceRefs = bean.getResourceRef();
-            addEnc(gbean, beanClass, bean, resourceRefs);
+            processResourceEnvironment(gbean, resourceRefs, geronimoOpenejb);
         }
+
 
         if (!ejbJar.isMetadataComplete()) {
             ejbJar.setMetadataComplete(true);
@@ -391,8 +410,16 @@ public class EjbDeploymentBuilder {
         }
     }
 
-    private void addEnc(GBeanData gbean, String beanClass, EnterpriseBean bean, Collection<ResourceRef> resourceRefs) throws DeploymentException {
-        OpenejbGeronimoEjbJarType geronimoOpenejb = ejbModule.getVendorDD();
+    private String getDeploymentId(String ejbName, EjbJarInfo ejbJarInfo) throws DeploymentException {
+        for (EnterpriseBeanInfo info: ejbJarInfo.enterpriseBeans) {
+            if (ejbName.equals(info.ejbName)) {
+                return info.ejbDeploymentId;
+            }
+        }
+        throw new DeploymentException("EnterpriseBeanInfo not found for ejb: " + ejbName);
+    }
+
+    private void addEnc(GBeanData gbean, EnterpriseBean bean, String appName, String deploymentId) throws DeploymentException {
 
         //
         // Build ENC
@@ -401,7 +428,7 @@ public class EjbDeploymentBuilder {
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, gbean.getAbstractName());
         Class ejbClass;
         try {
-            ejbClass = ejbModule.getEarContext().getDeploymentBundle().loadClass(beanClass);
+            ejbClass = ejbModule.getEarContext().getDeploymentBundle().loadClass(bean.getEjbClass());
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load ejb class", e);
         }
@@ -412,10 +439,11 @@ public class EjbDeploymentBuilder {
         }
 
         ClassFinder finder = new ClassFinder(classes);
-//        AnnotatedApp annotatedApp = AnnotatedEjbJar.getAnnotatedApp(xmlbeansEjb);
-
 
         Module module = ejbModule.newEJb(finder, bean);
+        bind(bean, appName, ejbModule.getName(), deploymentId, module.getJndiContext());
+
+        OpenejbGeronimoEjbJarType geronimoOpenejb = ejbModule.getVendorDD();
         namingBuilder.buildNaming(bean,
                 geronimoOpenejb,
                 module,
@@ -432,6 +460,9 @@ public class EjbDeploymentBuilder {
         //
         // Process resource refs
         //
+    }
+
+    private void processResourceEnvironment(GBeanData gbean, Collection<ResourceRef> resourceRefs, OpenejbGeronimoEjbJarType geronimoOpenejb) throws DeploymentException {
         GerResourceRefType[] gerResourceRefs = null;
 
         if (geronimoOpenejb != null) {
@@ -442,26 +473,111 @@ public class EjbDeploymentBuilder {
         resourceEnvironmentSetter.setResourceEnvironment(refBuilder, resourceRefs, gerResourceRefs);
     }
 
-//    private ClassFinder createEjbJarClassFinder(EjbModule ejbModule) throws DeploymentException {
-//
-//        try {
-//            // Get the classloader from the module's EARContext
-//            Bundle bundle = ejbModule.getEarContext().getDeploymentBundle();
-//
-//            //----------------------------------------------------------------------------------------
-//            // Find the list of classes from the ejb-jar.xml we want to search for annotations in
-//            //----------------------------------------------------------------------------------------
-//            List<Class> classes = new ArrayList<Class>();
-//
-//            for (EnterpriseBean bean : ejbModule.getEjbJar().getEnterpriseBeans()) {
-//                classes.add(bundle.loadClass(bean.getEjbClass()));
-//            }
-//
-//            return new ClassFinder(classes);
-//        } catch (ClassNotFoundException e) {
-//            throw new DeploymentException("Unable to load bean class.", e);
-//        }
-//    }
+    public void bind(EnterpriseBean bean, String appName, String moduleName, String id, Map<JndiKey, Map<String, Object>> jndiContext) {
+
+
+        appName = appName == null? "": appName + "/";
+        moduleName = moduleName + "/";
+        String beanName = bean.getEjbName();
+        int count = 0;
+        Reference singleRef = null;
+
+        if (bean instanceof RemoteBean) {
+            try {
+                String homeInterface = ((RemoteBean) bean).getHome();
+                if (homeInterface != null) {
+
+                    String name = "openejb/Deployment/" + format(id, homeInterface, InterfaceType.EJB_OBJECT);
+                    Reference ref = new JndiReference(name);
+                    count ++;
+                    singleRef = ref;
+                    bindJava(appName, moduleName, beanName, homeInterface, ref, jndiContext);
+                }
+            } catch (NamingException e) {
+                throw new RuntimeException("Unable to bind remote home interface for deployment " + id, e);
+            }
+            try {
+                String localHomeInterface = ((RemoteBean) bean).getLocalHome();
+                if (localHomeInterface != null) {
+
+                    String name = "openejb/Deployment/" + format(id, localHomeInterface, InterfaceType.EJB_LOCAL);
+                    Reference ref = new JndiReference(name);
+                    count++;
+                    singleRef = ref;
+                    bindJava(appName, moduleName, beanName, localHomeInterface, ref, jndiContext);
+                }
+            } catch (NamingException e) {
+                throw new RuntimeException("Unable to bind local home interface for deployment " + id, e);
+            }
+
+            try {
+                for (String interfce : ((RemoteBean) bean).getBusinessLocal()) {
+
+                    String name = "openejb/Deployment/" + format(id, interfce, InterfaceType.BUSINESS_LOCAL);
+                    Reference ref = new JndiReference(name);
+                    count++;
+                    singleRef = ref;
+                    bindJava(appName, moduleName, beanName, interfce, ref, jndiContext);
+                }
+            } catch (NamingException e) {
+                throw new RuntimeException("Unable to bind business local interface for deployment " + id, e);
+            }
+
+            try {
+                for (String interfce : ((RemoteBean) bean).getBusinessRemote()) {
+
+                    String name = "openejb/Deployment/" + format(id, interfce, InterfaceType.BUSINESS_REMOTE);
+                    Reference ref = new JndiReference(name);
+                    count++;
+                    singleRef = ref;
+                    bindJava(appName, moduleName, beanName, interfce, ref, jndiContext);
+                }
+            } catch (NamingException e) {
+                throw new RuntimeException("Unable to bind business remote deployment in jndi.", e);
+            }
+
+        }
+
+        try {
+            if (bean instanceof SessionBean && ((SessionBean)bean).getLocal() != null) {
+                String beanClass = bean.getEjbClass();
+
+                String name = "openejb/Deployment/" + format(id, beanClass, InterfaceType.BUSINESS_LOCALBEAN_HOME);
+                Reference ref = new JndiReference(name);
+                count ++;
+                singleRef = ref;
+                bindJava(appName, moduleName, beanName, beanClass, ref, jndiContext);
+            }
+        } catch (NamingException e) {
+            throw new RuntimeException("Unable to bind business remote deployment in jndi.", e);
+        }
+        if (count == 1) {
+            try {
+                bindJava(appName, moduleName, beanName, null, singleRef, jndiContext);
+            } catch (NamingException e) {
+                throw new RuntimeException("Unable to single interface in jndi.", e);
+            }
+        }
+    }
+
+    private void bindJava(String appName, String moduleName, String beanName, String interfaceName, Reference ref, Map<JndiKey, Map<String, Object>> contexts) throws NamingException {
+         if (interfaceName != null) {
+             beanName = beanName + "!" + interfaceName;
+         }
+        bind("global", appName + moduleName + beanName, ref, contexts);
+        bind("app", moduleName + beanName, ref, contexts);
+        bind("module", beanName, ref, contexts);
+    }
+
+    private void bind(String context, String name, Object object,  Map<JndiKey, Map<String, Object>> contexts) throws NamingException {
+        JndiKey jndiKey = JndiScope.valueOf(context);
+        Map<String, Object> scope = contexts.get(jndiKey);
+        if (scope == null) {
+            scope = new HashMap<String, Object>();
+            contexts.put(jndiKey, scope);
+        }
+        scope.put(context + "/" + name, object);
+    }
 
     private GBeanData getEjbGBean(String ejbName) throws DeploymentException {
         GBeanData gbean = gbeans.get(ejbName);

@@ -31,6 +31,7 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.HandlerInfoInfo;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -45,6 +46,8 @@ import org.apache.geronimo.xbeans.javaee6.ParamValueType;
 import org.apache.geronimo.xbeans.javaee6.PortComponentRefType;
 import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
 import org.apache.geronimo.xbeans.javaee6.XsdQNameType;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.ServiceRef;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -72,32 +75,38 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
         return specDD.selectChildren(serviceRefQNameSet).length > 0;
     }
 
-    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
-        List<ServiceRefType> serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), JEE_CONVERTER, ServiceRefType.class, ServiceRefType.type);
-        XmlObject[] gerServiceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
-        Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
+//    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
+//        List<ServiceRefType> serviceRefsUntyped = convert(specDD.selectChildren(serviceRefQNameSet), JEE_CONVERTER, ServiceRefType.class, ServiceRefType.type);
+//        XmlObject[] gerServiceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_SERVICE_REF_QNAME_SET);
+//        Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
+//
+//        for (ServiceRefType serviceRef : serviceRefsUntyped) {
+//            String name = getStringValue(serviceRef.getServiceRefName());
+//            addInjections(name, serviceRef.getInjectionTargetArray(), componentContext);
+//            GerServiceRefType serviceRefType = (GerServiceRefType) serviceRefMap.get(name);
+//            serviceRefMap.remove(name);
+//            buildNaming(serviceRef, serviceRefType, module, componentContext);
+//        }
+//
+//        if (serviceRefMap.size() > 0) {
+//            log.warn("Failed to build reference to service reference "+serviceRefMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
+//        }
+//    }
 
-        for (ServiceRefType serviceRef : serviceRefsUntyped) {
-            String name = getStringValue(serviceRef.getServiceRefName());
-            addInjections(name, serviceRef.getInjectionTargetArray(), componentContext);
-            GerServiceRefType serviceRefType = (GerServiceRefType) serviceRefMap.get(name);
-            serviceRefMap.remove(name);
-            buildNaming(serviceRef, serviceRefType, module, componentContext);
-        }
+//    public void buildNaming(XmlObject serviceRef, GerServiceRefType gerServiceRefType, Module module, Map componentContext) throws DeploymentException {
+//        ServiceRefType serviceRefType =
+//                (ServiceRefType) convert(serviceRef, JEE_CONVERTER, ServiceRefType.type);
+//        buildNaming(serviceRefType, gerServiceRefType, module, componentContext);
+//    }
 
-        if (serviceRefMap.size() > 0) {
-            log.warn("Failed to build reference to service reference "+serviceRefMap.keySet()+" defined in plan file, reason - corresponding entry in deployment descriptor missing.");
-        }
+    @Override
+    public void buildNaming(JndiConsumer jndiConsumer, XmlObject xmlObject, Module module, Map<EARContext.Key, Object> keyObjectMap) throws DeploymentException {
     }
 
-    public void buildNaming(XmlObject serviceRef, GerServiceRefType gerServiceRefType, Module module, Map componentContext) throws DeploymentException {
-        ServiceRefType serviceRefType =
-                (ServiceRefType) convert(serviceRef, JEE_CONVERTER, ServiceRefType.type);
-        buildNaming(serviceRefType, gerServiceRefType, module, componentContext);
-    }
-
-    private void buildNaming(ServiceRefType serviceRef, GerServiceRefType serviceRefType, Module module, Map componentContext) throws DeploymentException {
-        String name = getStringValue(serviceRef.getServiceRefName());
+    @Override
+    public void buildNaming(ServiceRef serviceRef, GerServiceRefType gerServiceRefType, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+        //TODO name needs to be normalized or get normalized name from jee's map.
+        String name = normalize(getStringValue(serviceRef.getServiceRefName()));
         Bundle bundle = module.getEarContext().getDeploymentBundle();
 
 //            Map credentialsNameMap = (Map) serviceRefCredentialsNameMap.get(name);
@@ -151,7 +160,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
 
 //we could get a Reference or the actual serializable Service back.
         Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, module, bundle);
-        put(name, ref, getJndiContextMap(componentContext));
+        put(name, ref, module.getJndiContext(), serviceRef.getInjectionTarget(), sharedContext);
         //getJndiContextMap(componentContext).put(ENV + name, ref);
     }
 
@@ -245,4 +254,5 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

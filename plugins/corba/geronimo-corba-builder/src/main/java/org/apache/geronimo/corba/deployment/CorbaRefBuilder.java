@@ -18,6 +18,7 @@
 package org.apache.geronimo.corba.deployment;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -35,6 +36,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.reference.HandleDelegateReference;
 import org.apache.geronimo.naming.reference.ORBReference;
+import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
@@ -67,8 +69,8 @@ public class CorbaRefBuilder extends AbstractNamingBuilder {
                 AbstractNameQuery corbaName = corbaGBeanNameSource.getCorbaGBeanName();
                 if (corbaName != null) {
                     Artifact[] moduleId = module.getConfigId();
-                    put("java:comp/ORB", new ORBReference(moduleId, corbaName), module.getJndiContext());
-                    put("java:comp/HandleDelegate", new HandleDelegateReference(moduleId, corbaName), module.getJndiContext());
+                    put("java:comp/ORB", new ORBReference(moduleId, corbaName), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+                    put("java:comp/HandleDelegate", new HandleDelegateReference(moduleId, corbaName), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
                 }
             }
         }

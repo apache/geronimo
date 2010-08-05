@@ -59,11 +59,15 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractNamingBuilder implements NamingBuilder {
+    private final Logger log = LoggerFactory.getLogger(AbstractNamingBuilder.class);
+
     protected static final QName BASE_NAMING_QNAME = GerAbstractNamingEntryType.type.getDocumentElementName();
     protected static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
     protected static final String JEE_NAMESPACE = "http://java.sun.com/xml/ns/javaee";
@@ -140,41 +144,46 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
      * @param key jndi name, either including java:<scope> or after java:comp/env.
      * @param value value to bind
      * @param contexts set of scopes to bind into.
+     * @param injectionTargets
+     * @param sharedContext
      */
-    protected void put(String key, Object value, Map<JndiKey, Map<String, Object>> contexts) {
-        JndiKey jndiKey;
-        if (key.startsWith("java:")) {
-            int pos = key.indexOf("/", 5);
-            String type = key.substring(5, pos);
-            jndiKey = JndiScope.valueOf(type);
-            key = key.substring(5);
-        } else {
-            key = "comp/env/" + key;
-            jndiKey = JndiScope.comp;
-        }
+    protected void put(String key, Object value, Map<JndiKey, Map<String, Object>> contexts, List<InjectionTarget> injectionTargets, Map<EARContext.Key, Object> sharedContext) {
+        key = normalize(key);
+        JndiKey jndiKey = keyFor(key);
         Map<String, Object> scope = contexts.get(jndiKey);
         if (scope == null) {
             scope = new HashMap<String, Object>();
             contexts.put(jndiKey, scope);
         }
+        log.debug("binding at name " + key + " in scope " + jndiKey + " value " + value);
         scope.put(key, value);
+        addInjections(key, injectionTargets, NamingBuilder.INJECTION_KEY.get(sharedContext));
     }
     
     protected Object lookupJndiContextMap(Module module, String key) {
-        JndiKey jndiKey;
-        if (key.startsWith("java:")) {
-            int pos = key.indexOf("/", 5);
-            String type = key.substring(5, pos);
-            jndiKey = JndiScope.valueOf(type);
-            key = key.substring(5);
-        } else {
-            key = "comp/env/" + key;
-            jndiKey = JndiScope.comp;
-        }
+        key = normalize(key);
+        JndiKey jndiKey = keyFor(key);
         Map<String, Object> scope = module.getJndiScope(jndiKey);
         if (scope == null) return null;
         return scope.get(key);
     }
+
+    protected String normalize(String name) {
+        if (name.startsWith("java:")) {
+            return name.substring("java:".length());
+        }
+        throw new IllegalArgumentException("All jndi names should start with java: not " + name);
+    }
+
+    protected JndiKey keyFor(String name) {
+        int pos = name.indexOf("/");
+        if (pos == -1) {
+            throw new IllegalArgumentException("no possible key in " + name);
+        }
+        String type = name.substring(0, pos);
+        return JndiScope.valueOf(type);
+    }
+
 
     protected String getJndiName(String name) {
         if (name.indexOf(':') != -1) {   
@@ -309,9 +318,8 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
 
-    protected void addInjections(String jndiName, List<InjectionTarget> injectionTargetArray, Map<EARContext.Key, Object> sharedContext) {
-        Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
-        for (InjectionTarget injectionTarget : injectionTargetArray) {
+    private void addInjections(String jndiName, List<InjectionTarget> injectionTargets, Holder holder) {
+        for (InjectionTarget injectionTarget : injectionTargets) {
             String targetName = injectionTarget.getInjectionTargetName().trim();
             String targetClassName = injectionTarget.getInjectionTargetClass().trim();
             holder.addInjection(targetClassName, new Injection(targetClassName, targetName, jndiName));

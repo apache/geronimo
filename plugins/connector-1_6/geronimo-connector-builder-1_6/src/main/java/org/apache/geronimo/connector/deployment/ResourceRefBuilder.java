@@ -108,7 +108,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         return !specDD.getResourceRef().isEmpty();
     }
 
-    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> componentContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
 
         // Discover and process any @Resource annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -122,18 +122,17 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             }
         }
 
-        Collection<ResourceRef> resourceRefsUntyped = specDD.getResourceRef();
         XmlObject[] gerResourceRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_RESOURCE_REF_QNAME_SET);
         Map<String, GerResourceRefType> refMap = mapResourceRefs(gerResourceRefsUntyped);
         List<String> unresolvedRefs = new ArrayList<String>();
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        for (ResourceRef resourceRef : resourceRefsUntyped) {
-            String name = getStringValue(resourceRef.getResRefName());
+        for (Map.Entry<String, ResourceRef> entry : specDD.getResourceRefMap().entrySet()) {
+            String name = entry.getKey();
             if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
                 continue;
             }
-            addInjections(name, resourceRef.getInjectionTarget(), componentContext);
+            ResourceRef resourceRef = entry.getValue();
             String type = getStringValue(resourceRef.getResType());
             type = inferAndCheckType(module, bundle, resourceRef.getInjectionTarget(), name, type);
             GerResourceRefType gerResourceRef = refMap.get(name);
@@ -157,7 +156,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             if (value == null) {
                 unresolvedRefs.add(name);
             } else {
-                put(name, value, module.getJndiContext());
+                put(name, value, module.getJndiContext(), resourceRef.getInjectionTarget(), sharedContext);
             }
 
         }

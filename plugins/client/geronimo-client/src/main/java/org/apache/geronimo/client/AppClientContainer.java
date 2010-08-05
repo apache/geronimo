@@ -165,7 +165,9 @@ public final class AppClientContainer implements GBeanLifecycle {
                     }
                 }
                 if (!problems.isEmpty()) {
-                    throw new Exception("Some objects to be injected were not found in jndi: " + problems);
+                    //TODO fix the problems with trying to lookup resource refs from the client.
+//                    throw new Exception("Some objects to be injected were not found in jndi: " + problems);
+                    log.error("Some objects to be injected were not found in jndi: " + problems);
                 }
             }
             Class clazz = objectRecipe.setStaticProperties();
