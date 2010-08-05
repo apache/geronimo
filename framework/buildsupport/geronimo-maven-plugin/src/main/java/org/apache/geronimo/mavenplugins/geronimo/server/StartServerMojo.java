@@ -20,7 +20,9 @@
 package org.apache.geronimo.mavenplugins.geronimo.server;
 
 import java.io.File;
+import java.io.IOException;
 
+import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Map;
@@ -31,13 +33,24 @@ import java.util.StringTokenizer;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import org.apache.tools.ant.taskdefs.Java;
 
 import org.codehaus.mojo.pluginsupport.util.ObjectHolder;
 
+import org.apache.geronimo.kernel.repository.Artifact;
+
 import org.apache.geronimo.mavenplugins.geronimo.ServerProxy;
+import org.apache.geronimo.system.configuration.LocalAttributeManager;
+import org.apache.geronimo.system.configuration.PluginAttributeStore;
+import org.apache.geronimo.system.plugin.model.AttributesType;
+import org.apache.geronimo.system.plugin.model.ModuleType;
+
+import org.apache.geronimo.system.plugin.ServerInstanceData;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 import org.codehaus.plexus.util.FileUtils;
 
@@ -153,6 +166,17 @@ public class StartServerMojo
      * @parameter
      */
     private String[] startModules = null;
+    
+    /**
+     * @parameter expression="${project.build.directory}/classes/var/config/overrides"
+     * @required
+     */
+    private File overridesDir;
+    
+    /**
+     * @parameter
+     */
+    private List<ServerOverride> overrides;
 
     private Timer timer = new Timer(true);
 
@@ -166,6 +190,28 @@ public class StartServerMojo
             if (!geronimoHome.exists()) {
                 throw new MojoExecutionException("Missing pre-installed assembly directory: " + geronimoHome);
             }
+        }
+        //Add overrides , so users can customize config.xml before start server.
+        if (overrides != null) {            
+            ServerInstanceData serverInstance = new ServerInstanceData();
+            serverInstance.setConfigFile("var/config/config.xml");
+            serverInstance.setName("default");
+            serverInstance.setConfigSubstitutionsFile("var/config/config-substitutions.properties");
+            serverInstance.setConfigSubstitutionsPrefix("org.apache.geronimo.config.substitution.");
+            serverInstance.setArtifactAliasesFile("var/config/artifact_aliases.properties");
+            
+            try {
+                if (overrides != null) {
+                    for (ServerOverride overrideItem : this.overrides) {
+                        AttributesType attributes = overrideItem
+                                .getOverrides(overridesDir);
+                        mergeOverrides(serverInstance,attributes);
+                    }
+                }
+            } catch (Exception e) {
+                throw new MojoExecutionException(
+                        "Could not merge overrides", e);
+            } 
         }
 
         log.info("Starting Geronimo server...");
@@ -458,5 +504,26 @@ public class StartServerMojo
 
     protected String getFullClassName() {
         return this.getClass().getName();
+    }
+    
+    public void mergeOverrides(ServerInstanceData serverInstance, AttributesType overrides) throws Exception {
+        
+        if (serverInstance == null) {
+            throw new NullPointerException("No such server: " + serverInstance.getName());
+        }
+        ServerInfo serverInfo = new BasicServerInfo(geronimoHome.getAbsolutePath(), false);        
+        
+        PluginAttributeStore attributeStore = new LocalAttributeManager(serverInstance.getConfigFile(), serverInstance.getConfigSubstitutionsFile(),
+                serverInstance.getConfigSubstitutionsPrefix(),
+                false,
+                serverInfo);
+        for (ModuleType module : overrides.getModule()) {
+            Artifact artifact = Artifact.create(module.getName());
+            attributeStore.setModuleGBeans(artifact, module.getGbean(), module.isLoad(), module.getCondition());
+            attributeStore.save();
+        }
+        if (overrides.getConfiguration().size() > 0) {
+            throw new UnsupportedOperationException("Use modules, not configurations");
+        }
     }
 }
