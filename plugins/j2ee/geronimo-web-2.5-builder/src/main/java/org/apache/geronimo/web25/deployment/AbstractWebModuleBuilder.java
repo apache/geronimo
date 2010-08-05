@@ -242,6 +242,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     protected void addGBeanDependencies(EARContext earContext, GBeanData webModuleData) {
+        log.debug("Adding dependencies to web module: " + webModuleData.getAbstractName());
         Configuration earConfiguration = earContext.getConfiguration();
         addDependencies(earContext.findGBeanDatas(earConfiguration, MANAGED_CONNECTION_FACTORY_PATTERN), webModuleData);
         addDependencies(earContext.findGBeanDatas(earConfiguration, ADMIN_OBJECT_PATTERN), webModuleData);
@@ -257,6 +258,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         for (GBeanData dependency : dependencies) {
             AbstractName dependencyName = dependency.getAbstractName();
             webModuleData.addDependency(dependencyName);
+            log.debug("Dependency on " + dependencyName);
         }
     }
 
@@ -696,9 +698,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         //Add dependencies on managed connection factories and ejbs in this app
         //This is overkill, but allows for people not using java:comp context (even though we don't support it)
         //and sidesteps the problem of circular references between ejbs.
-        if (earContext != moduleContext) {
-            addGBeanDependencies(earContext, webModuleData);
-        }
+        addGBeanDependencies(earContext, webModuleData);
         webModuleData.setReferencePattern("TransactionManager", moduleContext.getTransactionManagerName());
         webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerName());
         webModuleData.setAttribute("modulePath", webModule.isStandAlone() || webModule.getEarContext() != webModule.getRootEarContext() ? null : webModule.getTargetPath());
