@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one
     or more contributor license agreements.  See the NOTICE file
@@ -17,16 +16,22 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
-<!-- $Rev$ $Date$ -->
-
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-
-<suite name="Suite1" verbose="1">
-	<test name="javaee6-testsuite-3.0-servlet">
-		<packages>
-			<package name="org.apache.geronimo.testsuite.servlet3" />
-		</packages>
-	</test>
-</suite>
-
+<%@ page import = "java.util.*" language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Welcome TO Apache Geronimo Sample Application</title>
+</head>
+<body>
+	<h1 align = "center">Welcome To Apache Geronimo Sample Application</h1>
+	<p>
+	<h2>
+	<% 
+		String output = (String)request.getAttribute("output");
+		out.println(output);
+	%>
+	</h2>
+</body>
+</html>

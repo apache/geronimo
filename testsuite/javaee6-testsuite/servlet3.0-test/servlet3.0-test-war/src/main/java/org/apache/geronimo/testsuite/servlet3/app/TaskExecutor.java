@@ -43,7 +43,7 @@ public class TaskExecutor implements Runnable {
 			e.printStackTrace();
 		}
 		out.println("<p id=c>");
-		out.println("TaskExecutor starts at: " + new Date() + "." + "Task stars executing" + ".");
+		out.println("TaskExecutor starts at: " + "<font color=red><b id=tst>" + new Date() + "</b></font>" + "." + "Task stars executing" + ".");
 		out.println("</p>");
 		out.println("<br><br>");
 		out.flush();
@@ -57,7 +57,7 @@ public class TaskExecutor implements Runnable {
 		out.println("Task finishes.");
 		out.println("</p>");
 		out.println("<p>");
-		out.println("TaskExecutor ends at: " + new Date() + ".");
+		out.println("TaskExecutor fineshes at: " + "<font color=red><b id=tft>" + new Date() + "</b></font>" + ".");
 		out.println("</p>");
 		out.println("<br><br>");
         out.println("</body>");

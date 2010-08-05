@@ -16,7 +16,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
- 
+
 package org.apache.geronimo.testsuite.servlet3;
 
 import org.testng.annotations.Test;
@@ -24,33 +24,36 @@ import org.testng.annotations.Test;
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
 public class TestAsync extends SeleniumTestSupport {
-	
-		@Test
+
+	@Test
 	public void testAsyncServlet() throws Exception {
 		String appContextStr = System.getProperty("appContext");
 		selenium.open(appContextStr);
-		selenium.selectFrame("sampleDocumentFrame");
+
 		selenium.click("link=Test AsyncServlet.");
 		waitForPageLoad();
-		
+
 		assertTrue(selenium.isTextPresent("Servlet starts at:"));
-		assertTrue(selenium.isTextPresent("Task assigned to executor.Servlet ends at:"));
+		assertTrue(selenium
+				.isTextPresent("Task assigned to executor.Servlet fineshes at:"));
 		assertTrue(selenium.isTextPresent("TaskExecutor starts at:"));
 		assertTrue(selenium.isTextPresent("Task finishes."));
-		assertTrue(selenium.isTextPresent("TaskExecutor ends at:"));
-		
+		assertTrue(selenium.isTextPresent("TaskExecutor fineshes at:"));
 
-        // servlet finish time
-		String set = selenium.getText("xpath=//p[2]").substring(60, 62);
-        // servlet task start time
-	    String tst = selenium.getText("xpath=//p[3]").substring(41, 43);
-        // servlet task finish time
-        String tet = selenium.getText("xpath=//p[5]").substring(39, 41);
-        int seti = Integer.parseInt(set);
-        int tsti = Integer.parseInt(tst);
-        int teti = Integer.parseInt(tet);        
-        assertTrue(seti==tsti);
-        assertTrue(seti==teti - 10);       
+		String[] sftSplit = selenium.getText("xpath=//p[2]").split(":");
+		int sfti = getTime(sftSplit);
+		String[] tstSplit = selenium.getText("xpath=//p[3]").split(":");
+		int tsti = getTime(tstSplit);
+		String[] tftSplit = selenium.getText("xpath=//p[5]").split(":");
+		int tfti = getTime(tftSplit);
+		assertTrue(sfti == tsti);
+		assertTrue(Math.abs(tfti - sfti) == 10);
+	}
+
+	private int getTime(String[] timeSplit) {
+		String time = timeSplit[timeSplit.length - 1].substring(0, 2);
+		int timei = Integer.parseInt(time);
+		return timei;
 	}
 
 }

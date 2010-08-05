@@ -26,16 +26,17 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
 /**
  * Test MultiPart through File upload.
  */
-public class TestMultiPart extends SeleniumTestSupport {
+public class TestMultiPartAnnotation extends SeleniumTestSupport {
     @Test
     public void testUploadSuccess() throws Exception {
         String appContextStr = System.getProperty("appContext");
 		selenium.open(appContextStr);        
-        selenium.click("link=Test File Upload.");
+        selenium.click("multiAnnotation");
         waitForPageLoad();
         uploadFile("small.txt");
         waitForPageLoad();
 		assertEquals("File Upload System", selenium.getTitle());
+        //assertTrue(selenium.isTextPresent("Size=35"));
         assertTrue(selenium.isTextPresent("This is a file no larger than 10k."));
     }
 
@@ -43,7 +44,7 @@ public class TestMultiPart extends SeleniumTestSupport {
     public void testNoFileInput() throws Exception {
         String appContextStr = System.getProperty("appContext");
 		selenium.open(appContextStr);        
-        selenium.click("link=Test File Upload.");
+        selenium.click("multiAnnotation");
         waitForPageLoad();
         selenium.click("//input[@value='Submit The File!']");
         waitForPageLoad();
@@ -55,7 +56,7 @@ public class TestMultiPart extends SeleniumTestSupport {
     public void testFileTooLarge() throws Exception {
         String appContextStr = System.getProperty("appContext");
 		selenium.open(appContextStr);        
-        selenium.click("fileupload");
+        selenium.click("multiAnnotation");
         waitForPageLoad();
         uploadFile("large.txt");
         waitForPageLoad();

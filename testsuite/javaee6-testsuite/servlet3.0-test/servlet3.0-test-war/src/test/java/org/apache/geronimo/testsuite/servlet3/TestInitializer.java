@@ -26,8 +26,7 @@ public class TestInitializer extends SeleniumTestSupport {
 	@Test
 	public void testServletContainerInitializerClass() throws Exception {
         String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);
-		selenium.selectFrame("sampleDocumentFrame");
+		selenium.open(appContextStr);		
 		selenium.click("link=Test Add Servlet Mapping through ServletContainerInitializer.");
 		waitForPageLoad();
 		assertTrue(selenium.isTextPresent("Add this servlet correctly through ServletContainerInitializer."));

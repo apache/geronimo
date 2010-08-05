@@ -16,22 +16,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
- 
 package org.apache.geronimo.testsuite.servlet3;
 
+import org.apache.geronimo.testsupport.SeleniumTestSupport;
 import org.testng.annotations.Test;
 
-import org.apache.geronimo.testsupport.SeleniumTestSupport;
-
-public class TestJarresource extends SeleniumTestSupport{
-
+public class TestWebInitParam extends SeleniumTestSupport{
+	
 	@Test
-	public void testJarResources() throws Exception {
+	public void testValidContent() throws Exception{
 		String appContextStr = System.getProperty("appContext");
 		selenium.open(appContextStr);		
-		selenium.click("link=Test Access Jar Resource.");
+		selenium.click("link=Test Annotation @WebInitParam.");
 		waitForPageLoad();
-		assertTrue(selenium.isTextPresent("This is a JSP executed inside a jar file of the web module. "));
-		assertTrue(selenium.isTextPresent("The remote host is 127.0.0.1."));
+		assertTrue(selenium.isTextPresent("Hello World!"));
 	}
+
 }

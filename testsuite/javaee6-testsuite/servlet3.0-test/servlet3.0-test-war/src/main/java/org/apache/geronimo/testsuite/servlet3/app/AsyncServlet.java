@@ -41,7 +41,7 @@ public class AsyncServlet extends HttpServlet {
         out.println("</head>");
         out.println("<body>");
         out.println("<p id=a>");
-		out.println("Servlet starts at: " + new Date() + ".");
+		out.println("Servlet starts at: " + "<font color=red><b id=sst>" + new Date() + "</b></font>" + ".");
         out.println("</p>");
 		out.println("<br><br>");
 
@@ -51,7 +51,7 @@ public class AsyncServlet extends HttpServlet {
 		new Thread(new TaskExecutor(ctx)).start();
 		
 		out.println("<p id=b>");
-		out.println("Task assigned to executor.Servlet ends at: " + new Date() + ".");
+		out.println("Task assigned to executor.Servlet fineshes at: " + "<font color=red><b id=sft>" + new Date() + "</b></font>" + ".");
         out.println("</p>");
 		out.println("<br><br>");
 		out.flush();
