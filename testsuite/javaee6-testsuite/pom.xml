@@ -61,6 +61,7 @@
         <module>jsp2.2-test</module>
         <module>managedbean1.0-test</module>
         <module>di1.0-test</module>
+        <module>interceptors1.1-test</module>
 -->
         <module>commonannotation1.1-test</module>
     </modules>
