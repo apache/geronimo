@@ -117,6 +117,10 @@ public class JspServletOptions implements Options {
         return delegate.getModificationTestInterval();
     }
 
+    public boolean getRecompileOnFail() {
+        return delegate.getRecompileOnFail();
+    }
+
     public File getScratchDir() {
         return delegate.getScratchDir();
     }
