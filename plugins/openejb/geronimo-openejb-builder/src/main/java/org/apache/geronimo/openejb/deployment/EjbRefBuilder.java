@@ -169,7 +169,12 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 }
                 name = "java:" + name;
                 if (value instanceof Serializable) {
-                    put(name, value, module.getJndiContext(), injectionsMap.get(name), sharedContext);
+                    List<InjectionTarget> injections = injectionsMap.get(name);
+                    if (injections == null) {
+                        log.warn("No entry in ejb-jar.xml for name:\n " + name + "\n Known names:\n " + injectionsMap.keySet());
+                        injections = Collections.emptyList();
+                    }
+                    put(name, value, module.getJndiContext(), injections, sharedContext);
                 }
             }
         }
