@@ -19,7 +19,6 @@
 
 package org.apache.geronimo.web.security;
 
-import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.security.Permissions;
@@ -43,22 +42,16 @@ import javax.servlet.annotation.HttpMethodConstraint;
 import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.ServletSecurity.TransportGuarantee;
 
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.kernel.util.JarUtils;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.openejb.jee.AuthConstraint;
 import org.apache.openejb.jee.SecurityConstraint;
-import org.apache.openejb.jee.SecurityRoleRef;
 import org.apache.openejb.jee.SecurityRole;
-import org.apache.openejb.jee.ServletMapping;
+import org.apache.openejb.jee.SecurityRoleRef;
 import org.apache.openejb.jee.Servlet;
+import org.apache.openejb.jee.ServletMapping;
 import org.apache.openejb.jee.UserDataConstraint;
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.jee.WebResourceCollection;
-import org.apache.xbean.osgi.bundle.util.BundleUtils;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -456,7 +449,7 @@ public class SpecSecurityBuilder {
                 }
                 String servletClassName = servlet.getServletClass();
                 Class<?> cls = bundle.loadClass(servletClassName);
-                if (!Servlet.class.isAssignableFrom(cls)) {
+                if (!javax.servlet.Servlet.class.isAssignableFrom(cls)) {
                     continue;
                 }
                 ServletSecurity servletSecurity = cls.getAnnotation(ServletSecurity.class);
