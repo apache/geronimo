@@ -301,7 +301,7 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
         if (plan != null) {
             List<GerPersistenceUnitRefType> refs = convert(plan.selectChildren(PersistenceRefBuilder.GER_PERSISTENCE_UNIT_REF_QNAME_SET), NAMING_CONVERTER, GerPersistenceUnitRefType.class, GerPersistenceUnitRefType.type);
             for (GerPersistenceUnitRefType ref : refs) {
-                map.put(ref.getPersistenceUnitRefName().trim(), ref);
+                map.put(getJndiName(ref.getPersistenceUnitRefName().trim()), ref);
             }
         }
         return map;
@@ -321,7 +321,7 @@ public class PersistenceRefBuilder extends AbstractNamingBuilder {
         if (plan != null) {
             List<GerPersistenceContextRefType> refs = convert(plan.selectChildren(GER_PERSISTENCE_CONTEXT_REF_QNAME_SET), NAMING_CONVERTER, GerPersistenceContextRefType.class, GerPersistenceContextRefType.type);
             for (GerPersistenceContextRefType ref : refs) {
-                map.put(ref.getPersistenceContextRefName().trim(), ref);
+                map.put(getJndiName(ref.getPersistenceContextRefName().trim()), ref);
             }
         }
         return map;

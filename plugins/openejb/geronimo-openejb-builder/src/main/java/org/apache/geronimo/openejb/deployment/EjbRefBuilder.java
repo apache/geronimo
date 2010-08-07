@@ -365,7 +365,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         if (xmlObjects != null) {
             for (XmlObject xmlObject : xmlObjects) {
                 GerEjbRefType ref = (GerEjbRefType) xmlObject.copy().changeType(GerEjbRefType.type);
-                refMap.put(ref.getRefName().trim(), ref);
+                refMap.put(getJndiName(ref.getRefName().trim()), ref);
             }
         }
         return refMap;
@@ -383,7 +383,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
         if (xmlObjects != null) {
             for (XmlObject xmlObject : xmlObjects) {
                 GerEjbLocalRefType ref = (GerEjbLocalRefType) xmlObject.copy().changeType(GerEjbLocalRefType.type);
-                refMap.put(ref.getRefName().trim(), ref);
+                refMap.put(getJndiName(ref.getRefName().trim()), ref);
             }
         }
         return refMap;

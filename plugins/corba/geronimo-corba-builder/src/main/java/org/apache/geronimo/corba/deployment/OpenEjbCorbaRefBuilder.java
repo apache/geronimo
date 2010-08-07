@@ -104,8 +104,7 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
         Bundle bundle = module.getEarContext().getDeploymentBundle();
 
         for (EjbRef ejbRef : ejbRefsUntyped) {
-
-            String ejbRefName = getStringValue(ejbRef.getEjbRefName());
+            String ejbRefName = getStringValue(ejbRef.getKey());
             GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
 
             Reference ejbReference = addEJBRef(module, ejbRef, remoteRef, bundle);
@@ -169,7 +168,7 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
         if (refs != null) {
             for (int i = 0; i < refs.length; i++) {
                 GerEjbRefType ref = (GerEjbRefType) refs[i];
-                refMap.put(ref.getRefName().trim(), ref);
+                refMap.put(getJndiName(ref.getRefName().trim()), ref);
             }
         }
         return refMap;

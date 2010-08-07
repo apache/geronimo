@@ -293,7 +293,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         if (refs != null) {
             for (XmlObject ref1 : refs) {
                 GerResourceRefType ref = (GerResourceRefType) ref1.copy().changeType(GerResourceRefType.type);
-                refMap.put(ref.getRefName().trim(), ref);
+                refMap.put(getJndiName(ref.getRefName().trim()), ref);
             }
         }
         return refMap;

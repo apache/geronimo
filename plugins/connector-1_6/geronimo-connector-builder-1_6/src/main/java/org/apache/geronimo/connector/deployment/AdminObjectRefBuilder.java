@@ -378,7 +378,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         if (refs != null) {
             for (XmlObject ref1 : refs) {
                 GerResourceEnvRefType ref = (GerResourceEnvRefType) ref1.copy().changeType(GerResourceEnvRefType.type);
-                refMap.put(ref.getRefName().trim(), ref);
+                refMap.put(getJndiName(ref.getRefName().trim()), ref);
             }
         }
         return refMap;

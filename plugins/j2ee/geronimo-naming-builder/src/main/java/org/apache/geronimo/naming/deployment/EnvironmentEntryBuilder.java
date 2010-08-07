@@ -198,15 +198,10 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         if (refs != null) {
             for (XmlObject ref1 : refs) {
                 GerEnvEntryType ref = (GerEnvEntryType) ref1.copy().changeType(GerEnvEntryType.type);
-                envEntryMap.put(gNormalize(ref.getEnvEntryName().trim()), ref.getEnvEntryValue());
+                envEntryMap.put(getJndiName(ref.getEnvEntryName().trim()), ref.getEnvEntryValue());
             }
         }
         return envEntryMap;
-    }
-
-    private String gNormalize(String s) {
-        if (s.startsWith("java:")) return s;
-        return "java:comp/env/" + s;
     }
 
     public QNameSet getSpecQNameSet() {

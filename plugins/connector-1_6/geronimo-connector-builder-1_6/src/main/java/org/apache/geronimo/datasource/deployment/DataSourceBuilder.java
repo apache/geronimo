@@ -137,7 +137,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
     private void addDataSourceGBean(Module module, Map<EARContext.Key, Object> sharedContext, DataSource ds, String name)
         throws GBeanAlreadyExistsException {
                         
-        String jndiName = ds.getName();
+        String jndiName = ds.getKey();
         
         if (lookupJndiContextMap(module, jndiName) != null) {
             return;
