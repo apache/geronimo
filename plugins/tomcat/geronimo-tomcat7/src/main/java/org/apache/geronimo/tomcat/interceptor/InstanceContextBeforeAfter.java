@@ -22,6 +22,7 @@ import javax.resource.ResourceException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
 
@@ -46,7 +47,7 @@ public class InstanceContextBeforeAfter implements BeforeAfter{
     public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
         try {
             SharedConnectorInstanceContext newConnectorInstanceContext = new SharedConnectorInstanceContext(unshareableResources, applicationManagedSecurityResources, false);
-            SharedConnectorInstanceContext oldContext = (SharedConnectorInstanceContext) trackedConnectionAssociator.enter(newConnectorInstanceContext);
+            ConnectorInstanceContext oldContext = trackedConnectionAssociator.enter(newConnectorInstanceContext);
             if (oldContext != null) {
                 newConnectorInstanceContext.share(oldContext);
             }
@@ -65,7 +66,7 @@ public class InstanceContextBeforeAfter implements BeforeAfter{
             next.after(context, httpRequest, httpResponse, dispatch);
         }
         try {
-            SharedConnectorInstanceContext oldConnectorInstanceContext = (SharedConnectorInstanceContext) context[oldIndex];
+            ConnectorInstanceContext oldConnectorInstanceContext = (ConnectorInstanceContext) context[oldIndex];
             SharedConnectorInstanceContext newConnectorInstanceContext = (SharedConnectorInstanceContext) context[newIndex];
             if (oldConnectorInstanceContext != null) {
                 newConnectorInstanceContext.hide();
