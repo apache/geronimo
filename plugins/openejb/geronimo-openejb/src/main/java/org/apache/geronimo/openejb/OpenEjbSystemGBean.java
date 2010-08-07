@@ -45,6 +45,7 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
+import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 import org.apache.openejb.Container;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.NoSuchApplicationException;
@@ -65,6 +66,7 @@ import org.apache.openejb.config.ClientModule;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.core.ServerFederation;
+import org.apache.openejb.core.mdb.InboundRecovery;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.ApplicationServer;
 import org.apache.openejb.spi.ContainerSystem;
@@ -87,10 +89,10 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     // Once we have a set, we ignore any additional notifications. 
     private ORB orb;
 
-    public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
+    public OpenEjbSystemGBean(RecoverableTransactionManager transactionManager) throws Exception {
         this(transactionManager, null, null, null, OpenEjbSystemGBean.class.getClassLoader());
     }
-    public OpenEjbSystemGBean(TransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Collection<PersistenceUnitGBean> persistenceUnitGBeans, Kernel kernel, ClassLoader classLoader) throws Exception {
+    public OpenEjbSystemGBean(RecoverableTransactionManager transactionManager, Collection<ResourceAdapterWrapper> resourceAdapters, Collection<PersistenceUnitGBean> persistenceUnitGBeans, Kernel kernel, ClassLoader classLoader) throws Exception {
         this.kernel = kernel;
         this.classLoader = classLoader;
 
@@ -123,6 +125,8 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         transactionServiceInfo.id = "Default Transaction Manager";
         transactionServiceInfo.service = "TransactionManager";
         assembler.createTransactionManager(transactionServiceInfo);
+
+        SystemInstance.get().setComponent(InboundRecovery.class, new GeronimoInboundRecovery(transactionManager));
 
         // install security service
         SecurityService securityService = new GeronimoSecurityService();
@@ -415,7 +419,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(OpenEjbSystemGBean.class);
-        infoBuilder.addReference("TransactionManager", TransactionManager.class);
+        infoBuilder.addReference("TransactionManager", RecoverableTransactionManager.class);
         infoBuilder.addReference("ResourceAdapterWrappers", ResourceAdapterWrapper.class);
         infoBuilder.addReference("PersistenceUnitGBeans", PersistenceUnitGBean.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
