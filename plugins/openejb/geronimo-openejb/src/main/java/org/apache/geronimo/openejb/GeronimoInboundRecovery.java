@@ -22,7 +22,9 @@ package org.apache.geronimo.openejb;
 
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.ResourceAdapter;
+import org.apache.geronimo.connector.ActivationSpecNamedXAResourceFactory;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
+import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.core.mdb.InboundRecovery;
 
@@ -31,7 +33,13 @@ import org.apache.openejb.core.mdb.InboundRecovery;
  */
 public class GeronimoInboundRecovery implements InboundRecovery {
 
+    private final RecoverableTransactionManager transactionManager;
+
+    public GeronimoInboundRecovery(RecoverableTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
+
     public void recover(ResourceAdapter resourceAdapter, ActivationSpec activationSpec, String containerId) throws OpenEJBException {
-        ((ResourceAdapterWrapper)resourceAdapter).doRecovery(activationSpec, containerId);
+        transactionManager.registerNamedXAResourceFactory(new ActivationSpecNamedXAResourceFactory(containerId, activationSpec, resourceAdapter));
     }
 }

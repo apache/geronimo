@@ -47,6 +47,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
+import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 import org.apache.openejb.Container;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.NoSuchApplicationException;
@@ -97,11 +98,11 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     private ORB orb;
     private Properties properties; 
     
-    public OpenEjbSystemGBean(TransactionManager transactionManager) throws Exception {
+    public OpenEjbSystemGBean(RecoverableTransactionManager transactionManager) throws Exception {
         this(transactionManager, null, null, null, OpenEjbSystemGBean.class.getClassLoader(), new Properties());
     }
 
-    public OpenEjbSystemGBean(@ParamReference(name = "TransactionManager", namingType = NameFactory.JTA_RESOURCE) TransactionManager transactionManager,
+    public OpenEjbSystemGBean(@ParamReference(name = "TransactionManager", namingType = NameFactory.JTA_RESOURCE) RecoverableTransactionManager transactionManager,
                               @ParamReference(name = "ResourceAdapterWrappers", namingType = NameFactory.JCA_RESOURCE_ADAPTER) Collection<ResourceAdapterWrapper> resourceAdapters,
                               @ParamReference(name = "PersistenceUnitGBeans", namingType = NameFactory.PERSISTENCE_UNIT) Collection<PersistenceUnitGBean> persistenceUnitGBeans,
 //                              @ParamReference(name = "OpenEjbContext")DeepBindableContext openejbContext,
@@ -142,7 +143,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         assembler.createTransactionManager(transactionServiceInfo);
 	    SystemInstance.get().setComponent(XAResourceWrapper.class, new GeronimoXAResourceWrapper());
 
-        SystemInstance.get().setComponent(InboundRecovery.class, new GeronimoInboundRecovery());
+        SystemInstance.get().setComponent(InboundRecovery.class, new GeronimoInboundRecovery(transactionManager));
 
         // install security service
         SecurityService securityService = new GeronimoSecurityService();
