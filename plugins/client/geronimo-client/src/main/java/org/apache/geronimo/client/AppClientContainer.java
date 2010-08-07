@@ -155,9 +155,7 @@ public final class AppClientContainer implements GBeanLifecycle {
                 for (Injection injection : injections) {
                     String jndiName = injection.getJndiName();
                     try {
-                        //TODO this may not be correct due to module, app, and global jndi names.
-                        //our componentContext is attached to jndi at "java:" so we remove that when looking stuff up in it
-                        Object object = componentContext.lookup("comp/env/" + jndiName);
+                        Object object = componentContext.lookup(jndiName);
                         objectRecipe.setProperty(injection.getTargetName(), object);
                     } catch (NamingException e) {
                         log.info("Injection problem for jndiName: " + jndiName, e);
