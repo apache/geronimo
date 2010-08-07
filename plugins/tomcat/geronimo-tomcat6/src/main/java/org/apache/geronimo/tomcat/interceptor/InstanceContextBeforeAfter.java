@@ -66,7 +66,7 @@ public class InstanceContextBeforeAfter implements BeforeAfter{
             next.after(context, httpRequest, httpResponse, dispatch);
         }
         try {
-            SharedConnectorInstanceContext oldConnectorInstanceContext = (SharedConnectorInstanceContext) context[oldIndex];
+            ConnectorInstanceContext oldConnectorInstanceContext = context[oldIndex];
             SharedConnectorInstanceContext newConnectorInstanceContext = (SharedConnectorInstanceContext) context[newIndex];
             if (oldConnectorInstanceContext != null) {
                 newConnectorInstanceContext.hide();
