@@ -20,9 +20,13 @@
 
 package org.apache.geronimo.openejb;
 
+import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.ResourceAdapter;
-import org.apache.geronimo.connector.ResourceAdapterWrapper;
+import javax.transaction.xa.XAResource;
+import org.apache.geronimo.transaction.manager.NamedXAResource;
+import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
+import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.core.mdb.InboundRecovery;
 
@@ -31,7 +35,22 @@ import org.apache.openejb.core.mdb.InboundRecovery;
  */
 public class GeronimoInboundRecovery implements InboundRecovery {
 
+    private final RecoverableTransactionManager transactionManager;
+
+    public GeronimoInboundRecovery(RecoverableTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
+
     public void recover(ResourceAdapter resourceAdapter, ActivationSpec activationSpec, String containerId) throws OpenEJBException {
-        ((ResourceAdapterWrapper)resourceAdapter).doRecovery(activationSpec, containerId);
+        try {
+            XAResource[] xaress = resourceAdapter.getXAResources(new ActivationSpec[] {activationSpec});
+            if (xaress == null || xaress.length == 0) {
+                return;
+            }
+            NamedXAResource xares = new WrapperNamedXAResource(xaress[0], containerId);
+            transactionManager.recoverResourceManager(xares);
+        } catch (ResourceException e) {
+            throw new OpenEJBException("Could not recover resource manager", e);
+        }
     }
 }
