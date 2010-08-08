@@ -295,7 +295,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         if (targetPath.endsWith("/")) throw new IllegalArgumentException("targetPath must not end with a '/'");
 
         // Load the module file
-        DeploymentLoader loader = new DeploymentLoader(ddDir);
+        DeploymentLoader loader = new DeploymentLoader(ddDir, true);
         AppModule appModule;
         try {
             appModule = loader.load(new File(moduleFile.getName()));
