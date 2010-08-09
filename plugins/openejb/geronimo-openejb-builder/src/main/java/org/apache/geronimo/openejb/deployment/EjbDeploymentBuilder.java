@@ -48,7 +48,6 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
-import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.openejb.EntityDeploymentGBean;
 import org.apache.geronimo.openejb.ManagedDeploymentGBean;
 import org.apache.geronimo.openejb.MessageDrivenDeploymentGBean;
@@ -65,6 +64,7 @@ import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.InterfaceType;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
+import org.apache.openejb.core.ivm.naming.IntraVmJndiReference;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.EntityBean;
@@ -79,6 +79,8 @@ import org.apache.openejb.jee.TransactionType;
 import org.apache.openejb.jee.oejb3.EjbDeployment;
 import org.apache.xbean.finder.ClassFinder;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.openejb.assembler.classic.JndiBuilder.format;
 
@@ -86,7 +88,8 @@ import static org.apache.openejb.assembler.classic.JndiBuilder.format;
  * Handles building ejb deployment gbeans.
  */
 public class EjbDeploymentBuilder {
-
+    private static final Logger log = LoggerFactory.getLogger(EjbDeploymentBuilder.class);
+    
     private final EARContext earContext;
     private final EjbModule ejbModule;
     private final NamingBuilder namingBuilder;
@@ -488,7 +491,7 @@ public class EjbDeploymentBuilder {
                 if (homeInterface != null) {
 
                     String name = "openejb/Deployment/" + format(id, homeInterface, InterfaceType.EJB_OBJECT);
-                    Reference ref = new JndiReference(name);
+                    Reference ref = new IntraVmJndiReference(name);
                     count ++;
                     singleRef = ref;
                     bindJava(appName, moduleName, beanName, homeInterface, ref, jndiContext);
@@ -501,7 +504,7 @@ public class EjbDeploymentBuilder {
                 if (localHomeInterface != null) {
 
                     String name = "openejb/Deployment/" + format(id, localHomeInterface, InterfaceType.EJB_LOCAL);
-                    Reference ref = new JndiReference(name);
+                    Reference ref = new IntraVmJndiReference(name);
                     count++;
                     singleRef = ref;
                     bindJava(appName, moduleName, beanName, localHomeInterface, ref, jndiContext);
@@ -514,7 +517,7 @@ public class EjbDeploymentBuilder {
                 for (String interfce : ((RemoteBean) bean).getBusinessLocal()) {
 
                     String name = "openejb/Deployment/" + format(id, interfce, InterfaceType.BUSINESS_LOCAL);
-                    Reference ref = new JndiReference(name);
+                    Reference ref = new IntraVmJndiReference(name);
                     count++;
                     singleRef = ref;
                     bindJava(appName, moduleName, beanName, interfce, ref, jndiContext);
@@ -527,7 +530,7 @@ public class EjbDeploymentBuilder {
                 for (String interfce : ((RemoteBean) bean).getBusinessRemote()) {
 
                     String name = "openejb/Deployment/" + format(id, interfce, InterfaceType.BUSINESS_REMOTE);
-                    Reference ref = new JndiReference(name);
+                    Reference ref = new IntraVmJndiReference(name);
                     count++;
                     singleRef = ref;
                     bindJava(appName, moduleName, beanName, interfce, ref, jndiContext);
@@ -543,7 +546,7 @@ public class EjbDeploymentBuilder {
                 String beanClass = bean.getEjbClass();
 
                 String name = "openejb/Deployment/" + format(id, beanClass, InterfaceType.BUSINESS_LOCALBEAN_HOME);
-                Reference ref = new JndiReference(name);
+                Reference ref = new IntraVmJndiReference(name);
                 count ++;
                 singleRef = ref;
                 bindJava(appName, moduleName, beanName, beanClass, ref, jndiContext);
@@ -576,7 +579,9 @@ public class EjbDeploymentBuilder {
             scope = new HashMap<String, Object>();
             contexts.put(jndiKey, scope);
         }
-        scope.put(context + "/" + name, object);
+        String fullName = context + "/" + name;
+        scope.put(fullName, object);
+        log.debug("bound at " + fullName + " reference " + object);
     }
 
     private GBeanData getEjbGBean(String ejbName) throws DeploymentException {
