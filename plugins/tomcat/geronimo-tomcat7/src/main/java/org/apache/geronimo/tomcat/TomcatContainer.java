@@ -56,6 +56,7 @@ import org.apache.naming.resources.DirContextURLStreamHandlerFactory;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.j2ee.annotation.Holder;
 
 
 /**
@@ -182,6 +183,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                     ctx.setJ2EEServer(objName == null ? "geronimo" : objName.getKeyProperty(NameFactory.J2EE_SERVER));
                     ctx.setJavaVMs(new String[]{});
                     ctx.setServer(objName == null ? "geronimo" : objName.getKeyProperty(NameFactory.J2EE_SERVER));
+                    ctx.setInstanceManager(new TomcatInstanceManager(new Holder(), classLoader, null));
                 }
                 host.addChild(defaultContext);
             }
