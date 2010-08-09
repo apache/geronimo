@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,10 +43,17 @@ import javax.servlet.annotation.WebListener;
 import javax.servlet.annotation.WebServlet;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.util.CircularReferencesException;
+import org.apache.geronimo.j2ee.deployment.util.FragmentSortUtils;
+import org.apache.geronimo.j2ee.deployment.util.IllegalConfigurationException;
+import org.apache.geronimo.j2ee.deployment.util.FragmentSortUtils.Visitor;
 import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.kernel.util.JoinUtils;
+import org.apache.geronimo.kernel.util.JoinUtils.NameCallback;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web25.deployment.merge.annotation.AnnotationMergeHandler;
 import org.apache.geronimo.web25.deployment.merge.annotation.ServletSecurityAnnotationMergeHandler;
@@ -92,10 +100,10 @@ import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xbean.finder.BundleAssignableClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
-import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
 import org.apache.xbean.osgi.bundle.util.ClassDiscoveryFilter;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -140,22 +148,22 @@ public class MergeHelper {
         List<WebFragmentEntry> orderedWebFragments = new LinkedList<WebFragmentEntry>();
 
         Map<String, WebFragmentEntry> unusedWebFragmentEntryMap = new LinkedHashMap<String, WebFragmentEntry>(webFragmentEntryMap);
-        for (Object o: absoluteOrdering.getNameOrOthers()) {
+        for (Object o : absoluteOrdering.getNameOrOthers()) {
             if (o instanceof String) {
                 //web fragment name
                 String webFragmentName = (String) o;
                 unusedWebFragmentEntryMap.remove(webFragmentName);
             }
         }
-        for (Object o: absoluteOrdering.getNameOrOthers()) {
+        for (Object o : absoluteOrdering.getNameOrOthers()) {
             if (o instanceof String) {
                 //web fragment name
                 String webFragmentName = (String) o;
-                 // Only process the web-fragment.xml when it is present and it is not processed before
-                 if (webFragmentEntryMap.containsKey(webFragmentName) && !expliciteConfiguredWebFragmentNames.contains(webFragmentName)) {
-                     expliciteConfiguredWebFragmentNames.add(webFragmentName);
-                     orderedWebFragments.add(webFragmentEntryMap.get(webFragmentName));
-                 }
+                // Only process the web-fragment.xml when it is present and it is not processed before
+                if (webFragmentEntryMap.containsKey(webFragmentName) && !expliciteConfiguredWebFragmentNames.contains(webFragmentName)) {
+                    expliciteConfiguredWebFragmentNames.add(webFragmentName);
+                    orderedWebFragments.add(webFragmentEntryMap.get(webFragmentName));
+                }
             } else {
                 //"other""
                 expliciteConfiguredWebFragmentNames.addAll(unusedWebFragmentEntryMap.keySet());
@@ -169,7 +177,7 @@ public class MergeHelper {
         Set<String> excludedURLs = AbstractWebModuleBuilder.EXCLUDED_JAR_URLS.get(earContext.getGeneralData());
         //Add left named web-fragment.xml file URLs to the EXCLUDED_JAR_URLS List
         for (WebFragmentEntry excludedFragment : unusedWebFragmentEntryMap.values()) {
-                excludedURLs.add(excludedFragment.getJarURL());
+            excludedURLs.add(excludedFragment.getJarURL());
         }
 
         WebFragmentEntry[] webFragmentEntries = orderedWebFragments.toArray(new WebFragmentEntry[orderedWebFragments.size()]);
@@ -260,7 +268,7 @@ public class MergeHelper {
                             bufferedReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
                             String line = null;
                             while ((line = bufferedReader.readLine()) != null) {
-                                line = line.trim();                                
+                                line = line.trim();
                                 if (!line.isEmpty() && !line.startsWith("#")) {
                                     servletContainerInitializers.add(line);
                                 }
@@ -411,71 +419,86 @@ public class MergeHelper {
 
     public static WebFragmentEntry[] relativeOrderWebFragments(EARContext earContext, Module module, Bundle bundle, WebApp webApp, Map<String, WebFragmentEntry> webFragmentEntryMap)
             throws DeploymentException {
-        Map<String, WebFragmentOrderEntry> webFragmentOrderEntryMap = new LinkedHashMap<String, WebFragmentOrderEntry>();
-        //Step 1 : Create WebFragmentOrderEntry for sorting web fragments easily
-        boolean relativeSortRequired = false;
-        for (String webFragmentName : webFragmentEntryMap.keySet()) {
-            WebFragmentEntry webFragmentEntry = webFragmentEntryMap.get(webFragmentName);
-            if (!relativeSortRequired) {
-                relativeSortRequired = webFragmentEntry.getWebFragment().getOrdering() != null;
-            }
-            webFragmentOrderEntryMap.put(webFragmentName, WebFragmentOrderEntry.create(webFragmentEntry));
-        }
-        //If none of the web-fragment.xml defines the order element, the order of jar files are unknown
-        if (!relativeSortRequired) {
-            WebFragmentEntry[] WebFragments = new WebFragmentEntry[webFragmentOrderEntryMap.size()];
-            int iIndex = 0;
-            for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryMap.values()) {
-                WebFragments[iIndex++] = webFragmentOrderEntry.webFragmentEntry;
-            }
-            //TODO really not save?
-            //            saveOrderedLibAttribute(earContext, WebFragments);
-            return WebFragments;
-        }
-        LinkedList<WebFragmentOrderEntry> webFragmentOrderEntryList = null;
-        if (relativeSortRequired) {
-            //Step 2 : Initialize the list by before/after others configurations, also, convert the before configurations to corresponding after configurations
-            //TODO Is the reference like A before others and B before A allowed ?
-            webFragmentOrderEntryList = new LinkedList<WebFragmentOrderEntry>();
-            for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryMap.values()) {
-                for (String beforeEntryName : webFragmentOrderEntry.beforeEntryNames) {
-                    webFragmentOrderEntryMap.get(beforeEntryName).afterEntryNames.add(webFragmentOrderEntry.name);
+        try {
+            WebFragmentEntry[] webFragments = FragmentSortUtils.sort(webFragmentEntryMap.values(), new Visitor<WebFragmentEntry>() {
+
+                @Override
+                public boolean afterOthers(WebFragmentEntry entry) {
+                    WebFragment webFragment = entry.getWebFragment();
+                    if (webFragment.getOrdering() != null) {
+                        OrderingOrdering after = webFragment.getOrdering().getAfter();
+                        if (after != null) {
+                            return after.getOthers() != null;
+                        }
+                    }
+                    return false;
                 }
-                if (webFragmentOrderEntry.afterDefined && webFragmentOrderEntry.afterOthers) {
-                    webFragmentOrderEntryList.addLast(webFragmentOrderEntry);
-                } else {
-                    webFragmentOrderEntryList.addFirst(webFragmentOrderEntry);
+
+                @Override
+                public boolean beforeOthers(WebFragmentEntry entry) {
+                    WebFragment webFragment = entry.getWebFragment();
+                    if (webFragment.getOrdering() != null) {
+                        OrderingOrdering before = webFragment.getOrdering().getBefore();
+                        if (before != null) {
+                            return before.getOthers() != null;
+                        }
+                    }
+                    return false;
                 }
-            }
-            //Step 3: Detect Circus references
-            // a. A -> A
-            // b. A -> B -> A
-            // c. A -> B ->  C -> A
-            for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryList) {
-                Set<String> allAfterEntryNames = new HashSet<String>();
-                detectCircusAfterDependency(webFragmentOrderEntry, webFragmentOrderEntry, webFragmentOrderEntryMap, allAfterEntryNames);
-                webFragmentOrderEntry.afterEntryNames.addAll(allAfterEntryNames);
-            }
-            //Step 4: Sort the webFragment depending on the after configurations
-            //TODO The Sort algorithm might need to improve.
-            for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryMap.values()) {
-                for (String afterEntryName : webFragmentOrderEntry.afterEntryNames) {
-                    swap(webFragmentOrderEntry.name, afterEntryName, webFragmentOrderEntryList);
+
+                @Override
+                public List<String> getAfterNames(WebFragmentEntry entry) {
+                    WebFragment webFragment = entry.getWebFragment();
+                    if (webFragment.getOrdering() != null) {
+                        OrderingOrdering after = webFragment.getOrdering().getAfter();
+                        if (after != null) {
+                            return after.getName() == null ? Collections.<String> emptyList() : after.getName();
+                        }
+                    }
+                    return Collections.emptyList();
                 }
+
+                @Override
+                public List<String> getBeforeNames(WebFragmentEntry entry) {
+                    WebFragment webFragment = entry.getWebFragment();
+                    if (webFragment.getOrdering() != null) {
+                        OrderingOrdering before = webFragment.getOrdering().getBefore();
+                        if (before != null) {
+                            return before.getName() == null ? Collections.<String> emptyList() : before.getName();
+                        }
+                    }
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public String getName(WebFragmentEntry entry) {
+                    return entry.getName();
+                }
+
+            }).toArray(new WebFragmentEntry[webFragmentEntryMap.values().size()]);
+            saveOrderedLibAttribute(earContext, webFragments);
+            return webFragments;
+        } catch (IllegalConfigurationException e) {
+            throw new DeploymentException("Jar file " + webFragmentEntryMap.get(e.getNodeName()).getJarURL() + " is not configured correctly for " + e.getMessage(), e);
+        } catch (CircularReferencesException e) {
+            StringBuilder circularReferenceInfo = new StringBuilder();
+            int index = 1;
+            NameCallback<WebFragmentEntry> nameCallback = new NameCallback<WebFragmentEntry>() {
+
+                @Override
+                public String getName(WebFragmentEntry object) {
+                    return object.getJarURL();
+                }
+            };
+            for (List list : e.getCircuits()) {
+                circularReferenceInfo.append(index++ + ". [" + JoinUtils.join(" -> ", nameCallback, list) + "]");
             }
+            throw new DeploymentException("Circular reference is dectected, " + circularReferenceInfo, e);
         }
-        WebFragmentEntry[] WebFragments = new WebFragmentEntry[webFragmentOrderEntryList.size()];
-        int iIndex = 0;
-        for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntryList) {
-            WebFragments[iIndex++] = webFragmentOrderEntry.webFragmentEntry;
-        }
-        saveOrderedLibAttribute(earContext, WebFragments);
-        return WebFragments;
     }
 
-    public static WebFragmentEntry[] sortWebFragments(EARContext earContext, Module module, Bundle bundle, WebApp webApp, Map<String, WebFragment> jarURLDocumentMap)
-            throws DeploymentException {
-        Map<String, WebFragmentEntry> webFragmentEntryMap = new HashMap<String, WebFragmentEntry>(jarURLDocumentMap.size());
+    public static WebFragmentEntry[] sortWebFragments(EARContext earContext, Module module, Bundle bundle, WebApp webApp, Map<String, WebFragment> jarURLDocumentMap) throws DeploymentException {
+        Map<String, WebFragmentEntry> webFragmentEntryMap = new LinkedHashMap<String, WebFragmentEntry>(jarURLDocumentMap.size());
         boolean absoluteOrderingConfigured = webApp.getAbsoluteOrdering() != null;
         Set<String> usedWebFragmentNames = new HashSet<String>();
         Map<String, WebFragment> unnamedWebFragmentMap = new HashMap<String, WebFragment>();
@@ -533,44 +556,6 @@ public class MergeHelper {
         }
     }
 
-    private static void detectCircusAfterDependency(WebFragmentOrderEntry rootWebFragmentOrderEntry, WebFragmentOrderEntry dependentWebFragmentOrderEntry,
-            Map<String, WebFragmentOrderEntry> webFragmentOrderEntryMap, Set<String> visitedWebFragmentNames) throws DeploymentException {
-        if (dependentWebFragmentOrderEntry.afterEntryNames.contains(rootWebFragmentOrderEntry.name)) {
-            throw new DeploymentException("Circus references are founded for " + rootWebFragmentOrderEntry.webFragmentEntry.getWebFragmentName() + " in the jar "
-                    + rootWebFragmentOrderEntry.webFragmentEntry.getJarURL() + ", it must be corrected or change to use absolute-ordering in web.xml file");
-        }
-        for (String subDependentWebFragmentName : dependentWebFragmentOrderEntry.afterEntryNames) {
-            if (visitedWebFragmentNames.contains(subDependentWebFragmentName)) {
-                continue;
-            }
-            visitedWebFragmentNames.add(subDependentWebFragmentName);
-            detectCircusAfterDependency(rootWebFragmentOrderEntry, webFragmentOrderEntryMap.get(subDependentWebFragmentName), webFragmentOrderEntryMap, visitedWebFragmentNames);
-        }
-    }
-
-    private static void swap(String shouldAfter, String shouldBefore, List<WebFragmentOrderEntry> webFragmentOrderEntries) {
-        int iShouldAfterIndex = -1;
-        int iShouldBeforeIndex = -1;
-        int iIndex = 0;
-        for (WebFragmentOrderEntry webFragmentOrderEntry : webFragmentOrderEntries) {
-            if (iShouldAfterIndex == -1 || iShouldBeforeIndex == -1) {
-                String currentWebFragmentName = webFragmentOrderEntry.name;
-                if (shouldAfter.equals(currentWebFragmentName)) {
-                    iShouldAfterIndex = iIndex;
-                } else if (shouldBefore.equals(currentWebFragmentName)) {
-                    iShouldBeforeIndex = iIndex;
-                }
-                iIndex++;
-            } else {
-                break;
-            }
-        }
-        if (iShouldAfterIndex < iShouldBeforeIndex) {
-            WebFragmentOrderEntry webFragmentOrderEntry = webFragmentOrderEntries.remove(iShouldAfterIndex);
-            webFragmentOrderEntries.add(iShouldBeforeIndex, webFragmentOrderEntry);
-        }
-    }
-
     private static void saveOrderedLibAttribute(EARContext earContext, WebFragmentEntry[] webFragmentEntries) {
         //Save ORDERED_LIBS Attribute
         List<String> orderedLibs = new ArrayList<String>();
@@ -582,55 +567,5 @@ public class MergeHelper {
             }
         }
         earContext.getGeneralData().put(AbstractWebModuleBuilder.ORDERED_LIBS, orderedLibs);
-    }
-
-    private static class WebFragmentOrderEntry {
-
-        public boolean afterDefined;
-
-        public Set<String> afterEntryNames = new HashSet<String>();
-
-        public boolean afterOthers;
-
-        public boolean beforeDefined;
-
-        public Set<String> beforeEntryNames = new HashSet<String>();
-
-        public boolean beforeOthers;
-
-        //Duplicate name variable is just for easily access
-        public String name;
-
-        public WebFragmentEntry webFragmentEntry;
-
-        public static WebFragmentOrderEntry create(WebFragmentEntry webFragmentEntry) throws DeploymentException {
-            WebFragmentOrderEntry webFragmentOrderEntry = new WebFragmentOrderEntry();
-            WebFragment webFragment = webFragmentEntry.getWebFragment();
-            if (webFragment.getOrdering() != null) {
-                Ordering ordering = webFragment.getOrdering();
-                OrderingOrdering after = ordering.getAfter();
-                if (after == null) {
-                    webFragmentOrderEntry.afterDefined = false;
-                } else {
-                    webFragmentOrderEntry.afterDefined = true;
-                    webFragmentOrderEntry.afterOthers = (after.getOthers() != null);
-                    webFragmentOrderEntry.afterEntryNames.addAll(after.getName());
-                }
-                OrderingOrdering before = ordering.getBefore();
-                if (before == null) {
-                    webFragmentOrderEntry.beforeDefined = false;
-                } else {
-                    webFragmentOrderEntry.beforeDefined = true;
-                    webFragmentOrderEntry.beforeOthers = (before.getOthers() != null);
-                    webFragmentOrderEntry.beforeEntryNames.addAll(before.getName());
-                }
-            }
-            if (webFragmentOrderEntry.beforeOthers && webFragmentOrderEntry.afterOthers) {
-                throw new DeploymentException("It is not allowed to define before and after others at the same time in jar " + webFragmentEntry.getJarURL());
-            }
-            webFragmentOrderEntry.webFragmentEntry = webFragmentEntry;
-            webFragmentOrderEntry.name = webFragmentEntry.getName();
-            return webFragmentOrderEntry;
-        }
     }
 }
