@@ -49,15 +49,18 @@ public class ClassLoading {
     /**
      * Table for mapping primitive class names/signatures to the implementing
      * class object
+     * initialCapacity is calculated from 12 * 0.75 = 9
      */
-    private static final HashMap PRIMITIVE_CLASS_MAP = new HashMap();
+    private static final HashMap<String, Class<?>> HUMAN_READABLE_PRIMITIVE_CLASS_MAP = new HashMap<String, Class<?>>(12);
+
+    private static final HashMap<String, Class<?>> BINARY_NAME_PRIMITIVE_CLASS_MAP = new HashMap<String, Class<?>>(12);
 
     /**
      * Table for mapping primitive classes back to their name signature type, which
      * allows a reverse mapping to be performed from a class object into a resolvable
      * signature.
      */
-    private static final HashMap CLASS_TO_SIGNATURE_MAP = new HashMap();
+    private static final HashMap<Class<?>, String> CLASS_TO_SIGNATURE_MAP = new HashMap<Class<?>, String>(12);
 
 
     /**
@@ -65,24 +68,24 @@ public class ClassLoading {
      * human readable name and the method signature shorthand type.
      */
     static {
-        PRIMITIVE_CLASS_MAP.put("boolean", boolean.class);
-        PRIMITIVE_CLASS_MAP.put("Z", boolean.class);
-        PRIMITIVE_CLASS_MAP.put("byte", byte.class);
-        PRIMITIVE_CLASS_MAP.put("B", byte.class);
-        PRIMITIVE_CLASS_MAP.put("char", char.class);
-        PRIMITIVE_CLASS_MAP.put("C", char.class);
-        PRIMITIVE_CLASS_MAP.put("short", short.class);
-        PRIMITIVE_CLASS_MAP.put("S", short.class);
-        PRIMITIVE_CLASS_MAP.put("int", int.class);
-        PRIMITIVE_CLASS_MAP.put("I", int.class);
-        PRIMITIVE_CLASS_MAP.put("long", long.class);
-        PRIMITIVE_CLASS_MAP.put("J", long.class);
-        PRIMITIVE_CLASS_MAP.put("float", float.class);
-        PRIMITIVE_CLASS_MAP.put("F", float.class);
-        PRIMITIVE_CLASS_MAP.put("double", double.class);
-        PRIMITIVE_CLASS_MAP.put("D", double.class);
-        PRIMITIVE_CLASS_MAP.put("void", void.class);
-        PRIMITIVE_CLASS_MAP.put("V", void.class);
+        HUMAN_READABLE_PRIMITIVE_CLASS_MAP.put("boolean", boolean.class);
+        BINARY_NAME_PRIMITIVE_CLASS_MAP.put("Z", boolean.class);
+        HUMAN_READABLE_PRIMITIVE_CLASS_MAP.put("byte", byte.class);
+        BINARY_NAME_PRIMITIVE_CLASS_MAP.put("B", byte.class);
+        HUMAN_READABLE_PRIMITIVE_CLASS_MAP.put("char", char.class);
+        BINARY_NAME_PRIMITIVE_CLASS_MAP.put("C", char.class);
+        HUMAN_READABLE_PRIMITIVE_CLASS_MAP.put("short", short.class);
+        BINARY_NAME_PRIMITIVE_CLASS_MAP.put("S", short.class);
+        HUMAN_READABLE_PRIMITIVE_CLASS_MAP.put("int", int.class);
+        BINARY_NAME_PRIMITIVE_CLASS_MAP.put("I", int.class);
+        HUMAN_READABLE_PRIMITIVE_CLASS_MAP.put("long", long.class);
+        BINARY_NAME_PRIMITIVE_CLASS_MAP.put("J", long.class);
+        HUMAN_READABLE_PRIMITIVE_CLASS_MAP.put("float", float.class);
+        BINARY_NAME_PRIMITIVE_CLASS_MAP.put("F", float.class);
+        HUMAN_READABLE_PRIMITIVE_CLASS_MAP.put("double", double.class);
+        BINARY_NAME_PRIMITIVE_CLASS_MAP.put("D", double.class);
+        HUMAN_READABLE_PRIMITIVE_CLASS_MAP.put("void", void.class);
+        BINARY_NAME_PRIMITIVE_CLASS_MAP.put("V", void.class);
 
         // Now build a reverse mapping table.  The table above has a many-to-one mapping for
         // class names.  To do the reverse, we need to pick just one.  As long as the
@@ -123,6 +126,16 @@ public class ClassLoading {
         if (classLoader == null) {
             throw new IllegalArgumentException("classLoader is null");
         }
+
+        //First check the human readable primitive class from cached map
+        Class<?> resolvedClass;
+        if (className.length() <= 7) {
+            resolvedClass = HUMAN_READABLE_PRIMITIVE_CLASS_MAP.get(className);
+            if (resolvedClass != null) {
+                return resolvedClass;
+            }
+        }
+
         // The easiest case is a proper class name.  We just have the class loader resolve this.
         // If the class loader throws a ClassNotFoundException, then we need to check each of the
         // special name encodings we support.
@@ -135,7 +148,7 @@ public class ClassLoading {
 
         // The second easiest version to resolve is a direct map to a primitive type name
         // or method signature.  Check our name-to-class map for one of those.
-        Class resolvedClass = (Class) PRIMITIVE_CLASS_MAP.get(className);
+        resolvedClass = BINARY_NAME_PRIMITIVE_CLASS_MAP.get(className);
         if (resolvedClass != null) {
             return resolvedClass;
         }
@@ -250,7 +263,7 @@ public class ClassLoading {
         // we're down to the base type.  If this is a primitive, then
         // we poke in the single-character type specifier.
         if (type.isPrimitive()) {
-            name.append((String) CLASS_TO_SIGNATURE_MAP.get(type));
+            name.append(CLASS_TO_SIGNATURE_MAP.get(type));
         }
         // a "normal" class.  This gets expressing using the "Lmy.class.name;" syntax.
         else {
@@ -319,7 +332,7 @@ public class ClassLoading {
      */
     public static Class[] reduceInterfaces(Class[] source) {
         // use a copy of the sorce array
-        source = (Class[]) source.clone();
+        source = source.clone();
 
         for (int leftIndex = 0; leftIndex < source.length-1; leftIndex++) {
             Class left = source[leftIndex];
