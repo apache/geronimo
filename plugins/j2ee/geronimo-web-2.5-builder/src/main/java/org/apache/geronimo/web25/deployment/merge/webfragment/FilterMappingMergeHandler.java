@@ -35,7 +35,7 @@ public class FilterMappingMergeHandler implements WebFragmentMergeHandler<WebFra
     private List<SubMergeHandler<FilterMapping, FilterMapping>> subMergeHandlers;
 
     public FilterMappingMergeHandler() {
-        subMergeHandlers = new ArrayList<SubMergeHandler<FilterMapping, FilterMapping>>();
+        subMergeHandlers = new ArrayList<SubMergeHandler<FilterMapping, FilterMapping>>(3);
         subMergeHandlers.add(new FilterMappingUrlPatternMergeHandler());
         subMergeHandlers.add(new FilterMappingServletNameMergeHandler());
         subMergeHandlers.add(new FilterMappingDispatcherMergeHandler());
@@ -53,6 +53,9 @@ public class FilterMappingMergeHandler implements WebFragmentMergeHandler<WebFra
                     subMergeHandler.add(srcFilterMapping, mergeContext);
                 }
             } else {
+                if (isFilterMappingFromWebXml(filterName, mergeContext)) {
+                    continue;
+                }
                 if (isFilterMappingFromAnnotation(filterName, mergeContext)) {
                     //If the current url-patterns configurations are from annotations, so let's drop them
                     targetFilterMapping.getUrlPattern().clear();
@@ -79,6 +82,7 @@ public class FilterMappingMergeHandler implements WebFragmentMergeHandler<WebFra
         for (FilterMapping filterMapping : webApp.getFilterMapping()) {
             String filterName = filterMapping.getFilterName();
             context.setAttribute(createFilterMappingKey(filterName), filterMapping);
+            context.setAttribute(createFilterMappingSourceKey(filterName), ElementSource.WEB_XML);
         }
         for (SubMergeHandler<FilterMapping, FilterMapping> subMergeHandler : subMergeHandlers) {
             subMergeHandler.preProcessWebXmlElement(webApp, context);
@@ -104,6 +108,11 @@ public class FilterMappingMergeHandler implements WebFragmentMergeHandler<WebFra
     public static boolean isFilterMappingFromAnnotation(String filterName, MergeContext mergeContext) {
         ElementSource elementSource = (ElementSource) mergeContext.getAttribute(createFilterMappingSourceKey(filterName));
         return elementSource != null && elementSource.equals(ElementSource.ANNOTATION);
+    }
+
+    public static boolean isFilterMappingFromWebXml(String filterName, MergeContext mergeContext) {
+        ElementSource elementSource = (ElementSource) mergeContext.getAttribute(createFilterMappingSourceKey(filterName));
+        return elementSource != null && elementSource.equals(ElementSource.WEB_XML);
     }
 
     public static void addFilterMapping(FilterMapping filterMapping, MergeContext mergeContext) {

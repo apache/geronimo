@@ -34,7 +34,7 @@ public class FilterMergeHandler implements WebFragmentMergeHandler<WebFragment, 
     private List<SubMergeHandler<Filter, Filter>> subMergeHandlers;
 
     public FilterMergeHandler() {
-        subMergeHandlers = new ArrayList<SubMergeHandler<Filter, Filter>>();
+        subMergeHandlers = new ArrayList<SubMergeHandler<Filter, Filter>>(1);
         subMergeHandlers.add(new FilterInitParamMergeHandler());
     }
 

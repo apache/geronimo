@@ -51,7 +51,6 @@ import org.apache.geronimo.components.jaspi.model.ConfigProviderType;
 import org.apache.geronimo.components.jaspi.model.JaspiXmlUtil;
 import org.apache.geronimo.components.jaspi.model.ServerAuthConfigType;
 import org.apache.geronimo.components.jaspi.model.ServerAuthContextType;
-import org.apache.geronimo.deployment.ClassPathUtils;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;

@@ -35,7 +35,7 @@ public class ServletMappingMergeHandler implements WebFragmentMergeHandler<WebFr
     private List<SubMergeHandler<ServletMapping, ServletMapping>> subMergeHandlers;
 
     public ServletMappingMergeHandler() {
-        subMergeHandlers = new ArrayList<SubMergeHandler<ServletMapping, ServletMapping>>();
+        subMergeHandlers = new ArrayList<SubMergeHandler<ServletMapping, ServletMapping>>(1);
         subMergeHandlers.add(new ServletMappingUrlPatternMergeHandler());
     }
 
@@ -51,6 +51,10 @@ public class ServletMappingMergeHandler implements WebFragmentMergeHandler<WebFr
                     subMergeHandler.add(srcServletMapping, mergeContext);
                 }
             } else {
+                //If the servlet-mapping is configured in the central web.xml file, all the configurations from the fragment xml and annotations are ignored
+                if(isServletMappingFromWebXml(servletName, mergeContext)) {
+                    continue;
+                }
                 if (isServletMappingFromAnnotation(servletName, mergeContext) && !srcServletMapping.getUrlPattern().isEmpty()) {
                     //If the current url-patterns configurations are from annotations, so let's drop them
                     targetServletMapping.getUrlPattern().clear();
@@ -73,8 +77,9 @@ public class ServletMappingMergeHandler implements WebFragmentMergeHandler<WebFr
     @Override
     public void preProcessWebXmlElement(WebApp webApp, MergeContext context) throws DeploymentException {
         for (ServletMapping servletMapping : webApp.getServletMapping()) {
-            String filterName = servletMapping.getServletName();
-            context.setAttribute(createServletMappingKey(filterName), servletMapping);
+            String servletName = servletMapping.getServletName();
+            context.setAttribute(createServletMappingKey(servletName), servletMapping);
+            context.setAttribute(createServletMappingSourceKey(servletName), ElementSource.WEB_XML);
         }
         for (SubMergeHandler<ServletMapping, ServletMapping> subMergeHandler : subMergeHandlers) {
             subMergeHandler.preProcessWebXmlElement(webApp, context);
@@ -100,5 +105,10 @@ public class ServletMappingMergeHandler implements WebFragmentMergeHandler<WebFr
     public static boolean isServletMappingFromAnnotation(String servletName, MergeContext mergeContext) {
         ElementSource elementSource = (ElementSource) mergeContext.getAttribute(createServletMappingSourceKey(servletName));
         return elementSource != null && elementSource.equals(ElementSource.ANNOTATION);
+    }
+
+    public static boolean isServletMappingFromWebXml(String servletName, MergeContext mergeContext) {
+        ElementSource elementSource = (ElementSource) mergeContext.getAttribute(createServletMappingSourceKey(servletName));
+        return elementSource != null && elementSource.equals(ElementSource.WEB_XML);
     }
 }

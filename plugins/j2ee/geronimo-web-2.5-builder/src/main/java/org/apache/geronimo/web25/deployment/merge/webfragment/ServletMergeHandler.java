@@ -34,7 +34,7 @@ public class ServletMergeHandler implements WebFragmentMergeHandler<WebFragment,
     private List<SubMergeHandler<Servlet, Servlet>> subMergeHandlers;
 
     public ServletMergeHandler() {
-        subMergeHandlers = new ArrayList<SubMergeHandler<Servlet, Servlet>>();
+        subMergeHandlers = new ArrayList<SubMergeHandler<Servlet, Servlet>>(2);
         subMergeHandlers.add(new ServletInitParamMergeHandler());
         subMergeHandlers.add(new ServletLoadOnStartupMergeHandler());
     }
