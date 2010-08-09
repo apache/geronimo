@@ -17,6 +17,8 @@
 package org.apache.geronimo.pool;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A Geronimo-specific extension that contributes a little extra manageability
@@ -37,4 +39,17 @@ public interface GeronimoExecutor extends Executor, org.apache.geronimo.system.t
      * @return the unique name of this object within the server
      */
     String getObjectName();
+    
+    /**
+     * Executes the given command at some time in the future, if it can not be started within the given timeout,
+     * RejectedExecutionException will be thrown. The command may execute in a new thread, in a pooled thread, or in the
+     * calling thread, at the discretion of the <tt>Executor</tt> implementation.
+     * 
+     * @param command the runnable task
+     * @param timeout duration of timeout
+     * @param unit TimeUnit of timeout
+     * @throws RejectedExecutionException if this task cannot be accepted for execution.
+     * @throws NullPointerException if command is null
+     */
+    public void execute(Runnable runnable, long timeout, TimeUnit unit);
 }

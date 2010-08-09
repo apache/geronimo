@@ -203,6 +203,33 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
     public void execute(Runnable command) {
         execute("Unknown", command);
     }
+    
+    public void execute(Runnable command, long timeout, TimeUnit unit) {
+        execute("Unknown", command, timeout, unit);
+    }
+    
+    public void execute(final String consumerName, final Runnable command, long timeout, TimeUnit unit) {
+        if (waitWhenBlocked) {
+            addToQueue(command, timeout, unit);
+        } else {
+            try {
+                execute(consumerName, command);
+            } catch (RejectedExecutionException e) {
+                addToQueue(command, timeout, unit);
+            }
+        }
+    }
+    
+    private void addToQueue(Runnable command, long timeout, TimeUnit unit) {
+        try {
+            boolean added = executor.getQueue().offer(command, timeout, unit);
+            if (!added) {
+                throw new RejectedExecutionException();
+            }
+        } catch (InterruptedException e) {
+            throw new RejectedExecutionException(e);
+        }
+    }
 
     public void execute(final String consumerName, final Runnable runnable) {
         Runnable command;
