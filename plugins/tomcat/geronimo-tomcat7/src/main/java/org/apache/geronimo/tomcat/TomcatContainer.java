@@ -272,7 +272,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * @see org.apache.catalina.Host
      */
     public void addContext(TomcatContext contextInfo) throws Exception {
-        Context context = createContext(contextInfo.getContextPath(), contextInfo.getClassLoader(), contextInfo.getDeploymentDescriptor());
+        Context context = createContext(contextInfo.getContextPath(), contextInfo.getClassLoader(), null);
         //Was a virtual server defined?
         String virtualServer = contextInfo.getVirtualServer();
         if (virtualServer == null) {
