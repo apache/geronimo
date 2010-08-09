@@ -63,33 +63,33 @@ public class MultiParentClassLoader extends URLClassLoader
     private boolean destroyed = false;
     private Map<String,Object> resourcesNotFound = new ConcurrentHashMap<String,Object>();
 
-    // I used this pattern as its temporary and with the static final we get compile time 
+    // I used this pattern as its temporary and with the static final we get compile time
     // optimizations.
     private final static int classLoaderSearchMode;
     private final static int ORIGINAL_SEARCH = 1;
     private final static int OPTIMIZED_SEARCH = 2;
 
     private final static boolean LONG_CLASSLOADER_TO_STRING = false;
-     
+
     static {
-    	// Extract the classLoaderSearchMode if specified.  If not, default to "safe".
-    	String mode = System.getProperty("Xorg.apache.geronimo.kernel.config.MPCLSearchOption");
-    	int runtimeMode = OPTIMIZED_SEARCH;  // Default to optimized
-    	String runtimeModeMessage = "Original Classloading";
-    	if (mode != null) { 
-    		if (mode.equals("safe")) {
+        // Extract the classLoaderSearchMode if specified.  If not, default to "safe".
+        String mode = System.getProperty("Xorg.apache.geronimo.kernel.config.MPCLSearchOption");
+        int runtimeMode = OPTIMIZED_SEARCH; // Default to optimized
+        String runtimeModeMessage = "Original Classloading";
+        if (mode != null) {
+            if (mode.equals("safe")) {
                 runtimeMode = ORIGINAL_SEARCH;
                 runtimeModeMessage = "Safe ClassLoading";
-    		} else if (mode.equals("optimized"))
-    			runtimeMode = OPTIMIZED_SEARCH;
-    	}
-    	
-		classLoaderSearchMode = runtimeMode;
-		LoggerFactory.getLogger(MultiParentClassLoader.class).info(
-                 "ClassLoading behaviour has changed.  The "+runtimeModeMessage+" mode is in effect.  If you are experiencing a problem\n"+
-				 "you can change the behaviour by specifying -DXorg.apache.geronimo.kernel.config.MPCLSearchOption= property.  Specify \n"+
-				 "=\"safe\" to revert to the original behaviour.  This is a temporary change until we decide whether or not to make it\n"+
-				 "permanent for the 2.0 release");
+            } else if (mode.equals("optimized"))
+                runtimeMode = OPTIMIZED_SEARCH;
+        }
+
+        classLoaderSearchMode = runtimeMode;
+        LoggerFactory.getLogger(MultiParentClassLoader.class).info(
+                "ClassLoading behaviour has changed.  The "+runtimeModeMessage+" mode is in effect.  If you are experiencing a problem\n"+
+                "you can change the behaviour by specifying -DXorg.apache.geronimo.kernel.config.MPCLSearchOption= property.  Specify \n"+
+                "=\"safe\" to revert to the original behaviour.  This is a temporary change until we decide whether or not to make it\n"+
+                "permanent for the 2.0 release");
     }
 
     /**
@@ -101,7 +101,7 @@ public class MultiParentClassLoader extends URLClassLoader
     public MultiParentClassLoader(Artifact id, URL[] urls) {
         super(urls);
         this.id = id;
-        
+
         parents = new ClassLoader[]{ClassLoader.getSystemClassLoader()};
         classLoadingRules = new ClassLoadingRules();
         ClassLoaderRegistry.add(this);
@@ -191,7 +191,7 @@ public class MultiParentClassLoader extends URLClassLoader
         super(urls, null, factory);
         this.id = id;
         this.parents = copyParents(parents);
-        
+
         classLoadingRules = new ClassLoadingRules();
         ClassLoaderRegistry.add(this);
     }
@@ -247,19 +247,19 @@ public class MultiParentClassLoader extends URLClassLoader
     }
 
     /**
-     * TODO This method should be removed and replaced with the best classLoading option.  Its intent is to 
+     * TODO This method should be removed and replaced with the best classLoading option.  Its intent is to
      * provide a way for folks to switch back to the old classLoader if this fix breaks something.
      */
     protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-    	if (classLoaderSearchMode == ORIGINAL_SEARCH) 
+    	if (classLoaderSearchMode == ORIGINAL_SEARCH)
     		return loadSafeClass(name, resolve);
     	else
     		return loadOptimizedClass(name, resolve);
     }
-    
+
     /**
      * This method executes the old class loading behaviour before optimization.
-     * 
+     *
      * @param name
      * @param resolve
      * @return
@@ -281,15 +281,7 @@ public class MultiParentClassLoader extends URLClassLoader
         // The order is based on profiling the server.  It may not be optimal for all
         // workloads.
 
-        if (name.startsWith("java.") ||
-                name.equals("boolean") ||
-                name.equals("int") ||
-                name.equals("double") ||
-                name.equals("long") ||
-                name.equals("short") ||
-                name.equals("float") ||
-                name.equals("byte") ||
-                name.equals("char")) {
+        if (name.startsWith("java.")) {
             Class clazz = ClassLoader.getSystemClassLoader().loadClass(name);
             return resolveClass(clazz, resolve);
         }
@@ -334,22 +326,22 @@ public class MultiParentClassLoader extends URLClassLoader
         }
 
         throw new ClassNotFoundException(name + " in classloader " + id);
-    }    
-    
+    }
+
     /**
-     * 
+     *
      * Optimized classloading.
-     * 
-     * This method is the normal way to resolve class loads.  This method recursively calls its parents to resolve 
+     *
+     * This method is the normal way to resolve class loads.  This method recursively calls its parents to resolve
      * classloading requests.  Here is the sequence of operations:
-     * 
+     *
      *   1. Call findLoadedClass to see if we already have this class loaded.
      *   2. If this class is a java.* or data primitive class, call the SystemClassLoader.
      *   3. If inverse loading and class is not in the non-overridable list, check the local ClassLoader.
      *   4. If the class is not a hidden class, search our parents, recursively.  Keeping track of which parents have already been called.
      *      Since MultiParentClassLoaders can appear more than once we do not search an already searched ClassLoader.
-     *   5. Finally, search this ClassLoader.  
-     * 
+     *   5. Finally, search this ClassLoader.
+     *
      */
     protected synchronized Class<?> loadOptimizedClass(String name, boolean resolve) throws ClassNotFoundException {
 
@@ -366,15 +358,7 @@ public class MultiParentClassLoader extends URLClassLoader
         //
         // The order is based on profiling the server.  It may not be optimal for all
         // workloads.
-        if (name.startsWith("java.") ||
-                name.equals("boolean") ||
-                name.equals("int") ||
-                name.equals("double") ||
-                name.equals("long") ||
-                name.equals("short") ||
-                name.equals("float") ||
-                name.equals("byte") ||
-                name.equals("char")) {
+        if (name.startsWith("java.")) {
             try {
         	    return resolveClass(findSystemClass(name), resolve);
             } catch (ClassNotFoundException cnfe) {
@@ -392,7 +376,7 @@ public class MultiParentClassLoader extends URLClassLoader
             } catch (ClassNotFoundException ignored) {
             }
         }
-        
+
         //
         // Check parent class loaders
         //
@@ -422,13 +406,13 @@ public class MultiParentClassLoader extends URLClassLoader
 
         throw new ClassNotFoundException(name + " in classloader " + id);
     }
-    
+
     /**
      * This method is an internal hook that allows us to be performant on Class lookups when multiparent
      * classloaders are involved.  We can bypass certain lookups that have already occurred in the initiating
      * classloader.  Also, we track the classLoaders that are visited by adding them to an already vistied list.
      * In this way, we can bypass redundant checks for the same class.
-     * 
+     *
      * @param name
      * @param visitedClassLoaders
      * @return
@@ -454,7 +438,7 @@ public class MultiParentClassLoader extends URLClassLoader
         	    // ignore
             }
         }
-        
+
         //
         // if we are not using inverse class loading, check local urls now
         //
@@ -470,12 +454,12 @@ public class MultiParentClassLoader extends URLClassLoader
     }
 
     /**
-     * In order to optimize the classLoading process and visit a directed set of 
-     * classloaders this internal method for Geronimo MultiParentClassLoaders 
+     * In order to optimize the classLoading process and visit a directed set of
+     * classloaders this internal method for Geronimo MultiParentClassLoaders
      * is used.  Effectively, as each classloader is visited it is passed a linked
      * list of classloaders that have already been visited and can safely be skipped.
      * This method assumes the context of an MPCL and is not for use external to this class.
-     * 
+     *
      * @param name
      * @param visitedClassLoaders
      * @return
@@ -501,7 +485,7 @@ public class MultiParentClassLoader extends URLClassLoader
                     log.debug("Failed findClass for {}", name, me);
                 }
             }
-    	} 
+    	}
      	// To avoid yet another CNFE we'll simply return null and let the caller handle appropriately.
     	return null;
     }
@@ -564,10 +548,10 @@ public class MultiParentClassLoader extends URLClassLoader
             }
         }
 
-        // 
+        //
         // Resource not found -- no need to search for it again
         // Use the name as key and value. We don't care about the value and it needs to be non-null.
-        // 
+        //
         resourcesNotFound.put(name, name);
 
         return null;
@@ -649,7 +633,7 @@ public class MultiParentClassLoader extends URLClassLoader
             getAncestorsInternal(ancestors, cl);
         }
     }
-    
+
     public String toString() {
         StringBuilder b = new StringBuilder();
         if (LONG_CLASSLOADER_TO_STRING) {
@@ -730,5 +714,5 @@ public class MultiParentClassLoader extends URLClassLoader
         ClassLoaderRegistry.remove(this);
         super.finalize();
     }
-    
+
 }
