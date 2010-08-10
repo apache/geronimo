@@ -19,10 +19,13 @@ package org.apache.geronimo.naming.deployment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
@@ -216,24 +219,26 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
 
         public static final EnvEntryRefProcessor INSTANCE = new EnvEntryRefProcessor();
 
+        private static final Set<String> knownEnvironmentEntries = new HashSet<String>(Arrays.asList(
+                "boolean", "java.lang.Boolean",
+                "char", "java.lang.Character",
+                "byte", "java.lang.Byte",
+                "short", "java.lang.Short",
+                "int", "java.lang.Integer",
+                "long", "java.lang.Long",
+                "float", "java.lang.Float",
+                "double", "java.lang.Double",
+                "java.lang.String",
+                "java.lang.Class"
+        ));
+                
         private EnvEntryRefProcessor() {
         }
-
+        
         public boolean processResource(JndiConsumer annotatedApp, Resource annotation, Class cls, Method method, Field field) {
             String resourceName = getResourceName(annotation, method, field);
             Class resourceType = getResourceTypeClass(annotation, method, field);
-            if (resourceType.equals(String.class) ||
-                    resourceType.equals(Character.class) ||
-                    resourceType.equals(Integer.class) ||
-                    resourceType.equals(Boolean.class) ||
-                    resourceType.equals(Double.class) ||
-                    resourceType.equals(Byte.class) ||
-                    resourceType.equals(Short.class) ||
-                    resourceType.equals(Long.class) ||
-                    resourceType.equals(Float.class) ||
-                    resourceType.equals(Class.class) ||
-                    resourceType.isEnum()) {
-
+            if (knownEnvironmentEntries.contains(resourceType.getName()) || resourceType.isEnum()) {
                 log.debug("addResource(): <env-entry> found");
 
                 boolean exists = false;
@@ -267,7 +272,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
 
                         if (!resourceType.equals(Object.class)) {
                             // env-entry-type
-                            envEntry.setEnvEntryType(resourceType.getCanonicalName());
+                            envEntry.setEnvEntryType(deprimitivize(resourceType).getCanonicalName());
                         }
                         if (method != null || field != null) {
                             // injectionTarget

@@ -378,8 +378,8 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
     //duplicated in ResourceAnnotationHelper
-    private static Class<?> deprimitivize(Class<?> fieldType) {
-        return fieldType = fieldType.isPrimitive()? primitives.get(fieldType): fieldType;
+    public static Class<?> deprimitivize(Class<?> fieldType) {
+        return fieldType = fieldType.isPrimitive() ? primitives.get(fieldType): fieldType;
     }
 
     private static final Map<Class<?>, Class<?>> primitives = new HashMap<Class<?>, Class<?>>();
