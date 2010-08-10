@@ -123,10 +123,9 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         // step 2: bind all defined data sources into jndi
         Collection<DataSource> dataSources = specDD.getDataSource();
         if (dataSources != null) {
-            int i = 0;
             for (DataSource dataSource: dataSources) {
                 try {
-                    addDataSourceGBean(module, sharedContext, dataSource, "DataSource-" + i++);
+                    addDataSourceGBean(module, sharedContext, dataSource);
                 } catch (GBeanAlreadyExistsException e) {
                     throw new DeploymentException("Error creating DataSource gbean", e);
                 }
@@ -134,7 +133,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         }        
     }
 
-    private void addDataSourceGBean(Module module, Map<EARContext.Key, Object> sharedContext, DataSource ds, String name)
+    private void addDataSourceGBean(Module module, Map<EARContext.Key, Object> sharedContext, DataSource ds)
         throws GBeanAlreadyExistsException {
                         
         String jndiName = ds.getKey();
@@ -143,6 +142,11 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             return;
         }
         
+        String name = jndiName;
+        if (name.startsWith("java:")) {
+            name = name.substring(5);
+        }
+                
         EARContext earContext = module.getEarContext();
                        
         AbstractName dataSourceAbstractName = earContext.getNaming().createChildName(module.getModuleName(), name, "GBean");
@@ -389,4 +393,10 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
     public QNameSet getSpecQNameSet() {
         return dataSourceQNameSet;
     }
+    
+    @Override
+    public int getPriority() {
+        return 20;
+    }
+    
 }
