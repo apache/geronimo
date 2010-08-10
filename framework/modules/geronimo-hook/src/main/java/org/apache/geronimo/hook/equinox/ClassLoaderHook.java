@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.hook.equinox;
 
+import java.security.AllPermission;
+import java.security.PermissionCollection;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +34,7 @@ import org.eclipse.osgi.baseadaptor.loader.ClasspathManager;
 import org.eclipse.osgi.framework.adaptor.BundleProtectionDomain;
 import org.eclipse.osgi.framework.adaptor.ClassLoaderDelegate;
 import org.eclipse.osgi.framework.internal.core.Constants;
+import org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader;
 import org.eclipse.osgi.internal.loader.BundleLoader;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.BundleException;
@@ -71,6 +74,18 @@ public class ClassLoaderHook implements ClassLoadingHook, BundleExtender {
                 throw new RuntimeException(e);
             }
         }
+        
+        if (domain == null) {
+            /**
+             * By default Equinox creates a ProtectionDomain for each bundle with AllPermission permission.
+             * That breaks Geronimo security checks. See GERONIMO-5480 for details.
+             * This work-around prevents Equinox from adding AllPermission permission to each bundle.
+             */
+            PermissionCollection emptyPermissionCollection = (new AllPermission()).newPermissionCollection();
+            ProtectionDomain emptyProtectionDomain = new ProtectionDomain(null, emptyPermissionCollection);
+            return new DefaultClassLoader(parent, delegate, emptyProtectionDomain, data, classpath);
+        }
+
         return null;
     }
 
