@@ -561,9 +561,11 @@ public class MergeHelper {
         List<String> orderedLibs = new ArrayList<String>();
         for (WebFragmentEntry webFragmentEntry : webFragmentEntries) {
             String jarURL = webFragmentEntry.getJarURL();
-            int iBeginIndex = jarURL.indexOf("WEB-INF/");
-            if (iBeginIndex > 0) {
-                orderedLibs.add(jarURL.substring(iBeginIndex + 8));
+            if (jarURL != null) {
+                int iBeginIndex = jarURL.indexOf("WEB-INF/");
+                if (iBeginIndex > 0) {
+                    orderedLibs.add(jarURL.substring(iBeginIndex + 8));
+                }
             }
         }
         earContext.getGeneralData().put(AbstractWebModuleBuilder.ORDERED_LIBS, orderedLibs);
