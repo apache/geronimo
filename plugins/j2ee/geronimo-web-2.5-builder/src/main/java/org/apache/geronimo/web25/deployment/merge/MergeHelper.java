@@ -546,7 +546,7 @@ public class MergeHelper {
             while (usedWebFragmentNames.contains(tempWebFragmentName)) {
                 tempWebFragmentName = tempNamePrefix + nameSubfix++;
             }
-            webFragmentEntryMap.put(tempWebFragmentName, new WebFragmentEntry(tempNamePrefix, null, webFragment, webFragmentURL));
+            webFragmentEntryMap.put(tempWebFragmentName, new WebFragmentEntry(tempWebFragmentName, null, webFragment, webFragmentURL));
         }
         //Order the web fragments required (<name> element is specified)
         if (absoluteOrderingConfigured) {
