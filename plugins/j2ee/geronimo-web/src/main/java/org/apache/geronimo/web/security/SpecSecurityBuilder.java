@@ -510,7 +510,8 @@ public class SpecSecurityBuilder {
             }
             if (emptyRoleSemantic.equals(ServletSecurity.EmptyRoleSemantic.DENY)) {
                 securityConstraint.setAuthConstraint(new AuthConstraint());
-            } else {
+            } else if (rolesAllowed.length > 0) {
+                //When rolesAllowed.length == 0 and emptyRoleSemantic.equals(ServletSecurity.EmptyRoleSemantic.PERMIT), no need to create the AuthConstraint object, as it means deny all
                 AuthConstraint authConstraint = new AuthConstraint();
                 for (String roleAllowed : rolesAllowed) {
                     authConstraint.getRoleName().add(roleAllowed);
