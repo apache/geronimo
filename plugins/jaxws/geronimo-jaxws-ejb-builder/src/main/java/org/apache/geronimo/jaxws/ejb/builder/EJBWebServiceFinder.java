@@ -50,7 +50,7 @@ public class EJBWebServiceFinder implements WebServiceFinder {
         throws DeploymentException {
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         EjbModule ejbModule = (EjbModule) module;
-        for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
+        for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
             if (bean.type != EnterpriseBeanInfo.STATELESS) {
                 continue;
             }

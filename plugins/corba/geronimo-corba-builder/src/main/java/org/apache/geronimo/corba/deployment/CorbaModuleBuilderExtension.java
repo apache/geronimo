@@ -238,7 +238,7 @@ public class CorbaModuleBuilderExtension implements ModuleBuilderExtension, GBea
      *                   module.
      */
     private AbstractName resolveEjb(EARContext earContext, EjbModule ejbModule, String name) throws DeploymentException {
-        for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
+        for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
             // search for the target ejb 
             if (name.equals(bean.ejbName)) {
                 switch (bean.type) {

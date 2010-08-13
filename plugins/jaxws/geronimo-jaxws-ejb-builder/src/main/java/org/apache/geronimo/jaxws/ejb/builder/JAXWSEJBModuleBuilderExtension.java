@@ -128,7 +128,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
 
         jaxwsBuilder.findWebServices(module, true, correctedPortLocations, environment, ejbModule.getSharedContext());
 
-        for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
+        for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
             if (bean.type != EnterpriseBeanInfo.STATELESS) {
                 continue;
             }
@@ -188,7 +188,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
 
         AbstractNameQuery ejbModuleName = NameFactory.newTypeNameQuery(module.getEarContext().getConfigID(), NameFactory.EJB_MODULE, module.getName());
-        for (EnterpriseBeanInfo bean : ejbModule.getEjbJarInfo().enterpriseBeans) {
+        for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
             if (bean.type != EnterpriseBeanInfo.STATELESS) {
                 continue;
             }
