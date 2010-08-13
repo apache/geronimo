@@ -45,7 +45,7 @@ import org.apache.geronimo.management.J2EEServer;
 import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.UndeployException;
-import org.apache.openejb.assembler.classic.EjbJarInfo;
+import org.apache.openejb.assembler.classic.AppInfo;
 import org.apache.openejb.core.CoreDeploymentInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
     private final ClassLoader classLoader;
 
     private final OpenEjbSystem openEjbSystem;
-    private final EjbJarInfo ejbJarInfo;
+    private final AppInfo appInfo;
 
     public EjbModuleImpl(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
                          @ParamReference(name = "J2EEServer", namingType = NameFactory.J2EE_SERVER) J2EEServer server,
@@ -75,7 +75,7 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
                          @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
                          @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                          @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
-                         @ParamAttribute(name = "ejbJarInfo") EjbJarInfo ejbJarInfo) throws NamingException {
+                         @ParamAttribute(name = "ejbInfo") GeronimoEjbInfo ejbInfo) throws NamingException {
         this.objectName = objectName;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
@@ -102,9 +102,10 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
         this.classLoader = classLoader;
 
         this.openEjbSystem = openEjbSystem;
-        this.ejbJarInfo = ejbJarInfo;
+        
+        this.appInfo = ejbInfo.createAppInfo();
     }
-
+    
     private void removeEjb(EjbDeployment ejb) {
         GeronimoThreadContextListener.get().removeEjb(ejb.getDeploymentId());
         ejbs.remove(ejb.getDeploymentId());
@@ -168,7 +169,7 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        openEjbSystem.createEjbJar(ejbJarInfo, classLoader);
+        openEjbSystem.createApplication(appInfo, classLoader);
         for (String deploymentId: ejbs.keySet()) {
             DeploymentInfo deploymentInfo = openEjbSystem.getDeploymentInfo(deploymentId);
             GeronimoThreadContextListener.get().getEjbDeployment((CoreDeploymentInfo) deploymentInfo);
@@ -177,7 +178,7 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
 
     public void doStop() {
         try {
-            openEjbSystem.removeEjbJar(ejbJarInfo, classLoader);
+            openEjbSystem.removeApplication(appInfo, classLoader);
         } catch (NoSuchApplicationException e) {
             log.error("Module does not exist.", e);
         } catch (UndeployException e) {

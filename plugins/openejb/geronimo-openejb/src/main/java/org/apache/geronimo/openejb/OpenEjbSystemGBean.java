@@ -415,7 +415,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         }
     }
 
-    public void createEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException {
+    public void createApplication(AppInfo appInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException {
         Set<AbstractName> names = kernel.listGBeans(new AbstractNameQuery(ResourceAdapterWrapper.class.getName()));
         for (AbstractName name : names) {
             try {
@@ -428,16 +428,16 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
-            assembler.createEjbJar(ejbJarInfo, classLoader);
+            assembler.createApplication(appInfo, classLoader);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
-    public void removeEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException {
-        assembler.destroyApplication(ejbJarInfo.jarPath);
+    public void removeApplication(AppInfo appInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException {
+        assembler.destroyApplication(appInfo.jarPath);
     }
-
+    
     public DeploymentInfo getDeploymentInfo(String deploymentId) {
         return getContainerSystem().getDeploymentInfo(deploymentId);
     }

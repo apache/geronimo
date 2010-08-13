@@ -53,12 +53,12 @@ public interface OpenEjbSystem {
 
     void createClient(ClientInfo clientInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException;
 
-    void createEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException;
-
     DeploymentInfo getDeploymentInfo(String deploymentId);
 
-    void removeEjbJar(EjbJarInfo ejbJarInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException;
-
+    void createApplication(AppInfo appInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException;
+    
+    void removeApplication(AppInfo appInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException;
+    
     AppInfo configureApplication(AppModule appModule) throws OpenEJBException;
 
     void setORBContext(ORB orb, HandleDelegate handleDelegate);

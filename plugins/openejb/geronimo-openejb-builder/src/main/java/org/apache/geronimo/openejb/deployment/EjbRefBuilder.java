@@ -38,6 +38,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.openejb.ClientEjbReference;
+import org.apache.geronimo.openejb.GeronimoEjbInfo;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefDocument;
@@ -111,25 +112,24 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
         Map<String, List<InjectionTarget>> injectionsMap = new HashMap<String, List<InjectionTarget>>();
         for (Map.Entry<String, EjbRef> entry: specDD.getEjbRefMap().entrySet()) {
-            if (!entry.getValue().getInjectionTarget().isEmpty()) {
-                injectionsMap.put(entry.getKey(), entry.getValue().getInjectionTarget());
-            }
+            injectionsMap.put(entry.getKey(), entry.getValue().getInjectionTarget());            
         }
         for (Map.Entry<String, EjbLocalRef> entry: specDD.getEjbLocalRefMap().entrySet()) {
-            if (!entry.getValue().getInjectionTarget().isEmpty()) {
-                injectionsMap.put(entry.getKey(), entry.getValue().getInjectionTarget());
-            }
+            injectionsMap.put(entry.getKey(), entry.getValue().getInjectionTarget());
         }
+        
         Map<String, Object> map = null;
         try {
             EjbModuleBuilder.EarData earData = EjbModuleBuilder.EarData.KEY.get(module.getRootEarContext().getGeneralData());
-            Collection<EjbJarInfo> ejbJars = Collections.emptySet();
+            Collection<GeronimoEjbInfo> ejbInfos = Collections.emptySet();
             if (earData != null) {
-                ejbJars = earData.getEjbJars();
+                ejbInfos = earData.getEjbInfos();
             }
 
             AppInfo appInfo = new AppInfo();
-            appInfo.ejbJars.addAll(ejbJars);
+            for (GeronimoEjbInfo ejbInfo : ejbInfos) {
+                appInfo.ejbJars.add(ejbInfo.getEjbJarInfo());
+            }
 
             JndiEncInfoBuilder jndiEncInfoBuilder = new JndiEncInfoBuilder(appInfo);
             JndiEncInfo moduleJndi = new JndiEncInfo();

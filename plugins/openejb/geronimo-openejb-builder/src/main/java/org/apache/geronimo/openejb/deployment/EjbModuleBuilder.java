@@ -75,6 +75,7 @@ import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.EjbContainer;
 import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.openejb.EjbModuleImpl;
+import org.apache.geronimo.openejb.GeronimoEjbInfo;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
@@ -610,9 +611,9 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
     private void doInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
 
-        EjbJarInfo ejbJarInfo = getEjbJarInfo(earContext, ejbModule, bundle);
+        GeronimoEjbInfo ejbInfo = getEjbInfo(earContext, ejbModule, bundle);
 
-        ejbModule.setEjbJarInfo(ejbJarInfo);
+        ejbModule.setEjbInfo(ejbInfo);
 
         // update the original spec dd with the metadata complete dd
         EjbJar ejbJar = ejbModule.getEjbJar();
@@ -669,9 +670,9 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         }
     }
 
-    private EjbJarInfo getEjbJarInfo(EARContext earContext, EjbModule ejbModule, Bundle bundle) throws DeploymentException {
+    private GeronimoEjbInfo getEjbInfo(EARContext earContext, EjbModule ejbModule, Bundle bundle) throws DeploymentException {
         EarData earData = EarData.KEY.get(earContext.getGeneralData());
-        if (earData.getEjbJars().isEmpty()) {
+        if (earData.getEjbInfos().isEmpty()) {
 
             ClassLoader bundleLoader = new BundleClassLoader(bundle);
 
@@ -710,7 +711,8 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
             // add all of the modules to the ear data
             for (EjbJarInfo ejbJar : appInfo.ejbJars) {
-                earData.addEjbJar(ejbJar);
+                GeronimoEjbInfo ejbInfo = new GeronimoEjbInfo(ejbJar, appInfo.globalJndiEnc, appInfo.appJndiEnc);
+                earData.addEjbInfo(ejbInfo);
             }
 
             // add the cmp jar
@@ -736,8 +738,8 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         }
 
         // find our module
-        EjbJarInfo ejbJarInfo = earData.getEjbJar(ejbModule.getEjbModule().getModuleId());
-        return ejbJarInfo;
+        GeronimoEjbInfo ejbInfo = earData.getEjbInfo(ejbModule.getEjbModule().getModuleId());
+        return ejbInfo;
     }
 
     private AppInfo configureApplication(AppModule appModule, EjbModule ejbModule, Configuration configuration)
@@ -750,10 +752,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         ConfigurationFactory.Chain chain = new ConfigurationFactory.Chain();
         ConfigurationFactory configurationFactory = new ConfigurationFactory(offline, chain, openEjbConfiguration);
         buildChain(offline,
-                ejbModule.getPreAutoConfigDeployer(),
-                SystemInstance.get().getOptions(),
-                configurationFactory,
-                chain);
+                   ejbModule.getPreAutoConfigDeployer(),
+                   SystemInstance.get().getOptions(),
+                   configurationFactory,
+                   chain);
+
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(appModule.getClassLoader());
         try {
@@ -770,6 +773,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
     private static final String DEBUGGABLE_VM_HACKERY_PROPERTY = "openejb.debuggable-vm-hackery";
     private static final String VALIDATION_SKIP_PROPERTY = "openejb.validation.skip";
     private static final String WEBSERVICES_ENABLED = "openejb.webservices.enabled";
+    
     private static ConfigurationFactory.Chain buildChain(boolean offline, DynamicDeployer preAutoConfigDeployer, Options options, ConfigurationFactory configurationFactory, ConfigurationFactory.Chain chain) {
         chain.add(new GeneratedClientModules.Add());
 
@@ -841,7 +845,6 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         chain.add(new OutputGeneratedDescriptors());
         return chain;
     }
-
 
     private void addContainerInfos(Configuration configuration, ContainerSystemInfo containerSystem, ConfigurationFactory configurationFactory) throws OpenEJBException {
         LinkedHashSet<GBeanData> containerDatas = configuration.findGBeanDatas(Collections.singleton(new AbstractNameQuery(EjbContainer.class.getName())));
@@ -988,7 +991,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             linkResolver.add(rootUrl, name, id);
         }
 
-        EjbJarInfo ejbJarInfo = ejbModule.getEjbJarInfo();
+        EjbJarInfo ejbJarInfo = ejbModule.getEjbInfo().getEjbJarInfo();
         for (EnterpriseBeanInfo beanInfo : ejbJarInfo.enterpriseBeans) {
             if (beanInfo instanceof StatefulBeanInfo) {
                 StatefulBeanInfo statefulBeanInfo = (StatefulBeanInfo) beanInfo;
@@ -1017,7 +1020,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                             EjbDeployment.class.getName())));
 
             ejbModuleGBeanData.setReferencePattern("OpenEjbSystem", new AbstractNameQuery(null, Collections.EMPTY_MAP, OpenEjbSystem.class.getName()));
-            ejbModuleGBeanData.setAttribute("ejbJarInfo", ejbModule.getEjbJarInfo());
+            ejbModuleGBeanData.setAttribute("ejbInfo", ejbModule.getEjbInfo());
             ejbModuleGBeanData.setAttribute("modulePath", ejbModule.getTargetPath());
             ejbModuleGBeanData.setAttribute("moduleContext", module.getJndiScope(JndiScope.module));
         } catch (Exception e) {
@@ -1029,7 +1032,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
         // add the Jacc permissions to the ear
         ComponentPermissions componentPermissions = ejbDeploymentBuilder.buildComponentPermissions();
-        earContext.addSecurityContext(ejbModule.getEjbJarInfo().moduleId, componentPermissions);
+        earContext.addSecurityContext(ejbModule.getEjbInfo().getEjbJarInfo().moduleId, componentPermissions);
 
         setMdbContainerIds(earContext, ejbModule, ejbModuleGBeanData);
 
@@ -1049,7 +1052,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             return;
         }
         OpenejbJarType openejbJarType = (OpenejbJarType) altDD;
-        EjbJarInfo ejbJarInfo = ejbModule.getEjbJarInfo();
+        EjbJarInfo ejbJarInfo = ejbModule.getEjbInfo().getEjbJarInfo();
 
         Map<String, MessageDrivenBeanInfo> mdbs = new TreeMap<String, MessageDrivenBeanInfo>();
         for (EnterpriseBeanInfo enterpriseBean : ejbJarInfo.enterpriseBeans) {
@@ -1145,7 +1148,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         };
 
         private final Map<String, EjbModule> ejbModules = new TreeMap<String, EjbModule>();
-        private final Map<String, EjbJarInfo> ejbJars = new TreeMap<String, EjbJarInfo>();
+        private final Map<String, GeronimoEjbInfo> ejbJars = new TreeMap<String, GeronimoEjbInfo>();
 
         public void addEjbModule(EjbModule ejbModule) {
             ejbModules.put(ejbModule.getEjbModule().getModuleId(), ejbModule);
@@ -1163,23 +1166,22 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             return ejbModules.values();
         }
 
-        public void addEjbJar(EjbJarInfo ejbJarInfo) {
-            ejbJars.put(ejbJarInfo.moduleId, ejbJarInfo);
+        public void addEjbInfo(GeronimoEjbInfo ejbInfo) {
+            ejbJars.put(ejbInfo.getEjbJarInfo().moduleId, ejbInfo);
         }
 
-        public EjbJarInfo getEjbJar(String moduleId) throws DeploymentException {
-            EjbJarInfo ejbJarInfo = ejbJars.get(moduleId);
-            if (ejbJarInfo == null) {
+        public GeronimoEjbInfo getEjbInfo(String moduleId) throws DeploymentException {
+            GeronimoEjbInfo ejbInfo = ejbJars.get(moduleId);
+            if (ejbInfo == null) {
                 throw new DeploymentException("Ejb jar configuration passed but expected module " +
                         moduleId + " was not found in configured module list " + ejbJars.keySet());
             }
-            return ejbJarInfo;
+            return ejbInfo;
         }
 
-        public Collection<EjbJarInfo> getEjbJars() {
+        public Collection<GeronimoEjbInfo> getEjbInfos() {
             return ejbJars.values();
         }
     }
-
 
 }

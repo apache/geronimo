@@ -390,7 +390,7 @@ public class EjbDeploymentBuilder {
         }
         //TODO well, what is the appName?
         String appName = null;
-        EjbJarInfo ejbJarInfo = ejbModule.getEjbJarInfo();
+        EjbJarInfo ejbJarInfo = ejbModule.getEjbInfo().getEjbJarInfo();
         for (EnterpriseBean bean : ejbJar.getEnterpriseBeans()) {
             String ejbName = bean.getEjbName();
             String deploymentId = getDeploymentId(ejbName, ejbJarInfo);

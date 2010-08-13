@@ -26,8 +26,8 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.openejb.GeronimoEjbInfo;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
-import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
@@ -39,7 +39,7 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
-    private EjbJarInfo ejbJarInfo;
+    private GeronimoEjbInfo ejbInfo;
     private EjbDeploymentBuilder ejbDeploymentBuilder;
     private final org.apache.openejb.config.EjbModule ejbModule;
     private final ConfigurationFactory.Chain preAutoConfigDeployer;
@@ -75,12 +75,12 @@ public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
         return ejbModule;
     }
 
-    public EjbJarInfo getEjbJarInfo() {
-        return ejbJarInfo;
+    public GeronimoEjbInfo getEjbInfo() {
+        return ejbInfo;
     }
 
-    public void setEjbJarInfo(EjbJarInfo ejbJarInfo) {
-        this.ejbJarInfo = ejbJarInfo;
+    public void setEjbInfo(GeronimoEjbInfo ejbInfo) {
+        this.ejbInfo = ejbInfo;
     }
 
     public EjbDeploymentBuilder getEjbBuilder() {
