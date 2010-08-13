@@ -76,7 +76,8 @@ public class ClusteredStatefulContainerTest extends RMockTestCase {
             null,
             null,
             null,
-            null) {
+            null,
+            false) {
             @Override
             public Object getDeploymentID() {
                 return deploymentId;

@@ -80,7 +80,8 @@ public class WadiCacheTest extends RMockTestCase {
             null,
             null,
             null,
-            null) {
+            null,
+            false) {
             @Override
             public ClassLoader getClassLoader() {
                 return getClass().getClassLoader();
