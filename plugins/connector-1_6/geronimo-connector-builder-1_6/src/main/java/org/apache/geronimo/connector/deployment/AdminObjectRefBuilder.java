@@ -408,31 +408,30 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         public boolean processResource(JndiConsumer annotatedApp, Resource annotation, Class cls, Method method, Field field) throws DeploymentException {
             String resourceName = getResourceName(annotation, method, field);
             String resourceType = getResourceType(annotation, method, field);
+            
+            String jndiName = getJndiName(resourceName);
 
             //If it already exists in xml as a message-destination-ref or resource-env-ref, we are done.
-            Collection<MessageDestinationRef> messageDestinationRefs = annotatedApp.getMessageDestinationRef();
-            for (MessageDestinationRef messageDestinationRef : messageDestinationRefs) {
-                if (messageDestinationRef.getMessageDestinationRefName().trim().equals(resourceName)) {
-                    if (method != null || field != null) {
-                        List<InjectionTarget> targets = messageDestinationRef.getInjectionTarget();
-                        if (!hasTarget(method, field, targets)) {
-                            messageDestinationRef.getInjectionTarget().add(configureInjectionTarget(method, field));
-                        }
+            MessageDestinationRef messageDestinationRef = annotatedApp.getMessageDestinationRefMap().get(jndiName);
+            if (messageDestinationRef != null) {
+                if (method != null || field != null) {
+                    List<InjectionTarget> targets = messageDestinationRef.getInjectionTarget();
+                    if (!hasTarget(method, field, targets)) {
+                        messageDestinationRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }
-                    return true;
                 }
+                return true;
             }
-            Collection<ResourceEnvRef> ResourceEnvRefs = annotatedApp.getResourceEnvRef();
-            for (ResourceEnvRef resourceEnvRefType : ResourceEnvRefs) {
-                if (resourceEnvRefType.getResourceEnvRefName().trim().equals(resourceName)) {
-                    if (method != null || field != null) {
-                        List<InjectionTarget> targets = resourceEnvRefType.getInjectionTarget();
-                        if (!hasTarget(method, field, targets)) {
-                            resourceEnvRefType.getInjectionTarget().add(configureInjectionTarget(method, field));
-                        }
+            
+            ResourceEnvRef resourceEnvRef = annotatedApp.getResourceEnvRefMap().get(jndiName);
+            if (resourceEnvRef != null) {
+                if (method != null || field != null) {
+                    List<InjectionTarget> targets = resourceEnvRef.getInjectionTarget();
+                    if (!hasTarget(method, field, targets)) {
+                        resourceEnvRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                     }
-                    return true;
                 }
+                return true;
             }
 
             //if it maps to a message-destination in the geronimo plan, it's a message-destination.
@@ -447,7 +446,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 //if it maps to a resource-env-ref in the geronimo plan, it's a resource-ref
                 GerResourceEnvRefType resourceEnvRefType = null;
                 if (refMap != null) {
-                    resourceEnvRefType = refMap.get(resourceName);
+                    resourceEnvRefType = refMap.get(jndiName);
                 }
                 if (resourceEnvRefType != null ||
                         resourceType.equals("javax.ejb.EJBContext") ||
