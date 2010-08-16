@@ -187,9 +187,9 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
 
     protected static String getJndiName(String name) {
         if (name.indexOf(':') == -1) {   
-            return "java:comp/env/" + name;
+            return "java:comp/env/" + name.trim();
         } else {
-            return name;
+            return name.trim();
         }
     }
     

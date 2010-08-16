@@ -21,7 +21,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -261,18 +260,11 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
 
             String localRefName = getName(annotation.name(), method, field);
 
-            EjbLocalRef ejbLocalRef = null;
-            
-            Collection<EjbLocalRef> ejbLocalRefEntries = annotatedApp.getEjbLocalRef();
-            for (EjbLocalRef ejbLocalRefEntry : ejbLocalRefEntries) {
-                if (ejbLocalRefEntry.getEjbRefName().trim().equals(localRefName)) {
-                    ejbLocalRef = ejbLocalRefEntry;
-                    break;
-                }
-            }
+            EjbLocalRef ejbLocalRef = annotatedApp.getEjbLocalRefMap().get(getJndiName(localRefName));
+                        
             if (ejbLocalRef == null) {
                 try {
-
+                    
                     log.debug("addEJB(): Does not exist in DD: " + localRefName);
 
                     // Doesn't exist in deployment descriptor -- add new
@@ -308,12 +300,19 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                     if (!mappdedNameAnnotation.isEmpty()) {
                         ejbLocalRef.setMappedName(mappdedNameAnnotation);
                     }
-
+                    
+                    // lookup
+                    String lookupName = annotation.lookup();
+                    if (!lookupName.isEmpty()) {
+                        ejbLocalRef.setLookupName(lookupName);
+                    }
+                    
                     // description
                     String descriptionAnnotation = annotation.description();
                     if (!descriptionAnnotation.isEmpty()) {
                         ejbLocalRef.setDescriptions(new Text[] {new Text(null, descriptionAnnotation)});
                     }
+                    
                     ejbLocalRef.setRefType(EjbReference.Type.LOCAL);
                     annotatedApp.getEjbLocalRef().add(ejbLocalRef);
                 }
@@ -340,15 +339,8 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
 
             String remoteRefName = getName(annotation.name(), method, field);
 
-            EjbRef ejbRef = null;
+            EjbRef ejbRef = annotatedApp.getEjbRefMap().get(getJndiName(remoteRefName));
 
-            Collection<EjbRef> ejbRefEntries = annotatedApp.getEjbRef();
-            for (EjbRef ejbRefEntry : ejbRefEntries) {
-                if (ejbRefEntry.getEjbRefName().trim().equals(remoteRefName)) {
-                    ejbRef = ejbRefEntry;
-                    break;
-                }
-            }
             if (ejbRef == null) {
                 try {
 
@@ -388,11 +380,18 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                         ejbRef.setMappedName(mappdedNameAnnotation);
                     }
 
+                    // lookup
+                    String lookupName = annotation.lookup();
+                    if (!lookupName.isEmpty()) {
+                        ejbRef.setLookupName(lookupName);
+                    }
+                    
                     // description
                     String descriptionAnnotation = annotation.description();
                     if (!descriptionAnnotation.isEmpty()) {
                         ejbRef.setDescriptions(new Text[] {new Text(null, descriptionAnnotation) });
                     }
+                    
                     ejbRef.setRefType(EjbReference.Type.REMOTE);
                     annotatedApp.getEjbRef().add(ejbRef);
                 }
@@ -418,15 +417,8 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
 
             String remoteRefName = getName(annotation.name(), method, field);
 
-            EjbRef ejbRef = null;
+            EjbRef ejbRef = annotatedApp.getEjbRefMap().get(getJndiName(remoteRefName));
 
-            Collection<EjbRef> ejbRefEntries = annotatedApp.getEjbRef();
-            for (EjbRef ejbRefEntry : ejbRefEntries) {
-                if (ejbRefEntry.getEjbRefName().trim().equals(remoteRefName)) {
-                    ejbRef = ejbRefEntry;
-                    break;
-                }
-            }
             if (ejbRef == null) {
                 try {
 
@@ -467,12 +459,19 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
                         ejbRef.setMappedName(mappdedNameAnnotation);
                     }
 
+                    // lookup
+                    String lookupName = annotation.lookup();
+                    if (!lookupName.isEmpty()) {
+                        ejbRef.setLookupName(lookupName);
+                    }
+                    
                     // description
                     String descriptionAnnotation = annotation.description();
                     if (!descriptionAnnotation.isEmpty()) {
                         ejbRef.setDescriptions(new Text[] {new Text(null, descriptionAnnotation) });
                     }
-                    ejbRef.setRefType(EjbReference.Type.UNKNOWN);
+                    
+                    ejbRef.setRefType(EjbReference.Type.UNKNOWN);                    
                     //openejb sorts out ambiguous ejb refs.
                     annotatedApp.getEjbRef().add(ejbRef);
                 }

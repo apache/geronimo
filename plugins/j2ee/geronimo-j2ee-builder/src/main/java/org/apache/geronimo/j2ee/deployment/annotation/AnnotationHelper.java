@@ -96,6 +96,14 @@ public class AnnotationHelper {
         return injectionTarget;
     }
 
+    protected static String getJndiName(String name) {
+        if (name.indexOf(':') == -1) {   
+            return "java:comp/env/" + name.trim();
+        } else {
+            return name.trim();
+        }
+    }
+    
     /**
      * Validate deployment descriptor
      *

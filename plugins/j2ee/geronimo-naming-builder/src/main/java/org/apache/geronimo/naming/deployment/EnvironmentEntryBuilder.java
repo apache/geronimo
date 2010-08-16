@@ -20,7 +20,6 @@ package org.apache.geronimo.naming.deployment;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -241,27 +240,15 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
             if (knownEnvironmentEntries.contains(resourceType.getName()) || resourceType.isEnum()) {
                 log.debug("addResource(): <env-entry> found");
 
-                boolean exists = false;
-                Collection<EnvEntry> envEntries = annotatedApp.getEnvEntry();
-                for (EnvEntry envEntry : envEntries) {
-                    if (getStringValue(envEntry.getEnvEntryName()).equals(resourceName)) {
-                        exists = true;
-                        if (method != null || field != null) {
-                            List<InjectionTarget> targets = envEntry.getInjectionTarget();
-                            if (!hasTarget(method, field, targets)) {
-                                targets.add(configureInjectionTarget(method, field));
-                            }
-                        }
-                        break;
-                    }
-                }
-                if (!exists) {
+                EnvEntry envEntry = annotatedApp.getEnvEntryMap().get(getJndiName(resourceName));
+                                
+                if (envEntry == null) {
                     try {
-
+                        
                         log.debug("addResource(): Does not exist in DD: " + resourceName);
 
                         // Doesn't exist in deployment descriptor -- add new
-                        EnvEntry envEntry = new EnvEntry();
+                        envEntry = new EnvEntry();
 
                         //------------------------------------------------------------------------------
                         // <env-entry> required elements:
@@ -273,10 +260,6 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                         if (!resourceType.equals(Object.class)) {
                             // env-entry-type
                             envEntry.setEnvEntryType(deprimitivize(resourceType).getCanonicalName());
-                        }
-                        if (method != null || field != null) {
-                            // injectionTarget
-                            envEntry.getInjectionTarget().add(configureInjectionTarget(method, field));
                         }
 
                         //------------------------------------------------------------------------------
@@ -306,7 +289,17 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                         log.debug("ResourceAnnotationHelper: Exception caught while processing <env-entry>");
                     }
                 }
+                
+                if (method != null || field != null) {
+                    List<InjectionTarget> targets = envEntry.getInjectionTarget();
+                    if (!hasTarget(method, field, targets)) {
+                        envEntry.getInjectionTarget().add(configureInjectionTarget(method, field));
+                    }
+                }
+                
+                return true;
             }
+            
             return false;
         }
     }

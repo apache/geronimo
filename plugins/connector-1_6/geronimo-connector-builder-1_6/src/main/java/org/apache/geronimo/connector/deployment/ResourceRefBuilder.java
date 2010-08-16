@@ -353,27 +353,15 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 
                 log.debug("processResource(): <resource-ref> found");
 
-                boolean exists = false;
-                Collection<ResourceRef> resourceRefs = annotatedApp.getResourceRef();
-                for (ResourceRef resourceRef : resourceRefs) {
-                    if (resourceRef.getResRefName().trim().equals(resourceName)) {
-                        if (method != null || field != null) {
-                            List<InjectionTarget> targets = resourceRef.getInjectionTarget();
-                            if (!hasTarget(method, field, targets)) {
-                                resourceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
-                            }
-                        }
-                        exists = true;
-                        break;
-                    }
-                }
-                if (!exists) {
+                ResourceRef resourceRef = annotatedApp.getResourceRefMap().get(getJndiName(resourceName));
+
+                if (resourceRef == null) {
                     try {
 
                         log.debug("processResource(): Does not exist in DD: " + resourceName);
 
                         // Doesn't exist in deployment descriptor -- add new
-                        ResourceRef resourceRef = new ResourceRef();
+                        resourceRef = new ResourceRef();
 
                         //------------------------------------------------------------------------------
                         // <resource-ref> required elements:
@@ -385,10 +373,6 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                         if (!resourceType.isEmpty()) {
                             // resource-ref-type
                             resourceRef.setResType(resourceType);
-                        }
-                        if (method != null || field != null) {
-                            // injectionTarget
-                            resourceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                         }
 
                         //------------------------------------------------------------------------------
@@ -428,8 +412,17 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                         log.debug("ResourceRefBuilder: Exception caught while processing <resource-ref>");
                     }
                 }
+                
+                if (method != null || field != null) {
+                    List<InjectionTarget> targets = resourceRef.getInjectionTarget();
+                    if (!hasTarget(method, field, targets)) {
+                        resourceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
+                    }
+                }
+                
                 return true;
             }
+            
             return false;
         }
     }
