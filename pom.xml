@@ -2140,7 +2140,22 @@
             <url>scp://people.apache.org/www/geronimo.apache.org/maven/server</url>
         </site>
     </distributionManagement>
-
+    
+    <repositories>
+        <repository>
+              <id>activemq54staging</id>
+              <name>activemq 5.4 staging repo</name>
+              <url>https://repository.apache.org/content/repositories/orgapacheactivemq-104</url>
+              <layout>default</layout>
+              <releases>
+                  <enabled>true</enabled>
+              </releases>
+              <snapshots>
+                  <enabled>false</enabled>
+              </snapshots>
+        </repository>
+    </repositories>
+    
     <pluginRepositories>
         <!-- required for clean build unless you want to bootstrap the car-maven-plugin -->
         <pluginRepository>
