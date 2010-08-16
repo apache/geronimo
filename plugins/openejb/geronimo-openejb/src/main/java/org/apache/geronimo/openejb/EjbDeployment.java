@@ -216,7 +216,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     }
 
     public EJBObject getEjbObject(Object primaryKey) {
-        return (EJBObject) EjbObjectProxyHandler.createProxy(getDeploymentInfo(), primaryKey, InterfaceType.EJB_HOME);
+        return (EJBObject) EjbObjectProxyHandler.createProxy(getDeploymentInfo(), primaryKey, InterfaceType.EJB_HOME, getHomeInterface());
     }
 
     public Class getHomeInterface() {
