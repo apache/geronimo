@@ -101,9 +101,9 @@ public class JmsBmtBean implements JmsBmtRemote {
         Message received = null;
         try {
             conn = this.connFactory.createConnection();
-            c2 = connFactory.createConnection();
+//             c2 = connFactory.createConnection();
             sess = conn.createSession(true, Session.SESSION_TRANSACTED);
-            s2 = c2.createSession(true, Session.SESSION_TRANSACTED);
+//             s2 = c2.createSession(true, Session.SESSION_TRANSACTED);
             prod = sess.createProducer(destination);
             consumer = sess.createConsumer(destination);
             conn.start();
@@ -134,7 +134,7 @@ public class JmsBmtBean implements JmsBmtRemote {
 
                 ut.begin();
                 try {
-                    received = consumer.receive(1000);
+                    received = consumer.receive(2000);
                     if (received == null) throw new JMSException("Not received second time");
                     if (!to.equals(((ObjectMessage)received).getObject())) throw new JMSException("Wrong object inside: " + ((ObjectMessage)received).getObject());
                 } finally {
@@ -159,8 +159,8 @@ public class JmsBmtBean implements JmsBmtRemote {
                 if (conn != null) {
                     conn.close();
                 }
-                if (s2 != null) s2.close();
-                if (c2 != null) c2.close();;
+//                 if (s2 != null) s2.close();
+//                 if (c2 != null) c2.close();;
             } catch (JMSException e) {
                 logger.error("Could not finalize jms connections");
             }
