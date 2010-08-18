@@ -64,6 +64,7 @@
         <module>interceptors1.1-test</module>
 -->
         <module>commonannotation1.1-test</module>
+        <module>jta1.1-test</module>
     </modules>
 
 </project>
