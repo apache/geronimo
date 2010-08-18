@@ -26,6 +26,7 @@
   </head>
   <body>
     <h2>An Interceptor Sample</h2>
+    <h3>Test Section One</h3>
     <p>
       <%
           String intcpt1 = String.valueOf(request.getAttribute("Intcpt1IsValid"));
@@ -99,9 +100,36 @@
           </tr>
       </table>
     </form>
+
+    <br/>
+    <h3>Test Section Two</h3>
+    <p>Click here to check @AroundTimeout</p>
+    <form action="timeoutIntcptServlet" method="get">
+        <table border="3" cellpadding="1">
+            <tr>
+                <td>
+                <input type="submit" name="checkAroundTimeout" value="check"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <br/>
+    <h3>Test Section Three</h3>
+    <p>Click here to check @Interceptor, @InterceptorBinding</p>
+    <form action="intcptBindingServlet" method="get">
+                <table border="3" cellpadding="1">
+            <tr>
+                <td>
+                <input type="submit" name="checkIntcptBind" value="check"/>
+                </td>
+            </tr>
+        </table>
+        </form>
+
     <p>
         <br />
-        <b>1.This example checks the input value.</b>
+        <b>1.This example checks the input value in Section One.</b>
         <br/>
         &nbsp&nbsp Interceptor 1 says valid & Interceptor 2 says invalid if the value is greater than or equal zero.
         <br/>
@@ -112,6 +140,11 @@
         &nbsp&nbsp It should firstly invoke Interceptor 1 and Interceptor 2 happens afterwards.
         <br/>
          &nbsp&nbsp You can check the invoking sequence through Time and SystemTimeMillis.
+        <br/>
+        <b>3.This example presents the @AroundTimeout annotation in interceptor-1.1 in Section Two.</b>
+        <br/>
+        <b>4.This example presents the @Interceptor and @InterceptorBinding annotation in interceptor-1.1 in Section Three.</b>
+        <br/>
     </p>
   </body>
 </html> 

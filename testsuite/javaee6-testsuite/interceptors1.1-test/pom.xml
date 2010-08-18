@@ -31,7 +31,7 @@
     </parent>
 
     <artifactId>interceptors1.1-test</artifactId>
-    <name>Geronimo TestSuite :: Java EE 6 Testsuite :: Interceptors 1.1</name>
+    <name>Geronimo TestSuite :: Java EE 6 Testsuite :: Interceptors 1.1 Test</name>
     <packaging>war</packaging>
 
     <dependencies>
@@ -66,7 +66,11 @@
             </property>
         </activation>
     <build>        
-        <plugins>            		
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>selenium-maven-plugin</artifactId>
+            </plugin>            		
 		    <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>

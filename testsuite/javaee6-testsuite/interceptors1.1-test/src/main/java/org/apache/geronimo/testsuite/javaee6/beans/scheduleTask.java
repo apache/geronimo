@@ -14,24 +14,35 @@
 
 package org.apache.geronimo.testsuite.javaee6.beans;
 
+
+import java.util.Date;
+
+import javax.ejb.EJB;
+import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 
 import javax.interceptor.Interceptors;
-import org.apache.geronimo.testsuite.javaee6.interceptors.ValueIntcpt1;
-import org.apache.geronimo.testsuite.javaee6.interceptors.ValueIntcpt2;
+
+import org.apache.geronimo.testsuite.javaee6.interceptors.TimeoutIntcpt;
 
 @Stateless
-public class ValueBean {
 
-    
-    public void SayFound()
+public class scheduleTask {
+    @EJB
+    private org.apache.geronimo.testsuite.javaee6.beans.msgBean msgb;
+    public String getResult()
     {
-        //System.out.println("Found.");
+        return msgb.getOutput();
     }
 
-    @Interceptors({ValueIntcpt1.class,ValueIntcpt2.class})
-    public String[] SayIsValid(double d,String [] intcptArray ) {
+    @Interceptors(TimeoutIntcpt.class)
+    @Schedule(second = "*/1", minute = "*", hour = "*") 
+	public void invokeTimeout() {
 
-        return  intcptArray;
-    }
-}
+	}
+
+	}
+	
+
+
+

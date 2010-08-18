@@ -17,7 +17,9 @@ package org.apache.geronimo.testsuite.javaee6.interceptors;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 import java.util.Date;
+import javax.interceptor.Interceptor;
 
+//@Value1 @Interceptor
 public class ValueIntcpt1 {
 
     @AroundInvoke
@@ -30,7 +32,7 @@ public class ValueIntcpt1 {
         else
         {
            double dv = Double.valueOf(param[0].toString());
-           //System.out.println("in interceptor 1 ,value obtained is:"+dv);
+           //System.out.println("in interceptor 1 , class obtained is:"+ ctx.getMethod().getName());
            String[] tmp=(String[])param[1];
            if(dv>=0.0)
            {
@@ -52,12 +54,7 @@ public class ValueIntcpt1 {
             }catch(Exception e)
             {
             }
-            long time = System.currentTimeMillis() - start;
-            //System.out.println("time:"+ time + "ms");
           }
             return ctx.proceed();
-
-
-
     }
 }

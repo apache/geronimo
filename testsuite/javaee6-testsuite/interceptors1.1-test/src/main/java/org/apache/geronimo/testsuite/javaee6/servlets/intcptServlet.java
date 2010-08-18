@@ -19,10 +19,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
 import javax.ejb.EJB;
 import org.apache.geronimo.testsuite.javaee6.beans.ValueBean;
 
@@ -41,7 +37,7 @@ public class intcptServlet extends HttpServlet {
 		//try{
                 //  InitialContext ctx = new InitialContext();
                 //  ValueBean valuebean = (ValueBean) ctx.lookup("java:global/interceptor/ValueBean");
-                  
+        //valuebean.SayFound(); 
 		arr=valuebean.SayIsValid(d,arr);
                 //System.out.println("in servlet,arr[0]:"+arr[0]);
                 //System.out.println("in servlet,arr[1]:"+arr[1]);
@@ -49,7 +45,7 @@ public class intcptServlet extends HttpServlet {
                 //System.out.println("in servlet,arr[3]:"+arr[3]);
                 //System.out.println("in servlet,arr[4]:"+arr[4]);
                 //System.out.println("in servlet,arr[5]:"+arr[5]);
-		request.setAttribute("Intcpt1IsValid",arr[0]);
+	request.setAttribute("Intcpt1IsValid",arr[0]);
         request.setAttribute("Intcpt2IsValid",arr[3]);
         request.setAttribute("date1",arr[1]);
         request.setAttribute("date2",arr[4]);

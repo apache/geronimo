@@ -14,6 +14,7 @@
 
 package org.apache.geronimo.testsuite.javaee6.interceptors;
 
+import javax.interceptor.Interceptor;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 import java.util.Date;
@@ -47,9 +48,7 @@ public class ValueIntcpt2 {
             tmp[5]=Long.toString(tm);
             tmp[4]=new Date(tm).toString();
             param[1]=tmp;
-            long time = System.currentTimeMillis() - start;
-            
-            //System.out.println("time:"+ time + "ms");
+            //System.out.println("in interceptor 2 , class obtained is:"+ ctx.getMethod().getName());
             ctx.setParameters(param);
             }
             return ctx.proceed();

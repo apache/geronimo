@@ -17,6 +17,7 @@
 -->
 <web-app id="WebApp_ID" version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <display-name>interceptor</display-name>
+
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
         <welcome-file>index.htm</welcome-file>
@@ -31,8 +32,24 @@
         <servlet-name>intcptServlet</servlet-name>
         <servlet-class>org.apache.geronimo.testsuite.javaee6.servlets.intcptServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>timeoutIntcptServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.testsuite.javaee6.servlets.timeoutIntcptServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>timeoutIntcptServlet</servlet-name>
+        <url-pattern>/timeoutIntcptServlet</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>intcptServlet</servlet-name>
         <url-pattern>/intcptServlet</url-pattern>
+    </servlet-mapping>
+        <servlet>
+        <servlet-name>intcptBindingServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.testsuite.javaee6.servlets.intcptBindingServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>intcptBindingServlet</servlet-name>
+        <url-pattern>/intcptBindingServlet</url-pattern>
     </servlet-mapping>
 </web-app>

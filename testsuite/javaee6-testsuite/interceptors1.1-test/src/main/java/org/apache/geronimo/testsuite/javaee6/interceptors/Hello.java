@@ -12,26 +12,19 @@
    limitations under the License.
  */
 
-package org.apache.geronimo.testsuite.javaee6.beans;
+package org.apache.geronimo.testsuite.javaee6.interceptors;
 
-import javax.ejb.Stateless;
+import javax.interceptor.InterceptorBinding;
+import java.lang.annotation.Target;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.ElementType;
 
-import javax.interceptor.Interceptors;
-import org.apache.geronimo.testsuite.javaee6.interceptors.ValueIntcpt1;
-import org.apache.geronimo.testsuite.javaee6.interceptors.ValueIntcpt2;
+@Inherited
+@InterceptorBinding
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface Hello {
 
-@Stateless
-public class ValueBean {
-
-    
-    public void SayFound()
-    {
-        //System.out.println("Found.");
-    }
-
-    @Interceptors({ValueIntcpt1.class,ValueIntcpt2.class})
-    public String[] SayIsValid(double d,String [] intcptArray ) {
-
-        return  intcptArray;
-    }
 }

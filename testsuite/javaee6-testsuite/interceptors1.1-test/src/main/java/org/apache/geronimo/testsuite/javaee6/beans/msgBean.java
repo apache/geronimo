@@ -14,24 +14,23 @@
 
 package org.apache.geronimo.testsuite.javaee6.beans;
 
-import javax.ejb.Stateless;
+import javax.ejb.Singleton;
 
-import javax.interceptor.Interceptors;
-import org.apache.geronimo.testsuite.javaee6.interceptors.ValueIntcpt1;
-import org.apache.geronimo.testsuite.javaee6.interceptors.ValueIntcpt2;
-
-@Stateless
-public class ValueBean {
-
+@Singleton
+public class msgBean {
     
-    public void SayFound()
-    {
-        //System.out.println("Found.");
+    private String msg = new String();
+        public String getOutput(){
+        try{
+            Thread.sleep(3000);//3 seconds
+            }catch(Exception e)
+            {
+            }
+       return msg;
     }
 
-    @Interceptors({ValueIntcpt1.class,ValueIntcpt2.class})
-    public String[] SayIsValid(double d,String [] intcptArray ) {
-
-        return  intcptArray;
+    public void setOutput(String s){
+        this.msg = s;
     }
+ 
 }

@@ -17,15 +17,12 @@ package org.apache.geronimo.testsuite.javaee6.intcptests;
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
 import org.testng.Assert;
 import org.testng.annotations.*;
-import static org.testng.Assert.*;
-import java.util.regex.Pattern;
+
 
 
 public class InterceptorTest extends SeleniumTestSupport 
 {
-	/**
-	 * Test 1
-	 */
+
 	@Test 
 	public void testInterceptorA() throws Exception 
 	{
@@ -44,10 +41,7 @@ public class InterceptorTest extends SeleniumTestSupport
 		
 	}
 	
-	
-	/**
-	 * Test 2
-	 */
+
 	@Test 
 	public void testInterceptorB() throws Exception 
 	{
@@ -64,6 +58,24 @@ public class InterceptorTest extends SeleniumTestSupport
 		boolean real = (s2-s1>0)?true:false;
 		Assert.assertEquals(true, real);
 		
+	}
+	
+
+	@Test 
+	public void testTimeoutInterceptor() throws Exception {
+		selenium.open("/interceptor/");
+		selenium.click("checkAroundTimeout");
+		selenium.waitForPageToLoad("30000");
+		Assert.assertEquals("@AroundTimeout invoked!", selenium.getText("//*[@id=\"outputRes\"]"));
+	}
+	
+
+	@Test 
+	public void testInterceptorBinding() throws Exception {
+		selenium.open("/interceptor/");
+		selenium.click("checkIntcptBind");		
+		selenium.waitForPageToLoad("30000");
+		Assert.assertEquals("invoke @Interceptor, @InterceptorBinding!", selenium.getText("//*[@id=\"intcptBind\"]"));
 	}
 }
 

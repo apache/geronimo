@@ -15,23 +15,22 @@
 package org.apache.geronimo.testsuite.javaee6.beans;
 
 import javax.ejb.Stateless;
+import javax.ejb.AfterBegin;
+import javax.ejb.EJB;
 
-import javax.interceptor.Interceptors;
-import org.apache.geronimo.testsuite.javaee6.interceptors.ValueIntcpt1;
-import org.apache.geronimo.testsuite.javaee6.interceptors.ValueIntcpt2;
+import org.apache.geronimo.testsuite.javaee6.interceptors.Hello;
 
 @Stateless
-public class ValueBean {
+public class IntcptBindingTestBean {
 
-    
-    public void SayFound()
+    @EJB
+    private org.apache.geronimo.testsuite.javaee6.beans.msgBean msgb;
+    public String getResult()
     {
-        //System.out.println("Found.");
+        return msgb.getOutput();
     }
-
-    @Interceptors({ValueIntcpt1.class,ValueIntcpt2.class})
-    public String[] SayIsValid(double d,String [] intcptArray ) {
-
-        return  intcptArray;
+    
+    @Hello public void testInterceptorBinding(){
+    //System.out.println("say");
     }
 }
