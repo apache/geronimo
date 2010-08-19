@@ -45,6 +45,7 @@ import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.deployment.CorbaGBeanNameSource;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -128,11 +129,16 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         for (Map.Entry<String, ResourceRef> entry : specDD.getResourceRefMap().entrySet()) {
             String name = entry.getKey();
+            ResourceRef resourceRef = entry.getValue();
             if (lookupJndiContextMap(module, name) != null) {
                 // some other builder handled this entry already
+                
+                // Always merge injections. This is for example where data source is defined as
+                // @DataSource(name='foo') and it is injected via @Resource(name='foo')
+                addInjections(normalize(name), resourceRef.getInjectionTarget(), NamingBuilder.INJECTION_KEY.get(sharedContext));
+                
                 continue;
-            }
-            ResourceRef resourceRef = entry.getValue();
+            }            
             String type = getStringValue(resourceRef.getResType());
             type = inferAndCheckType(module, bundle, resourceRef.getInjectionTarget(), name, type);
             GerResourceRefType gerResourceRef = refMap.get(name);

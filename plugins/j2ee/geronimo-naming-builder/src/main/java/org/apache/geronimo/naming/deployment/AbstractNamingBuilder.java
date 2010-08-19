@@ -317,8 +317,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return clazz;
     }
 
-
-    private void addInjections(String jndiName, List<InjectionTarget> injectionTargets, Holder holder) {
+    protected void addInjections(String jndiName, List<InjectionTarget> injectionTargets, Holder holder) {
         for (InjectionTarget injectionTarget : injectionTargets) {
             String targetName = injectionTarget.getInjectionTargetName().trim();
             String targetClassName = injectionTarget.getInjectionTargetClass().trim();
