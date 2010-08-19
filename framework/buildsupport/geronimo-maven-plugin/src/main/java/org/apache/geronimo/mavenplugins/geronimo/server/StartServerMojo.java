@@ -513,10 +513,11 @@ public class StartServerMojo
         }
         ServerInfo serverInfo = new BasicServerInfo(geronimoHome.getAbsolutePath(), false);        
         
-        PluginAttributeStore attributeStore = new LocalAttributeManager(serverInstance.getConfigFile(), serverInstance.getConfigSubstitutionsFile(),
+        LocalAttributeManager attributeStore = new LocalAttributeManager(serverInstance.getConfigFile(), serverInstance.getConfigSubstitutionsFile(),
                 serverInstance.getConfigSubstitutionsPrefix(),
                 false,
                 serverInfo);
+        attributeStore.load();
         for (ModuleType module : overrides.getModule()) {
             Artifact artifact = Artifact.create(module.getName());
             attributeStore.setModuleGBeans(artifact, module.getGbean(), module.isLoad(), module.getCondition());
