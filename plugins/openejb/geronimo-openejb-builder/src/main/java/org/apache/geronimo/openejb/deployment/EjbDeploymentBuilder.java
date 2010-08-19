@@ -542,7 +542,7 @@ public class EjbDeploymentBuilder {
         }
 
         try {
-            if (bean instanceof SessionBean && ((SessionBean)bean).getLocal() != null) {
+            if (bean instanceof SessionBean && ((SessionBean)bean).getLocalBean() != null) {
                 String beanClass = bean.getEjbClass();
 
                 String name = "openejb/Deployment/" + format(id, beanClass, InterfaceType.BUSINESS_LOCALBEAN_HOME);
