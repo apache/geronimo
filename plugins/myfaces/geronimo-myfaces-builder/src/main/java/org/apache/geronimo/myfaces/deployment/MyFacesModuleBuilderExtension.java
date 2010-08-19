@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.myfaces.deployment;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -28,10 +30,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.faces.webapp.FacesServlet;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -53,6 +58,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.myfaces.LifecycleProviderGBean;
 import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.apache.openejb.jee.FacesConfig;
@@ -74,20 +80,30 @@ import org.xml.sax.SAXException;
 
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
+
     private static final Logger log = LoggerFactory.getLogger(MyFacesModuleBuilderExtension.class);
 
     private final Environment defaultEnvironment;
+
     private final AbstractNameQuery providerFactoryNameQuery;
+
     private final NamingBuilder namingBuilders;
+
     private static final String CONTEXT_LISTENER_NAME = StartupServletContextListener.class.getName();
+
     private static final String FACES_SERVLET_NAME = FacesServlet.class.getName();
+
     private static final String SCHEMA_LOCATION_URL = "http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd";
+
     private static final String VERSION = "2.0";
 
+    private static final String JAVAX_FACES_CONFIG_FILES = "javax.faces.CONFIG_FILES";
+
+    private static final String JAVAX_FACES_CONFIG_FILES_SEPARATOR = ",";
 
     public MyFacesModuleBuilderExtension(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
-                                         @ParamAttribute(name = "providerFactoryNameQuery") AbstractNameQuery providerFactoryNameQuery,
-                                         @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
+            @ParamAttribute(name = "providerFactoryNameQuery") AbstractNameQuery providerFactoryNameQuery,
+            @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
         this.providerFactoryNameQuery = providerFactoryNameQuery;
         this.namingBuilders = namingBuilders;
@@ -97,7 +113,8 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         mergeEnvironment(module);
     }
 
-    public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
+    public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming,
+            ModuleIDBuilder idBuilder) throws DeploymentException {
         mergeEnvironment(module);
     }
 
@@ -115,7 +132,78 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository)
+            throws DeploymentException {
+        if (!(module instanceof WebModule)) {
+            return;
+        }
+        //For MyFaces uses common Jar Strategy to find the config files, while it is impossible in OSGi environment.
+        //Current workaround is to copy all the files in the lib/*.jar files to a temp folder, and add those files to the context parameter in web.xml file
+        WebModule webModule = (WebModule) module;
+        WebApp webApp = webModule.getSpecDD();
+        ParamValue configFilesPV = null;
+        for (ParamValue pv : webApp.getContextParam()) {
+            if (JAVAX_FACES_CONFIG_FILES.equals(pv.getParamName().trim())) {
+                configFilesPV = pv;
+                break;
+            }
+        }
+        StringBuilder configFiles = new StringBuilder(configFilesPV != null && configFilesPV.getParamValue() !=null  ? configFilesPV.getParamValue() : "");
+        File libDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "lib");
+        if (!libDirectory.exists()) {
+            return;
+        }
+        for (File jarFile : libDirectory.listFiles()) {
+            if (!jarFile.getName().endsWith(".jar")) {
+                continue;
+            }
+
+            JarFile zipFile;
+            try {
+                zipFile = new JarFile(jarFile);
+            } catch (IOException e) {
+                //Just ignore
+                continue;
+            }
+
+            ZipInputStream in = null;
+            try {
+                in = new ZipInputStream(new FileInputStream(jarFile));
+                ZipEntry zipEntry;
+
+                while ((zipEntry = in.getNextEntry()) != null) {
+                    String name = zipEntry.getName();
+
+                    // Scan config files named as faces-config.xml or *.faces-config.xml under META-INF
+                    if (name.equals("META-INF/faces-cofig.xml") || (name.startsWith("META-INF/") && name.endsWith(".faces-config.xml"))) {
+
+                        // copy config file
+                        String destination = "temp/" + jarFile.getName() + ".tempdir" + "/" + name;
+                        earContext.addFile(module.resolve(destination), zipFile, zipEntry);
+
+                        // add new location of config file name to configFiles
+                        if (configFiles.length() > 0) {
+                            configFiles.append(JAVAX_FACES_CONFIG_FILES_SEPARATOR);
+                        }
+                        configFiles.append("/").append(destination);
+                    }
+                }
+            } catch (Exception e) {
+                throw new DeploymentException("Can not preprocess myfaces application configuration resources", e);
+            } finally {
+                IOUtils.close(in);
+            }
+        }
+
+        // write configFiles back to web.xml
+        if (configFilesPV == null && configFiles.length() > 0) {
+            configFilesPV = new ParamValue();
+            configFilesPV.setParamName(JAVAX_FACES_CONFIG_FILES);
+            webApp.getContextParam().add(configFilesPV);
+        }
+        if (configFilesPV != null && configFiles.length() > 0) {
+            configFilesPV.setParamValue(configFiles.toString());
+        }
     }
 
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
@@ -151,7 +239,6 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
         XmlObject jettyWebApp = webModule.getVendorDD();
 
-
         ClassFinder classFinder = createMyFacesClassFinder(webApp, webModule);
         webModule.setClassFinder(classFinder);
 
@@ -175,20 +262,18 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
     private boolean hasFacesServlet(WebApp webApp) {
         for (Servlet servlet : webApp.getServlet()) {
-            if ( servlet.getServletClass() != null && FACES_SERVLET_NAME.equals(servlet.getServletClass().trim())) {
+            if (servlet.getServletClass() != null && FACES_SERVLET_NAME.equals(servlet.getServletClass().trim())) {
                 return true;
             }
         }
         return false;
     }
 
-
     protected ClassFinder createMyFacesClassFinder(WebApp webApp, WebModule webModule) throws DeploymentException {
 
         LinkedHashSet<Class> classes = getFacesClasses(webApp, webModule);
         return new ClassFinder(new ArrayList<Class>(classes));
     }
-
 
     /**
      * getFacesConfigFileURL()
@@ -212,8 +297,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
      *          if a faces-config.xml file is located but cannot be parsed.
      */
     private LinkedHashSet<Class> getFacesClasses(WebApp webApp, WebModule webModule) throws DeploymentException {
-        log.debug("getFacesClasses( " + webApp.toString() + "," + '\n' +
-                (webModule != null ? webModule.getName() : null) + " ): Entry");
+        log.debug("getFacesClasses( " + webApp.toString() + "," + '\n' + (webModule != null ? webModule.getName() : null) + " ): Entry");
 
         Deployable deployable = webModule.getDeployable();
         Bundle bundle = webModule.getEarContext().getDeploymentBundle();
@@ -243,7 +327,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                         if (configfile.startsWith("/")) {
                             configfile = configfile.substring(1);
                         }
-                        url = deployable.getResource(configfile);
+                        url = webModule.getEarContext().getTargetURL(webModule.resolve(configfile));
                         if (url == null) {
                             throw new DeploymentException("Could not locate config file " + configfile);
                         } else {
@@ -282,8 +366,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                         classes.add(clas);
                         clas = clas.getSuperclass();
                     }
-                }
-                catch (ClassNotFoundException e) {
+                } catch (ClassNotFoundException e) {
                     log.warn("MyFacesModuleBuilderExtension: Could not load managed bean class: " + className + " mentioned in faces-config.xml file at " + url.toString());
                 }
             }
@@ -296,8 +379,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         } catch (JAXBException e) {
             throw new DeploymentException("Could not parse alleged faces-config.xml at " + url.toString(), e);
 
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             throw new DeploymentException("Error reading jsf configuration file " + url, ioe);
         }
 
