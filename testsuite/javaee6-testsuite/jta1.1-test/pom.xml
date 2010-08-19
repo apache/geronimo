@@ -53,8 +53,20 @@
             <scope>provided</scope>
         </dependency>		
     </dependencies> 
-
-    <profiles>
+	
+	<build>
+		<plugins>
+			<plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <configuration>
+                        <archiveClasses>false</archiveClasses>
+                    </configuration>
+                </plugin>
+			</plugins>
+	</build>
+	
+	<profiles>
     <profile>
         <id>it</id>
         <activation>
@@ -63,11 +75,12 @@
             </property>
         </activation>
     <build>        
-        <plugins>
+        <plugins>   
             <plugin>
-                 <groupId>org.codehaus.mojo</groupId>
-                 <artifactId>selenium-maven-plugin</artifactId>
-            </plugin>            		
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>selenium-maven-plugin</artifactId>
+		    </plugin>	
+		
 		    <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>

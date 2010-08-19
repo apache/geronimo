@@ -22,28 +22,57 @@ import javax.annotation.sql.DataSourceDefinition;
 import javax.annotation.sql.DataSourceDefinitions;
 import javax.sql.DataSource;
 
-	@DataSourceDefinition(name="java:app/BJAcc",
+/*   @DataSourceDefinition(name="java:app/BJAcc",
    className="org.apache.derby.jdbc.ClientXADataSource",
    url="jdbc:derby://localhost:1527/BJAcc",
    user="system",
+   password="manager",
    databaseName="BJAcc",
    transactional=true,
    maxPoolSize=10,
    properties = {"createDatabase = create"})
+*/
+@DataSourceDefinitions({
+	  @DataSourceDefinition(name = "java:app/BJAccNonTx",
+	    className="org.apache.derby.jdbc.ClientDataSource",
+	    portNumber = 1527,
+	    serverName = "localhost",
+            url="jdbc:derby://localhost:1527/BJAcc",
+	    databaseName="BJAcc",
+	    user="system",
+            password="manager",
+            transactional=false,
+	    properties = {"createDatabase=create"}),
+
+
+	  @DataSourceDefinition(name = "java:app/BJAccTx",
+	    className="org.apache.derby.jdbc.ClientXADataSource",
+	    portNumber = 1527,
+	    serverName = "localhost",
+            url="jdbc:derby://localhost:1527/BJAcc",
+	    databaseName="BJAcc",
+	    user="system",
+            password="manager",
+            transactional= true,
+	    properties = {"createDatabase=create"})
+	})
 
 public class BJAcc extends BaseServlet {
 
-    @Resource(lookup="java:app/BJAcc")
-    DataSource dataSource;
+    @Resource(lookup="java:app/BJAccNonTx")
+    DataSource dataSourceNonTx;
+
+    @Resource(lookup="java:app/BJAccTx")
+    DataSource dataSourcenTx;
 
     @Override
-    DataSource getDataSourceA() {
-        return dataSource;
+    DataSource getNonTxDataSourceA() {
+        return dataSourceNonTx;
     }
 
     @Override
-    DataSource getDataSourceB() {
-        return dataSource;
+    DataSource getTxDataSourceB() {
+        return dataSourcenTx;
     }
-      
+
 }

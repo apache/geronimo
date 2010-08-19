@@ -79,7 +79,7 @@ public class DoTransfer extends HttpServlet {
 			//System.out.println("tx begin!");
 
 			// First, add to SH
-			ds = (javax.sql.DataSource) initContext.lookup("java:app/SHAcc");
+			ds = (javax.sql.DataSource) initContext.lookup("java:app/SHAccTx");
             System.out.println("in DoTransfer, get java:app/SHAcc sucess!");
 			//conn_SH = ds_SH.getConnection();
 			conn_SH = ds.getConnection();
@@ -93,7 +93,7 @@ public class DoTransfer extends HttpServlet {
             {throw new Exception("fail shoud happen!");}
 
 			// Second, del in BJ
-			ds = (javax.sql.DataSource) initContext.lookup("java:app/BJAcc");
+			ds = (javax.sql.DataSource) initContext.lookup("java:app/BJAccTx");
             //System.out.println("in DoTransfer, get java:app/BJAcc sucess!");
 			//conn_BJ = ds_BJ.getConnection();
 			conn_BJ = ds.getConnection();

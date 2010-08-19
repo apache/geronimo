@@ -37,14 +37,14 @@ import javax.sql.DataSource;
 
 public abstract class BaseServlet extends HttpServlet {
 
-    abstract DataSource getDataSourceA();
-    
-    abstract DataSource getDataSourceB();
-      
+    abstract DataSource getNonTxDataSourceA();
+
+    abstract DataSource getTxDataSourceB();
+
     String getTitle() {
         return getClass().getName();
     }
-    
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doPost(request,response);
     }
@@ -61,15 +61,15 @@ public abstract class BaseServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException("Error creating database", e);
         }
-        
+
         List<Account> Accounts;
-        
+
         try {
             Accounts = getAccounts();
         } catch (SQLException e) {
             throw new ServletException("Error accessing database", e);
         }
-        
+
         for (Account c : Accounts) {
             out.println(c.savings + "<br>");
         }
@@ -78,24 +78,23 @@ public abstract class BaseServlet extends HttpServlet {
         out.println("</body></html>");
 
     }
-	
+
     public void init(ServletConfig config) {
         //System.out.println("Initializing servlet");
     }
-	    
+
     public void initDB() throws SQLException {
-        Connection con = getDataSourceA().getConnection();
+        Connection con = getNonTxDataSourceA().getConnection();
         Statement stmt = con.createStatement();
-		
+
         try {
             stmt.executeUpdate("DROP TABLE ACCOUNTS");
         } catch (SQLException e) {
             // ignore
         }
-        
+
         try {
         	stmt.executeUpdate("CREATE TABLE ACCOUNTS (ID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, SAVINGS INTEGER)");
-			//System.out.println(this.getTitle()+"says:After create table!");
         } finally {
             stmt.close();
             con.close();
@@ -108,7 +107,7 @@ public abstract class BaseServlet extends HttpServlet {
 
     public List<Account> getAccounts() throws SQLException {
         List<Account> Accounts = new ArrayList<Account>();
-        Connection con = getDataSourceB().getConnection();
+        Connection con = getTxDataSourceB().getConnection();
         Statement stmt = con.createStatement();
         try {
             ResultSet rs = stmt.executeQuery(
@@ -128,7 +127,7 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     public void addAccount(long sav) throws SQLException {
-        Connection con = getDataSourceA().getConnection();
+        Connection con = getTxDataSourceB().getConnection();
         PreparedStatement pstmt = con.prepareStatement(
             "INSERT INTO ACCOUNTS (SAVINGS) VALUES (?)");
         try {
@@ -139,8 +138,8 @@ public abstract class BaseServlet extends HttpServlet {
             con.close();
         }
     }
-    
-    
+
+
     private static class Account {
         long id;
         long savings;

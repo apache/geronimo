@@ -55,7 +55,7 @@ String sav;
 			</tr>
 	
 <%
-	ds = (javax.sql.DataSource)initContext.lookup("java:app/BJAcc");
+	ds = (javax.sql.DataSource)initContext.lookup("java:app/BJAccTx");
 	//System.out.println("In desplay.jsp,sucess get java:app/BJAcc");	
 	conn = ds.getConnection();
 	stmt = conn.createStatement();
@@ -89,7 +89,7 @@ String sav;
 
 <%
 
-	ds = (javax.sql.DataSource)initContext.lookup("java:app/SHAcc");
+	ds = (javax.sql.DataSource)initContext.lookup("java:app/SHAccTx");
     //System.out.println("In desplay.jsp,sucess get java:app/SHAcc");	
 	conn = ds.getConnection();
 	stmt = conn.createStatement();
