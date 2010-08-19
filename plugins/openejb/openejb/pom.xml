@@ -92,6 +92,12 @@
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-client</artifactId>
         </dependency>
+        <dependency>
+            <!-- for openejb embedded support-->
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>commons-dbcp-all</artifactId>
+            <version>1.3-r699049</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
