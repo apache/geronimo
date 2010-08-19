@@ -7,9 +7,9 @@
     to you under the Apache License, Version 2.0 (the
     "License"); you may not use this file except in compliance
     with the License.  You may obtain a copy of the License at
-    
+
      http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
     "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,7 +18,6 @@
     under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -26,46 +25,25 @@
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>testsuite</artifactId>
+        <artifactId>javaee6-testsuite</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
-    
-    <artifactId>javaee6-testsuite</artifactId>
-    <name>Geronimo TestSuite :: Java EE 6 New Features Testsuite</name>
+
+    <artifactId>webbean1.0-test</artifactId>
+    <name>Geronimo TestSuite :: Java EE 6 Testsuite :: webbean1.0-test</name>
     <packaging>pom</packaging>
-    
+
     <description>
-        Java EE 6 new features are planning on these aspects:
-        1. The new features in Servlet 3.0
-        2. The new features in JSP 2.2
-        3. The new features in EL 2.2
-        4. The new features in JSTL 1.2
-        5. The new features in JSF 2.0
-        6. The new features in EJB 3.1
-        7. The new features in JPA 2.0
-        8. Bean validation 1.0
-        9. Managed Beans 1.0
-        10. Web Beans 1.0
-        11. Dependency Injection for Java 1.0
-        12. Common Annotations for the Java Platform (JSR-250) 1.1
-        13. Interceptors 1.1
+        Geronimo Java EE 6 webbean1.0 testsuite, including tests for these new features:
+        1. WebBean+JPA
+        2. WebBean+Servlet
+        3. WebBean+EJB
+        4. Four Scopes
+        5. Basic Annotations
     </description>
 
     <modules>
-        <module>beanvalidation-test</module>
-<!--
-        <module>servlet3.0-test</module>
-        <module>servlet3.0-security-test</module>
-        <module>ejb3.1lite-test</module>
-        <module>el2.2-test</module>
-        <module>jsp2.2-test</module>
-        <module>managedbean1.0-test</module>
-        <module>di1.0-test</module>
-        <module>interceptors1.1-test</module>
-        <module>webbean1.0-test</module>
--->
-        <module>commonannotation1.1-test</module>
-        <module>jta1.1-test</module>
+        <module>conversation-test</module>
+        <module>webbean-ejb-test</module>			
     </modules>
-
 </project>
