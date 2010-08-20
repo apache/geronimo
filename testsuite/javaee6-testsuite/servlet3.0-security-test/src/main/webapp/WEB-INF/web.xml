@@ -17,6 +17,9 @@
 -->
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="3.0" metadata-complete="false">
     <display-name>SampleServlet</display-name>  
+    <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
     <servlet>
         <description></description>
         <display-name>SampleServlet1</display-name>
@@ -35,6 +38,14 @@
         <servlet-name>SampleServlet3</servlet-name>
         <servlet-class>org.apache.geronimo.testsuite.servlet30.main.SampleServlet3</servlet-class>
     </servlet>
+    <servlet>
+        <description></description>
+        <display-name>LoginServlet</display-name>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.testsuite.servlet30.main.LoginServlet </servlet-class>
+    </servlet>
+    
+    
     <servlet-mapping>
         <servlet-name>SampleServlet1</servlet-name>
         <url-pattern>/SampleServlet1</url-pattern>
@@ -49,6 +60,12 @@
         <servlet-name>SampleServlet3</servlet-name>
         <url-pattern>/SampleServlet3</url-pattern>
         <url-pattern>/SampleServlet3/*</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/LoginServlet</url-pattern>
+        <url-pattern>/LoginServlet/*</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

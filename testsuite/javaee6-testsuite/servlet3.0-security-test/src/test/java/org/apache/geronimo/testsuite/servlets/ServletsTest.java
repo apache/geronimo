@@ -36,9 +36,9 @@ import org.apache.commons.httpclient.methods.PostMethod;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
-
-public class ServletsTest {
+public class ServletsTest extends SeleniumTestSupport {
        
 /**In web.xml, it reads as follows: 
  *     <security-constraint>
@@ -183,6 +183,36 @@ public class ServletsTest {
     public void test_TestDynamic_GET_RoleB_Fail() throws Exception{
     	Assert.assertEquals(invoke("/TestDynamic", "GET", "george", "bone"), HttpURLConnection.HTTP_FORBIDDEN);
     }
+    
+    /**
+	 * Test14 RoleA\B\C should succeed
+	 */
+    @Test
+    public void test_Authenticate_Sucess() throws Exception{
+    	Assert.assertEquals(invoke("/AuthenticateServlet", "GET", "george", "bone"), HttpURLConnection.HTTP_OK);
+    }
+    
+    /**
+	 * Test15 RoleA\B\C should succeed
+	 */
+    @Test
+    public void test_Login_Logout_Sucess() throws Exception{
+		selenium.open("/servlet30/");
+		selenium.type("UserName", "george");
+		selenium.type("Password", "bone");
+		selenium.click("//input[@value='Login']");
+		selenium.waitForPageToLoad("30000");
+		Assert.assertEquals("false", selenium.getText("//*[@id=\"bli1\"]"));
+		Assert.assertEquals("true", selenium.getText("//*[@id=\"ali1\"]"));
+		Assert.assertEquals("false", selenium.getText("//*[@id=\"alo1\"]"));
+		Assert.assertEquals("null", selenium.getText("//*[@id=\"bli2\"]"));
+		Assert.assertEquals("RoleB", selenium.getText("//*[@id=\"ali2\"]"));
+		Assert.assertEquals("null", selenium.getText("//*[@id=\"alo2\"]"));
+		Assert.assertEquals("null", selenium.getText("//*[@id=\"bli3\"]"));
+		Assert.assertEquals("RoleB", selenium.getText("//*[@id=\"ali3\"]"));
+		Assert.assertEquals("null", selenium.getText("//*[@id=\"alo3\"]"));
+    }
+    
 
     private int invoke(String address, String methodName, String userName, String password) throws Exception {
         HttpClient client = new HttpClient();
