@@ -66,6 +66,7 @@
 -->
         <module>commonannotation1.1-test</module>
         <module>jta1.1-test</module>
+        <module>jsf2.0-test</module>
     </modules>
 
 </project>
