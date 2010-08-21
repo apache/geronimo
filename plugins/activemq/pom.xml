@@ -63,7 +63,7 @@
     </profiles>
 
     <properties>
-        <activemqVersion>5.4.0</activemqVersion>
+        <activemqVersion>5.5-SNAPSHOT</activemqVersion>
     </properties>
 
     <dependencyManagement>
