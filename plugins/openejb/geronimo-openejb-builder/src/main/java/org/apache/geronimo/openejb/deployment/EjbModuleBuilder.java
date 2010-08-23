@@ -947,7 +947,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             persistenceUnit.setExcludeUnlistedClasses(true);
 
             Persistence persistence = new Persistence();
-            persistence.setVersion("1.0");
+            persistence.setVersion("2.0");
             persistence.getPersistenceUnit().add(persistenceUnit);
 
             geronimoEjbJarType.getPersistence().add(persistence);
