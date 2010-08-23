@@ -27,11 +27,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-webservices-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-osgi-core</artifactId>
         <type>jar</type>

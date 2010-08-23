@@ -78,10 +78,16 @@
             <type>car</type>
         </dependency>
 
-        <dependency>
+       <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxws_2.2_spec</artifactId>
+       </dependency> 
+
+       <dependency>
+            <groupId>org.apache.geronimo.javamail</groupId>
+            <artifactId>geronimo-javamail_1.4_mail</artifactId>
         </dependency>
+
 
         <dependency>
             <groupId>org.apache.openejb</groupId>
@@ -115,13 +121,6 @@
         <dependency>
             <groupId>org.apache.yoko</groupId>
             <artifactId>yoko-spec-corba</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>webservices-common</artifactId>
-            <type>car</type>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>

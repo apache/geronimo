@@ -32,14 +32,14 @@
         <type>car</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.configs</groupId>
-        <artifactId>webservices-common</artifactId>
-        <type>car</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>server-security-config</artifactId>
         <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.javamail</groupId>
+        <artifactId>geronimo-javamail_1.4_mail</artifactId>
+        <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
@@ -119,6 +119,11 @@
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.quartz</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
