@@ -435,7 +435,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
     }
 
     public void removeApplication(AppInfo appInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException {
-        assembler.destroyApplication(appInfo.jarPath);
+        assembler.destroyApplication(appInfo.path);
     }
     
     public DeploymentInfo getDeploymentInfo(String deploymentId) {

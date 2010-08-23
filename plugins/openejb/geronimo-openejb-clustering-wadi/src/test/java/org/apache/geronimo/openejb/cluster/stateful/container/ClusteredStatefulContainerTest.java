@@ -66,7 +66,7 @@ public class ClusteredStatefulContainerTest extends RMockTestCase {
         container = (ClusteredStatefulContainer) intercept(ClusteredStatefulContainer.class, new Object[] {"id",
                 securityService});
         deploymentId = "deploymentId";
-        deploymentInfo = new CoreDeploymentInfo(deploymentId, null, new ModuleContext(deploymentId, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader(), null, null), null),
+        deploymentInfo = new CoreDeploymentInfo(deploymentId, null, new ModuleContext(deploymentId, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader(), null, null, false), null),
             SFSB.class,
             null,
             null,

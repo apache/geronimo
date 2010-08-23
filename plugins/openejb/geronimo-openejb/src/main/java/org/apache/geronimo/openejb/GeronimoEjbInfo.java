@@ -44,7 +44,7 @@ public class GeronimoEjbInfo implements Serializable {
     
     public AppInfo createAppInfo() {
         AppInfo appInfo = new AppInfo();
-        appInfo.jarPath = ejbJarInfo.jarPath;
+        appInfo.path = ejbJarInfo.path;
         appInfo.ejbJars.add(ejbJarInfo);
         merge(appInfo.appJndiEnc, appJndiEnc);
         merge(appInfo.globalJndiEnc, globalJndiEnc);
