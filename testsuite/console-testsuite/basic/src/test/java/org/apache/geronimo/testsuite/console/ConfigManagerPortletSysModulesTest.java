@@ -31,6 +31,7 @@ public class ConfigManagerPortletSysModulesTest
 {
     @Test
     public void testConfigManagerSysModulesLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Applications"));
         selenium.click("link=System Modules");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

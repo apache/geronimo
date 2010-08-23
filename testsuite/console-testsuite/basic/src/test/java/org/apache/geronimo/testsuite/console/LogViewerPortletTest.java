@@ -31,6 +31,7 @@ public class LogViewerPortletTest
 {
     @Test
     public void testLogViewerLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
         selenium.click("link=Server Logs");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
@@ -39,6 +40,8 @@ public class LogViewerPortletTest
         // Test help link
         selenium.click(getPortletHelpLocation(2));
         waitForPageLoad();
-        selenium.isTextPresent("This portlet displays the Geronimo server log");
+        selenium.selectFrame("index=0");
+        assertTrue(selenium.isTextPresent("This portlet displays the Geronimo server log"));
+        selenium.selectWindow("null");
     }
 }

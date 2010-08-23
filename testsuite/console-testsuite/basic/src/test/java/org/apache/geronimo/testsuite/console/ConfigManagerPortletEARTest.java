@@ -31,6 +31,7 @@ public class ConfigManagerPortletEARTest
 {
     @Test
     public void testConfigManagerEARLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Applications"));
         selenium.click("link=Application EARs");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

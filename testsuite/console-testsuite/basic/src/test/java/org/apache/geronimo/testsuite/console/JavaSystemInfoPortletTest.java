@@ -31,6 +31,7 @@ public class JavaSystemInfoPortletTest
 {
     @Test
     public void testJavaSystemInfoLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
         selenium.click("link=Java System Info");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

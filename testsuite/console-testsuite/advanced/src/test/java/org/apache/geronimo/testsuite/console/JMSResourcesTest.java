@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 public class JMSResourcesTest extends TestSupport {
     @Test
     public void testNewJMSResource() throws Exception {
+    	selenium.click(getNavigationTreeNodeLocation("Services"));
         selenium.click("link=JMS Resources");
         waitForPageLoad();
         selenium.click("link=For ActiveMQ");
@@ -63,7 +64,6 @@ public class JMSResourcesTest extends TestSupport {
         waitForPageLoad();
         assertFalse(selenium.isTextPresent("UniqueName (console.jms/UniqueName/1.0/car)"));
     }
-
     private boolean waitForButton() throws InterruptedException {
         for (int i = 0; i < 12; i++) {
             if (selenium.isElementPresent("dijit_form_Button_0")) {

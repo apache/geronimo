@@ -31,6 +31,7 @@ public class RepositoryViewPortletTest
 {
     @Test
     public void testRepositoryViewLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Services"));
         selenium.click("link=Repository");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
@@ -39,6 +40,8 @@ public class RepositoryViewPortletTest
         // Test help link
         selenium.click(getPortletHelpLocation());
         waitForPageLoad();
-        selenium.isTextPresent("This page displays the artifacts installed in the server's repository.");
+        selenium.selectFrame("index=0");
+        assertTrue(selenium.isTextPresent("This page displays the artifacts installed in the server's repository."));
+        selenium.selectWindow("null");
     }
 }

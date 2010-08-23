@@ -19,6 +19,9 @@
 
 package org.apache.geronimo.testsuite.console;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;

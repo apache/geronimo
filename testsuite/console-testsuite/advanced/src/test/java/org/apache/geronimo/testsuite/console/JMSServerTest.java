@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
  * @version $Rev$ $Date$
  */
 public class JMSServerTest extends TestSupport {
-    // @Test
+    @Test
     public void testNewListener() throws Exception {
         selenium.click("link=JMS Server");
         waitForPageLoad();
@@ -43,7 +43,7 @@ public class JMSServerTest extends TestSupport {
         assertTrue(selenium.getConfirmation().matches("^Are you sure you want to delete uniquename[\\s\\S]$"));
     }
     
-    //@Test
+    @Test
     public void testStartStopListener() throws Exception {
         selenium.click("link=JMS Server");
         waitForPageLoad();
@@ -55,7 +55,7 @@ public class JMSServerTest extends TestSupport {
         assertEquals("running", selenium.getText("//tr[3]/td[5]"));
     }
     
-    // @Test
+    @Test
     public void testEditNetworkListener() throws Exception {
         selenium.click("link=JMS Server");
         waitForPageLoad();

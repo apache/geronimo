@@ -31,6 +31,7 @@ public class JMSConnectorPortletTest
 {
     @Test
     public void testJMSConnectorLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
         selenium.click("link=JMS Server");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

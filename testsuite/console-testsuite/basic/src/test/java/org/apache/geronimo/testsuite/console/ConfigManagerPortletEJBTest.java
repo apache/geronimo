@@ -31,6 +31,7 @@ public class ConfigManagerPortletEJBTest
 {
     @Test
     public void testConfigManagerEJBLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Applications"));
         selenium.click("link=EJB JARs");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

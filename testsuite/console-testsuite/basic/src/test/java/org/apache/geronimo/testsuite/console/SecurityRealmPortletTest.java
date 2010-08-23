@@ -31,11 +31,15 @@ public class SecurityRealmPortletTest
 {
     @Test
     public void testSecurityRealmLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Security"));
         selenium.click("link=Security Realms");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Security Realms", 
                      selenium.getText(getPortletTitleLocation())); 
+        selenium.selectFrame("index=0");
         assertTrue(selenium.isTextPresent("geronimo-admin"));
+        //return to main window
+        selenium.selectWindow("null");
     }
 }

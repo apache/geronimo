@@ -31,6 +31,7 @@ public class JMSResourcePortletTest
 {
     @Test
     public void testJMSResourceLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Services"));
         selenium.click("link=JMS Resources");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

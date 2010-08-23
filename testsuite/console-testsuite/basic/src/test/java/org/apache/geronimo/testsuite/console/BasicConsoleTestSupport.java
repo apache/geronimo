@@ -19,6 +19,9 @@
 
 package org.apache.geronimo.testsuite.console;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -50,5 +53,4 @@ public class BasicConsoleTestSupport extends ConsoleTestSupport {
     protected String getPortletHelpLocation(int index) {
         return "xpath=//div[@class = 'portlet'][" + index + "]/div/a[contains(@title, 'Help')]";
     }
-
 }

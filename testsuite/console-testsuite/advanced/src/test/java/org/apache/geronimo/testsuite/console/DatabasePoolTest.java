@@ -58,7 +58,6 @@ public class DatabasePoolTest extends TestSupport {
         waitForPageLoad();
         assertTrue(selenium.isTextPresent("SQL command(s) executed successfully"));
     }
-
     /*
     // cannot test yet. jetty is having problems rending the page
     

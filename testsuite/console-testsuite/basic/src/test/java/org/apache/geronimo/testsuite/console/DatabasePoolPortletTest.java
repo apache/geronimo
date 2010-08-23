@@ -29,8 +29,9 @@ import org.testng.annotations.Test;
 public class DatabasePoolPortletTest
     extends BasicConsoleTestSupport
 {
-    @Test
+     @Test
     public void testDatabasePoolLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Services"));
         selenium.click("link=Database Pools");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

@@ -31,6 +31,7 @@ public class SEUsersPortletTest
 {
     @Test
     public void testSEUsersLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Security"));
         selenium.click("link=Users and Groups");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

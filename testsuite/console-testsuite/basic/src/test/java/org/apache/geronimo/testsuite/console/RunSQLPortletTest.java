@@ -29,8 +29,9 @@ import org.testng.annotations.Test;
 public class RunSQLPortletTest
     extends BasicConsoleTestSupport
 {
-    @Test
+	@Test
     public void testRunSQLLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Embedded DB"));
         selenium.click("link=DB Manager");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

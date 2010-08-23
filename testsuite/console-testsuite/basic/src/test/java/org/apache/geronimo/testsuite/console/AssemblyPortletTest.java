@@ -31,6 +31,7 @@ public class AssemblyPortletTest
 {
     @Test
     public void testAssemblyLink() throws Exception {
+    	selenium.click(this.getNavigationTreeNodeLocation("Applications"));
         selenium.click("link=Plugins");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

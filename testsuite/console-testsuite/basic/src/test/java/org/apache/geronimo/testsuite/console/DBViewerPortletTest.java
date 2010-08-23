@@ -31,6 +31,7 @@ public class DBViewerPortletTest
 {
     @Test
     public void testDBViewerLink() throws Exception {
+        selenium.click(this.getNavigationTreeNodeLocation("Embedded DB"));
         selenium.click("link=DB Manager");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
