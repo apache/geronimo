@@ -55,4 +55,27 @@ public abstract class ConsoleTestSupport
         
         //selenium.removeCookie("JSESSIONID", "/");
     }
+    protected String getNavigationTreeNodeLocation(String navigationTreeLabel){
+		//map label to id according to treeData
+		Map<String,Integer> navigationTreeLabel2Index=new HashMap<String,Integer>();
+		navigationTreeLabel2Index.put("Welcome",0);
+		navigationTreeLabel2Index.put("Server",1);
+		navigationTreeLabel2Index.put("Services",2);
+		navigationTreeLabel2Index.put("Applications",3);
+		navigationTreeLabel2Index.put("Security",4);
+		navigationTreeLabel2Index.put("Debug Views",5);
+		navigationTreeLabel2Index.put("Embedded DB",6);
+		//get tree node id dynamicly 
+		String script=" var navigationTree=this.browserbot.getCurrentWindow().dijit.byId('navigationTree');";
+	 	script=script+"var wrapperNode =navigationTree._itemNodesMap["+navigationTreeLabel2Index.get(navigationTreeLabel).intValue()+"];";
+	 	script+="wrapperNode[0].id;";
+	 	String navigationTreeNodeId=selenium.getEval(script);
+	 	
+	 	//collapse the tree node 
+	 	script=" var navigationTree=this.browserbot.getCurrentWindow().dijit.byId('navigationTree');";
+	 	script=script+"var wrapperNode =navigationTree._itemNodesMap["+navigationTreeLabel2Index.get(navigationTreeLabel).intValue()+"];";
+	 	script+="navigationTree._collapseNode(wrapperNode[0]);";
+		selenium.getEval(script);
+        return "xpath=//div[@id='"+navigationTreeNodeId+"']/div[1]/img";
+	}
 }

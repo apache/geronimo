@@ -40,7 +40,7 @@ public class SimpleLoginTest
         	login();
             logout();
             login();
-            selenium.click(new BasicConsoleTestSupport().getNavigationTreeNodeLocation("Server"));
+            selenium.click(getNavigationTreeNodeLocation("Server"));
             selenium.click("link=Information");
             waitForPageLoad();            
             assertEquals("Geronimo Console", selenium.getTitle());
@@ -51,7 +51,7 @@ public class SimpleLoginTest
             assertEquals("Geronimo Console", selenium.getTitle());
             
             //selenium.open("/console");
-            selenium.click(new BasicConsoleTestSupport().getNavigationTreeNodeLocation("Embedded DB"));
+            selenium.click(getNavigationTreeNodeLocation("Embedded DB"));
             selenium.click("link=DB Info");
             waitForPageLoad();
             assertEquals("Geronimo Console", selenium.getTitle());            
