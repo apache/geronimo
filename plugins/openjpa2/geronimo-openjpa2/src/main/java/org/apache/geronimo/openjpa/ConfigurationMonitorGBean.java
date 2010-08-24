@@ -24,20 +24,21 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.repository.Artifact;
-
 import org.apache.openjpa.enhance.PCRegistry;
+import org.osgi.framework.Bundle; 
+import org.osgi.framework.BundleReference; 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Monitor configuration lifecycle events. Whenever a configuration is stopped, inform OpenJPA that the ClassLoader is no longer needed.
@@ -49,7 +50,7 @@ public class ConfigurationMonitorGBean implements GBeanLifecycle {
 
     private final Kernel kernel;
     private final LifecycleListener listener;
-    private HashMap<AbstractName,ClassLoader> classLoaderMap = new HashMap<AbstractName,ClassLoader>();
+    private HashMap<AbstractName, Bundle> bundleMap = new HashMap<AbstractName, Bundle>();
 
     public ConfigurationMonitorGBean(Kernel kernel) {
         this.kernel = kernel;
@@ -89,8 +90,7 @@ public class ConfigurationMonitorGBean implements GBeanLifecycle {
     private void configurationRunning(AbstractName name) {
         try {
             Configuration config = (Configuration)kernel.getGBean(name);
-// TODO:  This needs to be resolved as to what class loader should be registered
-//          classLoaderMap.put(name, config.getConfigurationClassLoader());
+            bundleMap.put(name, config.getBundle());
         } catch (GBeanNotFoundException gnfe) {
             log.warn("Could not retrieve GBean for artifact: " + name.toString(), gnfe);
         }
@@ -101,11 +101,23 @@ public class ConfigurationMonitorGBean implements GBeanLifecycle {
      * HARD references that would otherwise prevent Geronimo ClassLoaders from being GCed.
      */
     private void configurationStopped(AbstractName name) {
-        ClassLoader classLoader = classLoaderMap.remove(name);
-        if (classLoader == null) {
-            log.debug("Could not locate ClassLoader for artifact: " + name.toString());
+        Bundle bundle = bundleMap.remove(name);
+        if (bundle == null) {
+            log.debug("Could not locate Bundle for artifact: " + name.toString());
+            return; 
         }
-        PCRegistry.deRegister(classLoader);
+        
+        // iterate over the registry types looking for one that is loaded from this bundle 
+        for (Class<?> clz : PCRegistry.getRegisteredTypes()) {
+            ClassLoader loader = clz.getClassLoader(); 
+            // if we find a class that is loaded from this bundle, then deregister all classes associated 
+            // with that bundle.  Unfortunately, PCRegistry doesn't have a deRegister() capability for a 
+            // single class, we have to do it by class loader.  Once we get a hit, we can assume we're finished. 
+            if (loader != null && loader instanceof BundleReference && ((BundleReference)loader).getBundle() == bundle) {
+                PCRegistry.deRegister(loader);
+                return; 
+            }
+        }
     }
 
     /**
