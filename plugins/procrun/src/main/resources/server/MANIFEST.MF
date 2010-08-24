@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: root
+Build-Jdk: 1.6.0_20
+Main-Class: org.apache.geronimo.cli.daemon.DaemonCLI
+Endorsed-Dirs: lib/endorsed
+Extension-Dirs: lib/ext
+Class-Path: ../lib/commons-cli.jar ../lib/geronimo-cli.jar ../lib/geronimo-hook.jar ../lib/geronimo-main.jar ../lib/geronimo-rmi-loader.jar ../lib/karaf-jaas-boot.jar
+
