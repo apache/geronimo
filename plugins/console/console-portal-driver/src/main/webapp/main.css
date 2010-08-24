@@ -143,15 +143,22 @@ a:hover
 
 .tundra .dijitFolderOpened {
     background: url('images/folderOpened_new.gif') no-repeat;
+    display: none;
 }
 .tundra .dijitFolderClosed {
     background: url('images/folderClosed_new.gif') no-repeat;
+    display: none;
 }
 
 .tundra .dijitTreeRow {	
     padding-bottom: 3px;
 }
 
+.tundra .dijitTreeIcon {
+    display: none;
+    height: 16px;
+    width: 16px;
+}
  
 .Content .TopLeft
 {

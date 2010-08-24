@@ -38,7 +38,7 @@ limitations under the License.
     </gbean>
     
     <gbean name="DBWizard" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">2-3/Services/Database Pools</attribute>
+        <attribute name="pageTitle">3-1/Resources/Database Pools</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[DBWizard,RunSQLDS]</attribute>
         <attribute name="icon">/images/ico_db_16x16.gif</attribute>
@@ -48,7 +48,7 @@ limitations under the License.
     </gbean>
 
     <gbean name="InternalDB" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">6-1/Embedded DB/DB Info</attribute>
+        <attribute name="pageTitle">1-5-1/Application Server/Derby Server/DB Info</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[InternalDB]</attribute>
         <attribute name="icon">/images/ico_dbinfo_16x16.gif</attribute>
@@ -58,7 +58,7 @@ limitations under the License.
     </gbean>
 
     <gbean name="DBViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">6-2/Embedded DB/DB Manager</attribute>
+        <attribute name="pageTitle">1-5-2/Application Server/Derby Server/DB Manager</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[DBViewer,RunSQL]</attribute>
         <attribute name="icon">/images/ico_dbmgr_16x16.gif</attribute>
@@ -68,7 +68,7 @@ limitations under the License.
     </gbean>
 
     <gbean name="DerbyLogViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">6-3/Embedded DB/Derby Logs</attribute>
+        <attribute name="pageTitle">5-2-2/Monitoring and Troubleshooting/Logs/Derby Logs</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[DerbyLogViewer]</attribute>
         <attribute name="icon">/images/ico_look_16x16.gif</attribute>

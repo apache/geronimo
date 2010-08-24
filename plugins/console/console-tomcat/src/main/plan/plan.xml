@@ -73,7 +73,7 @@
                 </reference>
             </gbean>
             <gbean name="ServerInfo" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">1-1/Server/Information</attribute>
+                <attribute name="pageTitle">1-1-1/Application Server/System Information/Server Information</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[ServerInfo]</attribute>
                 <attribute name="icon">/images/ico_servinfo_16x16.gif</attribute>
@@ -82,7 +82,7 @@
                 </reference>
             </gbean>
             <gbean name="JavaSysInfo" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">1-2/Server/Java System Info</attribute>
+                <attribute name="pageTitle">1-1-2/Application Server/System Information/Java System Info</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[JavaSysInfo]</attribute>
                 <attribute name="icon">/images/ico_info_16x16.gif</attribute>
@@ -91,7 +91,7 @@
                 </reference>
             </gbean>
             <gbean name="Logs" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">1-3/Server/Server Logs</attribute>
+                <attribute name="pageTitle">5-2-2/Monitoring and Troubleshooting/Logs/Server Logs</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[LogManager, LogViewer, WebAccessLogViewer]</attribute>
                 <attribute name="icon">/images/ico_look_16x16.gif</attribute>
@@ -100,7 +100,7 @@
                 </reference>
             </gbean>
             <gbean name="Shutdown" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">1-4/Server/Shutdown</attribute>
+                <attribute name="pageTitle">1-6/Application Server/Shutdown</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[ServerManager]</attribute>
                 <attribute name="icon">/images/ico_x_16x16.gif</attribute>
@@ -109,7 +109,7 @@
                 </reference>
             </gbean>
             <gbean name="WebServer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">1-5/Server/Web Server</attribute>
+                <attribute name="pageTitle">1-2/Application Server/Web Server</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[WebServerManager, ConnectorManager]</attribute>
                 <attribute name="icon">/images/ico_webserv_16x16.gif</attribute>
@@ -118,7 +118,7 @@
                 </reference>
             </gbean>
             <gbean name="ThreadPool" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">1-6/Server/Thread Pools</attribute>
+                <attribute name="pageTitle">1-1-4/Application Server/System Information/Thread Pools</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[ThreadPool]</attribute>
                 <attribute name="icon">/images/ico_threads_16x16.gif</attribute>
@@ -127,7 +127,7 @@
                 </reference>
             </gbean>
             <gbean name="ApacheJK" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">1-7/Server/Apache HTTP</attribute>
+                <attribute name="pageTitle">3-6/Resources/Apache HTTP</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[ApacheJK]</attribute>
                 <attribute name="icon">/images/ico_web_16x16.gif</attribute>
@@ -136,7 +136,7 @@
                 </reference>
             </gbean>
             <gbean name="Aliases" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">1-9/Server/JAR Aliases</attribute>
+                <attribute name="pageTitle">3-4/Resources/JAR Aliases</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[Artifact]</attribute>
                 <attribute name="icon">/images/ico_connect_16x16.gif</attribute>
@@ -145,7 +145,7 @@
                 </reference>
             </gbean>
             <gbean name="RepositoryViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">2-1/Services/Repository</attribute>
+                <attribute name="pageTitle">3-5/Resources/Repository</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[RepositoryViewer]</attribute>
                 <attribute name="icon">/images/ico_repo_16x16.gif</attribute>
@@ -154,7 +154,7 @@
                 </reference>
             </gbean>
             <gbean name="WARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">3-1/Applications/Web App WARs</attribute>
+                <attribute name="pageTitle">2-2-1/Applications/User Assets/Web App WARs</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[WARModules]</attribute>
                 <attribute name="icon">/images/ico_webapp_16x16.gif</attribute>
@@ -163,7 +163,7 @@
                 </reference>
             </gbean>
             <gbean name="SystemModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">3-2/Applications/System Modules</attribute>
+                <attribute name="pageTitle">3-7/Resources/System Modules</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[SystemModules]</attribute>
                 <attribute name="icon">/images/ico_car_16x16.gif</attribute>
@@ -172,7 +172,7 @@
                 </reference>
             </gbean>
              <gbean name="EARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                 <attribute name="pageTitle">3-3/Applications/Application EARs</attribute>
+                 <attribute name="pageTitle">2-2-2/Applications/User Assets/Application EARs</attribute>
                  <attribute name="portletContext">/console-base</attribute>
                  <attribute name="portletList">[EARModules]</attribute>
                  <attribute name="icon">/images/ico_ear_16x16.gif</attribute>
@@ -181,7 +181,7 @@
                  </reference>
              </gbean>
             <gbean name="EJBModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">3-4/Applications/EJB JARs</attribute>
+                <attribute name="pageTitle">2-2-3/Applications/User Assets/EJB JARs</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[EJBModules]</attribute>
                 <attribute name="icon">/images/ico_beanjar_16x16.gif</attribute>
@@ -190,7 +190,7 @@
                 </reference>
             </gbean>
             <gbean name="RARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">3-5/Applications/J2EE Connectors</attribute>
+                <attribute name="pageTitle">3-3/Resources/J2EE Connectors</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[RARModules]</attribute>
                 <attribute name="icon">/images/ico_connect_16x16.gif</attribute>
@@ -199,7 +199,7 @@
                 </reference>
             </gbean>
             <gbean name="ClientModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">3-6/Applications/App Clients</attribute>
+                <attribute name="pageTitle">2-2-4/Applications/User Assets/App Clients</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[ClientModules]</attribute>
                 <attribute name="icon">/images/ico_jar_16x16.gif</attribute>

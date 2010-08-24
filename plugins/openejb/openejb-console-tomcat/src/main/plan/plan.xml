@@ -42,7 +42,7 @@ limitations under the License.
     
     <!-- Start off a ACEGBean, this is the lifecycle for the portlet -->
     <gbean name="EJBServerACEGBean" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">1-11/Server/EJB Server</attribute>
+        <attribute name="pageTitle">1-4/Application Server/EJB Server</attribute>
         <attribute name="portletContext">/openejb-server</attribute>
         <attribute name="portletList">[EJBServerPortlet]</attribute>
         <attribute name="icon">/images/ico_beanjar_16x16.gif</attribute>

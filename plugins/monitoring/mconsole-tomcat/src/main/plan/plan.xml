@@ -39,7 +39,7 @@
     </gbean>
     
     <gbean name="MonitoringPortlet" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">1-8/Server/Monitoring</attribute>
+        <attribute name="pageTitle">5-1/Monitoring and Troubleshooting/Monitoring</attribute>
         <attribute name="portletContext">/monitoring</attribute>
         <attribute name="portletList">[monitoring]</attribute>
         <attribute name="icon">/images/ico_monitor_16x16.gif</attribute>
