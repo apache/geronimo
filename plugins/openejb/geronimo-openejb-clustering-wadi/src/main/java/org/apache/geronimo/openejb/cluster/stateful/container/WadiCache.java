@@ -53,6 +53,12 @@ public class WadiCache implements Cache<Object, Instance>, SessionManagerTracker
         this.setListener(listener);
     }
 
+    public void init() {
+    }
+
+    public void destroy() {
+    }
+
     public synchronized CacheListener<Instance> getListener() {
         return listener;
     }
