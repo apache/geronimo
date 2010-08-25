@@ -115,6 +115,16 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
+
+        <!-- currently openejb depends on javamail.  this may be remove
+             when openejb or openejb-lite no longer depends on javamail -->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>javamail</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
+
     </dependencies>
 
     <build>
