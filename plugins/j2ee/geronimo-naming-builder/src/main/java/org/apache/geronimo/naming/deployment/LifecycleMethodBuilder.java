@@ -28,6 +28,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.j2ee.annotation.Holder;
@@ -36,6 +37,9 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.openejb.jee.ApplicationClient;
+import org.apache.openejb.jee.EnterpriseBean;
+import org.apache.openejb.jee.Interceptor;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.Lifecycle;
 import org.apache.openejb.jee.LifecycleCallback;
@@ -61,9 +65,17 @@ public class LifecycleMethodBuilder extends AbstractNamingBuilder {
         }
         Lifecycle lifecycle = (Lifecycle) specDD;
         AbstractFinder classFinder = module.getClassFinder();
-        //TODO what is the component type???
-        Map<String, LifecycleCallback> postConstructMap = mapLifecycleCallbacks(lifecycle.getPostConstruct(), null/*annotatedApp.getComponentType()*/);
-        Map<String, LifecycleCallback> preDestroyMap = mapLifecycleCallbacks(lifecycle.getPreDestroy(), null/*annotatedApp.getComponentType()*/);
+        //TODO Need to double check the LifecycleMethod Scanning, seems we also do it in the OpenEJB
+        String componentType = null;
+        if (specDD instanceof EnterpriseBean) {
+            componentType = ((EnterpriseBean) specDD).getEjbClass();
+        } else if (specDD instanceof Interceptor) {
+            componentType = ((Interceptor) specDD).getInterceptorClass();
+        } else if (specDD instanceof ApplicationClient) {
+            componentType = ((ApplicationClient) specDD).getMainClass();
+        }
+        Map<String, LifecycleCallback> postConstructMap = mapLifecycleCallbacks(lifecycle.getPostConstruct(), componentType);
+        Map<String, LifecycleCallback> preDestroyMap = mapLifecycleCallbacks(lifecycle.getPreDestroy(), componentType);
         if (module.getClassFinder() != null) {
             List<Method> postConstructs = classFinder.findAnnotatedMethods(PostConstruct.class);
             for (Method m : postConstructs) {
