@@ -92,6 +92,7 @@ public class EjbDaemonGBean implements GBeanLifecycle {
         properties.setProperty("ejbd.bind", host);
         properties.setProperty("ejbd.port", Integer.toString(port));
         properties.setProperty("ejbds.bind", host);
+        properties.setProperty("ejbds.disabled", "true");
         if (threads > 0) {
             properties.setProperty("ejbd.threads", Integer.toString(threads));
             properties.setProperty("ejbds.threads", Integer.toString(threads));
