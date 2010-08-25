@@ -206,10 +206,10 @@ public class ServletsTest extends SeleniumTestSupport {
 		Assert.assertEquals("true", selenium.getText("//*[@id=\"ali1\"]"));
 		Assert.assertEquals("false", selenium.getText("//*[@id=\"alo1\"]"));
 		Assert.assertEquals("null", selenium.getText("//*[@id=\"bli2\"]"));
-		Assert.assertEquals("RoleB", selenium.getText("//*[@id=\"ali2\"]"));
+		Assert.assertEquals("george", selenium.getText("//*[@id=\"ali2\"]"));
 		Assert.assertEquals("null", selenium.getText("//*[@id=\"alo2\"]"));
 		Assert.assertEquals("null", selenium.getText("//*[@id=\"bli3\"]"));
-		Assert.assertEquals("RoleB", selenium.getText("//*[@id=\"ali3\"]"));
+		Assert.assertEquals("george", selenium.getText("//*[@id=\"ali3\"]"));
 		Assert.assertEquals("null", selenium.getText("//*[@id=\"alo3\"]"));
     }
     

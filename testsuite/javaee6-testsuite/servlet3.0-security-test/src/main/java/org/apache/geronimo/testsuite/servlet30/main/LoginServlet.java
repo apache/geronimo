@@ -63,21 +63,21 @@ public class LoginServlet extends javax.servlet.http.HttpServlet {
             out.println("<tr><th>Value/Status</th><th>BeforeLogin</th><th>AfterLogin</th><th>AfterLogout</th></tr>");
 
             out.println("<tr>");
-            out.println("<th>getRemoteUser</th>");
+            out.println("<th>isUserInRole</th>");
             out.println("<td id=\"bli1\">"+bli1+"</td>");
             out.println("<td id=\"ali1\">"+ali1+"</td>");
             out.println("<td id=\"alo1\">"+alo1+"</td>");
             out.println("</tr>");
 
             out.println("<tr>");
-            out.println("<th>isUserInRole</th>");
+            out.println("<th>getRemoteUser</th>");
             out.println("<td id=\"bli2\">"+bli2+"</td>");
             out.println("<td id=\"ali2\">"+ali2+"</td>");
             out.println("<td id=\"alo2\">"+alo2+"</td>");
             out.println("</tr>");
 
             out.println("<tr>");
-            out.println("<th>isUserInRole</th>");
+            out.println("<th>getUserPrincipal</th>");
             out.println("<td id=\"bli3\">"+bli3+"</td>");
             out.println("<td id=\"ali3\">"+ali3+"</td>");
             out.println("<td id=\"alo3\">"+alo3+"</td>");
