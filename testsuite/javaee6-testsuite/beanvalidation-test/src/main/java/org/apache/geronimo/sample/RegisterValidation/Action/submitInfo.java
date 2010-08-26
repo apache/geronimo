@@ -19,6 +19,9 @@ package org.apache.geronimo.sample.RegisterValidation.Action;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Set;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -29,6 +32,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+
 import org.apache.geronimo.sample.RegisterValidation.Model.Address;
 import org.apache.geronimo.sample.RegisterValidation.Model.Information;
 import org.apache.geronimo.sample.RegisterValidation.Model.OrdinaryPeople;
@@ -73,11 +77,35 @@ public class submitInfo extends HttpServlet {
         if(null!=salary)
         infor.setSalary(Integer.parseInt(salary));
         infor.setBirthday(birthday);
-        ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
-        Validator validator = (Validator) vf.getValidator();
+        
+        int violationSize = 0;                
+        ValidatorFactory vf = null; 
+        Validator validator = null; 
+        
+        // obtain the validator factory and validator instance from JNDI 
+        try {
+            InitialContext ctx = new InitialContext();
+            vf = (ValidatorFactory)ctx.lookup("java:comp/ValidatorFactory");
+            validator = (Validator)ctx.lookup("java:comp/Validator");
+        } catch (NamingException e) {
+            // log this as a violation 
+            message += "<b>Unable to obtain validator from JNDI:</b>" + e.getMessage() + "<br>";
+            violationSize += 1; 
+            // this is an error condition, but just mark the error and 
+            // create validators directly  
+            vf = Validation.buildDefaultValidatorFactory();
+            validator = (Validator)vf.getValidator();
+        }
+        
+        Object contextValidator = getServletContext().getAttribute("javax.faces.validator.beanValidator.ValidatorFactory"); 
+        if (contextValidator == null || !(contextValidator instanceof ValidatorFactory)) {
+            message += "<b>Unable to obtain validator from ServletContext: " + contextValidator + "</b><br>";
+            violationSize += 1; 
+        }
+        
         Set<ConstraintViolation<Information>> generalSet = validator.validate(infor);
         int generalSize = generalSet.size();
-        int violationSize = generalSize;
+        violationSize += generalSize;
         if (generalSize > 0) {
             for (ConstraintViolation<Information> constraintViolation : generalSet) {
                 message += "<b>Invalid value:</b><font color=red>" + constraintViolation.getInvalidValue() + "</font>," + constraintViolation.getMessage() + "<br>";
