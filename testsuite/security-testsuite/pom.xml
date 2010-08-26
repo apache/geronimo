@@ -67,6 +67,7 @@
     <modules>
         <module>test-security</module>
         <module>test-security-annotation-ejb</module>
+        <module>test-security-basic-authentication</module>
     </modules>
 
 </project>
