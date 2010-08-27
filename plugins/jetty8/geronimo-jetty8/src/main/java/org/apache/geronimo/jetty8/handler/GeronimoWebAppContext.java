@@ -26,6 +26,9 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.EventListener;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -67,6 +70,15 @@ public class GeronimoWebAppContext extends WebAppContext {
         setClassLoader(classLoader);
         this.classLoader = classLoader;
         setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE, integrationContext.getBundle().getBundleContext());
+        // now set the module context ValidatorFactory in a context property. 
+        try {
+            javax.naming.Context ctx = integrationContext.getComponentContext();
+            Object validatorFactory = ctx.lookup("comp/ValidatorFactory");
+            setAttribute("javax.faces.validator.beanValidator.ValidatorFactory", validatorFactory);
+        } catch (NamingException e) {
+            setAttribute("javax.faces.validator.beanValidator.ValidatorFactory", e.getMessage());
+            // ignore.  We just don't set the property if it's not available. 
+        }
         this.modulePath = modulePath;
     }
 

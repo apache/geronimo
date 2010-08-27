@@ -40,6 +40,43 @@
         Geronimo integration testsuite.
     </description>
 
+    <!--
+    NOTE: Override the following on the cmdline to only run specific
+          testsuite buckets.
+
+        *** To run all tests:
+          Against the default Jetty assembly -
+            mvn clean install -Pit
+
+          Against the Tomcat assembly - 
+            mvn clean install -Pit -DassemblyId=tomcat
+
+          Against the pre-installed assembly -
+            mvn clean install -Pit -DgeronimoHome=<Path to Geronimo Home>
+          
+          Against an already running server -
+            mvn clean install -Pit-manual
+
+        *** To run one of testsuites:         
+          Against the default Jetty assembly -
+            cd console-testsuite
+            mvn clean install -Pit
+
+          Against the pre-installed assembly -
+            cd console-testsuite
+            mvn clean install -Pit -DgeronimoHome=<Path to Geronimo Home>
+
+          Against an already running server -
+            cd console-testsuite
+            mvn clean install -Pit-manual
+
+        *** To only run one test backet:
+          Against an already running server-
+            cd console-testsuite/advanced
+            mvn clean install -Pchild
+
+    -->
+
     <properties>
         <!--
         NOTE: The default assembly is jetty, so exclude any tomcat tests by

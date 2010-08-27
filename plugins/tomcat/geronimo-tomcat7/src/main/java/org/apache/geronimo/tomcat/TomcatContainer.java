@@ -26,6 +26,7 @@ import java.util.Properties;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.naming.NamingException;
 import javax.security.auth.Subject;
 
 import org.apache.catalina.Container;
@@ -286,6 +287,16 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         // set the bundle context attribute in the servlet context
         context.getServletContext().setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE,
                                                  contextInfo.getBundle().getBundleContext());
+        
+        // now set the module context ValidatorFactory in a context property. 
+        try {
+            javax.naming.Context ctx = contextInfo.getJndiContext(); 
+            Object validatorFactory = ctx.lookup("comp/ValidatorFactory");
+            context.getServletContext().setAttribute("javax.faces.validator.beanValidator.ValidatorFactory", validatorFactory);
+        } catch (NamingException e) {
+            context.getServletContext().setAttribute("javax.faces.validator.beanValidator.ValidatorFactory", e.getMessage());
+            // ignore.  We just don't set the property if it's not available. 
+        }
 
         // Set the context for the Tomcat implementation
         contextInfo.setContext(context);
