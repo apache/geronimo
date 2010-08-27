@@ -294,7 +294,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             Object validatorFactory = ctx.lookup("comp/ValidatorFactory");
             context.getServletContext().setAttribute("javax.faces.validator.beanValidator.ValidatorFactory", validatorFactory);
         } catch (NamingException e) {
-            context.getServletContext().setAttribute("javax.faces.validator.beanValidator.ValidatorFactory", e.getMessage());
             // ignore.  We just don't set the property if it's not available. 
         }
 

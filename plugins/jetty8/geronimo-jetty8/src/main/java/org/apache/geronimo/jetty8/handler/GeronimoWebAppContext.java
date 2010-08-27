@@ -76,7 +76,6 @@ public class GeronimoWebAppContext extends WebAppContext {
             Object validatorFactory = ctx.lookup("comp/ValidatorFactory");
             setAttribute("javax.faces.validator.beanValidator.ValidatorFactory", validatorFactory);
         } catch (NamingException e) {
-            setAttribute("javax.faces.validator.beanValidator.ValidatorFactory", e.getMessage());
             // ignore.  We just don't set the property if it's not available. 
         }
         this.modulePath = modulePath;
