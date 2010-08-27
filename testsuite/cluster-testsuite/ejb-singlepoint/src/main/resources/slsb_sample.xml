@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar xmlns="http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0"
+   xmlns:wadi="http://geronimo.apache.org/xml/ns/openejb-clustering-wadi-1.2">
+	<environment>
+       <moduleId>
+           <groupId>org.superbiz</groupId>
+           <artifactId>load-beans</artifactId>
+           <version>1.0</version>
+           <type>car</type>
+       </moduleId>
+   </environment>
+    
+   <wadi:openejb-clustering-wadi>
+      <wadi:deltaReplication>false</wadi:deltaReplication>
+  </wadi:openejb-clustering-wadi>
+</ejb-jar>

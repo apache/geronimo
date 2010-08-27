@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>testsuite</artifactId>
+    <groupId>org.apache.geronimo.testsuite</groupId>
+    <version>2.2.2-SNAPSHOT</version>
+  </parent>  
+  
+  <artifactId>cluster-testsuite</artifactId> 
+  <name>Geronimo TestSuite :: Cluster Testsuite</name>
+  <packaging>pom</packaging>
+  
+  <description>
+        Geronimo cluster testsuite.
+  </description>
+  <dependencies>
+   <dependency>
+     <groupId>org.testng</groupId>
+     <artifactId>testng</artifactId>                
+     <classifier>jdk15</classifier>
+     <scope>test</scope>         
+     </dependency>
+    <dependency>
+     <groupId>org.apache.openejb</groupId>
+     <artifactId>openejb-ejbd</artifactId>      
+     <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId> 
+      <artifactId>geronimo-ejb_3.0_spec</artifactId> 
+      <scope>provided</scope>             
+    </dependency>    
+  </dependencies>
+  
+  <profiles>
+        <profile>
+            <id>it</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                        <artifactId>maven-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>it-manual</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.geronimo.genesis.plugins</groupId>
+                        <artifactId>maven-maven-plugin</artifactId>
+                    </plugin>                    
+                </plugins>
+            </build>
+        </profile>
+
+
+        <profile>
+            <id>child</id>
+        </profile>   
+
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>ejb-multicast</module>
+                <module>ejb-multipoint</module>
+                <module>ejb-singlepoint</module>
+            </modules>
+        </profile>
+    </profiles>
+</project>

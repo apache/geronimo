@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--
+ |  
+ | Download Helios artifacts and unzip them into the user's local maven repo     
+ |                                                                                             
+ |                                                                                             
+ | @version $Rev$ $Date$
+ -->
+<project name="Mutlipoint-setup"> 
+    <target name="win" description="Unzip Windows specific artifact(s)">                  
+        <echo>#################################################################################</echo>
+        <echo>##                                                                               </echo>
+        <echo>## Unzipping: assembly                                                 </echo>
+        <echo>##                                                                               </echo>
+        <echo>#################################################################################</echo>
+        <delete dir="${Base_Dir}/server1" quiet="true"/>          
+        <mkdir dir="${Base_Dir}/server1"/>        
+        <unzip src="${LOCAL_M2_REPO}/org/apache/geronimo/assemblies/geronimo-tomcat6-javaee5/${geronimo_versoin}/geronimo-tomcat6-javaee5-${geronimo_versoin}-bin.zip" 
+               dest="${Base_Dir}/server1"
+               overwrite="true"/>
+        <copy todir="${Base_Dir}/server1">
+        <fileset dir="${Base_Dir}/server1/geronimo-tomcat6-javaee5-${geronimo_versoin}"/>        
+        </copy>
+        <delete dir="${Base_Dir}/server1/geronimo-tomcat6-javaee5-${geronimo_versoin}" quiet="true"/>
+       <delete dir="${Base_Dir}/server2" quiet="true"/>          
+       <mkdir dir="${Base_Dir}/server2"/>
+       <copy todir="${Base_Dir}/server2">
+        <fileset dir="${Base_Dir}/server1"/>        
+        </copy>     
+    </target>
+
+    
+    <target name="linux" description="Download Linux-specific artifact(s)">       
+        <echo>#################################################################################</echo>
+        <echo>##                                                                               </echo>
+        <echo>## Unzipping: assembly                                                 </echo>
+        <echo>##                                                                               </echo>
+        <echo>#################################################################################</echo>
+        <delete dir="${Base_Dir}/server1" quiet="true"/>          
+        <mkdir dir="${Base_Dir}/server1"/> 
+        <gunzip src="${LOCAL_M2_REPO}/org/apache/geronimo/assemblies/geronimo-tomcat6-javaee5/${geronimo_versoin}/geronimo-tomcat6-javaee5-${geronimo_versoin}-bin.tar.gz"
+               dest="${Base_Dir}/server1"
+               />    
+        <untar src="${Base_Dir}/server1/geronimo-tomcat6-javaee5-${geronimo_versoin}-bin.tar"
+               dest="${Base_Dir}/server1" />
+        <copy todir="${Base_Dir}/server1">
+        <fileset dir="${Base_Dir}/server1/geronimo-tomcat6-javaee5-${geronimo_versoin}"/>        
+        </copy>
+        <delete dir="${Base_Dir}/server1/geronimo-tomcat6-javaee5-${geronimo_versoin}" quiet="true"/>     
+       <delete dir="${Base_Dir}/server2" quiet="true"/>          
+       <mkdir dir="${Base_Dir}/server2"/>
+       <copy todir="${Base_Dir}/server2">
+        <fileset dir="${Base_Dir}/server1"/>        
+        </copy>
+        <!--<java classname="org.apache.geronimo.testsuite.SetClusterConfiguration">
+        <classpath>
+         <pathelement path="${Base_Dir}/target/classes/"/>
+        </classpath>
+        <sysproperty key="base_path" value="${Base_Dir}">  
+            </sysproperty> 
+        </java>-->
+        <chmod dir="${Base_Dir}/server1/bin" perm="ugo+rwx" includes="**/*"/>
+       <chmod dir="${Base_Dir}/server2/bin" perm="ugo+rwx" includes="**/*"/>
+    </target>
+    
+  <target name="macos" description="Download Mac-specific artifact(s)">
+        <echo>#################################################################################</echo>
+        <echo>##                                                                               </echo>
+        <echo>## Unzipping: assembly                                                 </echo>
+        <echo>##                                                                               </echo>
+        <echo>#################################################################################</echo>
+        <delete dir="${Base_Dir}/server1" quiet="true"/>          
+        <mkdir dir="${Base_Dir}/server1"/> 
+        <gunzip src="${LOCAL_M2_REPO}/org/apache/geronimo/assemblies/geronimo-tomcat6-javaee5/${geronimo_versoin}/geronimo-tomcat6-javaee5-${geronimo_versoin}-bin.tar.gz"
+               dest="${Base_Dir}/server1"
+               />    
+        <untar src="${Base_Dir}/server1/geronimo-tomcat6-javaee5-${geronimo_versoin}-bin.tar"
+               dest="${Base_Dir}/server1"
+               />
+        <copy todir="${Base_Dir}/server1">
+        <fileset dir="${Base_Dir}/server1/geronimo-tomcat6-javaee5-${geronimo_versoin}"/>        
+        </copy>
+        <delete dir="${Base_Dir}/server1/geronimo-tomcat6-javaee5-${geronimo_versoin}" quiet="true"/>     
+        <delete dir="${Base_Dir}/server2" quiet="true"/>          
+       <mkdir dir="${Base_Dir}/server2"/>
+       <copy todir="${Base_Dir}/server2">
+        <fileset dir="${Base_Dir}/server1"/>        
+        </copy>
+        <!--<java classname="org.apache.geronimo.testsuite.SetClusterConfiguration">
+        <classpath>
+         <pathelement path="${Base_Dir}/target/classes/"/>
+        </classpath>
+        <sysproperty key="base_path" value="${Base_Dir}">  
+            </sysproperty> 
+        </java>-->
+        <chmod dir="${Base_Dir}/server1/bin" perm="ugo+rwx" includes="**/*"/>
+       <chmod dir="${Base_Dir}/server2/bin" perm="ugo+rwx" includes="**/*"/>
+    </target>
+</project>
