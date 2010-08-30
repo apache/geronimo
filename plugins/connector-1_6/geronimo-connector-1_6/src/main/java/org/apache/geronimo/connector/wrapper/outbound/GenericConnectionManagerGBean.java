@@ -24,6 +24,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
+import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 import javax.security.auth.Subject;
 
@@ -35,6 +36,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
@@ -44,6 +46,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 import org.osgi.framework.BundleContext;
@@ -53,7 +56,8 @@ import org.osgi.framework.ServiceRegistration;
  * @version $Revision$
  */
 @GBean(j2eeType = NameFactory.JCA_CONNECTION_MANAGER)
-public class GenericConnectionManagerGBean extends GenericConnectionManager implements GBeanLifecycle, Serializable, Externalizable {
+@OsgiService
+public class GenericConnectionManagerGBean extends GenericConnectionManager implements ResourceSource<ResourceException>, GBeanLifecycle, Serializable, Externalizable {
     private Kernel kernel;
     private AbstractName abstractName;
     //externalizable format version
@@ -134,4 +138,9 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         abstractName = (AbstractName) in.readObject();
     }
 
+    @Override
+    public Object $getResource() throws ResourceException {
+        return createConnectionFactory();
+    }
+    
 }

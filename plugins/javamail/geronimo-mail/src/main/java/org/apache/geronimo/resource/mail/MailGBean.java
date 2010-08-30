@@ -26,15 +26,19 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NamingException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.naming.ResourceSource;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.OsgiService;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.JavaMailResource;
+import org.apache.geronimo.naming.ResourceSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -50,12 +54,15 @@ import org.apache.geronimo.management.JavaMailResource;
  * @see POP3StoreGBean
  * @see IMAPStoreGBean
  */
+
+@GBean(j2eeType = NameFactory.JAVA_MAIL_RESOURCE)
+@OsgiService
 public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSource {
 
     private static final Logger log = LoggerFactory.getLogger(MailGBean.class);
 
     private final String objectName;
-    private final Collection protocols;
+    private final Collection<ProtocolGBean> protocols;
     private Boolean useDefault;
     private Properties properties;
     private Authenticator authenticator;
@@ -84,8 +91,17 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
      * @param debug             the debug setting for Sessions created from this GBean
      * @param jndiName          the JNDI name to which the mail Session should be bound
      */
-    public MailGBean(String objectName, Collection protocols, Boolean useDefault, Properties properties, Authenticator authenticator,
-                     String storeProtocol, String transportProtocol, String host, String user, Boolean debug, String jndiName) {
+    public MailGBean(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+                     @ParamReference(name = "Protocols", namingType = GBeanInfoBuilder.DEFAULT_J2EE_TYPE) Collection<ProtocolGBean> protocols,
+                     @ParamAttribute(name="useDefault") Boolean useDefault,
+                     @ParamAttribute(name="properties") Properties properties,
+                     @ParamReference(name = "Authenticator", namingType = GBeanInfoBuilder.DEFAULT_J2EE_TYPE) Authenticator authenticator,
+                     @ParamAttribute(name="storeProtocol") String storeProtocol,
+                     @ParamAttribute(name="transportProtocol") String transportProtocol,
+                     @ParamAttribute(name="host") String host,
+                     @ParamAttribute(name="user") String user,
+                     @ParamAttribute(name="debug") Boolean debug,
+                     @ParamAttribute(name="jndiName") String jndiName) {
         this.objectName = objectName;
         this.protocols = protocols;
         setUseDefault(useDefault);
@@ -313,12 +329,12 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
         this.jndiName = jndiName;
     }
 
+    @Override
     public Object $getResource() {
         Properties props = new Properties(properties);
 
         if (protocols != null) {
-            for (Iterator iter = protocols.iterator(); iter.hasNext();) {
-                ProtocolGBean protocol = (ProtocolGBean) iter.next();
+            for (ProtocolGBean protocol : protocols) {
                 protocol.addOverrides(props);
             }
         }
@@ -427,42 +443,4 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
         return false;
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MailGBean.class, NameFactory.JAVA_MAIL_RESOURCE);
-
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addReference("Protocols", ProtocolGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoFactory.addAttribute("useDefault", Boolean.class, true);
-        infoFactory.addAttribute("properties", Properties.class, true);
-        infoFactory.addReference("Authenticator", Authenticator.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-        infoFactory.addAttribute("storeProtocol", String.class, true);
-        infoFactory.addAttribute("transportProtocol", String.class, true);
-        infoFactory.addAttribute("host", String.class, true);
-        infoFactory.addAttribute("user", String.class, true);
-        infoFactory.addAttribute("debug", Boolean.class, true);
-        infoFactory.addAttribute("jndiName", String.class, true);
-        infoFactory.addOperation("$getResource");
-        infoFactory.addOperation("getProtocols");
-        infoFactory.addInterface(JavaMailResource.class);
-
-        infoFactory.setConstructor(new String[]{"objectName",
-                                                "Protocols",
-                                                "useDefault",
-                                                "properties",
-                                                "Authenticator",
-                                                "storeProtocol",
-                                                "transportProtocol",
-                                                "host",
-                                                "user",
-                                                "debug",
-                                                "jndiName"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

@@ -91,7 +91,7 @@ public class MailGBeanTest extends TestCase {
         SMTPTransportGBean protocol = new SMTPTransportGBean("test:name=smtp", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         protocol.doStart();
 
-        MailGBean mail = new MailGBean("test:name=mail", Collections.singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null);
+        MailGBean mail = new MailGBean("test:name=mail", Collections.<ProtocolGBean>singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null);
         mail.doStart();
         Object proxy = mail.$getResource();
 
@@ -120,7 +120,7 @@ public class MailGBeanTest extends TestCase {
         POP3StoreGBean protocol = new POP3StoreGBean("test:name=pop3", null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         protocol.doStart();
 
-        MailGBean mail = new MailGBean("test:name=mail", Collections.singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null);
+        MailGBean mail = new MailGBean("test:name=mail", Collections.<ProtocolGBean>singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null);
         mail.doStart();
         Object proxy = mail.$getResource();
 
@@ -146,7 +146,7 @@ public class MailGBeanTest extends TestCase {
         IMAPStoreGBean protocol = new IMAPStoreGBean("test:name=imap", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         protocol.doStart();
 
-        MailGBean mail = new MailGBean("test:name=mail", Collections.singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null);
+        MailGBean mail = new MailGBean("test:name=mail", Collections.<ProtocolGBean>singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null);
         mail.doStart();
         Object proxy = mail.$getResource();
 

@@ -41,7 +41,7 @@ import org.osgi.framework.ServiceRegistration;
  */
 @GBean(j2eeType = NameFactory.JCA_CONNECTION_FACTORY)
 @OsgiService
-public class JCAConnectionFactoryImpl implements JCAConnectionFactory, ResourceSource<ResourceException>, ServiceFactory {
+public class JCAConnectionFactoryImpl implements JCAConnectionFactory, ServiceFactory {
     private final String objectName;
     private final GenericConnectionManagerGBean connectionManager;
 
@@ -94,16 +94,16 @@ public class JCAConnectionFactoryImpl implements JCAConnectionFactory, ResourceS
         return connectionManager.createConnectionFactory();
     }
 
-    @Override
-    public Object $getResource() throws ResourceException {
-        try {
-            return createConnectionFactory();
-        } catch (ResourceException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ResourceException("Should not happen", e);
-        }
-    }
+//    @Override
+//    public Object $getResource() throws ResourceException {
+//        try {
+//            return createConnectionFactory();
+//        } catch (ResourceException e) {
+//            throw e;
+//        } catch (Exception e) {
+//            throw new ResourceException("Should not happen", e);
+//        }
+//    }
 
     @Override
     public Object getService(Bundle bundle, ServiceRegistration serviceRegistration) {

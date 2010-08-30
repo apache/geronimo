@@ -1218,6 +1218,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             throw new DeploymentException("Unexpected pooling support element in connector named " + connectionfactoryInstance.getName().trim());
         }
         try {
+            String jndiName = naming.toOsgiJndiName(connectionManagerAbstractName);
+            connectionManagerGBean.getServiceProperties().put(OSGI_JNDI_SERVICE_NAME, jndiName);
             connectionManagerGBean.setAttribute("transactionSupport", transactionSupport);
             connectionManagerGBean.setAttribute("pooling", pooling);
             connectionManagerGBean.setReferencePattern("ConnectionTracker", connectionTrackerName);
@@ -1240,14 +1242,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         // ManagedConnectionFactory
         setDynamicGBeanDataAttributes(managedConnectionFactoryInstanceGBeanData, connectiondefinitionInstance.getConfigPropertySettingArray(), bundle);
 
-        String jndiName = connectiondefinitionInstance.getJndiName();
-        if (jndiName == null) {
-            jndiName = naming.toOsgiJndiName(connectionFactoryAbstractName);
-        } else {
-            jndiName = jndiName.trim();
-        }
-//        managedConnectionFactoryInstanceGBeanData.setAttribute("jndiName", jndiName.trim());
-        
         //Check if Driver class is available here. This should be available in cl. If not log a warning as
         //the plan gets deployed and while starting GBean an error is thrown
 
@@ -1287,6 +1281,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         GBeanData connectionFactoryGBeanData = new GBeanData(connectionFactoryAbstractName, JCAConnectionFactoryImpl.class);
         connectionFactoryGBeanData.setReferencePattern("ConnectionManager", connectionManagerName);
         connectionFactoryGBeanData.setServiceInterfaces(implementedInterfaces.toArray(new String[implementedInterfaces.size()]));
+        String jndiName = connectiondefinitionInstance.getJndiName();
+        if (jndiName == null) {
+            jndiName = naming.toOsgiJndiName(connectionFactoryAbstractName);
+        } else {
+            jndiName = jndiName.trim();
+        }
         connectionFactoryGBeanData.getServiceProperties().put(OSGI_JNDI_SERVICE_NAME, jndiName);
 
         raBeans.add(connectionFactoryGBeanData);

@@ -57,6 +57,7 @@ import org.apache.geronimo.naming.deployment.ResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.naming.reference.ORBReference;
+import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.naming.reference.URLReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefDocument;
@@ -70,6 +71,7 @@ import org.apache.openejb.jee.Text;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -215,15 +217,17 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             } else if (JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
                 j2eeType = NameFactory.JAXR_CONNECTION_FACTORY;
             } else {
-                j2eeType = NameFactory.JCA_CONNECTION_FACTORY;
+//                j2eeType = NameFactory.JCA_CONNECTION_FACTORY;
+                j2eeType = NameFactory.JCA_CONNECTION_MANAGER;
             }
             try {
                 AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, null, gerResourceRef);
 
                 AbstractName abstractName = module.getEarContext().findGBean(containerId);
-                String osgiJndiName = "aries:services/" + module.getEarContext().getNaming().toOsgiJndiName(abstractName);
+                String osgiJndiName = module.getEarContext().getNaming().toOsgiJndiName(abstractName);
+                String filter = "(osgi.jndi.service.name=" + osgiJndiName + ')';
 
-                return new JndiReference(osgiJndiName);
+                return new ResourceReference(filter, type);
                         //ResourceReferenceFactory<ResourceException>(module.getConfigId(), containerId, iface);
             } catch (GBeanNotFoundException e) {
                 StringBuffer errorMessage = new StringBuffer("Unable to resolve resource reference '");

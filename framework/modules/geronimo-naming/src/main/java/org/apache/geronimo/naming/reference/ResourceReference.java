@@ -20,33 +20,56 @@
 
 package org.apache.geronimo.naming.reference;
 
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.xbean.naming.reference.SimpleReference;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ResourceReference<E extends Throwable> extends SimpleReference {
-    private final ResourceSource<E> source;
+public class ResourceReference<E extends Throwable> extends SimpleReference implements BundleAwareReference {
     private final String type;
+    private final String query;
+    private transient BundleContext bundleContext;
 
-    public ResourceReference(ResourceSource<E> source, String type) {
-        this.source = source;
+    public ResourceReference(String query, String type) {
+        this.query = query;
         this.type = type;
     }
 
+    @Override
     public Object getContent() throws NamingException {
+        ServiceReference ref = null;
         try {
+            ServiceReference[] refs = bundleContext.getServiceReferences(ResourceSource.class.getName(), query);
+            if (refs == null || refs.length == 0) {
+                throw new NameNotFoundException("could not locate osgi service matching " + query);
+            }
+            ref = refs[0];
+            @SuppressWarnings("Unchecked")
+            ResourceSource<E> source = (ResourceSource<E>) bundleContext.getService(ref);
             return source.$getResource();
         } catch (Throwable e) {
-            throw (NamingException)new NamingException("Could not create resource").initCause(e);
+            throw (NamingException) new NamingException("Could not create resource").initCause(e);
+        } finally {
+            if (ref != null) {
+                bundleContext.ungetService(ref);
+            }
         }
     }
 
     @Override
     public String getClassName() {
         return type;
+    }
+
+    @Override
+    public void setBundle(Bundle bundle) {
+        this.bundleContext = bundle.getBundleContext();
     }
 }
