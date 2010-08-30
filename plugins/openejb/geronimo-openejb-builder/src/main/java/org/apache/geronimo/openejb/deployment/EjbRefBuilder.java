@@ -112,12 +112,17 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
         Map<String, List<InjectionTarget>> injectionsMap = new HashMap<String, List<InjectionTarget>>();
         for (Map.Entry<String, EjbRef> entry: specDD.getEjbRefMap().entrySet()) {
-            injectionsMap.put(entry.getKey(), entry.getValue().getInjectionTarget());            
-        }
-        for (Map.Entry<String, EjbLocalRef> entry: specDD.getEjbLocalRefMap().entrySet()) {
             injectionsMap.put(entry.getKey(), entry.getValue().getInjectionTarget());
         }
-        
+        for (Map.Entry<String, EjbLocalRef> entry: specDD.getEjbLocalRefMap().entrySet()) {
+            List<InjectionTarget> injectionTargets = injectionsMap.get(entry.getKey());
+            if (injectionTargets != null) {
+                injectionTargets.addAll(entry.getValue().getInjectionTarget());
+            } else {
+                injectionsMap.put(entry.getKey(), entry.getValue().getInjectionTarget());
+            }
+        }
+
         Map<String, Object> map = null;
         try {
             EjbModuleBuilder.EarData earData = EjbModuleBuilder.EarData.KEY.get(module.getRootEarContext().getGeneralData());
@@ -137,7 +142,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
             String moduleId = module.getName();
             jndiEncInfoBuilder.build(specDD, "GeronimoEnc", moduleId, moduleJndi, compJndi);
-            
+
             JndiEncInfo ejbEncInfo = new JndiEncInfo();
             ejbEncInfo.ejbReferences.addAll(appInfo.globalJndiEnc.ejbReferences);
             ejbEncInfo.ejbReferences.addAll(appInfo.appJndiEnc.ejbReferences);
