@@ -25,6 +25,16 @@ function updateLinks() {
             // Note: we cannot use setAttribute due to IE issues so we are using element.*=
             elements[i].href = link + '&formId=' + formID;
         }
+        
+        if(link != null && link.indexOf("/console/portal/")==-1){
+        
+            if (document.all) {    //IE
+                elements[i].target="_parent";   
+            } else if (document.getElementById) {  //firefox
+               elements[i].setAttribute("target", "_parent");
+            }      
+             
+        }
     }
 }
 
