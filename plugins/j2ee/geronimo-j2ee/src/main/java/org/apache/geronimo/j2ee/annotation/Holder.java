@@ -33,6 +33,7 @@ import java.util.Set;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import org.apache.xbean.recipe.ConstructionException;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
 import org.slf4j.Logger;
@@ -171,7 +172,12 @@ public class Holder implements Serializable {
         if (!problems.isEmpty()) {
             throw new InstantiationException("Some objects to be injected were not found in jndi: " + problems);
         }
-        Object result = objectRecipe.create(classLoader);
+        Object result;
+        try {
+            result = objectRecipe.create(classLoader);
+        } catch (ConstructionException e) {
+            throw (InstantiationException)new InstantiationException("Could not construct object").initCause(e);
+        }
         if (getPostConstruct() != null) {
             try {
                 apply(result, null, postConstruct);
