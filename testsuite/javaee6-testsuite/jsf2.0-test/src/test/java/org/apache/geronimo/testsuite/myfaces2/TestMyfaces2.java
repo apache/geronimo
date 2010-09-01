@@ -26,10 +26,9 @@ public class TestMyfaces2 extends SeleniumTestSupport {
 	
 	@Test 
 	public void testJSF2() throws Exception {  
-	    selenium.open("/converter-javaee6/index.html");
-		Thread.sleep(3000);
+	    selenium.open("/converter-javaee6/");
+		Thread.sleep(5000);
 		
-		selenium.selectFrame("sampleDocumentFrame");
 		assertTrue(selenium.isTextPresent("Converter-A Facelets and AJAX Example In JSF2.0"));
 		assertTrue(selenium.isTextPresent("Please input a number, or else you can't get a reply!")); 
 		selenium.type("j_id1983071270_7ac218fa:in", "1000");
