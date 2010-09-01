@@ -45,6 +45,7 @@
     <modules>
         <module>conversation-test</module>
         <module>webbean-ejb-test</module>
-        <module>webbean-servlet-test</module>			
+        <module>webbean-servlet-test</module>
+        <module>webbean-jpa-test</module>			
     </modules>
 </project>
