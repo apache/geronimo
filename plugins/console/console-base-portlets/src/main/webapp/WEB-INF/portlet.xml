@@ -375,6 +375,30 @@ limitations under the License.
         </init-param>
     </portlet>
 
+     <portlet>
+        <description>Portlet for displaying EBA modules</description>
+        <portlet-name>EBAModules</portlet-name>
+        <display-name>EBA Modules Portlet</display-name>
+        <portlet-class>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</portlet-class>
+        <expiration-cache>-1</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <supported-locale>zh</supported-locale>
+        <supported-locale>ja</supported-locale>
+        <resource-bundle>portletinfo</resource-bundle>
+        <portlet-info>
+            <title>Installed EBA Applications</title>
+            <short-title>EBA Modules</short-title>
+            <keywords>EBA Application EBA Module</keywords>
+        </portlet-info>
+        <init-param>
+            <name>config-type</name>
+            <value>EBA</value>
+        </init-param>
+    </portlet>
     <portlet>
         <description>Portlet for displaying System modules</description>
         <portlet-name>SystemModules</portlet-name>

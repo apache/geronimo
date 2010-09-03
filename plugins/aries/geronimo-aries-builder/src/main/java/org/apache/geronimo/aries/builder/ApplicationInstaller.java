@@ -113,7 +113,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
                             null,
                             environment,
                             moduleName,
-                            ConfigurationModuleType.SERVICE,
+                            ConfigurationModuleType.EBA,
                             naming,
                             configurationManager,
                             null, 
