@@ -176,7 +176,7 @@ public class XmlBeansUtil {
                         XmlValidationError validationError = (XmlValidationError) o;
                         List<QName> expected = validationError.getExpectedQNames();
                         QName actual = validationError.getOffendingQName();
-                        if (ignoreElements.contains(actual.getLocalPart())) {
+                        if (actual != null && ignoreElements.contains(actual.getLocalPart())) {
                             iterator.remove();
                             logger.warn(actual.getLocalPart() + " is not supported yet.");
                         }
