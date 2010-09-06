@@ -54,7 +54,7 @@ public class DatabaseInitializationGBean {
     public DatabaseInitializationGBean(@ParamAttribute(name="testSQL") String testSQL, 
                                        @ParamAttribute(name="sql") String sql,
                                        @ParamAttribute(name="path") String path, 
-                                       @ParamReference(name="DataSource", namingType=NameFactory.JCA_CONNECTION_FACTORY) ResourceSource<ResourceException> cfSource, 
+                                       @ParamReference(name="DataSource", namingType=NameFactory.JCA_CONNECTION_MANAGER) ResourceSource<ResourceException> cfSource, 
                                        @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle) throws Exception {
 
         DataSource ds = (DataSource) cfSource.$getResource();
