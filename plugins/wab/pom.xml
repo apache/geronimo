@@ -46,7 +46,7 @@
             <dependency>
                 <groupId>org.apache.aries.web</groupId>
                 <artifactId>org.apache.aries.web.urlhandler</artifactId>
-                <version>0.1-incubating</version>
+                <version>0.2-incubating</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -387,7 +387,7 @@
             <dependency>
                 <groupId>org.apache.aries.transaction</groupId>
                 <artifactId>org.apache.aries.transaction.blueprint</artifactId>
-                <version>0.1-incubating</version>
+                <version>0.2-incubating</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -49,7 +49,7 @@
                 <plugin>
                     <groupId>org.apache.aries</groupId>
                     <artifactId>eba-maven-plugin</artifactId>
-                    <version>0.2-incubating-SNAPSHOT</version>
+                    <version>0.2-incubating</version>
                 </plugin>
             </plugins>
         </pluginManagement>

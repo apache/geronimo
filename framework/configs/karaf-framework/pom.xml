@@ -51,7 +51,7 @@
         <felix.plugin.version>2.1.0</felix.plugin.version>
         <felix.prefs.version>1.0.4</felix.prefs.version>
         <felix.metatype.version>1.0.2</felix.metatype.version>
-        <aries.blueprint.version>0.2-incubating-SNAPSHOT</aries.blueprint.version>
+        <aries.blueprint.version>0.2-incubating</aries.blueprint.version>
         <jansi.version>1.2</jansi.version>
         <junit.version>4.7_1</junit.version>
         <jline.version>0.9.95.20100209</jline.version>
