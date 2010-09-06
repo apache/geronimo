@@ -40,41 +40,57 @@ limitations under the License.
 <%
     NavigationJsonGenerator generator = new NavigationJsonGenerator(request.getLocale());
     String treeJson = generator.generateTreeJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif");
+    String treeJsonBasic = generator.generateTreeJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif","basic");
     String listJson = generator.generateQuickLauncherJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif");
+    String listJsonBasic = generator.generateQuickLauncherJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif","basic");
 %>
 
 <table class="tundra" width="200px" border="0" cellpadding="0" cellspacing="0">
     <tr>
-        <td CLASS="ReallyDarkBackground"><strong>&nbsp;<fmt:message    key="Console Navigation" /></strong></td>
+        <td CLASS="ReallyDarkBackground"><strong>&nbsp;<fmt:message    key="Console Navigation"/></strong></td>
     </tr>
     <tr>
-        <td>&nbsp;</td>
+        <td>&nbsp;<input type="radio" name="mode" id ="mode" checked="checked" onclick="changeMode()"/><fmt:bundle basename="portaldriver"><fmt:message key="console.mode.basic"/></fmt:bundle>
+                  <input type="radio"  name="mode" id ="mode" onclick="changeMode()"/><fmt:bundle basename="portaldriver"><fmt:message key="console.mode.advanced"/></fmt:bundle>
+        </td>
     </tr>
-    <tr>
+    <tr><td>&nbsp;&nbsp;</td></tr>
+    <tr id="tquickLauncher" style="display:none;">
         <td>&nbsp;&nbsp;<input id="quickLauncher"></td>
     </tr>
     <tr>
-        <td>&nbsp;&nbsp;<div id="navigationTree"></div>
+        <td>&nbsp;&nbsp;<div id="navigationTreeBasic"></div><div id="navigationTreeAdvanced"></div>
         </td>
     </tr>
 </table>
-
-<script type="text/javascript">
-
-<%-- scripts to create the navigation tree--%>
-
+<script language="Javascript" src="<%=request.getContextPath()%>/js/navigation.js" type="text/javascript"></script>
+<script language="Javascript">
    dojo.require("dojo.data.ItemFileReadStore");
    dojo.require("dijit.form.FilteringSelect");
    dojo.require("dijit.Tree");
-
    var treeData = <%=treeJson%>;
+   var treeDataBasic =<%=treeJsonBasic%>;
    var listData = <%=listJson%>;
+   var listDataBasic = <%=listJsonBasic%>;
+   var treeModel="";
+   var navigationTreeBasic="";
+   var navigationTreeAdvanced="";
+   var filterSelect="";
+   
    var treeStore = new dojo.data.ItemFileReadStore
     ({
          data: {
              identifier: 'id',
              label: 'label',
              items: treeData
+             }
+     });
+   var treeStoreBasic = new dojo.data.ItemFileReadStore
+    ({
+         data: {
+             identifier: 'id',
+             label: 'label',
+             items: treeDataBasic
              }
      });
     var listStore = new dojo.data.ItemFileReadStore({
@@ -84,169 +100,12 @@ limitations under the License.
            items: listData
            }
     });
-function load() {
-      
-   var treeModel = new dijit.tree.ForestStoreModel({
-       store: treeStore
-   });
-       
-   var navigationTree = new dijit.Tree
-           (
-         {  model: treeModel,
-            showRoot: false,
-            openOnClick: true,
-            onClick: function(treeNodeItem,treeNode) {
-            
-            var anchorNode=treeNode.labelNode.childNodes[2];
-
-             if(anchorNode)
-                {
-                 displayPortlets(anchorNode.href);
-                }                     
-            },
-            _createTreeNode: function(args) {
-                    var tnode = new dijit._TreeNode(args);
-                    tnode.labelNode.innerHTML = args.label;
-                    return tnode;
-                }
-         },
-         dojo.byId("navigationTree")
-       );
-
-
-   var filterSelect = new dijit.form.FilteringSelect
-       (
-          {
-           id: "quickLauncher",
-           store: listStore,
-           searchAttr: "name",
-           name: "quickLauncher",
-           promptMessage: "type and press enter to quick launch",
-           labelAttr: "label",
-           labelType: "html",
-           onKeyPress: function(event){        
-               if(event.charCode!=dojo.keys.ENTER) return;
-                   quickLaunchPortlets(this.value);      
-           },
-           onChange: function(event){
-               quickLaunchPortlets(this.value);
-           }
-         },
-         dojo.byId("quickLauncher")
-         );
-  }
-
-    function quickLaunchPortlets(portalPageName){
-        listStore.fetchItemByIdentity({identity:portalPageName,
-            onItem:function(item){
-                var iframeHref = listStore.getValue(item,"href");
-                displayPortlets(iframeHref);
+    var listStoreBasic = new dojo.data.ItemFileReadStore({
+        data: {
+            identifier: 'name',
+            label: 'label',
+            items: listDataBasic
             }
-        });
-        if(dijit.byId("navigationTree")){
-            findAndSelect(portalPageName,dijit.byId("navigationTree").rootNode);
-        }
-    }
-
-    function displayPortlets(iframeHref){
-    
-        //var iframeHref = anchor.href;
-
-        if(document.location.href.indexOf(iframeHref)==0){      
-            iframeHref=document.location.href.substring(0,document.location.href.indexOf("?"));
-        }
-        
-        dojo.io.iframe.setSrc(document.getElementById("portletsFrame"), iframeHref+"?formId="+formID, true);
-               
-         try {
-            objToResize=getIframeObjectToResize();
-            <%-- reset the height of iframe page each time the new portlet is loaded--%>
-            objToResize.height = 400;
-              }
-          catch(err){
-            window.status = err.message;
-          }
-          
-        setTimeout('returnToTop()', 30);      
-     }
-     
-    function returnToTop(){
-        window.scrollTo(0,0);
-        return false;
-     }
-     
-       
-
-    dojo.addOnLoad(load);
-   
-
-<%-- scripts to expand  and select tree node automatically when open menu item from quick launcher --%>
-
-   
-function findAndSelect(key, rootNode)
-    {
-        
-        var pathToExpandItems = [];
-
-        if(findRecur(rootNode.item.children, key, pathToExpandItems))
-        {
-            select(pathToExpandItems);
-        } 
-    }
-
-
-function findRecur(items, key, pathToExpandItems) 
-    {
-        for (var child = 0; child < items.length; child++) {
-
-            pathToExpandItems.push(items[child]);
-            var label = treeStore.getLabel(items[child]);
-            if (label && label.indexOf(key) != -1)
-                return true;
-
-            if (items[child].children && findRecur(items[child].children, key, pathToExpandItems))
-                return true;
-            pathToExpandItems.pop();
-        }
-        return false;
-    }
-    
-function select(pathToExpandItems)
-    {
-    
-    var navigationTree=dijit.byId("navigationTree");
-        var i;
-        function expandParent(node)
-        {
-            if(node && !node.isExpanded)
-            {
-                expandParent(node.getParent());
-                navigationTree._expandNode(node);
-            }
-        }
-        //make sure the ancestor node expanded before
-         var firstNode = getTreeNode(navigationTree,pathToExpandItems[0],treeStore);     
-         expandParent(firstNode.getParent());
-        
-        for (i = 0;;i++) {
-            node  = getTreeNode(navigationTree,pathToExpandItems[i],treeStore);
-            if(i < pathToExpandItems.length-1)
-                navigationTree._expandNode(node);
-            else 
-            {
-                navigationTree.focusNode(node);
-                return node;
-            }
-        }
-    }
-    
-   function getTreeNode(tree,item,treeStore){
-   
-        var wrapperNode =tree._itemNodesMap[treeStore.getIdentity(item)];
-        return wrapperNode[0];
-   } 
- 
-        
+     });
+    dojo.addOnLoad(function() { createNavigationTree(treeStoreBasic,listStoreBasic,"basic"); });
 </script>
-
-
