@@ -22,10 +22,12 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
@@ -35,12 +37,15 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlValidationError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 /**
  * @version $Rev$ $Date$
  */
 public class XmlBeansUtil {
+    private static final Logger logger = LoggerFactory.getLogger(XmlBeansUtil.class);
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
     //TODO thread safe? conncurrentReaderMap?
     private static final Map<QName, QNameSet> substitutionGroups = new HashMap<QName, QNameSet>();
@@ -153,6 +158,10 @@ public class XmlBeansUtil {
     }
 
     public static void validateDD(XmlObject dd) throws XmlException {
+        validateDD(dd, Collections.<String>emptySet());
+    }
+
+    public static void validateDD(XmlObject dd, Set<String> ignoreElements) throws XmlException {
         XmlOptions xmlOptions = new XmlOptions();
         xmlOptions.setLoadLineNumbers();
         Collection errors = new ArrayList();
@@ -167,6 +176,10 @@ public class XmlBeansUtil {
                         XmlValidationError validationError = (XmlValidationError) o;
                         List<QName> expected = validationError.getExpectedQNames();
                         QName actual = validationError.getOffendingQName();
+                        if (ignoreElements.contains(actual.getLocalPart())) {
+                            iterator.remove();
+                            logger.warn(actual.getLocalPart() + " is not supported yet.");
+                        }
                         if (expected != null) {
                             for (QName expectedQName : expected) {
                                 QNameSet substitutions = getQNameSetForSubstitutionGroup(expectedQName);
@@ -180,8 +193,8 @@ public class XmlBeansUtil {
                 }
 
                 if (!errors.isEmpty()) {
-                    StringBuffer buf = new StringBuffer("Invalid deployment descriptor: errors:\n\n");
-                    for (Object o: errors) {
+                    StringBuilder buf = new StringBuilder("Invalid deployment descriptor: errors:\n\n");
+                    for (Object o : errors) {
                         buf.append(o).append("\n\n");
                     }
                     buf.append("Descriptor:\n").append(dd.toString()).append("\n");
@@ -193,6 +206,5 @@ public class XmlBeansUtil {
         } catch (AssertionError e) {
             //ignore.  Would be the NPE above if assertions were turned off
         }
-//        System.out.println("descriptor: " + dd.toString());
     }
 }

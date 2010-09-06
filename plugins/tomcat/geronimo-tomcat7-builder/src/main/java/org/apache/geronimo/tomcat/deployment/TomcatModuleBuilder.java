@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.tomcat.deployment;
 
+import static java.lang.Boolean.TRUE;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,8 +28,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
 
 import javax.servlet.Servlet;
@@ -100,8 +104,6 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.lang.Boolean.TRUE;
-
 /**
  * @version $Rev:385659 $ $Date$
  */
@@ -112,6 +114,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
+    private static final Set<String> INGORE_ELEMENT_NAMES = new HashSet<String>();
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web-1.1", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
@@ -122,6 +125,10 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2", "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0", "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/tomcat/config", "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat/config-1.0");
+
+        INGORE_ELEMENT_NAMES.add("context-priority-classloader");
+        INGORE_ELEMENT_NAMES.add("configId");
+        INGORE_ELEMENT_NAMES.add("parentId");
     }
 
     private final Environment defaultEnvironment;
@@ -372,7 +379,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 XmlObject webPlan = new GenericToSpecificPlanConverter(GerTomcatDocument.type.getDocumentElementName().getNamespaceURI(),
                         TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI(), "tomcat").convertToSpecificPlan(rawPlan);
                 tomcatWebApp = (TomcatWebAppType) webPlan.changeType(TomcatWebAppType.type);
-                XmlBeansUtil.validateDD(tomcatWebApp);
+                XmlBeansUtil.validateDD(tomcatWebApp, INGORE_ELEMENT_NAMES);
             } else {
                 tomcatWebApp = createDefaultPlan();
             }
@@ -597,9 +604,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 //Also, currently, it seems that Tomcat could not handle those jndi elements correctly
                 webApp.setMetadataComplete(true);
 
-                String specDeploymentPlan = getSpecDDAsString(webModule);
-                module.setOriginalSpecDD(specDeploymentPlan);
-                
                 //remove naming stuff from webApp so tomcat doesn't process it uselessly
                 webApp.getEjbLocalRef().clear();
                 webApp.getEjbRef().clear();
@@ -609,8 +613,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 webApp.getResourceEnvRef().clear();
                 webApp.getResourceRef().clear();
                 webApp.getServiceRef().clear();
-                specDeploymentPlan = getSpecDDAsString(webModule);
-                earContext.addFile(new URI("./WEB-INF/web.xml"), specDeploymentPlan);                
+
+                String specDeploymentPlan = getSpecDDAsString(webModule);
+                module.setOriginalSpecDD(specDeploymentPlan);
+
+                earContext.addFile(new URI("./WEB-INF/web.xml"), specDeploymentPlan);
             }
             //}
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());

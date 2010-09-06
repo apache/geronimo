@@ -99,7 +99,6 @@ import org.apache.openejb.jee.Servlet;
 import org.apache.openejb.jee.ServletMapping;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.AbstractFinder;
-import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlDocumentProperties;
