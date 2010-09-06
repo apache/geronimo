@@ -72,6 +72,7 @@
 
         <openejbVersion>3.2-SNAPSHOT</openejbVersion>
         <openjpaVersion>2.0.1</openjpaVersion>
+        <openwebbeansVersion>1.0.0-SNAPSHOT</openwebbeansVersion>
         <derbyVersion>10.6.1.0</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
         <axis2Version>1.5</axis2Version>
@@ -1253,6 +1254,40 @@
                         <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openwebbeans</groupId>
+                <artifactId>openwebbeans-spi</artifactId>
+                <version>${openwebbeansVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.openwebbeans</groupId>
+                <artifactId>openwebbeans-impl</artifactId>
+                <version>${openwebbeansVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javassist</groupId>
+                        <artifactId>javassist</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>net.sf.scannotation</groupId>
+                        <artifactId>scannotation</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
+                <version>3.7.ga_1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.bundles</groupId>
+                <artifactId>scannotation</artifactId>
+                <version>1.0.2_1</version>
             </dependency>
 
             <dependency>
