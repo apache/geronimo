@@ -35,4 +35,5 @@
         <!--</xml-attribute>-->
     </gbean>
 
+    <gbean name="BValModuleBuilderExtension" class="org.apache.geronimo.bval.deployment.BValModuleBuilderExtension"/>
 </module>

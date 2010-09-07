@@ -23,17 +23,23 @@ package org.apache.geronimo.bval.deployment;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.validation.ValidationException;
+import javax.validation.ValidatorFactory;
+
 import org.apache.geronimo.bval.DefaultValidatorFactoryReference;
 import org.apache.geronimo.bval.DefaultValidatorReference;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
+import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
@@ -51,8 +57,21 @@ public class BValNamingBuilder extends AbstractNamingBuilder {
 
     @Override
     public void buildNaming(JndiConsumer specDD, XmlObject xmlObject1, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+        try {
+            // perform a lookup on the bound GBean and add this as a resource reference.  If 
+            // we can't find one, then bind in a default validator. 
+            EARContext moduleContext = module.getEarContext();
+            AbstractName abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), "ValidatorFactory", NameFactory.VALIDATOR_FACTORY);
+            // this verifies that the bean exists...if not, bind to a default factory reference. 
+            moduleContext.getGBeanInstance(abstractName);
+            String osgiJndiName = module.getEarContext().getNaming().toOsgiJndiName(abstractName);
+            String filter = "(osgi.jndi.service.name=" + osgiJndiName + ')';
+            put("java:comp/ValidatorFactory", new ResourceReference<ValidationException>(filter, ValidatorFactory.class.getName()), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+        } catch (GBeanNotFoundException e) {
+            // if we can't find one on the module, then bind to a default validator factory 
+            put("java:comp/ValidatorFactory", new DefaultValidatorFactoryReference(), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+        }
         put("java:comp/Validator", new DefaultValidatorReference(), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
-        put("java:comp/ValidatorFactory", new DefaultValidatorFactoryReference(), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
     }
 
     @Override

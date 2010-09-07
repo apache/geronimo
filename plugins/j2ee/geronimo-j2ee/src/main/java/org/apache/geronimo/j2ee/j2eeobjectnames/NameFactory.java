@@ -104,6 +104,8 @@ public class NameFactory {
     public static final String APP_CLIENT = "AppClient";
     public static final String PERSISTENCE_UNIT = "PersistenceUnit";
     public static final String PERSISTENCE_UNIT_MODULE = "PersistenceUnitModule";
+    public static final String VALIDATOR_FACTORY = "ValidatorFactory";
+    public static final String VALIDATOR_FACTORY_MODULE = "ValidatorFactoryModule";
     //jsr 88 configurer
     public static final String DEPLOYMENT_CONFIGURER = "DeploymentConfigurer";
     public static final String CONFIGURATION_STORE = "ConfigurationStore";
