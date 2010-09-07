@@ -38,6 +38,13 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>javaee-builder-support</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
             <version>${project.version}</version>
             <type>car</type>
@@ -78,6 +85,10 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
+                    <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                        <deploymentConfig>org.apache.geronimo.configs/javaee-builder-support/${project.version}/car</deploymentConfig>
+                    </deploymentConfigs>
                     <dependencies>
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>

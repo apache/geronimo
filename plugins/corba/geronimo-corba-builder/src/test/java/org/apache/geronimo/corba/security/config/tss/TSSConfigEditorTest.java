@@ -67,7 +67,7 @@ public class TSSConfigEditorTest extends TestCase {
     public void testSimple1() throws Exception {
         XmlObject xmlObject = getXmlObject(TEST_XML1);
         TSSConfigEditor editor = new TSSConfigEditor();
-        Object o = editor.getValue(xmlObject, null, null);
+        Object o = editor.getValue(xmlObject, null, null, null);
         TSSConfig tss = (TSSConfig) o;
         assertFalse(tss.isInherit());
         assertNotNull(tss.getTransport_mech());
@@ -76,7 +76,7 @@ public class TSSConfigEditorTest extends TestCase {
     public void testSimple2() throws Exception {
         XmlObject xmlObject = getXmlObject(TEST_XML2);
         TSSConfigEditor editor = new TSSConfigEditor();
-        TSSConfig tss = (TSSConfig) editor.getValue(xmlObject, null, null);
+        TSSConfig tss = (TSSConfig) editor.getValue(xmlObject, null, null, null);
         assertTrue(tss.isInherit());
         assertNotNull(tss.getTransport_mech());
         assertTrue(tss.getTransport_mech() instanceof TSSNULLTransportConfig);
@@ -86,7 +86,7 @@ public class TSSConfigEditorTest extends TestCase {
         try {
             XmlObject xmlObject = getXmlObject(TEST_XML3);
             TSSConfigEditor editor = new TSSConfigEditor();
-            TSSConfig tss = (TSSConfig) editor.getValue(xmlObject, null, null);
+            TSSConfig tss = (TSSConfig) editor.getValue(xmlObject, null, null, null);
             fail("Should fail");
         } catch (DeploymentException e) {
         }

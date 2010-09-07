@@ -81,7 +81,7 @@ public class JavaBeanXmlAttributeEditor extends PropertyEditorSupport {
             JavabeanType javaBeanType = document.getJavabean();
             
             Object javabean = xmlAttributeBuilder.getValue(javaBeanType,
-                javaBeanClazz.getName(),
+                    document, javaBeanClazz.getName(),
                 bundle);
 
             setValue(javabean);

@@ -58,6 +58,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.JspConfig;
@@ -127,14 +128,6 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         EARContext moduleContext = module.getEarContext();
         Map sharedContext = module.getSharedContext();
-        GBeanData jspServletData = AbstractWebModuleBuilder.DEFAULT_JSP_SERVLET_KEY.get(sharedContext);
-        if (jspServletData != null) {
-            try {
-                moduleContext.addGBean(jspServletData);
-            } catch (GBeanAlreadyExistsException e) {
-                throw new DeploymentException("jsp servlet already present", e);
-            }
-        }
 
         GBeanData webAppData = (GBeanData) sharedContext.get(WebModule.WEB_APP_DATA);
 
@@ -151,7 +144,9 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         Set<String> listenerNames = new HashSet<String>();
 
-        ClassFinder classFinder = createJspClassFinder(webApp, webModule, listenerNames);
+        Collection<URL> urls = getTldFiles(webApp, webModule);
+        LinkedHashSet<Class> classes = getListenerClasses(webApp, webModule, urls, listenerNames);
+        ClassFinder classFinder = new ClassFinder(new ArrayList<Class>(classes));
         webModule.setClassFinder(classFinder);
 
         namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);
@@ -172,17 +167,25 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
             webAppData.setReferencePattern("ContextCustomizer", jspLifecycleName);
         }
-        // add listeners
-        Object value = webAppData.getAttribute("listenerClassNames");
-        if (value instanceof Collection) {
-            ((Collection<String>) value).addAll(listenerNames);
-        }
-    }
 
-    protected ClassFinder createJspClassFinder(WebApp webApp, WebModule webModule, Set<String> listenerNames) throws DeploymentException {
-        Collection<URL> urls = getTldFiles(webApp, webModule);
-        LinkedHashSet<Class> classes = getListenerClasses(webApp, webModule, urls, listenerNames);
-        return new ClassFinder(new ArrayList<Class>(classes));
+        WebAppInfo webAppInfo = (WebAppInfo)sharedContext.get(WebModule.WEB_APP_INFO);
+        if (webAppInfo != null) {
+            webAppInfo.listeners.addAll(listenerNames);
+        } else {
+            GBeanData jspServletData = AbstractWebModuleBuilder.DEFAULT_JSP_SERVLET_KEY.get(sharedContext);
+            if (jspServletData != null) {
+                try {
+                    moduleContext.addGBean(jspServletData);
+                } catch (GBeanAlreadyExistsException e) {
+                    throw new DeploymentException("jsp servlet already present", e);
+                }
+            }
+            // add listeners
+            Object value = webAppData.getAttribute("listenerClassNames");
+            if (value instanceof Collection) {
+                ((Collection<String>) value).addAll(listenerNames);
+            }
+        }
     }
 
 

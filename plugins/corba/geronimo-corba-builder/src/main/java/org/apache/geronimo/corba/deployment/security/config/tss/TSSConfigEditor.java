@@ -90,7 +90,7 @@ public class TSSConfigEditor implements XmlAttributeBuilder {
      *          An IOException occured.
      */
     @Override
-    public Object getValue(XmlObject xmlObject, String type, Bundle bundle) throws DeploymentException {
+    public Object getValue(XmlObject xmlObject, XmlObject enclosing, String type, Bundle bundle) throws DeploymentException {
         TSSTssType tss;
         if (xmlObject instanceof TSSTssType) {
             tss = (TSSTssType) xmlObject;

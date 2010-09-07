@@ -74,6 +74,7 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.osgi.framework.Bundle;
@@ -351,10 +352,9 @@ public class JettyModuleBuilderTest extends TestSupport {
                 Collections.EMPTY_LIST,
                 new AbstractNameQuery(containerName),
                 //new AbstractNameQuery(containerName),
-                null, defaultServlets,
-                defaultFilters,
-                defaultFilterMappings,
+                new WebAppInfo(),
                 null,
+                "jsp", null,
                 null,
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),

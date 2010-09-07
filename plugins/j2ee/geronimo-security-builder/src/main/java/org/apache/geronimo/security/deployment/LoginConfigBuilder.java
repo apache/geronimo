@@ -183,7 +183,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                             if (builder == null) {
                                 throw new DeploymentException("No attribute builder deployed for namespace: " + namespace);
                             }
-                            Object value = builder.getValue(xmlObject, null, bundle);
+                            Object value = builder.getValue(anys[0], xmlOptionType, null, bundle);
                             options.put(key, value);
                         }
                     }

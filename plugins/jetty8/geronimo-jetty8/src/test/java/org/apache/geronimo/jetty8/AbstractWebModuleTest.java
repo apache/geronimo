@@ -63,6 +63,7 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.security.LoginService;
@@ -159,7 +160,6 @@ public class AbstractWebModuleTest extends TestSupport {
                 null,
                 "context",
                 null,
-                null,
                 false,
                 null,
                 null,
@@ -174,6 +174,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 securityHandlerFactory,
                 runAsSource,
                 new Holder(),
+                new WebAppInfo(),
                 null,
                 connectionTrackingCoordinator,
                 container,

@@ -51,6 +51,7 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
@@ -108,7 +109,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
                                 @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
                                 @ParamAttribute(name = "displayName") String displayName,
                                 @ParamAttribute(name = "contextParamMap") Map<String, String> contextParamMap,
-                                @ParamAttribute(name = "listenerClassNames") Collection<String> listenerClassNames,
+//                                @ParamAttribute(name = "listenerClassNames") Collection<String> listenerClassNames,
                                 @ParamAttribute(name = "distributable") boolean distributable,
                                 @ParamAttribute(name = "mimeMap") Map mimeMap,
                                 @ParamAttribute(name = "welcomeFiles") String[] welcomeFiles,
@@ -126,6 +127,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
                                 @ParamReference(name = "RunAsSource") RunAsSource runAsSource,
 
                                 @ParamAttribute(name = "holder") Holder holder,
+                                @ParamAttribute(name = "webAppInfo") WebAppInfo webAppInfo,
 
                                 @ParamReference(name = "Host") Host host,
                                 @ParamReference(name = "TrackedConnectionAssociator") TrackedConnectionAssociator trackedConnectionAssociator,
@@ -178,7 +180,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         this.componentContext = contextSource.getContext();
         UserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         integrationContext = new IntegrationContext(this.componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder);
-        webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath);
+        webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
         webAppContext.setCompactPath(compactPath);
@@ -231,7 +233,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         if (contextParamMap != null) {
             webAppContext.getInitParams().putAll(contextParamMap);
         }
-        setListenerClassNames(listenerClassNames);
+//        setListenerClassNames(listenerClassNames);
         webAppContext.setDistributable(distributable);
         webAppContext.setWelcomeFiles(welcomeFiles);
         setLocaleEncodingMapping(localeEncodingMapping);
@@ -345,24 +347,24 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         }
     }
 
-    public void setListenerClassNames(@ParamAttribute(name = "listenerClassNames")Collection<String> eventListeners) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        if (eventListeners != null) {
-            Collection<EventListener> listeners = new ArrayList<EventListener>();
-            for (String listenerClassName : eventListeners) {
-                EventListener listener = (EventListener) newInstance(listenerClassName);
-                listeners.add(listener);
-            }
-            webAppContext.setEventListeners(listeners.toArray(new EventListener[listeners.size()]));
-        }
-    }
+//    public void setListenerClassNames(@ParamAttribute(name = "listenerClassNames")Collection<String> eventListeners) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+//        if (eventListeners != null) {
+//            Collection<EventListener> listeners = new ArrayList<EventListener>();
+//            for (String listenerClassName : eventListeners) {
+//                EventListener listener = (EventListener) newInstance(listenerClassName);
+//                listeners.add(listener);
+//            }
+//            webAppContext.setEventListeners(listeners.toArray(new EventListener[listeners.size()]));
+//        }
+//    }
 
-    public void setErrorPages(@ParamAttribute(name = "errorPages")Map errorPageMap) {
+    public void setErrorPages(Map errorPageMap) {
         if (errorPageMap != null) {
             ((ErrorPageErrorHandler) this.webAppContext.getErrorHandler()).setErrorPages(errorPageMap);
         }
     }
 
-    public void setTagLibMap(@ParamAttribute(name = "tagLibMap")Map<String, String> tagLibMap) {
+    public void setTagLibMap(Map<String, String> tagLibMap) {
         if (tagLibMap != null) {
             for (Map.Entry<String, String> entry : tagLibMap.entrySet()) {
                 this.webAppContext.setResourceAlias(entry.getKey(), entry.getValue());
@@ -370,7 +372,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         }
     }
 
-    public void setSessionTimeoutSeconds(@ParamAttribute(name = "sessionTimeoutSeconds")int seconds) {
+    public void setSessionTimeoutSeconds(int seconds) {
         this.webAppContext.getSessionHandler().getSessionManager().setMaxInactiveInterval(seconds);
     }
 

@@ -92,7 +92,7 @@ public class SingleGBeanBuilder {
         }
     }
 
-    public void setXmlAttribute(String name, XmlObject xmlObject) throws DeploymentException {
+    public void setXmlAttribute(String name, XmlObject xmlObject, XmlObject enclosing) throws DeploymentException {
         String namespace = xmlObject.getDomNode().getNamespaceURI();
         XmlAttributeBuilder builder = (XmlAttributeBuilder) xmlAttributeBuilderMap.get(namespace);
         if (builder == null) {
@@ -103,7 +103,7 @@ public class SingleGBeanBuilder {
             throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getAbstractName());
         }
         String type = attribute.getType();
-        Object value = builder.getValue(xmlObject, type, bundle);
+        Object value = builder.getValue(xmlObject, enclosing, type, bundle);
         gbean.setAttribute(name, value);
     }
 

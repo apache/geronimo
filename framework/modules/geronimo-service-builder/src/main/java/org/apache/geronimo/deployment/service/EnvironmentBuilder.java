@@ -285,7 +285,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         return NAMESPACE;
     }
 
-    public Object getValue(XmlObject xmlObject, String type, Bundle bundle) throws DeploymentException {
+    public Object getValue(XmlObject xmlObject, XmlObject enclosing, String type, Bundle bundle) throws DeploymentException {
 
         EnvironmentType environmentType;
         if (xmlObject instanceof EnvironmentType) {
@@ -321,7 +321,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         try {
             EnvironmentDocument environmentDocument = EnvironmentDocument.Factory.parse(text);
             EnvironmentType environmentType = environmentDocument.getEnvironment();
-            Environment environment = (Environment) getValue(environmentType, null, null);
+            Environment environment = (Environment) getValue(environmentType, null, null, null);
             setValue(environment);
 
         } catch (XmlException e) {

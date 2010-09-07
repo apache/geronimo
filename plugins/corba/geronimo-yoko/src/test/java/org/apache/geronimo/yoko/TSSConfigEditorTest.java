@@ -73,7 +73,7 @@ public class TSSConfigEditorTest extends TestCase {
         CORBABean corbaBean = new CORBABean(testName, configAdapter, "localhost", 8050, getClass().getClassLoader(), null, null);
         XmlObject xmlObject = getXmlObject(TEST_XML4);
         TSSConfigEditor editor = new TSSConfigEditor();
-        Object o = editor.getValue(xmlObject, null, bundle);
+        Object o = editor.getValue(xmlObject, null, null, bundle);
         TSSConfig tss = (TSSConfig) o;
 
         corbaBean.setTssConfig(tss);

@@ -45,7 +45,7 @@ public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
         return NAMESPACE;
     }
 
-    public Object getValue(XmlObject xmlObject, String type, Bundle bundle) throws DeploymentException {
+    public Object getValue(XmlObject xmlObject, XmlObject enclosing, String type, Bundle bundle) throws DeploymentException {
         JavabeanType javabean = (JavabeanType) xmlObject.copy().changeType(JavabeanType.type);
         return internalGetValue(javabean, type, bundle);
     }
@@ -125,7 +125,7 @@ public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
                 PropertyDescriptor propertyDescriptor = propertyDescriptors[j];
                 if (propertyName.equals(propertyDescriptor.getName())) {
                     String propertyType = propertyDescriptor.getPropertyType().getName();
-                    Object value = getValue(innerBean, propertyType, bundle);
+                    Object value = getValue(innerBean, beanProperty, propertyType, bundle);
                     Method m = propertyDescriptor.getWriteMethod();
                     try {
                         m.invoke(instance, new Object[] {value});

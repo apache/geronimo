@@ -133,7 +133,7 @@ public class GBeanBuilder implements NamespaceDrivenBuilder {
                 if (anys.length != 1) {
                     throw new DeploymentException("Unexpected count of xs:any elements in xml-attribute " + anys.length + " qnameset: " + XmlAttributeType.type.qnameSetForWildcardElements());
                 }
-                builder.setXmlAttribute(name, anys[0]);
+                builder.setXmlAttribute(name, anys[0], xmlAttributeType);
             }
         }
 

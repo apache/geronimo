@@ -78,7 +78,7 @@ public class CSSConfigEditor implements XmlAttributeBuilder {
     }
 
     @Override
-    public Object getValue(XmlObject xmlObject, String type, Bundle bundle) throws DeploymentException {
+    public Object getValue(XmlObject xmlObject, XmlObject enclosing, String type, Bundle bundle) throws DeploymentException {
 
         CSSCssType css;
         if (xmlObject instanceof CSSCssType) {

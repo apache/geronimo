@@ -46,7 +46,7 @@ public class CredentialStoreBuilder implements XmlAttributeBuilder {
         return NAMESPACE;
     }
 
-    public Object getValue(XmlObject xmlObject, String type, Bundle bundle) throws DeploymentException {
+    public Object getValue(XmlObject xmlObject, XmlObject enclosing, String type, Bundle bundle) throws DeploymentException {
         Map<String, Map<String, Map<String, String>>> credentialStore = new HashMap<String, Map<String, Map<String, String>>>();
         CredentialStoreType cst = (CredentialStoreType) xmlObject.copy().changeType(CredentialStoreType.type);
         for (RealmType realmType: cst.getRealmArray()) {

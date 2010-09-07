@@ -25,57 +25,158 @@
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
         <attribute name="jettyContainerObjectName">?name=JettyWebContainer</attribute>
         <attribute name="defaultLocaleEncodingMappings">
-ar=ISO-8859-6
-be=ISO-8859-5
-bg=ISO-8859-5
-ca=ISO-8859-1
-cs=ISO-8859-2
-da=ISO-8859-1
-de=ISO-8859-1
-el=ISO-8859-7
-en=ISO-8859-1
-es=ISO-8859-1
-et=ISO-8859-1
-fi=ISO-8859-1
-fr=ISO-8859-1
-hr=ISO-8859-2
-hu=ISO-8859-2
-is=ISO-8859-1
-it=ISO-8859-1
-iw=ISO-8859-8
-ja=Shift_JIS
-ko=EUC-KR
-lt=ISO-8859-2
-lv=ISO-8859-2
-mk=ISO-8859-5
-nl=ISO-8859-1
-no=ISO-8859-1
-pl=ISO-8859-2
-pt=ISO-8859-1
-ro=ISO-8859-2
-ru=ISO-8859-5
-sh=ISO-8859-5
-sk=ISO-8859-2
-sl=ISO-8859-2
-sq=ISO-8859-2
-sr=ISO-8859-5
-sv=ISO-8859-1
-tr=ISO-8859-9
-uk=ISO-8859-5
-zh=GB2312
-zh_TW=Big5
+            ar=ISO-8859-6
+            be=ISO-8859-5
+            bg=ISO-8859-5
+            ca=ISO-8859-1
+            cs=ISO-8859-2
+            da=ISO-8859-1
+            de=ISO-8859-1
+            el=ISO-8859-7
+            en=ISO-8859-1
+            es=ISO-8859-1
+            et=ISO-8859-1
+            fi=ISO-8859-1
+            fr=ISO-8859-1
+            hr=ISO-8859-2
+            hu=ISO-8859-2
+            is=ISO-8859-1
+            it=ISO-8859-1
+            iw=ISO-8859-8
+            ja=Shift_JIS
+            ko=EUC-KR
+            lt=ISO-8859-2
+            lv=ISO-8859-2
+            mk=ISO-8859-5
+            nl=ISO-8859-1
+            no=ISO-8859-1
+            pl=ISO-8859-2
+            pt=ISO-8859-1
+            ro=ISO-8859-2
+            ru=ISO-8859-5
+            sh=ISO-8859-5
+            sk=ISO-8859-2
+            sl=ISO-8859-2
+            sq=ISO-8859-2
+            sr=ISO-8859-5
+            sv=ISO-8859-1
+            tr=ISO-8859-9
+            uk=ISO-8859-5
+            zh=GB2312
+            zh_TW=Big5
         </attribute>
         <attribute name="defaultMimeTypeMappings">
-wsdl=text/xml
+            wsdl=text/xml
         </attribute>
-        <references name="DefaultServlets">
-            <pattern>
-                <name>StaticContent</name>
-            </pattern>
-        </references>
-        <reference name="JspServlet">
-            <name>JSPServlet</name>
-        </reference>
+        <xml-attribute name="defaultWebApp">
+            <web-app xmlns="http://java.sun.com/xml/ns/javaee">
+                <servlet>
+                    <servlet-name>default</servlet-name>
+                    <servlet-class>org.eclipse.jetty.servlet.DefaultServlet</servlet-class>
+                    <init-param>
+                        <param-name>acceptRanges</param-name>
+                        <param-value>true</param-value>
+                    </init-param>
+                    <init-param>
+                        <param-name>dirAllowed</param-name>
+                        <param-value>true</param-value>
+                    </init-param>
+                    <init-param>
+                        <param-name>putAllowed</param-name>
+                        <param-value>false</param-value>
+                    </init-param>
+                    <init-param>
+                        <param-name>delAllowed</param-name>
+                        <param-value>false</param-value>
+                    </init-param>
+                    <init-param>
+                        <param-name>redirectWelcome</param-name>
+                        <param-value>false</param-value>
+                    </init-param>
+                    <init-param>
+                        <param-name>minGzipLength</param-name>
+                        <param-value>8192</param-value>
+                    </init-param>
+                    <load-on-startup>0</load-on-startup>
+                </servlet>
+                <servlet-mapping>
+                    <servlet-name>default</servlet-name>
+                    <url-pattern>/</url-pattern>
+                </servlet-mapping>
+
+                <servlet>
+                     <servlet-name>jsp</servlet-name>
+                     <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
+                     <init-param>
+                         <param-name>development</param-name>
+                         <param-value>false</param-value>
+                     </init-param>
+                     <init-param>
+                         <param-name>fork</param-name>
+                         <param-value>false</param-value>
+                     </init-param>
+                     <init-param>
+                         <param-name>logVerbosityLevel</param-name>
+                         <param-value>DEBUG</param-value>
+                     </init-param>
+                     <init-param>
+                         <param-name>xpoweredBy</param-name>
+                         <param-value>false</param-value>
+                     </init-param>
+                     <init-param>
+                         <param-name>engineOptionsClass</param-name>
+                         <param-value>org.apache.geronimo.jasper.JspServletOptions</param-value>
+                     </init-param>
+                     <load-on-startup>0</load-on-startup>
+                 </servlet>
+                 <servlet-mapping>
+                     <servlet-name>jsp</servlet-name>
+                     <url-pattern>*.jsp</url-pattern>
+                     <url-pattern>*.jspf</url-pattern>
+                     <url-pattern>*.jspx</url-pattern>
+                     <url-pattern>*.xsp</url-pattern>
+                 </servlet-mapping>
+
+            </web-app>
+        </xml-attribute>
+        <xml-attribute name="jspServlet">
+            <web-app xmlns="http://java.sun.com/xml/ns/javaee">
+                <servlet>
+                    <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
+                    <init-param>
+                        <param-name>development</param-name>
+                        <param-value>false</param-value>
+                    </init-param>
+                    <init-param>
+                        <param-name>fork</param-name>
+                        <param-value>false</param-value>
+                    </init-param>
+                    <init-param>
+                        <param-name>logVerbosityLevel</param-name>
+                        <param-value>DEBUG</param-value>
+                    </init-param>
+                    <init-param>
+                        <param-name>xpoweredBy</param-name>
+                        <param-value>false</param-value>
+                    </init-param>
+                    <init-param>
+                        <param-name>engineOptionsClass</param-name>
+                        <param-value>org.apache.geronimo.jasper.JspServletOptions</param-value>
+                    </init-param>
+                </servlet>
+            </web-app>
+
+
+        </xml-attribute>
+        <attribute name="defaultJspServletName">jsp</attribute>
+        <!--<references name="DefaultServlets">-->
+        <!--<pattern>-->
+        <!--<name>StaticContent</name>-->
+        <!--</pattern>-->
+        <!--</references>-->
+        <!--<reference name="JspServlet">-->
+        <!--<name>JSPServlet</name>-->
+        <!--</reference>-->
         <reference name="PojoWebServiceTemplate">
             <name>POJOTemplate</name>
         </reference>
@@ -144,34 +245,34 @@ wsdl=text/xml
         </xml-attribute>
     </gbean>
 
-    <gbean name="StaticContent" class="org.apache.geronimo.jetty8.DefaultServletHolderWrapper">
-        <attribute name="servletName">default</attribute>
-        <attribute name="servletClass">org.eclipse.jetty.servlet.DefaultServlet</attribute>
-        <attribute name="loadOnStartup">0</attribute>
-        <attribute name="initParams">
-            acceptRanges=true
-            dirAllowed=true
-            putAllowed=false
-            delAllowed=false
-            redirectWelcome=false
-            minGzipLength=8192
-        </attribute>
-        <attribute name="servletMappings">/</attribute>
-    </gbean>
+    <!--<gbean name="StaticContent" class="org.apache.geronimo.jetty8.DefaultServletHolderWrapper">-->
+    <!--<attribute name="servletName">default</attribute>-->
+    <!--<attribute name="servletClass">org.eclipse.jetty.servlet.DefaultServlet</attribute>-->
+    <!--<attribute name="loadOnStartup">0</attribute>-->
+    <!--<attribute name="initParams">-->
+    <!--acceptRanges=true-->
+    <!--dirAllowed=true-->
+    <!--putAllowed=false-->
+    <!--delAllowed=false-->
+    <!--redirectWelcome=false-->
+    <!--minGzipLength=8192-->
+    <!--</attribute>-->
+    <!--<attribute name="servletMappings">/</attribute>-->
+    <!--</gbean>-->
 
-    <gbean name="JSPServlet" class="org.apache.geronimo.jetty8.JspServletHolderWrapper">
-        <attribute name="servletName">jsp</attribute>
-        <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
-        <attribute name="loadOnStartup">0</attribute>
-        <attribute name="initParams">
-            development=false
-            fork=false
-            logVerbosityLevel=DEBUG
-            xpoweredBy=false
-            engineOptionsClass=org.apache.geronimo.jasper.JspServletOptions
-        </attribute>
-        <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
-    </gbean>
+    <!--<gbean name="JSPServlet" class="org.apache.geronimo.jetty8.JspServletHolderWrapper">-->
+    <!--<attribute name="servletName">jsp</attribute>-->
+    <!--<attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>-->
+    <!--<attribute name="loadOnStartup">0</attribute>-->
+    <!--<attribute name="initParams">-->
+    <!--development=false-->
+    <!--fork=false-->
+    <!--logVerbosityLevel=DEBUG-->
+    <!--xpoweredBy=false-->
+    <!--engineOptionsClass=org.apache.geronimo.jasper.JspServletOptions-->
+    <!--</attribute>-->
+    <!--<attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>-->
+    <!--</gbean>-->
 
     <gbean name="POJOTemplate" class="org.apache.geronimo.jetty8.POJOWebServiceHolderWrapper">
         <attribute name="servletName">dummy</attribute>

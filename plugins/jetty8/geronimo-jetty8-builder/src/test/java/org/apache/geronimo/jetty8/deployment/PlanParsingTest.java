@@ -23,13 +23,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.jar.JarFile;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
@@ -52,6 +50,7 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
@@ -59,7 +58,6 @@ import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.service.packageadmin.ExportedPackage;
@@ -149,10 +147,9 @@ public class PlanParsingTest extends XmlBeansTestSupport {
                 new Integer(1800),
                 null,
                 jettyContainerObjectName,
-                null, new HashSet(),
-                new HashSet(),
-                new HashSet(),
+                new WebAppInfo(),
                 null,
+                "jsp", null,
                 null,
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),

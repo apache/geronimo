@@ -34,6 +34,7 @@ import org.apache.xmlbeans.XmlObject;
 public class WebModule extends Module<WebApp, XmlObject> {
     private final String contextRoot;
     public static final String WEB_APP_DATA = "WEB_APP_DATA";
+    public static final String WEB_APP_INFO = "WEB_APP_INFO";
 
     public WebModule(boolean standAlone,
                      AbstractName moduleName,

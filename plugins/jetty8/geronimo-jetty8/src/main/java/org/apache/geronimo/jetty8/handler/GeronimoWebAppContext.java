@@ -23,8 +23,11 @@ package org.apache.geronimo.jetty8.handler;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.EventListener;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -35,6 +38,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.geronimo.web.assembler.Assembler;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.security.SecurityHandler;
@@ -61,9 +66,11 @@ public class GeronimoWebAppContext extends WebAppContext {
     private final IntegrationContext integrationContext;
     private final String modulePath;
     private final ClassLoader classLoader;
+    private final WebAppInfo webAppInfo;
     private ServiceRegistration serviceRegistration;
+    boolean fullyStarted = false;
 
-    public GeronimoWebAppContext(SecurityHandler securityHandler, SessionHandler sessionHandler, ServletHandler servletHandler, ErrorHandler errorHandler, IntegrationContext integrationContext, ClassLoader classLoader, String modulePath) {
+    public GeronimoWebAppContext(SecurityHandler securityHandler, SessionHandler sessionHandler, ServletHandler servletHandler, ErrorHandler errorHandler, IntegrationContext integrationContext, ClassLoader classLoader, String modulePath, WebAppInfo webAppInfo) {
         super(sessionHandler, securityHandler, servletHandler, errorHandler);
         _scontext = new Context();
         this.integrationContext = integrationContext;
@@ -79,6 +86,7 @@ public class GeronimoWebAppContext extends WebAppContext {
             // ignore.  We just don't set the property if it's not available. 
         }
         this.modulePath = modulePath;
+        this.webAppInfo = webAppInfo;
     }
 
     public void registerServletContext() {
@@ -103,7 +111,10 @@ public class GeronimoWebAppContext extends WebAppContext {
         ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
         try {
             try {
+                Assembler assembler = new Assembler();
+                assembler.assemble(getServletContext(), webAppInfo);
                 super.doStart();
+                fullyStarted = true;
             } finally {
                 integrationContext.restoreConnectorContext(connectorContext, null, newContext);
             }
@@ -185,12 +196,34 @@ public class GeronimoWebAppContext extends WebAppContext {
     
     @Override
     public Resource getResource(String uriInContext) throws MalformedURLException {
+        if (uriInContext == null || !uriInContext.startsWith("/")) {
+            throw new MalformedURLException("Path must not be null and must start with '/': " + uriInContext);
+        }
         if (modulePath != null) {
             uriInContext = modulePath + uriInContext;
         }
         return lookupResource(uriInContext);
     }
-    
+
+    @Override
+    public Set<String> getResourcePaths(String uriInContext) {
+        if (uriInContext == null || !uriInContext.startsWith("/")) {
+            return Collections.emptySet();
+        }
+        if (modulePath != null) {
+            uriInContext = modulePath + uriInContext;
+        }
+        HashSet<String> paths = new HashSet<String>();
+        Bundle bundle = integrationContext.getBundle();
+        Enumeration<String> e = bundle.getEntryPaths(uriInContext);
+        if (e != null) {
+            while (e.hasMoreElements()) {
+                paths.add("/" + e.nextElement());
+            }
+        }
+        return paths;
+    }
+
     private Resource lookupResource(String uriInContext) {
         Bundle bundle = integrationContext.getBundle();
         URL url = BundleUtils.getEntry(bundle, uriInContext);
@@ -222,6 +255,32 @@ public class GeronimoWebAppContext extends WebAppContext {
     }
 
     public class Context extends WebAppContext.Context {
+
+        /**
+         * This is copied from jetty so we can override the restriction on event listeners.
+         * TODO consider talking to jetty about making this more flexible there.
+         * @param listenerClass
+         */
+        @Override
+        public void addListener(Class<? extends EventListener> listenerClass)
+        {
+            if (!_enabled)
+                throw new UnsupportedOperationException();
+
+            try
+            {
+                EventListener e = createListener(listenerClass);
+                GeronimoWebAppContext.this.addEventListener(e);
+                if (fullyStarted) {
+                    GeronimoWebAppContext.this.restrictEventListener(e);
+                }
+            }
+            catch (ServletException e)
+            {
+                throw new IllegalArgumentException(e);
+            }
+        }
+
         @Override
         public <T extends Filter> T createFilter(Class<T> c) throws ServletException {
             try {
