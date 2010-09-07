@@ -61,7 +61,7 @@ Application Deployment
  Applications can be deployed to a Geronimo server in several ways:
 
  1. Administrative command scripts -- "./bin/deploy deploy MyApp.war MyDeploymentPlan.xml"
- 2. Administrative console -- login to the admin console and click "Deploy New" under Applications
+ 2. Administrative console -- login to the admin console and click "Deployer" under Applications
  3. Hot deploy -- copy your archive(s) into the "<geronimo-home>/deploy" directory. The
     hot deploy service will automatically deploy these artifacts.
  4. Maven -- applications can be installed as part of a maven build

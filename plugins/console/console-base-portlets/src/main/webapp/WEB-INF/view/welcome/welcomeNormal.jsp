@@ -67,9 +67,9 @@
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
-                        <img src='/console/images/ico_list_16x16.gif' alt=""/><a href="/console/portal/3-8/Applications/Deploy New"><fmt:message key="welcome.welcomeNormal.deployNew"/></a><br />
-                        <img src='/console/images/ico_servcomp_16x16.gif' alt=""/><a href="/console/portal/1-5/Server/Web Server"><fmt:message key="welcome.welcomeNormal.webServerPorts"/></a><br />
-                        <img src='/console/images/ico_look_16x16.gif' alt=""/><a href="/console/portal/1-1/Server/Information"><fmt:message key="welcome.welcomeNormal.serverInfo"/></a><br />
+                        <img src='/console/images/ico_list_16x16.gif' alt=""/><a href="/console/portal/2-1/Applications/Deployer"><fmt:message key="welcome.welcomeNormal.deployNew"/></a><br />
+                        <img src='/console/images/ico_servcomp_16x16.gif' alt=""/><a href="/console/portal/1-2/Application Server/Web Server"><fmt:message key="welcome.welcomeNormal.webServerPorts"/></a><br />
+                        <img src='/console/images/ico_look_16x16.gif' alt=""/><a href="/console/portal/1-1-1/Application Server/System%20Information/Server Information"><fmt:message key="welcome.welcomeNormal.serverInfo"/></a><br />
                         &nbsp;<br />
                     </td>
                 </tr>
