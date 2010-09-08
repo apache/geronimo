@@ -25,6 +25,7 @@ import javax.persistence.ValidationMode;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.kernel.osgi.MockBundle;
+import org.apache.geronimo.bval.ValidatorFactoryGBean; 
 
 /**
  * @version $Rev$ $Date$
@@ -52,6 +53,7 @@ public class PersistenceUnitGBeanTest extends TestCase {
                 "2.0",
                 SharedCacheMode.NONE,
                 ValidationMode.AUTO,
+                new ValidatorFactoryGBean("Dummy", new MockBundle(getClass().getClassLoader(), "", 0L), getClass().getClassLoader(), null), 
                 new MockBundle(getClass().getClassLoader(), "", 0L),
                 getClass().getClassLoader());
         assertNotNull(gbean.getManagedClassNames());

@@ -45,6 +45,9 @@
             <pattern>
                 <name>SecurityBuilder</name>
             </pattern>
+            <pattern>
+                <name>BValModuleBuilderExtension</name>
+            </pattern>
         </references>
         <references name="ServiceBuilders">
             <pattern>

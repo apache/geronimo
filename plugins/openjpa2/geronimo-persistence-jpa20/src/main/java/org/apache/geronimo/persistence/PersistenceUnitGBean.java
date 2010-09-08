@@ -39,6 +39,7 @@ import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.resource.ResourceException;
 import javax.sql.DataSource;
+import org.apache.geronimo.bval.ValidatorFactoryGBean; 
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.SingleElementCollection;
@@ -87,6 +88,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                                 @ParamAttribute(name = "persistenceXMLSchemaVersion") String persistenceXMLSchemaVersion,
                                 @ParamAttribute(name = "sharedCacheMode") SharedCacheMode sharedCacheMode,
                                 @ParamAttribute(name = "validationMode") ValidationMode validationMode,
+                                @ParamReference(name = "ValidatorFactory", namingType = NameFactory.VALIDATOR_FACTORY) ValidatorFactoryGBean validatorFactory,
                                 @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
                                 @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) throws URISyntaxException, MalformedURLException, ResourceException {
         List<String> mappingFileNames = mappingFileNamesUntyped == null ? NO_STRINGS : new ArrayList<String>(mappingFileNamesUntyped);
@@ -112,6 +114,8 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         if (properties == null) {
             properties = new Properties();
         }
+        // add the module validator factory instance 
+        properties.put("javax.persistence.validation.factory", validatorFactory.getFactory());
         PersistenceUnitTransactionType persistenceUnitTransactionType = persistenceUnitTransactionTypeString == null ? PersistenceUnitTransactionType.JTA : PersistenceUnitTransactionType.valueOf(persistenceUnitTransactionTypeString);
 
         if (persistenceProviderClassName == null) persistenceProviderClassName = "org.apache.openjpa.persistence.PersistenceProviderImpl";

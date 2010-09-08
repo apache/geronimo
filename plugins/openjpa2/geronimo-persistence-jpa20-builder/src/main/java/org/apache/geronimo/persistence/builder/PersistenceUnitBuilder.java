@@ -241,6 +241,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             gbeanData.setReferencePattern("NonJtaDataSourceWrapper", defaultNonJtaDataSourceName);
         }
 
+        gbeanData.setAttribute("moduleName", module.getModuleName());
         gbeanData.setAttribute("mappingFileNames", new ArrayList<String>());
         gbeanData.setAttribute("excludeUnlistedClasses", false);
         gbeanData.setAttribute("managedClassNames", new ArrayList<String>());
@@ -251,6 +252,8 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         AbstractNameQuery transactionManagerName = moduleContext.getTransactionManagerName();
         gbeanData.setReferencePattern("TransactionManager", transactionManagerName);
         gbeanData.setReferencePattern("EntityManagerRegistry", extendedEntityManagerRegistryName);
+        AbstractName validatorName = moduleContext.getNaming().createChildName(module.getModuleName(), "ValidatorFactory", NameFactory.VALIDATOR_FACTORY);
+        gbeanData.setReferencePattern("ValidatorFactory", validatorName);
 
         setOverrideableProperties(persistenceUnit, gbeanData);
         return gbeanData;
