@@ -241,7 +241,6 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             gbeanData.setReferencePattern("NonJtaDataSourceWrapper", defaultNonJtaDataSourceName);
         }
 
-        gbeanData.setAttribute("moduleName", module.getModuleName());
         gbeanData.setAttribute("mappingFileNames", new ArrayList<String>());
         gbeanData.setAttribute("excludeUnlistedClasses", false);
         gbeanData.setAttribute("managedClassNames", new ArrayList<String>());

@@ -19,21 +19,19 @@
 <!-- $Rev$ $Date$ -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-
     <gbean name="BValNamingBuilder" class="org.apache.geronimo.bval.deployment.BValNamingBuilder">
-        <!--<xml-attribute name="defaultEnvironment">-->
-            <!--<environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">-->
-                <!--<dependencies>-->
-                    <!--<dependency>-->
-                        <!--<groupId>${pom.groupId}</groupId>-->
-                        <!--<artifactId>geronimo-bval</artifactId>-->
-                        <!--<type>jar</type>-->
-                    <!--</dependency>-->
-                <!--</dependencies>-->
-                <!--<import-package>javax.validation</import-package>-->
-            <!--</environment>-->
-        <!--</xml-attribute>-->
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>geronimo-bval</artifactId>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+                <import-package>javax.validation</import-package>
+            </environment>
+        </xml-attribute>
     </gbean>
-
     <gbean name="BValModuleBuilderExtension" class="org.apache.geronimo.bval.deployment.BValModuleBuilderExtension"/>
 </module>
