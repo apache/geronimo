@@ -24,7 +24,7 @@
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
                 <dependencies>
                     <dependency>
-                        <groupId>${pom.groupId}</groupId>
+                        <groupId>org.apache.geronimo.modules</groupId>
                         <artifactId>geronimo-bval</artifactId>
                         <type>jar</type>
                     </dependency>

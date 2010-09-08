@@ -55,6 +55,12 @@ public class BValNamingBuilder extends AbstractNamingBuilder {
         super(defaultEnvironment);
     }
 
+    @Override 
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) {
+        // we always merge our information 
+        return true; 
+    }
+
     @Override
     public void buildNaming(JndiConsumer specDD, XmlObject xmlObject1, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         try {
