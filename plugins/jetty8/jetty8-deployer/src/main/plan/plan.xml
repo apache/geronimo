@@ -227,6 +227,9 @@
             <pattern>
                 <name>EJBBuilder</name>
             </pattern>
+            <pattern>
+                <name>BValModuleBuilderExtension</name>
+            </pattern>
         </references>
         <reference name="ResourceEnvironmentSetter">
             <name>ResourceRefBuilder</name>
