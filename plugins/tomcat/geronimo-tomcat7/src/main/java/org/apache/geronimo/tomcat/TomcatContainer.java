@@ -36,6 +36,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Service;
 import org.apache.catalina.connector.Connector;
+import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardService;
 import org.apache.catalina.startup.ContextConfig;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -44,6 +45,7 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
@@ -54,10 +56,10 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.naming.resources.DirContextURLStreamHandlerFactory;
+import org.apache.tomcat.InstanceManager;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.geronimo.j2ee.annotation.Holder;
 
 
 /**
@@ -172,9 +174,8 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             for (Container host : hosts) {
                 defaultContext = createContext("", classLoader, null);
                 defaultContext.setDocBase(docBase);
-                if (objName != null) {
-                    defaultContext.setName(objName.getKeyProperty(NameFactory.J2EE_NAME));
-                }
+                //Set the name of default context with "", so that while accessing an un-existing context, the default one will be used
+                defaultContext.setName("");
                 if (defaultContext instanceof GeronimoStandardContext) {
                     GeronimoStandardContext ctx = (GeronimoStandardContext) defaultContext;
                     // Without this the Tomcat FallBack Application is left behind,
@@ -205,6 +206,16 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             // components.
             embedded.start();
             this.embedded = embedded;
+
+            //10. Set InstanceManager for each default Context
+            //The reason for placing the codes here (not in the step 2 ) is NPE is get while invoking the getServletContext method
+            for (Container host : hosts) {
+                Container container = host.findChild("");
+                if (container instanceof GeronimoStandardContext) {
+                    GeronimoStandardContext ctx = (GeronimoStandardContext) container;
+                    ctx.getServletContext().setAttribute(InstanceManager.class.getName(), ctx.getInstanceManager());
+                }
+            }
         }
         this.objectName = objectName;
         this.applicationListeners = applicationListeners;
@@ -287,14 +298,14 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         // set the bundle context attribute in the servlet context
         context.getServletContext().setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE,
                                                  contextInfo.getBundle().getBundleContext());
-        
-        // now set the module context ValidatorFactory in a context property. 
+
+        // now set the module context ValidatorFactory in a context property.
         try {
-            javax.naming.Context ctx = contextInfo.getJndiContext(); 
+            javax.naming.Context ctx = contextInfo.getJndiContext();
             Object validatorFactory = ctx.lookup("comp/ValidatorFactory");
             context.getServletContext().setAttribute("javax.faces.validator.beanValidator.ValidatorFactory", validatorFactory);
         } catch (NamingException e) {
-            // ignore.  We just don't set the property if it's not available. 
+            // ignore.  We just don't set the property if it's not available.
         }
 
         // Set the context for the Tomcat implementation
