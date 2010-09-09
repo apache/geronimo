@@ -54,22 +54,23 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
     private ClassLoader classLoader;
     private ObjectName objectName;
     private boolean waitWhenBlocked;
-    
+
     // Statistics-related fields follow
     private boolean statsActive = true;
     private PoolStatsImpl stats = new PoolStatsImpl();
-    private Map clients = new HashMap();
+
+    private Map<String, Integer> clients = new HashMap<String, Integer>();
 
     public ThreadPool(int minPoolSize, int maxPoolSize, String poolName, long keepAliveTime, ClassLoader classLoader, String objectName) {
         ThreadPoolExecutor p = new ThreadPoolExecutor(
             minPoolSize, // core size
             maxPoolSize, // max size
             keepAliveTime, TimeUnit.MILLISECONDS,
-            new SynchronousQueue());
+            new SynchronousQueue<Runnable>());
 
         p.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         p.setThreadFactory(new ThreadPoolThreadFactory(poolName, classLoader));
-        
+
         try {
             this.objectName = ObjectName.getInstance(objectName);
         } catch (MalformedObjectNameException e) {
@@ -119,7 +120,7 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
                 stats.prepareConsumers(clients);
             }
         } else {
-            stats.prepareConsumers(Collections.EMPTY_MAP);
+            stats.prepareConsumers(Collections.<String, Integer> emptyMap());
         }
         // set last sapmle time
         stats.setLastSampleTime();
@@ -142,7 +143,8 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
         private BoundedRangeStatisticImpl threadsInUse = new BoundedRangeStatisticImpl(
                 "Threads In Use", "",
                 "The number of threads in use by this thread pool");
-        private Map consumers = new HashMap();
+
+        private Map<String, CountStatisticImpl> consumers = new HashMap<String, CountStatisticImpl>();
 
         public PoolStatsImpl() {
             addStat(threadsInUse.getName(), threadsInUse);
@@ -153,19 +155,19 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
         }
 
         public CountStatistic getCountForConsumer(String consumer) {
-            return (CountStatistic) consumers.get(consumer);
+            return consumers.get(consumer);
         }
 
         public String[] getThreadConsumers() {
-            return (String[]) consumers.keySet().toArray(new String[consumers.size()]);
+            return consumers.keySet().toArray(new String[consumers.size()]);
         }
 
-        public void prepareConsumers(Map clients) {
-            Map result = new HashMap();
-            for (Iterator it = clients.keySet().iterator(); it.hasNext();) {
-                String client = (String) it.next();
-                Integer count = (Integer) clients.get(client);
-                CountStatisticImpl stat = (CountStatisticImpl) consumers.get(client);
+        public void prepareConsumers(Map<String, Integer> clients) {
+            Map<String, CountStatisticImpl> result = new HashMap<String, CountStatisticImpl>();
+            for (Map.Entry<String, Integer> entry : clients.entrySet()) {
+                String client = entry.getKey();
+                Integer count = entry.getValue();
+                CountStatisticImpl stat = consumers.get(client);
                 if (stat == null) {
                     stat = new CountStatisticImpl("Threads for " + client, "", "The number of threads used by the client known as '" + client + "'", count.intValue());
                     addStat(stat.getName(), stat);
@@ -175,9 +177,9 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
                 }
                 result.put(client, stat);
             }
-            for (Iterator it = consumers.keySet().iterator(); it.hasNext();) {
-                String client = (String) it.next();
-                removeStat(((CountStatisticImpl) consumers.get(client)).getName());
+            for (Iterator<String> it = consumers.keySet().iterator(); it.hasNext();) {
+                String client = it.next();
+                removeStat((consumers.get(client)).getName());
             }
             consumers = result;
         }
@@ -203,11 +205,11 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
     public void execute(Runnable command) {
         execute("Unknown", command);
     }
-    
+
     public void execute(Runnable command, long timeout, TimeUnit unit) {
         execute("Unknown", command, timeout, unit);
     }
-    
+
     public void execute(final String consumerName, final Runnable command, long timeout, TimeUnit unit) {
         if (waitWhenBlocked) {
             addToQueue(command, timeout, unit);
@@ -219,7 +221,7 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
             }
         }
     }
-    
+
     private void addToQueue(Runnable command, long timeout, TimeUnit unit) {
         try {
             boolean added = executor.getQueue().offer(command, timeout, unit);
@@ -260,23 +262,23 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
     }
 
     private synchronized void startWork(String consumerName) {
-        Integer test = (Integer) clients.get(consumerName);
+        Integer test = clients.get(consumerName);
         if (test == null) {
-            clients.put(consumerName, new Integer(1));
+            clients.put(consumerName, Integer.valueOf(1));
         } else {
-            clients.put(consumerName, new Integer(test.intValue() + 1));
+            clients.put(consumerName, Integer.valueOf(test.intValue() + 1));
         }
     }
 
     private synchronized void finishWork(String consumerName) {
-        Integer test = (Integer) clients.get(consumerName);
+        Integer test = clients.get(consumerName);
         if (test.intValue() == 1) {
             clients.remove(consumerName);
         } else {
-            clients.put(consumerName, new Integer(test.intValue() - 1));
+            clients.put(consumerName, Integer.valueOf(test.intValue() - 1));
         }
     }
-    
+
     private static class WaitWhenBlockedPolicy
         implements RejectedExecutionHandler
     {
@@ -289,7 +291,7 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle, J2EEManaged
             }
         }
     }
-    
+
     public void setWaitWhenBlocked(boolean wait) {
         waitWhenBlocked = wait;
         if(wait) {
