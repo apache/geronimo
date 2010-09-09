@@ -63,6 +63,7 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.server.Authentication;
@@ -85,34 +86,27 @@ public class AbstractWebModuleTest extends TestSupport {
     protected JettyContainerImpl container;
     private TransactionManager transactionManager;
     private ConnectionTrackingCoordinator connectionTrackingCoordinator;
-    private URL configurationBaseURL;
     protected PreHandlerFactory preHandlerFactory = null;
     protected SessionHandlerFactory sessionHandlerFactory = null;
     private Bundle bundle;
     protected String appPath;
 
-    protected void setUpStaticContentServlet(JettyServletRegistration webModule) throws Exception {
-        Map<String, String> staticContentServletInitParams = new HashMap<String, String>();
-        staticContentServletInitParams.put("acceptRanges", "true");
-        staticContentServletInitParams.put("dirAllowed", "true");
-        staticContentServletInitParams.put("putAllowed", "false");
-        staticContentServletInitParams.put("delAllowed", "false");
-        staticContentServletInitParams.put("redirectWelcome", "false");
-        staticContentServletInitParams.put("minGzipLength", "8192");
+    protected void setUpStaticContentServlet(WebAppInfo webAppInfo) throws Exception {
+        ServletInfo servletInfo = new ServletInfo();
+        servletInfo.servletName = "default";
+        servletInfo.servletClass = "org.eclipse.jetty.servlet.DefaultServlet";
+        servletInfo.servletMappings.add("/");
+        servletInfo.initParams.put("acceptRanges", "true");
+        servletInfo.initParams.put("dirAllowed", "true");
+        servletInfo.initParams.put("putAllowed", "false");
+        servletInfo.initParams.put("delAllowed", "false");
+        servletInfo.initParams.put("redirectWelcome", "false");
+        servletInfo.initParams.put("minGzipLength", "8192");
 
-        new ServletHolderWrapper("test:name=staticservlet",
-                "default",
-                "org.eclipse.jetty.servlet.DefaultServlet",
-                null,
-                staticContentServletInitParams,
-                null,
-                Collections.singleton("/"),
-                null,
-                webModule);
-
+        webAppInfo.servlets.add(servletInfo);
     }
 
-    protected WebAppContextWrapper setUpAppContext(String securityRealmName, SecurityHandlerFactory securityHandlerFactory, String policyContextId, RunAsSource runAsSource, String uriString) throws Exception {
+    protected WebAppContextWrapper setUpAppContext(String securityRealmName, SecurityHandlerFactory securityHandlerFactory, String policyContextId, RunAsSource runAsSource, String uriString, WebAppInfo webAppInfo) throws Exception {
 
         if (securityHandlerFactory == null) {
             Permissions unchecked = new Permissions();
@@ -174,7 +168,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 securityHandlerFactory,
                 runAsSource,
                 new Holder(),
-                new WebAppInfo(),
+                webAppInfo,
                 null,
                 connectionTrackingCoordinator,
                 container,
@@ -194,12 +188,15 @@ public class AbstractWebModuleTest extends TestSupport {
 //        Authenticator serverAuthentication = new FormAuthenticator("/auth/logon.html?param=test", "/auth/logonError.html?param=test", true);
         Authenticator serverAuthentication = new FormAuthenticator("/auth/logon.html?param=test", "/auth/logonError.html?param=test", true);
         SecurityHandlerFactory securityHandlerFactory = new ServerAuthenticationGBean(serverAuthentication, loginService);
+        WebAppInfo webAppInfo = new WebAppInfo();
+        setUpStaticContentServlet(webAppInfo);
         return setUpAppContext(
                 securityRealmName,
                 securityHandlerFactory,
                 policyContextId,
                 jacc,
-                "war3/");
+                "war3/",
+                webAppInfo);
 
     }
 
@@ -237,7 +234,7 @@ public class AbstractWebModuleTest extends TestSupport {
     protected void setUp() throws Exception {
         cl = this.getClass().getClassLoader();
 
-        configurationBaseURL = cl.getResource("deployables/");
+        URL configurationBaseURL = cl.getResource("deployables/");
 
         ServerInfo serverInfo = new BasicServerInfo(".");
         String location = configurationBaseURL.toString();

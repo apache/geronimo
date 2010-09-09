@@ -206,7 +206,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
             stats.getResponses5xxImpl().setCount((long) statsHandler.getResponses5xx());
 
             /* set elapsed time for stats collection */
-            stats.getStatsOnMsImpl().setCount((long) statsHandler.getStatsOnMs());
+            stats.getStatsOnMsImpl().setCount(statsHandler.getStatsOnMs());
         }
         return stats;
     }
@@ -288,6 +288,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         try {
             server.stop();
         } catch (Exception e) {
+            //ignore
         }
     }
 
@@ -295,7 +296,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         try {
             server.stop();
         } catch (Exception e) {
-            // continue
+            //ignore
         }
     }
 

@@ -166,15 +166,14 @@ public class JettyManagerImpl implements WebManager {
      * from the server environment.  It must be a connector that this container
      * is responsible for.
      *
-     * @param connectorName
+     * @param connectorName name of jetty connector to remove
      */
     public void removeConnector(AbstractName connectorName) {
         try {
             GBeanInfo info = kernel.getGBeanInfo(connectorName);
             boolean found = false;
-            Set intfs = info.getInterfaces();
-            for (Iterator it = intfs.iterator(); it.hasNext();) {
-                String intf = (String) it.next();
+            Set<String> intfs = info.getInterfaces();
+            for (String intf : intfs) {
                 if (intf.equals(JettyWebConnector.class.getName())) {
                     found = true;
                 }
@@ -211,21 +210,20 @@ public class JettyManagerImpl implements WebManager {
         if (protocol == null) {
             return getConnectors();
         }
-        List result = new ArrayList();
+        List<JettyWebConnector> result = new ArrayList<JettyWebConnector>();
         ProxyManager proxyManager = kernel.getProxyManager();
         AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
-        Set names = kernel.listGBeans(query);
-        for (Iterator it = names.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
+        Set<AbstractName> names = kernel.listGBeans(query);
+        for (AbstractName name : names) {
             try {
                 if (kernel.getAttribute(name, "protocol").equals(protocol)) {
-                    result.add(proxyManager.createProxy(name, JettyWebConnector.class.getClassLoader()));
+                    result.add((JettyWebConnector) proxyManager.createProxy(name, JettyWebConnector.class.getClassLoader()));
                 }
             } catch (Exception e) {
                 log.error("Unable to check the protocol for a connector", e);
             }
         }
-        return (JettyWebConnector[]) result.toArray(new JettyWebConnector[names.size()]);
+        return result.toArray(new JettyWebConnector[names.size()]);
     }
 
     public WebAccessLog getAccessLog(WebContainer container) {
@@ -338,18 +336,17 @@ public class JettyManagerImpl implements WebManager {
         AbstractName containerName = kernel.getAbstractNameFor(container);
         ProxyManager mgr = kernel.getProxyManager();
         try {
-            List results = new ArrayList();
+            List<JettyWebConnector> results = new ArrayList<JettyWebConnector>();
             AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
-            Set set = kernel.listGBeans(query); // all Jetty connectors
-            for (Iterator it = set.iterator(); it.hasNext();) {
-                AbstractName name = (AbstractName) it.next(); // a single Jetty connector
+            Set<AbstractName> set = kernel.listGBeans(query); // all Jetty connectors
+            for (AbstractName name : set) {
                 GBeanData data = kernel.getGBeanData(name);
                 ReferencePatterns refs = data.getReferencePatterns(JettyConnector.CONNECTOR_CONTAINER_REFERENCE);
                 if (containerName.equals(refs.getAbstractName())) {
                     try {
                         String testProtocol = (String) kernel.getAttribute(name, "protocol");
                         if (testProtocol != null && testProtocol.equals(protocol)) {
-                            results.add(mgr.createProxy(name, JettyWebConnector.class.getClassLoader()));
+                            results.add((JettyWebConnector) mgr.createProxy(name, JettyWebConnector.class.getClassLoader()));
                         }
                     } catch (Exception e) {
                         log.error("Unable to look up protocol for connector '" + name + "'", e);
@@ -357,7 +354,7 @@ public class JettyManagerImpl implements WebManager {
                     break;
                 }
             }
-            return (JettyWebConnector[]) results.toArray(new JettyWebConnector[results.size()]);
+            return results.toArray(new JettyWebConnector[results.size()]);
         } catch (Exception e) {
             throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Jetty container '" + containerName + "': ").initCause(e);
         }
@@ -367,18 +364,17 @@ public class JettyManagerImpl implements WebManager {
         AbstractName containerName = kernel.getAbstractNameFor(container);
         ProxyManager mgr = kernel.getProxyManager();
         try {
-            List results = new ArrayList();
+            List<JettyWebConnector> results = new ArrayList<JettyWebConnector>();
             AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
-            Set set = kernel.listGBeans(query); // all Jetty connectors
-            for (Iterator it = set.iterator(); it.hasNext();) {
-                AbstractName name = (AbstractName) it.next(); // a single Jetty connector
+            Set<AbstractName> set = kernel.listGBeans(query); // all Jetty connectors
+            for (AbstractName name : set) {
                 GBeanData data = kernel.getGBeanData(name);
                 ReferencePatterns refs = data.getReferencePatterns(JettyConnector.CONNECTOR_CONTAINER_REFERENCE);
                 if (containerName.equals(refs.getAbstractName())) {
-                    results.add(mgr.createProxy(name, JettyWebConnector.class.getClassLoader()));
+                    results.add((JettyWebConnector) mgr.createProxy(name, JettyWebConnector.class.getClassLoader()));
                 }
             }
-            return (JettyWebConnector[]) results.toArray(new JettyWebConnector[results.size()]);
+            return results.toArray(new JettyWebConnector[results.size()]);
         } catch (Exception e) {
             throw (IllegalArgumentException) new IllegalArgumentException("Unable to look up connectors for Jetty container '" + containerName + "'").initCause(e);
         }

@@ -29,10 +29,10 @@ import junit.framework.TestCase;
 public class ConnectorGBeanTest extends TestCase {
 
     public void testGBeans() throws Exception {
-        GBeanInfo gBeanInfo = HTTPBlockingConnector.getGBeanInfo();
-        gBeanInfo = HTTPSelectChannelConnector.getGBeanInfo();
-        gBeanInfo = HTTPSocketConnector.getGBeanInfo();
-        gBeanInfo = HTTPSSelectChannelConnector.getGBeanInfo();
-        gBeanInfo = HTTPSSocketConnector.getGBeanInfo();
+        HTTPBlockingConnector.getGBeanInfo();
+        HTTPSelectChannelConnector.getGBeanInfo();
+        HTTPSocketConnector.getGBeanInfo();
+        HTTPSSelectChannelConnector.getGBeanInfo();
+        HTTPSSocketConnector.getGBeanInfo();
     }
 }

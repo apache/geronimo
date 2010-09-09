@@ -62,12 +62,7 @@ public class JaccSecurityHandler extends SecurityHandler {
 
 
     public void doStop(JettyContainer jettyContainer) throws Exception {
-        try {
-            super.doStop();
-        }
-        finally {
-            //ignore
-        }
+        super.doStop();
     }
 
     /* ------------------------------------------------------------ */

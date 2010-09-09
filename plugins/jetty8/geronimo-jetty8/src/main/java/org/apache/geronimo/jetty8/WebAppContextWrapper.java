@@ -71,7 +71,7 @@ import org.osgi.framework.Bundle;
 
 @GBean(name="Jetty WebApplication Context",
 j2eeType=NameFactory.WEB_MODULE)
-public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistration, WebModule {
+public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
     private static final Logger log = LoggerFactory.getLogger(WebAppContextWrapper.class);
     public static final String GBEAN_ATTR_SESSION_TIMEOUT = "sessionTimeoutSeconds";
     public static final String GBEAN_REF_SESSION_HANDLER_FACTORY = "SessionHandlerFactory";
@@ -88,12 +88,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
     private final String objectName;
     private final GeronimoWebAppContext webAppContext;
-    private final Context componentContext;
-    private final Holder holder;
 
-    private final Set<String> servletNames = new HashSet<String>();
-
-    private final IntegrationContext integrationContext;
     //hack to keep jasper happy.  This is from org.apache.tomcat.util.scan.Constants in the tomcat util jar.
     private static final String JASPER_WEB_XML_NAME = "org.apache.tomcat.util.scan.MergedWebXml";
 
@@ -148,7 +143,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
             throw new IllegalArgumentException("context contextPath must be non-null and start with '/', not " + contextPath);
         }
 
-        this.holder = holder == null ? Holder.EMPTY : holder;
+        holder = holder == null ? Holder.EMPTY : holder;
 
         RunAsSource runAsSource1 = runAsSource == null ? RunAsSource.NULL : runAsSource;
 
@@ -177,9 +172,9 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
         ServletHandler servletHandler = new ServletHandler();
 
-        this.componentContext = contextSource.getContext();
+        Context componentContext = contextSource.getContext();
         UserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
-        integrationContext = new IntegrationContext(this.componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder);
+        IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder);
         webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
@@ -196,7 +191,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
             Map<String, Object> servletContext = new HashMap<String, Object>();
             Map<Class, Object> customizerContext = new HashMap<Class, Object>();
             customizerContext.put(Map.class, servletContext);
-            customizerContext.put(Context.class, WebAppContextWrapper.this.componentContext);
+            customizerContext.put(Context.class, componentContext);
             contextCustomizer.customize(customizerContext);
             for (Map.Entry<String, Object> entry: servletContext.entrySet()) {
                 webAppContext.setAttribute(entry.getKey(), entry.getValue());
@@ -283,31 +278,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
     public String getContextPath() {
         return this.webAppContext.getContextPath();
-    }
-
-    public <T>Class<? extends T> loadClass(String className, Class<T> clazz) throws ClassNotFoundException {
-        return integrationContext.getBundle().loadClass(className).asSubclass(clazz);
-    }
-
-    public IntegrationContext getIntegrationContext() {
-        return integrationContext;
-    }
-
-    public Object newInstance(String className) throws InstantiationException, IllegalAccessException {
-        if (className == null) {
-            throw new InstantiationException("no class loaded");
-        }
-        return holder.newInstance(className, webClassLoader, componentContext);
-    }
-
-    public void destroyInstance(Object o) throws Exception {
-        Class clazz = o.getClass();
-        if (holder != null) {
-            Map<String, LifecycleMethod> preDestroy = holder.getPreDestroy();
-            if (preDestroy != null) {
-                Holder.apply(o, clazz, preDestroy);
-            }
-        }
     }
 
     public void fullyStarted() {
@@ -408,13 +378,8 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
     }
 
     public String[] getServlets() {
-        synchronized (servletNames) {
-            return servletNames.toArray(new String[servletNames.size()]);
-        }
-    }
-
-    public ServletHandler getServletHandler() {
-        return this.webAppContext.getServletHandler();
+        //todo see about getting the info from jetty?
+        return new String[0];
     }
 
     /**
@@ -443,42 +408,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         }
         if (keyPropertyList.size() != 4) {
             throw new InvalidObjectNameException("WebModule object name can only have j2eeType, name, J2EEApplication, and J2EEServer properties", objectName);
-        }
-    }
-
-    public void registerServletHolder(ServletHolder servletHolder, String servletName, Set<String> servletMappings, String objectName) throws Exception {
-        webAppContext.getServletHandler().addServlet(servletHolder);
-        if (servletMappings != null) {
-            for (String urlPattern : servletMappings) {
-                ServletMapping servletMapping = new ServletMapping();
-                servletMapping.setPathSpec(urlPattern);
-                servletMapping.setServletName(servletName);
-                this.webAppContext.getServletHandler().addServletMapping(servletMapping);
-            }
-        }
-        if (objectName != null) {
-            synchronized (servletNames) {
-                servletNames.add(objectName);
-            }
-        }
-    }
-
-    public void unregisterServletHolder(ServletHolder servletHolder, String servletName, Set<String> servletMappings, String objectName) throws Exception {
-        //no way to remove servlets
-//        webAppContext.getServletHandler().removeServlet(servletHolder);
-//        if (servletMappings != null) {
-//            for (Iterator iterator = servletMappings.iterator(); iterator.hasNext();) {
-//                String urlPattern = (String) iterator.next();
-//                ServletMapping servletMapping = new ServletMapping();
-//                servletMapping.setPathSpec(urlPattern);
-//                servletMapping.setServletName(servletName);
-//                webAppContext.getServletHandler().removeServletMapping(servletMapping);
-//            }
-//        }
-        if (objectName != null) {
-            synchronized (servletNames) {
-                servletNames.remove(objectName);
-            }
         }
     }
 

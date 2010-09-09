@@ -259,7 +259,7 @@ public class GeronimoWebAppContext extends WebAppContext {
         /**
          * This is copied from jetty so we can override the restriction on event listeners.
          * TODO consider talking to jetty about making this more flexible there.
-         * @param listenerClass
+         * @param listenerClass class of desired listener
          */
         @Override
         public void addListener(Class<? extends EventListener> listenerClass)

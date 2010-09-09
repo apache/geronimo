@@ -136,17 +136,6 @@
 
         </xml-attribute>
         <attribute name="defaultJspServletName">jsp</attribute>
-        <!--<references name="DefaultServlets">-->
-        <!--<pattern>-->
-        <!--<name>StaticContent</name>-->
-        <!--</pattern>-->
-        <!--</references>-->
-        <!--<reference name="JspServlet">-->
-        <!--<name>JSPServlet</name>-->
-        <!--</reference>-->
-        <reference name="PojoWebServiceTemplate">
-            <name>POJOTemplate</name>
-        </reference>
         <references name="ServiceBuilders">
             <pattern>
                 <name>GBeanBuilder</name>
@@ -213,39 +202,6 @@
                 </dependencies>
             </environment>
         </xml-attribute>
-    </gbean>
-
-    <!--<gbean name="StaticContent" class="org.apache.geronimo.jetty8.DefaultServletHolderWrapper">-->
-    <!--<attribute name="servletName">default</attribute>-->
-    <!--<attribute name="servletClass">org.eclipse.jetty.servlet.DefaultServlet</attribute>-->
-    <!--<attribute name="loadOnStartup">0</attribute>-->
-    <!--<attribute name="initParams">-->
-    <!--acceptRanges=true-->
-    <!--dirAllowed=true-->
-    <!--putAllowed=false-->
-    <!--delAllowed=false-->
-    <!--redirectWelcome=false-->
-    <!--minGzipLength=8192-->
-    <!--</attribute>-->
-    <!--<attribute name="servletMappings">/</attribute>-->
-    <!--</gbean>-->
-
-    <!--<gbean name="JSPServlet" class="org.apache.geronimo.jetty8.JspServletHolderWrapper">-->
-    <!--<attribute name="servletName">jsp</attribute>-->
-    <!--<attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>-->
-    <!--<attribute name="loadOnStartup">0</attribute>-->
-    <!--<attribute name="initParams">-->
-    <!--development=false-->
-    <!--fork=false-->
-    <!--logVerbosityLevel=DEBUG-->
-    <!--xpoweredBy=false-->
-    <!--engineOptionsClass=org.apache.geronimo.jasper.JspServletOptions-->
-    <!--</attribute>-->
-    <!--<attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>-->
-    <!--</gbean>-->
-
-    <gbean name="POJOTemplate" class="org.apache.geronimo.jetty8.POJOWebServiceHolderWrapper">
-        <attribute name="servletName">dummy</attribute>
     </gbean>
 
     <gbean name="jetty8WARConfigurer" class="org.apache.geronimo.web.deployment.WARConfigurer"/>

@@ -148,7 +148,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     }
 
     public int getLingerMillis() {
-        return (int) ((AbstractConnector) listener).getSoLingerTime();
+        return ((AbstractConnector) listener).getSoLingerTime();
     }
 
     public void setLingerMillis(int millis) {
@@ -203,7 +203,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
                 container.removeListener(listener);
                 return;
             } catch (Exception e) {
-                continue;
+                //try again
             }
         }
     }
@@ -215,7 +215,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
                 container.removeListener(listener);
                 return;
             } catch (Exception e) {
-                continue;
+                //try again
             }
         }
     }

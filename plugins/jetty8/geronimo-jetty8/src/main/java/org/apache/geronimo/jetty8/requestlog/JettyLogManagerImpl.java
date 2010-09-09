@@ -72,10 +72,10 @@ public class JettyLogManagerImpl implements JettyLogManager {
     private final static int GROUP_RESPONSE_LENGTH = 8;
     private final static String ACCESS_LOG_DATE_FORMAT = "dd/MMM/yyyy:HH:mm:ss ZZZZ";
     private final static String LOG_FILE_NAME_FORMAT = "yyyy_MM_dd";
-    private final Collection logGbeans;   
+    private final Collection<JettyRequestLog> logGbeans;
     private final ServerInfo serverInfo;  
 
-    public JettyLogManagerImpl(ServerInfo serverInfo, Collection logGbeans) {
+    public JettyLogManagerImpl(ServerInfo serverInfo, Collection<JettyRequestLog> logGbeans) {
         this.serverInfo = serverInfo;
         this.logGbeans = logGbeans;
     }
@@ -88,14 +88,13 @@ public class JettyLogManagerImpl implements JettyLogManager {
      *
      */
     public String[] getLogNames() {
-        List logNames = new ArrayList();
-        for (Iterator it = logGbeans.iterator(); it.hasNext();) {
-            JettyRequestLog jettyLog = (JettyRequestLog) it.next();
-            if(jettyLog.getFilename() != null) {
+        List<String> logNames = new ArrayList<String>();
+        for (JettyRequestLog jettyLog : logGbeans) {
+            if (jettyLog.getFilename() != null) {
                 logNames.add(jettyLog.getFilename());
             }
         }
-        return (String[]) logNames.toArray(new String[logNames.size()]);
+        return logNames.toArray(new String[logNames.size()]);
     }
 
     /**
@@ -107,17 +106,17 @@ public class JettyLogManagerImpl implements JettyLogManager {
      *
      */
     public String[] getLogFileNames(String logName) {
-        List names = new ArrayList();
+        List<String> names = new ArrayList<String>();
 
         // Find all the files for this logName
         File[] logFiles = getLogFiles(logName);
 
         if (logFiles !=null) {
-            for (int i = 0; i < logFiles.length; i++) {
-                names.add(logFiles[i].getName());
+            for (File logFile : logFiles) {
+                names.add(logFile.getName());
             }
         }
-        return (String[]) names.toArray(new String[names.size()]);
+        return names.toArray(new String[names.size()]);
     }
 
     /**
@@ -173,30 +172,31 @@ public class JettyLogManagerImpl implements JettyLogManager {
         long start = startDate == null ? 0 : startDate.getTime();
         long end = endDate == null ? 0 : endDate.getTime();
 
-        List list = new LinkedList();
+        List<LogMessage> list = new LinkedList<LogMessage>();
         boolean capped = false;
-        int lineCount = 0, fileCount = 0;
+        int lineCount = 0;
+        int fileCount;
 
         // Find all the files for this logName
-        File logFiles[] = getLogFiles(logName);
+        File[] logFiles = getLogFiles(logName);
 
         if (logFiles !=null) {
-            for (int i = 0; i < logFiles.length; i++) {
+            for (File logFile : logFiles) {
                 fileCount = 0;
                 try {
                     // Obtain the date for the current log file
-                    String fileName = logFiles[i].getName();
+                    String fileName = logFile.getName();
                     Matcher fileDate = FILENAME_DATE_PATTERN.matcher(fileName);
                     fileDate.find();
                     SimpleDateFormat simpleFileDate = new SimpleDateFormat(LOG_FILE_NAME_FORMAT);
                     long logFileTime = simpleFileDate.parse(fileDate.group(GROUP_FILENAME_FULL_DATE)).getTime();
 
                     // Check if the dates are null (ignore) or fall within the search range
-                    if (  (start==0 && end==0)
-                       || (start>0 && start<=logFileTime && end>0 && end>=logFileTime)) {
+                    if ((start == 0 && end == 0)
+                            || (start > 0 && start <= logFileTime && end > 0 && end >= logFileTime)) {
 
                         // It's in the range, so process the file
-                        RandomAccessFile raf = new RandomAccessFile(logFiles[i], "r");
+                        RandomAccessFile raf = new RandomAccessFile(logFile, "r");
                         FileChannel fc = raf.getChannel();
                         MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
                         CharBuffer cb = Charset.forName("US-ASCII").decode(bb); //todo: does Jetty use a different charset on a foreign PC?
@@ -205,48 +205,48 @@ public class JettyLogManagerImpl implements JettyLogManager {
                         SimpleDateFormat format = (start == 0 && end == 0) ? null : new SimpleDateFormat(ACCESS_LOG_DATE_FORMAT);
                         int max = maxResults == null ? MAX_SEARCH_RESULTS : Math.min(maxResults.intValue(), MAX_SEARCH_RESULTS);
 
-                        while(lines.find()) {
+                        while (lines.find()) {
                             ++lineCount;
                             ++fileCount;
-                            if(capped) {
+                            if (capped) {
                                 continue;
                             }
                             CharSequence line = cb.subSequence(lines.start(), lines.end());
                             target.reset(line);
-                            if(target.find()) {
-                                if(host != null && !host.equals(target.group(GROUP_HOST))) {
+                            if (target.find()) {
+                                if (host != null && !host.equals(target.group(GROUP_HOST))) {
                                     continue;
                                 }
-                                if(user != null && !user.equals(target.group(GROUP_USER))) {
+                                if (user != null && !user.equals(target.group(GROUP_USER))) {
                                     continue;
                                 }
-                                if(method != null && !method.equals(target.group(GROUP_METHOD))) {
+                                if (method != null && !method.equals(target.group(GROUP_METHOD))) {
                                     continue;
                                 }
-                                if(uri != null && !target.group(GROUP_URI).startsWith(uri)) {
+                                if (uri != null && !target.group(GROUP_URI).startsWith(uri)) {
                                     continue;
                                 }
-                                if(format != null) {
+                                if (format != null) {
                                     try {
                                         long entry = format.parse(target.group(GROUP_DATE)).getTime();
-                                        if(start > entry) {
+                                        if (start > entry) {
                                             continue;
                                         }
-                                        if(end > 0 && end < entry) {
+                                        if (end > 0 && end < entry) {
                                             continue;
                                         }
                                     } catch (ParseException e) {
                                         // can't read the date, guess this record counts.
                                     }
                                 }
-                                if(skipResults != null && skipResults.intValue() > lineCount) {
+                                if (skipResults != null && skipResults > lineCount) {
                                     continue;
                                 }
-                                if(list.size() > max) {
+                                if (list.size() > max) {
                                     capped = true;
                                     continue;
                                 }
-                                list.add(new LogMessage(fileCount,line.toString()));
+                                list.add(new LogMessage(fileCount, line.toString()));
                             }
                         }
                         fc.close();
@@ -257,7 +257,7 @@ public class JettyLogManagerImpl implements JettyLogManager {
                 }
             }
         }
-        return new SearchResults(lineCount, (LogMessage[]) list.toArray(new LogMessage[list.size()]), capped);
+        return new SearchResults(lineCount, list.toArray(new LogMessage[list.size()]), capped);
     }
 
 

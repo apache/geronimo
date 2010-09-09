@@ -25,6 +25,7 @@ import javax.management.ObjectName;
 import javax.management.j2ee.statistics.Statistic;
 import javax.management.j2ee.statistics.Stats;
 import org.apache.geronimo.management.LazyStatisticsProvider;
+import org.apache.geronimo.web.info.WebAppInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -84,8 +85,8 @@ public class StatTest extends AbstractWebModuleTest {
     protected void setUp() throws Exception {
         appPath = "war1";
         super.setUp();
-        WebAppContextWrapper app;
-        app = setUpAppContext(null, null, "policyContextID", null, "war1/");
-        setUpStaticContentServlet(app);
+        WebAppInfo webAppInfo = new WebAppInfo();
+        setUpStaticContentServlet(webAppInfo);
+        setUpAppContext(null, null, "policyContextID", null, "war1/", webAppInfo);
     }
 }

@@ -27,6 +27,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.geronimo.web.info.ServletInfo;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.server.Request;
 
@@ -43,9 +45,11 @@ public class ApplicationTest extends AbstractWebModuleTest {
     }
 
     public void testApplication() throws Exception {
-        WebAppContextWrapper app = setUpAppContext(null, null, "policyContextID", null, "war1/");
+        WebAppInfo webAppInfo = new WebAppInfo();
+        setUpStaticContentServlet(webAppInfo);
 
-        setUpStaticContentServlet(app);
+        setUpAppContext(null, null, "policyContextID", null, "war1/", webAppInfo);
+
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -57,9 +61,10 @@ public class ApplicationTest extends AbstractWebModuleTest {
     public void testApplicationWithSessionHandler() throws Exception {
         preHandlerFactory = new MockPreHandlerFactory();
         sessionHandlerFactory = new MockSessionHandlerFactory();
-        WebAppContextWrapper app = setUpAppContext(null, null, "policyContextID", null, "war1/");
+        WebAppInfo webAppInfo = new WebAppInfo();
+        setUpStaticContentServlet(webAppInfo);
 
-        setUpStaticContentServlet(app);
+        setUpAppContext(null, null, "policyContextID", null, "war1/", webAppInfo);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/hello.txt").openConnection();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));

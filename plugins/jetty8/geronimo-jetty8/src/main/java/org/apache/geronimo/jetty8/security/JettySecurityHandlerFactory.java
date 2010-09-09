@@ -98,8 +98,6 @@ public class JettySecurityHandlerFactory implements SecurityHandlerFactory {
         } else if (authMethod == BuiltInAuthMethod.CLIENTCERT) {
             authenticator = new ClientCertAuthenticator();
         } else if (authMethod == BuiltInAuthMethod.FORM) {
-            boolean dispatch = true;
-//            authenticator = new FormAuthenticator(loginPage, errorPage, dispatch);
             authenticator = new FormAuthenticator(loginPage, errorPage, true);
         } else if (authMethod == BuiltInAuthMethod.NONE) {
             authenticator = new NoneAuthenticator();

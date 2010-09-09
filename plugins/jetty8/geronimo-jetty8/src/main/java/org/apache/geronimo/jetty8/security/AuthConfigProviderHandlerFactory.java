@@ -59,7 +59,6 @@ public class AuthConfigProviderHandlerFactory implements SecurityHandlerFactory 
 
     private final Map authConfigProperties = new HashMap<Object, Object>();
     private final Subject serviceSubject = null;
-    private final String appContext;
     private final boolean allowLazyAuthentication;
 //    private final Authenticator authenticator;
     private final LoginService loginService;
@@ -72,7 +71,7 @@ public class AuthConfigProviderHandlerFactory implements SecurityHandlerFactory 
                                             @ParamAttribute(name = "allowLazyAuthentication") boolean allowLazyAuthentication,
                                             @ParamReference(name = "ConfigurationFactory") ConfigurationFactory configurationFactory
     ) throws AuthException {
-        this.appContext = appContext;
+        String appContext1 = appContext;
         this.allowLazyAuthentication = allowLazyAuthentication;
         AuthConfigFactory authConfigFactory = AuthConfigFactory.getFactory();
         RegistrationListener listener = new RegistrationListener() {
