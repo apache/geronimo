@@ -38,6 +38,13 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>javaee-builder-support</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-deployer</artifactId>
             <version>${project.version}</version>
             <type>car</type>
