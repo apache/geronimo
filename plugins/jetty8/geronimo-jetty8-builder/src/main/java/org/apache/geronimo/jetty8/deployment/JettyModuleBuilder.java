@@ -550,7 +550,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             webModuleData.setAttribute("webAppInfo", webAppInfo);
 
-            webModule.getSharedContext().put(WebModule.WEB_APP_INFO, webAppInfo);
+            webModule.getSharedContext().put(WebModule.WEB_APP_INFO, webAppInfoBuilder);
 
 //            configure context parameters.
 //            configureContextParams(webApp, webModuleData);
@@ -588,15 +588,15 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
             configureErrorPages(webApp, webModuleData);
 
             // configure tag libs.
-            if (defaultJspServletName != null) {
-                for (ServletInfo servletInfo: webAppInfo.servlets) {
-                    if (defaultJspServletName.equals(servletInfo.servletName)) {
-                        configureTagLibs(module, webApp, webModuleData, servletInfo);
-                    }
-                }
-//                GBeanData jspServletData = configureDefaultServlet(jspServlet, earContext, moduleName, knownJspMappings);
-//                module.getSharedContext().put(DEFAULT_JSP_SERVLET_KEY, jspServletData);
-            }
+//            if (defaultJspServletName != null) {
+//                for (ServletInfo servletInfo: webAppInfo.servlets) {
+//                    if (defaultJspServletName.equals(servletInfo.servletName)) {
+//                        configureTagLibs(module, webApp, webModuleData, servletInfo);
+//                    }
+//                }
+////                GBeanData jspServletData = configureDefaultServlet(jspServlet, earContext, moduleName, knownJspMappings);
+////                module.getSharedContext().put(DEFAULT_JSP_SERVLET_KEY, jspServletData);
+//            }
 
             // configure login configs.
             configureAuthentication(module, webApp, jettyWebApp, webModuleData);

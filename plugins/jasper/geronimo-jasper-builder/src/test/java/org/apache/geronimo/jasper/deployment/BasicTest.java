@@ -24,14 +24,18 @@ import java.util.Collections;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
+import org.apache.geronimo.web.info.ServletInfo;
+import org.apache.geronimo.web.info.WebAppInfo;
 
 /**
  * @version $Rev$ $Date$
  */
 public class BasicTest extends TestCase {
     
-    public void testMyFacesModuleBuilderExtension() throws Exception {
-        JspModuleBuilderExtension instance = new JspModuleBuilderExtension(null, null, new NamingBuilderCollection(Collections.EMPTY_SET));
+    public void testJspModuleBuilderExtension() throws Exception {
+        WebAppInfo webAppInfo = new WebAppInfo();
+        webAppInfo.servlets.add(new ServletInfo());
+        JspModuleBuilderExtension instance = new JspModuleBuilderExtension(null, null, webAppInfo, new NamingBuilderCollection(Collections.EMPTY_SET));
     }
 
 }

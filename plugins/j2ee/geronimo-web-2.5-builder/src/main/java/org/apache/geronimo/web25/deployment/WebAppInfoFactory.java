@@ -37,4 +37,7 @@ public interface WebAppInfoFactory {
 
     ServletInfo newJspInfo(String jspFile);
 
+    ServletInfo copy(ServletInfo servletInfo);
+
+    FilterInfo copy(FilterInfo filterInfo);
 }

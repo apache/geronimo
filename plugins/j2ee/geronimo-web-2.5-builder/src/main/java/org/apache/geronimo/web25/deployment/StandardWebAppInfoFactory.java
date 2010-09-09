@@ -41,10 +41,10 @@ public class StandardWebAppInfoFactory extends DefaultWebAppInfoFactory {
 
     @Override
     public void complete(WebAppInfo webAppInfo) {
-        for (ServletInfo servletInfo: defaultWebAppInfo.servlets) {
+        for (ServletInfo servletInfo : defaultWebAppInfo.servlets) {
             webAppInfo.servlets.add(copy(servletInfo));
         }
-        for (FilterInfo filterInfo: defaultWebAppInfo.filters) {
+        for (FilterInfo filterInfo : defaultWebAppInfo.filters) {
             webAppInfo.filters.add(copy(filterInfo));
         }
         webAppInfo.listeners.addAll(defaultWebAppInfo.listeners);
@@ -59,26 +59,4 @@ public class StandardWebAppInfoFactory extends DefaultWebAppInfoFactory {
         return servletInfo;
     }
 
-    protected ServletInfo copy(ServletInfo servletInfo) {
-        ServletInfo copy = new ServletInfo();
-        copy.servletClass = servletInfo.servletClass;
-        copy.servletMappings.addAll(servletInfo.servletMappings);
-        copy.servletName = servletInfo.servletName;
-        copy.asyncSupported = servletInfo.asyncSupported;
-        copy.initParams.putAll(servletInfo.initParams);
-        copy.loadOnStartup = servletInfo.loadOnStartup;
-        copy.runAsRole = servletInfo.runAsRole;
-        return copy;
-    }
-
-    protected FilterInfo copy(FilterInfo filterInfo) {
-        FilterInfo copy = new FilterInfo();
-        copy.filterName = filterInfo.filterName;
-        copy.filterClass = filterInfo.filterClass;
-        copy.servletMappings.addAll(filterInfo.servletMappings);
-        copy.urlMappings.addAll(filterInfo.urlMappings);
-        copy.asyncSupported = filterInfo.asyncSupported;
-        copy.initParams.putAll(filterInfo.initParams);
-        return copy;
-    }
 }

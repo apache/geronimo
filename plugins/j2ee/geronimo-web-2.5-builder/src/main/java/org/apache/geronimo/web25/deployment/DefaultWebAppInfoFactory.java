@@ -51,4 +51,30 @@ public class DefaultWebAppInfoFactory implements WebAppInfoFactory{
     public ServletInfo newJspInfo(String jspFile) {
         throw new IllegalStateException("default does not support jsps");
     }
+
+    @Override
+    public ServletInfo copy(ServletInfo servletInfo) {
+         ServletInfo copy = new ServletInfo();
+         copy.servletClass = servletInfo.servletClass;
+         copy.servletMappings.addAll(servletInfo.servletMappings);
+         copy.servletName = servletInfo.servletName;
+         copy.asyncSupported = servletInfo.asyncSupported;
+         copy.initParams.putAll(servletInfo.initParams);
+         copy.loadOnStartup = servletInfo.loadOnStartup;
+         copy.runAsRole = servletInfo.runAsRole;
+         return copy;
+     }
+
+     @Override
+     public FilterInfo copy(FilterInfo filterInfo) {
+         FilterInfo copy = new FilterInfo();
+         copy.filterName = filterInfo.filterName;
+         copy.filterClass = filterInfo.filterClass;
+         copy.servletMappings.addAll(filterInfo.servletMappings);
+         copy.urlMappings.addAll(filterInfo.urlMappings);
+         copy.asyncSupported = filterInfo.asyncSupported;
+         copy.initParams.putAll(filterInfo.initParams);
+         return copy;
+     }
+    
 }

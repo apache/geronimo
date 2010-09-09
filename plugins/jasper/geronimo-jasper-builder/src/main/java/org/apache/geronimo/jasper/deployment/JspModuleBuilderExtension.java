@@ -58,10 +58,13 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.web25.deployment.WebAppInfoBuilder;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.JspConfig;
+import org.apache.openejb.jee.JspPropertyGroup;
 import org.apache.openejb.jee.Listener;
 import org.apache.openejb.jee.Tag;
 import org.apache.openejb.jee.Taglib;
@@ -92,15 +95,21 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
     private final Environment defaultEnvironment;
     private final NamingBuilder namingBuilders;
     private final Set<String> excludedListenerNames = new HashSet<String>();
+    private final ServletInfo defaultJspServletInfo;
 
     public JspModuleBuilderExtension(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
                                      @ParamAttribute(name = "excludedListenerNames") Collection<String> excludedListenerNames,
+                                     @ParamAttribute(name = "defaultJspServlet") WebAppInfo defaultJspServlet,
                                      @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
         this.namingBuilders = namingBuilders;
         if (excludedListenerNames != null) {
             this.excludedListenerNames.addAll(excludedListenerNames);
         }
+        if (defaultJspServlet == null || defaultJspServlet.servlets.size() != 1) {
+            throw new IllegalArgumentException("Must supply exactly one default jsp servlet");
+        }
+        defaultJspServletInfo = defaultJspServlet.servlets.get(0);
     }
 
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -168,9 +177,27 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
             webAppData.setReferencePattern("ContextCustomizer", jspLifecycleName);
         }
 
-        WebAppInfo webAppInfo = (WebAppInfo)sharedContext.get(WebModule.WEB_APP_INFO);
-        if (webAppInfo != null) {
+        WebAppInfoBuilder webAppInfoBuilder = (WebAppInfoBuilder)sharedContext.get(WebModule.WEB_APP_INFO);
+        if (webAppInfoBuilder != null) {
+            WebAppInfo webAppInfo = webAppInfoBuilder.getWebAppInfo();
             webAppInfo.listeners.addAll(listenerNames);
+            //install default jsp servlet....
+            ServletInfo jspServlet = webAppInfoBuilder.copy(defaultJspServletInfo);
+            List<JspConfig> jspConfigs = webApp.getJspConfig();
+            if (jspConfigs.size() > 1) {
+                throw new DeploymentException("Web app " + module.getName() + " cannot have more than one jsp-config element.  Currently has " + jspConfigs.size() + " jsp-config elements.");
+            }
+            List<String> jspMappings = new ArrayList<String>();
+            for (JspConfig jspConfig : jspConfigs) {
+                for (JspPropertyGroup propertyGroup : jspConfig.getJspPropertyGroup()) {
+                    WebAppInfoBuilder.normalizeUrlPatterns(propertyGroup.getUrlPattern(), jspMappings);
+                }
+            }
+            jspServlet.servletMappings.addAll(jspMappings);
+            for (ServletInfo servletInfo: webAppInfo.servlets) {
+                servletInfo.servletMappings.removeAll(jspMappings);
+            }
+            webAppInfo.servlets.add(jspServlet);
         } else {
             GBeanData jspServletData = AbstractWebModuleBuilder.DEFAULT_JSP_SERVLET_KEY.get(sharedContext);
             if (jspServletData != null) {

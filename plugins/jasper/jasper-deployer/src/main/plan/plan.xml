@@ -25,6 +25,44 @@
         <reference name="NamingBuilders">
             <name>NamingBuilders</name>
         </reference>
+        <xml-attribute name="defaultJspServlet">
+            <web-app xmlns="http://java.sun.com/xml/ns/javaee">
+
+                <servlet>
+                     <servlet-name>jsp</servlet-name>
+                     <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
+                     <init-param>
+                         <param-name>development</param-name>
+                         <param-value>false</param-value>
+                     </init-param>
+                     <init-param>
+                         <param-name>fork</param-name>
+                         <param-value>false</param-value>
+                     </init-param>
+                     <init-param>
+                         <param-name>logVerbosityLevel</param-name>
+                         <param-value>DEBUG</param-value>
+                     </init-param>
+                     <init-param>
+                         <param-name>xpoweredBy</param-name>
+                         <param-value>false</param-value>
+                     </init-param>
+                     <init-param>
+                         <param-name>engineOptionsClass</param-name>
+                         <param-value>org.apache.geronimo.jasper.JspServletOptions</param-value>
+                     </init-param>
+                     <load-on-startup>0</load-on-startup>
+                 </servlet>
+                 <servlet-mapping>
+                     <servlet-name>jsp</servlet-name>
+                     <url-pattern>*.jsp</url-pattern>
+                     <url-pattern>*.jspf</url-pattern>
+                     <url-pattern>*.jspx</url-pattern>
+                     <url-pattern>*.xsp</url-pattern>
+                 </servlet-mapping>
+
+            </web-app>
+        </xml-attribute>
     </gbean>
 
 </module>

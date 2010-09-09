@@ -50,6 +50,7 @@ public class WebAppInfoBuilder {
 
     private final WebApp webApp;
     private final WebAppInfoFactory webAppInfoFactory;
+    private WebAppInfo webAppInfo;
 
     public WebAppInfoBuilder(WebApp webApp, WebAppInfoFactory webAppInfoFactory) {
         this.webApp = webApp;
@@ -57,17 +58,20 @@ public class WebAppInfoBuilder {
     }
 
     public WebAppInfo build() throws DeploymentException {
+        if (webAppInfo != null) {
+            throw new IllegalStateException("already built");
+        }
         List<String> problems = new ArrayList<String>();
         WebAppInfo webAppInfo = webAppInfoFactory.newWebAppInfo();
         addParams(webApp.getContextParam(), webAppInfo.contextParams);
         webAppInfo.contextRoot = webApp.getContextRoot();
 
-        for (Listener listener: webApp.getListener()) {
+        for (Listener listener : webApp.getListener()) {
             webAppInfo.listeners.add(listener.getListenerClass());
         }
 
         Map<String, ServletInfo> servletMap = new HashMap<String, ServletInfo>();
-        for (Servlet servlet: webApp.getServlet()) {
+        for (Servlet servlet : webApp.getServlet()) {
             ServletInfo servletInfo;
             if (servlet.getServletClass() != null) {
                 servletInfo = webAppInfoFactory.newServletInfo();
@@ -99,7 +103,7 @@ public class WebAppInfoBuilder {
             webAppInfo.servlets.add(servletInfo);
             servletMap.put(servletInfo.servletName, servletInfo);
         }
-        for (ServletMapping servletMapping: webApp.getServletMapping()) {
+        for (ServletMapping servletMapping : webApp.getServletMapping()) {
             String servletName = servletMapping.getServletName();
             ServletInfo servletInfo = servletMap.get(servletName);
             if (servletInfo == null) {
@@ -110,7 +114,7 @@ public class WebAppInfoBuilder {
         }
 
         Map<String, FilterInfo> filterMap = new HashMap<String, FilterInfo>();
-        for (Filter filter: webApp.getFilter()) {
+        for (Filter filter : webApp.getFilter()) {
             FilterInfo filterInfo = webAppInfoFactory.newFilterInfo();
             filterInfo.filterName = filter.getFilterName();
             filterInfo.filterClass = filter.getFilterClass();
@@ -119,7 +123,7 @@ public class WebAppInfoBuilder {
             webAppInfo.filters.add(filterInfo);
             filterMap.put(filterInfo.filterName, filterInfo);
         }
-        for (FilterMapping filterMapping: webApp.getFilterMapping()) {
+        for (FilterMapping filterMapping : webApp.getFilterMapping()) {
             String filterName = filterMapping.getFilterName();
             FilterInfo filterInfo = filterMap.get(filterName);
             if (filterInfo == null) {
@@ -145,11 +149,29 @@ public class WebAppInfoBuilder {
         if (!problems.isEmpty()) {
             throw new DeploymentException("Problems encountered parsing web.xml: " + problems);
         }
+        this.webAppInfo = webAppInfo;
         return webAppInfo;
     }
 
+    public WebApp getWebApp() {
+        return webApp;
+    }
+
+    public WebAppInfo getWebAppInfo() {
+        return webAppInfo;
+    }
+
+    public ServletInfo copy(ServletInfo servletInfo) {
+        return webAppInfoFactory.copy(servletInfo);
+    }
+
+    public FilterInfo copy(FilterInfo filterInfo) {
+        return webAppInfoFactory.copy(filterInfo);
+    }
+
+
     public static void normalizeUrlPatterns(List<String> source, List<String> target) {
-        for (String pattern: source) {
+        for (String pattern : source) {
             pattern = pattern.trim();
             if (!pattern.startsWith("*") && !pattern.startsWith("/")) {
                 pattern = "/" + pattern;
@@ -160,7 +182,7 @@ public class WebAppInfoBuilder {
     }
 
     protected void addParams(List<ParamValue> params, Map<String, String> paramMap) {
-        for (ParamValue paramValue: params) {
+        for (ParamValue paramValue : params) {
             if (!paramMap.containsKey(paramValue.getParamName())) {
                 paramMap.put(paramValue.getParamName(), paramValue.getParamValue());
             }
@@ -172,7 +194,7 @@ public class WebAppInfoBuilder {
             return EnumSet.of(DispatcherType.REQUEST);
         }
         List<DispatcherType> types = new ArrayList<DispatcherType>(dispatchers.size());
-        for (Dispatcher dispatcher: dispatchers) {
+        for (Dispatcher dispatcher : dispatchers) {
             types.add(toDispatcherType(dispatcher));
         }
         return EnumSet.copyOf(types);
