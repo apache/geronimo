@@ -23,6 +23,7 @@ package org.apache.geronimo.myfaces;
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -30,7 +31,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 public class BasicTest extends TestCase {
 
     public void testLifecycleProviderFactory() throws Exception {
-        GBeanInfo gbeanInfo = LifecycleProviderFactoryGBean.getGBeanInfo();
+        GBeanInfo gbeanInfo = new AnnotationGBeanInfoFactory().getGBeanInfo(LifecycleProviderFactoryGBean.class);
         LifecycleProviderFactoryGBean factory = new LifecycleProviderFactoryGBean();
         ApplicationIndexedLifecycleProviderFactory providerFactory = factory.getLifecycleProviderFactory();
         assertNotNull(providerFactory);

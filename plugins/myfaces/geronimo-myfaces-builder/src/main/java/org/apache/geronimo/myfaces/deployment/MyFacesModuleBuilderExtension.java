@@ -60,6 +60,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.myfaces.LifecycleProviderGBean;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.apache.openejb.jee.FacesConfig;
 import org.apache.openejb.jee.FacesManagedBean;
@@ -102,8 +103,8 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     private static final String JAVAX_FACES_CONFIG_FILES_SEPARATOR = ",";
 
     public MyFacesModuleBuilderExtension(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
-            @ParamAttribute(name = "providerFactoryNameQuery") AbstractNameQuery providerFactoryNameQuery,
-            @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
+                                         @ParamAttribute(name = "providerFactoryNameQuery") AbstractNameQuery providerFactoryNameQuery,
+                                         @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
         this.providerFactoryNameQuery = providerFactoryNameQuery;
         this.namingBuilders = namingBuilders;
@@ -114,7 +115,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming,
-            ModuleIDBuilder idBuilder) throws DeploymentException {
+                             ModuleIDBuilder idBuilder) throws DeploymentException {
         mergeEnvironment(module);
     }
 
@@ -148,7 +149,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                 break;
             }
         }
-        StringBuilder configFiles = new StringBuilder(configFilesPV != null && configFilesPV.getParamValue() !=null  ? configFilesPV.getParamValue() : "");
+        StringBuilder configFiles = new StringBuilder(configFilesPV != null && configFilesPV.getParamValue() != null ? configFilesPV.getParamValue() : "");
         File libDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "lib");
         if (!libDirectory.exists()) {
             return;
@@ -225,9 +226,14 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         //add the ServletContextListener to the web app context
         GBeanData webAppData = (GBeanData) sharedContext.get(WebModule.WEB_APP_DATA);
         // add myfaces listener
-        Object value = webAppData.getAttribute("listenerClassNames");
-        if (value instanceof Collection && !((Collection) value).contains(CONTEXT_LISTENER_NAME)) {
-            ((Collection<String>) value).add(CONTEXT_LISTENER_NAME);
+        WebAppInfo webAppInfo = (WebAppInfo) webAppData.getAttribute("webAppInfo");
+        if (webAppInfo != null && !webAppInfo.listeners.contains(CONTEXT_LISTENER_NAME)) {
+            webAppInfo.listeners.add(CONTEXT_LISTENER_NAME);
+        } else {
+            Object value = webAppData.getAttribute("listenerClassNames");
+            if (value instanceof Collection && !((Collection) value).contains(CONTEXT_LISTENER_NAME)) {
+                ((Collection<String>) value).add(CONTEXT_LISTENER_NAME);
+            }
         }
         AbstractName moduleName = moduleContext.getModuleName();
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();

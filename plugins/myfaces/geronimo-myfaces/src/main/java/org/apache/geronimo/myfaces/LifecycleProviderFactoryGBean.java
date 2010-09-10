@@ -19,13 +19,13 @@
 
 package org.apache.geronimo.myfaces;
 
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.myfaces.config.annotation.LifecycleProviderFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean
 public class LifecycleProviderFactoryGBean implements LifecycleProviderFactorySource {
 
     private final ApplicationIndexedLifecycleProviderFactory factory;
@@ -38,17 +38,6 @@ public class LifecycleProviderFactoryGBean implements LifecycleProviderFactorySo
 
     public ApplicationIndexedLifecycleProviderFactory getLifecycleProviderFactory() {
         return factory;
-    }
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LifecycleProviderFactoryGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }
