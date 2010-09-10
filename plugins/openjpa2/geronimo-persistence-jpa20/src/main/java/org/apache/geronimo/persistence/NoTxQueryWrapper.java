@@ -30,11 +30,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The JtaQuery is a wrapper around a query and and entity manager that automatically closes the entity managers
- * when the query is finished.  This implementation is only for non-transaction queryies
+ * The JtaQuery is a wrapper around a Query and and entity manager that automatically closes the entity managers
+ * when the query is finished.  This implementation is only for non-transaction queries
  */
 public class NoTxQueryWrapper implements Query {
-    private final EntityManager entityManager;
+    protected final EntityManager entityManager;
     private final Query query;
 
     public NoTxQueryWrapper(EntityManager entityManager, Query query) {

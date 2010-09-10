@@ -421,11 +421,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
             return entityManager.createNamedQuery(name, resultClass);
         } else {
             entityManager = createEntityManager();
-            try {
-                return entityManager.createNamedQuery(name, resultClass);
-            } finally {
-                entityManager.close();
-            }
+            return new NoTxTypedQueryWrapper<T>(entityManager, entityManager.createNamedQuery(name, resultClass));
         }
     }
 
@@ -436,11 +432,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
             return entityManager.createQuery(criteriaQuery);
         } else {
             entityManager = createEntityManager();
-            try {
-                return entityManager.createQuery(criteriaQuery);
-            } finally {
-                entityManager.close();
-            }
+            return new NoTxTypedQueryWrapper<T>(entityManager, entityManager.createQuery(criteriaQuery));
         }
     }
 
@@ -451,11 +443,7 @@ public class CMPEntityManagerTxScoped implements EntityManager {
             return entityManager.createQuery(qlString, resultClass);
         } else {
             entityManager = createEntityManager();
-            try {
-                return entityManager.createQuery(qlString, resultClass);
-            } finally {
-                entityManager.close();
-            }
+            return new NoTxTypedQueryWrapper<T>(entityManager, entityManager.createQuery(qlString, resultClass));
         }
     }
 
