@@ -1230,6 +1230,12 @@
                 <groupId>org.apache.openejb</groupId>
                 <artifactId>openejb-osgi-core</artifactId>
                 <version>${openejbVersion}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.osgi</groupId>
+                        <artifactId>org.osgi.core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
