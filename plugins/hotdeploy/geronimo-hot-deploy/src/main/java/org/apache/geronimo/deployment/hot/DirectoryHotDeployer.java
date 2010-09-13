@@ -216,9 +216,9 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
         }
 
         // a bit of a hack, but the PersistentConfigurationList is the only thing that knows whether the server is full started!
-        Set configLists = kernel.listGBeans(new AbstractNameQuery(PersistentConfigurationList.class.getName()));
-        for (Iterator i = configLists.iterator(); i.hasNext();) {
-            AbstractName configListName = (AbstractName) i.next();
+        Set<AbstractName> configLists = kernel.listGBeans(new AbstractNameQuery(PersistentConfigurationList.class.getName()));
+        for (Iterator<AbstractName> i = configLists.iterator(); i.hasNext();) {
+            AbstractName configListName = i.next();
             try {
                 Boolean result = (Boolean) kernel.getAttribute(configListName, "kernelFullyStarted");
                 if (!result.booleanValue()) {
@@ -354,7 +354,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
-            ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
+            ids = DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
             ProgressObject po = mgr.undeploy(ids);
             waitForProgress(po);
             if (po.getDeploymentStatus().isCompleted()) {
@@ -381,7 +381,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
 
     public String getModuleId(String config) {
         DeploymentManager mgr = null;
-        TargetModuleID[] modules = null;
+        //TargetModuleID[] modules = null;
         try {
             mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
@@ -409,7 +409,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
-            ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
+            ids = DeployUtils.identifyTargetModuleIDs(ids, configId, true).toArray(new TargetModuleID[0]);
             ProgressObject po;
             if (JarUtils.isJarFile(file) || file.isDirectory()) {
                 po = mgr.redeploy(ids, file, null);

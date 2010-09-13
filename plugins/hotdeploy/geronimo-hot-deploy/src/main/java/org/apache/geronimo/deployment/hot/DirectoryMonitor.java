@@ -116,7 +116,7 @@ public class DirectoryMonitor implements Runnable {
     private File directory;
     private boolean done = false;
     private Listener listener; // a little cheesy, but do we really need multiple listeners?
-    private final Map files = new HashMap();
+    private final Map<String, FileInfo> files = new HashMap<String, FileInfo>();
     private volatile String workingOnConfigId;
 
     public DirectoryMonitor(File directory, Listener listener, int pollIntervalMillis) {
@@ -175,9 +175,9 @@ public class DirectoryMonitor implements Runnable {
             return; // don't react to events we generated ourselves
         }
         synchronized(files) {
-            for (Iterator it = files.keySet().iterator(); it.hasNext();) {
-                String path = (String) it.next();
-                FileInfo info = (FileInfo) files.get(path);
+            for (Iterator<String> it = files.keySet().iterator(); it.hasNext();) {
+                String path = it.next();
+                FileInfo info = files.get(path);
                 Artifact target = Artifact.create(info.getConfigId());
                 if(id.matches(target)) { // need to remove record & delete file
                     File file = new File(path);
@@ -259,15 +259,15 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
             return;
         }
         synchronized (files) {
-            Set oldList = new HashSet(files.keySet());
-            List actions = new LinkedList();
+            Set<String> oldList = new HashSet<String>(files.keySet());
+            List<FileAction> actions = new LinkedList<FileAction>();
             for (int i = 0; i < children.length; i++) {
                 File child = children[i];
                 if (!child.canRead()) {
                     continue;
                 }
                 FileInfo now = child.isDirectory() ? getDirectoryInfo(child) : getFileInfo(child);
-                FileInfo then = (FileInfo) files.get(now.getPath());
+                FileInfo then = files.get(now.getPath());
                 if (then == null) { // Brand new, wait a bit to make sure it's not still changing
                     now.setNewFile(true);
                     files.put(now.getPath(), now);
@@ -296,9 +296,9 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                 }
             }
             // Look for any files we used to know about but didn't find in this pass
-            for (Iterator it = oldList.iterator(); it.hasNext();) {
-                String name = (String) it.next();
-                FileInfo info = (FileInfo) files.get(name);
+            for (Iterator<String> it = oldList.iterator(); it.hasNext();) {
+                String name = it.next();
+                FileInfo info = files.get(name);
                 log.debug("File removed: " + name);
                 if (info.isNewFile()) { // Was never added, just whack it
                     files.remove(name);
@@ -308,16 +308,16 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
             }
             if (listener != null) {
                 // First pass: validate all changed files, so any obvious errors come out first
-                for (Iterator it = actions.iterator(); it.hasNext();) {
-                    FileAction action = (FileAction) it.next();
+                for (Iterator<FileAction> it = actions.iterator(); it.hasNext();) {
+                    FileAction action = it.next();
                     if (!listener.validateFile(action.child, action.info.getConfigId())) {
                         resolveFile(action);
                         it.remove();
                     }
                 }
                 // Second pass: do what we're meant to do
-                for (Iterator it = actions.iterator(); it.hasNext();) {
-                    FileAction action = (FileAction) it.next();
+                for (Iterator<FileAction> it = actions.iterator(); it.hasNext();) {
+                    FileAction action = it.next();
                     try {
                         if (action.action == FileAction.REMOVED_FILE) {
                             workingOnConfigId = action.info.getConfigId();
@@ -341,7 +341,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                                 File[] childs = directory.listFiles();
                                 for (int i = 0; i < childs.length; i++) {
                                     String path = childs[i].getAbsolutePath();
-                                    String configId = ((FileInfo)files.get(path)).configId;
+                                    String configId = (files.get(path)).configId;
                                     if (configId != null && configId.equals(workingOnConfigId) && !action.child.getAbsolutePath().equals(path)) {
                                         File fd = new File(path);
                                         if (fd.isDirectory()) {
