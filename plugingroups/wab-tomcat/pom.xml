@@ -63,12 +63,12 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>hot-deployer</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>hot-deployer</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jsr88-ear-configurer</artifactId>
