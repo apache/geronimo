@@ -257,11 +257,12 @@ public class MergeHelper {
             BundleResourceFinder resourceFinder = new BundleResourceFinder(packageAdmin, bundle, "META-INF/services", "javax.servlet.ServletContainerInitializer");
             resourceFinder.find(new ResourceFinderCallback() {
 
-                public void foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception {
+                public boolean foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception {
                     //ignore
+                    return true;
                 }
 
-                public void foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception {
+                public boolean foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception {
                     if (!excludedJarNames.contains(jarName)) {
                         BufferedReader bufferedReader = null;
                         try {
@@ -279,6 +280,7 @@ public class MergeHelper {
                             IOUtils.close(bufferedReader);
                         }
                     }
+                    return true;
                 }
             });
             Map<String, Set<String>> servletContainerInitializerClassNamesMap = new HashMap<String, Set<String>>();

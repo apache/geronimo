@@ -154,16 +154,16 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             final Map<URL, String> persistenceURLs = new HashMap<URL, String>();
             finder.find(new BundleResourceFinder.ResourceFinderCallback() {
 
-                @Override
-                public void foundInDirectory(Bundle bundle, String baseDir, URL url) throws Exception {
+                public boolean foundInDirectory(Bundle bundle, String baseDir, URL url) throws Exception {
                     persistenceURLs.put(url, baseDir);
+                    return true;
                 }
 
-                @Override
-                public void foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream inputStream) throws Exception {
+                public boolean foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream inputStream) throws Exception {
                     URL jarURL = bundle.getEntry(jarName);
                     URL url = new URL("jar:" + jarURL.toString() + "!/" + entry.getName());
                     persistenceURLs.put(url, jarName);
+                    return true;
                 }
             });
             if (raws.length > 0 || persistenceURLs.size() > 0) {

@@ -99,16 +99,18 @@ public class TldRegistration implements GBeanLifecycle {
             return tlds;
         }
         
-        public void foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception {
+        public boolean foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception {
             LOGGER.debug("Found {} TLD in bundle {}", url, bundle);
             tlds.add(new TldProvider.TldEntry(bundle, url));
+            return true;
         }
 
-        public void foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception {
+        public boolean foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception {
             URL jarURL = bundle.getEntry(jarName);
             URL url = new URL("jar:" + jarURL.toString() + "!/" + entry.getName());
             LOGGER.debug("Found {} TLD in bundle {}", url, bundle);
             tlds.add(new TldProvider.TldEntry(bundle, url, jarURL));
+            return false;
         }
         
     }

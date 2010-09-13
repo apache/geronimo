@@ -269,13 +269,15 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         BundleResourceFinder resourceFinder = new BundleResourceFinder(packageAdmin, bundle, "META-INF/", ".tld");
         resourceFinder.find(new ResourceFinderCallback() {
 
-            public void foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception {
+            public boolean foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception {
                 tldScanStream(url, new TldLocation(url.getPath()));
+                return true;
             }
 
-            public void foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception {
+            public boolean foundInJar(Bundle bundle, String jarName, ZipEntry entry, InputStream in) throws Exception {
                 URL jarURL = bundle.getEntry(jarName); 
                 tldScanStream(in, new TldLocation(entry.getName(), jarURL.toExternalForm()));
+                return true;
             }
             
         });
