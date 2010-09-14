@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.persistence;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -53,6 +54,7 @@ import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transformer.TransformerAgent;
+import org.apache.xbean.osgi.bundle.util.BundleResourceClassLoader;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,17 +92,19 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                                 @ParamAttribute(name = "validationMode") ValidationMode validationMode,
                                 @ParamReference(name = "ValidatorFactory", namingType = NameFactory.VALIDATOR_FACTORY) ValidatorFactoryGBean validatorFactory,
                                 @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
-                                @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) throws URISyntaxException, MalformedURLException, ResourceException {
+                                @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) throws URISyntaxException, IOException, ResourceException {
         List<String> mappingFileNames = mappingFileNamesUntyped == null ? NO_STRINGS : new ArrayList<String>(mappingFileNamesUntyped);
         this.persistenceUnitRoot = persistenceUnitRoot;
-        URI rootUri = new URI(persistenceUnitRoot);
-        URL rootURL = bundle.getResource(persistenceUnitRoot);
+        
+        URL rootURL = getPersistenceUnitRoot(bundle, persistenceUnitRoot);
+        URI rootUri = rootURL.toURI();
+        
         List<URL> jarFileUrls = NO_URLS;
         if (!excludeUnlistedClassesValue) {
             jarFileUrls = new ArrayList<URL>();
             //Per the EJB3.0 Persistence Specification section 6.2, the jar-file should be related to the Persistence Unit Root, which is the jar or directory where the persistence.xml is found             
             for (String urlString : jarFileUrlsUntyped) {
-                URL url = bundle.getResource(rootUri.resolve(urlString).toString());
+                URL url = rootUri.resolve(urlString).toURL();
                 if (url != null) {
                     jarFileUrls.add(url);
                 } else {
@@ -108,6 +112,9 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
                 }
             }
         }
+        
+        classLoader = new BundleResourceClassLoader(bundle);
+        
         if (managedClassNames == null) {
             managedClassNames = NO_STRINGS;
         }
@@ -118,8 +125,10 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         properties.put("javax.persistence.validation.factory", validatorFactory.getFactory());
         PersistenceUnitTransactionType persistenceUnitTransactionType = persistenceUnitTransactionTypeString == null ? PersistenceUnitTransactionType.JTA : PersistenceUnitTransactionType.valueOf(persistenceUnitTransactionTypeString);
 
-        if (persistenceProviderClassName == null) persistenceProviderClassName = "org.apache.openjpa.persistence.PersistenceProviderImpl";
-
+        if (persistenceProviderClassName == null) {
+            persistenceProviderClassName = "org.apache.openjpa.persistence.PersistenceProviderImpl";
+        }
+        
         persistenceUnitInfo = new PersistenceUnitInfoImpl(persistenceUnitName,
                 persistenceProviderClassName,
                 persistenceUnitTransactionType,
@@ -152,7 +161,17 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         this.transactionManager = transactionManager;
         this.entityManagerRegistry = new SingleElementCollection<ExtendedEntityManagerRegistry>(entityManagerRegistry);
     }
-
+    
+    private static URL getPersistenceUnitRoot(Bundle bundle, String persistenceUnitRoot) throws MalformedURLException {
+        if (persistenceUnitRoot == null || persistenceUnitRoot.equals(".")) {
+            return bundle.getEntry("/");
+        } else if (persistenceUnitRoot.endsWith("/")) {
+            return bundle.getEntry(persistenceUnitRoot);
+        } else {
+            return new URL("jar:" + bundle.getEntry(persistenceUnitRoot) + "!/");
+        }        
+    }
+    
     public EntityManagerFactory getEntityManagerFactory() {
         return entityManagerFactory;
     }
@@ -170,7 +189,6 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
     public String getPersistenceUnitName() {
         return persistenceUnitInfo.getPersistenceUnitName();
     }
-
 
     public String getPersistenceUnitRoot() {
         return persistenceUnitRoot;

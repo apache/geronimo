@@ -18,6 +18,8 @@
 package org.apache.geronimo.persistence;
 
 import java.io.File;
+import java.net.URL;
+import java.util.Arrays;
 
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.SharedCacheMode;
@@ -37,29 +39,33 @@ public class PersistenceUnitGBeanTest extends TestCase {
 //    }
     
     public void testNonNullJavaFileUrls() throws Exception {
+        URL url = getClass().getClassLoader().getResource(getClass().getName().replace('.', '/') + ".class");
+        String base = url.toString().substring(0, url.toString().lastIndexOf('/')) + "/";
+        MockBundle bundle = new MockBundle(getClass().getClassLoader(), base, 0L);
         PersistenceUnitGBean gbean = new PersistenceUnitGBean("foo",
                 null,
                 "JTA",
                 null,
                 null,
                 null,
-                null,
+                Arrays.asList("foo.jar"),
                 "/",
                 null,
-                true,
+                false,
                 null,
                 null,
                 null,
                 "2.0",
                 SharedCacheMode.NONE,
                 ValidationMode.AUTO,
-                new ValidatorFactoryGBean("Dummy", new MockBundle(getClass().getClassLoader(), "", 0L), getClass().getClassLoader(), null), 
-                new MockBundle(getClass().getClassLoader(), "", 0L),
+                new ValidatorFactoryGBean("Dummy", bundle, getClass().getClassLoader(), null), 
+                bundle,
                 getClass().getClassLoader());
         assertNotNull(gbean.getManagedClassNames());
         assertNotNull(gbean.getProperties());
         assertNotNull(gbean.getJarFileUrls());
-//        assertNotNull(gbean.getPersistenceUnitRootUrl());
+        assertEquals(Arrays.asList(new URL(base + "foo.jar")), gbean.getJarFileUrls());
+        assertEquals(new URL(base), gbean.getPersistenceUnitRootUrl());
         assertNotNull(gbean.getPersistenceProviderClassName());
     }
 }
