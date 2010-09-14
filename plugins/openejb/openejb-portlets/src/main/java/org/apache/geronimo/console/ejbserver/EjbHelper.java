@@ -47,9 +47,9 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.openejb.EjbContainer;
 import org.apache.geronimo.openejb.OpenEjbSystem;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.Container;
 import org.apache.openejb.ContainerType;
-import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.assembler.classic.ContainerInfo;
 import org.apache.openejb.assembler.classic.ContainerSystemInfo;
 import org.apache.openejb.assembler.classic.OpenEjbConfiguration;
@@ -150,7 +150,7 @@ public class EjbHelper extends BaseRemoteProxy {
             containersEntry.setName(containerInfo.id);
             containersEntry.setValues(new String[]{containerInfo.id});
 
-            DeploymentInfo[] deployments = container.deployments();
+            BeanContext[] deployments = container.getBeanContexts();
             containersEntry.setChildren(getDeployments(deployments));
             containers.add(containersEntry);
         }
@@ -158,10 +158,10 @@ public class EjbHelper extends BaseRemoteProxy {
         return tree;
     }
 
-    public List<TreeEntry> getDeployments(DeploymentInfo[] deploymentInfos) {
+    public List<TreeEntry> getDeployments(BeanContext[] beanContexts) {
         List<TreeEntry> deployments = new ArrayList<TreeEntry>();
         TreeEntry deploymentsEntry = null;
-        for (DeploymentInfo deployment : deploymentInfos) {
+        for (BeanContext deployment : beanContexts) {
             deploymentsEntry = new TreeEntry();
             deploymentsEntry.setName(deployment.getEjbName());
             deploymentsEntry.setValues(new String[]{
@@ -380,25 +380,25 @@ public class EjbHelper extends BaseRemoteProxy {
     public List<EjbInformation> getDeploymentInfo(String containerId,
             String deploymentId, HttpServletRequest request) {
         Container container = containerSystem.getContainer(containerId);
-        DeploymentInfo deploymentInfo = container
-                .getDeploymentInfo(deploymentId);
+        BeanContext beanContext = container
+                .getBeanContext(deploymentId);
         List<EjbInformation> informations = new ArrayList<EjbInformation>();
         EjbInformation information = new EjbInformation();
         information.setName(getLocalizedString(request, BUNDLE_NAME, BEANCLASSNAME_KEY));
-        information.setValue(deploymentInfo.getBeanClass().getName());
+        information.setValue(beanContext.getBeanClass().getName());
         informations.add(information);
 
-        if (deploymentInfo.getBusinessLocalInterface() != null) {
+        if (beanContext.getBusinessLocalInterface() != null) {
             information = new EjbInformation();
             information.setName(getLocalizedString(request, BUNDLE_NAME, BLI_KEY));
-            information.setValue(appendMultipleInterfaces(deploymentInfo
+            information.setValue(appendMultipleInterfaces(beanContext
                     .getBusinessLocalInterfaces()));
             informations.add(information);
         }
-        if (deploymentInfo.getBusinessRemoteInterface() != null) {
+        if (beanContext.getBusinessRemoteInterface() != null) {
             information = new EjbInformation();
             information.setName(getLocalizedString(request, BUNDLE_NAME, BRI_KEY));
-            information.setValue(appendMultipleInterfaces(deploymentInfo
+            information.setValue(appendMultipleInterfaces(beanContext
                     .getBusinessRemoteInterfaces()));
             informations.add(information);
         }
@@ -408,11 +408,11 @@ public class EjbHelper extends BaseRemoteProxy {
         informations.add(information);
         information = new EjbInformation();
         information.setName(getLocalizedString(request, BUNDLE_NAME, EJBNAME_KEY));
-        information.setValue(deploymentInfo.getEjbName());
+        information.setValue(beanContext.getEjbName());
         informations.add(information);
-        if (deploymentInfo.getHomeInterface() != null) {
+        if (beanContext.getHomeInterface() != null) {
             information = new EjbInformation();
-            information.setValue(deploymentInfo.getHomeInterface().getName());
+            information.setValue(beanContext.getHomeInterface().getName());
             information.setName(getLocalizedString(request, BUNDLE_NAME, EJBHOMEI_KEY));
             informations.add(information);
         }
@@ -422,7 +422,7 @@ public class EjbHelper extends BaseRemoteProxy {
             try {
                 cls = Class.forName("org.apache.openejb.assembler.classic.JndiBuilder$Bindings");
                 Method method = cls.getMethod("getBindings");
-                List<String> jndiNames = (List) method.invoke(deploymentInfo.get(cls));
+                List<String> jndiNames = (List) method.invoke(beanContext.get(cls));
                 StringBuffer names = new StringBuffer();
                 for (String jndiName : jndiNames) {
                     if (jndiName.startsWith("openejb/local/")) {
@@ -437,46 +437,46 @@ public class EjbHelper extends BaseRemoteProxy {
             information.setName(getLocalizedString(request, BUNDLE_NAME, JNDINAMES_KEY));
             informations.add(information);
         }
-        if (deploymentInfo.getLocalHomeInterface() != null) {
+        if (beanContext.getLocalHomeInterface() != null) {
             information = new EjbInformation();
             information.setName(getLocalizedString(request, BUNDLE_NAME, LHI_KEY));
-            information.setValue(deploymentInfo.getLocalHomeInterface()
+            information.setValue(beanContext.getLocalHomeInterface()
                     .getName());
             informations.add(information);
         }
 
-        if (deploymentInfo.getLocalInterface() != null) {
+        if (beanContext.getLocalInterface() != null) {
             information = new EjbInformation();
             information.setName(getLocalizedString(request, BUNDLE_NAME, LI_KEY));
-            information.setValue(deploymentInfo.getLocalInterface().getName());
+            information.setValue(beanContext.getLocalInterface().getName());
             informations.add(information);
         }
 
-        if (deploymentInfo.getRemoteInterface() != null) {
+        if (beanContext.getRemoteInterface() != null) {
             information = new EjbInformation();
             information.setName(getLocalizedString(request, BUNDLE_NAME, RI_KEY));
-            information.setValue(deploymentInfo.getRemoteInterface().getName());
+            information.setValue(beanContext.getRemoteInterface().getName());
             informations.add(information);
         }
 
-        if (deploymentInfo.getPrimaryKeyClass() != null) {
+        if (beanContext.getPrimaryKeyClass() != null) {
             information = new EjbInformation();
             information.setName(getLocalizedString(request, BUNDLE_NAME, PKC_KEY));
-            information.setValue(deploymentInfo.getPrimaryKeyClass().getName());
+            information.setValue(beanContext.getPrimaryKeyClass().getName());
             informations.add(information);
         }
 
-        if (deploymentInfo.getPrimaryKeyField() != null) {
+        if (beanContext.getPrimaryKeyField() != null) {
             information = new EjbInformation();
             information.setName(getLocalizedString(request, BUNDLE_NAME, PKF_KEY));
-            information.setValue(deploymentInfo.getPrimaryKeyField());
+            information.setValue(beanContext.getPrimaryKeyField());
             informations.add(information);
         }
 
-        if (deploymentInfo.getServiceEndpointInterface() != null) {
+        if (beanContext.getServiceEndpointInterface() != null) {
             information = new EjbInformation();
             information.setName(getLocalizedString(request, BUNDLE_NAME, SEI_KEY));
-            information.setValue(deploymentInfo.getServiceEndpointInterface()
+            information.setValue(beanContext.getServiceEndpointInterface()
                     .getName());
             informations.add(information);
         }

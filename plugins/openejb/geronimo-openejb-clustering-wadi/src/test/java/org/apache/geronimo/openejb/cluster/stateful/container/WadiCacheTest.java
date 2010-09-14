@@ -35,9 +35,9 @@ import org.apache.geronimo.clustering.Session;
 import org.apache.geronimo.clustering.SessionListener;
 import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.openejb.cluster.stateful.container.ClusteredStatefulContainerTest.SFSB;
-import org.apache.openejb.core.AppContext;
-import org.apache.openejb.core.CoreDeploymentInfo;
-import org.apache.openejb.core.ModuleContext;
+import org.apache.openejb.AppContext;
+import org.apache.openejb.BeanContext;
+import org.apache.openejb.ModuleContext;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.stateful.Cache.CacheListener;
 import org.apache.openejb.core.stateful.Instance;
@@ -50,7 +50,7 @@ public class WadiCacheTest extends RMockTestCase {
 
     private WadiCache manager;
     private String deploymentId;
-    private CoreDeploymentInfo deploymentInfo;
+    private BeanContext deploymentInfo;
     private VMID primKey;
     private ThreadContext threadContext;
     private WADISessionManager sessionManager;
@@ -70,7 +70,7 @@ public class WadiCacheTest extends RMockTestCase {
         });
 
         deploymentId = "deploymentId";
-        deploymentInfo = new CoreDeploymentInfo(deploymentId, null, new ModuleContext(deploymentId, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader(), null, null, false), null),
+        deploymentInfo = new BeanContext(deploymentId, null, new ModuleContext(deploymentId, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader(), null, null, false), null),
             SFSB.class,
             null,
             null,

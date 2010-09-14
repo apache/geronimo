@@ -60,7 +60,7 @@ import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.InterfaceType;
 import org.apache.openejb.assembler.classic.EjbJarInfo;
 import org.apache.openejb.assembler.classic.EnterpriseBeanInfo;
@@ -271,7 +271,7 @@ public class EjbDeploymentBuilder {
                     securityBuilder.addToPermissions(new PermissionCollectionAdapter(componentPermissions.getUncheckedPermissions()),
                             remoteBean.getEjbName(),
                             EjbInterface.HOME.getJaccInterfaceName(),
-                            DeploymentInfo.BusinessRemoteHome.class.getName(),
+                            BeanContext.BusinessRemoteHome.class.getName(),
                             ejbModule.getClassLoader());
                 }
                 if (remoteBean.getBusinessLocal() != null && !remoteBean.getBusinessLocal().isEmpty()) {
@@ -285,7 +285,7 @@ public class EjbDeploymentBuilder {
                     securityBuilder.addToPermissions(new PermissionCollectionAdapter(componentPermissions.getUncheckedPermissions()),
                             remoteBean.getEjbName(),
                             EjbInterface.LOCAL_HOME.getJaccInterfaceName(),
-                            DeploymentInfo.BusinessLocalHome.class.getName(),
+                            BeanContext.BusinessLocalHome.class.getName(),
                             ejbModule.getClassLoader());
                 }
 

@@ -42,11 +42,10 @@ import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.UndeployException;
 import org.apache.openejb.assembler.classic.AppInfo;
-import org.apache.openejb.core.CoreDeploymentInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,8 +170,8 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
     public void doStart() throws Exception {
         openEjbSystem.createApplication(appInfo, classLoader);
         for (String deploymentId: ejbs.keySet()) {
-            DeploymentInfo deploymentInfo = openEjbSystem.getDeploymentInfo(deploymentId);
-            GeronimoThreadContextListener.get().getEjbDeployment((CoreDeploymentInfo) deploymentInfo);
+            BeanContext beanContext = openEjbSystem.getDeploymentInfo(deploymentId);
+            GeronimoThreadContextListener.get().getEjbDeployment((BeanContext) beanContext);
         }
     }
 

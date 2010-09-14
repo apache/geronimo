@@ -38,8 +38,8 @@ import org.apache.geronimo.openejb.cluster.infra.SessionManagerTracker;
 import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.Container;
-import org.apache.openejb.core.CoreDeploymentInfo;
 import org.osgi.framework.Bundle;
 
 /**
@@ -108,7 +108,7 @@ public class ClusteredStatefulDeployment extends EjbDeployment {
     }
 
     @Override
-    protected EjbDeployment initialize(CoreDeploymentInfo deploymentInfo) {
+    protected EjbDeployment initialize(BeanContext deploymentInfo) {
         super.initialize(deploymentInfo);
 
         Container container = deploymentInfo.getContainer();
@@ -127,7 +127,7 @@ public class ClusteredStatefulDeployment extends EjbDeployment {
 
     @Override
     protected void destroy() {
-        CoreDeploymentInfo info = deploymentInfo.get();
+        BeanContext info = deploymentInfo.get();
         if (null != info) {
             Container container = info.getContainer();
             if (null != container) {

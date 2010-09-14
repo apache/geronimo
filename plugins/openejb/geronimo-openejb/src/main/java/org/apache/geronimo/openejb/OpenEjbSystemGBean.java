@@ -30,7 +30,6 @@ import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.resource.spi.ResourceAdapter;
-import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.gbean.AbstractName;
@@ -48,8 +47,8 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.Container;
-import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.UndeployException;
@@ -438,8 +437,8 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         assembler.destroyApplication(appInfo.path);
     }
     
-    public DeploymentInfo getDeploymentInfo(String deploymentId) {
-        return getContainerSystem().getDeploymentInfo(deploymentId);
+    public BeanContext getDeploymentInfo(String deploymentId) {
+        return getContainerSystem().getBeanContext(deploymentId);
     }
 
     public void setORBContext(ORB orb, HandleDelegate handleDelegate) {

@@ -20,11 +20,9 @@ import java.io.IOException;
 import java.util.Properties;
 import javax.ejb.spi.HandleDelegate;
 import javax.naming.NamingException;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.Container;
-import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.UndeployException;
 import org.apache.openejb.NoSuchApplicationException;
@@ -53,7 +51,7 @@ public interface OpenEjbSystem {
 
     void createClient(ClientInfo clientInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException;
 
-    DeploymentInfo getDeploymentInfo(String deploymentId);
+    BeanContext getDeploymentInfo(String deploymentId);
 
     void createApplication(AppInfo appInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException;
     

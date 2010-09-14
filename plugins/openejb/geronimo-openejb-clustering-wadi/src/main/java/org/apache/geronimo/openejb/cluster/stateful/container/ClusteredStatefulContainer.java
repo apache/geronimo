@@ -29,8 +29,8 @@ import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.openejb.cluster.infra.NetworkConnectorTracker;
 import org.apache.geronimo.openejb.cluster.infra.NetworkConnectorTrackerException;
 import org.apache.geronimo.openejb.cluster.infra.SessionManagerTracker;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.ClusteredRPCContainer;
-import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.core.stateful.StatefulContainer;
 import org.apache.openejb.spi.SecurityService;
 import org.codehaus.wadi.core.manager.Manager;
@@ -87,8 +87,8 @@ public class ClusteredStatefulContainer extends StatefulContainer implements Ses
         }
     }
     
-    public URI[] getLocations(DeploymentInfo deploymentInfo) {
-        Object deploymentID = deploymentInfo.getDeploymentID();
+    public URI[] getLocations(BeanContext beanContext) {
+        Object deploymentID = beanContext.getDeploymentID();
         NetworkConnectorTracker networkConnectorTracker;
         synchronized (deploymentIdToNetworkConnectorTracker) {
             networkConnectorTracker = deploymentIdToNetworkConnectorTracker.get(deploymentID);

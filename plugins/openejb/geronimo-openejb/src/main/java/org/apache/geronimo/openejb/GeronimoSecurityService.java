@@ -32,8 +32,8 @@ import javax.security.jacc.EJBRoleRefPermission;
 
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.SubjectId;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.InterfaceType;
-import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.security.jaas.UsernamePasswordCallbackHandler;
 import org.apache.openejb.spi.SecurityService;
@@ -83,7 +83,7 @@ public class GeronimoSecurityService implements SecurityService {
         ThreadContext threadContext = ThreadContext.getThreadContext();
 
         try {
-            CoreDeploymentInfo deploymentInfo = threadContext.getDeploymentInfo();
+            BeanContext deploymentInfo = threadContext.getBeanContext();
 
             // if security is not enabled we are autorized
             EjbDeployment ejbDeployment = deploymentInfo.get(EjbDeployment.class);
@@ -114,7 +114,7 @@ public class GeronimoSecurityService implements SecurityService {
 
         ThreadContext threadContext = ThreadContext.getThreadContext();
 
-        CoreDeploymentInfo deploymentInfo = threadContext.getDeploymentInfo();
+        BeanContext deploymentInfo = threadContext.getBeanContext();
 
         // if security is not enabled we are not in that role
         EjbDeployment ejbDeployment = deploymentInfo.get(EjbDeployment.class);
@@ -136,7 +136,7 @@ public class GeronimoSecurityService implements SecurityService {
     public Principal getCallerPrincipal() {
         // if security is not enabled, we don't have a principal
         ThreadContext threadContext = ThreadContext.getThreadContext();
-        CoreDeploymentInfo deploymentInfo = threadContext.getDeploymentInfo();
+        BeanContext deploymentInfo = threadContext.getBeanContext();
         EjbDeployment ejbDeployment = deploymentInfo.get(EjbDeployment.class);
         if (ejbDeployment == null || !ejbDeployment.isSecurityEnabled()) {
             return null;

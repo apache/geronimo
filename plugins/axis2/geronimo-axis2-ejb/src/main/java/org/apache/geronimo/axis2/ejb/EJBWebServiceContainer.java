@@ -31,7 +31,7 @@ import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
 import org.apache.geronimo.jaxws.PortInfo;
-import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.BeanContext;
 import org.osgi.framework.Bundle;
 
 /**
@@ -39,13 +39,13 @@ import org.osgi.framework.Bundle;
  */
 public class EJBWebServiceContainer extends Axis2WebServiceContainer {
 
-    private DeploymentInfo deploymnetInfo;
+    private BeanContext deploymnetInfo;
 
     public EJBWebServiceContainer(PortInfo portInfo,
                                   String endpointClassName,
                                   Bundle bundle,
                                   Context context,
-                                  DeploymentInfo deploymnetInfo) {
+                                  BeanContext deploymnetInfo) {
         super(portInfo, endpointClassName, bundle, context);
         this.deploymnetInfo = deploymnetInfo;
     }

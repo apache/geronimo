@@ -38,10 +38,10 @@ import org.apache.axis2.jaxws.handler.SoapMessageContext;
 import org.apache.axis2.jaxws.i18n.Messages;
 import org.apache.axis2.jaxws.util.Constants;
 import org.apache.axis2.util.ThreadContextMigratorUtil;
+import org.apache.openejb.BeanContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.openejb.ApplicationException;
-import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.InterfaceType;
 import org.apache.openejb.RpcContainer;
 
@@ -49,14 +49,14 @@ public class EJBMessageReceiver implements MessageReceiver
 {
     private static final Logger LOG = LoggerFactory.getLogger(EJBMessageReceiver.class);
 
-    private DeploymentInfo deploymentInfo;
+    private BeanContext beanContext;
     private Class serviceImplClass;
     private EJBWebServiceContainer container;
 
-    public EJBMessageReceiver(EJBWebServiceContainer container, Class serviceImplClass, DeploymentInfo deploymentInfo) {
+    public EJBMessageReceiver(EJBWebServiceContainer container, Class serviceImplClass, BeanContext beanContext) {
         this.container = container;
         this.serviceImplClass = serviceImplClass;
-        this.deploymentInfo = deploymentInfo;
+        this.beanContext = beanContext;
     }
 
     public void receive(org.apache.axis2.context.MessageContext axisMsgCtx) throws AxisFault {
@@ -87,9 +87,9 @@ public class EJBMessageReceiver implements MessageReceiver
         EJBAddressingSupport wsaSupport = new EJBAddressingSupport(jaxwsContext);
         Object[] arguments = { jaxwsContext, interceptor, wsaSupport };
 
-        RpcContainer container = (RpcContainer) this.deploymentInfo.getContainer();
+        RpcContainer container = (RpcContainer) this.beanContext.getContainer();
 
-        Class callInterface = this.deploymentInfo.getServiceEndpointInterface();
+        Class callInterface = this.beanContext.getServiceEndpointInterface();
 
         method = getMostSpecificMethod(method, callInterface);
 
@@ -97,7 +97,7 @@ public class EJBMessageReceiver implements MessageReceiver
         ThreadContextMigratorUtil.performMigrationToThread(Constants.THREAD_CONTEXT_MIGRATOR_LIST_ID,
                                                            axisMsgCtx);
         try {
-            Object res = container.invoke(this.deploymentInfo.getDeploymentID(), InterfaceType.SERVICE_ENDPOINT, callInterface, method, arguments, null);
+            Object res = container.invoke(this.beanContext.getDeploymentID(), InterfaceType.SERVICE_ENDPOINT, callInterface, method, arguments, null);
             // TODO: update response message with new response value?
         } catch (ApplicationException e) {
             if (e.getCause() instanceof AxisFault) {

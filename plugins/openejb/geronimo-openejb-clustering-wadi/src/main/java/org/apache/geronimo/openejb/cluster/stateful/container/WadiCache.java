@@ -110,7 +110,7 @@ public class WadiCache implements Cache<Object, Instance>, SessionManagerTracker
         }
 
         try {
-            Object deploymentId = instance.deploymentInfo.getDeploymentID();
+            Object deploymentId = instance.beanContext.getDeploymentID();
             Session session = getSessionManager(deploymentId).createSession(primaryKey.toString());
             localInstances.put(primaryKey, new WadiInstance(instance, session));
         } catch (SessionAlreadyExistException e) {

@@ -37,8 +37,8 @@ import org.apache.geronimo.corba.AdapterWrapper;
 import org.apache.geronimo.corba.CORBAException;
 import org.apache.geronimo.corba.RefGenerator;
 import org.apache.geronimo.corba.StandardServant;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.BeanType;
-import org.apache.openejb.DeploymentInfo;
 import org.apache.openejb.InterfaceType;
 import org.apache.openejb.core.ivm.BaseEjbProxyHandler;
 import org.apache.openejb.core.ivm.EjbObjectProxyHandler;
@@ -243,8 +243,8 @@ public final class UtilDelegateImpl implements UtilDelegate {
         }
 
         BaseEjbProxyHandler ejbProxyHandler = (BaseEjbProxyHandler) invocationHandler;
-        DeploymentInfo deploymentInfo = ejbProxyHandler.getDeploymentInfo();
-        String deploymentId = (String) deploymentInfo.getDeploymentID();
+        BeanContext beanContext = ejbProxyHandler.getBeanContext();
+        String deploymentId = (String) beanContext.getDeploymentID();
         try {
             RefGenerator refGenerator = AdapterWrapper.getRefGenerator(deploymentId);
             if (refGenerator == null) {
@@ -254,11 +254,11 @@ public final class UtilDelegateImpl implements UtilDelegate {
                 return refGenerator.genHomeReference();
             } else if (proxy instanceof EJBObject) {
                 Object primaryKey = null;
-                if (deploymentInfo.getComponentType() == BeanType.STATEFUL) {
+                if (beanContext.getComponentType() == BeanType.STATEFUL) {
                     RegistryId id = (RegistryId)((EjbObjectProxyHandler)ejbProxyHandler).getRegistryId(); 
                     primaryKey = id.getPrimaryKey(); 
                 }
-                else if (deploymentInfo.getComponentType() != BeanType.STATELESS) {
+                else if (beanContext.getComponentType() != BeanType.STATELESS) {
                     EJBObject ejbObject = (EJBObject) proxy;
                     primaryKey = ejbObject.getPrimaryKey();
                 }

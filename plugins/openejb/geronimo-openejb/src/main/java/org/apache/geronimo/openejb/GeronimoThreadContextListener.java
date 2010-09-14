@@ -22,6 +22,7 @@ import javax.resource.ResourceException;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 
+import org.apache.openejb.BeanContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
@@ -30,7 +31,6 @@ import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnecti
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.security.Callers;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.ThreadContextListener;
 
@@ -76,7 +76,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
         this.ejbs.remove(id);
     }
 
-    EjbDeployment getEjbDeployment(CoreDeploymentInfo deploymentInfo) {
+    EjbDeployment getEjbDeployment(BeanContext deploymentInfo) {
         Deployment deployment = ejbs.get(deploymentInfo.getDeploymentID());
 
         if (deployment == null) return null;
@@ -86,7 +86,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
 
 
     public void contextEntered(ThreadContext oldContext, ThreadContext newContext) {
-        CoreDeploymentInfo deploymentInfo = newContext.getDeploymentInfo();
+        BeanContext deploymentInfo = newContext.getBeanContext();
         if (deploymentInfo == null) return;
 
         EjbDeployment ejbDeployment = getEjbDeployment(deploymentInfo);
@@ -120,7 +120,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
 
         // set the policy (security) context id
         geronimoCallContext.contextID = PolicyContext.getContextID();
-        String moduleID = newContext.getDeploymentInfo().getModuleID();
+        String moduleID = newContext.getBeanContext().getModuleID();
         PolicyContext.setContextID(moduleID);
 
         // set the default subject if needed
@@ -141,7 +141,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
     }
 
     public void contextExited(ThreadContext exitedContext, ThreadContext reenteredContext) {
-        CoreDeploymentInfo deploymentInfo = exitedContext.getDeploymentInfo();
+        BeanContext deploymentInfo = exitedContext.getBeanContext();
         if (deploymentInfo == null) return;
 
         EjbDeployment ejbDeployment = deploymentInfo.get(EjbDeployment.class);
@@ -184,7 +184,7 @@ public class GeronimoThreadContextListener implements ThreadContextListener {
             this.geronimoDeployment = geronimoDeployment;
         }
 
-        public EjbDeployment get(final CoreDeploymentInfo openejbDeployment) {
+        public EjbDeployment get(final BeanContext openejbDeployment) {
             try {
                 // Has the deployment been initialized yet?
 

@@ -43,10 +43,10 @@ import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.BeanType;
 import org.apache.openejb.Container;
 import org.apache.openejb.InterfaceType;
-import org.apache.openejb.core.CoreDeploymentInfo;
 import org.apache.openejb.core.ivm.EjbObjectProxyHandler;
 import org.apache.openejb.core.transaction.TransactionType;
 import org.apache.xbean.naming.context.ImmutableFederatedContext;
@@ -81,7 +81,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
 
     protected final OpenEjbSystem openEjbSystem;
 
-    protected AtomicReference<CoreDeploymentInfo> deploymentInfo = new AtomicReference<CoreDeploymentInfo>();
+    protected AtomicReference<BeanContext> deploymentInfo = new AtomicReference<BeanContext>();
 
     public EjbDeployment(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
                          @ParamAttribute(name = "deploymentId") String deploymentId,
@@ -135,7 +135,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         this.openEjbSystem = openEjbSystem;
     }
 
-    public CoreDeploymentInfo getDeploymentInfo() {
+    public BeanContext getDeploymentInfo() {
         return deploymentInfo.get();
     }
 
@@ -287,7 +287,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
         return true;
     }
 
-    protected EjbDeployment initialize(CoreDeploymentInfo deploymentInfo) {
+    protected EjbDeployment initialize(BeanContext deploymentInfo) {
         try {
             ImmutableFederatedContext federatedContext = (ImmutableFederatedContext) ((DeepBindableContext.ContextWrapper)deploymentInfo.getJndiEnc()).getRootContext();
             federatedContext.federateContext(componentContext);
@@ -305,7 +305,7 @@ public class EjbDeployment implements EJB, EjbDeploymentIdAccessor {
     }
 
     protected void destroy() {
-        CoreDeploymentInfo info = deploymentInfo.getAndSet(null);
+        BeanContext info = deploymentInfo.getAndSet(null);
         if (info != null) {
             info.set(EjbDeployment.class, null);
         }

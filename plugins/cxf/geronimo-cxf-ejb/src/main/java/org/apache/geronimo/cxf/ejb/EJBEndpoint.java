@@ -40,7 +40,7 @@ import org.apache.geronimo.cxf.CXFServiceConfiguration;
 import org.apache.geronimo.cxf.GeronimoJaxWsImplementorInfo;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JNDIResolver;
-import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.BeanContext;
 import org.osgi.framework.Bundle;
 
 public class EJBEndpoint extends CXFEndpoint {
@@ -83,10 +83,10 @@ public class EJBEndpoint extends CXFEndpoint {
             throw new WebServiceException("Error configuring handlers", e);
         }
 
-        DeploymentInfo deploymentInfo =
-            bus.getExtension(DeploymentInfo.class);
+        BeanContext beanContext =
+            bus.getExtension(BeanContext.class);
 
-        service.setInvoker(new EJBMethodInvoker(this, this.bus, deploymentInfo));
+        service.setInvoker(new EJBMethodInvoker(this, this.bus, beanContext));
 
         Endpoint endpoint = getEndpoint();
 

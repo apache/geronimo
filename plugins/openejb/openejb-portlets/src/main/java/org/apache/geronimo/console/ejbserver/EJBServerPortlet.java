@@ -23,7 +23,6 @@ import java.util.StringTokenizer;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
@@ -32,19 +31,6 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
 import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.openejb.EjbDeployment;
-import org.apache.openejb.assembler.classic.ContainerInfo;
-import org.apache.openejb.assembler.classic.ServiceInfo;
-import org.apache.openejb.assembler.classic.ContainerSystemInfo;
-import org.apache.openejb.assembler.classic.OpenEjbConfiguration;
-import org.apache.openejb.Container;
-import org.apache.openejb.DeploymentInfo;
-import org.apache.openejb.loader.SystemInstance;
-import org.apache.openejb.spi.ContainerSystem;
 
 public class EJBServerPortlet extends BasePortlet {
 	

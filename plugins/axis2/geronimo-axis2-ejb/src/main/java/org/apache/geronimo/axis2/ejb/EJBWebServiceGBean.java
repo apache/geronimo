@@ -34,7 +34,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.webservices.SoapHandler;
-import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.BeanContext;
 import org.osgi.framework.Bundle;
 
 /**
@@ -71,7 +71,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
 
         String beanClassName = ejbDeploymentContext.getBeanClass().getName();
         ClassLoader classLoader = ejbDeploymentContext.getClassLoader();
-        DeploymentInfo deploymnetInfo = ejbDeploymentContext.getDeploymentInfo();
+        BeanContext deploymnetInfo = ejbDeploymentContext.getDeploymentInfo();
         Context context = deploymnetInfo.getJndiEnc();
 
         this.container = new EJBWebServiceContainer(portInfo, beanClassName, bundle, context, deploymnetInfo);

@@ -24,10 +24,9 @@ import java.util.Collections;
 import com.agical.rmock.extension.junit.RMockTestCase;
 import org.apache.geronimo.clustering.wadi.WADISessionManager;
 import org.apache.geronimo.openejb.cluster.infra.NetworkConnectorTracker;
-import org.apache.openejb.assembler.classic.JndiEncBuilder;
-import org.apache.openejb.core.AppContext;
-import org.apache.openejb.core.CoreDeploymentInfo;
-import org.apache.openejb.core.ModuleContext;
+import org.apache.openejb.BeanContext;
+import org.apache.openejb.AppContext;
+import org.apache.openejb.ModuleContext;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.spi.SecurityService;
 import org.codehaus.wadi.servicespace.ServiceRegistry;
@@ -40,7 +39,7 @@ public class ClusteredStatefulContainerTest extends RMockTestCase {
 
     private WADISessionManager sessionManager;
     private ClusteredStatefulContainer container;
-    private CoreDeploymentInfo deploymentInfo;
+    private BeanContext deploymentInfo;
     private String deploymentId;
     private NetworkConnectorTracker tracker;
 
@@ -66,7 +65,7 @@ public class ClusteredStatefulContainerTest extends RMockTestCase {
         container = (ClusteredStatefulContainer) intercept(ClusteredStatefulContainer.class, new Object[] {"id",
                 securityService});
         deploymentId = "deploymentId";
-        deploymentInfo = new CoreDeploymentInfo(deploymentId, null, new ModuleContext(deploymentId, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader(), null, null, false), null),
+        deploymentInfo = new BeanContext(deploymentId, null, new ModuleContext(deploymentId, new AppContext(deploymentId, SystemInstance.get(), getClass().getClassLoader(), null, null, false), null),
             SFSB.class,
             null,
             null,

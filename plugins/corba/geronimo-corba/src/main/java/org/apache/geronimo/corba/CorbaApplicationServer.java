@@ -28,7 +28,7 @@ import javax.rmi.PortableRemoteObject;
 import org.omg.CORBA.ORB;
 import org.apache.openejb.ProxyInfo;
 import org.apache.openejb.ContainerType;
-import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.spi.ApplicationServer;
 
 /**
@@ -37,7 +37,7 @@ import org.apache.openejb.spi.ApplicationServer;
 public class CorbaApplicationServer implements ApplicationServer {
     public EJBObject getEJBObject(ProxyInfo proxyInfo) {
         try {
-            RefGenerator refGenerator = AdapterWrapper.getRefGenerator((String) proxyInfo.getDeploymentInfo().getDeploymentID());
+            RefGenerator refGenerator = AdapterWrapper.getRefGenerator((String) proxyInfo.getBeanContext().getDeploymentID());
             org.omg.CORBA.Object object = refGenerator.genObjectReference(proxyInfo.getPrimaryKey());
             EJBObject ejbObject = (EJBObject) PortableRemoteObject.narrow(object, EJBObject.class);
             return ejbObject;
@@ -52,7 +52,7 @@ public class CorbaApplicationServer implements ApplicationServer {
      */
     public Object getBusinessObject(ProxyInfo proxyInfo) {
         try {
-            RefGenerator refGenerator = AdapterWrapper.getRefGenerator((String) proxyInfo.getDeploymentInfo().getDeploymentID());
+            RefGenerator refGenerator = AdapterWrapper.getRefGenerator((String) proxyInfo.getBeanContext().getDeploymentID());
             org.omg.CORBA.Object object = refGenerator.genObjectReference(proxyInfo.getPrimaryKey());
             return object;
         } catch (Throwable e) {
@@ -62,7 +62,7 @@ public class CorbaApplicationServer implements ApplicationServer {
 
     public EJBHome getEJBHome(ProxyInfo proxyInfo) {
         try {
-            RefGenerator refGenerator = AdapterWrapper.getRefGenerator((String) proxyInfo.getDeploymentInfo().getDeploymentID());
+            RefGenerator refGenerator = AdapterWrapper.getRefGenerator((String) proxyInfo.getBeanContext().getDeploymentID());
             org.omg.CORBA.Object home = refGenerator.genHomeReference();
             EJBHome ejbHome = (EJBHome) PortableRemoteObject.narrow(home, EJBHome.class);
             return ejbHome;
@@ -101,12 +101,12 @@ public class CorbaApplicationServer implements ApplicationServer {
                 throw new IllegalArgumentException("Unknown component type: " + componentType);
         }
 
-        DeploymentInfo deploymentInfo = proxyInfo.getDeploymentInfo();
+        BeanContext beanContext = proxyInfo.getBeanContext();
         CORBAEJBMetaData ejbMetaData = new CORBAEJBMetaData(getEJBHome(proxyInfo),
                 ejbType,
-                deploymentInfo.getHomeInterface(),
-                deploymentInfo.getRemoteInterface(),
-                deploymentInfo.getPrimaryKeyClass());
+                beanContext.getHomeInterface(),
+                beanContext.getRemoteInterface(),
+                beanContext.getPrimaryKeyClass());
         return ejbMetaData;
     }
 

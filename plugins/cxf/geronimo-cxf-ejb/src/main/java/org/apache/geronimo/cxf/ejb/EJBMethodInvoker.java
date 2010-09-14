@@ -34,7 +34,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.service.invoker.Factory;
-import org.apache.openejb.DeploymentInfo;
+import org.apache.openejb.BeanContext;
 import org.apache.openejb.InterfaceType;
 import org.apache.openejb.RpcContainer;
 import org.slf4j.Logger;
@@ -47,15 +47,15 @@ public class EJBMethodInvoker extends AbstractJAXWSMethodInvoker {
     private static final String HANDLER_PROPERTIES =
             "HandlerProperties";
 
-    private DeploymentInfo deploymentInfo;
+    private BeanContext beanContext;
     private Bus bus;
     private EJBEndpoint endpoint;
 
-    public EJBMethodInvoker(EJBEndpoint endpoint, Bus bus, DeploymentInfo deploymentInfo) {
+    public EJBMethodInvoker(EJBEndpoint endpoint, Bus bus, BeanContext beanContext) {
         super((Factory)null);
         this.endpoint = endpoint;
         this.bus = bus;
-        this.deploymentInfo = deploymentInfo;
+        this.beanContext = beanContext;
     }
 
     @Override
@@ -121,11 +121,11 @@ public class EJBMethodInvoker extends AbstractJAXWSMethodInvoker {
             EJBInterceptor interceptor = new EJBInterceptor(params, method, this.endpoint, this.bus, exchange);
             Object[] arguments = { ctx, interceptor, ctx };
 
-            RpcContainer container = (RpcContainer) this.deploymentInfo.getContainer();
+            RpcContainer container = (RpcContainer) this.beanContext.getContainer();
 
-            Class callInterface = this.deploymentInfo.getServiceEndpointInterface();
+            Class callInterface = this.beanContext.getServiceEndpointInterface();
             method = getMostSpecificMethod(method, callInterface);
-            Object res = container.invoke(this.deploymentInfo.getDeploymentID(), InterfaceType.SERVICE_ENDPOINT, callInterface, method, arguments, null);
+            Object res = container.invoke(this.beanContext.getDeploymentID(), InterfaceType.SERVICE_ENDPOINT, callInterface, method, arguments, null);
 
             if (exchange.isOneWay()) {
                 return null;
