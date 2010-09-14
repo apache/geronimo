@@ -216,7 +216,7 @@ public class ConnectorPortlet extends BasePortlet {
                 
                 try {
                     Kernel kernel = PortletManager.getKernel();
-                    BundleContext bundleContext = kernel.getBundleFor(connector.getClass()).getBundleContext();
+                    BundleContext bundleContext = kernel.getBundleFor(connectorName).getBundleContext();
                     kernel.stopGBean(connectorName);
                     kernel.unloadGBean(connectorName);
                     kernel.loadGBean(connectorGBeanData, bundleContext);
