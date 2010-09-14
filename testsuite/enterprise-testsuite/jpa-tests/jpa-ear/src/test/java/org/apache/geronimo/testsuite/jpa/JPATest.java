@@ -31,11 +31,17 @@ import org.testng.annotations.Test;
 public class JPATest extends TestSupport {
 
     @Test
-    public void testIndexContent() throws Exception {
-        URL url = new URL("http://localhost:8080/jpa/servlet");
+    public void testEjb() throws Exception {
+        URL url = new URL("http://localhost:8080/jpa/servlet?test=testEjb");
         String reply = HttpUtils.doGET(url);
         assertTrue("EJB container managed", reply.contains("Test EJB container managed entity manager test OK: true"));
         assertTrue("EJB app managed", reply.contains("Test EJB app managed entity manager factory test OK: true"));
+    }
+    
+    @Test
+    public void testServlet() throws Exception {
+        URL url = new URL("http://localhost:8080/jpa/servlet?test=testServlet");
+        String reply = HttpUtils.doGET(url);
         assertTrue("Servlet container managed", reply.contains("Test servlet container managed entity manager test OK: true"));
         assertTrue("Serlvet app managed", reply.contains("Test servlet app managed entity manager factory test OK: true"));
         assertTrue("Commit", reply.contains("commit OK"));

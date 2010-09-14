@@ -17,74 +17,101 @@
 package org.apache.geronimo.itest;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.naming.InitialContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.ejb.CreateException;
 import javax.transaction.UserTransaction;
-import javax.transaction.SystemException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.RollbackException;
-
 
 /**
  * @version $Rev$ $Date$
  */
 public class TestServlet extends HttpServlet {
 
-    public void init() {
-        System.out.println("Test Servlet init");
-    }
-
-    protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
-        httpServletResponse.getOutputStream().print("TestServlet\n");
-        try {
-            InitialContext ctx = new InitialContext();
-
-            //test ejb access using geronimo plan refs
-            TestSessionHome home = (TestSessionHome)ctx.lookup("java:comp/env/TestSession");
-            boolean result = home.create().testEntityManager();
-            httpServletResponse.getOutputStream().print("Test EJB container managed entity manager test OK: " + result);
-            result = home.create().testEntityManagerFactory();
-            httpServletResponse.getOutputStream().print("\nTest EJB app managed entity manager factory test OK: " + result);
-
-            //test servlet access using spec dd refs
-            TestSessionBean bean = new TestSessionBean();
-            UserTransaction ut = (UserTransaction) ctx.lookup("java:comp/UserTransaction");
-            ut.begin();
-            result = bean.testEntityManager();
-            httpServletResponse.getOutputStream().print("\nTest servlet container managed entity manager test OK: " + result);
-            result = bean.testEntityManagerFactory();
-            httpServletResponse.getOutputStream().print("\nTest servlet app managed entity manager factory test OK: " + result);
-            ut.commit();
-            httpServletResponse.getOutputStream().print("\ncommit OK");
-        } catch (NamingException e) {
-            System.out.print("Exception:");
-            e.printStackTrace();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (CreateException e) {
-            e.printStackTrace();
-        } catch (SystemException e) {
-            e.printStackTrace();
-        } catch (NotSupportedException e) {
-            e.printStackTrace();
-        } catch (HeuristicMixedException e) {
-            e.printStackTrace();
-        } catch (HeuristicRollbackException e) {
-            e.printStackTrace();
-        } catch (RollbackException e) {
-            e.printStackTrace();
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String testName = request.getParameter("test");
+        if (testName == null || !testName.startsWith("test")) {
+            throw new ServletException("Invalid test name");
         }
-        httpServletResponse.flushBuffer();
+        Method testMethod = null;
+        try {
+            testMethod = getClass().getMethod(testName, new Class[] {HttpServletRequest.class, HttpServletResponse.class});
+        } catch (Exception e1) {
+            throw new ServletException("No such test: " + testName);
+        }
+        try {
+            testMethod.invoke(this, new Object[] {request, response});
+        } catch (IllegalArgumentException e) {
+            throw new ServletException("Error invoking test: " + e.getMessage());
+        } catch (IllegalAccessException e) {
+            throw new ServletException("Error invoking test: " + e.getMessage());
+        } catch (InvocationTargetException e) {
+            Throwable root = e.getTargetException();
+            ServletException ex = new ServletException("Test '" + testName + "' failed");
+            ex.initCause(root);
+            throw ex;
+        }
+        response.setContentType("text/plain");
+    }
+    
+    public void testEjb(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+        TestListener.getCallbacks().clear();
+        
+        InitialContext ctx = new InitialContext();
+        //test ejb access using geronimo plan refs
+        TestSessionHome home = (TestSessionHome)ctx.lookup("java:comp/env/TestSession");
+        boolean result = home.create().testEntityManager();
+        httpServletResponse.getOutputStream().print("Test EJB container managed entity manager test OK: " + result);
+        result = home.create().testEntityManagerFactory();
+        httpServletResponse.getOutputStream().print("\nTest EJB app managed entity manager factory test OK: " + result);
+        
+        verifyCallbacks();
+    }
+    
+    public void testServlet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+        TestListener.getCallbacks().clear();
+        
+        InitialContext ctx = new InitialContext();
+        //test servlet access using spec dd refs
+        TestSessionBean bean = new TestSessionBean();
+        UserTransaction ut = (UserTransaction) ctx.lookup("java:comp/UserTransaction");
+        ut.begin();
+        boolean result = bean.testEntityManager();
+        httpServletResponse.getOutputStream().print("\nTest servlet container managed entity manager test OK: " + result);
+        result = bean.testEntityManagerFactory();
+        httpServletResponse.getOutputStream().print("\nTest servlet app managed entity manager factory test OK: " + result);
+        ut.commit();
+        httpServletResponse.getOutputStream().print("\ncommit OK");
+        
+        verifyCallbacks();
+    }
+    
+    private static void verifyCallbacks() throws Exception {
+        List<String> callbacks;        
+        callbacks = getCallbacks("prePersist");
+        if (callbacks.size() != 2) {
+            throw new Exception("Unexpected number of prePersist callbacks: " + callbacks);
+        }
+        callbacks = getCallbacks("postPersist");
+        if (callbacks.size() != 2) {
+            throw new Exception("Unexpected number of postPersist callbacks: " + callbacks);
+        }
     }
 
-
+    private static List<String> getCallbacks(String type) {
+        List<String> selected = new ArrayList<String>();
+        for (String callback : TestListener.getCallbacks()) {
+            if (callback.startsWith(type)) {
+                selected.add(callback);
+            }
+        }
+        return selected;
+    }
 }
