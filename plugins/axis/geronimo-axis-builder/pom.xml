@@ -46,6 +46,12 @@
             <artifactId>geronimo-axis</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-webservices-builder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

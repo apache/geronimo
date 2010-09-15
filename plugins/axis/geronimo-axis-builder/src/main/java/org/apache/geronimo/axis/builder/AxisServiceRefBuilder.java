@@ -71,7 +71,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
         serviceRefQNameSet = buildQNameSet(eeNamespaces, "service-ref");
     }
 
-    protected boolean willMergeEnvironment(XmlObject specDD, XmlObject plan) {
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) {
         return specDD.selectChildren(serviceRefQNameSet).length > 0;
     }
 
