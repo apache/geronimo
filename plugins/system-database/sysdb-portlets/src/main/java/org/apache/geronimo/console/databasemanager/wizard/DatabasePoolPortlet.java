@@ -692,11 +692,13 @@ public class DatabasePoolPortlet extends BasePortlet {
             log.error("Unable to look up connection property", e);
         }
         //todo: push the lookup into ManagementHelper
+        /*
         PoolingAttributes pool = (PoolingAttributes) factory.getConnectionManagerContainer();
         data.minSize = Integer.toString(pool.getPartitionMinSize());
         data.maxSize = Integer.toString(pool.getPartitionMaxSize());
         data.blockingTimeout = Integer.toString(pool.getBlockingTimeoutMilliseconds());
         data.idleTimeout = Integer.toString(pool.getIdleTimeoutMinutes());
+        */
 
     }
 
@@ -1148,6 +1150,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                     }
                 }
                 //todo: push the lookup into ManagementHelper
+                /*
                 PoolingAttributes pool = (PoolingAttributes) factory.getConnectionManagerContainer();
                 pool.setPartitionMinSize(
                         data.minSize == null || data.minSize.equals("") ? 0 : Integer.parseInt(data.minSize));
@@ -1159,6 +1162,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 pool.setIdleTimeoutMinutes(
                         data.idleTimeout == null || data.idleTimeout.equals("") ? 15 : Integer.parseInt(
                                 data.idleTimeout));
+                                */
             } catch (Exception e) {
                 log.error("Unable to save connection pool", e);
             }

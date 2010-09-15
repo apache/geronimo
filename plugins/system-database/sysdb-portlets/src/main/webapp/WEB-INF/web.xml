@@ -39,7 +39,7 @@ limitations under the License.
     <servlet>
         <display-name>Pluto Wrapper for Internal DB Portlet</display-name>
         <servlet-name>InternalDB</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>InternalDB</param-value>
@@ -49,7 +49,7 @@ limitations under the License.
     <servlet>
         <display-name>Pluto Wrapper for DB Viewer Portlet</display-name>
         <servlet-name>DBViewer</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>DBViewer</param-value>
@@ -59,7 +59,7 @@ limitations under the License.
     <servlet>
         <display-name>Pluto Wrapper for Run SQL Portlet</display-name>
         <servlet-name>RunSQL</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>RunSQL</param-value>
@@ -69,7 +69,7 @@ limitations under the License.
     <servlet>
         <display-name>Pluto Wrapper for DataSource Run SQL Portlet</display-name>
         <servlet-name>RunSQLDS</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>RunSQLDS</param-value>
@@ -79,7 +79,7 @@ limitations under the License.
    <servlet>
         <display-name>Pluto Wrapper for Derby Log Viewer Portlet</display-name>
         <servlet-name>DerbyLogViewer</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>DerbyLogViewer</param-value>
@@ -89,7 +89,7 @@ limitations under the License.
     <servlet>
         <display-name>Pluto Wrapper for Database Wizard Portlet</display-name>
         <servlet-name>DBWizard</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>DBWizard</param-value>

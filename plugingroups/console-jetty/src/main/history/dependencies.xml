@@ -21,4 +21,9 @@
         <artifactId>plugin-console-jetty</artifactId>
         <type>car</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>sysdb-console-jetty</artifactId>
+        <type>car</type>
+    </dependency>
 </plugin-artifact>

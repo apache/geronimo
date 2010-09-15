@@ -39,9 +39,9 @@
     <modules>
         <module>geronimo-derby</module>
         <module>system-database</module>
-        <!--<module>sysdb-portlets</module>-->
-        <!--<module>sysdb-console-jetty</module>-->
-        <!--<module>sysdb-console-tomcat</module>-->
+        <module>sysdb-portlets</module>
+        <module>sysdb-console-jetty</module>
+        <module>sysdb-console-tomcat</module>
     </modules>
 
     <dependencyManagement>
