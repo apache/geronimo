@@ -45,6 +45,7 @@
         <attribute name="portletContext">/plugin</attribute>
         <attribute name="portletList">[Deployment]</attribute>
         <attribute name="icon">/images/ico_deploy_16x16.gif</attribute>
+        <attribute name="mode">basic</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>

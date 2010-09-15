@@ -158,6 +158,7 @@
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[WARModules]</attribute>
                 <attribute name="icon">/images/ico_webapp_16x16.gif</attribute>
+                <attribute name="mode">basic</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -176,6 +177,7 @@
                  <attribute name="portletContext">/console-base</attribute>
                  <attribute name="portletList">[EARModules]</attribute>
                  <attribute name="icon">/images/ico_ear_16x16.gif</attribute>
+                 <attribute name="mode">basic</attribute>
                  <reference name="PortalContainerServices">
                      <name>PlutoPortalServices</name>
                  </reference>
@@ -212,6 +214,7 @@
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[EBAModules]</attribute>
                 <attribute name="icon">/images/ico_jar_16x16.gif</attribute>
+                <attribute name="mode">basic</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>

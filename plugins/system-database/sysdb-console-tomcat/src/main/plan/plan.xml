@@ -39,10 +39,11 @@ limitations under the License.
     </gbean>
     
     <gbean name="DBWizard" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">3-1/Resources/Database Pools</attribute>
+        <attribute name="pageTitle">3-1/Resources/Datasources</attribute>
         <attribute name="portletContext">/system-database</attribute>
         <attribute name="portletList">[DBWizard,RunSQLDS]</attribute>
         <attribute name="icon">/images/ico_db_16x16.gif</attribute>
+        <attribute name="mode">basic</attribute>
         <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
