@@ -23,14 +23,22 @@ package org.apache.geronimo.bval;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+
 import org.apache.xbean.naming.reference.SimpleReference;
 
 /**
  * @version $Rev$ $Date$
  */
 public class DefaultValidatorFactoryReference extends SimpleReference {
+    private ValidatorFactory factory;
+    
     @Override
     public Object getContent() throws NamingException {
-        return Validation.buildDefaultValidatorFactory();
+        if(factory == null) {
+            factory = Validation.buildDefaultValidatorFactory();
+        }
+        
+        return factory;
     }
 }
