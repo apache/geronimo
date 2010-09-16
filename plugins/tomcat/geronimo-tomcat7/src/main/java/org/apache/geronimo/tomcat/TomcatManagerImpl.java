@@ -410,13 +410,14 @@ public class TomcatManagerImpl implements WebManager {
         }
     }
 
-    // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
+    // see http://tomcat.apache.org/tomcat-7.0-doc/config/http.html
     private static void addCommonConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("allowTrace", false, Messages.getString("TomcatManagerImpl.80"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("emptySessionPath", false, Messages.getString("TomcatManagerImpl.82"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("asyncTimeout", 10000, Messages.getString("TomcatManagerImpl.82"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Boolean>("enableLookups", true, Messages.getString("TomcatManagerImpl.84"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxPostSize", 2097152, Messages.getString("TomcatManagerImpl.86"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxSavePostSize", 4096, Messages.getString("TomcatManagerImpl.88"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, Messages.getString("TomcatManagerImpl.141"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("proxyName", null, Messages.getString("TomcatManagerImpl.90"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("proxyPort", 0, Messages.getString("TomcatManagerImpl.92"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("redirectPort", 8443, Messages.getString("TomcatManagerImpl.94"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -427,9 +428,9 @@ public class TomcatManagerImpl implements WebManager {
 
     }
 
-    // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
+    // see http://tomcat.apache.org/tomcat-7.0-doc/config/http.html
     private static void addHttpConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
-        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptCount", 10, Messages.getString("TomcatManagerImpl.105"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
+        connectorAttributes.add(new ConnectorAttribute<Integer>("acceptCount", 100, Messages.getString("TomcatManagerImpl.105"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("address", "0.0.0.0", Messages.getString("TomcatManagerImpl.108"), String.class, true)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<Integer>("bufferSize", 2048, Messages.getString("TomcatManagerImpl.110"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("compressableMimeType", "text/html,text/xml,text/plain", Messages.getString("TomcatManagerImpl.113"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -445,7 +446,6 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("minSpareThreads", 10, Messages.getString("TomcatManagerImpl.134"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("maxSpareThreads", 100, Messages.getString("TomcatManagerImpl.136"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("noCompressionUserAgents", "", Messages.getString("TomcatManagerImpl.139"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        connectorAttributes.add(new ConnectorAttribute<Integer>("port", 8080, Messages.getString("TomcatManagerImpl.141"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<String>("restrictedUserAgents", "", Messages.getString("TomcatManagerImpl.144"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<String>("server", null, Messages.getString("TomcatManagerImpl.147"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         connectorAttributes.add(new ConnectorAttribute<Integer>("socketBuffer", 9000, Messages.getString("TomcatManagerImpl.149"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -453,7 +453,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("threadPriority", Thread.NORM_PRIORITY, Messages.getString("TomcatManagerImpl.153"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
+    // see http://tomcat.apache.org/tomcat-7.0-doc/config/http.html
     private static void addSslConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         connectorAttributes.add(new ConnectorAttribute<String>("algorithm", KeyManagerFactory.getDefaultAlgorithm(), Messages.getString("TomcatManagerImpl.155"), String.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Boolean>("clientAuth", false, Messages.getString("TomcatManagerImpl.157"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -471,10 +471,9 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("sslEnabled", true, Messages.getString("TomcatManagerImpl.167"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    // see http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
+    // see http://tomcat.apache.org/tomcat-7.0-doc/config/http.html
     private static void addNioConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         connectorAttributes.add(new ConnectorAttribute<Boolean>("useSendfile", true, Messages.getString("TomcatManagerImpl.181"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
-        connectorAttributes.add(new ConnectorAttribute<Boolean>("useExecutor", true, Messages.getString("TomcatManagerImpl.183"), Boolean.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("acceptorThreadCount", 1, Messages.getString("TomcatManagerImpl.185"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("pollerThreadCount", 1, Messages.getString("TomcatManagerImpl.187"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("pollerThreadPriority", Thread.NORM_PRIORITY, Messages.getString("TomcatManagerImpl.189"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -509,7 +508,7 @@ public class TomcatManagerImpl implements WebManager {
         connectorAttributes.add(new ConnectorAttribute<Integer>("oomParachute", 1048576, Messages.getString("TomcatManagerImpl.247"), Integer.class)); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    // http://tomcat.apache.org/tomcat-6.0-doc/apr.html
+    // http://tomcat.apache.org/tomcat-7.0-doc/apr.html
     private static void addAprConnectorAttributes(List<ConnectorAttribute> connectorAttributes) {
         connectorAttributes.add(new ConnectorAttribute<Integer>("pollTime", 2000, Messages.getString("TomcatManagerImpl.249"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
         connectorAttributes.add(new ConnectorAttribute<Integer>("pollerSize", 8192, Messages.getString("TomcatManagerImpl.251"), Integer.class, true)); //$NON-NLS-1$ //$NON-NLS-2$
