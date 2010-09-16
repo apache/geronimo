@@ -301,16 +301,16 @@ limitations under the License.
     <web-resource-collection>
       <web-resource-name>console monitor</web-resource-name>
       <url-pattern>/portal</url-pattern>
-      <url-pattern>/portal/Welcome</url-pattern>
-      <url-pattern>/portal/Welcome/*</url-pattern>
-      <url-pattern>/portal/Server/Information</url-pattern>
-      <url-pattern>/portal/Server/Information/*</url-pattern>
-      <url-pattern>/portal/Server/Java System Info</url-pattern>
-      <url-pattern>/portal/Server/Java System Info/*</url-pattern>
-      <url-pattern>/portal/Server/Thread Pools</url-pattern>
-      <url-pattern>/portal/Server/Thread Pools/*</url-pattern>
-      <url-pattern>/portal/Server/Monitoring</url-pattern>
-      <url-pattern>/portal/Server/Monitoring/*</url-pattern>
+      <url-pattern>/portal/0/Welcome</url-pattern>
+      <url-pattern>/portal/0/Welcome/*</url-pattern>
+      <url-pattern>/portal/1-1-1/Application Server/System Information/Server Information</url-pattern>
+      <url-pattern>/portal/1-1-1/Application Server/System Information/Server Information/*</url-pattern>
+      <url-pattern>/portal/1-1-2/Application Server/System Information/Java System Info</url-pattern>
+      <url-pattern>/portal/1-1-2/Application Server/System Information/Java System Info/*</url-pattern>
+      <url-pattern>/portal/1-1-4/Application Server/System Information/Thread Pools</url-pattern>
+      <url-pattern>/portal/1-1-4/Application Server/System Information/Thread Pools/*</url-pattern>
+      <url-pattern>/portal/1-8/Server/Monitoring</url-pattern>
+      <url-pattern>/portal/1-8/Server/Monitoring/*</url-pattern>
       <url-pattern>/forwards/*</url-pattern>
       <url-pattern>/dwr/*</url-pattern>
       <http-method>GET</http-method>
