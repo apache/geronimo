@@ -20,8 +20,11 @@
 
 package org.apache.geronimo.bval;
 
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+
 import org.apache.xbean.naming.reference.SimpleReference;
 
 /**
@@ -30,6 +33,14 @@ import org.apache.xbean.naming.reference.SimpleReference;
 public class DefaultValidatorReference extends SimpleReference {
     @Override
     public Object getContent() throws NamingException {
-        return Validation.buildDefaultValidatorFactory().getValidator();
+        ValidatorFactory factory = null;
+        
+        try {
+            factory = (ValidatorFactory)new InitialContext().lookup("java:comp/ValidatorFactory");
+        } catch(NamingException e) {
+            factory = Validation.buildDefaultValidatorFactory();
+        }
+        
+        return factory.getValidator();
     }
 }
