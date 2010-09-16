@@ -24,12 +24,15 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.management.ObjectName;
@@ -276,21 +279,39 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     }
 
     private void writeToZip(File dir, ZipOutputStream out, String prefix, byte[] buf) throws IOException {
-        File[] all = dir.listFiles();
-        if (all.length == 0) {
-            // it is an empty directory
-            ZipEntry entry = new ZipEntry(prefix);
-            out.putNextEntry(entry);
-        }
-        for (File file : all) {
-            if (file.isDirectory()) {
-                writeToZip(file, out, prefix + file.getName() + "/", buf);
-            } else {
-                ZipEntry entry = new ZipEntry(prefix + file.getName());
-                out.putNextEntry(entry);
-                writeToZipStream(file, out, buf);
-            }
-        }
+    	if (dir.isDirectory()) {
+	        File[] all = dir.listFiles();
+	        if (all.length == 0) {
+	            // it is an empty directory
+	            ZipEntry entry = new ZipEntry(prefix);
+	            out.putNextEntry(entry);
+	        }
+	        for (File file : all) {
+	            if (file.isDirectory()) {
+	                writeToZip(file, out, prefix + file.getName() + "/", buf);
+	            } else {
+	                ZipEntry entry = new ZipEntry(prefix + file.getName());
+	                out.putNextEntry(entry);
+	                writeToZipStream(file, out, buf);
+	            }
+	        }
+    	}else{
+    		 ZipFile input = new ZipFile(dir);
+             Enumeration en = input.entries();
+             byte[] buffer = new byte[4096];
+             int count;
+             while (en.hasMoreElements()) {
+                 ZipEntry entry = (ZipEntry) en.nextElement();
+                 out.putNextEntry(entry);
+                 InputStream in = input.getInputStream(entry);
+                     while ((count = in.read(buf)) > -1) {
+                         out.write(buf, 0, count);
+                 }
+                 in.close();
+                 out.closeEntry();                 
+             }             
+             input.close();
+    	}
     }
 
     private void writeToZipStream(File file, OutputStream out, byte[] buf) throws IOException {
