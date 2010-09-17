@@ -30,62 +30,53 @@ import javax.ejb.EJB;
 import org.apache.geronimo.testsuite.javaee6.ejbtest.EJBBeans.CalculatorSingleBean;
 import java.text.DecimalFormat;
 
-
-
 public class CalculatorServlet extends HttpServlet {
     // the ejb container will route every request to the same Singleton EJB.
     @EJB
     private CalculatorSingleBean calcAdd;
     @EJB
     private CalculatorSingleBean calcSub;
-    private String output= new String();
-  protected void processRequest(HttpServletRequest req, HttpServletResponse response)
-  throws ServletException, IOException {
-      response.setContentType("text/html;charset=UTF-8");
-      PrintWriter out = response.getWriter();
-       try {
-          String Number = req.getParameter("NumberValue");
-          String operation = req.getParameter("operation");
 
-          double result = (Number == null) ? 0 : Double.valueOf(Number).doubleValue();
-          DecimalFormat mydf = new DecimalFormat("####.#");
-          if ( "sub".equals(operation) ) {
-              req.setAttribute("result", mydf.format(calcSub.sub(result)));
-          }
-          else if ( "add".equals(operation) ) {
-              req.setAttribute("result", mydf.format(calcAdd.add(result)));
-          }
-          this.output=this.calcSub.getOutput();
-          System.out.println("Result is " + req.getAttribute("result"));
-          System.out.println("Output is: "+this.output);
-          getServletContext().getRequestDispatcher("/index.jsp").forward(req, response);
+    protected void processRequest(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        try {
+            String Number = req.getParameter("NumberValue");
+            String operation = req.getParameter("operation");
 
-      }
-      catch ( Exception e ) {
-          e.printStackTrace();
-          throw new ServletException(e);
-      } finally {
-          out.close();
-      }
-  } 
+            double result = (Number == null) ? 0 : Double.valueOf(Number).doubleValue();
+            DecimalFormat mydf = new DecimalFormat("####.#");
+            if ( "sub".equals(operation) ) {
+                req.setAttribute("result", mydf.format(calcSub.sub(result)));
+            } else if ( "add".equals(operation) ) {
+                req.setAttribute("result", mydf.format(calcAdd.add(result)));
+            }
+            String output = this.calcSub.getOutput();
+            System.out.println("Result is " + req.getAttribute("result"));
+            System.out.println("Output is: "+ output);
+            getServletContext().getRequestDispatcher("/index.jsp").forward(req, response);
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            throw new ServletException(e);
+        } finally {
+            out.close();
+        }
+    } 
 
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        processRequest(request, response);
+    } 
 
-  @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
-  throws ServletException, IOException {
-      processRequest(request, response);
-  } 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        processRequest(request, response);
+    }
 
-  @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response)
-  throws ServletException, IOException {
-      processRequest(request, response);
-  }
-
-  @Override
-  public String getServletInfo() {
-      return "Short description";
-  }
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }
 
 }
 
