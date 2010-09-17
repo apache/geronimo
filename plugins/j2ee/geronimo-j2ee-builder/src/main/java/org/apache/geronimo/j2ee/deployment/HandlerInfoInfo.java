@@ -17,8 +17,9 @@
 
 package org.apache.geronimo.j2ee.deployment;
 
-import java.util.Set;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
@@ -26,13 +27,13 @@ import javax.xml.namespace.QName;
  * @version $Rev$ $Date$
  */
 public class HandlerInfoInfo {
-    private final Set portNames;
-    private final Class handlerClass;
-    private final Map handlerConfig;
-    private final QName[] soapHeaders;
-    private final Set soapRoles;
+    private final Set<String> portNames;
+    private final Class<?> handlerClass;
+    private final Map<String, String> handlerConfig;
+    private final List<QName> soapHeaders;
+    private final Set<String> soapRoles;
 
-    public HandlerInfoInfo(Set portNames, Class handlerClass, Map handlerConfig, QName[] soapHeaders, Set soapRoles) {
+    public HandlerInfoInfo(Set<String> portNames, Class<?> handlerClass, Map<String, String> handlerConfig, List<QName> soapHeaders, Set<String> soapRoles) {
         this.portNames = portNames;
         this.handlerClass = handlerClass;
         this.handlerConfig = handlerConfig;
@@ -40,23 +41,23 @@ public class HandlerInfoInfo {
         this.soapRoles = soapRoles;
     }
 
-    public Set getPortNames() {
+    public Set<String> getPortNames() {
         return portNames;
     }
 
-    public Class getHandlerClass() {
+    public Class<?> getHandlerClass() {
         return handlerClass;
     }
 
-    public Map getHandlerConfig() {
+    public Map<String, String> getHandlerConfig() {
         return handlerConfig;
     }
 
-    public QName[] getSoapHeaders() {
+    public List<QName> getSoapHeaders() {
         return soapHeaders;
     }
 
-    public Set getSoapRoles() {
+    public Set<String> getSoapRoles() {
         return soapRoles;
     }
 }

@@ -17,6 +17,8 @@
 package org.apache.geronimo.axis.builder;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -25,20 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.wsdl.Binding;
-import javax.wsdl.BindingInput;
-import javax.wsdl.BindingOperation;
-import javax.wsdl.BindingOutput;
-import javax.wsdl.Definition;
-import javax.wsdl.Input;
-import javax.wsdl.Message;
-import javax.wsdl.Operation;
-import javax.wsdl.OperationType;
-import javax.wsdl.Output;
-import javax.wsdl.Part;
-import javax.wsdl.Port;
-import javax.wsdl.PortType;
-import javax.wsdl.WSDLException;
+import javax.wsdl.*;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
@@ -79,9 +68,9 @@ import org.apache.geronimo.kernel.util.UnpackedJarFile;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
-import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
+import org.apache.openejb.jee.JaxbJavaee;
+import org.apache.openejb.jee.JavaWsdlMapping;
+import org.apache.openejb.jee.PackageMapping;
 
 /**
  * @version $Rev:385232 $ $Date$
@@ -177,7 +166,7 @@ public class ServiceReferenceTest
     public void testBuildFullServiceProxy() throws Exception {
         Definition definition = buildDefinition();
         SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(null, definition);
-        JavaWsdlMappingType mapping = buildLightweightMappingType();
+        JavaWsdlMapping mapping = buildLightweightMappingType();
         QName serviceQName = new QName(NAMESPACE, "MockService");
         AxisBuilder builder = new AxisBuilder(null);
         Object reference = builder.createService(MockService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, bundleContext.getBundle());
@@ -198,8 +187,8 @@ public class ServiceReferenceTest
         Definition definition = reader.readWSDL(wsdl.toURI().toString());
         SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(null, definition);
         File jaxrpcMapping = new File(BASEDIR, "src/test/resources/BookQuote.xml");
-        JavaWsdlMappingDocument mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcMapping);
-        JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
+        InputStream jaxrpcInputStream = new FileInputStream(jaxrpcMapping); 
+        JavaWsdlMapping mapping = (JavaWsdlMapping)JaxbJavaee.unmarshalJavaee(JavaWsdlMapping.class, jaxrpcInputStream);
         QName serviceQName = new QName("http://www.Monson-Haefel.com/jwsbook/BookQuote", "BookQuoteService");
         AxisBuilder builder = new AxisBuilder(null);
         Object reference = builder.createService(BookQuoteService.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, bundleContext.getBundle());
@@ -220,8 +209,8 @@ public class ServiceReferenceTest
         Definition definition = reader.readWSDL(wsdlFile.toURI().toString());
         SchemaInfoBuilder schemaInfoBuilder = new SchemaInfoBuilder(null, definition);
         File jaxrpcMapping = new File(BASEDIR, "src/test/resources/interop/interop-jaxrpcmapping.xml");
-        JavaWsdlMappingDocument mappingDocument = JavaWsdlMappingDocument.Factory.parse(jaxrpcMapping);
-        JavaWsdlMappingType mapping = mappingDocument.getJavaWsdlMapping();
+        InputStream jaxrpcInputStream = new FileInputStream(jaxrpcMapping); 
+        JavaWsdlMapping mapping = (JavaWsdlMapping)JaxbJavaee.unmarshalJavaee(JavaWsdlMapping.class, jaxrpcInputStream);
         QName serviceQName = new QName("http://tempuri.org/4s4c/1/3/wsdl/def/interopLab", "interopLab");
         AxisBuilder builder = new AxisBuilder(null);
         Object proxy = builder.createService(InteropLab.class, schemaInfoBuilder, mapping, serviceQName, SOAPConstants.SOAP11_CONSTANTS, handlerInfos, gerServiceRefType, module, bundleContext.getBundle());
@@ -332,11 +321,12 @@ public class ServiceReferenceTest
         return bindingOperation;
     }
 
-    private JavaWsdlMappingType buildLightweightMappingType() {
-        JavaWsdlMappingType mapping = JavaWsdlMappingType.Factory.newInstance();
-        PackageMappingType packageMapping = mapping.addNewPackageMapping();
-        packageMapping.addNewNamespaceURI().setStringValue(NAMESPACE);
-        packageMapping.addNewPackageType().setStringValue("org.apache.geronimo.axis.builder.mock");
+    private JavaWsdlMapping buildLightweightMappingType() {
+        JavaWsdlMapping mapping = new JavaWsdlMapping(); 
+        PackageMapping packageMapping = new PackageMapping();               
+        packageMapping.setNamespaceURI(NAMESPACE);
+        packageMapping.setPackageType("org.apache.geronimo.axis.builder.mock");
+        mapping.getPackageMapping().add(packageMapping); 
         return mapping;
     }
 

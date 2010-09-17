@@ -29,8 +29,9 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.HandlerInfoInfo;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -41,12 +42,10 @@ import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.naming.deployment.ServiceRefBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.javaee6.HandlerType;
-import org.apache.geronimo.xbeans.javaee6.ParamValueType;
-import org.apache.geronimo.xbeans.javaee6.PortComponentRefType;
-import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
-import org.apache.geronimo.xbeans.javaee6.XsdQNameType;
+import org.apache.openejb.jee.Handler;
 import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.PortComponentRef;
+import org.apache.openejb.jee.ParamValue;
 import org.apache.openejb.jee.ServiceRef;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
@@ -57,6 +56,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class AxisServiceRefBuilder extends AbstractNamingBuilder implements ServiceRefBuilder {
     private static final Logger log = LoggerFactory.getLogger(AxisServiceRefBuilder.class);
     private final QNameSet serviceRefQNameSet;
@@ -65,14 +65,16 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
 
     private final AxisBuilder axisBuilder;
 
-    public AxisServiceRefBuilder(Environment defaultEnvironment, String[] eeNamespaces, AxisBuilder axisBuilder) {
+    public AxisServiceRefBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+                                 @ParamAttribute(name = "eeNamespaces") String[] eeNamespaces, 
+                                 @ParamReference(name = "AxisBuilder", namingType = NameFactory.MODULE_BUILDER) AxisBuilder axisBuilder) {
         super(defaultEnvironment);
         this.axisBuilder = axisBuilder;
         serviceRefQNameSet = buildQNameSet(eeNamespaces, "service-ref");
     }
 
     protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) {
-        return specDD.selectChildren(serviceRefQNameSet).length > 0;
+        return !specDD.getServiceRef().isEmpty();
     }
 
 //    public void buildNaming(XmlObject specDD, XmlObject plan, Module module, Map componentContext) throws DeploymentException {
@@ -106,11 +108,11 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
     @Override
     public void buildNaming(ServiceRef serviceRef, GerServiceRefType gerServiceRefType, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         //TODO name needs to be normalized or get normalized name from jee's map.
-        String name = normalize(getStringValue(serviceRef.getServiceRefName()));
+        String name = normalize(serviceRef.getServiceRefName());
         Bundle bundle = module.getEarContext().getDeploymentBundle();
 
 //            Map credentialsNameMap = (Map) serviceRefCredentialsNameMap.get(name);
-        String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
+        String serviceInterfaceName = serviceRef.getServiceInterface();
         assureInterface(serviceInterfaceName, "javax.xml.rpc.Service", "[Web]Service", bundle);
         Class serviceInterface;
         try {
@@ -119,47 +121,43 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
             throw new DeploymentException("Could not load service interface class: " + serviceInterfaceName, e);
         }
         URI wsdlURI = null;
-        if (serviceRef.isSetWsdlFile()) {
+        if (serviceRef.getWsdlFile() != null) {
             try {
-                wsdlURI = new URI(serviceRef.getWsdlFile().getStringValue().trim());
+                wsdlURI = new URI(serviceRef.getWsdlFile());
             } catch (URISyntaxException e) {
-                throw new DeploymentException("could not construct wsdl uri from " + serviceRef.getWsdlFile().getStringValue(), e);
+                throw new DeploymentException("could not construct wsdl uri from " + serviceRef.getWsdlFile(), e);
             }
         }
         URI jaxrpcMappingURI = null;
-        if (serviceRef.isSetJaxrpcMappingFile()) {
+        if (serviceRef.getJaxrpcMappingFile() != null) {
             try {
-                jaxrpcMappingURI = new URI(getStringValue(serviceRef.getJaxrpcMappingFile()));
+                jaxrpcMappingURI = new URI(serviceRef.getJaxrpcMappingFile());
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Could not construct jaxrpc mapping uri from " + serviceRef.getJaxrpcMappingFile(), e);
             }
         }
         QName serviceQName = null;
-        if (serviceRef.isSetServiceQname()) {
-            serviceQName = serviceRef.getServiceQname().getQNameValue();
+        if (serviceRef.getServiceQname() != null) {
+            serviceQName = serviceRef.getServiceQname();
         }
         Map portComponentRefMap = new HashMap();
-        PortComponentRefType[] portComponentRefs = serviceRef.getPortComponentRefArray();
-        if (portComponentRefs != null) {
-            for (int j = 0; j < portComponentRefs.length; j++) {
-                PortComponentRefType portComponentRef = portComponentRefs[j];
-                String portComponentLink = getStringValue(portComponentRef.getPortComponentLink());
-                String serviceEndpointInterfaceType = getStringValue(portComponentRef.getServiceEndpointInterface());
-                assureInterface(serviceEndpointInterfaceType, "java.rmi.Remote", "ServiceEndpoint", bundle);
-                Class serviceEndpointClass;
-                try {
-                    serviceEndpointClass = bundle.loadClass(serviceEndpointInterfaceType);
-                } catch (ClassNotFoundException e) {
-                    throw new DeploymentException("could not load service endpoint class " + serviceEndpointInterfaceType, e);
-                }
-                portComponentRefMap.put(serviceEndpointClass, portComponentLink);
+        List<PortComponentRef> portComponentRefs = serviceRef.getPortComponentRef();
+        for (PortComponentRef portComponentRef : portComponentRefs) {
+            String portComponentLink = portComponentRef.getPortComponentLink();
+            String serviceEndpointInterfaceType = portComponentRef.getServiceEndpointInterface();
+            assureInterface(serviceEndpointInterfaceType, "java.rmi.Remote", "ServiceEndpoint", bundle);
+            Class serviceEndpointClass;
+            try {
+                serviceEndpointClass = bundle.loadClass(serviceEndpointInterfaceType);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("could not load service endpoint class " + serviceEndpointInterfaceType, e);
             }
+            portComponentRefMap.put(serviceEndpointClass, portComponentLink);
         }
-        HandlerType[] handlers = serviceRef.getHandlerArray();
-        List handlerInfos = buildHandlerInfoList(handlers, bundle);
+        List<HandlerInfoInfo> handlerInfos = buildHandlerInfoList(serviceRef.getHandler(), bundle);
 
 //we could get a Reference or the actual serializable Service back.
-        Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, module, bundle);
+        Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRef, module, bundle);
         put(name, ref, module.getJndiContext(), serviceRef.getInjectionTarget(), sharedContext);
         //getJndiContextMap(componentContext).put(ENV + name, ref);
     }
@@ -173,43 +171,23 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
     }
 
 
-    private static List buildHandlerInfoList(HandlerType[] handlers, Bundle bundle) throws DeploymentException {
-        List handlerInfos = new ArrayList();
-        for (int i = 0; i < handlers.length; i++) {
-            HandlerType handler = handlers[i];
-            org.apache.geronimo.xbeans.javaee6.String[] portNameArray = handler.getPortNameArray();
-            List portNames = new ArrayList();
-            for (int j = 0; j < portNameArray.length; j++) {
-                portNames.add(portNameArray[j].getStringValue().trim());
-
-            }
-//            Set portNames = new HashSet(Arrays.asList(portNameArray));
-            String handlerClassName = handler.getHandlerClass().getStringValue().trim();
+    private static List<HandlerInfoInfo> buildHandlerInfoList(List<Handler> handlers, Bundle bundle) throws DeploymentException {
+        List<HandlerInfoInfo> handlerInfos = new ArrayList<HandlerInfoInfo>();
+        for (Handler handler: handlers) {
+            List<String> portNames = handler.getPortName(); 
+            String handlerClassName = handler.getHandlerClass();
             Class handlerClass;
             try {
                 handlerClass = ClassLoading.loadClass(handlerClassName, bundle);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load handler class", e);
             }
-            Map config = new HashMap();
-            ParamValueType[] paramValues = handler.getInitParamArray();
-            for (int j = 0; j < paramValues.length; j++) {
-                ParamValueType paramValue = paramValues[j];
-                String paramName = paramValue.getParamName().getStringValue().trim();
-                String paramStringValue = paramValue.getParamValue().getStringValue().trim();
-                config.put(paramName, paramStringValue);
+            Map<String, String> config = new HashMap<String, String>();
+            for (ParamValue paramValue: handler.getInitParam()) {
+                config.put(paramValue.getParamName(), paramValue.getParamValue());
             }
-            XsdQNameType[] soapHeaderQNames = handler.getSoapHeaderArray();
-            QName[] headerQNames = new QName[soapHeaderQNames.length];
-            for (int j = 0; j < soapHeaderQNames.length; j++) {
-                XsdQNameType soapHeaderQName = soapHeaderQNames[j];
-                headerQNames[j] = soapHeaderQName.getQNameValue();
-            }
-            Set soapRoles = new HashSet();
-            for (int j = 0; j < handler.getSoapRoleArray().length; j++) {
-                String soapRole = handler.getSoapRoleArray(j).getStringValue().trim();
-                soapRoles.add(soapRole);
-            }
+            List<QName> headerQNames = handler.getSoapHeader(); 
+            Set<String> soapRoles = new HashSet<String>(handler.getSoapRole());
             HandlerInfoInfo handlerInfoInfo = new HandlerInfoInfo(new HashSet(portNames), handlerClass, config, headerQNames, soapRoles);
             handlerInfos.add(handlerInfoInfo);
         }
@@ -227,32 +205,4 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
         }
         return refMap;
     }
-
-    // This is temporary
-    private static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
-        if (string == null) {
-            return null;
-        }
-        String s = string.getStringValue();
-        return s == null ? null : s.trim();
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AxisServiceRefBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addInterface(ServiceRefBuilder.class);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoBuilder.addAttribute("eeNamespaces", String[].class, true, true);
-        infoBuilder.addReference("AxisBuilder", AxisBuilder.class, NameFactory.MODULE_BUILDER);
-
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment", "eeNamespaces", "AxisBuilder"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

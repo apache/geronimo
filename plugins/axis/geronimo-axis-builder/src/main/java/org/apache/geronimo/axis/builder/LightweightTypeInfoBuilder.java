@@ -37,9 +37,9 @@ import org.apache.axis.encoding.ser.BeanSerializerFactory;
 import org.apache.geronimo.axis.client.TypeInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.webservices.builder.SchemaTypeKey;
 import org.apache.geronimo.webservices.builder.WSDescriptorParser;
+import org.apache.openejb.jee.JavaWsdlMapping;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaType;
 import org.osgi.framework.Bundle;
@@ -58,7 +58,7 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
         this.wrapperElementQNames = wrapperElementQNames;
     }
 
-    public List buildTypeInfo(JavaWsdlMappingType mapping) throws DeploymentException {
+    public List buildTypeInfo(JavaWsdlMapping mapping) throws DeploymentException {
         List typeInfoList = new ArrayList();
 
         for (Iterator iterator = schemaTypeKeyToSchemaTypeMap.keySet().iterator(); iterator.hasNext();) {

@@ -19,8 +19,8 @@ package org.apache.geronimo.axis.builder;
 import java.util.List;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
+import org.apache.openejb.jee.JavaWsdlMapping;
 
 public interface TypeInfoBuilder {
-    public List buildTypeInfo(JavaWsdlMappingType mapping)throws DeploymentException;
+    public List buildTypeInfo(JavaWsdlMapping mapping)throws DeploymentException;
 }

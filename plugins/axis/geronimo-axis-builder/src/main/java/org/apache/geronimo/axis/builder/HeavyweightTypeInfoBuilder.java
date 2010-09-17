@@ -55,10 +55,10 @@ import org.apache.geronimo.axis.client.ArrayTypeInfo;
 import org.apache.geronimo.axis.client.TypeInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
-import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
-import org.apache.geronimo.xbeans.j2ee.VariableMappingType;
 import org.apache.geronimo.webservices.builder.SchemaTypeKey;
+import org.apache.openejb.jee.JavaWsdlMapping;
+import org.apache.openejb.jee.JavaXmlTypeMapping;
+import org.apache.openejb.jee.VariableMapping;
 import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaProperty;
@@ -90,36 +90,34 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         this.hasEncoded = hasEncoded;
     }
 
-    public List buildTypeInfo(JavaWsdlMappingType mapping) throws DeploymentException {
+    public List buildTypeInfo(JavaWsdlMapping mapping) throws DeploymentException {
         List typeInfoList = new ArrayList();
 
         Set mappedTypeQNames = new HashSet();
 
-        JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
-        for (int j = 0; j < javaXmlTypeMappings.length; j++) {
-            JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
-
+        List<JavaXmlTypeMapping> javaXmlTypeMappings = mapping.getJavaXmlTypeMapping();
+        for (JavaXmlTypeMapping javaXmlTypeMapping: javaXmlTypeMappings) {
             SchemaTypeKey key;
-            boolean isElement = javaXmlTypeMapping.getQnameScope().getStringValue().equals("element");
-            boolean isSimpleType = javaXmlTypeMapping.getQnameScope().getStringValue().equals("simpleType");
-            if (javaXmlTypeMapping.isSetRootTypeQname()) {
-                QName typeQName = javaXmlTypeMapping.getRootTypeQname().getQNameValue();
+            boolean isElement = javaXmlTypeMapping.getQNameScope().equals("element");
+            boolean isSimpleType = javaXmlTypeMapping.getQNameScope().equals("simpleType");
+            QName typeQName = javaXmlTypeMapping.getRootTypeQname();
+            if (typeQName != null) {
                 key = new SchemaTypeKey(typeQName, isElement, isSimpleType, false, null);
 
                 // Skip the wrapper elements.
                 if (wrapperElementQNames.contains(typeQName)) {
                     continue;
                 }
-            } else if (javaXmlTypeMapping.isSetAnonymousTypeQname()) {
-                String anonTypeQNameString = javaXmlTypeMapping.getAnonymousTypeQname().getStringValue();
+            } else if (javaXmlTypeMapping.getAnonymousTypeQname() != null) {
+                String anonTypeQNameString = javaXmlTypeMapping.getAnonymousTypeQname();
                 int pos = anonTypeQNameString.lastIndexOf(":");
                 if (pos == -1) {
                     throw new DeploymentException("anon QName is invalid, no final ':' " + anonTypeQNameString);
                 }
 
                 //this appears to be ignored...
-                QName typeQName = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
-                key = new SchemaTypeKey(typeQName, isElement, isSimpleType, true, null);
+                QName qname = new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 1));
+                key = new SchemaTypeKey(qname, isElement, isSimpleType, true, null);
 
                 // Skip the wrapper elements.
                 if (wrapperElementQNames.contains(new QName(anonTypeQNameString.substring(0, pos), anonTypeQNameString.substring(pos + 2)))) {
@@ -141,7 +139,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             }
             mappedTypeQNames.add(key.getqName());
 
-            String className = javaXmlTypeMapping.getJavaType().getStringValue().trim();
+            String className = javaXmlTypeMapping.getJavaType();
             Class clazz = null;
             try {
                 clazz = ClassLoading.loadClass(className, bundle);
@@ -335,7 +333,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         typeInfo.setQName(axisKey);
     }
 
-    private void populateInternalTypeInfo(Class javaClass, SchemaTypeKey key, SchemaType schemaType, JavaXmlTypeMappingType javaXmlTypeMapping, TypeInfo.UpdatableTypeInfo typeInfo) throws DeploymentException {
+    private void populateInternalTypeInfo(Class javaClass, SchemaTypeKey key, SchemaType schemaType, JavaXmlTypeMapping javaXmlTypeMapping, TypeInfo.UpdatableTypeInfo typeInfo) throws DeploymentException {
         String ns = key.getqName().getNamespaceURI();
         typeInfo.setCanSearchParents(schemaType.getDerivationType() == SchemaType.DT_RESTRICTION);
 
@@ -371,11 +369,11 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             }
         }
         
-        VariableMappingType[] variableMappings = javaXmlTypeMapping.getVariableMappingArray();
+        List<VariableMapping> variableMappings = javaXmlTypeMapping.getVariableMapping();
 
         // short-circuit the processing of arrays as they should not define variable-mapping elements. 
         if (javaClass.isArray()) {
-            if (0 != variableMappings.length) {
+            if (!variableMappings.isEmpty()) {
                 // for portability reason we simply warn and not fail.
                 log.warn("Ignoring variable-mapping defined for class " + javaClass + " which is an array.");
             }
@@ -383,7 +381,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             return;
         }
 
-        FieldDesc[] fields = new FieldDesc[variableMappings.length];
+        FieldDesc[] fields = new FieldDesc[variableMappings.size()];
         typeInfo.setFields(fields);
 
         PropertyDescriptor[] propertyDescriptors = new PropertyDescriptor[0];
@@ -397,18 +395,18 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             PropertyDescriptor propertyDescriptor = propertyDescriptors[i];
             properties.put(propertyDescriptor.getName(), propertyDescriptor.getPropertyType());
         }
-        for (int i = 0; i < variableMappings.length; i++) {
-            VariableMappingType variableMapping = variableMappings[i];
-            String fieldName = variableMapping.getJavaVariableName().getStringValue().trim();
+        int i = 0; 
+        for (VariableMapping variableMapping: variableMappings) {
+            String fieldName = variableMapping.getJavaVariableName();
 
-            if (variableMapping.isSetXmlAttributeName()) {
+            if (variableMapping.getXmlAttributeName() != null) {
                 AttributeDesc attributeDesc = new AttributeDesc();
                 attributeDesc.setFieldName(fieldName);
                 Class javaType = (Class) properties.get(fieldName);
                 if (javaType == null) {
                     throw new DeploymentException("field name " + fieldName + " not found in " + properties);
                 }
-                String attributeLocalName = variableMapping.getXmlAttributeName().getStringValue().trim();
+                String attributeLocalName = variableMapping.getXmlAttributeName();
                 QName xmlName = new QName("", attributeLocalName);
                 attributeDesc.setXmlName(xmlName);
 
@@ -418,7 +416,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 }
                 attributeDesc.setXmlType(attribute.getType().getName());
 
-                fields[i] = attributeDesc;
+                fields[i++] = attributeDesc;
             } else {
                 ElementDesc elementDesc = new ElementDesc();
                 elementDesc.setFieldName(fieldName);
@@ -432,10 +430,10 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                         throw new DeploymentException("field name " + fieldName + " not found in " + properties, e);
                     }
                 }
-                QName xmlName = new QName("", variableMapping.getXmlElementName().getStringValue().trim());
+                QName xmlName = new QName("", variableMapping.getXmlElementName());
                 SchemaParticle particle = (SchemaParticle) paramNameToType.get(xmlName);
                 if (null == particle) {
-                    xmlName = new QName(ns, variableMapping.getXmlElementName().getStringValue().trim());
+                    xmlName = new QName(ns, variableMapping.getXmlElementName());
                     particle = (SchemaParticle) paramNameToType.get(xmlName);
                     if (null == particle) {
                         throw new DeploymentException("element " + xmlName + " not found in schema " + schemaType.getName());
@@ -466,7 +464,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                     elementDesc.setMaxOccursUnbounded(particle.getIntMaxOccurs() > 1);
                 }
 
-                fields[i] = elementDesc;
+                fields[i++] = elementDesc;
             }
         }
     }

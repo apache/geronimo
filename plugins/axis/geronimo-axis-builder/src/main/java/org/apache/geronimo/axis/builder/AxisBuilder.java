@@ -62,8 +62,9 @@ import org.apache.geronimo.axis.server.POJOProvider;
 import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanInfoBuilder; 
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
@@ -74,10 +75,6 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerPortCompletionType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceCompletionType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
-import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
-import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
-import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.webservices.SerializableWebServiceContainerFactoryGBean;
@@ -86,6 +83,10 @@ import org.apache.geronimo.webservices.builder.PortInfo;
 import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 import org.apache.geronimo.webservices.builder.WSDescriptorParser;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.openejb.jee.JavaXmlTypeMapping;
+import org.apache.openejb.jee.JavaWsdlMapping;
+import org.apache.openejb.jee.ServiceEndpointInterfaceMapping;
+import org.apache.openejb.jee.ServiceEndpointMethodMapping;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.JarUtils;
@@ -94,6 +95,7 @@ import org.osgi.framework.Bundle;
 /**
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class AxisBuilder implements WebServiceBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(AxisBuilder.class);
@@ -103,11 +105,7 @@ public class AxisBuilder implements WebServiceBuilder {
     private final Environment defaultEnvironment;
     private static final String KEY = AxisBuilder.class.getName();
 
-    public AxisBuilder() {
-        defaultEnvironment = null;
-    }
-
-    public AxisBuilder(Environment defaultEnvironment) {
+    public AxisBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment) {
         this.defaultEnvironment = defaultEnvironment;
     }
 
@@ -249,7 +247,7 @@ public class AxisBuilder implements WebServiceBuilder {
         GerServiceRefType gerServiceRefType = (GerServiceRefType) serviceRefType;
         JarFile moduleFile = module.getModuleFile();
         SchemaInfoBuilder schemaInfoBuilder = null;
-        JavaWsdlMappingType mapping = null;
+        JavaWsdlMapping mapping = null;
         if (wsdlURI != null) {
             schemaInfoBuilder = new SchemaInfoBuilder(moduleFile, wsdlURI);
 
@@ -259,7 +257,7 @@ public class AxisBuilder implements WebServiceBuilder {
         return createService(serviceInterface, schemaInfoBuilder, mapping, serviceQName, SOAP_VERSION, handlerInfos, gerServiceRefType, module, bundle);
     }
 
-    public Object createService(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, GerServiceRefType serviceRefType, Module module, Bundle bundle) throws DeploymentException {
+    public Object createService(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMapping mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, GerServiceRefType serviceRefType, Module module, Bundle bundle) throws DeploymentException {
         Map seiPortNameToFactoryMap = new HashMap();
         Map seiClassNameToFactoryMap = new HashMap();
         if (schemaInfoBuilder != null) {
@@ -268,7 +266,7 @@ public class AxisBuilder implements WebServiceBuilder {
         return new AxisServiceReference(serviceInterface.getName(), seiPortNameToFactoryMap, seiClassNameToFactoryMap);
     }
 
-    public void buildSEIFactoryMap(SchemaInfoBuilder schemaInfoBuilder, GerServiceRefType serviceRefType, JavaWsdlMappingType mapping, List handlerInfos, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, Bundle bundle) throws DeploymentException {
+    public void buildSEIFactoryMap(SchemaInfoBuilder schemaInfoBuilder, GerServiceRefType serviceRefType, JavaWsdlMapping mapping, List handlerInfos, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, Bundle bundle) throws DeploymentException {
         Map exceptionMap = WSDescriptorParser.getExceptionMap(mapping);
 
         Definition definition = schemaInfoBuilder.getDefinition();
@@ -344,17 +342,17 @@ public class AxisBuilder implements WebServiceBuilder {
         }
     }
 
-    private void mapBinding(Binding binding, JavaWsdlMappingType mapping, QName serviceQName, Bundle bundle, SOAPConstants soapVersion, SchemaInfoBuilder schemaInfoBuilder, String portName, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName, Map exceptionMap) throws DeploymentException {
+    private void mapBinding(Binding binding, JavaWsdlMapping mapping, QName serviceQName, Bundle bundle, SOAPConstants soapVersion, SchemaInfoBuilder schemaInfoBuilder, String portName, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName, Map exceptionMap) throws DeploymentException {
         Style portStyle = getStyle(binding);
 
         PortType portType = binding.getPortType();
 
-        ServiceEndpointInterfaceMappingType[] endpointMappings = mapping.getServiceEndpointInterfaceMappingArray();
+        List<ServiceEndpointInterfaceMapping> endpointMappings = new ArrayList<ServiceEndpointInterfaceMapping>(mapping.getServiceEndpointInterfaceMapping());
 
         //port type corresponds to SEI
         List operations = portType.getOperations();
         OperationInfo[] operationInfos = new OperationInfo[operations.size()];
-        if (endpointMappings.length == 0) {
+        if (endpointMappings.isEmpty()) {
             doLightweightMapping(serviceQName, portType, mapping, bundle, operations, binding, portStyle, soapVersion, operationInfos, schemaInfoBuilder, portName, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
         } else {
             doHeavyweightMapping(serviceQName, portType, endpointMappings, bundle, operations, binding, portStyle, soapVersion, exceptionMap, schemaInfoBuilder, mapping, operationInfos, portName, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
@@ -422,13 +420,13 @@ public class AxisBuilder implements WebServiceBuilder {
         return location;
     }
 
-    private void doHeavyweightMapping(QName serviceName, PortType portType, ServiceEndpointInterfaceMappingType[] endpointMappings, Bundle bundle, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, Map exceptionMap, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, OperationInfo[] operationInfos, String portName, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
-        Class serviceEndpointInterface;
+    private void doHeavyweightMapping(QName serviceName, PortType portType, List<ServiceEndpointInterfaceMapping> endpointMappings, Bundle bundle, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, Map exceptionMap, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMapping mapping, OperationInfo[] operationInfos, String portName, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
+        Class<?> serviceEndpointInterface;
         SEIFactory seiFactory;
         //complete jaxrpc mapping file supplied
         QName portTypeQName = portType.getQName();
-        ServiceEndpointInterfaceMappingType endpointMapping = WSDescriptorParser.getServiceEndpointInterfaceMapping(endpointMappings, portTypeQName);
-        String fqcn = endpointMapping.getServiceEndpointInterface().getStringValue();
+        ServiceEndpointInterfaceMapping endpointMapping = WSDescriptorParser.getServiceEndpointInterfaceMapping(endpointMappings, portTypeQName);
+        String fqcn = endpointMapping.getServiceEndpointInterface();
         try {
             serviceEndpointInterface = bundle.loadClass(fqcn);
         } catch (ClassNotFoundException e) {
@@ -437,10 +435,10 @@ public class AxisBuilder implements WebServiceBuilder {
 //        Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classLoader);
 
         Collection operationDescs = new ArrayList();
-        ServiceEndpointMethodMappingType[] methodMappings = endpointMapping.getServiceEndpointMethodMappingArray();
+        List<ServiceEndpointMethodMapping> methodMappings = endpointMapping.getServiceEndpointMethodMapping();
         int i = 0;
         Set wrapperElementQNames = new HashSet();
-        JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
+        List<JavaXmlTypeMapping> javaXmlTypeMappings = mapping.getJavaXmlTypeMapping();
         boolean hasEncoded = false;
         for (Iterator ops = operations.iterator(); ops.hasNext();) {
             Operation operation = (Operation) ops.next();
@@ -459,7 +457,7 @@ public class AxisBuilder implements WebServiceBuilder {
             if (bindingOperation == null) {
                 throw new DeploymentException("No BindingOperation for operation: " + operationName + ", input: " + operation.getInput().getName() + ", output: " + (operation.getOutput() == null ? "<none>" : operation.getOutput().getName()));
             }
-            ServiceEndpointMethodMappingType methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
+            ServiceEndpointMethodMapping methodMapping = WSDescriptorParser.getMethodMappingForOperation(operationName, methodMappings);
             HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, portStyle, exceptionMap, schemaInfoBuilder, javaXmlTypeMappings, bundle, serviceEndpointInterface);
             OperationInfo operationInfo = operationDescBuilder.buildOperationInfo(soapVersion);
             operationInfos[i++] = operationInfo;
@@ -475,8 +473,8 @@ public class AxisBuilder implements WebServiceBuilder {
         seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
     }
 
-    private void doLightweightMapping(QName serviceName, PortType portType, JavaWsdlMappingType mapping, Bundle bundle, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, OperationInfo[] operationInfos, SchemaInfoBuilder schemaInfoBuilder, String portName, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
-        Class serviceEndpointInterface;
+    private void doLightweightMapping(QName serviceName, PortType portType, JavaWsdlMapping mapping, Bundle bundle, List operations, Binding binding, Style portStyle, SOAPConstants soapVersion, OperationInfo[] operationInfos, SchemaInfoBuilder schemaInfoBuilder, String portName, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName) throws DeploymentException {
+        Class<?> serviceEndpointInterface;
         SEIFactory seiFactory;
         //lightweight jaxrpc mapping supplied
         serviceEndpointInterface = getServiceEndpointInterfaceLightweight(portType, mapping, bundle);
@@ -497,7 +495,7 @@ public class AxisBuilder implements WebServiceBuilder {
         seiClassNameToFactoryMap.put(serviceEndpointInterface.getName(), seiFactory);
     }
 
-    private Class getServiceEndpointInterfaceLightweight(PortType portType, JavaWsdlMappingType mappings, Bundle bundle) throws DeploymentException {
+    private Class getServiceEndpointInterfaceLightweight(PortType portType, JavaWsdlMapping mappings, Bundle bundle) throws DeploymentException {
         QName portTypeQName = portType.getQName();
         String portTypeNamespace = portTypeQName.getNamespaceURI();
         String portTypePackage = WSDescriptorParser.getPackageFromNamespace(portTypeNamespace, mappings);
@@ -518,13 +516,12 @@ public class AxisBuilder implements WebServiceBuilder {
         return new SEIFactoryImpl(serviceName, portName, enhancedServiceEndpointClassName, operationInfos, typeInfo, location, handlerInfos, credentialsName);
     }
 
-    private List buildHandlerInfosForPort(String portName, List handlerInfoInfos) {
-        List handlerInfos = new ArrayList();
-        for (Iterator iterator = handlerInfoInfos.iterator(); iterator.hasNext();) {
-            HandlerInfoInfo handlerInfoInfo = (HandlerInfoInfo) iterator.next();
+    private List<HandlerInfo> buildHandlerInfosForPort(String portName, List<HandlerInfoInfo> handlerInfoInfos) {
+        List<HandlerInfo> handlerInfos = new ArrayList<HandlerInfo>();
+        for (HandlerInfoInfo handlerInfoInfo: handlerInfoInfos) {
             Set portNames = handlerInfoInfo.getPortNames();
             if (portNames.isEmpty() || portNames.contains(portName)) {
-                HandlerInfo handlerInfo = new HandlerInfo(handlerInfoInfo.getHandlerClass(), handlerInfoInfo.getHandlerConfig(), handlerInfoInfo.getSoapHeaders());
+                HandlerInfo handlerInfo = new HandlerInfo(handlerInfoInfo.getHandlerClass(), handlerInfoInfo.getHandlerConfig(), handlerInfoInfo.getSoapHeaders().toArray(new QName[0]));
                 handlerInfos.add(handlerInfo);
 
                 //TODO what about the soap roles??
@@ -551,21 +548,4 @@ public class AxisBuilder implements WebServiceBuilder {
         return (clazz.isAnnotationPresent(WebService.class) || 
                 clazz.isAnnotationPresent(WebServiceProvider.class));
     }
-    
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AxisBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addInterface(WebServiceBuilder.class);
-        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
-
-        infoBuilder.setConstructor(new String[]{"defaultEnvironment"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

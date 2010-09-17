@@ -64,6 +64,7 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.openejb.jee.ExceptionMapping;
+import org.apache.openejb.jee.Handler;
 import org.apache.openejb.jee.JavaWsdlMapping;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.PackageMapping;
@@ -327,16 +328,11 @@ public class WSDescriptorParser {
                     linkName = serviceImplBean.getEjbLink().trim();
                     servletLocation = (String) servletLocations.get(linkName);
                 }
-                //TODO Figure out what this is supposed to be.... jax-rpc>>
-/*
-                List<PortComponentHandler> handlers = portComponent.g;
-
-                PortInfo portInfo = new PortInfo(sharedPortInfo, portComponentName, portQName, seiInterfaceName, handlers, servletLocation);
+                PortInfo portInfo = new PortInfo(sharedPortInfo, portComponentName, portQName, seiInterfaceName, portComponent.getHandlerChains(), servletLocation);
 
                 if (portMap.put(linkName, portInfo) != null) {
                     throw new DeploymentException("Ambiguous description of port associated with j2ee component " + linkName);
                 }
-*/
             }
         }
         return portMap;
@@ -488,37 +484,33 @@ public class WSDescriptorParser {
 //        }
 //    }
 
-//    public static List<HandlerInfo> createHandlerInfoList(PortComponentHandler> handlers, Bundle bundle) throws DeploymentException {
-//        List<HandlerInfo> list = new ArrayList<HandlerInfo>();
-//        for (PortComponentHandler handler : handlers) {
-//            // Get handler class
-//            Class handlerClass;
-//            String className = handler.getHandlerClass().trim();
-//            try {
-//                handlerClass = bundle.loadClass(className);
-//            } catch (ClassNotFoundException e) {
-//                throw new DeploymentException("Unable to load handler class: " + className, e);
-//            }
-//
-//            // config data for the handler
-//            Map<String, String> config = new HashMap<String, String>();
-//            ParamValue> paramValues = handler.getInitParam();
-//            for (ParamValue paramValue : paramValues) {
-//                String paramName = paramValue.getParamName().trim();
-//                String paramStringValue = paramValue.getParamValue().trim();
-//                config.put(paramName, paramStringValue);
-//            }
-//
-//            // QName array of headers it processes
-//            XsdQName> soapHeaderQNames = handler.getSoapHeader();
-//            QName> headers = new QName[soapHeaderQNames.length];
-//            for (int j = 0; j < soapHeaderQNames.length; j++) {
-//                XsdQName soapHeaderQName = soapHeaderQNames[j];
-//                headers[j] = soapHeaderQName;
-//            }
-//
-//            list.add(new HandlerInfo(handlerClass, config, headers));
-//        }
-//        return list;
-//    }
+    public static List<HandlerInfo> createHandlerInfoList(List<Handler> handlers, Bundle bundle) throws DeploymentException {
+        List<HandlerInfo> list = new ArrayList<HandlerInfo>();
+        for (Handler handler : handlers) {
+            // Get handler class
+            Class handlerClass;
+            String className = handler.getHandlerClass().trim();
+            try {
+                handlerClass = bundle.loadClass(className);
+            } catch (ClassNotFoundException e) {
+                throw new DeploymentException("Unable to load handler class: " + className, e);
+            }
+
+            // config data for the handler
+            Map<String, String> config = new HashMap<String, String>();
+            List<ParamValue> paramValues = handler.getInitParam();
+            for (ParamValue paramValue : paramValues) {
+                String paramName = paramValue.getParamName().trim();
+                String paramStringValue = paramValue.getParamValue().trim();
+                config.put(paramName, paramStringValue);
+            }
+
+            // QName array of headers it processes
+            List<QName> soapHeaderQNames = handler.getSoapHeader();
+            QName[] headers = soapHeaderQNames.toArray(new QName[soapHeaderQNames.size()]); 
+
+            list.add(new HandlerInfo(handlerClass, config, headers));
+        }
+        return list;
+    }
 }

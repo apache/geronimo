@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -49,18 +50,18 @@ import org.apache.axis.encoding.XMLType;
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.xbeans.j2ee.ConstructorParameterOrderType;
-import org.apache.geronimo.xbeans.j2ee.ExceptionMappingType;
-import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
-import org.apache.geronimo.xbeans.j2ee.MethodParamPartsMappingType;
-import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
-import org.apache.geronimo.xbeans.j2ee.WsdlMessageMappingType;
-import org.apache.geronimo.xbeans.j2ee.WsdlReturnValueMappingType;
+import org.apache.openejb.jee.ConstructorParameterOrder;
+import org.apache.openejb.jee.ExceptionMapping;
+import org.apache.openejb.jee.JavaWsdlMapping;
+import org.apache.openejb.jee.JavaXmlTypeMapping;
+import org.apache.openejb.jee.MethodParamPartsMapping;
+import org.apache.openejb.jee.ServiceEndpointMethodMapping;
+import org.apache.openejb.jee.WsdlMessageMapping;
+import org.apache.openejb.jee.WsdlReturnValueMapping;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.objectweb.asm.Type;
-import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 import org.apache.geronimo.webservices.builder.WSDescriptorParser;
 import org.osgi.framework.Bundle;
@@ -70,8 +71,8 @@ import org.osgi.framework.Bundle;
  */
 public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
-    private final JavaWsdlMappingType mapping;
-    private final ServiceEndpointMethodMappingType methodMapping;
+    private final JavaWsdlMapping mapping;
+    private final ServiceEndpointMethodMapping methodMapping;
     private final SOAPBody soapBody;
 
 
@@ -97,21 +98,22 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
      */
     private final Set wrapperElementQNames = new HashSet();
 
-    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMappingType mapping, ServiceEndpointMethodMappingType methodMapping, Style defaultStyle, Map exceptionMap, SchemaInfoBuilder schemaInfoBuilder, JavaXmlTypeMappingType[] javaXmlTypeMappingTypes, Bundle bundle, Class serviceEndpointInterface) throws DeploymentException {
+    public HeavyweightOperationDescBuilder(BindingOperation bindingOperation, JavaWsdlMapping mapping, ServiceEndpointMethodMapping methodMapping, Style defaultStyle, Map exceptionMap, SchemaInfoBuilder schemaInfoBuilder, List<JavaXmlTypeMapping> javaXmlTypeMappingTypes, Bundle bundle, Class serviceEndpointInterface) throws DeploymentException {
         super(bindingOperation);
         this.mapping = mapping;
         this.methodMapping = methodMapping;
         this.exceptionMap = exceptionMap;
         this.schemaInfoBuilder = schemaInfoBuilder;
-        for (int i = 0; i < javaXmlTypeMappingTypes.length; i++) {
-            JavaXmlTypeMappingType javaXmlTypeMappingType = javaXmlTypeMappingTypes[i];
-            String javaClassName = javaXmlTypeMappingType.getJavaType().getStringValue().trim();
-            if (javaXmlTypeMappingType.isSetAnonymousTypeQname()) {
-                String anonymousTypeQName = javaXmlTypeMappingType.getAnonymousTypeQname().getStringValue().trim();
+        for (JavaXmlTypeMapping javaXmlTypeMappingType: javaXmlTypeMappingTypes) {
+            String javaClassName = javaXmlTypeMappingType.getJavaType();
+            String anonymousTypeQName = javaXmlTypeMappingType.getAnonymousTypeQname(); 
+            if (anonymousTypeQName != null) {
                 anonymousTypes.put(anonymousTypeQName, javaClassName);
-            } else if (javaXmlTypeMappingType.isSetRootTypeQname()) {
-                QName qname = javaXmlTypeMappingType.getRootTypeQname().getQNameValue();
-                publicTypes.put(qname, javaClassName);
+            } else {
+                QName qname = javaXmlTypeMappingType.getRootTypeQname();
+                if (qname != null) {
+                    publicTypes.put(qname, javaClassName);
+                }
             }
         }
         this.bundle = bundle;
@@ -119,7 +121,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         BindingInput bindingInput = bindingOperation.getBindingInput();
         this.soapBody = (SOAPBody) SchemaInfoBuilder.getExtensibilityElement(SOAPBody.class, bindingInput.getExtensibilityElements());
 
-        wrappedStyle = methodMapping.isSetWrappedElement();
+        wrappedStyle = methodMapping.getWrappedElement() != null;
         if (false == wrappedStyle) {
             Style style = Style.getStyle(soapOperation.getStyle(), defaultStyle);
             if (style == Style.RPC) {
@@ -153,7 +155,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         boolean usesSOAPAction = (soapActionURI != null);
         QName operationQName = getOperationQName();
 
-        String methodName = methodMapping.getJavaMethodName().getStringValue().trim();
+        String methodName = methodMapping.getJavaMethodName();
 
         ArrayList parameters = operationDesc.getParameters();
         Type[] parameterASMTypes = new Type[parameters.size()];
@@ -205,18 +207,17 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         operationDesc.setUse(use);
 
 
-        MethodParamPartsMappingType[] paramMappings = methodMapping.getMethodParamPartsMappingArray();
+        List<MethodParamPartsMapping> paramMappings = methodMapping.getMethodParamPartsMapping();
 
         /* Put the ParameterDesc instance in an array so they can be ordered properly
          * before they are added to the the OperationDesc.
          */
-        ParameterDesc[] parameterDescriptions = new ParameterDesc[paramMappings.length];
+        ParameterDesc[] parameterDescriptions = new ParameterDesc[paramMappings.size()];
 
 
         // MAP PARAMETERS
-        for (int i = 0; i < paramMappings.length; i++) {
-            MethodParamPartsMappingType paramMapping = paramMappings[i];
-            int position = paramMapping.getParamPosition().getBigIntegerValue().intValue();
+        for (MethodParamPartsMapping paramMapping: paramMappings) {
+            int position = paramMapping.getParamPosition().intValue();
 
             ParameterDesc parameterDesc = mapParameter(paramMapping);
 
@@ -269,7 +270,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             paramTypes[i] = parameterDescription.getJavaType();
         }
 
-        String methodName = methodMapping.getJavaMethodName().getStringValue().trim();
+        String methodName = methodMapping.getJavaMethodName();
         Method method = null;
         try {
             method = serviceEndpointInterface.getMethod(methodName, paramTypes);
@@ -290,7 +291,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
         // MAP RETURN TYPE
         operationDesc.setMep(operation.getStyle());
-        if (methodMapping.isSetWsdlReturnValueMapping()) {
+        if (methodMapping.getWsdlReturnValueMapping() != null) {
             mapReturnType();
         } else if (operation.getStyle() == OperationType.REQUEST_RESPONSE) {
             //TODO WARNING THIS APPEARS TO SUBVERT THE COMMENT IN j2ee_jaxrpc_mapping_1_1.xsd IN service-endpoint-method-mappingType:
@@ -372,19 +373,19 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
     private FaultDesc mapException(String faultName, Fault fault) throws DeploymentException {
         Message message = fault.getMessage();
         QName messageQName = message.getQName();
-        ExceptionMappingType exceptionMapping = (ExceptionMappingType) exceptionMap.get(messageQName);
+        ExceptionMapping exceptionMapping = (ExceptionMapping) exceptionMap.get(messageQName);
         if (exceptionMapping == null) {
             throw new DeploymentException("No exception mapping for fault " + faultName + " and fault message " + messageQName + " for operation " + operationName);
         }
-        String className = exceptionMapping.getExceptionType().getStringValue().trim();
+        String className = exceptionMapping.getExceptionType();
         //TODO investigate whether there are other cases in which the namespace of faultQName can be determined.
         //this is weird, but I can't figure out what it should be.
         //if part has an element rather than a type, it should be part.getElementName() (see below)
         QName faultQName = new QName("", faultName);
         Part part;
-        if (exceptionMapping.isSetWsdlMessagePartName()) {
+        if (exceptionMapping.getWsdlMessagePartName() != null) {
             //According to schema documentation, this will only be set when several headerfaults use the same message.
-            String headerFaultMessagePartName = exceptionMapping.getWsdlMessagePartName().getStringValue();
+            String headerFaultMessagePartName = exceptionMapping.getWsdlMessagePartName();
             part = message.getPart(headerFaultMessagePartName);
         } else {
             part = (Part) message.getOrderedParts(null).iterator().next();
@@ -407,7 +408,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         FaultDesc faultDesc = new FaultDesc(faultQName, className, faultTypeQName, isComplex);
 
         //constructor parameters
-        if (exceptionMapping.isSetConstructorParameterOrder()) {
+        if (exceptionMapping.getConstructorParameterOrder() != null) {
             if (!isComplex) {
                 throw new DeploymentException("ConstructorParameterOrder can only be set for complex types, not " + faultTypeQName);
             }
@@ -420,9 +421,8 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 elementMap.put(elementName.getLocalPart(), elementType);
             }
             ArrayList parameterTypes = new ArrayList();
-            ConstructorParameterOrderType constructorParameterOrder = exceptionMapping.getConstructorParameterOrder();
-            for (int i = 0; i < constructorParameterOrder.getElementNameArray().length; i++) {
-                String elementName = constructorParameterOrder.getElementNameArray(i).getStringValue().trim();
+            ConstructorParameterOrder constructorParameterOrder = exceptionMapping.getConstructorParameterOrder();
+            for (String elementName: constructorParameterOrder.getElementName()) {
                 SchemaType elementType = (SchemaType) elementMap.get(elementName);
                 Class javaElementType;
 
@@ -488,22 +488,22 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         if (output == null) {
             throw new DeploymentException("No output message, but a mapping for it for operation " + operationName);
         }
-        WsdlReturnValueMappingType wsdlReturnValueMapping = methodMapping.getWsdlReturnValueMapping();
-        String returnClassName = wsdlReturnValueMapping.getMethodReturnValue().getStringValue().trim();
+        WsdlReturnValueMapping wsdlReturnValueMapping = methodMapping.getWsdlReturnValueMapping();
+        String returnClassName = wsdlReturnValueMapping.getMethodReturnValue();
         try {
             returnClass = ClassLoading.loadClass(returnClassName, bundle);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load return type for operation " + operationName, e);
         }
 
-        QName wsdlMessageQName = wsdlReturnValueMapping.getWsdlMessage().getQNameValue();
+        QName wsdlMessageQName = wsdlReturnValueMapping.getWsdlMessage();
 
         if (!wsdlMessageQName.equals(output.getQName())) {
             throw new DeploymentException("OutputMessage has QName: " + output.getQName() + " but mapping specifies: " + wsdlMessageQName + " for operation " + operationName);
         }
 
-        if (wsdlReturnValueMapping.isSetWsdlMessagePartName()) {
-            String wsdlMessagePartName = wsdlReturnValueMapping.getWsdlMessagePartName().getStringValue().trim();
+        if (wsdlReturnValueMapping.getWsdlMessagePartName() != null) {
+            String wsdlMessagePartName = wsdlReturnValueMapping.getWsdlMessagePartName();
             if (outParamNames.contains(wsdlMessagePartName)) {
                 throw new DeploymentException("output message part " + wsdlMessagePartName + " has both an INOUT or OUT mapping and a return value mapping for operation " + operationName);
             }
@@ -541,12 +541,12 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         operationDesc.setReturnClass(returnClass);
     }
 
-    private ParameterDesc mapParameter(MethodParamPartsMappingType paramMapping) throws DeploymentException {
-        WsdlMessageMappingType wsdlMessageMappingType = paramMapping.getWsdlMessageMapping();
-        QName wsdlMessageQName = wsdlMessageMappingType.getWsdlMessage().getQNameValue();
-        String wsdlMessagePartName = wsdlMessageMappingType.getWsdlMessagePartName().getStringValue().trim();
+    private ParameterDesc mapParameter(MethodParamPartsMapping paramMapping) throws DeploymentException {
+        WsdlMessageMapping wsdlMessageMapping = paramMapping.getWsdlMessageMapping();
+        QName wsdlMessageQName = wsdlMessageMapping.getWsdlMessage();
+        String wsdlMessagePartName = wsdlMessageMapping.getWsdlMessagePartName();
 
-        String parameterMode = wsdlMessageMappingType.getParameterMode().getStringValue().trim();
+        String parameterMode = wsdlMessageMapping.getParameterMode();
         byte mode = ParameterDesc.modeFromString(parameterMode);
         boolean isInParam = mode == ParameterDesc.IN || mode == ParameterDesc.INOUT;
         boolean isOutParam = mode == ParameterDesc.OUT || mode == ParameterDesc.INOUT;
@@ -554,7 +554,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
         if (isOutParam && output == null) {
             throw new DeploymentException("Mapping for output parameter " + wsdlMessagePartName + " found, but no output message for operation " + operationName);
         }
-        boolean isSoapHeader = wsdlMessageMappingType.isSetSoapHeader();
+        boolean isSoapHeader = wsdlMessageMapping.getSoapHeader() != null;
         boolean inHeader = isSoapHeader && isInParam;
         boolean outHeader = isSoapHeader && isOutParam;
 
@@ -669,9 +669,9 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
         //use complexTypeMap
         boolean isComplexType = schemaInfoBuilder.getComplexTypesInWsdl().containsKey(paramTypeQName);
-        String paramJavaTypeName = paramMapping.getParamType().getStringValue().trim();
+        String paramJavaTypeName = paramMapping.getParamType();
         boolean isInOnly = mode == ParameterDesc.IN;
-        Class actualParamJavaType = WSDescriptorParser.getHolderType(paramJavaTypeName, isInOnly, paramTypeQName, isComplexType, mapping, bundle);
+        Class actualParamJavaType = WSDescriptorParser.getHolder(paramJavaTypeName, isInOnly, paramTypeQName, isComplexType, mapping, bundle);
 
         ParameterDesc parameterDesc = new ParameterDesc(paramQName, mode, paramTypeQName, actualParamJavaType, inHeader, outHeader);
         return parameterDesc;

@@ -18,6 +18,8 @@ package org.apache.geronimo.webservices.builder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
 
@@ -26,6 +28,9 @@ import javax.wsdl.Port;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.openejb.jee.Handler;
+import org.apache.openejb.jee.HandlerChain;
+import org.apache.openejb.jee.HandlerChains;
 import org.apache.openejb.jee.JavaWsdlMapping;
 import org.apache.openejb.jee.ServiceEndpointInterfaceMapping;
 
@@ -36,7 +41,7 @@ public class PortInfo {
     private final String portComponentName;
     private final QName portQName;
     private final String seInterfaceName;
-//    private final PortComponentHandler[] handlers;
+    private final List<Handler> handlers;
     private final SharedPortInfo sharedPortInfo;
     
     // set after initialize is called
@@ -47,13 +52,21 @@ public class PortInfo {
     private URI contextURI;
     private String location;
 
-    public PortInfo(SharedPortInfo sharedPortInfo, String portComponentName, QName portQName, String seiInterfaceName, /*PortComponentHandler[] handlers,*/ String location) {
+    public PortInfo(SharedPortInfo sharedPortInfo, String portComponentName, QName portQName, String seiInterfaceName, HandlerChains handlerChains, String location) {
         this.sharedPortInfo = sharedPortInfo;
         this.portComponentName = portComponentName;
         this.portQName = portQName;
         this.seInterfaceName = seiInterfaceName;
-//        this.handlers = handlers;
         this.location = location;
+        this.handlers = new ArrayList<Handler>();
+        // collapse the handler chain down to a flat list 
+        if (handlerChains != null) {
+            for (HandlerChain chain: handlerChains.getHandlerChain()) {
+                for (Handler handler: chain.getHandler()) {
+                    handlers.add(handler);
+                }
+            }
+        }
     }
 
     public DescriptorVersion getDescriptorVersion() {
@@ -96,9 +109,9 @@ public class PortInfo {
         return seiMapping;
     }
 
-//    public PortComponentHandler[] getHandlers() {
-//        return handlers;
-//    }
+    public List<Handler> getHandlers() {
+        return handlers;
+    }
 
     public URI getContextURI() {
         return contextURI;
