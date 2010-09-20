@@ -97,7 +97,7 @@ public class ClusteredSessionManager extends AbstractSessionManager {
     @Override
     protected void invalidateSessions() {
         // We do not need to clear idToSession: when the SessionManager GBean is stopped, all the sessions
-        // it defines are migrated to other SessionManagers. These outbound session migrations will remove 
+        // it defines are migrated to other SessionManagers. These outbound session migrations will remove
         // them from idToSession.
     }
 
@@ -116,7 +116,7 @@ public class ClusteredSessionManager extends AbstractSessionManager {
             ClusteredSession clusteredSession = getClusteredSession(session);
             removeSession(clusteredSession, true);
         }
-        
+
         private ClusteredSession getClusteredSession(org.apache.geronimo.clustering.Session session) throws AssertionError {
             ClusteredSession clusteredSession;
             synchronized (idToSession) {
@@ -127,8 +127,8 @@ public class ClusteredSessionManager extends AbstractSessionManager {
             }
             return clusteredSession;
         }
-        
-        
+
+
     }
 
     public class ClusteredSession extends Session {
@@ -145,7 +145,7 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         }
 
         protected ClusteredSession(org.apache.geronimo.clustering.Session session) {
-            super(System.currentTimeMillis(), session.getSessionId());
+            super(System.currentTimeMillis(), System.currentTimeMillis(), session.getSessionId());
             this.session = session;
             initValues();
         }
