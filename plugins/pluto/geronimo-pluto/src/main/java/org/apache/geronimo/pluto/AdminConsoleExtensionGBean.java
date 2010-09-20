@@ -18,7 +18,9 @@ package org.apache.geronimo.pluto;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,19 +50,29 @@ public class AdminConsoleExtensionGBean implements GBeanLifecycle {
     private final ArrayList<String> portletList;
     private final String icon;
     private final PortalContainerServices portletContainerServices;
-
-    /* Constructor for GBean */
-    public AdminConsoleExtensionGBean(String pageTitle, String portletContext, ArrayList<String> portletList, PortalContainerServices portalContainerServices) {
-        this(pageTitle, portletContext, portletList, null, portalContainerServices);
+    private final String mode;
+    private final static Set modes=new HashSet();
+    static{
+    	modes.add("advanced");
+    	modes.add("basic");
     }
-
-    public AdminConsoleExtensionGBean(String pageTitle, String portletContext, ArrayList<String> portletList, String icon, PortalContainerServices portalContainerServices) {
+    /* Constructor for GBean */
+    public AdminConsoleExtensionGBean(String pageTitle, String portletContext, ArrayList<String> portletList, String icon, PortalContainerServices portalContainerServices,String mode) {
         super();
         this.pageTitle = pageTitle;
         this.portletContext = portletContext;
         this.portletList = portletList;
         this.icon = icon;
         this.portletContainerServices = portalContainerServices;
+        if(mode==null){
+        	log.debug("you did not specifiy a mode for GBean "+pageTitle+",  the system will use advanced as the default mode ");
+        	this.mode="advanced";
+        }else if(modes.contains(mode)){
+        	this.mode=mode;
+        }else{
+        	log.warn("when create GBean "+pageTitle+" error :your mode " + mode +" is illegal, the system will use advanced as the default mode ");
+        	this.mode="advanced";
+        }
     }
 
     /*
@@ -145,6 +157,7 @@ public class AdminConsoleExtensionGBean implements GBeanLifecycle {
         pageConfig.setName(pageTitle);
         pageConfig.setUri("/WEB-INF/themes/default-theme.jsp");
         pageConfig.setIcon(icon);
+        pageConfig.setMode(mode);
         return pageConfig;
     }
 
@@ -254,13 +267,14 @@ public class AdminConsoleExtensionGBean implements GBeanLifecycle {
         infoFactory.addAttribute("portletContext", String.class, true, true);
         infoFactory.addAttribute("portletList", ArrayList.class, true, true);
         infoFactory.addAttribute("icon", String.class, true, true);
+        infoFactory.addAttribute("mode", String.class, true, true);
         infoFactory.addReference("PortalContainerServices", PortalContainerServices.class, "GBean");
         infoFactory.setConstructor(new String[]{
                 "pageTitle",
                 "portletContext",
                 "portletList",
                 "icon", 
-                "PortalContainerServices"});
+                "PortalContainerServices","mode"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

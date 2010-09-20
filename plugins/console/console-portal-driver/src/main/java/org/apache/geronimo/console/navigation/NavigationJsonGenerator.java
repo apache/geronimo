@@ -92,7 +92,39 @@ public class NavigationJsonGenerator {
         sb.append("\n]");
         return sb.toString();
     }
-    
+    public String generateTreeJSON(List<PageConfig> pageConfigList, String contextPath, String DefaultIcon,String mode) {
+        
+        Map<String, TreeNode> navigationTree = new TreeMap<String, TreeNode>();
+        
+        for (PageConfig pc : pageConfigList) {
+        	if(pc.getMode()!=null&&mode.equals(pc.getMode())){
+	            try {
+	                new TreeNode(pc).populateTree(navigationTree);
+	            } catch (Exception e) {
+	                log.error(e.getMessage(),e);
+	                continue;
+	            }
+        	}
+        }
+
+        StringBuffer sb = new StringBuffer(10);
+        sb.append("[");
+        
+        
+        for (TreeNode node : navigationTree.values()) {
+
+            if (node.isTopNode()) {
+                sb.append("\n");
+                appendNodeToTreeJSON(sb, node, contextPath, DefaultIcon);
+            }
+
+        }
+        //remove the extra ','
+        sb.deleteCharAt(sb.length()-1);
+
+        sb.append("\n]");
+        return sb.toString();
+    }
     private void appendNodeToTreeJSON(StringBuffer sb, TreeNode node, String contextPath, String DefaultIcon) {
 
         sb.append("{");
@@ -158,6 +190,37 @@ public class NavigationJsonGenerator {
         return sb.toString();
     }
 
+    public String generateQuickLauncherJSON(List<PageConfig> pageConfigList, String contextPath, String DefaultIcon,String mode) {
+        
+        Map<String, TreeNode> navigationTree = new TreeMap<String, TreeNode>();
+        
+        for (PageConfig pc : pageConfigList) {
+        	if(pc.getMode()!=null&&mode.equals(pc.getMode())){
+	            try {
+	                new TreeNode(pc).populateTree(navigationTree);
+	            } catch (Exception e) {
+	                log.error(e.getMessage(),e);
+	                continue;
+	            }
+        	}
+        }
+
+        StringBuffer sb = new StringBuffer(10);
+        sb.append("[\n");
+        
+        for (TreeNode node : navigationTree.values()) {
+
+            if (node.isTopNode()) {
+                appendNodeToQuickLauncherJSON(sb, node, contextPath, DefaultIcon);
+            }
+
+        }
+        //remove the extra ','
+        sb.deleteCharAt(sb.length()-1);
+
+        sb.append("\n]");
+        return sb.toString();
+    }
     private void appendNodeToQuickLauncherJSON(StringBuffer sb, TreeNode node, String contextPath, String DefaultIcon) {
 
         if (node.isLeafNode()) {

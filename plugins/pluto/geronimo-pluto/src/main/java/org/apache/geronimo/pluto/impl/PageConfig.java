@@ -27,6 +27,7 @@ public class PageConfig extends org.apache.pluto.driver.services.portal.PageConf
 
     private String icon;
 
+    private String mode;
     public String getIcon() {
         return icon;
     }
@@ -34,4 +35,14 @@ public class PageConfig extends org.apache.pluto.driver.services.portal.PageConf
     public void setIcon(String icon) {
         this.icon = icon;
     }
+
+	public String getMode() {
+		return mode;
+	}
+
+	public void setMode(String mode) {
+		this.mode = mode;
+	}
+    
+    
 }
