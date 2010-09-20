@@ -389,10 +389,8 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         if (parentModule == null || ".".equals(targetPath)) {
             AbstractName earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
             moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.EJB_MODULE);
-            ejbModule.setModuleId(environment.getConfigId().getArtifactId());
         } else {
             moduleName = naming.createChildName(parentModule.getModuleName(), targetPath, NameFactory.EJB_MODULE);
-            ejbModule.setModuleId(targetPath);
         }
 
         // Create XMLBeans version of EjbJarType for the AnnotatedApp interface
@@ -409,6 +407,8 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             name = FileUtils.removeExtension(targetPath, ".jar");
         }
 
+        ejbModule.setModuleId(name);
+        
         Map<JndiKey, Map<String, Object>> context = null;
         if (subModule) {
             context = parentModule.getJndiContext();

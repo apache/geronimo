@@ -105,7 +105,9 @@ public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
 
     public void setClassLoader(ClassLoader classLoader) {
         ejbModule.setClassLoader(classLoader);
-        ejbModule.getClientModule().setClassLoader(classLoader);
+        if (ejbModule.getClientModule() != null) {
+            ejbModule.getClientModule().setClassLoader(classLoader);
+        }
     }
 
     public ConfigurationFactory.Chain getPreAutoConfigDeployer() {
