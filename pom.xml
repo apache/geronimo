@@ -2145,9 +2145,9 @@
 	
 	<repositories>
         <repository>
-              <id>axis2152staging</id>
-              <name>axis2 1.5.2 staging repo</name>
-              <url>https://repository.apache.org/content/repositories/orgapacheaxis2-042/</url>
+              <id>activemq541staging</id>
+              <name>activemq 5.4.1 staging repo</name>
+              <url>https://repository.apache.org/content/repositories/orgapacheactivemq-041/</url>
               <layout>default</layout>
               <releases>
                   <enabled>true</enabled>
