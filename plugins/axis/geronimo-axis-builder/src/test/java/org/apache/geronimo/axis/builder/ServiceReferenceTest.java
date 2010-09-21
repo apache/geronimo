@@ -111,7 +111,7 @@ public class ServiceReferenceTest
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();
-        module = new EJBModule(true, moduleName, environment, new UnpackedJarFile(moduleLocation), "ejb", null, null, null, null);
+        module = new EJBModule(true, moduleName, null, environment, new UnpackedJarFile(moduleLocation), "ejb", null, null, null, null, null);
 
         runExternalWSTest = System.getProperty("geronimo.run.external.webservicetest", "false").equals("true");
     }
