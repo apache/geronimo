@@ -35,6 +35,7 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.login.FailedLoginException;
@@ -157,26 +158,51 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
         callbacks[0] = new CertificateCallback();
         try {
             handler.handle(callbacks);
+            assert callbacks.length == 1;
+            X509Certificate certificate = ((CertificateCallback)callbacks[0]).getCertificate();
+            if (certificate == null) {
+                throw new FailedLoginException();
+            }
+            principal = certificate.getSubjectX500Principal();
+
+            if(!users.containsKey(principal.getName())) {
+                // Clear out the private state
+                principal = null;
+                throw new FailedLoginException();
+            }
+
+            loginSucceeded = true;
+            return true;
         } catch (IOException ioe) {
             throw (LoginException) new LoginException().initCause(ioe);
         } catch (UnsupportedCallbackException uce) {
+            //try username/pw callbacks
+            callbacks[0] = new NameCallback("User name");
+            try {
+                handler.handle(callbacks);
+                assert callbacks.length == 1;
+                String name = ((NameCallback)callbacks[0]).getName();
+                if (name == null) {
+                    throw new FailedLoginException();
+                }
+                principal = new X500Principal(name);
+                //this normalizes the name by removing spaces
+                name = principal.getName();
+                if(!users.containsKey(name)) {
+                    // Clear out the private state
+                    principal = null;
+                    throw new FailedLoginException();
+                }
+                principal = new X500Principal(name);
+                loginSucceeded = true;
+                return true;
+            } catch (IOException ioe) {
+                throw (LoginException) new LoginException().initCause(ioe);
+            } catch (UnsupportedCallbackException uce2) {
+                //fall through
+            }
             throw (LoginException) new LoginException().initCause(uce);
         }
-        assert callbacks.length == 1;
-        X509Certificate certificate = ((CertificateCallback)callbacks[0]).getCertificate();
-        if (certificate == null) {
-            throw new FailedLoginException();
-        }
-        principal = certificate.getSubjectX500Principal();
-
-        if(!users.containsKey(principal.getName())) {
-            // Clear out the private state
-            principal = null;
-            throw new FailedLoginException();
-        }
-
-        loginSucceeded = true;
-        return true;
     }
 
     /*
