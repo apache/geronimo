@@ -28,20 +28,28 @@ import java.util.Map;
 
 import javax.servlet.DispatcherType;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.web.info.ErrorPageInfo;
 import org.apache.geronimo.web.info.FilterInfo;
 import org.apache.geronimo.web.info.FilterMappingInfo;
+import org.apache.geronimo.web.info.LoginConfigInfo;
 import org.apache.geronimo.web.info.MultipartConfigInfo;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.openejb.jee.Dispatcher;
+import org.apache.openejb.jee.ErrorPage;
 import org.apache.openejb.jee.Filter;
 import org.apache.openejb.jee.FilterMapping;
 import org.apache.openejb.jee.Listener;
+import org.apache.openejb.jee.LocaleEncodingMapping;
+import org.apache.openejb.jee.LocaleEncodingMappingList;
+import org.apache.openejb.jee.LoginConfig;
+import org.apache.openejb.jee.MimeMapping;
 import org.apache.openejb.jee.MultipartConfig;
 import org.apache.openejb.jee.ParamValue;
 import org.apache.openejb.jee.Servlet;
 import org.apache.openejb.jee.ServletMapping;
 import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WelcomeFileList;
 
 /**
  * @version $Rev:$ $Date:$
@@ -142,6 +150,43 @@ public class WebAppInfoBuilder {
                     filterInfo.urlMappings.add(urlMapping);
                 }
             }
+        }
+
+        webAppInfo.displayName = webApp.getDisplayName();
+        
+        for (ErrorPage errorPage: webApp.getErrorPage()) {
+            ErrorPageInfo errorPageInfo = new ErrorPageInfo();
+            errorPageInfo.location = errorPage.getLocation();
+            if (errorPage.getErrorCode() != null) {
+                errorPageInfo.errorCode = errorPage.getErrorCode().intValue();
+            }
+            errorPageInfo.exceptionType = errorPage.getExceptionType();
+            webAppInfo.errorPages.add(errorPageInfo);
+        }
+
+        for (LocaleEncodingMappingList localeEncodingMappingList: webApp.getLocaleEncodingMappingList()) {
+            for (LocaleEncodingMapping localeEncodingMapping: localeEncodingMappingList.getLocaleEncodingMapping()) {
+                webAppInfo.localeEncodingMappings.put(localeEncodingMapping.getLocale(), localeEncodingMapping.getEncoding());
+            }
+        }
+        for (MimeMapping mimeMapping: webApp.getMimeMapping()) {
+            webAppInfo.mimeMappings.put(mimeMapping.getExtension(), mimeMapping.getMimeType());
+        }
+
+        for (WelcomeFileList welcomeFileList: webApp.getWelcomeFileList()) {
+            webAppInfo.welcomeFiles.addAll(welcomeFileList.getWelcomeFile());
+        }
+
+        for (LoginConfig loginConfig: webApp.getLoginConfig()) {
+            LoginConfigInfo loginConfigInfo = new LoginConfigInfo();
+            loginConfigInfo.authMethod = loginConfig.getAuthMethod();
+            loginConfigInfo.realmName = loginConfig.getRealmName();
+            if (loginConfig.getFormLoginConfig() != null) {
+                loginConfigInfo.formLoginPage = loginConfig.getFormLoginConfig().getFormLoginPage();
+                loginConfigInfo.formErrorPage = loginConfig.getFormLoginConfig().getFormErrorPage();
+            }
+            webAppInfo.loginConfig = loginConfigInfo;
+            break;
         }
 
         webAppInfoFactory.complete(webAppInfo);
