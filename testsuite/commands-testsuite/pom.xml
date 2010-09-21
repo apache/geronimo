@@ -74,7 +74,6 @@
     <modules>
         <module>deploy</module>
 <!--
-        <module>gshell</module>
         <module>jaxws</module>
 -->
         <module>shutdown</module>
