@@ -40,6 +40,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
@@ -124,6 +125,8 @@ public class PlanParsingTest extends TestCase {
         bundleContext.registerService(PackageAdmin.class.getName(), packageAdmin, null);
         builder = new TomcatModuleBuilder(defaultEnvironment,
                 tomcatContainerObjectName,
+                new WebAppInfo(),
+                null,
                 Collections.singleton(webServiceBuilder),
                 Arrays.asList(new GBeanBuilder(null, null), new GeronimoSecurityBuilderImpl(null, null, null)),
                 new NamingBuilderCollection(null),

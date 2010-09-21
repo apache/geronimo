@@ -22,6 +22,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.apache.geronimo.web.info.WebAppInfo;
+
 
 /**
  * @version $Rev$ $Date$
@@ -30,12 +32,14 @@ public class ApplicationTest extends AbstractWebModuleTest {
     private File basedir = new File(System.getProperty("basedir"));
 
     public void testApplication() throws Exception {
+        WebAppInfo webAppInfo = new WebAppInfo();
+        setUpStaticContentServlet(webAppInfo);
         setUpInsecureAppContext("war1",
                 null,
                 null,
                 null,
                 null,
-                null);
+                null, webAppInfo);
 
         HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() +  "/test/hello.txt").openConnection();
         BufferedReader reader = null;

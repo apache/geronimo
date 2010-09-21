@@ -30,8 +30,10 @@ import javax.security.auth.message.config.AuthConfigFactory;
 import javax.security.auth.message.config.AuthConfigProvider;
 import javax.security.auth.message.config.RegistrationListener;
 import javax.security.auth.message.config.ServerAuthConfig;
+import javax.servlet.ServletContext;
 
 import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.deploy.ErrorPage;
 import org.apache.catalina.deploy.WebXml;
 import org.apache.catalina.startup.ContextConfig;
 import org.apache.geronimo.security.ContextManager;
@@ -54,16 +56,62 @@ import org.apache.geronimo.tomcat.security.impl.GeronimoLoginService;
 import org.apache.geronimo.tomcat.security.jacc.JACCAuthorizer;
 import org.apache.geronimo.tomcat.security.jacc.JACCRealm;
 import org.apache.geronimo.tomcat.security.jacc.JACCSecurityValve;
+import org.apache.geronimo.web.assembler.Assembler;
+import org.apache.geronimo.web.info.ErrorPageInfo;
+import org.apache.geronimo.web.info.LoginConfigInfo;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.xml.sax.InputSource;
 
 /**
  * @version $Rev$ $Date$
  */
-public class BaseGeronimoContextConfig extends ContextConfig {
+public abstract class BaseGeronimoContextConfig extends ContextConfig {
     private static final String MESSAGE_LAYER = "HttpServlet";
     private static final String POLICY_CONTEXT_ID_KEY = "javax.security.jacc.PolicyContext";
 
     private static org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(BaseGeronimoContextConfig.class);
+
+    private final WebAppInfo webAppInfo;
+
+    public BaseGeronimoContextConfig(WebAppInfo webAppInfo) {
+        this.webAppInfo = webAppInfo;
+    }
+
+    @Override
+    protected void init() {
+        contextConfig();
+    }
+
+    @Override
+    protected void configureStart() {
+        ServletContext servletContext = context.getServletContext();
+        Assembler assembler = new Assembler();
+        assembler.assemble(servletContext, webAppInfo);
+        context.setDisplayName(webAppInfo.displayName);
+        for (ErrorPageInfo errorPageInfo: webAppInfo.errorPages) {
+            ErrorPage errorPage = new ErrorPage();
+            errorPage.setLocation(errorPageInfo.location);
+            errorPage.setExceptionType(errorPageInfo.exceptionType);
+            if (errorPageInfo.errorCode != null) {
+                errorPage.setErrorCode(errorPageInfo.errorCode);
+            }
+            context.addErrorPage(errorPage);
+        }
+
+        for (Map.Entry<String, String> localeEncodingMapping: webAppInfo.localeEncodingMappings.entrySet()) {
+            context.addLocaleEncodingMappingParameter(localeEncodingMapping.getKey(), localeEncodingMapping.getValue());
+        }
+        for (Map.Entry<String, String> mimeMapping: webAppInfo.mimeMappings.entrySet()) {
+            context.addMimeMapping(mimeMapping.getKey(), mimeMapping.getValue());
+        }
+        for (String welcomeFile: webAppInfo.welcomeFiles) {
+            context.addWelcomeFile(welcomeFile);
+        }
+        authenticatorConfig(webAppInfo.loginConfig);
+        context.setConfigured(true);
+    }
+
+    protected abstract void authenticatorConfig(LoginConfigInfo loginConfigInfo);
 
     protected void configureSecurity(StandardContext geronimoContext, String policyContextId, ConfigurationFactory configurationFactory, Subject defaultSubject, String authMethod, String realmName, String loginPage, String errorPage) {
         if (defaultSubject == null) {

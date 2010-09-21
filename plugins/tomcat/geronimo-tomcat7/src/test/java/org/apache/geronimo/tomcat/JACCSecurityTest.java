@@ -38,6 +38,8 @@ import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
+import org.apache.geronimo.web.info.LoginConfigInfo;
+import org.apache.geronimo.web.info.WebAppInfo;
 
 
 /**
@@ -55,7 +57,6 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
      * @throws Exception thrown if an error in the test occurs
      */
     public void testExplicitMapping() throws Exception {
-
         String securityRealmName = "demo-properties-realm";
         String defaultPrincipalId = "izumi";
         SubjectInfo defaultSubjectInfo = new SubjectInfo(securityRealmName, defaultPrincipalId);
@@ -161,12 +162,19 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         SecurityHolder securityHolder = new SecurityHolder();
         securityHolder.setSecurity(true);
         securityHolder.setPolicyContextID(POLICY_CONTEXT_ID);
+        WebAppInfo webAppInfo = new WebAppInfo();
+        webAppInfo.loginConfig = new LoginConfigInfo();
+        webAppInfo.loginConfig.authMethod = "FORM";
+        webAppInfo.loginConfig.realmName = "geronimo-admin";
+        webAppInfo.loginConfig.formLoginPage = "/auth/logon.html?param=test";
+        webAppInfo.loginConfig.formErrorPage = "/auth/logonError.html?param=test";
+
         return setUpSecureAppContext(roleDesignates,
                 principalRoleMap,
                 componentPermissions,
                 null,
-                securityHolder
-        );
+                securityHolder,
+                webAppInfo);
     }
 
     protected void stopWebApp() throws Exception {

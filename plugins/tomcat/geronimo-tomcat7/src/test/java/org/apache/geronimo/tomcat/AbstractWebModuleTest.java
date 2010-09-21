@@ -60,8 +60,8 @@ import org.apache.geronimo.tomcat.connector.Http11ConnectorGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.web.WebAttributeName;
-import org.apache.openejb.jee.JaxbJavaee;
-import org.apache.openejb.jee.WebApp;
+import org.apache.geronimo.web.info.ServletInfo;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.osgi.framework.Bundle;
 
 
@@ -82,7 +82,16 @@ public abstract class AbstractWebModuleTest extends TestSupport {
     protected GenericSecurityRealm realm;
     private Bundle bundle;
 
-    protected TomcatWebAppContext setUpInsecureAppContext(String relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, RunAsSource runAsSource, ObjectRetriever tomcatRealm, ValveGBean valveChain) throws Exception {
+    protected void setUpStaticContentServlet(WebAppInfo webAppInfo) throws Exception {
+        ServletInfo servletInfo = new ServletInfo();
+        servletInfo.servletName = "default";
+        servletInfo.servletClass = "org.apache.catalina.servlets.DefaultServlet";
+        servletInfo.servletMappings.add("/");
+        servletInfo.initParams.put("acceptRanges", "true");
+        webAppInfo.servlets.add(servletInfo);
+    }
+
+    protected TomcatWebAppContext setUpInsecureAppContext(String relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, RunAsSource runAsSource, ObjectRetriever tomcatRealm, ValveGBean valveChain, WebAppInfo webAppInfo) throws Exception {
         configurationBaseURL = cl.getResource("deployables/");
         URI locationURI = configurationBaseURL.toURI().resolve(relativeWebAppRoot);
         MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), locationURI.toString(), new HashMap<Artifact, ConfigurationData>(), null);
@@ -131,21 +140,26 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 (ApplicationPolicyConfigurationManager)runAsSource,   //applicationPolicyConfigurationManager
                 null,   //listenerClassNames
                 deploymentAttributes, //Map<String, String> deploymentAttributes
+                webAppInfo, //webAppinfo
                 null);  //kernel
         app.doStart();
         return app;
     }
 
-    protected TomcatWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, RealmGBean realm, SecurityHolder securityHolder) throws Exception {
+
+
+    protected TomcatWebAppContext setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, RealmGBean realm, SecurityHolder securityHolder, WebAppInfo webAppInfo) throws Exception {
         ApplicationPolicyConfigurationManager jacc = setUpJACC(roleDesignates, principalRoleMap, componentPermissions, POLICY_CONTEXT_ID);
         securityHolder.setConfigurationFactory(this.realm);
         URL configurationBaseURL = new File(BASEDIR, "src/test/resources/deployables/war3/WEB-INF/web.xml").toURI().toURL();
+        setUpStaticContentServlet(webAppInfo);
         return setUpInsecureAppContext("war3",
                 configurationBaseURL,
                 securityHolder,
                 jacc,
                 realm,
-                null);
+                null,
+                webAppInfo);
     }
 
     private ApplicationPolicyConfigurationManager setUpJACC(Map<String, SubjectInfo> roleDesignates, Map<Principal, Set<String>> principalRoleMap, ComponentPermissions componentPermissions,

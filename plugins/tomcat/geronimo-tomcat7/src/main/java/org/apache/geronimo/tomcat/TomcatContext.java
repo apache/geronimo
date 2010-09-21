@@ -23,6 +23,7 @@ import java.util.Set;
 
 import javax.transaction.UserTransaction;
 
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.tomcat.InstanceManager;
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
@@ -93,4 +94,6 @@ public interface TomcatContext {
     String getDeploymentDescriptor();
     
     Collection<String> getListeners();
+
+    WebAppInfo getWebAppInfo();
 }

@@ -28,6 +28,8 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.tomcat.security.Authorizer;
 import org.apache.geronimo.tomcat.security.jacc.JACCEJBWebServiceAuthorizer;
+import org.apache.geronimo.web.info.LoginConfigInfo;
+import org.apache.geronimo.web.info.WebAppInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -39,7 +41,8 @@ public class EjbWsContextConfig extends BaseGeronimoContextConfig {
     private final String authMethod;
     private final String realmName;
 
-    public EjbWsContextConfig(String policyContextId, ConfigurationFactory configurationFactory, Subject defaultSubject, String authMethod, String realmName) {
+    public EjbWsContextConfig(WebAppInfo webAppInfo, String policyContextId, ConfigurationFactory configurationFactory, Subject defaultSubject, String authMethod, String realmName) {
+        super(webAppInfo);
         this.policyContextId = policyContextId;
         this.configurationFactory = configurationFactory;
         this.defaultSubject = defaultSubject;
@@ -48,7 +51,7 @@ public class EjbWsContextConfig extends BaseGeronimoContextConfig {
     }
 
     @Override
-    protected void authenticatorConfig() {
+    protected void authenticatorConfig(LoginConfigInfo loginConfigInfo) {
         if (policyContextId == null || configurationFactory == null) {
             return;
         }
@@ -60,6 +63,7 @@ public class EjbWsContextConfig extends BaseGeronimoContextConfig {
                 authMethod, realmName, null, null);
     }
 
+    @Override
     protected Authorizer createAuthorizer(AccessControlContext defaultAcc) {
         return new JACCEJBWebServiceAuthorizer(defaultAcc);
     }

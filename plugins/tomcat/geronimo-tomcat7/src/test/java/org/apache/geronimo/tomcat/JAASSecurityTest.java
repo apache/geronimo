@@ -30,6 +30,8 @@ import javax.management.ObjectName;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.credentialstore.CredentialStore;
+import org.apache.geronimo.web.info.LoginConfigInfo;
+import org.apache.geronimo.web.info.WebAppInfo;
 
 /**
  * Tests the JAAS security for Tomcat
@@ -181,12 +183,19 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         securityHolder.setSecurity(false);//redundant: forces use of TomcatJAASRealm not TomcatGeronimoRealm
         securityHolder.setConfigurationFactory(this.realm);
         CredentialStore credentialStore = null;
+        WebAppInfo webAppInfo = new WebAppInfo();
+        webAppInfo.loginConfig = new LoginConfigInfo();
+        webAppInfo.loginConfig.authMethod = "FORM";
+        webAppInfo.loginConfig.realmName = "geronimo-admin";
+        webAppInfo.loginConfig.formLoginPage = "/auth/logon.html?param=test";
+        webAppInfo.loginConfig.formErrorPage = "/auth/logonError.html?param=test";
+
         setUpSecureAppContext(new HashMap(),
                 new HashMap(),
                 componentPermissions,
                 null,
-                securityHolder
-        );
+                securityHolder,
+                webAppInfo);
     }
 
     protected void stopWebApp() throws Exception {

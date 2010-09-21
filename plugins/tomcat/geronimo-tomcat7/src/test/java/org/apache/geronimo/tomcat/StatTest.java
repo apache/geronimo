@@ -23,6 +23,7 @@ import java.net.URL;
 
 import javax.management.j2ee.statistics.Statistic;
 import javax.management.j2ee.statistics.Stats;
+import org.apache.geronimo.web.info.WebAppInfo;
 
 /**
  * @version $Revision$ $Date$
@@ -32,8 +33,9 @@ public class StatTest extends AbstractWebModuleTest {
     //private ObjectName webModuleName;
 
     public void testStats() throws Exception {
-        TomcatWebAppContext webModule;
-        webModule = setUpInsecureAppContext("war1", null, null, null, null, null);
+        WebAppInfo webAppInfo = new WebAppInfo();
+        setUpStaticContentServlet(webAppInfo);
+        TomcatWebAppContext webModule = setUpInsecureAppContext("war1", null, null, null, null, null, webAppInfo);
             HttpURLConnection connection = (HttpURLConnection) new URL(connector.getConnectUrl() + "/test/hello.txt")
                     .openConnection();
             BufferedReader reader = null;

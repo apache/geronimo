@@ -67,6 +67,7 @@ import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.stats.ModuleStats;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
 import org.apache.naming.resources.DirContextURLStreamHandler;
@@ -132,6 +133,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private boolean reset = true;
 
     private final Valve clusteredValve;
+    private final WebAppInfo webAppInfo;
 
     public TomcatWebAppContext(
             @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
@@ -168,6 +170,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamReference(name = "applicationPolicyConfigurationManager") ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager,
             @ParamAttribute(name = "listenerClassNames") Collection<String> listenerClassNames,
             @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes,
+            @ParamAttribute(name = "webAppInfo") WebAppInfo webAppInfo,
             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel)
             throws Exception {
         assert classLoader != null;
@@ -185,6 +188,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         this.objectName = objectName;
         this.deploymentAttributes = deploymentAttributes;
+        this.webAppInfo = webAppInfo;
 //        URI root;
 ////        TODO is there a simpler way to do this?
 //        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
@@ -493,6 +497,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public Object getDeploymentAttribute(String name) {
         return deploymentAttributes.get(name);
     }
+
+    @Override
+    public WebAppInfo getWebAppInfo() {
+        return webAppInfo;
+    }
+
     /**
      * ObjectName must match this pattern: <p/>
      * domain:j2eeType=WebModule,name=MyName,J2EEServer=MyServer,J2EEApplication=MyApplication

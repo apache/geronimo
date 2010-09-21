@@ -19,33 +19,21 @@
 
 package org.apache.geronimo.tomcat;
 
-import java.io.StringReader;
-
-import org.apache.catalina.deploy.LoginConfig;
-import org.xml.sax.InputSource;
+import org.apache.geronimo.web.info.LoginConfigInfo;
+import org.apache.geronimo.web.info.WebAppInfo;
 
 /**
  * @version $Rev$ $Date$
  */
 public class WebContextConfig extends BaseGeronimoContextConfig {
     
-    private String deploymentDescriptor;
-    
-    public WebContextConfig(String deploymentDescriptor) {
-        this.deploymentDescriptor = deploymentDescriptor;
+    public WebContextConfig(WebAppInfo webAppInfo) {
+        super(webAppInfo);
     }
     
+
     @Override
-    protected InputSource getContextWebXmlSource() {
-        if (deploymentDescriptor == null) {
-            return super.getContextWebXmlSource();
-        } else {
-            return new InputSource(new StringReader(deploymentDescriptor));
-        }
-    }
-    
-    @Override
-    protected void authenticatorConfig() {
+    protected void authenticatorConfig(LoginConfigInfo loginConfig) {
         if (!(context instanceof GeronimoStandardContext)) {
             throw new IllegalStateException("Unexpected context type");
         }
@@ -56,23 +44,18 @@ public class WebContextConfig extends BaseGeronimoContextConfig {
         if (geronimoContext.getDefaultSubject() == null) {
             return;
         }
-        LoginConfig loginConfig = context.getLoginConfig();
         if (loginConfig == null) {
-            loginConfig = new LoginConfig();
+            loginConfig = new LoginConfigInfo();
         }
-        String authMethod = loginConfig.getAuthMethod();
-        String realmName = loginConfig.getRealmName();
-        String loginPage = loginConfig.getLoginPage();
-        String errorPage = loginConfig.getErrorPage();
 
         configureSecurity(geronimoContext,
                 geronimoContext.getPolicyContextId(),
                 geronimoContext.getConfigurationFactory(),
                 geronimoContext.getDefaultSubject(),
-                authMethod,
-                realmName,
-                loginPage,
-                errorPage);
+                loginConfig.authMethod,
+                loginConfig.realmName,
+                loginConfig.formLoginPage,
+                loginConfig.formErrorPage);
     }
     
 }

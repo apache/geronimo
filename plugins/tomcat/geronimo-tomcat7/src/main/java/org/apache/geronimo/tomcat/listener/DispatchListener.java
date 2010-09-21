@@ -48,6 +48,16 @@ public class DispatchListener implements InstanceListener {
 
     public void instanceEvent(InstanceEvent event) {
 
+        if (event.getType().equals(InstanceEvent.BEFORE_SERVICE_EVENT)) {
+            String oldWrapperName = JACCRealm.setRequestWrapperName(event.getWrapper().getName());
+            currentContext.get().push(new Object[] {oldWrapperName });
+        }
+
+        if (event.getType().equals(InstanceEvent.AFTER_SERVICE_EVENT)) {
+            JACCRealm.setRequestWrapperName((String) currentContext.get().pop()[0]);
+        }
+
+
         if (event.getType().equals(InstanceEvent.BEFORE_DISPATCH_EVENT)) {
             Container parent = event.getWrapper().getParent();
             if (parent instanceof GeronimoStandardContext) {
