@@ -30,6 +30,7 @@
                     </dependency>
                 </dependencies>
                 <import-package>javax.validation</import-package>
+                <import-package>org.apache.bval.jsr303</import-package>
             </environment>
         </xml-attribute>
     </gbean>
