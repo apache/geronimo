@@ -29,7 +29,6 @@ import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import javax.servlet.Filter;
@@ -110,12 +109,14 @@ public class GeronimoWebAppContext extends WebAppContext {
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);
         ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
         try {
+            setRestrictListeners(false);
             try {
                 Assembler assembler = new Assembler();
                 assembler.assemble(getServletContext(), webAppInfo);
                 super.doStart();
                 fullyStarted = true;
             } finally {
+                setRestrictListeners(true);
                 integrationContext.restoreConnectorContext(connectorContext, null, newContext);
             }
         } finally {
@@ -255,31 +256,6 @@ public class GeronimoWebAppContext extends WebAppContext {
     }
 
     public class Context extends WebAppContext.Context {
-
-        /**
-         * This is copied from jetty so we can override the restriction on event listeners.
-         * TODO consider talking to jetty about making this more flexible there.
-         * @param listenerClass class of desired listener
-         */
-        @Override
-        public void addListener(Class<? extends EventListener> listenerClass)
-        {
-            if (!_enabled)
-                throw new UnsupportedOperationException();
-
-            try
-            {
-                EventListener e = createListener(listenerClass);
-                GeronimoWebAppContext.this.addEventListener(e);
-                if (fullyStarted) {
-                    GeronimoWebAppContext.this.restrictEventListener(e);
-                }
-            }
-            catch (ServletException e)
-            {
-                throw new IllegalArgumentException(e);
-            }
-        }
 
         @Override
         public <T extends Filter> T createFilter(Class<T> c) throws ServletException {
