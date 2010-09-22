@@ -71,7 +71,6 @@
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
-                 <attribute name="mode">basic</attribute>
             </gbean>
             <gbean name="ServerInfo" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">1-1/Server/Information</attribute>
@@ -81,7 +80,6 @@
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
-                <attribute name="mode">basic</attribute>
             </gbean>
             <gbean name="JavaSysInfo" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">1-2/Server/Java System Info</attribute>
@@ -91,7 +89,6 @@
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
-                <attribute name="mode">advance</attribute>
             </gbean>
             <gbean name="Logs" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">1-3/Server/Server Logs</attribute>
@@ -101,7 +98,6 @@
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
-                 <attribute name="mode">advance</attribute>
             </gbean>
             <gbean name="Shutdown" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">1-4/Server/Shutdown</attribute>
@@ -165,7 +161,6 @@
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
-                <attribute name="mode">basic</attribute>
             </gbean>
             <gbean name="SystemModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">3-2/Applications/System Modules</attribute>
