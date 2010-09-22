@@ -39,10 +39,12 @@ limitations under the License.
 
 <%
     NavigationJsonGenerator generator = new NavigationJsonGenerator(request.getLocale());
-    String treeJson = generator.generateTreeJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif");
-    String treeJsonBasic = generator.generateTreeJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif","basic");
-    String listJson = generator.generateQuickLauncherJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif");
+    String treeJson = generator.generateTreeJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif", "all", 8);
+    String treeJsonBasic = generator.generateTreeJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif","basic", 8);
+    String listJson = generator.generateQuickLauncherJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif", "all");
     String listJsonBasic = generator.generateQuickLauncherJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif","basic");
+    boolean isBasicTreeHasValidItem=generator.isTreeHasValidItem(pageConfigList,"basic");
+
 %>
 
 <table class="tundra" width="200px" border="0" cellpadding="0" cellspacing="0">
@@ -50,8 +52,11 @@ limitations under the License.
         <td CLASS="ReallyDarkBackground"><strong>&nbsp;<fmt:message    key="Console Navigation"/></strong></td>
     </tr>
     <tr>
-        <td>&nbsp;<input type="radio" name="mode" id ="mode" checked="checked" onclick="changeMode()"/><fmt:bundle basename="portaldriver"><fmt:message key="console.mode.basic"/></fmt:bundle>
+        <td>
+		<div id="modeSwitcher" class="<%=isBasicTreeHasValidItem?"modeSwitcher":"hidden"%>">
+		&nbsp;<input type="radio" name="mode" id ="mode" checked="checked" onclick="changeMode()"/><fmt:bundle basename="portaldriver"><fmt:message key="console.mode.basic"/></fmt:bundle>
                   <input type="radio"  name="mode" id ="mode" onclick="changeMode()"/><fmt:bundle basename="portaldriver"><fmt:message key="console.mode.advanced"/></fmt:bundle>
+				  </div>
         </td>
     </tr>
     <tr><td>&nbsp;&nbsp;</td></tr>
@@ -59,7 +64,12 @@ limitations under the License.
         <td>&nbsp;&nbsp;<input id="quickLauncher"></td>
     </tr>
     <tr>
-        <td>&nbsp;&nbsp;<div id="navigationTreeBasic"></div><div id="navigationTreeAdvanced"></div>
+        <td>&nbsp;&nbsp;
+			<div id="navigationTreeBasic">
+			
+			
+			</div>
+			<div id="navigationTreeAdvanced"></div>
         </td>
     </tr>
 </table>
@@ -107,5 +117,14 @@ limitations under the License.
             items: listDataBasic
             }
      });
-    dojo.addOnLoad(function() { createNavigationTree(treeStoreBasic,listStoreBasic,"basic"); });
+     
+     <% if(isBasicTreeHasValidItem) {%>
+   
+		dojo.addOnLoad(function() { createNavigationTree(treeStoreBasic,listStoreBasic,"basic"); });
+    
+	<%} else {%>
+    
+		dojo.addOnLoad(function() { createNavigationTree(treeStore,listStore,"advanced"); });
+   
+   <% }%>
 </script>

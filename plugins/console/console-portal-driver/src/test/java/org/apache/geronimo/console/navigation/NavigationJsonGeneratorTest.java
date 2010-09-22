@@ -25,18 +25,18 @@ import junit.framework.TestCase;
 import org.apache.geronimo.pluto.impl.PageConfig;
 
 /*
-* @version $Rev$ $Date$
-*/
+ * @version $Rev$ $Date$
+ */
 public class NavigationJsonGeneratorTest extends TestCase {
 
     NavigationJsonGenerator navigationJsonGenerator;
     List<PageConfig> pageList;
-    
+
     protected void setUp() throws Exception {
         super.setUp();
-        
-        navigationJsonGenerator=new NavigationJsonGenerator(null);
-        
+
+        navigationJsonGenerator = new NavigationJsonGenerator(null);
+
         pageList = new ArrayList<PageConfig>();
         PageConfig pc = new PageConfig();
 
@@ -52,7 +52,6 @@ public class NavigationJsonGeneratorTest extends TestCase {
         pc.setUri("/server/serverlog");
         pageList.add(pc);
 
-        
         pc = new PageConfig();
         pc.setIcon("/images/ico_deploy_16x16.gif");
         pc.setName("2-2-1/cat2/cat2-1/item2-2-1");
@@ -65,28 +64,35 @@ public class NavigationJsonGeneratorTest extends TestCase {
         pc.setName("1-2/cat1/item1-2");
         pc.setUri("/server/serverlog");
         pageList.add(pc);
-    
 
-        
     }
 
     public void testGenerateTreeJSON() {
         System.out.println("testGenerateTreeJSON() ------ ");
-        String json=navigationJsonGenerator.generateTreeJSON(pageList, "console", "/images/ico_deploy_16x16.gif");
-        
-        String expected="[\n{label: \'cat1\',id: \'1\',children: [{label: \'cat1-1\',id: \'1-1\',children: [{label: \'cat1-1-1\',id: \'1-1-1\',children: [{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/1-1-1-1/cat1/cat1-1/cat1-1-1/item1-1-1-1\">item1-1-1-1</a>\',id: \'1-1-1-1\'}]\n}]\n},{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/1-2/cat1/item1-2\">item1-2</a>\',id: \'1-2\'}]\n},\n{label: \'cat2\',id: \'2\',children: [{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/2-2/cat2/item2-2\">item2-2</a>\',id: \'2-2\'}]\n}\n]";
-       
+        String json = navigationJsonGenerator.generateTreeJSON(pageList, "console", "/images/ico_deploy_16x16.gif",
+                "all", 3);
+
+        String expected = "[\n{label: \'cat1\',id: \'1\',children: [{label: \'cat1-1\',id: \'1-1\',children: [{label: \'cat1-1-1\',id: \'1-1-1\',children: [{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/1-1-1-1/cat1/cat1-1/cat1-1-1/item1-1-1-1\">item1-1-1-1</a>\',id: \'1-1-1-1\'}]\n}]\n},{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/1-2/cat1/item1-2\">item1-2</a>\',id: \'1-2\'}]\n},\n{label: \'cat2\',id: \'2\',children: [{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/2-2/cat2/item2-2\">item2-2</a>\',id: \'2-2\'}]\n}\n]";
+
         System.out.println(json);
-        Assert.assertEquals(expected,json);
+        Assert.assertEquals(expected, json);
+
+        json = navigationJsonGenerator.generateTreeJSON(pageList, "console", "/images/ico_deploy_16x16.gif", "all", 5);
+
+        expected = "[\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/1-1-1-1/cat1/cat1-1/cat1-1-1/item1-1-1-1\">item1-1-1-1</a>\',id: \'1-1-1-1\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/1-2/cat1/item1-2\">item1-2</a>\',id: \'1-2\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/2-2/cat2/item2-2\">item2-2</a>\',id: \'2-2\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\" alt=\"\" border=\"0\">&nbsp;<a href=\"console/portal/2-2-1/cat2/cat2-1/item2-2-1\">item2-2-1</a>\',id: \'2-2-1\'}\n]";
+        System.out.println(json);
+        Assert.assertEquals(expected, json);
+
     }
-    
+
     public void testGenerateQuickLauncherJSON() {
         System.out.println("testGenerateQuickLauncherJSON() ------ ");
-        String json=navigationJsonGenerator.generateQuickLauncherJSON(pageList, "console", "/images/ico_deploy_16x16.gif");
-        String expected="[\n\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item1-1-1-1</span>\',name: \'item1-1-1-1\',href:\'console/portal/1-1-1-1/cat1/cat1-1/cat1-1-1/item1-1-1-1'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item1-2</span>\',name: \'item1-2\',href:\'console/portal/1-2/cat1/item1-2\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item2-2</span>\',name: \'item2-2\',href:\'console/portal/2-2/cat2/item2-2\'}\n]";
-       
+        String json = navigationJsonGenerator.generateQuickLauncherJSON(pageList, "console",
+                "/images/ico_deploy_16x16.gif", "all");
+        String expected = "[\n\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item1-1-1-1</span>\',name: \'item1-1-1-1\',href:\'console/portal/1-1-1-1/cat1/cat1-1/cat1-1-1/item1-1-1-1'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item1-2</span>\',name: \'item1-2\',href:\'console/portal/1-2/cat1/item1-2\'},\n{label: \'<img src=\"console/images/ico_deploy_16x16.gif\">&nbsp;<span>item2-2</span>\',name: \'item2-2\',href:\'console/portal/2-2/cat2/item2-2\'}\n]";
+
         System.out.println(json);
-        Assert.assertEquals(expected,json);
+        Assert.assertEquals(expected, json);
 
     }
 }
