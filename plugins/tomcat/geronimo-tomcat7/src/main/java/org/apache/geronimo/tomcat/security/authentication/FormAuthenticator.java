@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.Locale;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,12 +69,12 @@ public class FormAuthenticator implements Authenticator {
         this.erroryPage = erroryPage;
     }
 
-    public AuthResult validateRequest(Request request, Response response, boolean isAuthMandatory) throws ServerAuthException {
+    public AuthResult validateRequest(Request request, HttpServletResponse response, boolean isAuthMandatory, UserIdentity cachedIdentity) throws ServerAuthException {
         try {
             Session session = request.getSessionInternal(isAuthMandatory);
             if (session == null) {
                 //default identity??
-                return new AuthResult(TomcatAuthStatus.SUCCESS, null);
+                return new AuthResult(TomcatAuthStatus.SUCCESS, null, false);
             }
             if (matchRequest(request, session)) {
                 //            if (log.isDebugEnabled())
@@ -99,12 +100,11 @@ public class FormAuthenticator implements Authenticator {
 //                    if (log.isDebugEnabled())
 //                        log.debug("Restore of original request failed");
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-                    return new AuthResult(TomcatAuthStatus.SEND_FAILURE, null);
+                    return new AuthResult(TomcatAuthStatus.SEND_FAILURE, null, false);
                 }
             }
-            UserIdentity userIdentity = (UserIdentity) session.getNote(Constants.FORM_PRINCIPAL_NOTE);
-            if (userIdentity != null) {
-                return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity);
+            if (cachedIdentity != null) {
+                return new AuthResult(TomcatAuthStatus.SUCCESS, cachedIdentity, true);
             }
 
             //we have not yet completed authentication.
@@ -114,7 +114,6 @@ public class FormAuthenticator implements Authenticator {
             uriCC.setLimit(-1);
             String contextPath = request.getContextPath();
             String requestURI = request.getDecodedRequestURI();
-            response.setContext(request.getContext());
 
             // Is this the action request from the login page?
             boolean loginAction =
@@ -127,7 +126,7 @@ public class FormAuthenticator implements Authenticator {
 //                if (log.isDebugEnabled())
 //                    log.debug("Save request in session '" + session.getIdInternal() + "'");
                 if (!isAuthMandatory) {
-                    return new AuthResult(TomcatAuthStatus.SUCCESS, null);
+                    return new AuthResult(TomcatAuthStatus.SUCCESS, null, false);
                 }
                 try {
                     saveRequest(request, session);
@@ -135,10 +134,10 @@ public class FormAuthenticator implements Authenticator {
 //                    log.debug("Request body too big to save during authentication");
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST,
                             sm.getString("authenticator.requestBodyTooBig"));
-                    return new AuthResult(TomcatAuthStatus.SEND_FAILURE, null);
+                    return new AuthResult(TomcatAuthStatus.SEND_FAILURE, null, false);
                 }
                 forwardToLoginPage(request, response);
-                return new AuthResult(TomcatAuthStatus.SEND_CONTINUE, unauthenticatedIdentity);
+                return new AuthResult(TomcatAuthStatus.SEND_CONTINUE, unauthenticatedIdentity, false);
             }
 
             // Yes -- Validate the specified credentials and redirect
@@ -150,12 +149,12 @@ public class FormAuthenticator implements Authenticator {
             String password = request.getParameter(Constants.FORM_PASSWORD);
 //            if (log.isDebugEnabled())
 //                log.debug("Authenticating username '" + username + "'");
-            userIdentity = loginService.login(username, password);
+            UserIdentity userIdentity = loginService.login(username, password);
             if (userIdentity == null) {
 //                if (isAuthMandatory) {
-                    forwardToErrorPage(request, response);
-                    //TODO right status?
-                    return new AuthResult(TomcatAuthStatus.SEND_FAILURE, unauthenticatedIdentity);
+                forwardToErrorPage(request, response);
+                //TODO right status?
+                return new AuthResult(TomcatAuthStatus.SEND_FAILURE, unauthenticatedIdentity, false);
 //                } else {
 //                    userIdentity = unauthenticatedIdentity;
 //                }
@@ -164,23 +163,15 @@ public class FormAuthenticator implements Authenticator {
 //            if (log.isDebugEnabled())
 //                log.debug("Authentication of '" + username + "' was successful");
 
-            if (session == null)
-                session = request.getSessionInternal(false);
+            session = request.getSessionInternal(false);
             if (session == null) {
 //                if (containerLog.isDebugEnabled())
 //                    containerLog.debug
 //                        ("User took so long to log on the session expired");
                 response.sendError(HttpServletResponse.SC_REQUEST_TIMEOUT,
                         sm.getString("authenticator.sessionExpired"));
-                return new AuthResult(TomcatAuthStatus.SEND_FAILURE, unauthenticatedIdentity);
+                return new AuthResult(TomcatAuthStatus.SEND_FAILURE, unauthenticatedIdentity, false);
             }
-
-            // Save the authenticated Principal in our session
-            session.setNote(Constants.FORM_PRINCIPAL_NOTE, userIdentity);
-
-            // Save the username and password as well
-            session.setNote(Constants.SESS_USERNAME_NOTE, username);
-            session.setNote(Constants.SESS_PASSWORD_NOTE, password);
 
             // Redirect the user to the original request URI (which will cause
             // the original request to be restored)
@@ -190,10 +181,10 @@ public class FormAuthenticator implements Authenticator {
             if (requestURI == null) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST,
                         sm.getString("authenticator.formlogin"));
-                return new AuthResult(TomcatAuthStatus.SEND_FAILURE, null);
+                return new AuthResult(TomcatAuthStatus.SEND_FAILURE, null, false);
             } else {
                 response.sendRedirect(response.encodeRedirectURL(requestURI));
-                return new AuthResult(TomcatAuthStatus.SEND_CONTINUE, userIdentity);
+                return new AuthResult(TomcatAuthStatus.SEND_CONTINUE, userIdentity, true);
             }
         } catch (IOException e) {
             throw new ServerAuthException(e);
@@ -215,12 +206,12 @@ public class FormAuthenticator implements Authenticator {
      * @param request  Request we are processing
      * @param response Response we are creating
      */
-    protected void forwardToLoginPage(Request request, Response response) {
+    protected void forwardToLoginPage(Request request, HttpServletResponse response) {
         RequestDispatcher disp = request.getRequestDispatcher(loginPage);
         try {
-            disableClientCache(response.getResponse());
-            disp.forward(request.getRequest(), response.getResponse());
-            response.finishResponse();
+            disableClientCache(response);
+            disp.forward(request.getRequest(), response);
+            response.flushBuffer();
         } catch (Throwable t) {
 //            log.warn("Unexpected error forwarding to login page", t);
         }
@@ -233,12 +224,12 @@ public class FormAuthenticator implements Authenticator {
      * @param request  Request we are processing
      * @param response Response we are creating
      */
-    protected void forwardToErrorPage(Request request, Response response) {
+    protected void forwardToErrorPage(Request request, HttpServletResponse response) {
         RequestDispatcher disp = request.getRequestDispatcher(erroryPage);
         try {
-            disableClientCache(response.getResponse());
-            disp.forward(request.getRequest(), response.getResponse());
-            response.finishResponse();
+            disableClientCache(response);
+            disp.forward(request.getRequest(), response);
+            response.flushBuffer();
         } catch (Throwable t) {
 //            log.warn("Unexpected error forwarding to error page", t);
         }
@@ -443,4 +434,18 @@ public class FormAuthenticator implements Authenticator {
         response.setHeader("Cache-Control", "No-cache");
         response.setDateHeader("Expires", 1);
     }
+
+    @Override
+    public AuthResult login(String username, String password, Request request) throws ServletException {
+        UserIdentity userIdentity = loginService.login(username, password);
+        if (userIdentity != null) {
+            return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity, true);
+        }
+        return new AuthResult(TomcatAuthStatus.FAILURE, null, false);
+    }
+
+    @Override
+    public void logout(Request request) {
+    }
+
 }

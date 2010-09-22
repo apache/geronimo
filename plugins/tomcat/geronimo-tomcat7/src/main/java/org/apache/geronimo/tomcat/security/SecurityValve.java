@@ -24,15 +24,20 @@ import java.io.IOException;
 import java.security.Principal;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.Session;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.valves.ValveBase;
 
 /**
  * @version $Rev$ $Date$
  */
-public class SecurityValve extends ValveBase {
+public class SecurityValve extends ValveBase implements org.apache.catalina.Authenticator {
+
+    public final static String CACHED_IDENTITY_KEY = "org.apache.geronimo.jaspic.servlet.cachedIdentity";
 
     private final Authenticator authenticator;
     private final Authorizer authorizer;
@@ -59,32 +64,25 @@ public class SecurityValve extends ValveBase {
         boolean isAuthMandatory = authorizer.isAuthMandatory(request, constraints);
 
         try {
-            AuthResult authResult = authenticator.validateRequest(request, response, isAuthMandatory);
+            AuthResult authResult = authenticator.validateRequest(request, response, isAuthMandatory, getCachedIdentity(request));
 
             TomcatAuthStatus authStatus = authResult.getAuthStatus();
 
             if (authStatus == TomcatAuthStatus.FAILURE) {
-                return;
             } else if (authStatus == TomcatAuthStatus.SEND_CONTINUE) {
-                return;
+                cacheIdentity(request, authResult);
             } else if (authStatus == TomcatAuthStatus.SEND_FAILURE) {
-                return;
             } else if (authStatus == TomcatAuthStatus.SEND_SUCCESS) {
-                return;
             } else if (authStatus == TomcatAuthStatus.SUCCESS) {
-                request.setAuthType(authenticator.getAuthType());
-                UserIdentity userIdentity = authResult.getUserIdentity();
-                Principal principal = userIdentity == null? null: userIdentity.getUserPrincipal();
-                request.setUserPrincipal(principal);
+                Object previous = doSuccess(request, authResult);
                 if (isAuthMandatory) {
-                    if (!authorizer.hasResourcePermissions(request, authResult, constraints, userIdentity)) {
+                    if (!authorizer.hasResourcePermissions(request, authResult, constraints, authResult.getUserIdentity())) {
                         if (!response.isError()) {
                             response.sendError(Response.SC_FORBIDDEN);
                         }
                         return;
                     }
                 }
-                Object previous = identityService.associate(userIdentity);
                 try {
                     getNext().invoke(request, response);
                 } finally {
@@ -102,4 +100,75 @@ public class SecurityValve extends ValveBase {
 
 
     }
+
+    private Object doSuccess(Request request, AuthResult authResult) {
+        cacheIdentity(request, authResult);
+        UserIdentity userIdentity = authResult.getUserIdentity();
+        Principal principal = userIdentity == null? null: userIdentity.getUserPrincipal();
+        if (principal != null) {
+            request.setAuthType(authenticator.getAuthType());
+            request.setUserPrincipal(principal);
+        }
+        return identityService.associate(userIdentity);
+    }
+
+    private void cacheIdentity(Request request, AuthResult authResult) {
+        UserIdentity userIdentity = authResult.getUserIdentity();
+        if (userIdentity != null && authResult.isContainerCaching()) {
+            Session session = request.getSessionInternal(true);
+            session.setNote(CACHED_IDENTITY_KEY, userIdentity);
+        }
+    }
+
+    private UserIdentity getCachedIdentity(Request request) {
+        Session session = request.getSessionInternal(false);
+        return session == null? null: (UserIdentity)session.getNote(CACHED_IDENTITY_KEY);
+
+    }
+
+    @Override
+    public boolean authenticate(Request request, HttpServletResponse response, LoginConfig config) throws IOException {
+        try {
+            //this call is the user program requesting authentication,
+            // so auth was not declaratively mandatory for this request, but is mandatory now.
+            AuthResult authResult = authenticator.validateRequest(request, response, true, getCachedIdentity(request));
+            TomcatAuthStatus authStatus = authResult.getAuthStatus();
+            if (TomcatAuthStatus.SUCCESS.equals(authStatus)) {
+                doSuccess(request, authResult);
+                return true;
+            }
+            return false;
+        } catch (ServerAuthException e) {
+            throw new IOException(e.getMessage(), e.getCause());
+        }
+    }
+
+    @Override
+    public void register(Request request, HttpServletResponse response, Principal principal, String authType, String username, String password) {
+        //we don't do this, session tracking is done by the jaspic authenticators
+        throw new IllegalStateException("should not be called in geronimo integration");
+    }
+
+    @Override
+    public void login(String username, String password, Request request) throws ServletException {
+        AuthResult authResult = authenticator.login(username, password, request);
+        TomcatAuthStatus authStatus = authResult.getAuthStatus();
+
+        if (authStatus == TomcatAuthStatus.SUCCESS) {
+            doSuccess(request, authResult);
+        } else {
+            throw new ServletException("Could not log in");
+        }
+    }
+
+    @Override
+    public void logout(Request request) throws ServletException {
+        authenticator.logout(request);
+        Session session = request.getSessionInternal(false);
+        if (session != null) {
+            session.removeNote(CACHED_IDENTITY_KEY);
+        }
+        identityService.associate(null);
+    }
+
 }

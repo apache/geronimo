@@ -22,6 +22,7 @@ package org.apache.geronimo.tomcat.security.authentication;
 
 import java.io.IOException;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,10 +30,10 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.util.Base64;
 import org.apache.geronimo.tomcat.security.AuthResult;
-import org.apache.geronimo.tomcat.security.TomcatAuthStatus;
 import org.apache.geronimo.tomcat.security.Authenticator;
 import org.apache.geronimo.tomcat.security.LoginService;
 import org.apache.geronimo.tomcat.security.ServerAuthException;
+import org.apache.geronimo.tomcat.security.TomcatAuthStatus;
 import org.apache.geronimo.tomcat.security.UserIdentity;
 import org.apache.tomcat.util.buf.ByteChunk;
 import org.apache.tomcat.util.buf.CharChunk;
@@ -72,7 +73,7 @@ public class BasicAuthenticator implements Authenticator {
         this.unauthenticatedIdentity = unauthenticatedIdentity;
     }
 
-    public AuthResult validateRequest(Request request, Response response, boolean isAuthMandatory) throws ServerAuthException {
+    public AuthResult validateRequest(Request request, HttpServletResponse response, boolean isAuthMandatory, UserIdentity cachedIdentity) throws ServerAuthException {
         // Validate any credentials already included with this request
         String username = null;
         String password = null;
@@ -108,7 +109,7 @@ public class BasicAuthenticator implements Authenticator {
 
             UserIdentity userIdentity = loginService.login(username, password);
             if (userIdentity != null) {
-                return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity);
+                return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity, false);
             }
         }
 
@@ -116,21 +117,18 @@ public class BasicAuthenticator implements Authenticator {
         // Send an "unauthorized" response and an appropriate challenge
         if (isAuthMandatory) {
             try {
-                MessageBytes authenticate =
-                        response.getCoyoteResponse().getMimeHeaders()
-                        .addValue(AUTHENTICATE_BYTES, 0, AUTHENTICATE_BYTES.length);
-                CharChunk authenticateCC = authenticate.getCharChunk();
+                StringBuffer authenticateCC = new StringBuffer();
                 authenticateCC.append("Basic realm=\"");
                 authenticateCC.append((realmName == null) ? "<unspecified>" : realmName);
                 authenticateCC.append('\"');
-                authenticate.toChars();
+                response.addHeader(new String(AUTHENTICATE_BYTES), authenticateCC.toString());
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                return new AuthResult(TomcatAuthStatus.SEND_CONTINUE, null);
+                return new AuthResult(TomcatAuthStatus.SEND_CONTINUE, null, false);
             } catch (IOException e) {
                 throw new ServerAuthException(e);
             }
         }
-        return new AuthResult(TomcatAuthStatus.SUCCESS, unauthenticatedIdentity);
+        return new AuthResult(TomcatAuthStatus.SUCCESS, unauthenticatedIdentity, false);
     }
 
     public boolean secureResponse(Request request, Response response, AuthResult authResult) {
@@ -139,5 +137,18 @@ public class BasicAuthenticator implements Authenticator {
 
     public String getAuthType() {
         return HttpServletRequest.BASIC_AUTH;
+    }
+
+    @Override
+    public AuthResult login(String username, String password, Request request) throws ServletException {
+        UserIdentity userIdentity = loginService.login(username, password);
+        if (userIdentity != null) {
+            return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity, false);
+        }
+        return new AuthResult(TomcatAuthStatus.FAILURE, null, false);
+    }
+
+    @Override
+    public void logout(Request request) {
     }
 }

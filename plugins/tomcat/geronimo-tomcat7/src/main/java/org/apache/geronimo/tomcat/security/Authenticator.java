@@ -20,6 +20,9 @@
 
 package org.apache.geronimo.tomcat.security;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 
@@ -29,9 +32,13 @@ import org.apache.catalina.connector.Response;
  */
 public interface Authenticator {
 
-    AuthResult validateRequest(Request request, Response response, boolean isAuthMandatory) throws ServerAuthException;
+    AuthResult validateRequest(Request request, HttpServletResponse response, boolean isAuthMandatory, UserIdentity cachedIdentity) throws ServerAuthException;
 
     boolean secureResponse(Request request, Response response, AuthResult authResult) throws ServerAuthException;
 
     String getAuthType();
+
+    AuthResult login(String username, String password, Request request) throws ServletException;
+
+    void logout(Request request) throws ServletException;
 }

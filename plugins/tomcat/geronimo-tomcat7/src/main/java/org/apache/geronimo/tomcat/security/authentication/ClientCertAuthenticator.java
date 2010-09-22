@@ -23,6 +23,7 @@ package org.apache.geronimo.tomcat.security.authentication;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -55,7 +56,7 @@ public class ClientCertAuthenticator implements Authenticator {
         this.unauthenticatedIdentity = unauthenticatedIdentity;
     }
 
-    public AuthResult validateRequest(Request request, Response response, boolean isAuthMandatory) throws ServerAuthException {
+    public AuthResult validateRequest(Request request, HttpServletResponse response, boolean isAuthMandatory, UserIdentity cachedIdentity) throws ServerAuthException {
         X509Certificate certs[] = (X509Certificate[])
             request.getAttribute(Globals.CERTIFICATES_ATTR);
         if ((certs == null) || (certs.length < 1)) {
@@ -69,26 +70,26 @@ public class ClientCertAuthenticator implements Authenticator {
                 if (isAuthMandatory) {
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST,
                                    sm.getString("authenticator.certificates"));
-                    return new AuthResult(TomcatAuthStatus.SEND_FAILURE, null);
+                    return new AuthResult(TomcatAuthStatus.SEND_FAILURE, null, false);
                 } else {
-                    return new AuthResult(TomcatAuthStatus.SUCCESS, unauthenticatedIdentity);
+                    return new AuthResult(TomcatAuthStatus.SUCCESS, unauthenticatedIdentity, false);
                 }
             }
 
             // Authenticate the specified certificate chain
             UserIdentity userIdentity = loginService.login(certs);
             if (userIdentity != null) {
-                return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity);
+                return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity, true);
             }
             if (isAuthMandatory) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
                                    sm.getString("authenticator.unauthorized"));
-                return new AuthResult(TomcatAuthStatus.SEND_CONTINUE, null);
+                return new AuthResult(TomcatAuthStatus.SEND_CONTINUE, null, false);
             }
         } catch (IOException e) {
             throw new ServerAuthException(e);
         }
-        return new AuthResult(TomcatAuthStatus.SUCCESS, unauthenticatedIdentity);
+        return new AuthResult(TomcatAuthStatus.SUCCESS, unauthenticatedIdentity, false);
     }
 
     public boolean secureResponse(Request request, Response response, AuthResult authResult) throws ServerAuthException {
@@ -98,4 +99,18 @@ public class ClientCertAuthenticator implements Authenticator {
     public String getAuthType() {
         return HttpServletRequest.CLIENT_CERT_AUTH;
     }
+
+    @Override
+    public AuthResult login(String username, String password, Request request) throws ServletException {
+        UserIdentity userIdentity = loginService.login(username, password);
+        if (userIdentity != null) {
+            return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity, true);
+        }
+        return new AuthResult(TomcatAuthStatus.FAILURE, null, false);
+    }
+
+    @Override
+    public void logout(Request request) {
+    }
+    
 }

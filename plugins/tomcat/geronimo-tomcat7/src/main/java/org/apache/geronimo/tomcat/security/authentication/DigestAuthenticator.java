@@ -25,6 +25,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.StringTokenizer;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -73,12 +74,12 @@ public class DigestAuthenticator implements Authenticator {
         this.unauthenticatedIdentity = unauthenticatedIdentity;
     }
 
-    public AuthResult validateRequest(Request request, Response response, boolean isAuthMandatory) throws ServerAuthException {
+    public AuthResult validateRequest(Request request, HttpServletResponse response, boolean isAuthMandatory, UserIdentity cachedIdentity) throws ServerAuthException {
         String authorization = request.getHeader("authorization");
         if (authorization != null) {
             UserIdentity userIdentity = findPrincipal(request, authorization);
             if (userIdentity != null) {
-                return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity);
+                return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity, false);
             }
         }
 
@@ -97,9 +98,9 @@ public class DigestAuthenticator implements Authenticator {
             } catch (IOException e) {
                 throw new ServerAuthException(e);
             }
-            return new AuthResult(TomcatAuthStatus.SEND_CONTINUE, null);
+            return new AuthResult(TomcatAuthStatus.SEND_CONTINUE, null, false);
         }
-        return new AuthResult(TomcatAuthStatus.SUCCESS, unauthenticatedIdentity);
+        return new AuthResult(TomcatAuthStatus.SUCCESS, unauthenticatedIdentity, false);
 
     }
 
@@ -305,7 +306,7 @@ public class DigestAuthenticator implements Authenticator {
      * @param nOnce    nonce token
      */
     protected void setAuthenticateHeader(
-            Response response,
+            HttpServletResponse response,
             String nOnce) {
 
         // Get the realm name
@@ -321,4 +322,17 @@ public class DigestAuthenticator implements Authenticator {
 
     }
 
+    @Override
+    public AuthResult login(String username, String password, Request request) throws ServletException {
+        UserIdentity userIdentity = loginService.login(username, password);
+        if (userIdentity != null) {
+            return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity, false);
+        }
+        return new AuthResult(TomcatAuthStatus.FAILURE, null, false);
+    }
+
+    @Override
+    public void logout(Request request) {
+    }
+    
 }

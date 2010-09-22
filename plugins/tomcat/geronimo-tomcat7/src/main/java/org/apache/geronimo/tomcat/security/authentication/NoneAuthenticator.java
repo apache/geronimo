@@ -20,13 +20,16 @@
 
 package org.apache.geronimo.tomcat.security.authentication;
 
-import org.apache.geronimo.tomcat.security.Authenticator;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.Response;
 import org.apache.geronimo.tomcat.security.AuthResult;
+import org.apache.geronimo.tomcat.security.Authenticator;
 import org.apache.geronimo.tomcat.security.ServerAuthException;
 import org.apache.geronimo.tomcat.security.TomcatAuthStatus;
 import org.apache.geronimo.tomcat.security.UserIdentity;
-import org.apache.catalina.connector.Request;
-import org.apache.catalina.connector.Response;
 
 /**
  * @version $Rev$ $Date$
@@ -36,10 +39,10 @@ public class NoneAuthenticator implements Authenticator {
     private final AuthResult unauthenticated;
 
     public NoneAuthenticator(UserIdentity unauthenticatedIdentity) {
-        unauthenticated = new AuthResult(TomcatAuthStatus.SUCCESS, unauthenticatedIdentity);
+        unauthenticated = new AuthResult(TomcatAuthStatus.SUCCESS, unauthenticatedIdentity, false);
     }
 
-    public AuthResult validateRequest(Request request, Response response, boolean isAuthMandatory) throws ServerAuthException {
+    public AuthResult validateRequest(Request request, HttpServletResponse response, boolean isAuthMandatory, UserIdentity cachedIdentity) throws ServerAuthException {
         return unauthenticated;
     }
 
@@ -50,4 +53,14 @@ public class NoneAuthenticator implements Authenticator {
     public String getAuthType() {
         return "NONE";
     }
+
+    @Override
+    public AuthResult login(String username, String password, Request request) throws ServletException {
+        return unauthenticated;
+    }
+
+    @Override
+    public void logout(Request request) {
+    }
+
 }

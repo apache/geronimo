@@ -43,7 +43,7 @@ public class JaspicMessageInfo implements MessageInfo {
     public JaspicMessageInfo() {
     }
 
-    public JaspicMessageInfo(Request request, Response response, boolean authMandatory) {
+    public JaspicMessageInfo(Request request, HttpServletResponse response, boolean authMandatory) {
         this.request = request;
         this.response = response;
         if (authMandatory) {

@@ -27,9 +27,11 @@ public class AuthResult {
 
     private final TomcatAuthStatus authStatus;
     private final UserIdentity userIdentity;
+    private final boolean containerCaching;
 
-    public AuthResult(TomcatAuthStatus authStatus, UserIdentity userIdentity) {
+    public AuthResult(TomcatAuthStatus authStatus, UserIdentity userIdentity, boolean containerCaching) {
         this.authStatus = authStatus;
+        this.containerCaching = containerCaching;
         this.userIdentity = userIdentity;
     }
 
@@ -39,5 +41,9 @@ public class AuthResult {
 
     public UserIdentity getUserIdentity() {
         return userIdentity;
+    }
+
+    public boolean isContainerCaching() {
+        return containerCaching;
     }
 }

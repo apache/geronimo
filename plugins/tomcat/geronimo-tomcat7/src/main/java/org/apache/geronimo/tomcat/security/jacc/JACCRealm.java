@@ -21,23 +21,20 @@
 package org.apache.geronimo.tomcat.security.jacc;
 
 import java.beans.PropertyChangeListener;
-import java.security.Principal;
+import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
+import java.security.Principal;
 import java.security.cert.X509Certificate;
-import java.io.IOException;
 
-import javax.security.auth.Subject;
 import javax.security.jacc.WebRoleRefPermission;
-
-import org.apache.catalina.Realm;
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
+import org.apache.catalina.Realm;
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.SecurityConstraint;
-import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
-import org.apache.geronimo.tomcat.security.UserIdentity;
 import org.apache.geronimo.security.ContextManager;
 
 /**
@@ -55,9 +52,30 @@ public class JACCRealm implements Realm {
         return old;
     }
 
+    @Override
+    @Deprecated
     public boolean hasRole(Principal principal, String role) {
         AccessControlContext acc = ContextManager.getCurrentContext();
         String name = currentRequestWrapperName.get();
+
+        /**
+         * JACC v1.0 secion B.19
+         */
+        if (name == null || name.equals("jsp")) {
+            name = "";
+        }
+        try {
+            acc.checkPermission(new WebRoleRefPermission(name, role));
+            return true;
+        } catch (AccessControlException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean hasRole(Wrapper wrapper, Principal principal, String role) {
+        AccessControlContext acc = ContextManager.getCurrentContext();
+        String name = wrapper.getName();
 
         /**
          * JACC v1.0 secion B.19

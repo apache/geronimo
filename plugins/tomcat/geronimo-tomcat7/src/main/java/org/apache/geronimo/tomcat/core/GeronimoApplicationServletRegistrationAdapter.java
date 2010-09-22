@@ -63,9 +63,13 @@ public class GeronimoApplicationServletRegistrationAdapter implements ServletReg
 
     @Override
     public void setRunAsRole(String roleName) {
-        applicationServletRegistration.setRunAsRole(roleName);
-        SpecSecurityBuilder specSecurityBuilder = applicationContext.getSpecSecurityBuilder();
-        specSecurityBuilder.declareRoles(roleName);
+        if (roleName != null) {
+            applicationServletRegistration.setRunAsRole(roleName);
+            SpecSecurityBuilder specSecurityBuilder = applicationContext.getSpecSecurityBuilder();
+            if (specSecurityBuilder != null) {
+                specSecurityBuilder.declareRoles(roleName);
+            }
+        }
     }
 
     @Override
