@@ -39,5 +39,6 @@ public class ServletInfo implements Serializable {
     public Integer loadOnStartup;
     public String runAsRole;
     public MultipartConfigInfo multipartConfigInfo;
+    public List<SecurityRoleRefInfo> securityRoleRefs = new ArrayList<SecurityRoleRefInfo>();
 
 }
