@@ -2142,22 +2142,6 @@
     </distributionManagement>
     
 	
-	
-	<repositories>
-        <repository>
-              <id>activemq541staging</id>
-              <name>activemq 5.4.1 staging repo</name>
-              <url>https://repository.apache.org/content/repositories/orgapacheactivemq-041/</url>
-              <layout>default</layout>
-              <releases>
-                  <enabled>true</enabled>
-              </releases>
-              <snapshots>
-                  <enabled>false</enabled>
-              </snapshots>
-        </repository>
-    </repositories>
-	
     <pluginRepositories>
         <!-- required for clean build unless you want to bootstrap the car-maven-plugin -->
         <pluginRepository>
