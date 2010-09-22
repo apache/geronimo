@@ -109,7 +109,7 @@
         <xml-attribute name="jspServlet">
             <web-app xmlns="http://java.sun.com/xml/ns/javaee">
                 <servlet>
-                    <servlet-class>org.apache.geronimo.jasper.JspFileServlet</servlet-class>
+                    <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
                     <init-param>
                         <param-name>development</param-name>
                         <param-value>false</param-value>
