@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.console.navigation;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -47,6 +48,10 @@ import org.slf4j.LoggerFactory;
  */
 
 public class NavigationJsonGenerator {
+    
+    private static  Map<String, Map<String, TreeNode>> navigationTrees=new HashMap<String, Map<String, TreeNode>>();
+    
+    public static final String ALL = "all";
       
     private ResourceBundle navigationResourcebundle;
          
@@ -61,75 +66,92 @@ public class NavigationJsonGenerator {
         }
     }
     
-    public String generateTreeJSON(List<PageConfig> pageConfigList, String contextPath, String DefaultIcon) {
-       
-        Map<String, TreeNode> navigationTree = new TreeMap<String, TreeNode>();
+    
+    private Map<String, TreeNode> getNavigationTree(List<PageConfig> pageConfigList, String mode){
         
-        for (PageConfig pc : pageConfigList) {
-            try {
-                new TreeNode(pc).populateTree(navigationTree);
-            } catch (Exception e) {
-                log.error(e.getMessage(),e);
-                continue;
-            }
-        }
+        Map<String, TreeNode> navigationTree;
+        
+        if (navigationTrees.get(mode) != null) {
+            navigationTree = navigationTrees.get(mode);
+        } else {
 
-        StringBuffer sb = new StringBuffer(10);
-        sb.append("[");
-        
-        
-        for (TreeNode node : navigationTree.values()) {
+            navigationTree = new TreeMap<String, TreeNode>();
 
-            if (node.isTopNode()) {
-                sb.append("\n");
-                appendNodeToTreeJSON(sb, node, contextPath, DefaultIcon);
-            }
-
-        }
-        
-        //remove the extra ','
-        if(navigationTree.values().size()>0){
-            sb.deleteCharAt(sb.length()-1);
-        }
-
-        sb.append("\n]");
-        return sb.toString();
-    }
-    public String generateTreeJSON(List<PageConfig> pageConfigList, String contextPath, String DefaultIcon, String mode) {
-        
-        Map<String, TreeNode> navigationTree = new TreeMap<String, TreeNode>();
-        
-        for (PageConfig pc : pageConfigList) {
-            if(pc.getMode()!=null&&mode.equals(pc.getMode())){
-                try {
-                    new TreeNode(pc).populateTree(navigationTree);
-                } catch (Exception e) {
-                    log.error(e.getMessage(),e);
-                    continue;
+            for (PageConfig pc : pageConfigList) {
+                if (mode.equals(ALL) || (pc.getMode() != null && mode.equals(pc.getMode()))) {
+                    try {
+                        new TreeNode(pc).populateTree(navigationTree);
+                    } catch (Exception e) {
+                        log.error(e.getMessage(), e);
+                        continue;
+                    }
                 }
             }
+
+            navigationTrees.put(mode, navigationTree);
+
         }
 
+        return navigationTree;
+    }
+       
+    
+    public String generateTreeJSON(List<PageConfig> pageConfigList, String contextPath, String DefaultIcon, String mode, int threshold) {
+        
+        Map<String, TreeNode> navigationTree=this.getNavigationTree(pageConfigList, mode);
+
+       
+        boolean isTreeAList=this.isTreeAList(pageConfigList, mode, threshold);
+        
+        
         StringBuffer sb = new StringBuffer(10);
         sb.append("[");
         
         
-        for (TreeNode node : navigationTree.values()) {
+        if(!isTreeAList){
+            
+            for (TreeNode node : navigationTree.values()) {
 
-            if (node.isTopNode()) {
-                sb.append("\n");
-                appendNodeToTreeJSON(sb, node, contextPath, DefaultIcon);
+                // when menu items number is less than 6, let's only display the basic menu to the user.
+                // because the user won't need a t to organize the.
+
+                    if (node.isTopNode()) {
+                        sb.append("\n");
+                        appendNodeToTreeJSON(sb, node, contextPath, DefaultIcon);
+                    }
+
+
             }
-
-        }
-        //remove the extra ','
-        if(navigationTree.values().size()>0){
+            
+            //remove the extra ','
             sb.deleteCharAt(sb.length()-1);
-        }
 
-        sb.append("\n]");
+            sb.append("\n]");
+            
+        } else {
+            
+            for (TreeNode node : navigationTree.values()) {
+                if (node.isLeafNode()) {
+    
+                    sb.append("\n");
+    
+                    appendBasicListJSON(sb, node, contextPath, DefaultIcon);
+                } 
+            }
+            //remove the extra ','
+            sb.deleteCharAt(sb.length()-1);
+            
+            sb.append("\n]");
+            
+        }
+ 
+        
+        
+
         return sb.toString();
     }
+    
+    
     private void appendNodeToTreeJSON(StringBuffer sb, TreeNode node, String contextPath, String DefaultIcon) {
 
         sb.append("{");
@@ -165,18 +187,32 @@ public class NavigationJsonGenerator {
 
     }
     
-    public String generateQuickLauncherJSON(List<PageConfig> pageConfigList, String contextPath, String DefaultIcon) {
+    
+    private void appendBasicListJSON(StringBuffer sb, TreeNode node, String contextPath, String DefaultIcon) {
+
+        sb.append("{");
+
         
-        Map<String, TreeNode> navigationTree = new TreeMap<String, TreeNode>();
-        
-        for (PageConfig pc : pageConfigList) {
-            try {
-                new TreeNode(pc).populateTree(navigationTree);
-            } catch (Exception e) {
-                log.error(e.getMessage(),e);
-                continue;
-            }
+
+        if (node.isLeafNode()) {
+            sb.append("label: \'<img src=\"" + contextPath + node.getIcon() + "\" alt=\"\" border=\"0\">&nbsp;");
+            sb.append("<a href=\"" + contextPath + "/portal/" + node.getId() + "/" + node.getPath() + "\">"
+                    + getLocalizedString(node.getLabel()) + "</a>\'");
         }
+
+        sb.append(",");
+        sb.append("id: \'" + node.getId() + "\'");
+
+        sb.append("},");
+
+    }
+    
+   
+
+    public String generateQuickLauncherJSON(List<PageConfig> pageConfigList, String contextPath, String DefaultIcon, String mode) {
+        
+        
+        Map<String, TreeNode> navigationTree=this.getNavigationTree(pageConfigList, mode);
 
         StringBuffer sb = new StringBuffer(10);
         sb.append("[\n");
@@ -194,38 +230,8 @@ public class NavigationJsonGenerator {
         sb.append("\n]");
         return sb.toString();
     }
-
-    public String generateQuickLauncherJSON(List<PageConfig> pageConfigList, String contextPath, String DefaultIcon,String mode) {
-        
-        Map<String, TreeNode> navigationTree = new TreeMap<String, TreeNode>();
-        
-        for (PageConfig pc : pageConfigList) {
-            if(pc.getMode()!=null&&mode.equals(pc.getMode())){
-                try {
-                    new TreeNode(pc).populateTree(navigationTree);
-                } catch (Exception e) {
-                    log.error(e.getMessage(),e);
-                    continue;
-                }
-            }
-        }
-
-        StringBuffer sb = new StringBuffer(10);
-        sb.append("[\n");
-        
-        for (TreeNode node : navigationTree.values()) {
-
-            if (node.isTopNode()) {
-                appendNodeToQuickLauncherJSON(sb, node, contextPath, DefaultIcon);
-            }
-
-        }
-        //remove the extra ','
-        sb.deleteCharAt(sb.length()-1);
-
-        sb.append("\n]");
-        return sb.toString();
-    }
+    
+    
     private void appendNodeToQuickLauncherJSON(StringBuffer sb, TreeNode node, String contextPath, String DefaultIcon) {
 
         if (node.isLeafNode()) {
@@ -270,6 +276,41 @@ public class NavigationJsonGenerator {
 
         return key;
 
+    }
+    
+    public boolean isTreeHasValidItem(List<PageConfig> pageConfigList, String mode){
+        
+        Map<String, TreeNode> navigationTree=this.getNavigationTree(pageConfigList, mode);
+        
+        
+        for (TreeNode node:navigationTree.values()){
+            
+            if(node.isLeafNode()){
+                return true;
+            }
+            
+        }
+        
+        return false;
+    }
+    
+    
+    private boolean isTreeAList(List<PageConfig> pageConfigList, String mode, int threshold ){
+        
+        Map<String, TreeNode> navigationTree=this.getNavigationTree(pageConfigList, mode);
+        
+        
+        int leafNodeCount=0;
+        
+        for (TreeNode node:navigationTree.values()){
+            
+            if(node.isLeafNode()){
+                leafNodeCount=leafNodeCount+1;
+            }
+            
+        }
+        
+        return leafNodeCount< threshold;
     }
 
 }

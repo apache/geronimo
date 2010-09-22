@@ -137,28 +137,52 @@ a:hover
 
 
 .tundra .dijitLeaf {
-    width: 0px;
-    height: 0px; 
-}
-
-.tundra .dijitFolderOpened {
-    background: url('images/folderOpened_new.gif') no-repeat;
     display: none;
-}
-.tundra .dijitFolderClosed {
-    background: url('images/folderClosed_new.gif') no-repeat;
-    display: none;
-}
-
-.tundra .dijitTreeRow {	
-    padding-bottom: 3px;
 }
 
 .tundra .dijitTreeIcon {
     display: none;
-    height: 16px;
-    width: 16px;
 }
+
+.tundra .dijitFolderOpened {
+    display: none;
+}
+
+.tundra .dijitFolderClosed {
+    display: none;
+}
+
+.tundra .dijitTreeRow {
+    padding-bottom: 4px;
+}
+
+.tundra .dijitTreeExpandoLeaf #navigationTreeBasic {
+    background-image: url("images/transparent.gif");
+}
+
+.tundra .dijitTreeNodeSelected {
+    font-size: 1.2em;
+}
+
+.modeSwitcher {
+    margin-bottom: 2px;
+    margin-left: 12px;
+    margin-right: 5px;
+    margin-top: 6px;
+    padding-bottom: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 2px;
+}
+
+#navigationTreeAdvanced {
+    padding-left: 4px;
+}
+
+#navigationTreeBasic {
+    padding-left: 4px;
+}
+
  
 .Content .TopLeft
 {
