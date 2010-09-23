@@ -21,6 +21,7 @@
 package org.apache.geronimo.web25.deployment;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -28,13 +29,17 @@ import java.util.Map;
 
 import javax.servlet.DispatcherType;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.web.info.AuthConstraintInfo;
 import org.apache.geronimo.web.info.ErrorPageInfo;
 import org.apache.geronimo.web.info.FilterInfo;
 import org.apache.geronimo.web.info.FilterMappingInfo;
 import org.apache.geronimo.web.info.LoginConfigInfo;
 import org.apache.geronimo.web.info.MultipartConfigInfo;
+import org.apache.geronimo.web.info.SecurityConstraintInfo;
+import org.apache.geronimo.web.info.SecurityRoleRefInfo;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
+import org.apache.geronimo.web.info.WebResourceCollectionInfo;
 import org.apache.openejb.jee.Dispatcher;
 import org.apache.openejb.jee.ErrorPage;
 import org.apache.openejb.jee.Filter;
@@ -46,9 +51,13 @@ import org.apache.openejb.jee.LoginConfig;
 import org.apache.openejb.jee.MimeMapping;
 import org.apache.openejb.jee.MultipartConfig;
 import org.apache.openejb.jee.ParamValue;
+import org.apache.openejb.jee.SecurityConstraint;
+import org.apache.openejb.jee.SecurityRole;
+import org.apache.openejb.jee.SecurityRoleRef;
 import org.apache.openejb.jee.Servlet;
 import org.apache.openejb.jee.ServletMapping;
 import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.WebResourceCollection;
 import org.apache.openejb.jee.WelcomeFileList;
 
 /**
@@ -57,7 +66,9 @@ import org.apache.openejb.jee.WelcomeFileList;
 public class WebAppInfoBuilder {
 
     private final WebApp webApp;
+
     private final WebAppInfoFactory webAppInfoFactory;
+
     private WebAppInfo webAppInfo;
 
     public WebAppInfoBuilder(WebApp webApp, WebAppInfoFactory webAppInfoFactory) {
@@ -96,7 +107,7 @@ public class WebAppInfoBuilder {
             }
             servletInfo.loadOnStartup = servlet.getLoadOnStartup();
             if (servlet.getRunAs() != null) {
-                servletInfo.runAsRole = servlet.getRunAs().getRoleName();
+                servletInfo.runAsRole = servlet.getRunAs().getRoleName().trim();
             }
             if (servlet.getMultipartConfig() != null) {
                 MultipartConfig multipartConfig = servlet.getMultipartConfig();
@@ -108,11 +119,19 @@ public class WebAppInfoBuilder {
                 servletInfo.multipartConfigInfo = multipartConfigInfo;
             }
             addParams(servlet.getInitParam(), servletInfo.initParams);
+            for (SecurityRoleRef securityRoleRef : servlet.getSecurityRoleRef()) {
+                SecurityRoleRefInfo securityRoleRefInfo = new SecurityRoleRefInfo();
+                if (securityRoleRef.getRoleLink() != null) {
+                    securityRoleRefInfo.roleLink = securityRoleRef.getRoleLink().trim();
+                }
+                securityRoleRefInfo.roleName = securityRoleRef.getRoleName().trim();
+                servletInfo.securityRoleRefs.add(securityRoleRefInfo);
+            }
             webAppInfo.servlets.add(servletInfo);
             servletMap.put(servletInfo.servletName, servletInfo);
         }
         for (ServletMapping servletMapping : webApp.getServletMapping()) {
-            String servletName = servletMapping.getServletName();
+            String servletName = servletMapping.getServletName().trim();
             ServletInfo servletInfo = servletMap.get(servletName);
             if (servletInfo == null) {
                 problems.add("\nNo servlet matching servlet mappings for " + servletName);
@@ -124,7 +143,7 @@ public class WebAppInfoBuilder {
         Map<String, FilterInfo> filterMap = new HashMap<String, FilterInfo>();
         for (Filter filter : webApp.getFilter()) {
             FilterInfo filterInfo = webAppInfoFactory.newFilterInfo();
-            filterInfo.filterName = filter.getFilterName();
+            filterInfo.filterName = filter.getFilterName().trim();
             filterInfo.filterClass = filter.getFilterClass();
             filterInfo.asyncSupported = filter.isAsyncSupported();
             addParams(filter.getInitParam(), filterInfo.initParams);
@@ -132,7 +151,7 @@ public class WebAppInfoBuilder {
             filterMap.put(filterInfo.filterName, filterInfo);
         }
         for (FilterMapping filterMapping : webApp.getFilterMapping()) {
-            String filterName = filterMapping.getFilterName();
+            String filterName = filterMapping.getFilterName().trim();
             FilterInfo filterInfo = filterMap.get(filterName);
             if (filterInfo == null) {
                 problems.add("\nNo filter matching filter mappings for " + filterName);
@@ -154,6 +173,72 @@ public class WebAppInfoBuilder {
 
         webAppInfo.displayName = webApp.getDisplayName();
         
+        for (ErrorPage errorPage: webApp.getErrorPage()) {
+            ErrorPageInfo errorPageInfo = new ErrorPageInfo();
+            errorPageInfo.location = errorPage.getLocation();
+            if (errorPage.getErrorCode() != null) {
+                errorPageInfo.errorCode = errorPage.getErrorCode().intValue();
+            }
+            errorPageInfo.exceptionType = errorPage.getExceptionType();
+            webAppInfo.errorPages.add(errorPageInfo);
+        }
+
+        for (LocaleEncodingMappingList localeEncodingMappingList: webApp.getLocaleEncodingMappingList()) {
+            for (LocaleEncodingMapping localeEncodingMapping: localeEncodingMappingList.getLocaleEncodingMapping()) {
+                webAppInfo.localeEncodingMappings.put(localeEncodingMapping.getLocale(), localeEncodingMapping.getEncoding());
+            }
+        }
+        for (MimeMapping mimeMapping: webApp.getMimeMapping()) {
+            webAppInfo.mimeMappings.put(mimeMapping.getExtension(), mimeMapping.getMimeType());
+        }
+
+        for (WelcomeFileList welcomeFileList: webApp.getWelcomeFileList()) {
+            webAppInfo.welcomeFiles.addAll(welcomeFileList.getWelcomeFile());
+        }
+
+        for (LoginConfig loginConfig: webApp.getLoginConfig()) {
+            LoginConfigInfo loginConfigInfo = new LoginConfigInfo();
+            loginConfigInfo.authMethod = loginConfig.getAuthMethod();
+            loginConfigInfo.realmName = loginConfig.getRealmName();
+            if (loginConfig.getFormLoginConfig() != null) {
+                loginConfigInfo.formLoginPage = loginConfig.getFormLoginConfig().getFormLoginPage();
+                loginConfigInfo.formErrorPage = loginConfig.getFormLoginConfig().getFormErrorPage();
+            }
+            webAppInfo.loginConfig = loginConfigInfo;
+            break;
+        }
+
+        for (SecurityConstraint securityConstraint : webApp.getSecurityConstraint()) {
+            SecurityConstraintInfo securityConstraintInfo = webAppInfoFactory.newSecurityConstraintInfo();
+            if (securityConstraint.getAuthConstraint() != null) {
+                securityConstraintInfo.authConstraint = new AuthConstraintInfo();
+                securityConstraintInfo.authConstraint.roleNames.addAll(securityConstraint.getAuthConstraint().getRoleName());
+            }
+            if (securityConstraint.getUserDataConstraint() != null) {
+                securityConstraintInfo.userDataConstraint = securityConstraint.getUserDataConstraint().getTransportGuarantee().value();
+            }
+            for (WebResourceCollection webResourceCollection : securityConstraint.getWebResourceCollection()) {
+                WebResourceCollectionInfo webResourceCollectionInfo = new WebResourceCollectionInfo();
+                webResourceCollectionInfo.webResourceName = webResourceCollection.getWebResourceName();
+                normalizeUrlPatterns(webResourceCollection.getUrlPattern(), webResourceCollectionInfo.urlPatterns);
+                if (webResourceCollection.getHttpMethod().size() > 0) {
+                    webResourceCollectionInfo.omission = false;
+                    webResourceCollectionInfo.httpMethods.addAll(webResourceCollection.getHttpMethod());
+                } else {
+                    webResourceCollectionInfo.omission = true;
+                    webResourceCollectionInfo.httpMethods.addAll(webResourceCollection.getHttpMethodOmission());
+                }
+                securityConstraintInfo.webResourceCollections.add(webResourceCollectionInfo);
+            }
+            webAppInfo.securityConstraints.add(securityConstraintInfo);
+        }
+
+        for (SecurityRole securityRole : webApp.getSecurityRole()) {
+            webAppInfo.securityRoles.add(securityRole.getRoleName().trim());
+        }
+
+        webAppInfo.displayName = webApp.getDisplayName();
+
         for (ErrorPage errorPage: webApp.getErrorPage()) {
             ErrorPageInfo errorPageInfo = new ErrorPageInfo();
             errorPageInfo.location = errorPage.getLocation();
@@ -214,8 +299,7 @@ public class WebAppInfoBuilder {
         return webAppInfoFactory.copy(filterInfo);
     }
 
-
-    public static void normalizeUrlPatterns(List<String> source, List<String> target) {
+    public static void normalizeUrlPatterns(Collection<String> source, Collection<String> target) {
         for (String pattern : source) {
             pattern = pattern.trim();
             if (!pattern.startsWith("*") && !pattern.startsWith("/")) {

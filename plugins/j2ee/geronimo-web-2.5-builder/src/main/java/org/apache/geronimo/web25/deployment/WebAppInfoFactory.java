@@ -21,6 +21,7 @@
 package org.apache.geronimo.web25.deployment;
 
 import org.apache.geronimo.web.info.FilterInfo;
+import org.apache.geronimo.web.info.SecurityConstraintInfo;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 
@@ -30,7 +31,9 @@ import org.apache.geronimo.web.info.WebAppInfo;
 public interface WebAppInfoFactory {
 
     WebAppInfo newWebAppInfo();
+
     FilterInfo newFilterInfo();
+
     ServletInfo newServletInfo();
 
     void complete(WebAppInfo webAppInfo);
@@ -40,4 +43,9 @@ public interface WebAppInfoFactory {
     ServletInfo copy(ServletInfo servletInfo);
 
     FilterInfo copy(FilterInfo filterInfo);
+
+    SecurityConstraintInfo newSecurityConstraintInfo();
+
+    SecurityConstraintInfo copy(SecurityConstraintInfo securityConstraint);
+
 }

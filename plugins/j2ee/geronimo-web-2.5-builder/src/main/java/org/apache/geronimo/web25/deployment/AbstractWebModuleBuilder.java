@@ -45,6 +45,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.components.jaspi.model.AuthModuleType;
 import org.apache.geronimo.components.jaspi.model.ConfigProviderType;
@@ -88,6 +89,7 @@ import org.apache.geronimo.security.jaspi.AuthConfigProviderGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthConfigGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthContextGBean;
 import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
 import org.apache.geronimo.web25.deployment.merge.MergeHelper;
 import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
@@ -532,7 +534,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     protected ComponentPermissions buildSpecSecurityConfig(EARContext earContext, WebApp webApp, Bundle bundle) {
-        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp, bundle, INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f && !webApp.isMetadataComplete());
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(new WebAppInfo());
         return builder.buildSpecSecurityConfig();
     }
 

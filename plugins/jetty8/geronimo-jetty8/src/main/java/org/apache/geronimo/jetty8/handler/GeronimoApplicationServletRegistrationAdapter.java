@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.tomcat.core;
+package org.apache.geronimo.jetty8.handler;
 
 import java.util.Collection;
 import java.util.Map;
@@ -25,10 +25,6 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletRegistration;
 import javax.servlet.ServletSecurityElement;
 
-import org.apache.catalina.LifecycleState;
-import org.apache.catalina.Wrapper;
-import org.apache.geronimo.tomcat.GeronimoStandardContext;
-
 /**
  * @version $Rev$ $Date$
  */
@@ -36,18 +32,14 @@ public class GeronimoApplicationServletRegistrationAdapter implements ServletReg
 
     private ServletRegistration.Dynamic applicationServletRegistration;
 
-    private Wrapper wrapper;
+    private GeronimoWebAppContext webAppContext;
 
-    private GeronimoStandardContext standardContext;
+    private GeronimoWebAppContext.SecurityContext applicationContext;
 
-    private GeronimoApplicationContext applicationContext;
-
-    public GeronimoApplicationServletRegistrationAdapter(GeronimoStandardContext standardContext, GeronimoApplicationContext applicationContext, Wrapper wrapper,
-            ServletRegistration.Dynamic applicationServletRegistration) {
+    public GeronimoApplicationServletRegistrationAdapter(GeronimoWebAppContext webAppContext, ServletRegistration.Dynamic applicationServletRegistration) {
+        this.webAppContext = webAppContext;
         this.applicationServletRegistration = applicationServletRegistration;
-        this.standardContext = standardContext;
-        this.wrapper = wrapper;
-        this.applicationContext = applicationContext;
+        this.applicationContext = (GeronimoWebAppContext.SecurityContext) webAppContext.getServletContext();
     }
 
     @Override
@@ -62,10 +54,8 @@ public class GeronimoApplicationServletRegistrationAdapter implements ServletReg
 
     @Override
     public void setRunAsRole(String roleName) {
-        if (roleName != null) {
-            applicationServletRegistration.setRunAsRole(roleName);
-            applicationContext.getWebSecurityConstraintStore().declareRoles(roleName);
-        }
+        applicationServletRegistration.setRunAsRole(roleName);
+        applicationContext.getWebSecurityConstraintStore().declareRoles(roleName);
     }
 
     @Override
@@ -73,9 +63,10 @@ public class GeronimoApplicationServletRegistrationAdapter implements ServletReg
         if (constraint == null) {
             throw new IllegalArgumentException("ServletSecurityElement configured by setServletSecurity should not be null");
         }
-        if (standardContext.getState() != LifecycleState.STARTING_PREP) {
-            throw new IllegalStateException("setServletSecurity action is not allowed after the context " + standardContext.getPath() + " is initialized");
-        }
+        if (webAppContext.isStarted())
+            throw new IllegalStateException();
+        if (!applicationContext.isEnabled())
+            throw new UnsupportedOperationException();
         return applicationContext.getWebSecurityConstraintStore().setDynamicServletSecurity(getName(), constraint, getMappings());
     }
 

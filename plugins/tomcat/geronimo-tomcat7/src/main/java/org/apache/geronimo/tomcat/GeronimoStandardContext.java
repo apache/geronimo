@@ -16,12 +16,7 @@
  */
 package org.apache.geronimo.tomcat;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.beans.PropertyChangeListener;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,6 +40,7 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+
 import org.apache.catalina.Container;
 import org.apache.catalina.ContainerListener;
 import org.apache.catalina.Engine;
@@ -58,6 +54,7 @@ import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+import org.apache.catalina.core.ApplicationContext;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardWrapper;
 import org.apache.catalina.ha.CatalinaCluster;
@@ -86,8 +83,6 @@ import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 import org.apache.naming.resources.FileDirContext;
-import org.apache.openejb.jee.JaxbJavaee;
-import org.apache.openejb.jee.WebApp;
 import org.apache.tomcat.InstanceManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceRegistration;
@@ -161,7 +156,6 @@ public class GeronimoStandardContext extends StandardContext {
             }
             if (tomcatWebAppContext.getSecurityHolder() != null) {
                 configurationFactory = tomcatWebAppContext.getSecurityHolder().getConfigurationFactory();
-
                 //Add JACCSecurityLifecycleListener, it will calculate the security configurations when web module is initialized
                 addJACCSecurityLifecycleListener(tomcatWebAppContext);
             }
@@ -314,9 +308,7 @@ public class GeronimoStandardContext extends StandardContext {
         float schemaVersion = (Float) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.SCHEMA_VERSION.name());
         boolean metaComplete = (Boolean) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.META_COMPLETE.name());
         try {
-            WebApp webApp = tomcatWebAppContext.getDeploymentDescriptor() == null ? null : (WebApp) JaxbJavaee.unmarshalJavaee(WebApp.class, new ByteArrayInputStream(tomcatWebAppContext
-                    .getDeploymentDescriptor().getBytes()));
-            addLifecycleListener(new JACCSecurityLifecycleListener(bundle, webApp, schemaVersion >= 2.5f && !metaComplete, tomcatWebAppContext.getApplicationPolicyConfigurationManager(),
+            addLifecycleListener(new JACCSecurityLifecycleListener(bundle, tomcatWebAppContext.getWebAppInfo(), schemaVersion >= 2.5f && !metaComplete, tomcatWebAppContext.getApplicationPolicyConfigurationManager(),
                     tomcatWebAppContext.getSecurityHolder().getPolicyContextID()));
         } catch (DeploymentException e) {
             throw e;
@@ -580,11 +572,10 @@ public class GeronimoStandardContext extends StandardContext {
         super.setLoader(loader);
     }
 
-
     @Override
     public ServletContext getServletContext() {
         if (context == null) {
-            context = new GeronimoApplicationContext(this);
+            context =  new GeronimoApplicationContext(this);
             if (getAltDDName() != null)
                 context.setAttribute(Globals.ALT_DD_ATTR, getAltDDName());
         }

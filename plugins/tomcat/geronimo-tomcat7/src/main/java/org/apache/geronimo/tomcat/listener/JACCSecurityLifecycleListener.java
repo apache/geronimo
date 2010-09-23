@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.security.auth.login.LoginException;
 import javax.security.jacc.PolicyContextException;
+
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
@@ -30,8 +31,9 @@ import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.tomcat.GeronimoStandardContext;
 import org.apache.geronimo.tomcat.core.GeronimoApplicationContext;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
-import org.apache.openejb.jee.WebApp;
+import org.apache.geronimo.web.security.WebSecurityConstraintStore;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,15 +54,15 @@ public class JACCSecurityLifecycleListener implements LifecycleListener {
 
     private ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
 
-    private WebApp deploymentDescriptor;
+    private WebAppInfo webXmlAppInfo;
 
-    public JACCSecurityLifecycleListener(Bundle bundle, WebApp deploymentDescriptor, boolean annotationScanRequired, ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager,
+    public JACCSecurityLifecycleListener(Bundle bundle, WebAppInfo webXmlAppInfo, boolean annotationScanRequired, ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager,
             String contextId) throws DeploymentException {
         this.bundle = bundle;
         this.contextId = contextId;
         this.annotationScanRequired = annotationScanRequired;
         this.applicationPolicyConfigurationManager = applicationPolicyConfigurationManager;
-        this.deploymentDescriptor = deploymentDescriptor == null? new WebApp(): deploymentDescriptor;
+        this.webXmlAppInfo = webXmlAppInfo == null ? new WebAppInfo() : webXmlAppInfo;
     }
 
     @Override
@@ -68,15 +70,15 @@ public class JACCSecurityLifecycleListener implements LifecycleListener {
         String lifecycleEventType = lifecycleEvent.getType();
         if (lifecycleEventType.equals(Lifecycle.BEFORE_START_EVENT)) {
             //Initialize SpecSecurityBuilder
-            SpecSecurityBuilder specSecurityBuilder = new SpecSecurityBuilder(deploymentDescriptor, bundle, annotationScanRequired);
             GeronimoStandardContext standardContext = (GeronimoStandardContext) lifecycleEvent.getSource();
             GeronimoApplicationContext applicationContext = (GeronimoApplicationContext) standardContext.getInternalServletContext();
-            applicationContext.setSpecSecurityBuilder(specSecurityBuilder);
+            WebSecurityConstraintStore webSecurityConstraintStore = new WebSecurityConstraintStore(webXmlAppInfo, bundle, annotationScanRequired, applicationContext);
+            applicationContext.setWebSecurityConstraintStore(webSecurityConstraintStore);
         } else if (lifecycleEventType.equals(Lifecycle.START_EVENT)) {
             GeronimoStandardContext standardContext = (GeronimoStandardContext) lifecycleEvent.getSource();
             GeronimoApplicationContext applicationContext = (GeronimoApplicationContext) standardContext.getInternalServletContext();
             //Calculate the final Security Permissions
-            SpecSecurityBuilder specSecurityBuilder = applicationContext.getSpecSecurityBuilder();
+            SpecSecurityBuilder specSecurityBuilder = new SpecSecurityBuilder(applicationContext.getWebSecurityConstraintStore().exportMergedWebAppInfo());
             Map<String, ComponentPermissions> contextIdPermissionsMap = new HashMap<String, ComponentPermissions>();
             contextIdPermissionsMap.put(contextId, specSecurityBuilder.buildSpecSecurityConfig());
             //Update ApplicationPolicyConfigurationManager
@@ -94,7 +96,7 @@ public class JACCSecurityLifecycleListener implements LifecycleListener {
             } finally {
                 //Clear SpecSecurityBuilder
                 specSecurityBuilder.clear();
-                applicationContext.setSpecSecurityBuilder(null);
+                applicationContext.setWebSecurityConstraintStore(null);
             }
         }
     }

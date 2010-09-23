@@ -18,10 +18,10 @@ package org.apache.geronimo.jetty8;
 
 import java.io.File;
 import java.net.URL;
+import java.security.AccessControlContext;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Principal;
-import java.security.AccessControlContext;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -29,11 +29,13 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
+import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
-import javax.transaction.TransactionManager;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
@@ -41,14 +43,14 @@ import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.j2ee.jndi.WebContextSource;
 import org.apache.geronimo.jetty8.connector.HTTPSocketConnector;
+import org.apache.geronimo.jetty8.handler.GeronimoUserIdentity;
 import org.apache.geronimo.jetty8.security.SecurityHandlerFactory;
 import org.apache.geronimo.jetty8.security.ServerAuthenticationGBean;
-import org.apache.geronimo.jetty8.handler.GeronimoUserIdentity;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.SubjectInfo;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -63,16 +65,17 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
-import org.eclipse.jetty.server.UserIdentity;
-import org.eclipse.jetty.server.Authentication;
-import org.eclipse.jetty.security.LoginService;
-import org.eclipse.jetty.security.ServerAuthException;
 import org.eclipse.jetty.security.Authenticator;
 import org.eclipse.jetty.security.IdentityService;
+import org.eclipse.jetty.security.LoginService;
+import org.eclipse.jetty.security.ServerAuthException;
 import org.eclipse.jetty.security.UserAuthentication;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
+import org.eclipse.jetty.server.Authentication;
+import org.eclipse.jetty.server.UserIdentity;
 import org.osgi.framework.Bundle;
 
 
@@ -108,12 +111,14 @@ public class AbstractWebModuleTest extends TestSupport {
 
     protected WebAppContextWrapper setUpAppContext(String securityRealmName, SecurityHandlerFactory securityHandlerFactory, String policyContextId, RunAsSource runAsSource, String uriString, WebAppInfo webAppInfo) throws Exception {
 
+        ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager = null;
+
         if (securityHandlerFactory == null) {
             Permissions unchecked = new Permissions();
             unchecked.add(new WebUserDataPermission("/", null));
             unchecked.add(new WebResourcePermission("/", ""));
             ComponentPermissions componentPermissions = new ComponentPermissions(new Permissions(), unchecked, Collections.<String, PermissionCollection>emptyMap());
-            setUpJACC(Collections.<String, SubjectInfo>emptyMap(), Collections.<Principal, Set<String>>emptyMap(), componentPermissions, policyContextId);
+            applicationPolicyConfigurationManager = setUpJACC(Collections.<String, SubjectInfo>emptyMap(), Collections.<Principal, Set<String>>emptyMap(), componentPermissions, policyContextId);
             LoginService loginService = newLoginService();
 //            final ServletCallbackHandler callbackHandler = new ServletCallbackHandler(loginService);
             final Subject subject = new Subject();
@@ -137,6 +142,9 @@ public class AbstractWebModuleTest extends TestSupport {
             }, loginService);
         }
         String contextPath = "/test";
+        Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
+        deploymentAttributes.put(WebAttributeName.META_COMPLETE.name(), Boolean.TRUE);
+        deploymentAttributes.put(WebAttributeName.SCHEMA_VERSION.name(), 3.0f);
         ContextSource contextSource = new WebContextSource(Collections.<String, Object>emptyMap(),
                 Collections.<String, Object>emptyMap(),
                 transactionManager,
@@ -167,6 +175,7 @@ public class AbstractWebModuleTest extends TestSupport {
                 policyContextId,
                 securityHandlerFactory,
                 runAsSource,
+                applicationPolicyConfigurationManager == null ? (ApplicationPolicyConfigurationManager) runAsSource : applicationPolicyConfigurationManager,
                 new Holder(),
                 webAppInfo,
                 null,
@@ -176,7 +185,9 @@ public class AbstractWebModuleTest extends TestSupport {
                 null,
                 null,
                 contextSource,
-                transactionManager, null);
+                transactionManager,
+                deploymentAttributes,
+                null);
         app.doStart();
         return app;
     }
@@ -205,7 +216,13 @@ public class AbstractWebModuleTest extends TestSupport {
         PrincipalRoleMapper roleMapper = new ApplicationPrincipalRoleConfigurationManager(principalRoleMap, null, roleDesignates, null);
         Map<String, ComponentPermissions> contextIDToPermissionsMap = new HashMap<String, ComponentPermissions>();
         contextIDToPermissionsMap.put(policyContextId, componentPermissions);
-        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, roleMapper, cl);
+        ApplicationPolicyConfigurationManager jacc = new ApplicationPolicyConfigurationManager(contextIDToPermissionsMap, roleMapper, cl) {
+
+            @Override
+            public void updateApplicationPolicyConfiguration(Map<String, ComponentPermissions> arg0) throws PolicyContextException, ClassNotFoundException, LoginException {
+              //JACCSecurity Test build the ComponnentPermissions manually, use an empty update method to prevent JACCSecurityListener to update the permissions
+            }
+        };
         jacc.doStart();
         return jacc;
     }

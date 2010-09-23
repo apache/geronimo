@@ -23,6 +23,7 @@ package org.apache.geronimo.web25.deployment;
 import java.util.ArrayList;
 
 import org.apache.geronimo.web.info.FilterInfo;
+import org.apache.geronimo.web.info.SecurityConstraintInfo;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 
@@ -32,6 +33,7 @@ import org.apache.geronimo.web.info.WebAppInfo;
 public class StandardWebAppInfoFactory extends DefaultWebAppInfoFactory {
 
     private final ServletInfo jspServletInfo;
+
     private final WebAppInfo defaultWebAppInfo;
 
     public StandardWebAppInfoFactory(WebAppInfo defaultWebAppInfo, ServletInfo jspServletInfo) {
@@ -50,6 +52,10 @@ public class StandardWebAppInfoFactory extends DefaultWebAppInfoFactory {
         webAppInfo.listeners.addAll(defaultWebAppInfo.listeners);
         webAppInfo.contextParams.putAll(defaultWebAppInfo.contextParams);
         webAppInfo.contextRoot = defaultWebAppInfo.contextRoot;
+        for (SecurityConstraintInfo securityConstraintInfo : defaultWebAppInfo.securityConstraints) {
+            webAppInfo.securityConstraints.add(copy(securityConstraintInfo));
+        }
+        webAppInfo.securityRoles.addAll(defaultWebAppInfo.securityRoles);
     }
 
     @Override

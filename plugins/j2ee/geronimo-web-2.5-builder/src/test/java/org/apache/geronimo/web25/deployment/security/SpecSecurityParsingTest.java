@@ -18,18 +18,22 @@
  */
 
 
-package org.apache.geronimo.web.security;
+package org.apache.geronimo.web25.deployment.security;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
+
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 
 import junit.framework.TestCase;
 
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.web.security.SpecSecurityBuilder;
+import org.apache.geronimo.web25.deployment.DefaultWebAppInfoFactory;
+import org.apache.geronimo.web25.deployment.WebAppInfoBuilder;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.WebApp;
 
@@ -40,10 +44,11 @@ public class SpecSecurityParsingTest extends TestCase {
 
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
-
     public void testParsing() throws Exception {
         WebApp webApp = parse("security/web1.xml");
-        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp);
+        WebAppInfoBuilder webAppInfoBuilder = new WebAppInfoBuilder(webApp, new DefaultWebAppInfoFactory());
+        webAppInfoBuilder.build();
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppInfoBuilder.getWebAppInfo());
         ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         PermissionCollection unchecked = permissions.getUncheckedPermissions();
         assertTrue(unchecked.implies(new WebResourcePermission("/login.do", "!")));
@@ -60,7 +65,9 @@ public class SpecSecurityParsingTest extends TestCase {
      */
     public void testAllMethodsConstraint() throws Exception {
         WebApp webApp = parse("security/web2.xml");
-        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp);
+        WebAppInfoBuilder webAppInfoBuilder = new WebAppInfoBuilder(webApp, new DefaultWebAppInfoFactory());
+        webAppInfoBuilder.build();
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppInfoBuilder.getWebAppInfo());
         ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         Permission p = new WebResourcePermission("/Test/Foo", "GET,POST");
         assertTrue(implies(p, permissions, "Admin"));
@@ -70,7 +77,9 @@ public class SpecSecurityParsingTest extends TestCase {
 
     public void testExcludedConstraint() throws Exception {
         WebApp webApp = parse("security/web3.xml");
-        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp);
+        WebAppInfoBuilder webAppInfoBuilder = new WebAppInfoBuilder(webApp, new DefaultWebAppInfoFactory());
+        webAppInfoBuilder.build();
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppInfoBuilder.getWebAppInfo());
         ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         Permission p = new WebResourcePermission("/Test/Foo", "GET,POST");
         assertTrue(implies(p, permissions, "Admin"));
@@ -96,7 +105,9 @@ public class SpecSecurityParsingTest extends TestCase {
     }
     public void testExcludedRemovesRoleConstraint() throws Exception {
         WebApp webApp = parse("security/web4.xml");
-        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp);
+        WebAppInfoBuilder webAppInfoBuilder = new WebAppInfoBuilder(webApp, new DefaultWebAppInfoFactory());
+        webAppInfoBuilder.build();
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppInfoBuilder.getWebAppInfo());
         ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         // test excluding longer path than allowed
         Permission p = new WebResourcePermission("/Foo/Baz", "GET");
@@ -125,7 +136,9 @@ public class SpecSecurityParsingTest extends TestCase {
     //overlapping excluded and role constraint, excluded constraint wins.
     public void testExcludedAndRoleConstraint() throws Exception {
         WebApp webApp = parse("security/web5.xml");
-        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp);
+        WebAppInfoBuilder webAppInfoBuilder = new WebAppInfoBuilder(webApp, new DefaultWebAppInfoFactory());
+        webAppInfoBuilder.build();
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppInfoBuilder.getWebAppInfo());
         ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         // test excluding longer path than allowed
         Permission p = new WebResourcePermission("/foo/Baz", "GET");
@@ -141,7 +154,9 @@ public class SpecSecurityParsingTest extends TestCase {
 
     public void testHTTPOmissionMethodsConstraint() throws Exception {
         WebApp webApp = parse("security/web6.xml");
-        SpecSecurityBuilder builder = new SpecSecurityBuilder(webApp);
+        WebAppInfoBuilder webAppInfoBuilder = new WebAppInfoBuilder(webApp, new DefaultWebAppInfoFactory());
+        webAppInfoBuilder.build();
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppInfoBuilder.getWebAppInfo());
         ComponentPermissions permissions = builder.buildSpecSecurityConfig();
         Permission p = new WebResourcePermission("/app/*", "GET");
         assertFalse(implies(p, permissions, null));

@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.jetty8.deployment;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +36,7 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import javax.xml.bind.JAXBException;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableBundle;
@@ -82,6 +86,7 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
@@ -116,9 +121,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -558,9 +560,21 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 webModuleData.setAttribute("compactPath", Boolean.TRUE);
             }
 
+            //Save Deployment Attributes
+            Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
+            deploymentAttributes.put(WebAttributeName.META_COMPLETE.name(), webApp.isMetadataComplete());
+            deploymentAttributes.put(WebAttributeName.SCHEMA_VERSION.name(), INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()));
+            deploymentAttributes.put(WebAttributeName.ORDERED_LIBS.name(), AbstractWebModuleBuilder.ORDERED_LIBS.get(earContext.getGeneralData()));
+            deploymentAttributes.put(WebAttributeName.SERVLET_CONTAINER_INITIALIZERS.name(), AbstractWebModuleBuilder.SERVLET_CONTAINER_INITIALIZERS.get(earContext.getGeneralData()));
+            webModuleData.setAttribute("deploymentAttributes", deploymentAttributes);
+
             //TODO this may definitely not be the best place for this!
             for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
                 mbe.addGBeans(earContext, module, bundle, repository);
+            }
+
+            if (jettyWebApp.isSetSecurityRealmName()) {
+                webModuleData.setReferencePattern("applicationPolicyConfigurationManager", EARContext.JACC_MANAGER_NAME_KEY.get(earContext.getGeneralData()));
             }
 
             //not truly metadata complete until MBEs have run

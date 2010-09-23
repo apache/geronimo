@@ -18,7 +18,10 @@
 package org.apache.geronimo.jetty8;
 
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -36,12 +39,12 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.RuntimeCustomizer;
 import org.apache.geronimo.j2ee.annotation.Holder;
-import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.jetty8.handler.GeronimoWebAppContext;
 import org.apache.geronimo.jetty8.handler.IntegrationContext;
+import org.apache.geronimo.jetty8.security.JACCSecurityEventListener;
 import org.apache.geronimo.jetty8.security.SecurityHandlerFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
@@ -49,19 +52,19 @@ import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
+import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
+import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlet.ServletMapping;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.osgi.framework.Bundle;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -120,6 +123,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
                                 @ParamAttribute(name = "policyContextID") String policyContextID,
                                 @ParamReference(name = "SecurityHandlerFactory") SecurityHandlerFactory securityHandlerFactory,
                                 @ParamReference(name = "RunAsSource") RunAsSource runAsSource,
+                                @ParamReference(name = "applicationPolicyConfigurationManager") ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager,
 
                                 @ParamAttribute(name = "holder") Holder holder,
                                 @ParamAttribute(name = "webAppInfo") WebAppInfo webAppInfo,
@@ -133,6 +137,8 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
                                 @ParamReference(name = "J2EEApplication") J2EEApplication application,
                                 @ParamReference(name = "ContextSource") ContextSource contextSource,
                                 @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
+
+                                @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes,
                                 @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws Exception {
 
         assert contextSource != null;
@@ -240,6 +246,13 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         }
         //supply web.xml to jasper
         webAppContext.setAttribute(JASPER_WEB_XML_NAME, originalSpecDD);
+
+        if (securityHandlerFactory != null) {
+            float schemaVersion = (Float) deploymentAttributes.get(WebAttributeName.SCHEMA_VERSION.name());
+            boolean metaComplete = (Boolean) deploymentAttributes.get(WebAttributeName.META_COMPLETE.name());
+            webAppContext.addLifeCycleListener(new JACCSecurityEventListener(bundle, webAppInfo, schemaVersion >= 2.5f && !metaComplete, applicationPolicyConfigurationManager, policyContextID,
+                    (GeronimoWebAppContext.SecurityContext) webAppContext.getServletContext()));
+        }
     }
 
 
@@ -283,7 +296,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
     public void fullyStarted() {
         webAppContext.registerServletContext();
     }
-    
+
     public void doStart() throws Exception {
         // reset the classsloader... jetty likes to set it to null when stopping
         webAppContext.setClassLoader(webClassLoader);

@@ -18,13 +18,14 @@
 package org.apache.geronimo.tomcat.core;
 
 import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration.Dynamic;
 
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.ApplicationContext;
 import org.apache.geronimo.tomcat.GeronimoStandardContext;
-import org.apache.geronimo.web.security.SpecSecurityBuilder;
+import org.apache.geronimo.web.security.WebSecurityConstraintStore;
 
 /**
  * @version $Rev$ $Date$
@@ -33,8 +34,7 @@ public class GeronimoApplicationContext extends ApplicationContext {
 
     private GeronimoStandardContext context;
 
-    private SpecSecurityBuilder specSecurityBuilder;
-
+    private WebSecurityConstraintStore webSecurityConstraintStore;
     /**
      * @param context
      */
@@ -45,26 +45,55 @@ public class GeronimoApplicationContext extends ApplicationContext {
 
     @Override
     public Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) throws IllegalStateException {
-        return createGeronimoApplicationServletRegistrationAdapter(super.addServlet(servletName, servletClass), servletName);
+        Dynamic dynamic = super.addServlet(servletName, servletClass);
+        if (!context.getConfigured() || webSecurityConstraintStore == null) {
+            return dynamic;
+        }
+        webSecurityConstraintStore.addContainerCreatedDynamicServletEntry(servletName, servletClass.getName());
+        return createGeronimoApplicationServletRegistrationAdapter(dynamic, servletName);
     }
 
     @Override
     public Dynamic addServlet(String servletName, Servlet servlet) throws IllegalStateException {
-        return createGeronimoApplicationServletRegistrationAdapter(super.addServlet(servletName, servlet), servletName);
+        Dynamic dynamic = super.addServlet(servletName, servlet);
+        if (!context.getConfigured() || webSecurityConstraintStore == null) {
+            return dynamic;
+        }
+        if (webSecurityConstraintStore.isContainerCreatedDynamicServlet(servlet)) {
+            webSecurityConstraintStore.addContainerCreatedDynamicServletEntry(servletName, servlet.getClass().getName());
+        }
+        return createGeronimoApplicationServletRegistrationAdapter(dynamic, servletName);
     }
 
     @Override
     public Dynamic addServlet(String servletName, String servletClass) throws IllegalStateException {
-        return createGeronimoApplicationServletRegistrationAdapter(super.addServlet(servletName, servletClass), servletName);
+        Dynamic dynamic = super.addServlet(servletName, servletClass);
+        if (!context.getConfigured() || webSecurityConstraintStore == null) {
+            return dynamic;
+        }
+        webSecurityConstraintStore.addContainerCreatedDynamicServletEntry(servletName, servletClass);
+        return createGeronimoApplicationServletRegistrationAdapter(dynamic, servletName);
+    }
+
+    @Override
+    public <T extends Servlet> T createServlet(Class<T> c) throws ServletException  {
+        T servlet = super.createServlet(c);
+        if (!context.getConfigured() || webSecurityConstraintStore == null) {
+            webSecurityConstraintStore.addContainerCreatedDynamicServlet(servlet);
+        }
+        return servlet;
     }
 
     @Override
     public void declareRoles(String... roles) {
+        if (!context.getConfigured() || webSecurityConstraintStore == null) {
+            super.declareRoles(roles);
+            return;
+        }
         if (!context.getState().equals(LifecycleState.STARTING_PREP)) {
             throw new IllegalStateException("declareRoles is not allowed to invoke after the ServletContext is initialized");
         }
-        specSecurityBuilder.declareRoles(roles);
-        //super.declareRoles(roles);
+        webSecurityConstraintStore.declareRoles(roles);
     }
 
     protected Dynamic createGeronimoApplicationServletRegistrationAdapter(Dynamic applicationServletRegistration, String servletName) {
@@ -74,11 +103,11 @@ public class GeronimoApplicationContext extends ApplicationContext {
         return new GeronimoApplicationServletRegistrationAdapter(context, this, (Wrapper) context.findChild(servletName), applicationServletRegistration);
     }
 
-    public SpecSecurityBuilder getSpecSecurityBuilder() {
-        return specSecurityBuilder;
+    public WebSecurityConstraintStore getWebSecurityConstraintStore() {
+        return webSecurityConstraintStore;
     }
 
-    public void setSpecSecurityBuilder(SpecSecurityBuilder specSecurityBuilder) {
-        this.specSecurityBuilder = specSecurityBuilder;
+    public void setWebSecurityConstraintStore(WebSecurityConstraintStore webSecurityConstraintStore) {
+        this.webSecurityConstraintStore = webSecurityConstraintStore;
     }
 }

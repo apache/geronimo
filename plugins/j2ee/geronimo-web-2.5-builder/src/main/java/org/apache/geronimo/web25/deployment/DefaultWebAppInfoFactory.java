@@ -21,13 +21,15 @@
 package org.apache.geronimo.web25.deployment;
 
 import org.apache.geronimo.web.info.FilterInfo;
+import org.apache.geronimo.web.info.SecurityConstraintInfo;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
+import org.apache.geronimo.web25.deployment.WebAppInfoFactory;
 
 /**
  * @version $Rev:$ $Date:$
  */
-public class DefaultWebAppInfoFactory implements WebAppInfoFactory{
+public class DefaultWebAppInfoFactory implements WebAppInfoFactory {
     @Override
     public WebAppInfo newWebAppInfo() {
         return new WebAppInfo();
@@ -53,6 +55,20 @@ public class DefaultWebAppInfoFactory implements WebAppInfoFactory{
     }
 
     @Override
+    public SecurityConstraintInfo newSecurityConstraintInfo() {
+        return new SecurityConstraintInfo();
+    }
+
+    @Override
+    public SecurityConstraintInfo copy(SecurityConstraintInfo securityConstraintInfo) {
+        SecurityConstraintInfo copy = new SecurityConstraintInfo();
+        copy.authConstraint = securityConstraintInfo.authConstraint;
+        copy.userDataConstraint = securityConstraintInfo.userDataConstraint;
+        copy.webResourceCollections.addAll(securityConstraintInfo.webResourceCollections);
+        return copy;
+    }
+
+    @Override
     public ServletInfo copy(ServletInfo servletInfo) {
          ServletInfo copy = new ServletInfo();
          copy.servletClass = servletInfo.servletClass;
@@ -62,6 +78,7 @@ public class DefaultWebAppInfoFactory implements WebAppInfoFactory{
          copy.initParams.putAll(servletInfo.initParams);
          copy.loadOnStartup = servletInfo.loadOnStartup;
          copy.runAsRole = servletInfo.runAsRole;
+         copy.securityRoleRefs.addAll(servletInfo.securityRoleRefs);
          return copy;
      }
 
@@ -76,5 +93,5 @@ public class DefaultWebAppInfoFactory implements WebAppInfoFactory{
          copy.initParams.putAll(filterInfo.initParams);
          return copy;
      }
-    
+
 }
