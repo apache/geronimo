@@ -15,41 +15,52 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
-  <servlet>
-    <display-name>SHAcc</display-name>
-    <servlet-name>SHAcc</servlet-name>
-    <servlet-class>org.apache.geronimo.sample.servlet.SHAcc</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>SHAcc</servlet-name>
-    <url-pattern>/SHAcc</url-pattern>
-  </servlet-mapping>
-  
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+    version="2.5">
     <servlet>
-    <display-name>BJAcc</display-name>
-    <servlet-name>BJAcc</servlet-name>
-    <servlet-class>org.apache.geronimo.sample.servlet.BJAcc</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>BJAcc</servlet-name>
-    <url-pattern>/BJAcc</url-pattern>
-  </servlet-mapping>
-  
-  <servlet>
-    <display-name>DoTransfer</display-name>
-    <servlet-name>DoTransfer</servlet-name>
-    <servlet-class>org.apache.geronimo.sample.servlet.DoTransfer</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>DoTransfer</servlet-name>
-    <url-pattern>/DoTransfer</url-pattern>
-  </servlet-mapping>
-  
-  <welcome-file-list>
-    <welcome-file>index.jsp</welcome-file>
-  </welcome-file-list>
-      <session-config>
+        <display-name>SHAcc</display-name>
+        <servlet-name>SHAcc</servlet-name>
+        <servlet-class>org.apache.geronimo.sample.servlet.SHAcc</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SHAcc</servlet-name>
+        <url-pattern>/SHAcc</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <display-name>BJAcc</display-name>
+        <servlet-name>BJAcc</servlet-name>
+        <servlet-class>org.apache.geronimo.sample.servlet.BJAcc</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BJAcc</servlet-name>
+        <url-pattern>/BJAcc</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <display-name>DoTransfer</display-name>
+        <servlet-name>DoTransfer</servlet-name>
+        <servlet-class>org.apache.geronimo.sample.servlet.DoTransfer</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DoTransfer</servlet-name>
+        <url-pattern>/DoTransfer</url-pattern>
+    </servlet-mapping>
+    
+        <servlet>
+        <display-name>Injection</display-name>
+        <servlet-name>Injection</servlet-name>
+        <servlet-class>org.apache.geronimo.sample.servlet.InjectionServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Injection</servlet-name>
+        <url-pattern>/injection</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+    <session-config>
         <session-timeout>
             30
         </session-timeout>

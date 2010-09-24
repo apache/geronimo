@@ -25,7 +25,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.ServletConfig;
@@ -45,11 +44,13 @@ public abstract class BaseServlet extends HttpServlet {
         return getClass().getName();
     }
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doPost(request,response);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doPost(request, response);
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
         PrintWriter out = response.getWriter();
         out.println("<html><head><title>");
@@ -80,7 +81,7 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     public void init(ServletConfig config) {
-        //System.out.println("Initializing servlet");
+        // System.out.println("Initializing servlet");
     }
 
     public void initDB() throws SQLException {
@@ -94,15 +95,15 @@ public abstract class BaseServlet extends HttpServlet {
         }
 
         try {
-        	stmt.executeUpdate("CREATE TABLE ACCOUNTS (ID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, SAVINGS INTEGER)");
+            stmt
+                    .executeUpdate("CREATE TABLE ACCOUNTS (ID INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, SAVINGS INTEGER)");
         } finally {
             stmt.close();
             con.close();
         }
 
-
         addAccount(200);
-        //addAccount(100);
+        // addAccount(100);
     }
 
     public List<Account> getAccounts() throws SQLException {
@@ -110,8 +111,7 @@ public abstract class BaseServlet extends HttpServlet {
         Connection con = getTxDataSourceB().getConnection();
         Statement stmt = con.createStatement();
         try {
-            ResultSet rs = stmt.executeQuery(
-                    "SELECT ID, SAVINGS FROM ACCOUNTS");
+            ResultSet rs = stmt.executeQuery("SELECT ID, SAVINGS FROM ACCOUNTS");
             while (rs.next()) {
                 Account c = new Account();
                 c.id = rs.getLong(1);
@@ -128,10 +128,9 @@ public abstract class BaseServlet extends HttpServlet {
 
     public void addAccount(long sav) throws SQLException {
         Connection con = getTxDataSourceB().getConnection();
-        PreparedStatement pstmt = con.prepareStatement(
-            "INSERT INTO ACCOUNTS (SAVINGS) VALUES (?)");
+        PreparedStatement pstmt = con.prepareStatement("INSERT INTO ACCOUNTS (SAVINGS) VALUES (?)");
         try {
-            pstmt.setLong(1,sav);
+            pstmt.setLong(1, sav);
             pstmt.executeUpdate();
         } finally {
             pstmt.close();
@@ -139,9 +138,9 @@ public abstract class BaseServlet extends HttpServlet {
         }
     }
 
-
     private static class Account {
         long id;
+
         long savings;
     }
 }

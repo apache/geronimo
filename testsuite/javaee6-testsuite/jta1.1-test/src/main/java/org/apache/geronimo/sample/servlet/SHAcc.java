@@ -22,37 +22,35 @@ import javax.annotation.sql.DataSourceDefinition;
 import javax.annotation.sql.DataSourceDefinitions;
 import javax.sql.DataSource;
 
-@DataSourceDefinitions({
-	  @DataSourceDefinition(name = "java:app/SHAccNonTx",
-	    className="org.apache.derby.jdbc.ClientDataSource",
-	    portNumber = 1527,
-	    serverName = "localhost",
-            url="jdbc:derby://localhost:1527/SHAcc",
-	    databaseName="SHAcc",
-	    user="system",
-            password="manager",
-            transactional=false,
-	    properties = {"createDatabase=create"}),
+@DataSourceDefinitions( {
+        @DataSourceDefinition(name = "java:app/SHAccNonTx", 
+                              className = "org.apache.derby.jdbc.ClientDataSource", 
+                              portNumber = 1527, 
+                              serverName = "localhost", 
+                              url = "jdbc:derby://localhost:1527/SHAcc", 
+                              databaseName = "SHAcc", 
+                              user = "system", 
+                              password = "manager", 
+                              transactional = false, 
+                              properties = { "createDatabase=create" }),
 
-
-	  @DataSourceDefinition(name = "java:app/SHAccTx",
-	    className="org.apache.derby.jdbc.ClientXADataSource",
-	    portNumber = 1527,
-	    serverName = "localhost",
-            url="jdbc:derby://localhost:1527/SHAcc",
-	    databaseName="SHAcc",
-	    user="system",
-            password="manager",
-            transactional= true,
-	    properties = {"createDatabase=create"})
-	})
-
+        @DataSourceDefinition(name = "java:app/SHAccTx", 
+                              className = "org.apache.derby.jdbc.ClientXADataSource", 
+                              portNumber = 1527, 
+                              serverName = "localhost", 
+                              url = "jdbc:derby://localhost:1527/SHAcc", 
+                              databaseName = "SHAcc", 
+                              user = "system", 
+                              password = "manager", 
+                              transactional = true, 
+                              properties = { "createDatabase=create" })
+} )
 public class SHAcc extends BaseServlet {
 
-    @Resource(lookup="java:app/SHAccNonTx")
+    @Resource(lookup = "java:app/SHAccNonTx")
     DataSource dataSourceNonTx;
 
-    @Resource(lookup="java:app/SHAccTx")
+    @Resource(lookup = "java:app/SHAccTx")
     DataSource dataSourcenTx;
 
     @Override

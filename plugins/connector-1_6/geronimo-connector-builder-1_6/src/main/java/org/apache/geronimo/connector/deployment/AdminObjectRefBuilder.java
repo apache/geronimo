@@ -22,13 +22,17 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
+import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
@@ -44,6 +48,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
+import org.apache.geronimo.naming.reference.GBeanReference;
 import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.naming.reference.UserTransactionReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationDocument;
@@ -121,6 +126,17 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
 
 
     public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map sharedContext) throws DeploymentException {
+        
+        AbstractNameQuery transactionManager = module.getEarContext().getTransactionManagerName();
+        if (transactionManager != null) {
+            Set<AbstractNameQuery> query = new HashSet<AbstractNameQuery>();
+            query.add(transactionManager);
+            GBeanReference transactionManagerRef = new GBeanReference(module.getConfigId(), query, TransactionManager.class);
+            put("java:comp/TransactionManager", transactionManagerRef, module.getJndiContext(), new ArrayList<InjectionTarget>(), sharedContext);
+            GBeanReference transactionSynchronizationRef = new GBeanReference(module.getConfigId(), query, TransactionSynchronizationRegistry.class);
+            put("java:comp/TransactionSynchronizationRegistry", transactionSynchronizationRef, module.getJndiContext(), new ArrayList<InjectionTarget>(), sharedContext);
+        }
+        
         XmlObject[] gerResourceEnvRefsUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ADMIN_OBJECT_REF_QNAME_SET);
         Map<String, GerResourceEnvRefType> refMap = mapResourceEnvRefs(gerResourceEnvRefsUntyped);
         Map<String, Map<String, GerMessageDestinationType>> messageDestinations = module.getRootEarContext().getMessageDestinations();
@@ -263,6 +279,9 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         }
         if ("javax.transaction.TransactionSynchronizationRegistry".equals(type)) {
             return new JndiReference("java:comp/TransactionSynchronizationRegistry");
+        }
+        if ("javax.transaction.TransactionManager".equals(type)) {
+            return new JndiReference("java:comp/TransactionManager");
         }
         try {
             AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef);
@@ -457,6 +476,7 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                         resourceType.equals("javax.validation.Validator") ||
                         resourceType.equals("javax.validation.ValidatorFactory") ||
                         resourceType.equals("javax.transaction.UserTransaction") ||
+                        resourceType.equals("javax.transaction.TransactionManager") ||
                         resourceType.equals("javax.transaction.TransactionSynchronizationRegistry")) {
                     //mapped resource-env-ref
                     addResourceEnvRef(annotatedApp, resourceName, resourceType, method, field, annotation);
