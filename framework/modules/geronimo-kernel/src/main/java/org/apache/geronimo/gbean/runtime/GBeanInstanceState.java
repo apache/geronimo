@@ -24,6 +24,8 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -281,7 +283,11 @@ public class GBeanInstanceState
 
             if (t instanceof Exception) {
                 // ignore - we only rethrow errors
-                gbeanInstance.setStateReason(t.getMessage());
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                pw.append(t.getMessage()).append("\n");
+                t.printStackTrace(pw);
+                gbeanInstance.setStateReason(sw.toString());
                 return;
             } else if (t instanceof Error) {
                 throw (Error) t;

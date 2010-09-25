@@ -468,7 +468,7 @@ public final class ConfigurationUtil {
                     if (State.RUNNING_INDEX != kernel.getGBeanState(gbeanName)) {
                         String stateReason = null;
                         if (kernel instanceof BasicKernel) {
-                            stateReason = ((BasicKernel) kernel).getStateReason(gbeanName);
+                            stateReason = kernel.getStateReason(gbeanName);
                         }
                         String name = gbeanName.toURI().getQuery();
                         if (stateReason != null) {
@@ -481,8 +481,7 @@ public final class ConfigurationUtil {
                 if (!unstarted.isEmpty()) {
                     StringBuffer message = new StringBuffer();
                     message.append("Configuration ").append(configuration.getId()).append(" failed to start due to the following reasons:\n");
-                    for (Iterator iterator = unstarted.iterator(); iterator.hasNext();) {
-                        String reason = (String) iterator.next();
+                    for (String reason : unstarted) {
                         message.append("  ").append(reason).append("\n");
                     }
                     throw new InvalidConfigurationException(message.toString());
