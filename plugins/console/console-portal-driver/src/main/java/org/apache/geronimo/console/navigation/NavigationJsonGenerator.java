@@ -110,6 +110,8 @@ public class NavigationJsonGenerator {
         
         if(!isTreeAList){
             
+            
+            boolean hasTopNode=false;
             for (TreeNode node : navigationTree.values()) {
 
                 // when menu items number is less than 6, let's only display the basic menu to the user.
@@ -118,28 +120,36 @@ public class NavigationJsonGenerator {
                     if (node.isTopNode()) {
                         sb.append("\n");
                         appendNodeToTreeJSON(sb, node, contextPath, DefaultIcon);
+                        hasTopNode=true;
                     }
 
 
             }
             
             //remove the extra ','
+            if(hasTopNode){
             sb.deleteCharAt(sb.length()-1);
+            }
 
             sb.append("\n]");
             
         } else {
             
+            boolean hasLeafNode=false;
             for (TreeNode node : navigationTree.values()) {
                 if (node.isLeafNode()) {
     
                     sb.append("\n");
     
                     appendBasicListJSON(sb, node, contextPath, DefaultIcon);
+                    
+                    hasLeafNode=true;
                 } 
             }
             //remove the extra ','
+            if(hasLeafNode){
             sb.deleteCharAt(sb.length()-1);
+            }
             
             sb.append("\n]");
             
