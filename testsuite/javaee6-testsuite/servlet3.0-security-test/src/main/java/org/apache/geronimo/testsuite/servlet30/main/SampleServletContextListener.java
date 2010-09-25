@@ -23,12 +23,11 @@ import java.util.Set;
 
 import javax.servlet.HttpConstraintElement;
 import javax.servlet.HttpMethodConstraintElement;
-import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.ServletSecurityElement;
 import javax.servlet.ServletRegistration.Dynamic;
+import javax.servlet.ServletSecurityElement;
 import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebListener;
 
@@ -44,9 +43,9 @@ public class SampleServletContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-    	
+
         ServletContext servletContext = servletContextEvent.getServletContext();
-                
+
         //dynamic register /SampleServlet3Dynamic and security constraint
         Dynamic servlet3Dynamic = servletContext.addServlet("SampleServlet3Dynamic", SampleServlet3.class);
         servlet3Dynamic.addMapping("/SampleServlet3Dynamic", "/TestDynamic");
@@ -58,5 +57,6 @@ public class SampleServletContextListener implements ServletContextListener {
         if (uneffectedUrlPatterns.size() == 0) {
             throw new RuntimeException("/SampleServlet3Dynamic should be returned as it is defined in the web.xml file");
         }
+        servlet3Dynamic.addMapping("/TestDynamicAfter");
     }
 }

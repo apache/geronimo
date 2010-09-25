@@ -14,7 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.testsuite.servlet30.main;
 
 import java.io.IOException;
@@ -23,25 +22,29 @@ import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HttpMethodConstraint;
 import javax.servlet.annotation.ServletSecurity;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * 
+ * 
+ * @version $Rev$ $Date$
+ */
+@ServletSecurity(httpMethodConstraints = { @HttpMethodConstraint(value = "GET", rolesAllowed = "RoleA") })
+public class SampleServlet5 extends HttpServlet {
 
-@WebServlet("/SampleServlet4")
-@ServletSecurity(httpMethodConstraints = {@HttpMethodConstraint(value = "POST", rolesAllowed = "RoleB") })
-public class SampleServlet4 extends HttpServlet{
-
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 5075453419235275644L;
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter printWriter = response.getWriter();
-        printWriter.write("SampleServlet4.doGet");
+        printWriter.write("SampleServlet5.doGet");
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+            IOException {
         PrintWriter printWriter = response.getWriter();
-        printWriter.write("SampleServlet4.doPost");
+        printWriter.write("SampleServlet5.doPost");
     }
+
 }

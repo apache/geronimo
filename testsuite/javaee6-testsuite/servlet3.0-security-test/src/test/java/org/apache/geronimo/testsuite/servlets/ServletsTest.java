@@ -21,11 +21,6 @@ package org.apache.geronimo.testsuite.servlets;
 
 import java.net.HttpURLConnection;
 
-import javax.servlet.annotation.HttpMethodConstraint;
-import javax.servlet.annotation.ServletSecurity;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
@@ -33,14 +28,13 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-
+import org.apache.geronimo.testsupport.SeleniumTestSupport;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
 public class ServletsTest extends SeleniumTestSupport {
-       
-/**In web.xml, it reads as follows: 
+
+/**In web.xml, it reads as follows:
  *     <security-constraint>
  *        <web-resource-collection>
  *        	<web-resource-name>resource1</web-resource-name>
@@ -54,7 +48,7 @@ public class ServletsTest extends SeleniumTestSupport {
  */
 
 	/**
-	 * Test1 
+	 * Test1
 	 * test <http-method-omission>
 	 */
    @Test
@@ -87,7 +81,7 @@ public class ServletsTest extends SeleniumTestSupport {
     public void test_SampleServlet2_GET_RoleA_Success() throws Exception {
         Assert.assertEquals(invoke("/SampleServlet2" , "GET", "alan" , "starcraft" ) , HttpURLConnection.HTTP_OK);
     }
-    
+
     /**
 	 * Test4
 	 */
@@ -106,7 +100,7 @@ public class ServletsTest extends SeleniumTestSupport {
     public void test_SampleServlet4_POST_RoleB_Success() throws Exception {
         Assert.assertEquals(invoke("/SampleServlet4", "POST", "george", "bone"), HttpURLConnection.HTTP_OK);
     }
-    
+
 	/**
 	 * Test6
 	 */
@@ -122,7 +116,7 @@ public class ServletsTest extends SeleniumTestSupport {
     public void test_SampleServlet3_All_Success() throws Exception {
         Assert.assertEquals(invoke("/SampleServlet3", "POST", "unknown", "unknown"), HttpURLConnection.HTTP_OK);
     }
-    
+
 	/**
 	 * Test8
 	 * URL "/SampleServlet3Dynamic" are set both in web.xml and ServletRegistration.Dynamic
@@ -134,7 +128,7 @@ public class ServletsTest extends SeleniumTestSupport {
     public void test_SampleServlet3Dynamic_GET_RoleC_Fail() throws Exception {
         Assert.assertEquals(invoke("/SampleServlet3Dynamic", "GET", "gracie", "biscuit"), HttpURLConnection.HTTP_FORBIDDEN);
     }
-   
+
 
     /**
 	 * Test9
@@ -144,7 +138,7 @@ public class ServletsTest extends SeleniumTestSupport {
         Assert.assertEquals(invoke("/SampleServlet3Dynamic", "POST", "unknown", "unknown"), HttpURLConnection.HTTP_OK);
     }
 
-    
+
     /**
 	 * Test10
 	 * Test @WebServlet annotation feature in Servlet 3.0
@@ -153,7 +147,7 @@ public class ServletsTest extends SeleniumTestSupport {
     public void test_annotation_WebServlet() throws Exception{
     	Assert.assertEquals(invoke("/WebServlet1", "POST", "unknown", "unknown"), HttpURLConnection.HTTP_OK);
     }
-    
+
     /**
 	 * Test11
 	 * Test @WebServlet annotation feature in Servlet 3.0
@@ -164,9 +158,9 @@ public class ServletsTest extends SeleniumTestSupport {
     public void test_annotation_WebServlet2() throws Exception{
     	Assert.assertEquals(invoke("/WebServlet2", "GET", "unknown", "unknown"), HttpURLConnection.HTTP_OK);
     }
-    
-    
-    
+
+
+
     /**
 	 * Test12
 	 * In ServletRegistration.Dynamic, GET access is allowled by RoleC
@@ -175,7 +169,7 @@ public class ServletsTest extends SeleniumTestSupport {
     public void test_TestDynamic_GET_RoleC_Sucess() throws Exception{
     	Assert.assertEquals(invoke("/TestDynamic", "GET", "gracie", "biscuit"), HttpURLConnection.HTTP_OK);
     }
-    
+
     /**
 	 * Test13
 	 */
@@ -183,7 +177,7 @@ public class ServletsTest extends SeleniumTestSupport {
     public void test_TestDynamic_GET_RoleB_Fail() throws Exception{
     	Assert.assertEquals(invoke("/TestDynamic", "GET", "george", "bone"), HttpURLConnection.HTTP_FORBIDDEN);
     }
-    
+
     /**
 	 * Test14 RoleA\B\C should succeed
 	 */
@@ -191,7 +185,7 @@ public class ServletsTest extends SeleniumTestSupport {
     public void test_Authenticate_Sucess() throws Exception{
     	Assert.assertEquals(invoke("/AuthenticateServlet", "GET", "george", "bone"), HttpURLConnection.HTTP_OK);
     }
-    
+
     /**
 	 * Test15 RoleA\B\C should succeed
 	 */
@@ -212,7 +206,33 @@ public class ServletsTest extends SeleniumTestSupport {
 		Assert.assertEquals("george", selenium.getText("//*[@id=\"ali3\"]"));
 		Assert.assertEquals("null", selenium.getText("//*[@id=\"alo3\"]"));
     }
-    
+
+    public void test_ServletSecurityAnnotation() throws Exception {
+
+        Assert.assertEquals(invoke("/SampleServlet5_1", "GET", "alan", "starcraft"), HttpURLConnection.HTTP_OK);
+        Assert.assertEquals(invoke("/SampleServlet5_1", "GET", "george", "bone"), HttpURLConnection.HTTP_FORBIDDEN);
+        Assert.assertEquals(invoke("/SampleServlet5_1", "POST", "unknown", "unknown"), HttpURLConnection.HTTP_OK);
+
+        Assert.assertEquals(invoke("/SampleServlet5_2", "GET", "unknown", "unknown"), HttpURLConnection.HTTP_OK);
+        Assert.assertEquals(invoke("/SampleServlet5_2", "POST", "unknown", "unknown"), HttpURLConnection.HTTP_OK);
+
+        Assert.assertEquals(invoke("/SampleServlet5_3", "GET", "alan", "starcraft"), HttpURLConnection.HTTP_OK);
+        Assert.assertEquals(invoke("/SampleServlet5_3", "GET", "george", "bone"), HttpURLConnection.HTTP_FORBIDDEN);
+        Assert.assertEquals(invoke("/SampleServlet5_3", "POST", "unknown", "unknown"), HttpURLConnection.HTTP_OK);
+
+        Assert.assertEquals(invoke("/SampleServlet6_1", "POST", "alan", "starcraft"), HttpURLConnection.HTTP_FORBIDDEN);
+        Assert.assertEquals(invoke("/SampleServlet6_1", "POST", "george", "bone"), HttpURLConnection.HTTP_OK);
+        Assert.assertEquals(invoke("/SampleServlet6_1", "GET", "unknown", "unknown"), HttpURLConnection.HTTP_OK);
+
+        Assert.assertEquals(invoke("/TestDynamic", "GET", "gracie", "biscuit"), HttpURLConnection.HTTP_OK);
+        Assert.assertEquals(invoke("/TestDynamic", "GET", "alan", "starcraft"), HttpURLConnection.HTTP_FORBIDDEN);
+
+        Assert.assertEquals(invoke("/TestDynamicAfter", "GET", "gracie", "biscuit"), HttpURLConnection.HTTP_OK);
+        Assert.assertEquals(invoke("/TestDynamicAfter", "GET", "alan", "starcraft"), HttpURLConnection.HTTP_FORBIDDEN);
+
+        Assert.assertEquals(invoke("/SampleServlet3Dynamic", "GET", "gracie", "biscuit"), HttpURLConnection.HTTP_FORBIDDEN);
+
+    }
 
     private int invoke(String address, String methodName, String userName, String password) throws Exception {
         HttpClient client = new HttpClient();

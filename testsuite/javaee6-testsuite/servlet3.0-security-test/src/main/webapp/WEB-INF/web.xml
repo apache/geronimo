@@ -38,6 +38,12 @@
         <servlet-name>SampleServlet3</servlet-name>
         <servlet-class>org.apache.geronimo.testsuite.servlet30.main.SampleServlet3</servlet-class>
     </servlet>
+     <servlet>
+        <description></description>
+        <display-name>SampleServlet6</display-name>
+        <servlet-name>SampleServlet6</servlet-name>
+        <servlet-class>org.apache.geronimo.testsuite.servlet30.main.SampleServlet6</servlet-class>
+    </servlet>
     <servlet>
         <description></description>
         <display-name>LoginServlet</display-name>
@@ -60,6 +66,10 @@
         <servlet-name>SampleServlet3</servlet-name>
         <url-pattern>/SampleServlet3</url-pattern>
         <url-pattern>/SampleServlet3/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SampleServlet6</servlet-name>
+        <url-pattern>/SampleServlet6</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>
@@ -88,6 +98,28 @@
         <web-resource-collection>
             <web-resource-name>resource2</web-resource-name>
             <url-pattern>/SampleServlet2</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>RoleA</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>resource3</web-resource-name>
+            <url-pattern>/SampleServlet2</url-pattern>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>RoleB</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>resource6</web-resource-name>
+            <url-pattern>/SampleServlet6</url-pattern>
             <http-method>GET</http-method>
         </web-resource-collection>
         <auth-constraint>
