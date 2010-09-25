@@ -19,11 +19,15 @@ package org.apache.geronimo.jetty8.handler;
 import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
+import java.util.Collections;
+import java.util.Set;
 
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
+import javax.servlet.ServletSecurityElement;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -71,6 +75,7 @@ public class JaccSecurityHandler extends SecurityHandler {
      *      javax.servlet.http.HttpServletRequest,
      *      javax.servlet.http.HttpServletResponse, int)
      */
+    @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request,
                        HttpServletResponse response) throws IOException,
             ServletException {
@@ -89,10 +94,12 @@ public class JaccSecurityHandler extends SecurityHandler {
         }
     }
 
+    @Override
     protected Object prepareConstraintInfo(String pathInContext, Request request) {
         return null;
     }
 
+    @Override
     protected boolean checkUserDataPermissions(String pathInContext, Request request, Response response, Object constraintInfo) throws IOException {
         boolean notIntegral = request.isSecure() || !request.getConnection().isIntegral(request);
 
@@ -122,10 +129,12 @@ public class JaccSecurityHandler extends SecurityHandler {
         return result;
     }
 
+    @Override
     protected boolean isAuthMandatory(Request base_request, Response base_response, Object constraintInfo) {
         return !checkWebResourcePermission(base_request, defaultAcc);
     }
 
+    @Override
     protected boolean checkWebResourcePermissions(String pathInContext, Request request, Response response, Object constraintInfo, UserIdentity userIdentity) throws IOException {
         if (!(userIdentity instanceof GeronimoUserIdentity)){
             //we already checked against default_acc and got false

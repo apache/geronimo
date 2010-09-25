@@ -44,7 +44,6 @@ import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.jetty8.handler.GeronimoWebAppContext;
 import org.apache.geronimo.jetty8.handler.IntegrationContext;
-import org.apache.geronimo.jetty8.security.JACCSecurityEventListener;
 import org.apache.geronimo.jetty8.security.SecurityHandlerFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
@@ -55,7 +54,6 @@ import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
-import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.security.SecurityHandler;
@@ -181,7 +179,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         Context componentContext = contextSource.getContext();
         UserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
         IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder);
-        webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo);
+        webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo, policyContextID, applicationPolicyConfigurationManager);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
         webAppContext.setCompactPath(compactPath);
@@ -234,7 +232,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         if (contextParamMap != null) {
             webAppContext.getInitParams().putAll(contextParamMap);
         }
-//        setListenerClassNames(listenerClassNames);
         webAppContext.setDistributable(distributable);
         webAppContext.setWelcomeFiles(welcomeFiles);
         setLocaleEncodingMapping(localeEncodingMapping);
@@ -246,13 +243,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         }
         //supply web.xml to jasper
         webAppContext.setAttribute(JASPER_WEB_XML_NAME, originalSpecDD);
-
-        if (securityHandlerFactory != null) {
-            float schemaVersion = (Float) deploymentAttributes.get(WebAttributeName.SCHEMA_VERSION.name());
-            boolean metaComplete = (Boolean) deploymentAttributes.get(WebAttributeName.META_COMPLETE.name());
-            webAppContext.addLifeCycleListener(new JACCSecurityEventListener(bundle, webAppInfo, schemaVersion >= 2.5f && !metaComplete, applicationPolicyConfigurationManager, policyContextID,
-                    (GeronimoWebAppContext.SecurityContext) webAppContext.getServletContext()));
-        }
     }
 
 

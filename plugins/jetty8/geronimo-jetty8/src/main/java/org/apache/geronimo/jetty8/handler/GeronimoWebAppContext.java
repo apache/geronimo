@@ -26,14 +26,20 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.EventListener;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingException;
+import javax.security.auth.login.LoginException;
+import javax.security.jacc.PolicyContextException;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
+import javax.servlet.ServletSecurityElement;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -41,8 +47,11 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstan
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
 import org.apache.geronimo.osgi.web.WebApplicationConstants;
 import org.apache.geronimo.osgi.web.WebApplicationUtils;
+import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.web.assembler.Assembler;
 import org.apache.geronimo.web.info.WebAppInfo;
+import org.apache.geronimo.web.security.SpecSecurityBuilder;
 import org.apache.geronimo.web.security.WebSecurityConstraintStore;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.eclipse.jetty.security.SecurityHandler;
@@ -67,12 +76,22 @@ public class GeronimoWebAppContext extends WebAppContext {
     private final String modulePath;
     private final ClassLoader classLoader;
     private final WebAppInfo webAppInfo;
+    private final WebSecurityConstraintStore webSecurityConstraintStore;
+    private final String policyContextId;
+    private final ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
     private ServiceRegistration serviceRegistration;
     boolean fullyStarted = false;
 
-    public GeronimoWebAppContext(SecurityHandler securityHandler, SessionHandler sessionHandler, ServletHandler servletHandler, ErrorHandler errorHandler, IntegrationContext integrationContext, ClassLoader classLoader, String modulePath, WebAppInfo webAppInfo) {
+    public GeronimoWebAppContext(SecurityHandler securityHandler,
+                                 SessionHandler sessionHandler,
+                                 ServletHandler servletHandler,
+                                 ErrorHandler errorHandler,
+                                 IntegrationContext integrationContext,
+                                 ClassLoader classLoader,
+                                 String modulePath,
+                                 WebAppInfo webAppInfo, String policyContextId, ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager) {
         super(sessionHandler, securityHandler, servletHandler, errorHandler);
-        _scontext = securityHandler == null ? new Context() : new SecurityContext();
+        _scontext = new Context();
         this.integrationContext = integrationContext;
         setClassLoader(classLoader);
         this.classLoader = classLoader;
@@ -87,6 +106,12 @@ public class GeronimoWebAppContext extends WebAppContext {
         }
         this.modulePath = modulePath;
         this.webAppInfo = webAppInfo;
+        this.policyContextId = policyContextId;
+        this.applicationPolicyConfigurationManager = applicationPolicyConfigurationManager;
+        //TODO schemaVersion >= 2.5f && !metaComplete but only for a while....
+        boolean annotationScanRequired = true;
+        webSecurityConstraintStore = new WebSecurityConstraintStore(webAppInfo, integrationContext.getBundle(), annotationScanRequired, _scontext);
+
     }
 
     public void registerServletContext() {
@@ -116,6 +141,24 @@ public class GeronimoWebAppContext extends WebAppContext {
                 assembler.assemble(getServletContext(), webAppInfo);
                 ((GeronimoWebAppContext.Context) _scontext).webXmlProcessed = true;
                 super.doStart();
+                if (applicationPolicyConfigurationManager != null) {
+                    SpecSecurityBuilder specSecurityBuilder = new SpecSecurityBuilder(webSecurityConstraintStore.exportMergedWebAppInfo());
+                    Map<String, ComponentPermissions> contextIdPermissionsMap = new HashMap<String, ComponentPermissions>();
+                    contextIdPermissionsMap.put(policyContextId, specSecurityBuilder.buildSpecSecurityConfig());
+                    //Update ApplicationPolicyConfigurationManager
+                    try {
+                        applicationPolicyConfigurationManager.updateApplicationPolicyConfiguration(contextIdPermissionsMap);
+                    } catch (LoginException e) {
+                        throw new RuntimeException("Fail to set application policy configurations", e);
+                    } catch (PolicyContextException e) {
+                        throw new RuntimeException("Fail to set application policy configurations", e);
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException("Fail to set application policy configurations", e);
+                    } finally {
+                        //Clear SpecSecurityBuilder
+                        specSecurityBuilder.clear();
+                    }
+                }
                 fullyStarted = true;
             } finally {
                 setRestrictListeners(true);
@@ -227,6 +270,17 @@ public class GeronimoWebAppContext extends WebAppContext {
         return paths;
     }
 
+
+    @Override
+    public Set<String> setServletSecurity(ServletRegistration.Dynamic registration, ServletSecurityElement servletSecurityElement) {
+        return webSecurityConstraintStore.setDynamicServletSecurity(registration, servletSecurityElement);
+    }
+
+    @Override
+    protected void addRoles(String... roles) {
+        webSecurityConstraintStore.declareRoles(roles);
+    }
+
     private Resource lookupResource(String uriInContext) {
         Bundle bundle = integrationContext.getBundle();
         URL url = BundleUtils.getEntry(bundle, uriInContext);
@@ -286,82 +340,8 @@ public class GeronimoWebAppContext extends WebAppContext {
         @Override
         public <T extends Servlet> T createServlet(Class<T> c) throws ServletException {
             try {
-                return (T) integrationContext.getHolder().newInstance(c.getName(), classLoader, integrationContext.getComponentContext());
-            } catch (IllegalAccessException e) {
-                throw new ServletException("Could not create servlet " + c.getName(), e);
-            } catch (InstantiationException e) {
-                throw new ServletException("Could not create servlet " + c.getName(), e);
-            }
-        }
-    }
-
-    public class SecurityContext extends Context {
-
-        private WebSecurityConstraintStore webSecurityConstraintStore;
-
-        @Override
-        public Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
-            Dynamic dynamic = super.addServlet(servletName, servletClass);
-            if (!webXmlProcessed) {
-                return dynamic;
-            }
-            webSecurityConstraintStore.addContainerCreatedDynamicServletEntry(servletName, servletClass.getName());
-            return createGeronimoApplicationServletRegistrationAdapter(dynamic, servletName);
-        }
-
-        @Override
-        public Dynamic addServlet(String servletName, Servlet servlet) {
-            Dynamic dynamic = super.addServlet(servletName, servlet);
-            if (!webXmlProcessed) {
-                return dynamic;
-            }
-            if (webSecurityConstraintStore.isContainerCreatedDynamicServlet(servlet)) {
-                webSecurityConstraintStore.addContainerCreatedDynamicServletEntry(servletName, servlet.getClass().getName());
-            }
-            return createGeronimoApplicationServletRegistrationAdapter(dynamic, servletName);
-        }
-
-        @Override
-        public Dynamic addServlet(String servletName, String className) {
-            Dynamic dynamic = super.addServlet(servletName, className);
-            if (!webXmlProcessed) {
-                return dynamic;
-            }
-            webSecurityConstraintStore.addContainerCreatedDynamicServletEntry(servletName, className);
-            return createGeronimoApplicationServletRegistrationAdapter(dynamic, servletName);
-        }
-
-        @Override
-        public void declareRoles(String... roles) {
-            if (!isStarting())
-                throw new IllegalStateException();
-            if (!_enabled)
-                throw new UnsupportedOperationException();
-            webSecurityConstraintStore.declareRoles(roles);
-        }
-
-        protected Dynamic createGeronimoApplicationServletRegistrationAdapter(Dynamic applicationServletRegistration, String servletName) {
-            if (applicationServletRegistration == null) {
-                return null;
-            }
-            return new GeronimoApplicationServletRegistrationAdapter(GeronimoWebAppContext.this, applicationServletRegistration);
-        }
-
-        public WebSecurityConstraintStore getWebSecurityConstraintStore() {
-            return webSecurityConstraintStore;
-        }
-
-        public void setWebSecurityConstraintStore(WebSecurityConstraintStore webSecurityConstraintStore) {
-            this.webSecurityConstraintStore = webSecurityConstraintStore;
-        }
-
-        @Override
-        public <T extends Servlet> T createServlet(Class<T> c) throws ServletException {
-            try {
                 T servlet = (T) integrationContext.getHolder().newInstance(c.getName(), classLoader, integrationContext.getComponentContext());
-                if (isStarting()) {
-                    webSecurityConstraintStore.addContainerCreatedDynamicServlet(servlet);
-                }
+                webSecurityConstraintStore.addContainerCreatedDynamicServlet(servlet);
                 return servlet;
             } catch (IllegalAccessException e) {
                 throw new ServletException("Could not create servlet " + c.getName(), e);
@@ -369,5 +349,7 @@ public class GeronimoWebAppContext extends WebAppContext {
                 throw new ServletException("Could not create servlet " + c.getName(), e);
             }
         }
+
     }
+
 }

@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.servlet.HttpMethodConstraintElement;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration;
 import javax.servlet.ServletSecurityElement;
 import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.ServletSecurity.TransportGuarantee;
@@ -152,6 +153,12 @@ public class WebSecurityConstraintStore {
         return containerCreatedDynamicServlets.containsKey(servlet);
     }
 
+    public Set<String> setDynamicServletSecurity(ServletRegistration.Dynamic registration, ServletSecurityElement constraint) {
+        dynamicServletNameSecurityElementMap.put(registration.getName(), constraint);
+        Set<String> uneffectedUrlPatterns = new HashSet<String>(registration.getMappings());
+        uneffectedUrlPatterns.retainAll(webXmlConstraintUrlPatterns);
+        return uneffectedUrlPatterns;
+    }
     public Set<String> setDynamicServletSecurity(String servletName, ServletSecurityElement constraint, Collection<String> urlPatterns) {
         dynamicServletNameSecurityElementMap.put(servletName, constraint);
         Set<String> uneffectedUrlPatterns = new HashSet<String>(urlPatterns);
