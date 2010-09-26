@@ -78,7 +78,7 @@ public class GeronimoApplicationContext extends ApplicationContext {
     @Override
     public <T extends Servlet> T createServlet(Class<T> c) throws ServletException  {
         T servlet = super.createServlet(c);
-        if (!context.getConfigured() || webSecurityConstraintStore == null) {
+        if (context.getConfigured() && webSecurityConstraintStore != null) {
             webSecurityConstraintStore.addContainerCreatedDynamicServlet(servlet);
         }
         return servlet;
