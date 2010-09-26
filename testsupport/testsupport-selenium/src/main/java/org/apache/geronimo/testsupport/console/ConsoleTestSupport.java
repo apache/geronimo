@@ -66,13 +66,13 @@ public abstract class ConsoleTestSupport
 		navigationTreeLabel2Index.put("Debug Views",5);
 		navigationTreeLabel2Index.put("Embedded DB",6);
 		//get tree node id dynamicly 
-		String script=" var navigationTree=this.browserbot.getCurrentWindow().dijit.byId('navigationTree');";
+		String script=" var navigationTree=this.browserbot.getCurrentWindow().dijit.byId('navigationTreeAdvanced');";
 	 	script=script+"var wrapperNode =navigationTree._itemNodesMap["+navigationTreeLabel2Index.get(navigationTreeLabel).intValue()+"];";
 	 	script+="wrapperNode[0].id;";
 	 	String navigationTreeNodeId=selenium.getEval(script);
 	 	
 	 	//collapse the tree node 
-	 	script=" var navigationTree=this.browserbot.getCurrentWindow().dijit.byId('navigationTree');";
+	 	script=" var navigationTree=this.browserbot.getCurrentWindow().dijit.byId('navigationTreeAdvanced');";
 	 	script=script+"var wrapperNode =navigationTree._itemNodesMap["+navigationTreeLabel2Index.get(navigationTreeLabel).intValue()+"];";
 	 	script+="navigationTree._collapseNode(wrapperNode[0]);";
 		selenium.getEval(script);
