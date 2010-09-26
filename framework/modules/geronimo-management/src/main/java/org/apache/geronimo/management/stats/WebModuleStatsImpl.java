@@ -25,7 +25,7 @@ import org.apache.geronimo.management.geronimo.stats.WebModuleStats;
 /**
  * Geronimo implementation of the JSR-77 style WebModule interface. This
  * is not required by JSR-77, but provides useful statistics for a web app
- * 
+ *
  * @version $Revison$ $Date$
  */
 public class WebModuleStatsImpl extends StatsImpl implements WebModuleStats {
@@ -131,7 +131,7 @@ public class WebModuleStatsImpl extends StatsImpl implements WebModuleStats {
         this.sessionAliveTime.setTotalTime(totalTime);
     }
 
-    public void setSessionCount(int sessionCount) {
+    public void setSessionCount(long sessionCount) {
         this.sessionCount.setCount(sessionCount);
     }
 
@@ -139,14 +139,14 @@ public class WebModuleStatsImpl extends StatsImpl implements WebModuleStats {
         this.activeSessionCount.setCount(activeSessionCount);
     }
 
-    public void setExpiredSessionCount(int expiredSessionCount) {
+    public void setExpiredSessionCount(long expiredSessionCount) {
         this.expiredSessionCount.setCount(expiredSessionCount);
     }
 
     public void setRejectedSessionCount(int rejectedSessionCount) {
         this.rejectedSessionCount.setCount(rejectedSessionCount);
     }
-    
+
     // Is this needed ?
     public void setLastSampleTime(long time) {
         sessionAliveTime.setLastSampleTime(time);

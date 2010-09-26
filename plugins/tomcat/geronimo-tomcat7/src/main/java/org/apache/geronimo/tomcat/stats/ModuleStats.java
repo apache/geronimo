@@ -34,7 +34,7 @@ import org.apache.geronimo.management.stats.WebModuleStatsImpl;
 
 /**
  * Query MBeanServer and provide jsr77 Stats for module, i.e. a webapp
- * 
+ *
  * @version $Revision$ $Date$
  */
 
@@ -60,16 +60,16 @@ public class ModuleStats {
             log.error("Error - " + ex.toString());
         }
         // Query Session Managers
-        Set set = mBeanServer.queryMBeans(mgrName, null);
-        Iterator iterator = set.iterator();
+        Set<ObjectInstance> set = mBeanServer.queryMBeans(mgrName, null);
+        Iterator<ObjectInstance> iterator = set.iterator();
         ObjectName objectName;
         while (iterator.hasNext()) {
-            ObjectInstance oi = (ObjectInstance) iterator.next();
+            ObjectInstance oi = iterator.next();
             objectName = oi.getObjectName();
             if (objectName.getKeyProperty("path").indexOf(context.getPath()) > -1) {
                 mgrName = objectName;
                 break;
-                
+
             }
         }
 
@@ -80,13 +80,13 @@ public class ModuleStats {
     }
 
     public Stats getStats() {
-        // Initialize startTime for all statistics 
+        // Initialize startTime for all statistics
         stats.setStartTime();
         // get transient statistics
         updateStats(stats);
         return stats;
     }
-    
+
     public Stats updateStats() {
         // get transient statistics
         updateStats(stats);
@@ -95,7 +95,7 @@ public class ModuleStats {
 
     /*
      * return updated value of all trainsient statistics
-     * 
+     *
      */
     private void updateStats(WebModuleStatsImpl stats) {
         stats.setLastSampleTime();
@@ -112,10 +112,10 @@ public class ModuleStats {
                     "activeSessions"))).intValue();
             int rejectedSessions = ((Integer) (mBeanServer.getAttribute(
                     mgrName, "rejectedSessions"))).intValue();
-            int expiredSessions = ((Integer) (mBeanServer.getAttribute(mgrName,
-                    "expiredSessions"))).intValue();
-            int sessionCounter = ((Integer) (mBeanServer.getAttribute(mgrName,
-                    "sessionCounter"))).intValue();
+            long expiredSessions = ((Long) (mBeanServer.getAttribute(mgrName,
+                    "expiredSessions"))).longValue();
+            long sessionCounter = ((Long) (mBeanServer.getAttribute(mgrName,
+                    "sessionCounter"))).longValue();
 
             stats.setSessionAliveTime(maxActive, -1, sessionMaxAliveTime,
                     sessionAverageAliveTime * maxActive);

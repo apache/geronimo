@@ -32,7 +32,7 @@ import org.apache.tomcat.util.modeler.Registry;
 
 /**
  * This will query MBeanServer and provide jsr77 Stats for connectors.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class ConnectorStats {
@@ -65,7 +65,7 @@ public class ConnectorStats {
         return stats;
 
     }
-    
+
     public Stats updateStats(String port) {
         updateStats(stats, port);
         return stats;
@@ -73,15 +73,15 @@ public class ConnectorStats {
     }
 
     private void updateStats(TomcatWebConnectorStatsImpl stats, String port) {
-        Iterator iterator;
-        Set set;
+        Iterator<ObjectInstance> iterator;
+        Set<ObjectInstance> set;
         ObjectName objectName;
         try {
             // Query Thread Pools
             set = mBeanServer.queryMBeans(tpName, null);
             iterator = set.iterator();
             while (iterator.hasNext()) {
-                ObjectInstance oi = (ObjectInstance) iterator.next();
+                ObjectInstance oi = iterator.next();
                 objectName = oi.getObjectName();
                 if (objectName.getKeyProperty("name").indexOf(port) > -1) {
                     tpName = objectName;
@@ -92,7 +92,7 @@ public class ConnectorStats {
             set = mBeanServer.queryMBeans(grpName, null);
             iterator = set.iterator();
             while (iterator.hasNext()) {
-                ObjectInstance oi = (ObjectInstance) iterator.next();
+                ObjectInstance oi = iterator.next();
                 objectName = oi.getObjectName();
                 if (objectName.getKeyProperty("name").indexOf(port) > -1) {
                     grpName = objectName;
@@ -109,7 +109,7 @@ public class ConnectorStats {
             long bytesSent = ((Long) (mBeanServer.getAttribute(grpName, "bytesSent"))).longValue();
             // Tomcat does not keep min Time, using 0 as Undefined value
             stats.setRequestTime(requestCount, 0, maxTime, processingTime);
-            stats.setErrorCount(errorCount);            
+            stats.setErrorCount(errorCount);
             stats.setBytesSentCount(bytesSent);
             stats.setBytesReceivedCount(bytesReceived);
             long openConnections = 0;
@@ -118,7 +118,7 @@ public class ConnectorStats {
             long maxOpenConnections = 0;
             //long maxOpenConnections = ((Long) (mBeanServer.getAttribute(grpName, "maxOpenConnections"))).longValue();
             stats.setOpenConnection(openConnections, maxOpenConnections, 0);
-            // ThreadPool 
+            // ThreadPool
             int currentThreadsBusy = ((Integer) (mBeanServer.getAttribute(tpName, "currentThreadsBusy"))).intValue();
             //stats.setActiveRequestCount(currentThreadsBusy); ??
             int currentThreadCount = ((Integer) (mBeanServer.getAttribute(tpName, "currentThreadCount"))).intValue();
