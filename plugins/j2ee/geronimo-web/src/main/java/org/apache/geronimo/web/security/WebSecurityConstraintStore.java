@@ -66,6 +66,7 @@ public class WebSecurityConstraintStore {
     private Map<String, String> containerCreatedDynamicServletNameClassMap = new HashMap<String, String>();
 
     private Map<String, ServletSecurityElement> dynamicServletNameSecurityElementMap = new LinkedHashMap<String, ServletSecurityElement>();
+    private Map<RegistrationKey, ServletSecurityElement> registrationSecurityElementMap = new LinkedHashMap<RegistrationKey, ServletSecurityElement>();
 
     private Set<String> securityRoles = new HashSet<String>();
 
@@ -91,8 +92,25 @@ public class WebSecurityConstraintStore {
         initialize();
     }
 
+    public void setAnnotationScanRequired(boolean scanRequired) {
+        annotationScanRequired = scanRequired;
+    }
+
     public void addContainerCreatedDynamicServlet(javax.servlet.Servlet servlet) {
         containerCreatedDynamicServlets.put(servlet, null);
+    }
+
+    public boolean isContainerCreatedDynamicServlet(javax.servlet.Servlet servlet) {
+        return containerCreatedDynamicServlets.containsKey(servlet);
+    }
+
+    public void addContainerCreatedDynamicServletEntry(ServletRegistration.Dynamic registration, String servletClass) {
+        if (annotationScanRequired) {
+            ServletSecurityElement servletSecurityElement = processServletConstraintAnnotation(servletClass);
+            if (servletSecurityElement != null) {
+                setDynamicServletSecurity(registration, servletSecurityElement);
+            }
+        }
     }
 
     public void addContainerCreatedDynamicServletEntry(String servletName, String servletClass) {
@@ -123,11 +141,12 @@ public class WebSecurityConstraintStore {
         List<SecurityConstraintInfo> securityConstraints = new ArrayList<SecurityConstraintInfo>();
         //Scan ServletSecurity annotation if required
         if (annotationScanRequired) {
-            for (ServletInfo servlet : webXmlAppInfo.servlets) {
-                Collection<String> urlPatterns = servletContext.getServletRegistration(servlet.servletName).getMappings();
-                urlPatterns.removeAll(webXmlConstraintUrlPatterns);
-                processServletConstraintAnnotation(securityConstraints, servlet.servletName, servlet.servletClass, urlPatterns);
-            }
+            //these will already have been added and be in the containerCreatedDynamicServletNameClassMap
+//            for (ServletInfo servlet : webXmlAppInfo.servlets) {
+//                Collection<String> urlPatterns = servletContext.getServletRegistration(servlet.servletName).getMappings();
+//                urlPatterns.removeAll(webXmlConstraintUrlPatterns);
+//                processServletConstraintAnnotation(securityConstraints, servlet.servletName, servlet.servletClass, urlPatterns);
+//            }
 
             for (Map.Entry<String, String> entry : containerCreatedDynamicServletNameClassMap.entrySet()) {
                 String servletName = entry.getKey();
@@ -145,16 +164,18 @@ public class WebSecurityConstraintStore {
             urlPatterns.removeAll(webXmlConstraintUrlPatterns);
             processServletSecurityElement(securityConstraints, entry.getValue(), urlPatterns);
         }
+        for (Map.Entry<RegistrationKey, ServletSecurityElement> entry : registrationSecurityElementMap.entrySet()) {
+            Collection<String> urlPatterns = entry.getKey().registration.getMappings();
+            urlPatterns.removeAll(webXmlConstraintUrlPatterns);
+            processServletSecurityElement(securityConstraints, entry.getValue(), urlPatterns);
+        }
+
         webXmlAppInfo.securityConstraints.addAll(securityConstraints);
         return webXmlAppInfo;
     }
 
-    public boolean isContainerCreatedDynamicServlet(javax.servlet.Servlet servlet) {
-        return containerCreatedDynamicServlets.containsKey(servlet);
-    }
-
     public Set<String> setDynamicServletSecurity(ServletRegistration.Dynamic registration, ServletSecurityElement constraint) {
-        dynamicServletNameSecurityElementMap.put(registration.getName(), constraint);
+        registrationSecurityElementMap.put(new RegistrationKey(registration), constraint);
         Set<String> uneffectedUrlPatterns = new HashSet<String>(registration.getMappings());
         uneffectedUrlPatterns.retainAll(webXmlConstraintUrlPatterns);
         return uneffectedUrlPatterns;
@@ -184,13 +205,11 @@ public class WebSecurityConstraintStore {
     }
 
     private SecurityConstraintInfo newHTTPSecurityConstraint(String[] rolesAllowed, TransportGuarantee transportGuarantee, ServletSecurity.EmptyRoleSemantic emptyRoleSemantic,
-            String[] omissionMethods, Collection<String> urlPatterns) {
-        SecurityConstraintInfo securityConstraint = newSecurityConstraint(rolesAllowed, transportGuarantee, emptyRoleSemantic, omissionMethods.length > 0);
+            Collection<String> omissionMethods, Collection<String> urlPatterns) {
+        SecurityConstraintInfo securityConstraint = newSecurityConstraint(rolesAllowed, transportGuarantee, emptyRoleSemantic, !omissionMethods.isEmpty());
         if (securityConstraint != null) {
             WebResourceCollectionInfo webResourceCollection = securityConstraint.webResourceCollections.get(0);
-            for (String omissionMethod : omissionMethods) {
-                webResourceCollection.httpMethods.add(omissionMethod);
-            }
+            webResourceCollection.httpMethods.addAll(omissionMethods);
             webResourceCollection.urlPatterns.addAll(urlPatterns);
             webResourceCollection.omission = true;
         }
@@ -246,6 +265,24 @@ public class WebSecurityConstraintStore {
         }
     }
 
+    private ServletSecurityElement processServletConstraintAnnotation(String servletClassName) {
+        try {
+            Class<?> cls = bundle.loadClass(servletClassName);
+            if (!javax.servlet.Servlet.class.isAssignableFrom(cls)) {
+                return null;
+            }
+            ServletSecurity servletSecurity = cls.getAnnotation(ServletSecurity.class);
+            if (servletSecurity == null) {
+                return null;
+            }
+            return new ServletSecurityElement(servletSecurity);
+        } catch (ClassNotFoundException e) {
+            //Should never occur, as webservice builder  have already checked it.
+            logger.error("Fail to load class", e);
+        }
+        return null;
+    }
+
     private void processServletSecurityAnnotation(List<SecurityConstraintInfo> securityConstraints, ServletSecurity servletSecurity, Collection<String> urlPatterns) {
         processServletSecurityElement(securityConstraints, new ServletSecurityElement(servletSecurity), urlPatterns);
     }
@@ -263,11 +300,30 @@ public class WebSecurityConstraintStore {
             }
         }
         SecurityConstraintInfo securityConstraint = newHTTPSecurityConstraint(servletSecurityElement.getRolesAllowed(), servletSecurityElement.getTransportGuarantee(),
-                servletSecurityElement.getEmptyRoleSemantic(), servletSecurityElement.getMethodNames().toArray(new String[0]), urlPatterns);
+                servletSecurityElement.getEmptyRoleSemantic(), servletSecurityElement.getMethodNames(), urlPatterns);
         if (securityConstraint != null) {
             securityConstraints.add(securityConstraint);
         }
         declareRoles(servletSecurityElement.getRolesAllowed());
+    }
+
+    private final static class RegistrationKey {
+        private final ServletRegistration.Dynamic registration;
+
+        private RegistrationKey(ServletRegistration.Dynamic registration) {
+            this.registration = registration;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof RegistrationKey) &&
+                    registration.getName().equals(((RegistrationKey)o).registration.getName());
+        }
+
+        @Override
+        public int hashCode() {
+            return registration.getName().hashCode();
+        }
     }
 
 }

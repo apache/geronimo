@@ -59,6 +59,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.URIUtil;
 import org.eclipse.jetty.util.resource.Resource;
@@ -139,6 +140,7 @@ public class GeronimoWebAppContext extends WebAppContext {
             try {
                 Assembler assembler = new Assembler();
                 assembler.assemble(getServletContext(), webAppInfo);
+                webSecurityConstraintStore.setAnnotationScanRequired(true);
                 ((GeronimoWebAppContext.Context) _scontext).webXmlProcessed = true;
                 super.doStart();
                 if (applicationPolicyConfigurationManager != null) {
@@ -270,8 +272,17 @@ public class GeronimoWebAppContext extends WebAppContext {
         return paths;
     }
 
-
     @Override
+    protected ServletRegistration.Dynamic dynamicHolderAdded(ServletHolder holder) {
+        ServletRegistration.Dynamic registration = holder.getRegistration();
+        String servletClassName = holder.getClassName();
+        Servlet servlet = holder.getServletInstance();
+        if (servlet == null || webSecurityConstraintStore.isContainerCreatedDynamicServlet(servlet)) {
+            webSecurityConstraintStore.addContainerCreatedDynamicServletEntry(registration, servletClassName);
+        }
+        return registration;
+    }
+
     public Set<String> setServletSecurity(ServletRegistration.Dynamic registration, ServletSecurityElement servletSecurityElement) {
         return webSecurityConstraintStore.setDynamicServletSecurity(registration, servletSecurityElement);
     }
