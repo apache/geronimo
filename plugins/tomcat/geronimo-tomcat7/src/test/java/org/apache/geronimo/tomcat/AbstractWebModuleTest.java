@@ -127,9 +127,6 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,   //lifecycleListenerChain
                 null,   //cluster
                 null,   //managerRetriever
-                false,  //crossContext
-                null,   //workDir
-                false,  //disableCookies
                 null,   //displayName
                 null,   //webServices
                 null,   //holder
@@ -141,6 +138,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,   //listenerClassNames
                 deploymentAttributes, //Map<String, String> deploymentAttributes
                 webAppInfo, //webAppinfo
+                new HashMap<String, String>(), // Map<String,String> contextAttributes;
                 null);  //kernel
         app.doStart();
         return app;

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,7 +51,6 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
@@ -96,6 +94,8 @@ import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiConfigProviderType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthConfigType;
 import org.apache.geronimo.xbeans.geronimo.jaspi.JaspiServerAuthContextType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatAuthenticationType;
+import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatContextType;
+import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatParameterType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.config.GerTomcatDocument;
@@ -108,6 +108,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -119,7 +121,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
-    private static final Set<String> INGORE_ELEMENT_NAMES = new HashSet<String>();
+    private static final Set<String> INGORED_ELEMENT_NAMES = new HashSet<String>();
+    private static final Set<String> INGORED_CONTEXT_ATTRIBUTE_NAMES = new HashSet<String>();
     static {
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web-1.1", "http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1");
@@ -131,9 +134,24 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0", "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1");
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/web/tomcat/config", "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat/config-1.0");
 
-        INGORE_ELEMENT_NAMES.add("context-priority-classloader");
-        INGORE_ELEMENT_NAMES.add("configId");
-        INGORE_ELEMENT_NAMES.add("parentId");
+        INGORED_ELEMENT_NAMES.add("context-priority-classloader");
+        INGORED_ELEMENT_NAMES.add("configId");
+        INGORED_ELEMENT_NAMES.add("parentId");
+
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("className".toLowerCase());
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("xmlNamespaceAware".toLowerCase());
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("processTlds".toLowerCase());
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("unpackWAR".toLowerCase());
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("xmlValidation".toLowerCase());
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("path");
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("useNaming".toLowerCase());
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("javaVMs".toLowerCase());
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("server");
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("j2EEApplication".toLowerCase());
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("j2EEServer".toLowerCase());
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("path");
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("delegate");
+        INGORED_CONTEXT_ATTRIBUTE_NAMES.add("docBase".toLowerCase());
     }
 
     private final Environment defaultEnvironment;
@@ -395,7 +413,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 XmlObject webPlan = new GenericToSpecificPlanConverter(GerTomcatDocument.type.getDocumentElementName().getNamespaceURI(),
                         TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI(), "tomcat").convertToSpecificPlan(rawPlan);
                 tomcatWebApp = (TomcatWebAppType) webPlan.changeType(TomcatWebAppType.type);
-                XmlBeansUtil.validateDD(tomcatWebApp, INGORE_ELEMENT_NAMES);
+                XmlBeansUtil.validateDD(tomcatWebApp, INGORED_ELEMENT_NAMES);
             } else {
                 tomcatWebApp = createDefaultPlan();
             }
@@ -441,6 +459,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
         }
         try {
             moduleContext.addGBean(webModuleData);
+            Map<String, String> contextAttributes = new HashMap<String, String>();
             webModuleData.setAttribute("contextPath", contextPath);
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
@@ -464,16 +483,23 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 String virtualServer = tomcatWebApp.getHost().trim();
                 webModuleData.setAttribute("virtualServer", virtualServer);
             }
+
             if (tomcatWebApp.isSetCrossContext()) {
-                webModuleData.setAttribute("crossContext", Boolean.TRUE);
+                //webModuleData.setAttribute("crossContext", Boolean.TRUE);
+                contextAttributes.put("crossContext", "true");
             }
+
             if (tomcatWebApp.isSetWorkDir()) {
                 String workDir = tomcatWebApp.getWorkDir();
-                webModuleData.setAttribute("workDir", workDir);
+                //webModuleData.setAttribute("workDir", workDir);
+                contextAttributes.put("workDir", workDir);
             }
+
             if (tomcatWebApp.isSetDisableCookies()) {
-                webModuleData.setAttribute("disableCookies", Boolean.TRUE);
+                //webModuleData.setAttribute("disableCookies", Boolean.TRUE);
+                contextAttributes.put("cookies", "false");
             }
+
             if (tomcatWebApp.isSetTomcatRealm()) {
                 String tomcatRealm = tomcatWebApp.getTomcatRealm().trim();
                 AbstractName realmName = earContext.getNaming().createChildName(moduleName, tomcatRealm, RealmGBean.GBEAN_INFO.getJ2eeType());
@@ -518,13 +544,53 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
             webModule.getSharedContext().put(WebModule.WEB_APP_INFO, webAppInfoBuilder);
 
+            //Add context attributes and parameters
+            if (tomcatWebApp.isSetContext()) {
+                TomcatContextType context = tomcatWebApp.getContext();
+                NamedNodeMap namedNodeMap = context.getDomNode().getAttributes();
+                for (int i = 0; i < namedNodeMap.getLength(); i++) {
+                    Node node = namedNodeMap.item(i);
+                    String attributeName = node.getNodeName();
+                    if (INGORED_CONTEXT_ATTRIBUTE_NAMES.contains(attributeName.toLowerCase())) {
+                        if (log.isWarnEnabled()) {
+                            log.warn("Context attribute " + attributeName + " in the geronimo-web.xml is ignored, as it is not support or Geronimo has already configured it");
+                        }
+                        continue;
+                    }
+                    if (contextAttributes.containsKey(attributeName)) {
+                        if (log.isWarnEnabled()) {
+                            log.warn("Context attribute " + attributeName
+                                    + " on the context element in geronimo-web.xml is ignored, as it has been explicitly configured with other elements in the geronimo-web.xml file");
+                        }
+                        continue;
+                    }
+                    contextAttributes.put(node.getNodeName(), node.getNodeValue());
+                }
+                for (TomcatParameterType parameterType : context.getParameterArray()) {
+                    if (webAppInfo.contextParams.containsKey(parameterType.getName()) && !parameterType.getOverride()) {
+                        if (log.isWarnEnabled()) {
+                            log.warn("Context parameter from geronimo-web.xml is ignored, as a same name context paramter " + parameterType.getName() + " = "
+                                    + webAppInfo.contextParams.get(parameterType.getName()) + " in web.xml, configure override with true to make the value take effect.");
+                        }
+                        continue;
+                    }
+                    webAppInfo.contextParams.put(parameterType.getName(), parameterType.getValue());
+                }
+            }
+            /**
+             * The old geronimo-web.xml also support to configure some context attributes individually,
+             * let's override them in the contextAttributes
+             */
+
+            webModuleData.setAttribute("contextAttributes", contextAttributes);
+
 //            Collection<String> listeners = new ArrayList<String>();
 //            webModuleData.setAttribute("listenerClassNames", listeners);
 
             //Handle the role permissions and webservices on the servlets.
             List<org.apache.openejb.jee.Servlet> servletTypes = webApp.getServlet();
             Map<String, AbstractName> webServices = new HashMap<String, AbstractName>();
-            Class baseServletClass;
+            Class<?> baseServletClass;
             try {
                 baseServletClass = webBundle.loadClass(Servlet.class.getName());
             } catch (ClassNotFoundException e) {

@@ -19,9 +19,9 @@ package org.apache.geronimo.tomcat;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -98,22 +98,19 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private String docBase = null;
     private String virtualServer = null;
     private final Realm realm;
-    private final List valveChain;
-    private final List listenerChain;
+    private final List<Valve> valveChain;
+    private final List<LifecycleListener> listenerChain;
     private final CatalinaCluster catalinaCluster;
     private final Manager manager;
-    private final boolean crossContext;
-    private final String workDir;
-    private final boolean disableCookies;
     private final UserTransaction userTransaction;
     private final javax.naming.Context componentContext;
     private final Kernel kernel;
-    private final Set unshareableResources;
-    private final Set applicationManagedSecurityResources;
+    private final Set<String> unshareableResources;
+    private final Set<String> applicationManagedSecurityResources;
     private final TrackedConnectionAssociator trackedConnectionAssociator;
     private final SecurityHolder securityHolder;
     private final J2EEServer server;
-    private final Map webServices;
+    private final Map<String, WebServiceContainer> webServices;
     private final String objectName;
     private final String originalSpecDD;
     private final String modulePath;
@@ -123,6 +120,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private String displayName;
     private Map<String, Object> deploymentAttributes;
     private ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
+    private Map<String,String> contextAttributes;
 
     // JSR 77
     private final String j2EEServer;
@@ -157,11 +155,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamReference(name = "LifecycleListenerChain") LifecycleListenerGBean lifecycleListenerChain,
             @ParamReference(name = "Cluster") CatalinaClusterGBean cluster,
             @ParamReference(name = GBEAN_REF_MANAGER_RETRIEVER) ObjectRetriever managerRetriever,
-            @ParamAttribute(name = "crossContext") boolean crossContext,
-            @ParamAttribute(name = "workDir") String workDir,
-            @ParamAttribute(name = "disableCookies") boolean disableCookies,
             @ParamAttribute(name = "displayName") String displayName,
-            @ParamAttribute(name = "webServices") Map webServices,
+            @ParamAttribute(name = "webServices") Map<String, AbstractName> webServices,
             @ParamAttribute(name = "holder") Holder holder,
             @ParamReference(name = "ContextCustomizer") RuntimeCustomizer contextCustomizer,
             @ParamReference(name = "J2EEServer") J2EEServer server,
@@ -171,6 +166,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamAttribute(name = "listenerClassNames") Collection<String> listenerClassNames,
             @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes,
             @ParamAttribute(name = "webAppInfo") WebAppInfo webAppInfo,
+            @ParamAttribute(name = "contextAttributes") Map<String, String> contextAttributes,
             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel)
             throws Exception {
         assert classLoader != null;
@@ -213,6 +209,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
         this.applicationPolicyConfigurationManager = applicationPolicyConfigurationManager;
+
+        this.contextAttributes = contextAttributes;
 
         this.server = server;
         if (securityHolder != null) {
@@ -276,12 +274,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             this.manager = null;
         }
 
-        this.crossContext = crossContext;
-
-        this.workDir = workDir;
-
-        this.disableCookies = disableCookies;
-
         this.webServices = createWebServices(webServices, kernel);
 
         this.classLoader = classLoader;
@@ -300,17 +292,17 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
     }
 
-    private Map createWebServices(Map webServiceFactoryMap, Kernel kernel) throws Exception {
-        Map webServices = new HashMap();
-        if (webServiceFactoryMap != null) {
-            for (Iterator iterator = webServiceFactoryMap.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                String servletName = (String) entry.getKey();
-                AbstractName factoryName = (AbstractName) entry.getValue();
-                WebServiceContainerFactory webServiceContainerFactory = (WebServiceContainerFactory) kernel.getGBean(factoryName);
-                WebServiceContainer webServiceContainer = webServiceContainerFactory.getWebServiceContainer();
-                webServices.put(servletName, webServiceContainer);
-            }
+    private Map<String, WebServiceContainer> createWebServices(Map<String, AbstractName> webServiceFactoryMap, Kernel kernel) throws Exception {
+        if (webServiceFactoryMap == null) {
+            return Collections.<String, WebServiceContainer>emptyMap();
+        }
+        Map<String, WebServiceContainer> webServices = new HashMap<String, WebServiceContainer>();
+        for (Map.Entry<String, AbstractName> entry : webServiceFactoryMap.entrySet()) {
+            String servletName = entry.getKey();
+            AbstractName factoryName = entry.getValue();
+            WebServiceContainerFactory webServiceContainerFactory = (WebServiceContainerFactory) kernel.getGBean(factoryName);
+            WebServiceContainer webServiceContainer = webServiceContainerFactory.getWebServiceContainer();
+            webServices.put(servletName, webServiceContainer);
         }
         return webServices;
     }
@@ -389,7 +381,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public boolean isDisableCookies() {
-        return disableCookies;
+        String cookies = contextAttributes.get("cookies");
+        return cookies == null ? false : !Boolean.parseBoolean(cookies);
     }
 
     public Context getContext() {
@@ -409,7 +402,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
 
-    public Set getApplicationManagedSecurityResources() {
+    public Set<String> getApplicationManagedSecurityResources() {
         return applicationManagedSecurityResources;
     }
 
@@ -417,7 +410,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return trackedConnectionAssociator;
     }
 
-    public Set getUnshareableResources() {
+    public Set<String> getUnshareableResources() {
         return unshareableResources;
     }
 
@@ -429,11 +422,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return clusteredValve;
     }
 
-    public List getValveChain() {
+    public List<Valve> getValveChain() {
         return valveChain;
     }
 
-    public List getLifecycleListenerChain() {
+    public List<LifecycleListener> getLifecycleListenerChain() {
         return listenerChain;
     }
 
@@ -446,14 +439,15 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public boolean isCrossContext() {
-        return crossContext;
+        String crossContext = contextAttributes.get("crossContext");
+        return crossContext == null ? false : Boolean.parseBoolean(crossContext);
     }
 
     public String getWorkDir() {
-        return workDir;
+        return contextAttributes.get("workDir");
     }
 
-    public Map getWebServices() {
+    public Map<String, WebServiceContainer> getWebServices() {
         return webServices;
     }
 
@@ -512,7 +506,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             throw new InvalidObjectNameException(
                     "ObjectName can not be a pattern", objectName);
         }
-        Hashtable keyPropertyList = objectName.getKeyPropertyList();
+        Hashtable<String, String> keyPropertyList = objectName.getKeyPropertyList();
         if (!NameFactory.WEB_MODULE.equals(keyPropertyList.get("j2eeType"))) {
             throw new InvalidObjectNameException(
                     "WebModule object name j2eeType property must be 'WebModule'",
@@ -558,6 +552,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     public void resetStats() {
         reset = true;
+    }
+
+    @Override
+    public Map<String, String> getContextAttributes() {
+        return contextAttributes;
     }
 
     public void doStart() throws Exception {

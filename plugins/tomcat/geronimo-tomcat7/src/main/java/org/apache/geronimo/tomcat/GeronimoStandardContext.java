@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -84,6 +85,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 import org.apache.naming.resources.FileDirContext;
 import org.apache.tomcat.InstanceManager;
+import org.apache.tomcat.util.IntrospectionUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceRegistration;
 
@@ -287,13 +289,20 @@ public class GeronimoStandardContext extends StandardContext {
         pipelineInitialized = true;
         this.webServiceMap = ctx.getWebServices();
 
-        this.setCrossContext(ctx.isCrossContext());
+        Map<String, String> contextAttributes = ctx.getContextAttributes();
 
-        this.setWorkDir(ctx.getWorkDir());
+        if (!ctx.getContextAttributes().containsKey("allowLinking")) {
+            contextAttributes.put("allowLinking", String.valueOf(allowLinking));
+        }
 
-        super.setAllowLinking(allowLinking);
-
-        this.setCookies(!ctx.isDisableCookies());
+        //Set context attributes via reflection
+        for (Map.Entry<String, String> entry : contextAttributes.entrySet()) {
+            if (!IntrospectionUtils.setProperty(this, entry.getKey(), entry.getValue())) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Fail to configure attribute " + entry.getKey() + " with value " + entry.getValue() + ", please check whether the attribute exists or is typo correctly");
+                }
+            }
+        }
 
         //Set the Dispatch listener
         this.addInstanceListener(DispatchListener.class.getName());

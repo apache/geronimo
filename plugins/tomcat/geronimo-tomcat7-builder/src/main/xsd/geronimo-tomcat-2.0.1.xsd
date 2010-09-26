@@ -178,6 +178,15 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element name="context" type="tomcat:contextType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The context element provides the same function as used in
+                        Tomcat, it supports context level attributes and context
+                        parameters.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="valve-chain" type="xs:string" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
@@ -293,5 +302,17 @@
             <xs:element ref="jaspi:serverAuthModule"/>
         </xs:choice>
     </xs:complexType>
-
+    
+    <xs:complexType name="contextType">        
+        <xs:sequence>
+            <xs:element name="parameter" type="tomcat:parameterType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:anyAttribute processContents="skip"/>
+    </xs:complexType>
+    
+    <xs:complexType name="parameterType">        
+        <xs:attribute name="name" type="xs:string" />
+        <xs:attribute name="value" type="xs:string" />
+        <xs:attribute name="override" type="xs:boolean" default="false"/>
+    </xs:complexType>
 </xs:schema>

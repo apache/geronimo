@@ -22,14 +22,12 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.webservices.SerializableWebServiceContainerFactoryGBean;
-
 import org.osgi.framework.Bundle;
 
 /**

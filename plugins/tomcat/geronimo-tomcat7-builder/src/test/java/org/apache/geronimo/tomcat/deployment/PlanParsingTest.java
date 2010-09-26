@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+
 import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
@@ -50,6 +50,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.packageadmin.RequiredBundle;
+import org.w3c.dom.NamedNodeMap;
 
 /**
  */
@@ -180,4 +181,12 @@ public class PlanParsingTest extends TestCase {
         XmlBeansUtil.validateDD(tomcatWebAppType);
     }
 
+    public void testContextAttributes() throws Exception {
+        URL resourceURL = classLoader.getResource("plans/plan-context.xml");
+        File resourcePlan = new File(resourceURL.getFile());
+        assertTrue(resourcePlan.exists());
+        TomcatWebAppType tomcatWebApp = builder.getTomcatWebApp(resourcePlan, null, true, null, null);
+        NamedNodeMap  namedNodeMap = tomcatWebApp.getContext().getDomNode().getAttributes();
+        assertEquals(2, namedNodeMap.getLength());
+    }
 }

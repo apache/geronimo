@@ -23,8 +23,6 @@ import java.util.Set;
 
 import javax.transaction.UserTransaction;
 
-import org.apache.geronimo.web.info.WebAppInfo;
-import org.apache.tomcat.InstanceManager;
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
@@ -33,6 +31,8 @@ import org.apache.catalina.ha.CatalinaCluster;
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
+import org.apache.geronimo.web.info.WebAppInfo;
+import org.apache.tomcat.InstanceManager;
 import org.osgi.framework.Bundle;
 
 /**
@@ -70,7 +70,7 @@ public interface TomcatContext {
     Valve getClusteredValve();
 
     List getValveChain();
-    
+
     List getLifecycleListenerChain();
 
     CatalinaCluster getCluster();
@@ -90,10 +90,12 @@ public interface TomcatContext {
     Bundle getBundle();
 
     String getModulePath();
-    
+
     String getDeploymentDescriptor();
-    
+
     Collection<String> getListeners();
 
     WebAppInfo getWebAppInfo();
+
+    Map<String, String> getContextAttributes();
 }
