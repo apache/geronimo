@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>cluster-testsuite</artifactId>
+    <groupId>org.apache.geronimo.testsuite</groupId>
+    <version>2.2.1-SNAPSHOT</version>
+  </parent>
+  <groupId>org.superbiz.load</groupId>
+  <artifactId>loadbean</artifactId>  
+  <name>loadbean</name>  
+ <dependencies>
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>5.0-1</version>
+      <scope>provided</scope>
+    </dependency>  
+   
+    <!-- START SNIPPET: openejbdep -->
+    <dependency>
+      <groupId>org.apache.openejb</groupId>
+      <artifactId>openejb-ejbd</artifactId>     
+    </dependency>
+    <!-- END SNIPPET: openejbdep -->
+  </dependencies>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>  
+	<profiles>
+		<profile>
+			<id>child</id>
+		</profile>		
+	</profiles>
+</project>

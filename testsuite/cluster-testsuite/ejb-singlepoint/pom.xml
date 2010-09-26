@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>cluster-testsuite</artifactId>
 		<groupId>org.apache.geronimo.testsuite</groupId>
-		<version>2.2.2-SNAPSHOT</version>
+		<version>2.2.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>ejb-singlepoint</artifactId>
 	<name>Geronimo TestSuite :: Cluster Testsuite :: EJB Singlepoint Tests</name>
@@ -24,6 +24,11 @@ EJB singlepoint test for the Geronimo cluster.
 			<artifactId>geronimo-plugin</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+     <groupId>org.superbiz.load</groupId>
+     <artifactId>loadbean</artifactId>
+     <version>${project.version}</version>
+     </dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -38,7 +43,7 @@ EJB singlepoint test for the Geronimo cluster.
 							<tasks>
 								<property name="LOCAL_M2_REPO" value="${settings.localRepository}" />
 								<property name="geronimo_versoin" value="${version}" />
-								<property name="Base_Dir" value="${basedir}" />
+								<property name="Base_Dir" value="${project.build.directory}" />
 								<property name="Resources_Dir" value="${basedir}/src/main/resources/" />
 								<ant antfile="${basedir}/build.xml">
 									<target name="${platformFamily}" />
@@ -68,7 +73,7 @@ EJB singlepoint test for the Geronimo cluster.
 									<overrides>server-overrides-1.xml</overrides>
 								</ServerOverride>
 							</overrides>
-							<geronimoHome>${basedir}/server1</geronimoHome>
+							<geronimoHome>${project.build.directory}/server1</geronimoHome>
 							<port>1100</port>
 							<logOutput>true</logOutput>
 							<background>true</background>
@@ -104,7 +109,7 @@ EJB singlepoint test for the Geronimo cluster.
 									<overrides>server-overrides-2.xml</overrides>
 								</ServerOverride>
 							</overrides>
-							<geronimoHome>${basedir}/server2</geronimoHome>
+							<geronimoHome>${project.build.directory}/server2</geronimoHome>
 							<port>1109</port>
 							<logOutput>true</logOutput>
 							<background>true</background>
@@ -134,7 +139,7 @@ EJB singlepoint test for the Geronimo cluster.
 							<goal>deploy-module</goal>
 						</goals>
 						<configuration>
-							<moduleArchive>${basedir}/src/main/resources/load-bean.jar</moduleArchive>
+							<moduleArchive>../ejb-loadbean/target/loadbean-${version}.jar</moduleArchive>
 							<modulePlan>${basedir}/src/main/resources/slsb_sample.xml</modulePlan>
 							<port>1100</port>
 							<startModules>true</startModules>
@@ -147,7 +152,7 @@ EJB singlepoint test for the Geronimo cluster.
 							<goal>deploy-module</goal>
 						</goals>
 						<configuration>
-							<moduleArchive>${basedir}/src/main/resources/load-bean.jar</moduleArchive>
+							<moduleArchive>../ejb-loadbean/target/loadbean-${version}.jar</moduleArchive>
 							<modulePlan>${basedir}/src/main/resources/slsb_sample.xml</modulePlan>
 							<port>1109</port>
 							<startModules>true</startModules>

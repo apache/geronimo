@@ -42,11 +42,11 @@ public class EJBSinglepointTest {
             Properties p = new Properties();
             p.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.client.RemoteInitialContextFactory");
             Load loadRemote = null;             
-            p.setProperty(Context.PROVIDER_URL,"failover:ejbd://127.0.0.1:4202,ejbd://127.0.0.1:4211");            
+            p.setProperty(Context.PROVIDER_URL,"ejbd://127.0.0.1:4202");            
             try {
             	Context context3 = new InitialContext(p);
 				loadRemote =(Load) context3.lookup("LoadBeanRemote");
-				Assert.assertEquals(p.getProperty(Context.PROVIDER_URL),"failover:ejbd://127.0.0.1:4202,ejbd://127.0.0.1:4211");
+				Assert.assertEquals(p.getProperty(Context.PROVIDER_URL),"ejbd://127.0.0.1:4202");
 				Assert.assertNotNull(loadRemote.getNodeName());				
 				Assert.assertEquals(loadRemote.add(1, 2), 3); 
 				Assert.assertEquals(loadRemote.sum(1,2,1), 4);

@@ -67,6 +67,7 @@
             <id>all-subprojects</id>
             <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
             <modules>
+                <module>ejb-loadbean</module>
                 <module>ejb-multicast</module>
                 <module>ejb-multipoint</module>
                 <module>ejb-singlepoint</module>

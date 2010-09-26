@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>cluster-testsuite</artifactId>
 		<groupId>org.apache.geronimo.testsuite</groupId>
-		<version>2.2.2-SNAPSHOT</version>
+		<version>2.2.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>ejb-multicast</artifactId>
@@ -15,6 +15,13 @@
 	<description>
         EJB multicast test for the Geronimo cluster.
    </description>
+   <dependencies>
+   <dependency>
+     <groupId>org.superbiz.load</groupId>
+     <artifactId>loadbean</artifactId>
+     <version>${version}</version>
+     </dependency>    
+  </dependencies>  
 	<build>
 		<plugins>
 			<plugin>
@@ -28,7 +35,8 @@
 							<tasks>
 								<property name="LOCAL_M2_REPO" value="${settings.localRepository}" />
 								<property name="geronimo_versoin" value="${version}" />
-								<property name="Base_Dir" value="${basedir}" />
+								<property name="Base_Dir" value="${project.build.directory}" />
+								<property name="Project_Dir" value="${basedir}" />
 								<property name="Resources_Dir" value="${basedir}/src/main/resources/" />
 								<ant antfile="${basedir}/build.xml">
 									<target name="${platformFamily}" />
@@ -58,7 +66,7 @@
 									<overrides>server-overrides.xml</overrides>
 								</ServerOverride>
 							</overrides>
-							<geronimoHome>${basedir}/server1</geronimoHome>
+							<geronimoHome>${project.build.directory}/server1</geronimoHome>
 							<port>1100</port>
 							<logOutput>true</logOutput>
 							<background>true</background>
@@ -98,7 +106,7 @@
 									<overrides>server-overrides.xml</overrides>
 								</ServerOverride>
 							</overrides>
-							<geronimoHome>${basedir}/server2</geronimoHome>
+							<geronimoHome>${project.build.directory}/server2</geronimoHome>
 							<port>1109</port>
 							<logOutput>true</logOutput>
 							<background>true</background>
@@ -131,8 +139,8 @@
 						<goals>
 							<goal>deploy-module</goal>
 						</goals>
-						<configuration>
-							<moduleArchive>${basedir}/src/main/resources/load-bean.jar</moduleArchive>
+						<configuration>						
+							<moduleArchive>../ejb-loadbean/target/loadbean-${version}.jar</moduleArchive>
 							<port>1100</port>
 							<startModules>true</startModules>
 						</configuration>
@@ -144,7 +152,7 @@
 							<goal>deploy-module</goal>
 						</goals>
 						<configuration>
-							<moduleArchive>${basedir}/src/main/resources/load-bean.jar</moduleArchive>
+							<moduleArchive>../ejb-loadbean/target/loadbean-${version}.jar</moduleArchive>
 							<port>1109</port>
 							<startModules>true</startModules>
 						</configuration>
