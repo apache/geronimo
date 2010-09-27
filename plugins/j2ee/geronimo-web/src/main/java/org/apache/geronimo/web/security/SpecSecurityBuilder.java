@@ -230,7 +230,6 @@ public class SpecSecurityBuilder {
             String actions = URLPattern.getMethodsWithTransport(methods, item.getTransportType());
             policyConfiguration.addToUncheckedPolicy(new WebUserDataPermission(item.getName(), actions));
         }
-        System.out.println(policyConfiguration.getAudit());
         return policyConfiguration.getComponentPermissions();
     }
 
