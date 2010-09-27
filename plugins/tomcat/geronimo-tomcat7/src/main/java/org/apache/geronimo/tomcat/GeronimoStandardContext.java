@@ -30,17 +30,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.naming.directory.DirContext;
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 import javax.security.jacc.PolicyContext;
+import javax.security.jacc.PolicyContextException;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
+import javax.servlet.ServletSecurityElement;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.ContainerListener;
@@ -55,7 +58,7 @@ import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
-import org.apache.catalina.core.ApplicationContext;
+import org.apache.catalina.core.ApplicationServletRegistration;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardWrapper;
 import org.apache.catalina.ha.CatalinaCluster;
@@ -67,19 +70,21 @@ import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
+import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.RunAsSource;
-import org.apache.geronimo.tomcat.core.GeronimoApplicationContext;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.UserTransactionBeforeAfter;
 import org.apache.geronimo.tomcat.listener.DispatchListener;
-import org.apache.geronimo.tomcat.listener.JACCSecurityLifecycleListener;
 import org.apache.geronimo.tomcat.listener.RunAsInstanceListener;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
 import org.apache.geronimo.tomcat.valve.ProtectedTargetValve;
 import org.apache.geronimo.web.WebAttributeName;
+import org.apache.geronimo.web.security.SpecSecurityBuilder;
+import org.apache.geronimo.web.security.WebSecurityConstraintStore;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
@@ -114,6 +119,8 @@ public class GeronimoStandardContext extends StandardContext {
     private boolean authenticatorInstalled;
     private ConfigurationFactory configurationFactory;
     private String policyContextId;
+    private WebSecurityConstraintStore webSecurityConstraintStore;
+    private ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
 
     private Bundle bundle;
     private ServiceRegistration serviceRegistration;
@@ -156,11 +163,13 @@ public class GeronimoStandardContext extends StandardContext {
                     getServletContext().setAttribute(entry.getKey(), entry.getValue());
                 }
             }
+            applicationPolicyConfigurationManager = tomcatWebAppContext.getApplicationPolicyConfigurationManager();
             if (tomcatWebAppContext.getSecurityHolder() != null) {
                 configurationFactory = tomcatWebAppContext.getSecurityHolder().getConfigurationFactory();
-                //Add JACCSecurityLifecycleListener, it will calculate the security configurations when web module is initialized
-                addJACCSecurityLifecycleListener(tomcatWebAppContext);
             }
+            float schemaVersion = (Float) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.SCHEMA_VERSION.name());
+            boolean metaComplete = (Boolean) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.META_COMPLETE.name());
+            webSecurityConstraintStore = new WebSecurityConstraintStore(tomcatWebAppContext.getWebAppInfo(), bundle, schemaVersion >= 2.5f && !metaComplete, getInternalServletContext());
 
             ServletContext servletContext = getServletContext();
             servletContext.setAttribute(InstanceManager.class.getName(), ctx.getInstanceManager());
@@ -313,23 +322,10 @@ public class GeronimoStandardContext extends StandardContext {
         }
     }
 
-    private void addJACCSecurityLifecycleListener(TomcatWebAppContext tomcatWebAppContext) throws DeploymentException {
-        float schemaVersion = (Float) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.SCHEMA_VERSION.name());
-        boolean metaComplete = (Boolean) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.META_COMPLETE.name());
-        try {
-            addLifecycleListener(new JACCSecurityLifecycleListener(bundle, tomcatWebAppContext.getWebAppInfo(), schemaVersion >= 2.5f && !metaComplete, tomcatWebAppContext.getApplicationPolicyConfigurationManager(),
-                    tomcatWebAppContext.getSecurityHolder().getPolicyContextID()));
-        } catch (DeploymentException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error("fail to parse the web.xml file while starting the web application", e);
-            throw new DeploymentException("fail to parse the web.xml file while starting the web application", e);
-        }
-    }
-
     private final Object instanceListenersLock = new Object();
     private final Object wrapperLifecyclesLock = new Object();
     private final Object wrapperListenersLock = new Object();
+    @Override
     public Wrapper createWrapper() {
 
         Wrapper wrapper = null;
@@ -389,6 +385,7 @@ public class GeronimoStandardContext extends StandardContext {
     /* This method is called by a background thread to destroy sessions (among other things)
      * so we need to apply appropriate context to the thread to expose JNDI, etc.
      */
+    @Override
     public void backgroundProcess() {
         Object context[] = null;
 
@@ -428,12 +425,14 @@ public class GeronimoStandardContext extends StandardContext {
         }
     }
 
+    @Override
     protected void initInternal()  throws LifecycleException {
         String docBase = getDocBase();
         super.initInternal();
         setDocBase(docBase);
     }
 
+    @Override
     protected void startInternal() throws LifecycleException {
         if (pipelineInitialized) {
             try {
@@ -458,16 +457,38 @@ public class GeronimoStandardContext extends StandardContext {
             } catch (ServletException e) {
                 throw new LifecycleException(e);
             }
+            SpecSecurityBuilder specSecurityBuilder = new SpecSecurityBuilder(webSecurityConstraintStore.exportMergedWebAppInfo());
+            Map<String, ComponentPermissions> contextIdPermissionsMap = new HashMap<String, ComponentPermissions>();
+            contextIdPermissionsMap.put(getPolicyContextId(), specSecurityBuilder.buildSpecSecurityConfig());
+            //Update ApplicationPolicyConfigurationManager
+            if (applicationPolicyConfigurationManager != null) {
+                try {
+                    applicationPolicyConfigurationManager.updateApplicationPolicyConfiguration(contextIdPermissionsMap);
+                } catch (LoginException e) {
+                    logger.error("Fail to set application policy configurations", e);
+                    throw new RuntimeException("Fail to set application policy configurations", e);
+                } catch (PolicyContextException e) {
+                    logger.error("Fail to set application policy configurations", e);
+                    throw new RuntimeException("Fail to set application policy configurations", e);
+                } catch (ClassNotFoundException e) {
+                    logger.error("Fail to set application policy configurations", e);
+                    throw new RuntimeException("Fail to set application policy configurations", e);
+                } finally {
+                    //Clear SpecSecurityBuilder
+                    specSecurityBuilder.clear();
+                }
+            }
+
+            // for OSGi Web Applications support register ServletContext in service registry
+            if (WebApplicationUtils.isWebApplicationBundle(bundle)) {
+                serviceRegistration = WebApplicationUtils.registerServletContext(bundle, getServletContext());
+            }
         } else {
             super.startInternal();
         }
-
-        // for OSGi Web Applications support register ServletContext in service registry
-        if (WebApplicationUtils.isWebApplicationBundle(bundle)) {
-            serviceRegistration = WebApplicationUtils.registerServletContext(bundle, getServletContext());
-        }
     }
 
+    @Override
     public void addChild(Container child) {
         Wrapper wrapper = (Wrapper) child;
 
@@ -514,6 +535,7 @@ public class GeronimoStandardContext extends StandardContext {
         super.addChild(child);
     }
 
+    @Override
     public synchronized void setLoader(final Loader delegate) {
         Loader loader = new Loader() {
 
@@ -579,16 +601,6 @@ public class GeronimoStandardContext extends StandardContext {
         };
 
         super.setLoader(loader);
-    }
-
-    @Override
-    public ServletContext getServletContext() {
-        if (context == null) {
-            context =  new GeronimoApplicationContext(this);
-            if (getAltDDName() != null)
-                context.setAttribute(Globals.ALT_DD_ATTR, getAltDDName());
-        }
-        return super.getServletContext();
     }
 
     public ServletContext getInternalServletContext() {
@@ -686,6 +698,7 @@ public class GeronimoStandardContext extends StandardContext {
             super(true);
         }
 
+        @Override
         public void invoke(Request request, Response response) throws IOException, ServletException {
             if (request == null && response == null) {
                 try {
@@ -764,5 +777,30 @@ public class GeronimoStandardContext extends StandardContext {
         } else {
             return super.getBasePath();
         }
+    }
+
+    @Override
+    public ServletRegistration.Dynamic dynamicServletAdded(Wrapper wrapper) {
+        ServletRegistration.Dynamic registration = new ApplicationServletRegistration(wrapper, this);
+        if (wrapper.getServlet() == null || webSecurityConstraintStore.isContainerCreatedDynamicServlet(wrapper.getServlet())) {
+            webSecurityConstraintStore.addContainerCreatedDynamicServletEntry(registration, wrapper.getServletClass());
+        }
+        return registration;
+    }
+
+    @Override
+    public void dynamicServletCreated(Servlet servlet) {
+        webSecurityConstraintStore.addContainerCreatedDynamicServlet(servlet);
+    }
+
+    @Override
+    public Set<String> addServletSecurity(ApplicationServletRegistration registration, ServletSecurityElement servletSecurityElement) {
+        return webSecurityConstraintStore.setDynamicServletSecurity(registration, servletSecurityElement);
+    }
+
+    @Override
+    public void addSecurityRole(String role) {
+        super.addSecurityRole(role);
+        webSecurityConstraintStore.declareRoles(role);
     }
 }

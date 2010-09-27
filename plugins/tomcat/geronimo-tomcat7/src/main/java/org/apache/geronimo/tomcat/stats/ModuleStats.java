@@ -120,9 +120,9 @@ public class ModuleStats {
             stats.setSessionAliveTime(maxActive, -1, sessionMaxAliveTime,
                     sessionAverageAliveTime * maxActive);
             stats.setRejectedSessionCount(rejectedSessions);
-            stats.setExpiredSessionCount(expiredSessions);
+            stats.setExpiredSessionCount((int)expiredSessions);
             stats.setActiveSessionCount(activeSessions);
-            stats.setSessionCount(sessionCounter);
+            stats.setSessionCount((int)sessionCounter);
 
         } catch (Exception ex) {
             log.error("Error getting attribute " + mgrName + " " + ex.toString());
