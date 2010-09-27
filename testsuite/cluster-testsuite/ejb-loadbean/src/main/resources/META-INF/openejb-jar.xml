@@ -18,12 +18,12 @@ specific language governing permissions and limitations
 under the License.
 -->
 <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
-	<dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
-		<dep:moduleId>
-			<dep:groupId>org.superbiz</dep:groupId>
-			<dep:artifactId>load-beans</dep:artifactId>
-			<dep:version>1.0</dep:version>
-			<dep:type>car</dep:type>
-		</dep:moduleId>
-	</dep:environment>
+    <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
+        <dep:moduleId>
+            <dep:groupId>org.superbiz</dep:groupId>
+            <dep:artifactId>load-beans</dep:artifactId>
+            <dep:version>2.2.1-SNAPSHOT</dep:version>
+            <dep:type>car</dep:type>
+        </dep:moduleId>
+    </dep:environment>
 </openejb-jar>

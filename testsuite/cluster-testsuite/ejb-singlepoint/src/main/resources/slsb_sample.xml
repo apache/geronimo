@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ejb-jar xmlns="http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0"
    xmlns:wadi="http://geronimo.apache.org/xml/ns/openejb-clustering-wadi-1.2">
-	<environment>
+    <environment>
        <moduleId>
            <groupId>org.superbiz</groupId>
            <artifactId>load-beans</artifactId>

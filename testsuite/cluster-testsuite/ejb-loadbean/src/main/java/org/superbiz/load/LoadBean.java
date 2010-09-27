@@ -18,19 +18,13 @@ package org.superbiz.load;
 
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
+
 
 
 @Remote
 @Stateless
 public class LoadBean implements Load {
-	public String nodename =System.getProperty("node.name");
+    public String nodename =System.getProperty("node.name");
     public void ping() {
     System.out.println("pinging...." + nodename);
         // do nothing
@@ -51,6 +45,6 @@ public class LoadBean implements Load {
     }
     
     public String getNodeName() {
-    	return nodename;
+        return nodename;
     }
 }

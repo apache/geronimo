@@ -35,7 +35,7 @@ public class EJBMulticastTest {
     /**
      * Rigourous Test :-)
      */
-	@Test
+    @Test
     public void testEJBMulticast()
     {
         //Remote lookup
@@ -46,31 +46,31 @@ public class EJBMulticastTest {
             //Multicast
             p.setProperty(Context.PROVIDER_URL,"multicast://239.255.3.2:6142?group=cluster1");
             Context context1;
-			try {
-				context1 = new InitialContext(p);
-				loadRemote =(Load) context1.lookup("LoadBeanRemote");
-				Assert.assertEquals(p.getProperty(Context.PROVIDER_URL),"multicast://239.255.3.2:6142?group=cluster1");
-				Assert.assertNotNull(loadRemote.getNodeName());
-				Assert.assertEquals(loadRemote.add(1, 2), 3);          
-				Assert.assertEquals(loadRemote.sum(1,2,1), 4);
-			} catch (NamingException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();			}
+            try {
+                context1 = new InitialContext(p);
+                loadRemote =(Load) context1.lookup("LoadBeanRemote");
+                Assert.assertEquals(p.getProperty(Context.PROVIDER_URL),"multicast://239.255.3.2:6142?group=cluster1");
+                Assert.assertNotNull(loadRemote.getNodeName());
+                Assert.assertEquals(loadRemote.add(1, 2), 3);          
+                Assert.assertEquals(loadRemote.sum(1,2,1), 4);
+            } catch (NamingException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();            }
             
             
             p.setProperty(Context.PROVIDER_URL,"failover:ejbd://127.0.0.1:4202,ejbd://127.0.0.1:4211,multicast://239.255.3.2:6142");
             
             try {
-            	Context context3 = new InitialContext(p);
-				loadRemote =(Load) context3.lookup("LoadBeanRemote");
-				Assert.assertEquals(p.getProperty(Context.PROVIDER_URL),"failover:ejbd://127.0.0.1:4202,ejbd://127.0.0.1:4211,multicast://239.255.3.2:6142");
-				Assert.assertNotNull(loadRemote.getNodeName());				
-				Assert.assertEquals(loadRemote.add(1, 2), 3);          
-				Assert.assertEquals(loadRemote.sum(1,2,1), 4);
-			} catch (NamingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+                Context context3 = new InitialContext(p);
+                loadRemote =(Load) context3.lookup("LoadBeanRemote");
+                Assert.assertEquals(p.getProperty(Context.PROVIDER_URL),"failover:ejbd://127.0.0.1:4202,ejbd://127.0.0.1:4211,multicast://239.255.3.2:6142");
+                Assert.assertNotNull(loadRemote.getNodeName());                
+                Assert.assertEquals(loadRemote.add(1, 2), 3);          
+                Assert.assertEquals(loadRemote.sum(1,2,1), 4);
+            } catch (NamingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             
     }
 }

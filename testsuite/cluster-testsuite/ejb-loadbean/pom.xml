@@ -9,28 +9,21 @@
   </parent>
   <groupId>org.superbiz.load</groupId>
   <artifactId>loadbean</artifactId>  
+  <version>2.2.1-SNAPSHOT</version>
   <name>loadbean</name>  
  <dependencies>
-    <dependency>
-      <groupId>org.apache.openejb</groupId>
-      <artifactId>javaee-api</artifactId>
-      <version>5.0-1</version>
-      <scope>provided</scope>
-    </dependency>  
-   
-    <!-- START SNIPPET: openejbdep -->
-    <dependency>
-      <groupId>org.apache.openejb</groupId>
-      <artifactId>openejb-ejbd</artifactId>     
-    </dependency>
-    <!-- END SNIPPET: openejbdep -->
+       <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_3.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
   </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>  
-	<profiles>
-		<profile>
-			<id>child</id>
-		</profile>		
-	</profiles>
+    <profiles>
+        <profile>
+            <id>child</id>
+        </profile>        
+    </profiles>
 </project>

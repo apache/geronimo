@@ -35,7 +35,7 @@ public class EJBSinglepointTest {
     /**
      * Rigourous Test :-)
      */
-	@Test
+    @Test
     public void testEJBMultipoint()
     {
         //Remote lookup
@@ -44,16 +44,16 @@ public class EJBSinglepointTest {
             Load loadRemote = null;             
             p.setProperty(Context.PROVIDER_URL,"ejbd://127.0.0.1:4202");            
             try {
-            	Context context3 = new InitialContext(p);
-				loadRemote =(Load) context3.lookup("LoadBeanRemote");
-				Assert.assertEquals(p.getProperty(Context.PROVIDER_URL),"ejbd://127.0.0.1:4202");
-				Assert.assertNotNull(loadRemote.getNodeName());				
-				Assert.assertEquals(loadRemote.add(1, 2), 3); 
-				Assert.assertEquals(loadRemote.sum(1,2,1), 4);
-			} catch (NamingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+                Context context3 = new InitialContext(p);
+                loadRemote =(Load) context3.lookup("LoadBeanRemote");
+                Assert.assertEquals(p.getProperty(Context.PROVIDER_URL),"ejbd://127.0.0.1:4202");
+                Assert.assertNotNull(loadRemote.getNodeName());                
+                Assert.assertEquals(loadRemote.add(1, 2), 3); 
+                Assert.assertEquals(loadRemote.sum(1,2,1), 4);
+            } catch (NamingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             
     }
 }

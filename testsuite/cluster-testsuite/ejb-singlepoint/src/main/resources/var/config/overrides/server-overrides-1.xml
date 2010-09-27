@@ -21,53 +21,53 @@
 <attributes xmlns="http://geronimo.apache.org/xml/ns/attributes-1.2">
 <module name="org.apache.geronimo.configs/wadi-clustering/${geronimoVersion}/car">
 <gbean name="DefaultBackingStrategyFactory">
-		     <attribute name="nbReplica">${ReplicaCount}</attribute>
-	      </gbean>
+             <attribute name="nbReplica">${ReplicaCount}</attribute>
+          </gbean>
 <gbean name="DefaultDispatcherHolder">
-		<attribute name="disableMCastService">true</attribute>
-		<attribute name="receiverPort">4002</attribute>
-		<attribute name="endPointURI">${EndPointURI}</attribute>
-		<attribute name="clusterName">${WADIClusterName}</attribute>
-		<reference name="staticMember">
-			<pattern>
-				<groupId>org.apache.geronimo.configs</groupId>
-				<artifactId>wadi-clustering</artifactId>
-				<version>${geronimoVersion}</version>
-				<type>car</type>
-				<name>firstStaticMember</name>
-			</pattern>
-		</reference>
-	</gbean>
-	<gbean
-		name="org.apache.geronimo.configs/wadi-clustering/${geronimoVersion}/car?ServiceModule=org.apache.geronimo.configs/wadi-clustering/${geronimoVersion}/car,j2eeType=GBean,name=firstStaticMember"
-		gbeanInfo="org.apache.geronimo.clustering.wadi.WadiStaticMember">
-		<attribute name="className">org.apache.catalina.tribes.membership.StaticMember</attribute>
-		<attribute name="port">4002</attribute>
-		<attribute name="securePort">-1</attribute>
-		<attribute name="domain">test-domain</attribute>
-		<attribute name="UniqueId">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</attribute>
-		<attribute name="host">127.0.0.1</attribute>
-		<reference name="nextWadiStaticMember">
-			<pattern>
-				<groupId>org.apache.geronimo.configs</groupId>
-				<artifactId>wadi-clustering</artifactId>
-				<version>${geronimoVersion}</version>
-				<type>car</type>
-				<name>secondStaticMember</name>
-			</pattern>
-		</reference>
-	</gbean>
-	<gbean
-		name="org.apache.geronimo.configs/wadi-clustering/${geronimoVersion}/car?ServiceModule=org.apache.geronimo.configs/wadi-clustering/${geronimoVersion}/car,j2eeType=GBean,name=secondStaticMember"
-		gbeanInfo="org.apache.geronimo.clustering.wadi.WadiStaticMember">
-		<attribute name="className">org.apache.catalina.tribes.membership.StaticMember</attribute>
-		<attribute name="port">4003</attribute>
-		<attribute name="securePort">-1</attribute>
-		<attribute name="domain">test-domain</attribute>
-		<attribute name="UniqueId">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1</attribute>
-		<attribute name="host">127.0.0.1</attribute>
-		<reference name="nextWadiStaticMember" />
-	</gbean>
+        <attribute name="disableMCastService">true</attribute>
+        <attribute name="receiverPort">4002</attribute>
+        <attribute name="endPointURI">${EndPointURI}</attribute>
+        <attribute name="clusterName">${WADIClusterName}</attribute>
+        <reference name="staticMember">
+            <pattern>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>wadi-clustering</artifactId>
+                <version>${geronimoVersion}</version>
+                <type>car</type>
+                <name>firstStaticMember</name>
+            </pattern>
+        </reference>
+    </gbean>
+    <gbean
+        name="org.apache.geronimo.configs/wadi-clustering/${geronimoVersion}/car?ServiceModule=org.apache.geronimo.configs/wadi-clustering/${geronimoVersion}/car,j2eeType=GBean,name=firstStaticMember"
+        gbeanInfo="org.apache.geronimo.clustering.wadi.WadiStaticMember">
+        <attribute name="className">org.apache.catalina.tribes.membership.StaticMember</attribute>
+        <attribute name="port">4002</attribute>
+        <attribute name="securePort">-1</attribute>
+        <attribute name="domain">test-domain</attribute>
+        <attribute name="UniqueId">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</attribute>
+        <attribute name="host">127.0.0.1</attribute>
+        <reference name="nextWadiStaticMember">
+            <pattern>
+                <groupId>org.apache.geronimo.configs</groupId>
+                <artifactId>wadi-clustering</artifactId>
+                <version>${geronimoVersion}</version>
+                <type>car</type>
+                <name>secondStaticMember</name>
+            </pattern>
+        </reference>
+    </gbean>
+    <gbean
+        name="org.apache.geronimo.configs/wadi-clustering/${geronimoVersion}/car?ServiceModule=org.apache.geronimo.configs/wadi-clustering/${geronimoVersion}/car,j2eeType=GBean,name=secondStaticMember"
+        gbeanInfo="org.apache.geronimo.clustering.wadi.WadiStaticMember">
+        <attribute name="className">org.apache.catalina.tribes.membership.StaticMember</attribute>
+        <attribute name="port">4003</attribute>
+        <attribute name="securePort">-1</attribute>
+        <attribute name="domain">test-domain</attribute>
+        <attribute name="UniqueId">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1</attribute>
+        <attribute name="host">127.0.0.1</attribute>
+        <reference name="nextWadiStaticMember" />
+    </gbean>
 </module>
 <module name="org.apache.geronimo.configs/activemq-broker/${geronimoVersion}/car" load="false"/>
 <module name="org.apache.geronimo.configs/activemq-ra/${geronimoVersion}/car" load="false">
