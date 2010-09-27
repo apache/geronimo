@@ -164,6 +164,21 @@ public class SpecSecurityParsingTest extends TestCase {
         assertTrue(implies(p, permissions, null));
     }
 
+    public void testDifferentRoleDifferentHttpMethod() throws Exception {
+        WebApp webApp = parse("security/web7.xml");
+        WebAppInfoBuilder webAppInfoBuilder = new WebAppInfoBuilder(webApp, new DefaultWebAppInfoFactory());
+        webAppInfoBuilder.build();
+        SpecSecurityBuilder builder = new SpecSecurityBuilder(webAppInfoBuilder.getWebAppInfo());
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig();
+        Permission p = new WebResourcePermission("/app/*", "GET");
+        assertTrue(implies(p, permissions, "userGet"));
+        assertFalse(implies(p, permissions, "userPost"));
+        p = new WebResourcePermission("/app/home", "POST");
+        assertTrue(implies(p, permissions, "userPost"));
+        assertFalse(implies(p, permissions, "userGet"));
+    }
+
+
     private boolean implies(Permission p, ComponentPermissions permissions, String role) {
         PermissionCollection excluded = permissions.getExcludedPermissions();
         if (excluded.implies(p)) return false;

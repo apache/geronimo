@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.web.security;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,7 +37,6 @@ public class URLPattern {
     private final String pattern;
     private final HTTPMethods httpMethods;
     private int transport;
-    private final HashSet<String> roles = new HashSet<String>();
 
     /**
      * Construct an instance of the utility class for <code>WebModuleConfiguration</code>.
@@ -78,7 +76,7 @@ public class URLPattern {
         } else {
             HashSet<String> bucket = new HashSet<String>();
             StringBuilder result = new StringBuilder(pattern);
-            
+
             // Collect a set of qualifying patterns, depending on the type of this pattern.
             for (URLPattern p : patterns) {
                 if (type.check(this, p)) {
@@ -176,19 +174,6 @@ public class URLPattern {
     public int getTransport() {
         return transport;
     }
-
-    public void addRole(String role) {
-        roles.add(role);
-    }
-
-    public void addAllRoles(Collection<String> collection) {
-        roles.addAll(collection);
-    }
-
-    public HashSet<String> getRoles() {
-        return roles;
-    }
-
 
     /**
      * TODO this is kinda weird without an explanation

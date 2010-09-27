@@ -61,7 +61,7 @@ public class SpecSecurityBuilder {
 
     private final Map<String, URLPattern> excludedPatterns = new HashMap<String, URLPattern>();
 
-    private final Map<String, URLPattern> rolesPatterns = new HashMap<String, URLPattern>();
+    private final Map<String, Map<String, URLPattern>> rolesPatterns = new HashMap<String, Map<String, URLPattern>>();
 
     private final Set<URLPattern> allSet = new HashSet<URLPattern>();
 
@@ -93,12 +93,16 @@ public class SpecSecurityBuilder {
 
     private void analyzeSecurityConstraints(List<SecurityConstraintInfo> securityConstraints) {
         for (SecurityConstraintInfo securityConstraint : securityConstraints) {
-            Map<String, URLPattern> currentPatterns;
+            Map<String, URLPattern> currentPatterns = null;
+            Set<String> roleNames = null;
             if (securityConstraint.authConstraint != null) {
                 if (securityConstraint.authConstraint.roleNames.size() == 0) {
                     currentPatterns = excludedPatterns;
                 } else {
-                    currentPatterns = rolesPatterns;
+                    roleNames = new HashSet<String>(securityConstraint.authConstraint.roleNames);
+                    if(roleNames.remove("*")) {
+                        roleNames.addAll(securityRoles);
+                    }
                 }
             } else {
                 currentPatterns = uncheckedPatterns;
@@ -107,12 +111,17 @@ public class SpecSecurityBuilder {
             for (WebResourceCollectionInfo webResourceCollection : securityConstraint.webResourceCollections) {
                 //Calculate HTTP methods list
                 for (String urlPattern : webResourceCollection.urlPatterns) {
-                    URLPattern pattern = currentPatterns.get(urlPattern);
-                    if (pattern == null) {
-                        pattern = new URLPattern(urlPattern, webResourceCollection.httpMethods, webResourceCollection.omission);
-                        currentPatterns.put(urlPattern, pattern);
+                    if (currentPatterns == null) {
+                        for (String roleName : roleNames) {
+                            currentPatterns = rolesPatterns.get(roleName);
+                            if (currentPatterns == null) {
+                                currentPatterns = new HashMap<String, URLPattern>();
+                                rolesPatterns.put(roleName, currentPatterns);
+                            }
+                            analyzeURLPattern(urlPattern, webResourceCollection.httpMethods, webResourceCollection.omission, transport, currentPatterns);
+                        }
                     } else {
-                        pattern.addMethods(webResourceCollection.httpMethods, webResourceCollection.omission);
+                        analyzeURLPattern(urlPattern, webResourceCollection.httpMethods, webResourceCollection.omission, transport, currentPatterns);
                     }
                     URLPattern allPattern = allMap.get(urlPattern);
                     if (allPattern == null) {
@@ -122,19 +131,21 @@ public class SpecSecurityBuilder {
                     } else {
                         allPattern.addMethods(webResourceCollection.httpMethods, webResourceCollection.omission);
                     }
-                    if (currentPatterns == rolesPatterns) {
-                        for (String roleName : securityConstraint.authConstraint.roleNames) {
-                            if (roleName.equals("*")) {
-                                pattern.addAllRoles(securityRoles);
-                            } else {
-                                pattern.addRole(roleName);
-                            }
-                        }
-                    }
-                    pattern.setTransport(transport);
+
                 }
             }
         }
+    }
+
+    private void analyzeURLPattern(String urlPattern, Set<String> httpMethods, boolean omission, String transport, Map<String, URLPattern> currentPatterns) {
+        URLPattern pattern = currentPatterns.get(urlPattern);
+        if (pattern == null) {
+            pattern = new URLPattern(urlPattern, httpMethods, omission);
+            currentPatterns.put(urlPattern, pattern);
+        } else {
+            pattern.addMethods(httpMethods, omission);
+        }
+        pattern.setTransport(transport);
     }
 
     private void removeExcludedDups() {
@@ -142,7 +153,9 @@ public class SpecSecurityBuilder {
             String url = excluded.getKey();
             URLPattern pattern = excluded.getValue();
             removeExcluded(url, pattern, uncheckedPatterns);
-            removeExcluded(url, pattern, rolesPatterns);
+            for (Map<String, URLPattern> rolePatterns : rolesPatterns.values()) {
+                removeExcluded(url, pattern, rolePatterns);
+            }
         }
     }
 
@@ -162,16 +175,16 @@ public class SpecSecurityBuilder {
             policyConfiguration.addToExcludedPolicy(new WebResourcePermission(name, actions));
             policyConfiguration.addToExcludedPolicy(new WebUserDataPermission(name, actions));
         }
-        for (URLPattern pattern : rolesPatterns.values()) {
-            String name = pattern.getQualifiedPattern(allSet);
-            String actions = pattern.getMethods();
-            WebResourcePermission permission = new WebResourcePermission(name, actions);
-            for (String roleName : pattern.getRoles()) {
-                policyConfiguration.addToRole(roleName, permission);
+        for (Map.Entry<String, Map<String, URLPattern>> entry : rolesPatterns.entrySet()) {
+            for (URLPattern pattern : entry.getValue().values()) {
+                String name = pattern.getQualifiedPattern(allSet);
+                String actions = pattern.getMethods();
+                WebResourcePermission permission = new WebResourcePermission(name, actions);
+                policyConfiguration.addToRole(entry.getKey(), permission);
+                HTTPMethods methods = pattern.getHTTPMethods();
+                int transportType = pattern.getTransport();
+                addOrUpdatePattern(uncheckedUserPatterns, name, methods, transportType);
             }
-            HTTPMethods methods = pattern.getHTTPMethods();
-            int transportType = pattern.getTransport();
-            addOrUpdatePattern(uncheckedUserPatterns, name, methods, transportType);
         }
         for (URLPattern pattern : uncheckedPatterns.values()) {
             String name = pattern.getQualifiedPattern(allSet);
@@ -217,6 +230,7 @@ public class SpecSecurityBuilder {
             String actions = URLPattern.getMethodsWithTransport(methods, item.getTransportType());
             policyConfiguration.addToUncheckedPolicy(new WebUserDataPermission(item.getName(), actions));
         }
+        System.out.println(policyConfiguration.getAudit());
         return policyConfiguration.getComponentPermissions();
     }
 
