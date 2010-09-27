@@ -58,28 +58,9 @@
                 <version>1.4_1</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.ws.scout</groupId>
-                <artifactId>scout</artifactId>
-                <version>1.2.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.juddi</groupId>
-                        <artifactId>uddi-ws</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.juddi</groupId>
                 <artifactId>uddi-ws</artifactId>
-                <version>3.0.1</version>
+                <version>3.0.2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>log4j</groupId>

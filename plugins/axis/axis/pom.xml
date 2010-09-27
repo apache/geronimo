@@ -82,15 +82,21 @@
             <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>commons-discovery</artifactId>
         </dependency>
+            
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxr_1.0_spec</artifactId>
+            <version>2.1</version>
+        </dependency>
 
         <!-- JAXR implementation -->
         <dependency>
-            <groupId>org.apache.ws.scout</groupId>
-            <artifactId>scout</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.juddi</groupId>
             <artifactId>uddi-ws</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>scout</artifactId>
         </dependency>
     </dependencies>
 
