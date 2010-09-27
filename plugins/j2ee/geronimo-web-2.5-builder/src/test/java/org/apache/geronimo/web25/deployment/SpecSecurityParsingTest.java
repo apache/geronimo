@@ -21,27 +21,29 @@
 package org.apache.geronimo.web25.deployment;
 
 import java.net.URL;
+import java.security.Permission;
+import java.security.PermissionCollection;
 import java.util.Collection;
-import java.util.Set;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
+import java.util.Set;
 import java.util.jar.JarFile;
-import java.security.PermissionCollection;
 
 import javax.security.jacc.WebResourcePermission;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.Naming;
-import org.apache.geronimo.xbeans.javaee.WebAppType;
-import org.apache.geronimo.xbeans.javaee.WebAppDocument;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.xbeans.javaee.WebAppDocument;
+import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
@@ -85,6 +87,35 @@ public class SpecSecurityParsingTest extends TestCase {
         assertFalse(unchecked.implies(new WebResourcePermission("/Test", "!")));
         PermissionCollection adminPermissions = permissions.getRolePermissions().get("Admin");
         assertTrue(adminPermissions.implies(new WebResourcePermission("/Test", "GET,POST")));
+    }
+
+    public void testDifferentRoleDifferentHttpMethod() throws Exception {
+        roleSet.add("userGet");
+        roleSet.add("userPost");
+        URL srcXml = classLoader.getResource("security/web3.xml");
+        WebAppDocument webAppDoc = WebAppDocument.Factory.parse(srcXml, options);
+        WebAppType webAppType = webAppDoc.getWebApp();
+        ComponentPermissions permissions = builder.buildSpecSecurityConfig(webAppType, roleSet, rolePermissionMap);
+        PermissionCollection unchecked = permissions.getUncheckedPermissions();
+        Permission p = new WebResourcePermission("/app/*", "GET");
+        assertTrue(implies(p, permissions, "userGet"));
+        assertFalse(implies(p, permissions, "userPost"));
+        p = new WebResourcePermission("/app/home", "POST");
+        assertTrue(implies(p, permissions, "userPost"));
+        assertFalse(implies(p, permissions, "userGet"));
+    }
+
+    private boolean implies(Permission p, ComponentPermissions permissions, String role) {
+        PermissionCollection excluded = permissions.getExcludedPermissions();
+        if (excluded.implies(p))
+            return false;
+        PermissionCollection unchecked = permissions.getUncheckedPermissions();
+        if (unchecked.implies(p))
+            return true;
+        if (role == null)
+            return false;
+        PermissionCollection rolePermissions = permissions.getRolePermissions().get(role);
+        return rolePermissions != null && rolePermissions.implies(p);
     }
 
     public static class TestWebModuleBuilder extends AbstractWebModuleBuilder {

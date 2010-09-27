@@ -196,7 +196,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected Map<String, String> buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
         if (contextRoot == null) {
             contextRoot = "";
-        } else if (!contextRoot.startsWith("/")) {        
+        } else if (!contextRoot.startsWith("/")) {
             contextRoot = "/" + contextRoot;
         }
         Map<String, String> map = new HashMap<String, String>();
@@ -479,18 +479,25 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         Map<UncheckedItem, HTTPMethods> uncheckedResourcePatterns = new HashMap<UncheckedItem, HTTPMethods>();
         Map<UncheckedItem, HTTPMethods> uncheckedUserPatterns = new HashMap<UncheckedItem, HTTPMethods>();
         Map<String, URLPattern> excludedPatterns = new HashMap<String, URLPattern>();
-        Map<String, URLPattern> rolesPatterns = new HashMap<String, URLPattern>();
+        Map<String, Map<String, URLPattern>> rolesPatterns = new HashMap<String, Map<String, URLPattern>>();
         Set<URLPattern> allSet = new HashSet<URLPattern>();   // == allMap.values()
         Map<String, URLPattern> allMap = new HashMap<String, URLPattern>();   //uncheckedPatterns union excludedPatterns union rolesPatterns.
 
         SecurityConstraintType[] securityConstraintArray = webApp.getSecurityConstraintArray();
         for (SecurityConstraintType securityConstraintType : securityConstraintArray) {
-            Map<String, URLPattern> currentPatterns;
+            Map<String, URLPattern> currentPatterns = null;
+            Set<String> roleNames = null;
             if (securityConstraintType.isSetAuthConstraint()) {
                 if (securityConstraintType.getAuthConstraint().getRoleNameArray().length == 0) {
                     currentPatterns = excludedPatterns;
                 } else {
-                    currentPatterns = rolesPatterns;
+                    roleNames = new HashSet<String>();
+                    for (RoleNameType roleName : securityConstraintType.getAuthConstraint().getRoleNameArray()) {
+                        roleNames.add(roleName.getStringValue().trim());
+                    }
+                    if (roleNames.remove("*")) {
+                        roleNames.addAll(securityRoles);
+                    }
                 }
             } else {
                 currentPatterns = uncheckedPatterns;
@@ -501,50 +508,29 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 transport = securityConstraintType.getUserDataConstraint().getTransportGuarantee().getStringValue().trim().toUpperCase();
             }
 
-            WebResourceCollectionType[] webResourceCollectionTypeArray = securityConstraintType.getWebResourceCollectionArray();
-            for (WebResourceCollectionType webResourceCollectionType : webResourceCollectionTypeArray) {
+            for (WebResourceCollectionType webResourceCollectionType : securityConstraintType.getWebResourceCollectionArray()) {
                 UrlPatternType[] urlPatternTypeArray = webResourceCollectionType.getUrlPatternArray();
                 for (UrlPatternType urlPatternType : urlPatternTypeArray) {
                     String url = urlPatternType.getStringValue().trim();
-                    URLPattern pattern = currentPatterns.get(url);
-                    if (pattern == null) {
-                        pattern = new URLPattern(url);
-                        currentPatterns.put(url, pattern);
+                    if(currentPatterns == null) {
+                        for (String roleName : roleNames) {
+                            currentPatterns = rolesPatterns.get(roleName);
+                            if (currentPatterns == null) {
+                                currentPatterns = new HashMap<String, URLPattern>();
+                                rolesPatterns.put(roleName, currentPatterns);
+                            }
+                            analyzeURLPattern(url, webResourceCollectionType.getHttpMethodArray(), transport, currentPatterns);
+                        }
+                    } else {
+                        analyzeURLPattern(url, webResourceCollectionType.getHttpMethodArray(), transport, currentPatterns);
                     }
-
                     URLPattern allPattern = allMap.get(url);
                     if (allPattern == null) {
                         allPattern = new URLPattern(url);
                         allSet.add(allPattern);
                         allMap.put(url, allPattern);
                     }
-
-                    String[] httpMethodTypeArray = webResourceCollectionType.getHttpMethodArray();
-                    if (httpMethodTypeArray.length == 0) {
-                        pattern.addMethod("");
-                        allPattern.addMethod("");
-                    } else {
-                        for (String aHttpMethodTypeArray : httpMethodTypeArray) {
-                            String method = (aHttpMethodTypeArray == null ? null : aHttpMethodTypeArray.trim());
-                            if (method != null) {
-                                pattern.addMethod(method);
-                                allPattern.addMethod(method);
-                            }
-                        }
-                    }
-                    if (currentPatterns == rolesPatterns) {
-                        RoleNameType[] roleNameTypeArray = securityConstraintType.getAuthConstraint().getRoleNameArray();
-                        for (RoleNameType roleNameType : roleNameTypeArray) {
-                            String role = roleNameType.getStringValue().trim();
-                            if (role.equals("*")) {
-                                pattern.addAllRoles(securityRoles);
-                            } else {
-                                pattern.addRole(role);
-                            }
-                        }
-                    }
-
-                    pattern.setTransport(transport);
+                    analyzeURLPattern(url, webResourceCollectionType.getHttpMethodArray(), transport, allMap);
                 }
             }
         }
@@ -560,18 +546,16 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             excludedPermissions.add(new WebUserDataPermission(name, actions));
         }
 
-        for (URLPattern pattern : rolesPatterns.values()) {
-            String name = pattern.getQualifiedPattern(allSet);
-            String actions = pattern.getMethods();
-            WebResourcePermission permission = new WebResourcePermission(name, actions);
-
-            for (String roleName : pattern.getRoles()) {
-                addPermissionToRole(roleName, permission, rolePermissions);
+        for (Map.Entry<String, Map<String, URLPattern>> entry : rolesPatterns.entrySet()) {
+            for (URLPattern pattern : entry.getValue().values()) {
+                String name = pattern.getQualifiedPattern(allSet);
+                String actions = pattern.getMethods();
+                WebResourcePermission permission = new WebResourcePermission(name, actions);
+                addPermissionToRole(entry.getKey(), permission, rolePermissions);
+                HTTPMethods methods = pattern.getHTTPMethods();
+                int transportType = pattern.getTransport();
+                addOrUpdatePattern(uncheckedUserPatterns, name, methods, transportType);
             }
-            HTTPMethods methods = pattern.getHTTPMethods();
-            int transportType = pattern.getTransport();
-
-            addOrUpdatePattern(uncheckedUserPatterns, name, methods, transportType);
         }
 
         for (URLPattern pattern : uncheckedPatterns.values()) {
@@ -631,6 +615,24 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
         return new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
 
+    }
+
+    private void analyzeURLPattern(String urlPattern, String[] httpMethods, String transport, Map<String, URLPattern> currentPatterns) {
+        URLPattern pattern = currentPatterns.get(urlPattern);
+        if (pattern == null) {
+            pattern = new URLPattern(urlPattern);
+            currentPatterns.put(urlPattern, pattern);
+        }
+        if (httpMethods.length == 0) {
+            pattern.addMethod("");
+        } else {
+            for (String httpMethod : httpMethods) {
+                if (httpMethod != null) {
+                    pattern.addMethod(httpMethod.trim());
+                }
+            }
+        }
+        pattern.setTransport(transport);
     }
 
     protected void addPermissionToRole(String roleName, Permission permission, Map<String, PermissionCollection> rolePermissions) {
