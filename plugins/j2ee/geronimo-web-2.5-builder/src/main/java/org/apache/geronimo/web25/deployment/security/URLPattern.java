@@ -38,7 +38,6 @@ public class URLPattern {
     private final String pattern;
     private final HTTPMethods httpMethods = new HTTPMethods();
     private int transport;
-    private final HashSet<String> roles = new HashSet<String>();
 
     /**
      * Construct an instance of the utility class for <code>WebModuleConfiguration</code>.
@@ -175,19 +174,6 @@ public class URLPattern {
     public int getTransport() {
         return transport;
     }
-
-    public void addRole(String role) {
-        roles.add(role);
-    }
-
-    public void addAllRoles(Collection<String> collection) {
-        roles.addAll(collection);
-    }
-
-    public HashSet<String> getRoles() {
-        return roles;
-    }
-
 
     /**
      * TODO this is kinda weird without an explanation
