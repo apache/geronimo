@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.ManagedBean;
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
@@ -177,7 +178,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
     private Object buildReference(Module module, String name, String type, GerResourceRefType gerResourceRef) throws DeploymentException {
         Bundle bundle = module.getEarContext().getDeploymentBundle();
 
-        Class iface;
+        Class<?> iface;
         try {
             iface = bundle.loadClass(type);
         } catch (ClassNotFoundException e) {
@@ -208,6 +209,10 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                 EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), corbaEnvironment);
                 return new ORBReference(moduleId, corbaName);
             }
+        } else if (iface.isAnnotationPresent(ManagedBean.class)) {
+            ManagedBean managed = iface.getAnnotation(ManagedBean.class);
+            String beanName = managed.value().length() == 0 ? iface.getSimpleName() : managed.value();
+            return new JndiReference("java:module/" + beanName);        
         } else {
             //determine jsr-77 type from interface
             String j2eeType;
@@ -351,7 +356,8 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                     "[field] " + (field != null ? field.getName() : null) + " ): Entry");
 
             String resourceName = getResourceName(annotation, method, field);
-            String resourceType = getResourceType(annotation, method, field);
+            Class resourceTypeClass = getResourceTypeClass(annotation, method, field);
+            String resourceType = resourceTypeClass.getCanonicalName();
 
             if (resourceType.equals("javax.sql.DataSource") ||
                     resourceType.equals("javax.mail.Session") ||
@@ -359,7 +365,8 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
                     resourceType.equals("org.omg.CORBA.ORB") ||
                     resourceType.equals("org.omg.CORBA_2_3.ORB") ||
                     resourceType.equals("org.omg.CORBA_2_4.ORB") ||
-                    resourceType.endsWith("ConnectionFactory")) {
+                    resourceType.endsWith("ConnectionFactory") ||
+                    isManagedBeanReference(resourceTypeClass, annotation)) {
 
                 log.debug("processResource(): <resource-ref> found");
 
@@ -435,6 +442,17 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             
             return false;
         }
+        
+        private boolean isManagedBeanReference(Class<?> resourceTypeClass, Resource annotation) {
+            // Check if this is @Resource managedBean injection. Handle two cases:
+            // 1) @Resource managedBeanClass; or  
+            // 2) @Resource(lookup='...') managedBeanInterfaceClass; 
+            if (resourceTypeClass.isAnnotationPresent(ManagedBean.class) || 
+                (resourceTypeClass.isInterface() && annotation.lookup().length() != 0)) {
+                return true;
+            }
+            return false;
+        }
     }
-
+        
 }
