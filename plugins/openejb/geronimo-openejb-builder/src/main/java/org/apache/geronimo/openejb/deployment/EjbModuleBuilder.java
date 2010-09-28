@@ -106,6 +106,7 @@ import org.apache.openejb.config.FinderFactory;
 import org.apache.openejb.config.GeneratedClientModules;
 import org.apache.openejb.config.GeronimoMappedName;
 import org.apache.openejb.config.InitEjbDeployments;
+import org.apache.openejb.config.LegacyProcessor;
 import org.apache.openejb.config.MappedNameBuilder;
 import org.apache.openejb.config.OpenEjb2Conversion;
 import org.apache.openejb.config.OutputGeneratedDescriptors;
@@ -778,6 +779,8 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         chain.add(new GeneratedClientModules.Add());
 
         chain.add(new ReadDescriptors());
+
+        chain.add(new LegacyProcessor());
 
         chain.add(new GeronimoAnnotationDeployer());
 
