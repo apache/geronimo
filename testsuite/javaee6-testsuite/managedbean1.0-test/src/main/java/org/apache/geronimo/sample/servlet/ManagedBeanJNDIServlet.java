@@ -21,6 +21,8 @@ package org.apache.geronimo.sample.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+
+import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletException;
@@ -29,46 +31,38 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.geronimo.sample.managedbean.MyManagedBean;
+import org.apache.geronimo.sample.managedbean.MyManagedInterface;
 
 /**
  * Servlet implementation class ManagedBeanServlet
  */
 public class ManagedBeanJNDIServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-       
+    
+    private static final long serialVersionUID = 1L;
+    
+    @Resource(lookup = "java:module/mybean")
+    private MyManagedInterface myManagedBean; // inject by interface
+    
     /**
-     * @see HttpServlet#HttpServlet()
+     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+     *      response)
      */
-    public ManagedBeanJNDIServlet() {
-        super();
-        // TODO Auto-generated constructor stub
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doPost(request, response);
     }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doPost(request,response);
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		   MyManagedBean myManagedBean=null;
-		   try {
-				InitialContext ctx=new InitialContext();
-				myManagedBean=(MyManagedBean) ctx.lookup("java:module/mybean");
-			} catch (NamingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	        
-		    PrintWriter out = response.getWriter();
-	        out.println("<html><head><title>Common Annotation ManagedBean</title></head></html>");
-	        out.println("<body>");
-            out.println(myManagedBean.saySomeThing("Hello,I am a ManagedBean!"));
-            out.println("</body></html>");
-	}
+    /**
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+     *      response)
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        PrintWriter out = response.getWriter();
+        out.println("<html><head><title>Common Annotation ManagedBean</title></head></html>");
+        out.println("<body>");
+        out.println(myManagedBean.saySomeThing("Hello,I am a ManagedBean!"));
+        out.println("</body></html>");
+    }
 
 }

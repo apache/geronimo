@@ -25,21 +25,21 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
 public class ManagedbeanTest extends SeleniumTestSupport {
 
+    @Test
+    public void testManagedBeanResource() {
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(appContextStr);
+        selenium.click("link=ManagedBeanResource");
+        selenium.waitForPageToLoad("30000");
+        Assert.assertEquals(selenium.getBodyText(), "Hello,I am a ManagedBean!");
+    }
 
-	@Test
-	public void testManagedBeanResource() {
-		String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);
-		selenium.click("link=ManagedBeanResource");
-		selenium.waitForPageToLoad("30000");
-		Assert.assertEquals(selenium.getBodyText(),"Hello,I am a ManagedBean!");
-	}
-	@Test
-	public void testManagedBeanJNDI() {
-		String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);
-		selenium.click("link=ManagedBeanJNDI");
-		selenium.waitForPageToLoad("30000");
-		Assert.assertEquals(selenium.getBodyText(),"Hello,I am a ManagedBean!");
-	}
+    @Test
+    public void testManagedBeanJNDI() {
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(appContextStr);
+        selenium.click("link=ManagedBeanJNDI");
+        selenium.waitForPageToLoad("30000");
+        Assert.assertEquals(selenium.getBodyText(), "Hello,I am a ManagedBean!");
+    }
 }

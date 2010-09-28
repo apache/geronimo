@@ -19,24 +19,8 @@
 
 package org.apache.geronimo.sample.managedbean;
 
-import javax.annotation.ManagedBean;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-@ManagedBean(value = "mybean")
-public class MyManagedBean implements MyManagedInterface {
+public interface MyManagedInterface {
     
-    @PostConstruct
-    public void setResources() {
-        System.out.println("Setting resources");
-    }
+    String saySomeThing(String word);
 
-    @PreDestroy
-    public void cleanResources() {
-        System.out.println("Collecting resources");
-    }
-
-    public String saySomeThing(String word) {
-        return word;
-    }
 }

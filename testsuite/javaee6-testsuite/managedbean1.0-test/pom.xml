@@ -35,7 +35,6 @@
     <packaging>war</packaging>
 
     <dependencies>
-
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_3.0_spec</artifactId>
@@ -44,10 +43,10 @@
           <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-annotation_1.1_spec</artifactId>
-            <version>1.0</version>
             <scope>provided</scope>
         </dependency>         
     </dependencies> 
+
     <profiles>
         <profile>
             <id>it</id>
@@ -92,12 +91,12 @@
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-failsafe-plugin</artifactId>
 		        <configuration>
-		           <suiteXmlFiles>
+		            <suiteXmlFiles>
 			        <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
-		          </suiteXmlFiles>
-                        <systemPropertyVariables>
-                             <appContext>${project.artifactId}</appContext>
-                        </systemPropertyVariables>
+		            </suiteXmlFiles>
+                            <systemPropertyVariables>
+                                <appContext>${project.artifactId}</appContext>
+                            </systemPropertyVariables>
 		        </configuration>
 		   </plugin>
                 </plugins>
