@@ -94,12 +94,16 @@
                      <servlet-name>default</servlet-name>
                      <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
                      <init-param>
+                        <param-name>debug</param-name>
+                        <param-value>0</param-value>
+                    </init-param>
+                     <init-param>
                          <param-name>useAcceptRanges</param-name>
                          <param-value>true</param-value>
                      </init-param>
                      <init-param>
                          <param-name>listings</param-name>
-                         <param-value>true</param-value>
+                         <param-value>false</param-value>
                      </init-param>
                      <init-param>
                          <param-name>readonly</param-name>
