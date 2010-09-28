@@ -16,10 +16,25 @@
  */
 package org.apache.geronimo.bval.deployment;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.jar.JarFile;
 
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+
+import org.apache.bval.jsr303.xml.ConstraintMappingsType;
+import org.apache.bval.jsr303.xml.ValidationConfigType;
+import org.apache.bval.jsr303.xml.ValidationMappingParser;
+import org.apache.bval.jsr303.xml.ValidationParser;
 import org.apache.geronimo.bval.ValidatorFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeployableBundle;
@@ -37,7 +52,9 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.osgi.framework.Bundle;
+import org.xml.sax.SAXException;
 
 /**
  * Validation Module Builder extension to support customization of ValidatorFactory using validation.xml descriptors.
@@ -82,9 +99,62 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
             validationConfig = "META-INF/validation.xml"; 
         }
 
-        if(validationConfig != null && bundle.getEntry(validationConfig) == null) {
-            // No validation.xml file
-            validationConfig = null;
+        if(validationConfig != null) {
+            if(bundle.getEntry(validationConfig) == null) {
+                // No validation.xml file
+                validationConfig = null;
+            } else {
+                // Parse the validation xml and throw deployment exception if there are any errors
+                URL schemaUrl = ValidationParser.class.getClassLoader().getResource("META-INF/validation-configuration-1.0.xsd");
+                SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                InputStream inp = null;
+                try {
+                    Schema schema = sf.newSchema(schemaUrl);
+                    JAXBContext jc = JAXBContext.newInstance(ValidationConfigType.class);
+                    Unmarshaller unmarshaller = jc.createUnmarshaller();
+                    unmarshaller.setSchema(schema);
+                    inp = bundle.getEntry(validationConfig).openStream();
+                    StreamSource stream = new StreamSource(inp);
+                    JAXBElement<ValidationConfigType> root = unmarshaller.unmarshal(stream, ValidationConfigType.class);
+                    ValidationConfigType xmlConfig = root.getValue();
+                    if(xmlConfig.getConstraintMapping().size() > 0) {
+                        URL mappingSchemaUrl = ValidationMappingParser.class.getClassLoader().getResource("META-INF/validation-mapping-1.0.xsd");
+                        Schema mappingSchema = sf.newSchema(mappingSchemaUrl);
+                        for (JAXBElement<String> mappingFileNameElement : xmlConfig.getConstraintMapping()) {
+                            String mappingFileName = mappingFileNameElement.getValue();
+                            if(bundle.getEntry(mappingFileName) == null) {
+                                throw new DeploymentException("Non-existent constraint mapping file "+mappingFileName+" specified in "+validationConfig);
+                            } else {
+                                // Parse the constraint mappings file and throw deployment exception if there are any errors
+                                InputStream inp1 = null;
+                                try { 
+                                    jc = JAXBContext.newInstance(ConstraintMappingsType.class);
+                                    inp1 = bundle.getEntry(mappingFileName).openStream();
+                                    stream = new StreamSource(inp1);
+                                    unmarshaller = jc.createUnmarshaller();
+                                    unmarshaller.setSchema(mappingSchema);
+                                    JAXBElement<ConstraintMappingsType> mappingRoot = unmarshaller.unmarshal(stream, ConstraintMappingsType.class);
+                                    ConstraintMappingsType constraintMappings = mappingRoot.getValue();
+                                } catch (JAXBException e) {
+                                    throw new DeploymentException("Error processing constraint mapping file "+mappingFileName+" specified in "+validationConfig, e);
+                                } catch (IOException e) {
+                                    throw new DeploymentException("Error processing constraint mapping file "+mappingFileName+" specified in "+validationConfig, e);
+                                } finally {
+                                    IOUtils.close(inp1);
+                                }
+                            }
+                        }
+                    }
+                } catch (SAXException e) {
+                    throw new DeploymentException("Error processing validation configuration "+validationConfig, e);
+                } catch (JAXBException e) {
+                    throw new DeploymentException("Error processing validation configuration "+validationConfig, e);
+                } catch (IOException e) {
+                    throw new DeploymentException("Error processing validation configuration "+validationConfig, e);
+                } finally {
+                    IOUtils.close(inp);
+                }
+            }
         }
         EARContext moduleContext = module.getEarContext();
         AbstractName abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), "ValidatorFactory", NameFactory.VALIDATOR_FACTORY);
