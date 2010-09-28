@@ -61,13 +61,13 @@
                         <webModule>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>console-portal-driver</artifactId>
-                            <contextRoot>/pluto</contextRoot>
+                            <contextRoot>/console</contextRoot>
                             <bundleFileName>portal-driver.war</bundleFileName>
                         </webModule>
                         <webModule>
                             <groupId>org.apache.geronimo.plugins</groupId>
                             <artifactId>console-base-portlets</artifactId>
-                            <contextRoot>/console</contextRoot>
+                            <contextRoot>/console-base</contextRoot>
                             <bundleFileName>base-portlets.war</bundleFileName>
                         </webModule>
                     </modules>
