@@ -939,18 +939,6 @@
                 </exclusions>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.commons-beanutils</artifactId>
-                <version>1.7.0_3</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
             <!--
             TODO: See if we can remove this...
             -->

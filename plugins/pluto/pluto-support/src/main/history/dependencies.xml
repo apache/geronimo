@@ -12,6 +12,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
         <type>jar</type>
