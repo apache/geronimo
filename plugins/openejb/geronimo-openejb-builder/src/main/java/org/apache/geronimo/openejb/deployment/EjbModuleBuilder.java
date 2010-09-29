@@ -39,6 +39,7 @@ import javax.ejb.SessionContext;
 import javax.ejb.TimerService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceContext;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -71,6 +72,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.FileUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.openejb.EjbContainer;
 import org.apache.geronimo.openejb.EjbDeployment;
@@ -200,7 +202,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             moduleBuilderExtensions = Collections.emptyList();
         }
         this.moduleBuilderExtensions = moduleBuilderExtensions;
-        
+
         SystemInstance.get().setComponent(FinderFactory.class, new BundleFinderFactory());
 
         //duplicate of stuff in OpenEjbSystemGBean, may not be essential
@@ -249,7 +251,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
     public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return null;
     }
-    
+
     @Override
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, "ejb.jar", null, null, null, naming, idBuilder, "META-INF/", false);
@@ -409,7 +411,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         }
 
         ejbModule.setModuleId(name);
-        
+
         Map<JndiKey, Map<String, Object>> context = null;
         if (subModule) {
             context = parentModule.getJndiContext();
@@ -559,11 +561,15 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
     private void installModule(Module module, EARContext earContext) throws DeploymentException {
         registerModule(module, earContext);
-
         JarFile moduleFile = module.getModuleFile();
         try {
-            // extract the ejbJar file into a standalone packed jar file and add the contents to the output
-            earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
+            if (module.isStandAlone()) {
+                JarUtils.unzipToDirectory(moduleFile, earContext.getBaseDir());
+            } else {
+                // extract the ejbJar file into a standalone packed jar file and add the contents to the output
+                earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
+            }
+            //earContext.addInclude(".", moduleFile);
         } catch (IOException e) {
             throw new DeploymentException("Unable to copy ejb module jar into configuration: " + moduleFile.getName(), e);
         }
@@ -774,7 +780,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
     private static final String DEBUGGABLE_VM_HACKERY_PROPERTY = "openejb.debuggable-vm-hackery";
     private static final String VALIDATION_SKIP_PROPERTY = "openejb.validation.skip";
     private static final String WEBSERVICES_ENABLED = "openejb.webservices.enabled";
-    
+
     private static ConfigurationFactory.Chain buildChain(boolean offline, DynamicDeployer preAutoConfigDeployer, Options options, ConfigurationFactory configurationFactory, ConfigurationFactory.Chain chain) {
         chain.add(new GeneratedClientModules.Add());
 
@@ -975,7 +981,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             }
         }
     }
-    
+
     public void doAddGBeans(EARContext earContext, Module module, Bundle bundle, Collection repositories) throws DeploymentException {
         EjbModule ejbModule = (EjbModule) module;
         EjbDeploymentBuilder ejbDeploymentBuilder = ejbModule.getEjbBuilder();
@@ -1048,7 +1054,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             }
         }
     }
-    
+
     private void setMdbContainerIds(EARContext earContext, EjbModule ejbModule, GBeanData ejbModuleGBeanData) throws DeploymentException {
         Object altDD = ejbModule.getEjbModule().getAltDDs().get("openejb-jar.xml");
         if (!(altDD instanceof OpenejbJarType)) {
