@@ -17,16 +17,12 @@
 
 package org.apache.geronimo.jetty8.deployment;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,7 +32,6 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import javax.xml.bind.JAXBException;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.DeployableBundle;
@@ -88,6 +83,7 @@ import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
+import org.apache.geronimo.web.info.LoginConfigInfo;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
@@ -103,15 +99,10 @@ import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyAuthenticationType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
-import org.apache.openejb.jee.ErrorPage;
-import org.apache.openejb.jee.FormLoginConfig;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.LocaleEncodingMapping;
 import org.apache.openejb.jee.LocaleEncodingMappingList;
-import org.apache.openejb.jee.LoginConfig;
-import org.apache.openejb.jee.MimeMapping;
 import org.apache.openejb.jee.WebApp;
-import org.apache.openejb.jee.WelcomeFileList;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -121,6 +112,9 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -160,22 +154,15 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
     protected final NamespaceDrivenBuilderCollection clusteringBuilders;
 
-    private final List<String> defaultWelcomeFiles;
     private final Integer defaultSessionTimeoutSeconds;
-    private final Map<String, String> defaultLocaleEncodingMappings;
-    private final Map<String, String> defaultMimeTypeMappings;
 
     private static final String JETTY_NAMESPACE = JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
     public JettyModuleBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
                               @ParamAttribute(name = "defaultSessionTimeoutSeconds") Integer defaultSessionTimeoutSeconds,
-                              @ParamAttribute(name = "defaultWelcomeFiles") List<String> defaultWelcomeFiles,
                               @ParamAttribute(name = "jettyContainerObjectName") AbstractNameQuery jettyContainerName,
                               @ParamAttribute(name = "defaultWebApp") WebAppInfo defaultWebApp,
                               @ParamAttribute(name = "jspServlet") WebAppInfo jspServlet,
-                              @ParamAttribute(name = "defaultJspServletName") String defaultJspServletName,
-                              @ParamAttribute(name = "defaultLocaleEncodingMappings") Map<String, String> defaultLocaleEncodingMappings,
-                              @ParamAttribute(name = "defaultMimeTypeMappings") Map<String, String> defaultMimeTypeMappings,
                               @ParamReference(name = "PojoWebServiceTemplate", namingType = NameFactory.SERVLET_WEB_SERVICE_TEMPLATE) Object pojoWebServiceTemplate,
                               @ParamReference(name = "WebServiceBuilder", namingType = NameFactory.MODULE_BUILDER) Collection<WebServiceBuilder> webServiceBuilder,
                               @ParamReference(name = "ClusteringBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<NamespaceDrivenBuilder> clusteringBuilders,
@@ -200,9 +187,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         this.pojoWebServiceTemplate = getGBeanData(kernel, pojoWebServiceTemplate);
         this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders);//, GerClusteringDocument.type.getDocumentElementName());
 
-        this.defaultWelcomeFiles = defaultWelcomeFiles == null ? new ArrayList<String>() : defaultWelcomeFiles;
-        this.defaultLocaleEncodingMappings = defaultLocaleEncodingMappings == null ? new HashMap<String, String>() : defaultLocaleEncodingMappings;
-        this.defaultMimeTypeMappings = defaultMimeTypeMappings == null ? new HashMap<String, String>() : defaultMimeTypeMappings;
         ServiceReference sr = bundleContext.getServiceReference(PackageAdmin.class.getName());
     }
 
@@ -536,20 +520,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 configureNoClustering(moduleContext, webModuleData);
             }
 
-            // configure mime mappings.
-            configureMimeMappings(webApp, webModuleData);
-
-            // configure welcome file lists.
-            configureWelcomeFileLists(webApp, webModuleData);
-
-            // configure local encoding mapping lists.
-            configureLocaleEncodingMappingLists(webApp, webModuleData);
-
-            // configure error pages.
-            configureErrorPages(webApp, webModuleData);
-
             // configure login configs.
-            configureAuthentication(module, webApp, jettyWebApp, webModuleData);
+            configureAuthentication(module, webAppInfo.loginConfig, jettyWebApp, webModuleData);
 
             if (jettyWebApp.isSetSecurityRealmName()) {
                 configureSecurityRealm(earContext, webApp, jettyWebApp, bundle, webModuleData);
@@ -629,14 +601,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
     }
 
-    private void configureAuthentication(Module module, WebApp webApp, JettyWebAppType jettyWebApp, GBeanData webModuleData) throws DeploymentException, GBeanAlreadyExistsException {
+    private void configureAuthentication(Module module, LoginConfigInfo loginConfigInfo, JettyWebAppType jettyWebApp, GBeanData webModuleData) throws DeploymentException, GBeanAlreadyExistsException {
         EARContext moduleContext = module.getEarContext();
-        List<LoginConfig> loginConfigs = webApp.getLoginConfig();
-        if (loginConfigs.size() > 1) {
-            throw new DeploymentException("Web app " + module.getName() + " cannot have more than one login-config element.  Currently has " + loginConfigs.size() + " login-config elements.");
-        }
         JettyAuthenticationType authType = jettyWebApp.getAuthentication();
-        if (loginConfigs.size() == 1 || authType != null || jettyWebApp.isSetSecurityRealmName()) {
+        if (loginConfigInfo != null || authType != null || jettyWebApp.isSetSecurityRealmName()) {
             AbstractName factoryName = moduleContext.getNaming().createChildName(module.getModuleName(), "securityHandlerFactory", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
             webModuleData.setReferencePattern("SecurityHandlerFactory", factoryName);
 
@@ -651,24 +619,22 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 configureLocalJaspicProvider(new JettyAuthenticationWrapper(authType), contextPath, module, securityFactoryData);
                 //otherwise rely on pre-configured jaspi
             } else {
-                LoginConfig loginConfig = loginConfigs.size() == 1 ? loginConfigs.get(0) : null;
                 GBeanData securityFactoryData = new GBeanData(factoryName, JettySecurityHandlerFactory.class);
-                configureConfigurationFactory(jettyWebApp, loginConfig, securityFactoryData);
+                configureConfigurationFactory(jettyWebApp, loginConfigInfo, securityFactoryData);
                 BuiltInAuthMethod auth = BuiltInAuthMethod.NONE;
-                if (loginConfig != null) {
-                    if (loginConfig.getAuthMethod() != null) {
-                        String authMethod = loginConfig.getAuthMethod().trim();
+                if (loginConfigInfo != null) {
+                    if (loginConfigInfo.authMethod != null) {
+                        String authMethod = loginConfigInfo.authMethod.trim();
                         auth = BuiltInAuthMethod.getValueOf(authMethod);
 
                         if (auth == BuiltInAuthMethod.BASIC) {
-                            securityFactoryData.setAttribute("realmName", loginConfig.getRealmName());
+                            securityFactoryData.setAttribute("realmName", loginConfigInfo.realmName);
                         } else if (auth == BuiltInAuthMethod.DIGEST) {
-                            securityFactoryData.setAttribute("realmName", loginConfig.getRealmName());
+                            securityFactoryData.setAttribute("realmName", loginConfigInfo.realmName);
                         } else if (auth == BuiltInAuthMethod.FORM) {
-                            if (loginConfig.getFormLoginConfig() != null) {
-                                FormLoginConfig formLoginConfig = loginConfig.getFormLoginConfig();
-                                securityFactoryData.setAttribute("loginPage", formLoginConfig.getFormLoginPage());
-                                securityFactoryData.setAttribute("errorPage", formLoginConfig.getFormErrorPage());
+                            if (loginConfigInfo.formLoginPage != null) {
+                                securityFactoryData.setAttribute("loginPage", loginConfigInfo.formLoginPage);
+                                securityFactoryData.setAttribute("errorPage", loginConfigInfo.formErrorPage);
                             }
                         } else if (auth == BuiltInAuthMethod.CLIENTCERT) {
                             //nothing to do
@@ -679,8 +645,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                     } else {
                         throw new DeploymentException("No auth method configured and no jaspi configured");
                     }
-                    if (loginConfig.getRealmName() != null) {
-                        webModuleData.setAttribute("realmName", loginConfig.getRealmName());
+                    if (loginConfigInfo.realmName != null) {
+                        webModuleData.setAttribute("realmName", loginConfigInfo.realmName);
                     }
                 }
                 securityFactoryData.setAttribute("authMethod", auth);
@@ -729,67 +695,16 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         }
     }
 
-    private void configureConfigurationFactory(JettyWebAppType jettyWebApp, LoginConfig loginConfig, GBeanData securityFactoryData) {
+    private void configureConfigurationFactory(JettyWebAppType jettyWebApp, LoginConfigInfo loginConfigInfo, GBeanData securityFactoryData) {
         String securityRealmName;
         if (jettyWebApp.isSetSecurityRealmName()) {
             securityRealmName = jettyWebApp.getSecurityRealmName().trim();
         } else {
-            if (loginConfig == null) return;
-            securityRealmName = loginConfig.getRealmName().trim();
+            if (loginConfigInfo == null) return;
+            securityRealmName = loginConfigInfo.realmName.trim();
         }
         AbstractNameQuery configurationFactoryName = new AbstractNameQuery(null, Collections.singletonMap("name", securityRealmName), ConfigurationFactory.class.getName());
         securityFactoryData.setReferencePattern("ConfigurationFactory", configurationFactoryName);
-    }
-
-    private void configureErrorPages(WebApp webApp, GBeanData webModuleData) {
-        List<ErrorPage> errorPageArray = webApp.getErrorPage();
-        Map<String, String> errorPageMap = new HashMap<String, String>();
-        for (ErrorPage errorPage : errorPageArray) {
-            if (errorPage.getErrorCode() != null) {
-                errorPageMap.put(errorPage.getErrorCode() + "", errorPage.getLocation().trim());
-            } else {
-                errorPageMap.put(errorPage.getExceptionType().trim(), errorPage.getLocation().trim());
-            }
-        }
-        webModuleData.setAttribute("errorPages", errorPageMap);
-    }
-
-    private void configureLocaleEncodingMappingLists(WebApp webApp, GBeanData webModuleData) {
-        List<LocaleEncodingMappingList> localeEncodingMappingListArray = webApp.getLocaleEncodingMappingList();
-        Map<String, String> localeEncodingMappingMap = new HashMap<String, String>(defaultLocaleEncodingMappings);
-        for (LocaleEncodingMappingList aLocaleEncodingMappingListArray : localeEncodingMappingListArray) {
-            List<LocaleEncodingMapping> localeEncodingMappingArray = aLocaleEncodingMappingListArray.getLocaleEncodingMapping();
-            for (LocaleEncodingMapping localeEncodingMapping : localeEncodingMappingArray) {
-                localeEncodingMappingMap.put(localeEncodingMapping.getLocale().trim(), localeEncodingMapping.getEncoding().trim());
-            }
-        }
-        webModuleData.setAttribute("localeEncodingMapping", localeEncodingMappingMap);
-    }
-
-    private void configureWelcomeFileLists(WebApp webApp, GBeanData webModuleData) {
-        List<WelcomeFileList> welcomeFileArray = webApp.getWelcomeFileList();
-        List<String> welcomeFiles;
-        if (welcomeFileArray.size() > 0) {
-            welcomeFiles = new ArrayList<String>();
-            for (WelcomeFileList aWelcomeFileArray : welcomeFileArray) {
-                List<String> welcomeFileList = aWelcomeFileArray.getWelcomeFile();
-                for (String welcomeFile : welcomeFileList) {
-                    welcomeFiles.add(welcomeFile.trim());
-                }
-            }
-        } else {
-            welcomeFiles = new ArrayList<String>(defaultWelcomeFiles);
-        }
-        webModuleData.setAttribute("welcomeFiles", welcomeFiles.toArray(new String[welcomeFiles.size()]));
-    }
-
-    private void configureMimeMappings(WebApp webApp, GBeanData webModuleData) {
-        List<MimeMapping> mimeMappingArray = webApp.getMimeMapping();
-        Map<String, String> mimeMappingMap = new HashMap<String, String>(defaultMimeTypeMappings);
-        for (MimeMapping mimeMapping : mimeMappingArray) {
-            mimeMappingMap.put(mimeMapping.getExtension().trim(), mimeMapping.getMimeType().trim());
-        }
-        webModuleData.setAttribute("mimeMap", mimeMappingMap);
     }
 
     private void configureHosts(EARContext earContext, JettyWebAppType jettyWebApp, GBeanData webModuleData) throws GBeanAlreadyExistsException {
@@ -814,47 +729,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
     public String getSchemaNamespace() {
         return JETTY_NAMESPACE;
-    }
-
-    static class StartupOrderComparator implements Comparator<org.apache.openejb.jee.Servlet>, Serializable {
-        /**
-         * comparator that compares first on the basis of startup order, and then on the lexicographical
-         * ordering of servlet name.  Since the servlet names have a uniqueness constraint, this should
-         * provide a total ordering consistent with equals.  All servlets with no startup order are after
-         * all servlets with a startup order.
-         *
-         * @param s1 first Servlet object
-         * @param s2 second Servlet object
-         * @return an int < 0 if o1 precedes o2, 0 if they are equal, and > 0 if o2 preceeds o1.
-         */
-        public int compare(org.apache.openejb.jee.Servlet s1, org.apache.openejb.jee.Servlet s2) {
-
-            // load-on-startup is set for neither.  the
-            // ordering at this point doesn't matter, but we
-            // should return "0" only if the two objects say
-            // they are equal
-            if (s1.getLoadOnStartup() == null && s2.getLoadOnStartup() == null) {
-                return s1.equals(s2) ? 0 : s1.getServletName().trim().compareTo(s2.getServletName().trim());
-            }
-
-            // load-on-startup is set for one but not the
-            // other.  whichever one is set will be "less
-            // than", i.e. it will be loaded first
-            if (s1.getLoadOnStartup() != null && s2.getLoadOnStartup() == null) {
-                return -1;
-            }
-            if (s1.getLoadOnStartup() == null && s2.getLoadOnStartup() != null) {
-                return 1;
-            }
-
-            // load-on-startup is set for both.  whichever one
-            // has a smaller value is "less than"
-            int comp = new Integer(s1.getLoadOnStartup()).compareTo(s2.getLoadOnStartup());
-            if (comp == 0) {
-                return s1.getServletName().trim().compareTo(s2.getServletName().trim());
-            }
-            return comp;
-        }
     }
 
 }

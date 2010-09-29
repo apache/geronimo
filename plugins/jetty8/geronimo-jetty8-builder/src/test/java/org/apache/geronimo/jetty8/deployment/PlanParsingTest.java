@@ -145,11 +145,8 @@ public class PlanParsingTest extends XmlBeansTestSupport {
         bundleContext.registerService(PackageAdmin.class.getName(), packageAdmin, null);
         builder = new JettyModuleBuilder(defaultEnvironment,
                 new Integer(1800),
-                null,
                 jettyContainerObjectName,
                 new WebAppInfo(),
-                null,
-                "jsp", null,
                 null,
                 pojoWebServiceTemplate,
                 Collections.singleton(webServiceBuilder),

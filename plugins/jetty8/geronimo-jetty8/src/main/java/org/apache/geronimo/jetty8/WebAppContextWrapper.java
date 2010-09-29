@@ -54,6 +54,7 @@ import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
+import org.apache.geronimo.web.info.ErrorPageInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.security.SecurityHandler;
@@ -103,14 +104,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
                                 @ParamAttribute(name = "workDir") String workDir,
                                 @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
                                 @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
-                                @ParamAttribute(name = "displayName") String displayName,
-                                @ParamAttribute(name = "contextParamMap") Map<String, String> contextParamMap,
-//                                @ParamAttribute(name = "listenerClassNames") Collection<String> listenerClassNames,
                                 @ParamAttribute(name = "distributable") boolean distributable,
-                                @ParamAttribute(name = "mimeMap") Map mimeMap,
-                                @ParamAttribute(name = "welcomeFiles") String[] welcomeFiles,
-                                @ParamAttribute(name = "localeEncodingMapping") Map<String, String> localeEncodingMapping,
-                                @ParamAttribute(name = "errorPages") Map errorPages,
                                 @ParamAttribute(name = "tagLibMap") Map<String, String> tagLibMap,
                                 @ParamAttribute(name = "compactPath") boolean compactPath,
 
@@ -203,7 +197,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         }
 
         MimeTypes mimeTypes = new MimeTypes();
-        mimeTypes.setMimeMap(mimeMap);
+        mimeTypes.setMimeMap(webAppInfo.mimeMappings);
         webAppContext.setMimeTypes(mimeTypes);
 
         this.server = server;
@@ -228,15 +222,26 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         }
 
         //stuff from spec dd
-        setDisplayName(displayName);
-        if (contextParamMap != null) {
-            webAppContext.getInitParams().putAll(contextParamMap);
-        }
+        setDisplayName(webAppInfo.displayName);
+        webAppContext.getInitParams().putAll(webAppInfo.contextParams);
         webAppContext.setDistributable(distributable);
-        webAppContext.setWelcomeFiles(welcomeFiles);
-        setLocaleEncodingMapping(localeEncodingMapping);
-        setErrorPages(errorPages);
-        setTagLibMap(tagLibMap);
+        webAppContext.setWelcomeFiles(webAppInfo.welcomeFiles.toArray(new String[webAppInfo.welcomeFiles.size()]));
+        for (Map.Entry<String, String> entry : webAppInfo.localeEncodingMappings.entrySet()) {
+            this.webAppContext.addLocaleEncoding(entry.getKey(), entry.getValue());
+        }
+        ErrorPageErrorHandler errorHandler = (ErrorPageErrorHandler) this.webAppContext.getErrorHandler();
+        for (ErrorPageInfo errorPageInfo: webAppInfo.errorPages) {
+            if (errorPageInfo.exceptionType != null) {
+                errorHandler.addErrorPage(errorPageInfo.exceptionType, errorPageInfo.location);
+            } else {
+                errorHandler.addErrorPage(errorPageInfo.errorCode, errorPageInfo.location);
+            }
+        }
+        if (tagLibMap != null) {
+            for (Map.Entry<String, String> entry : tagLibMap.entrySet()) {
+                this.webAppContext.setResourceAlias(entry.getKey(), entry.getValue());
+            }
+        }
 
         if (!distributable) {
             setSessionTimeoutSeconds(sessionTimeoutSeconds);
@@ -309,40 +314,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         }
 
         log.warn("WebAppContextWrapper failed");
-    }
-    //pass through attributes.  They should be constructor params
-
-    public void setLocaleEncodingMapping(@ParamAttribute(name = "localeEncodingMapping")Map<String, String> localeEncodingMap) {
-        if (localeEncodingMap != null) {
-            for (Map.Entry<String, String> entry : localeEncodingMap.entrySet()) {
-                this.webAppContext.addLocaleEncoding(entry.getKey(), entry.getValue());
-            }
-        }
-    }
-
-//    public void setListenerClassNames(@ParamAttribute(name = "listenerClassNames")Collection<String> eventListeners) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-//        if (eventListeners != null) {
-//            Collection<EventListener> listeners = new ArrayList<EventListener>();
-//            for (String listenerClassName : eventListeners) {
-//                EventListener listener = (EventListener) newInstance(listenerClassName);
-//                listeners.add(listener);
-//            }
-//            webAppContext.setEventListeners(listeners.toArray(new EventListener[listeners.size()]));
-//        }
-//    }
-
-    public void setErrorPages(Map errorPageMap) {
-        if (errorPageMap != null) {
-            ((ErrorPageErrorHandler) this.webAppContext.getErrorHandler()).setErrorPages(errorPageMap);
-        }
-    }
-
-    public void setTagLibMap(Map<String, String> tagLibMap) {
-        if (tagLibMap != null) {
-            for (Map.Entry<String, String> entry : tagLibMap.entrySet()) {
-                this.webAppContext.setResourceAlias(entry.getKey(), entry.getValue());
-            }
-        }
     }
 
     public void setSessionTimeoutSeconds(int seconds) {

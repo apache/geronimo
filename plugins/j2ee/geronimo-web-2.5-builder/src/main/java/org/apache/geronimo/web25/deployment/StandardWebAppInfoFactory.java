@@ -21,6 +21,9 @@
 package org.apache.geronimo.web25.deployment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.geronimo.web.info.FilterInfo;
 import org.apache.geronimo.web.info.SecurityConstraintInfo;
@@ -44,18 +47,53 @@ public class StandardWebAppInfoFactory extends DefaultWebAppInfoFactory {
     @Override
     public void complete(WebAppInfo webAppInfo) {
         for (ServletInfo servletInfo : defaultWebAppInfo.servlets) {
-            webAppInfo.servlets.add(copy(servletInfo));
+            if (noServlet(servletInfo.servletName, webAppInfo.servlets)) {
+                webAppInfo.servlets.add(copy(servletInfo));
+            }
         }
         for (FilterInfo filterInfo : defaultWebAppInfo.filters) {
-            webAppInfo.filters.add(copy(filterInfo));
+            if (noFilter(filterInfo.filterName, webAppInfo.filters)) {
+                webAppInfo.filters.add(copy(filterInfo));
+            }
         }
         webAppInfo.listeners.addAll(defaultWebAppInfo.listeners);
-        webAppInfo.contextParams.putAll(defaultWebAppInfo.contextParams);
-        webAppInfo.contextRoot = defaultWebAppInfo.contextRoot;
+
+        for (Map.Entry<String, String> entry: defaultWebAppInfo.contextParams.entrySet()) {
+            if (!webAppInfo.contextParams.containsKey(entry.getKey())) {
+                webAppInfo.contextParams.put(entry.getKey(), entry.getValue());
+            }
+
+        }
         for (SecurityConstraintInfo securityConstraintInfo : defaultWebAppInfo.securityConstraints) {
             webAppInfo.securityConstraints.add(copy(securityConstraintInfo));
         }
         webAppInfo.securityRoles.addAll(defaultWebAppInfo.securityRoles);
+        if (webAppInfo.welcomeFiles.isEmpty()) {
+            webAppInfo.welcomeFiles.addAll(defaultWebAppInfo.welcomeFiles);
+        }
+        webAppInfo.errorPages.addAll(defaultWebAppInfo.errorPages);
+        for (Map.Entry<String, String> entry: defaultWebAppInfo.mimeMappings.entrySet()) {
+            if (!webAppInfo.mimeMappings.containsKey(entry.getKey())) {
+                webAppInfo.mimeMappings.put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    private boolean noServlet(String servletName, List<ServletInfo> servlets) {
+        for (ServletInfo servletInfo: servlets) {
+            if (servletName.equals(servletInfo.servletName)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    private boolean noFilter(String filterName, List<FilterInfo> filters) {
+        for (FilterInfo filterInfo: filters) {
+            if (filterName.equals(filterInfo.filterName)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
