@@ -564,7 +564,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         JarFile moduleFile = module.getModuleFile();
         try {
             if (module.isStandAlone()) {
-                JarUtils.unzipToDirectory(moduleFile, earContext.getBaseDir());
+                JarUtils.unzipToDirectory(new JarFile(moduleFile.getName()), earContext.getBaseDir());
             } else {
                 // extract the ejbJar file into a standalone packed jar file and add the contents to the output
                 earContext.addIncludeAsPackedJar(URI.create(module.getTargetPath()), moduleFile);
