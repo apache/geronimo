@@ -26,23 +26,24 @@ import javax.inject.Singleton;
 @Named("big")
 public class BigApple extends Apple {
 
-	private static final long serialVersionUID = 1L;
-	private int no = 1;
+    private static final long serialVersionUID = 1L;
 
-	public void setNo(int no) {
-		this.no = no;
-	}
+    private int no = 1;
 
-	public int getNo() {
-		return no;
-	}
+    public void setNo(int no) {
+        this.no = no;
+    }
 
-	public void eat() {
-		no--;
-		if (no == 0) {
-			setMessage("Congratulations! You have got the only apple!");
-		} else {
-			setMessage("Sorry, the only apple has been taken by another guy~");
-		}
-	}
+    public int getNo() {
+        return no;
+    }
+
+    public void eat() {
+        no--;
+        if (no == 0) {
+            setMessage("Congratulations! You have got the only apple!");
+        } else {
+            setMessage("Sorry, the only apple has been taken by another guy~");
+        }
+    }
 }

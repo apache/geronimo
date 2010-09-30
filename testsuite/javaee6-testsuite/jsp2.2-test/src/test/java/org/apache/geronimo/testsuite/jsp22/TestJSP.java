@@ -24,47 +24,46 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
 public class TestJSP extends SeleniumTestSupport {
 
-	@Test
-	public void testWithDefaultContentType() throws Exception {
-		String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);
-		selenium.click("link=Page with contentType.");
-		waitForPageLoad();
-		assertTrue(selenium
-				.isTextPresent("Page with contentType uses tag:default-content-type which value is text/xml."));
-		assertFalse(selenium.isTextPresent("<html>"));
-	}
+    @Test
+    public void testWithDefaultContentType() throws Exception {
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(appContextStr);
+        selenium.click("link=Page with contentType.");
+        waitForPageLoad();
+        assertTrue(selenium
+                .isTextPresent("Page with contentType uses tag:default-content-type which value is text/xml."));
+        assertFalse(selenium.isTextPresent("<html>"));
+    }
 
-	// XML page test error in Selenium. This test is excluded at this time.
-	@Test
-	public void testWithoutDefaultContentType() throws Exception {
-		String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);
-		selenium.click("link=Page without contentType.");
-		waitForPageLoad();
-		assertTrue(selenium.isTextPresent("<html>"));
-		assertTrue(selenium
-				.isTextPresent("Page without contentType uses tag: default-content-type which value is text/xml."));
-	}
+    // XML page test error in Selenium. This test is excluded at this time.
+    @Test
+    public void testWithoutDefaultContentType() throws Exception {
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(appContextStr);
+        selenium.click("link=Page without contentType.");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("<html>"));
+        assertTrue(selenium
+                .isTextPresent("Page without contentType uses tag: default-content-type which value is text/xml."));
+    }
 
-	@Test
-	public void testWithErrorNamespace() throws Exception {
-		String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);
-		selenium.click("link=Page with tag: error-on-undeclared-namespace = true.");
-		waitForPageLoad();
-		assertTrue(selenium
-				.isTextPresent("A custom tag was encountered with an undeclared namespace [qq]"));
-	}
+    @Test
+    public void testWithErrorNamespace() throws Exception {
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(appContextStr);
+        selenium.click("link=Page with tag: error-on-undeclared-namespace = true.");
+        waitForPageLoad();
+        assertTrue(selenium
+                .isTextPresent("A custom tag was encountered with an undeclared namespace [qq]"));
+    }
 
-	@Test
-	public void testWithoutErrorNamespace() throws Exception {
-		String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);
-		selenium.click("link=Page with tag: error-on-undeclared-namespace = false.");
-		waitForPageLoad();
-		assertTrue(selenium
-				.isTextPresent("Page with tag: error-on-undeclared-namespace = false."));
-		assertTrue(selenium.isTextPresent("error namespace value"));
-	}
+    @Test
+    public void testWithoutErrorNamespace() throws Exception {
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(appContextStr);
+        selenium.click("link=Page with tag: error-on-undeclared-namespace = false.");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("Page with tag: error-on-undeclared-namespace = false."));
+        assertTrue(selenium.isTextPresent("error namespace value"));
+    }
 }

@@ -21,22 +21,26 @@ package org.apache.geronimo.testsuite.di.app;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
+
 @Named
 public class AppleBean {
-	private @Inject @Big Provider<Apple> bigAppleProvider;
-	private @Inject @Little Provider<Apple> littleAppleProvider;
-	
-	public String eatBigApple() {
-		bigAppleProvider.get().eat();
-		return "result1";
-	}
-	
-	public String eatLittleApple() {
-//		Apple little = littleAppleProvider.get();
-//		System.out.print(little);
-//		little.eat();
-//		System.out.print(little.getMessage());
-		littleAppleProvider.get().eat();
-		return "result2";
-	}
+    @Inject @Big
+    private Provider<Apple> bigAppleProvider;
+
+    @Inject @Little
+    private Provider<Apple> littleAppleProvider;
+
+    public String eatBigApple() {
+        bigAppleProvider.get().eat();
+        return "result1";
+    }
+
+    public String eatLittleApple() {
+        // Apple little = littleAppleProvider.get();
+        // System.out.print(little);
+        // little.eat();
+        // System.out.print(little.getMessage());
+        littleAppleProvider.get().eat();
+        return "result2";
+    }
 }

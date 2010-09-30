@@ -19,14 +19,15 @@
 package org.apache.geronimo.testsuite.di.app;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
+
 @Named("little")
 @SessionScoped
 @Little
 public class LittleApple extends Apple {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public void eat() {
-		setMessage("Congratulations! There are enough small apples!");
-	}
+    public void eat() {
+        setMessage("Congratulations! There are enough small apples!");
+    }
 
 }

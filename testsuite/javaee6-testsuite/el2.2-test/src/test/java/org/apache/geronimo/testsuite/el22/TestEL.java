@@ -24,16 +24,16 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
 public class TestEL extends SeleniumTestSupport {
 
-	@Test
-	public void testMethodWithParameters() throws Exception {
-		String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);
-		selenium.selectFrame("sampleDocumentFrame");
-		selenium.type("el:name", "qq");
-		selenium.type("el:age", "6");
-		selenium.click("el:button");
-		waitForPageLoad();
-		assertTrue(selenium.isTextPresent("Hello,qq"));
-		assertTrue(selenium.isTextPresent("You will be 11 years old after five years."));
-	}
+    @Test
+    public void testMethodWithParameters() throws Exception {
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(appContextStr);
+        selenium.selectFrame("sampleDocumentFrame");
+        selenium.type("el:name", "qq");
+        selenium.type("el:age", "6");
+        selenium.click("el:button");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("Hello,qq"));
+        assertTrue(selenium.isTextPresent("You will be 11 years old after five years."));
+    }
 }

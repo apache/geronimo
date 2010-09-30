@@ -15,27 +15,34 @@
  *  limitations under the License.
  */
 package org.apache.geronimo.testsuite.el22.app;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+
 @ManagedBean
 @RequestScoped
 public class User {
-	private String name;
-	private int age;
+    private String name;
 
-	public String getName() {
-		return name;
-	}
-	public int getAge() {
-		return age;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public void setAge(int age) {
-		this.age = age;
-	}
-	public int calYear(int x) {
-		return (age + x);
-	}
+    private int age;
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public int calYear(int x) {
+        return (age + x);
+    }
 }

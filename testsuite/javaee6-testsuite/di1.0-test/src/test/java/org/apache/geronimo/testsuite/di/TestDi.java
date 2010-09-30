@@ -25,26 +25,23 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
 public class TestDi extends SeleniumTestSupport {
 
-	@Test
-	public void testDi() throws Exception {
-		String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);
-		selenium.click("q:q");
-		waitForPageLoad();
-		assertTrue(selenium
-				.isTextPresent("Congratulations! You have got the only apple!"));
-		selenium.click("q:q");
-		waitForPageLoad();
-		selenium.click("q:q");
-		waitForPageLoad();
-		assertTrue(selenium
-				.isTextPresent("Sorry, the only apple has been taken by another guy~"));
-		selenium.click("q:q");
-		waitForPageLoad();
-		selenium.click("q:qq");
-		waitForPageLoad();
-		assertTrue(selenium
-				.isTextPresent("Congratulations! There are enough small apples!"));
-	}
+    @Test
+    public void testDi() throws Exception {
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(appContextStr);
+        selenium.click("q:q");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("Congratulations! You have got the only apple!"));
+        selenium.click("q:q");
+        waitForPageLoad();
+        selenium.click("q:q");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("Sorry, the only apple has been taken by another guy~"));
+        selenium.click("q:q");
+        waitForPageLoad();
+        selenium.click("q:qq");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("Congratulations! There are enough small apples!"));
+    }
 
 }
