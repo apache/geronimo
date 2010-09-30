@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
@@ -41,6 +42,10 @@ import org.apache.geronimo.sample.RegisterValidation.Model.VIP;
 @WebServlet(name = "submitInfo", urlPatterns = {"/submitInfo"})
 public class submitInfo extends HttpServlet {
 
+    // we'll also test that these get injected properly, as well as the jndi lookup version 
+    @Resource ValidatorFactory injectedValidatorFactory; 
+    @Resource Validator injectedValidator; 
+    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -81,6 +86,15 @@ public class submitInfo extends HttpServlet {
         int violationSize = 0;                
         ValidatorFactory vf = null; 
         Validator validator = null; 
+        
+        if (injectedValidatorFactory == null) {
+            message += "<b>Unable to ValidatorFactory injected as @Resource<br>";
+            violationSize += 1; 
+        }
+        if (injectedValidator == null) {
+            message += "<b>Unable to Validator injected as @Resource<br>";
+            violationSize += 1; 
+        }
         
         // obtain the validator factory and validator instance from JNDI 
         try {
