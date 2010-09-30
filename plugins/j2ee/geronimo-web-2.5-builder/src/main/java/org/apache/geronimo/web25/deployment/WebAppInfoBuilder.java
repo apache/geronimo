@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.SessionTrackingMode;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.web.info.AuthConstraintInfo;
 import org.apache.geronimo.web.info.ErrorPageInfo;
@@ -38,9 +39,12 @@ import org.apache.geronimo.web.info.MultipartConfigInfo;
 import org.apache.geronimo.web.info.SecurityConstraintInfo;
 import org.apache.geronimo.web.info.SecurityRoleRefInfo;
 import org.apache.geronimo.web.info.ServletInfo;
+import org.apache.geronimo.web.info.SessionConfigInfo;
+import org.apache.geronimo.web.info.SessionCookieConfigInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.info.WebResourceCollectionInfo;
 import org.apache.openejb.jee.Dispatcher;
+import org.apache.openejb.jee.Empty;
 import org.apache.openejb.jee.ErrorPage;
 import org.apache.openejb.jee.Filter;
 import org.apache.openejb.jee.FilterMapping;
@@ -56,6 +60,8 @@ import org.apache.openejb.jee.SecurityRole;
 import org.apache.openejb.jee.SecurityRoleRef;
 import org.apache.openejb.jee.Servlet;
 import org.apache.openejb.jee.ServletMapping;
+import org.apache.openejb.jee.SessionConfig;
+import org.apache.openejb.jee.TrackingMode;
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.jee.WebResourceCollection;
 import org.apache.openejb.jee.WelcomeFileList;
@@ -82,11 +88,109 @@ public class WebAppInfoBuilder {
         }
         List<String> problems = new ArrayList<String>();
         WebAppInfo webAppInfo = webAppInfoFactory.newWebAppInfo();
+
         addParams(webApp.getContextParam(), webAppInfo.contextParams);
+
         webAppInfo.contextRoot = webApp.getContextRoot();
+
+        webAppInfo.displayName = webApp.getDisplayName();
+
+        webAppInfo.distributable = !webApp.getDistributable().isEmpty();
+
+        for (ErrorPage errorPage: webApp.getErrorPage()) {
+            ErrorPageInfo errorPageInfo = new ErrorPageInfo();
+            errorPageInfo.location = errorPage.getLocation();
+            if (errorPage.getErrorCode() != null) {
+                errorPageInfo.errorCode = errorPage.getErrorCode().intValue();
+            }
+            errorPageInfo.exceptionType = errorPage.getExceptionType();
+            webAppInfo.errorPages.add(errorPageInfo);
+        }
+
+        Map<String, FilterInfo> filterMap = new HashMap<String, FilterInfo>();
+        for (Filter filter : webApp.getFilter()) {
+            FilterInfo filterInfo = webAppInfoFactory.newFilterInfo();
+            filterInfo.filterName = filter.getFilterName().trim();
+            filterInfo.filterClass = filter.getFilterClass();
+            filterInfo.asyncSupported = filter.isAsyncSupported();
+            addParams(filter.getInitParam(), filterInfo.initParams);
+            webAppInfo.filters.add(filterInfo);
+            filterMap.put(filterInfo.filterName, filterInfo);
+        }
+        for (FilterMapping filterMapping : webApp.getFilterMapping()) {
+            String filterName = filterMapping.getFilterName().trim();
+            FilterInfo filterInfo = filterMap.get(filterName);
+            if (filterInfo == null) {
+                problems.add("\nNo filter matching filter mappings for " + filterName);
+            } else {
+                if (!filterMapping.getServletName().isEmpty()) {
+                    FilterMappingInfo servletMapping = new FilterMappingInfo();
+                    servletMapping.dispatchers = toEnumSet(filterMapping.getDispatcher());
+                    servletMapping.mapping.addAll(filterMapping.getServletName());
+                    filterInfo.servletMappings.add(servletMapping);
+                }
+                if (!filterMapping.getUrlPattern().isEmpty()) {
+                    FilterMappingInfo urlMapping = new FilterMappingInfo();
+                    urlMapping.dispatchers = toEnumSet(filterMapping.getDispatcher());
+                    normalizeUrlPatterns(filterMapping.getUrlPattern(), urlMapping.mapping);
+                    filterInfo.urlMappings.add(urlMapping);
+                }
+            }
+        }
 
         for (Listener listener : webApp.getListener()) {
             webAppInfo.listeners.add(listener.getListenerClass());
+        }
+
+        for (LocaleEncodingMappingList localeEncodingMappingList: webApp.getLocaleEncodingMappingList()) {
+            for (LocaleEncodingMapping localeEncodingMapping: localeEncodingMappingList.getLocaleEncodingMapping()) {
+                webAppInfo.localeEncodingMappings.put(localeEncodingMapping.getLocale(), localeEncodingMapping.getEncoding());
+            }
+        }
+
+        for (LoginConfig loginConfig: webApp.getLoginConfig()) {
+            LoginConfigInfo loginConfigInfo = new LoginConfigInfo();
+            loginConfigInfo.authMethod = loginConfig.getAuthMethod();
+            loginConfigInfo.realmName = loginConfig.getRealmName();
+            if (loginConfig.getFormLoginConfig() != null) {
+                loginConfigInfo.formLoginPage = loginConfig.getFormLoginConfig().getFormLoginPage();
+                loginConfigInfo.formErrorPage = loginConfig.getFormLoginConfig().getFormErrorPage();
+            }
+            webAppInfo.loginConfig = loginConfigInfo;
+            break;
+        }
+
+        for (MimeMapping mimeMapping: webApp.getMimeMapping()) {
+            webAppInfo.mimeMappings.put(mimeMapping.getExtension(), mimeMapping.getMimeType());
+        }
+
+        for (SecurityConstraint securityConstraint : webApp.getSecurityConstraint()) {
+            SecurityConstraintInfo securityConstraintInfo = webAppInfoFactory.newSecurityConstraintInfo();
+            if (securityConstraint.getAuthConstraint() != null) {
+                securityConstraintInfo.authConstraint = new AuthConstraintInfo();
+                securityConstraintInfo.authConstraint.roleNames.addAll(securityConstraint.getAuthConstraint().getRoleName());
+            }
+            if (securityConstraint.getUserDataConstraint() != null) {
+                securityConstraintInfo.userDataConstraint = securityConstraint.getUserDataConstraint().getTransportGuarantee().value();
+            }
+            for (WebResourceCollection webResourceCollection : securityConstraint.getWebResourceCollection()) {
+                WebResourceCollectionInfo webResourceCollectionInfo = new WebResourceCollectionInfo();
+                webResourceCollectionInfo.webResourceName = webResourceCollection.getWebResourceName();
+                normalizeUrlPatterns(webResourceCollection.getUrlPattern(), webResourceCollectionInfo.urlPatterns);
+                if (webResourceCollection.getHttpMethod().size() > 0) {
+                    webResourceCollectionInfo.omission = false;
+                    webResourceCollectionInfo.httpMethods.addAll(webResourceCollection.getHttpMethod());
+                } else {
+                    webResourceCollectionInfo.omission = true;
+                    webResourceCollectionInfo.httpMethods.addAll(webResourceCollection.getHttpMethodOmission());
+                }
+                securityConstraintInfo.webResourceCollections.add(webResourceCollectionInfo);
+            }
+            webAppInfo.securityConstraints.add(securityConstraintInfo);
+        }
+
+        for (SecurityRole securityRole : webApp.getSecurityRole()) {
+            webAppInfo.securityRoles.add(securityRole.getRoleName().trim());
         }
 
         Map<String, ServletInfo> servletMap = new HashMap<String, ServletInfo>();
@@ -140,138 +244,34 @@ public class WebAppInfoBuilder {
             }
         }
 
-        Map<String, FilterInfo> filterMap = new HashMap<String, FilterInfo>();
-        for (Filter filter : webApp.getFilter()) {
-            FilterInfo filterInfo = webAppInfoFactory.newFilterInfo();
-            filterInfo.filterName = filter.getFilterName().trim();
-            filterInfo.filterClass = filter.getFilterClass();
-            filterInfo.asyncSupported = filter.isAsyncSupported();
-            addParams(filter.getInitParam(), filterInfo.initParams);
-            webAppInfo.filters.add(filterInfo);
-            filterMap.put(filterInfo.filterName, filterInfo);
-        }
-        for (FilterMapping filterMapping : webApp.getFilterMapping()) {
-            String filterName = filterMapping.getFilterName().trim();
-            FilterInfo filterInfo = filterMap.get(filterName);
-            if (filterInfo == null) {
-                problems.add("\nNo filter matching filter mappings for " + filterName);
-            } else {
-                if (!filterMapping.getServletName().isEmpty()) {
-                    FilterMappingInfo servletMapping = new FilterMappingInfo();
-                    servletMapping.dispatchers = toEnumSet(filterMapping.getDispatcher());
-                    servletMapping.mapping.addAll(filterMapping.getServletName());
-                    filterInfo.servletMappings.add(servletMapping);
-                }
-                if (!filterMapping.getUrlPattern().isEmpty()) {
-                    FilterMappingInfo urlMapping = new FilterMappingInfo();
-                    urlMapping.dispatchers = toEnumSet(filterMapping.getDispatcher());
-                    normalizeUrlPatterns(filterMapping.getUrlPattern(), urlMapping.mapping);
-                    filterInfo.urlMappings.add(urlMapping);
-                }
+        for (SessionConfig sessionConfig: webApp.getSessionConfig()) {
+            SessionConfigInfo sessionConfigInfo = new SessionConfigInfo();
+            sessionConfigInfo.sessionTimeoutMinutes = sessionConfig.getSessionTimeout() != null? sessionConfig.getSessionTimeout(): -1;
+            List<SessionTrackingMode> modes = new ArrayList<SessionTrackingMode>();
+            for (TrackingMode mode: sessionConfig.getTrackingMode()) {
+                modes.add(SessionTrackingMode.valueOf(mode.value()));
             }
-        }
-
-        webAppInfo.displayName = webApp.getDisplayName();
-        
-        for (ErrorPage errorPage: webApp.getErrorPage()) {
-            ErrorPageInfo errorPageInfo = new ErrorPageInfo();
-            errorPageInfo.location = errorPage.getLocation();
-            if (errorPage.getErrorCode() != null) {
-                errorPageInfo.errorCode = errorPage.getErrorCode().intValue();
+            sessionConfigInfo.sessionTrackingModes = modes.isEmpty()? EnumSet.noneOf(SessionTrackingMode.class): EnumSet.copyOf(modes);
+            if (sessionConfig.getCookieConfig() != null) {
+                SessionCookieConfigInfo cookieConfigInfo = new SessionCookieConfigInfo();
+                cookieConfigInfo.name = sessionConfig.getCookieConfig().getName();
+                cookieConfigInfo.domain = sessionConfig.getCookieConfig().getDomain();
+                cookieConfigInfo.comment = sessionConfig.getCookieConfig().getComment();
+                cookieConfigInfo.path = sessionConfig.getCookieConfig().getPath();
+                cookieConfigInfo.httpOnly = sessionConfig.getCookieConfig().getHttpOnly() != null? sessionConfig.getCookieConfig().getHttpOnly(): false;
+                cookieConfigInfo.secure = sessionConfig.getCookieConfig().getSecure() != null? sessionConfig.getCookieConfig().getSecure(): false;
+                cookieConfigInfo.maxAge = sessionConfig.getCookieConfig().getMaxAge() != null? sessionConfig.getCookieConfig().getMaxAge(): -1;
+                sessionConfigInfo.sessionCookieConfig = cookieConfigInfo;
             }
-            errorPageInfo.exceptionType = errorPage.getExceptionType();
-            webAppInfo.errorPages.add(errorPageInfo);
-        }
-
-        for (LocaleEncodingMappingList localeEncodingMappingList: webApp.getLocaleEncodingMappingList()) {
-            for (LocaleEncodingMapping localeEncodingMapping: localeEncodingMappingList.getLocaleEncodingMapping()) {
-                webAppInfo.localeEncodingMappings.put(localeEncodingMapping.getLocale(), localeEncodingMapping.getEncoding());
-            }
-        }
-        for (MimeMapping mimeMapping: webApp.getMimeMapping()) {
-            webAppInfo.mimeMappings.put(mimeMapping.getExtension(), mimeMapping.getMimeType());
         }
 
         for (WelcomeFileList welcomeFileList: webApp.getWelcomeFileList()) {
             webAppInfo.welcomeFiles.addAll(welcomeFileList.getWelcomeFile());
         }
 
-        for (LoginConfig loginConfig: webApp.getLoginConfig()) {
-            LoginConfigInfo loginConfigInfo = new LoginConfigInfo();
-            loginConfigInfo.authMethod = loginConfig.getAuthMethod();
-            loginConfigInfo.realmName = loginConfig.getRealmName();
-            if (loginConfig.getFormLoginConfig() != null) {
-                loginConfigInfo.formLoginPage = loginConfig.getFormLoginConfig().getFormLoginPage();
-                loginConfigInfo.formErrorPage = loginConfig.getFormLoginConfig().getFormErrorPage();
-            }
-            webAppInfo.loginConfig = loginConfigInfo;
-            break;
-        }
-
-        for (SecurityConstraint securityConstraint : webApp.getSecurityConstraint()) {
-            SecurityConstraintInfo securityConstraintInfo = webAppInfoFactory.newSecurityConstraintInfo();
-            if (securityConstraint.getAuthConstraint() != null) {
-                securityConstraintInfo.authConstraint = new AuthConstraintInfo();
-                securityConstraintInfo.authConstraint.roleNames.addAll(securityConstraint.getAuthConstraint().getRoleName());
-            }
-            if (securityConstraint.getUserDataConstraint() != null) {
-                securityConstraintInfo.userDataConstraint = securityConstraint.getUserDataConstraint().getTransportGuarantee().value();
-            }
-            for (WebResourceCollection webResourceCollection : securityConstraint.getWebResourceCollection()) {
-                WebResourceCollectionInfo webResourceCollectionInfo = new WebResourceCollectionInfo();
-                webResourceCollectionInfo.webResourceName = webResourceCollection.getWebResourceName();
-                normalizeUrlPatterns(webResourceCollection.getUrlPattern(), webResourceCollectionInfo.urlPatterns);
-                if (webResourceCollection.getHttpMethod().size() > 0) {
-                    webResourceCollectionInfo.omission = false;
-                    webResourceCollectionInfo.httpMethods.addAll(webResourceCollection.getHttpMethod());
-                } else {
-                    webResourceCollectionInfo.omission = true;
-                    webResourceCollectionInfo.httpMethods.addAll(webResourceCollection.getHttpMethodOmission());
-                }
-                securityConstraintInfo.webResourceCollections.add(webResourceCollectionInfo);
-            }
-            webAppInfo.securityConstraints.add(securityConstraintInfo);
-        }
-
-        for (SecurityRole securityRole : webApp.getSecurityRole()) {
-            webAppInfo.securityRoles.add(securityRole.getRoleName().trim());
-        }
-
-        webAppInfo.displayName = webApp.getDisplayName();
-
-        for (ErrorPage errorPage: webApp.getErrorPage()) {
-            ErrorPageInfo errorPageInfo = new ErrorPageInfo();
-            errorPageInfo.location = errorPage.getLocation();
-            if (errorPage.getErrorCode() != null) {
-                errorPageInfo.errorCode = errorPage.getErrorCode().intValue();
-            }
-            errorPageInfo.exceptionType = errorPage.getExceptionType();
-            webAppInfo.errorPages.add(errorPageInfo);
-        }
-
-        for (LocaleEncodingMappingList localeEncodingMappingList: webApp.getLocaleEncodingMappingList()) {
-            for (LocaleEncodingMapping localeEncodingMapping: localeEncodingMappingList.getLocaleEncodingMapping()) {
-                webAppInfo.localeEncodingMappings.put(localeEncodingMapping.getLocale(), localeEncodingMapping.getEncoding());
-            }
-        }
-        for (MimeMapping mimeMapping: webApp.getMimeMapping()) {
-            webAppInfo.mimeMappings.put(mimeMapping.getExtension(), mimeMapping.getMimeType());
-        }
 
         for (WelcomeFileList welcomeFileList: webApp.getWelcomeFileList()) {
             webAppInfo.welcomeFiles.addAll(welcomeFileList.getWelcomeFile());
-        }
-
-        for (LoginConfig loginConfig: webApp.getLoginConfig()) {
-            LoginConfigInfo loginConfigInfo = new LoginConfigInfo();
-            loginConfigInfo.authMethod = loginConfig.getAuthMethod();
-            loginConfigInfo.realmName = loginConfig.getRealmName();
-            if (loginConfig.getFormLoginConfig() != null) {
-                loginConfigInfo.formLoginPage = loginConfig.getFormLoginConfig().getFormLoginPage();
-                loginConfigInfo.formErrorPage = loginConfig.getFormLoginConfig().getFormErrorPage();
-            }
-            webAppInfo.loginConfig = loginConfigInfo;
-            break;
         }
 
         webAppInfoFactory.complete(webAppInfo);

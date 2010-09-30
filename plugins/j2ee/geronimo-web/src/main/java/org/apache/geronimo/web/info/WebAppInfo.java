@@ -47,4 +47,6 @@ public class WebAppInfo implements Serializable {
     public final List<String> welcomeFiles = new ArrayList<String>();
     public String displayName;
     public LoginConfigInfo loginConfig;
+    public boolean distributable;
+    public SessionConfigInfo sessionConfig;
 }

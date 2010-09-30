@@ -27,6 +27,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.security.auth.Subject;
+import javax.servlet.SessionCookieConfig;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
@@ -58,6 +59,7 @@ import org.apache.geronimo.web.info.ErrorPageInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.security.SecurityHandler;
+import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -86,7 +88,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
     private final ClassLoader webClassLoader;
     private final JettyContainer jettyContainer;
 
-    private String displayName;
+//    private String displayName;
 
     private final String objectName;
     private final GeronimoWebAppContext webAppContext;
@@ -104,11 +106,9 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
                                 @ParamAttribute(name = "workDir") String workDir,
                                 @ParamAttribute(name = "unshareableResources") Set<String> unshareableResources,
                                 @ParamAttribute(name = "applicationManagedSecurityResources") Set<String> applicationManagedSecurityResources,
-                                @ParamAttribute(name = "distributable") boolean distributable,
                                 @ParamAttribute(name = "tagLibMap") Map<String, String> tagLibMap,
                                 @ParamAttribute(name = "compactPath") boolean compactPath,
 
-                                @ParamAttribute(name = GBEAN_ATTR_SESSION_TIMEOUT) int sessionTimeoutSeconds,
                                 @ParamReference(name = GBEAN_REF_SESSION_HANDLER_FACTORY) SessionHandlerFactory handlerFactory,
                                 @ParamReference(name = GBEAN_REF_PRE_HANDLER_FACTORY) PreHandlerFactory preHandlerFactory,
 
@@ -222,9 +222,9 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         }
 
         //stuff from spec dd
-        setDisplayName(webAppInfo.displayName);
+        webAppContext.setDisplayName(webAppInfo.displayName);
         webAppContext.getInitParams().putAll(webAppInfo.contextParams);
-        webAppContext.setDistributable(distributable);
+        webAppContext.setDistributable(webAppInfo.distributable);
         webAppContext.setWelcomeFiles(webAppInfo.welcomeFiles.toArray(new String[webAppInfo.welcomeFiles.size()]));
         for (Map.Entry<String, String> entry : webAppInfo.localeEncodingMappings.entrySet()) {
             this.webAppContext.addLocaleEncoding(entry.getKey(), entry.getValue());
@@ -243,8 +243,22 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
             }
         }
 
-        if (!distributable) {
-            setSessionTimeoutSeconds(sessionTimeoutSeconds);
+        if (!webAppInfo.distributable && webAppInfo.sessionConfig != null) {
+            SessionManager sessionManager = this.webAppContext.getSessionHandler().getSessionManager();
+            if (webAppInfo.sessionConfig.sessionTimeoutMinutes != -1) {
+                sessionManager.setMaxInactiveInterval(webAppInfo.sessionConfig.sessionTimeoutMinutes * 60);
+            }
+            sessionManager.setSessionTrackingModes(webAppInfo.sessionConfig.sessionTrackingModes);
+            if (webAppInfo.sessionConfig.sessionCookieConfig != null) {
+                SessionCookieConfig cookieConfig = sessionManager.getSessionCookieConfig();
+                cookieConfig.setName(webAppInfo.sessionConfig.sessionCookieConfig.name);
+                cookieConfig.setPath(webAppInfo.sessionConfig.sessionCookieConfig.path);
+                cookieConfig.setDomain(webAppInfo.sessionConfig.sessionCookieConfig.domain);
+                cookieConfig.setComment(webAppInfo.sessionConfig.sessionCookieConfig.comment);
+                cookieConfig.setHttpOnly(webAppInfo.sessionConfig.sessionCookieConfig.httpOnly);
+                cookieConfig.setSecure(webAppInfo.sessionConfig.sessionCookieConfig.secure);
+                cookieConfig.setMaxAge(webAppInfo.sessionConfig.sessionCookieConfig.maxAge);
+            }
         }
         //supply web.xml to jasper
         webAppContext.setAttribute(JASPER_WEB_XML_NAME, originalSpecDD);
@@ -316,21 +330,17 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         log.warn("WebAppContextWrapper failed");
     }
 
-    public void setSessionTimeoutSeconds(int seconds) {
-        this.webAppContext.getSessionHandler().getSessionManager().setMaxInactiveInterval(seconds);
-    }
-
 
     //TODO this is really dumb, but jetty5 liked to set the displayname to null frequently.
     //we need to re-check for jetty8
     public String getDisplayName() {
-        return displayName;
+        return webAppContext.getDisplayName();
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-        this.webAppContext.setDisplayName(displayName);
-    }
+//    public void setDisplayName(String displayName) {
+//        this.displayName = displayName;
+//        this.webAppContext.setDisplayName(displayName);
+//    }
 
     public String getDeploymentDescriptor() {
         return originalSpecDD;

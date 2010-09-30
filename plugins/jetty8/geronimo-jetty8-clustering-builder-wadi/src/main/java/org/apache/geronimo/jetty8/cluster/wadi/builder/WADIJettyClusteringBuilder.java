@@ -202,6 +202,7 @@ public class WADIJettyClusteringBuilder implements NamespaceDrivenBuilder {
     }
 
     protected Integer getSessionTimeout(GBeanData webModuleData) throws AssertionError {
+        //TODO this will no longer work, use WebAppInfo
         Integer sessionTimeout = (Integer) webModuleData.getAttribute(WebAppContextWrapper.GBEAN_ATTR_SESSION_TIMEOUT);
         if (null == sessionTimeout) {
             throw new AssertionError();

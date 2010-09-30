@@ -20,14 +20,11 @@ package org.apache.geronimo.jetty8.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
 
@@ -100,8 +97,6 @@ import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
 import org.apache.openejb.jee.JaxbJavaee;
-import org.apache.openejb.jee.LocaleEncodingMapping;
-import org.apache.openejb.jee.LocaleEncodingMappingList;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xmlbeans.XmlException;
@@ -112,9 +107,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 
 /**
  * @version $Rev:385659 $ $Date$
@@ -154,7 +146,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
     protected final NamespaceDrivenBuilderCollection clusteringBuilders;
 
-    private final Integer defaultSessionTimeoutSeconds;
+    private final Integer defaultSessionTimeoutMinutes;
 
     private static final String JETTY_NAMESPACE = JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
@@ -174,7 +166,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                               @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws GBeanNotFoundException, DeploymentException {
         super(kernel, serviceBuilders, namingBuilders, resourceEnvironmentSetter, webServiceBuilder, moduleBuilderExtensions, bundleContext);
         this.defaultEnvironment = defaultEnvironment;
-        this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? 30 * 60 : defaultSessionTimeoutSeconds;
+        this.defaultSessionTimeoutMinutes = (defaultSessionTimeoutSeconds == null) ? 30 * 60 : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerName;
         ServletInfo jspServletInfo;
         if (jspServlet != null) {
@@ -503,14 +495,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
             webModule.getSharedContext().put(WebModule.WEB_APP_INFO, webAppInfoBuilder);
 
-            webModuleData.setAttribute(WebAppContextWrapper.GBEAN_ATTR_SESSION_TIMEOUT,
-                    (webApp.getSessionConfig().size() == 1 && webApp.getSessionConfig().get(0).getSessionTimeout() != null) ?
-                            webApp.getSessionConfig().get(0).getSessionTimeout().intValue() * 60 :
-                            defaultSessionTimeoutSeconds);
+            //TODO merge from default web app
+            if (webAppInfo.sessionConfig != null) {
+                if (webAppInfo.sessionConfig.sessionTimeoutMinutes == -1 && defaultSessionTimeoutMinutes != -1) {
+                    webAppInfo.sessionConfig.sessionTimeoutMinutes = defaultSessionTimeoutMinutes;
+                }
+            }
 
-            Boolean distributable = webApp.getDistributable().size() == 1 ? TRUE : FALSE;
-            webModuleData.setAttribute("distributable", distributable);
-            if (TRUE == distributable) {
+            if (webAppInfo.distributable) {
                 clusteringBuilders.build(jettyWebApp, earContext, moduleContext);
                 if (webModuleData.getReferencePatterns(WebAppContextWrapper.GBEAN_REF_SESSION_HANDLER_FACTORY) == null) {
                     log.warn("No clustering builders configured: app will not be clustered");
