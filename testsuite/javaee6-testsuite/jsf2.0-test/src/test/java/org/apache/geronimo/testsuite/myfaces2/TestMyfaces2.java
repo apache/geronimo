@@ -23,55 +23,41 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
 public class TestMyfaces2 extends SeleniumTestSupport {
 	
-	
-	@Test 
-	public void testJSF2() throws Exception {  
-	    selenium.open("/converter-javaee6/");
-		Thread.sleep(5000);
-		
-		assertTrue(selenium.isTextPresent("Converter-A Facelets and AJAX Example In JSF2.0"));
-		assertTrue(selenium.isTextPresent("Please input a number, or else you can't get a reply!")); 
-		selenium.type("j_id1983071270_7ac218fa:in", "1000");
-		selenium.keyUp("j_id1983071270_7ac218fa:in", "0");
+    @Test
+    public void testJSF2() throws Exception {
+        selenium.open("/converter-javaee6/");
+        waitForPageLoad();
+        
+        assertTrue(selenium.isTextPresent("Converter-A Facelets and AJAX Example In JSF2.0"));
+        assertTrue(selenium.isTextPresent("Please input a number, or else you can't get a reply!"));
+        selenium.type("j_id1983071270_7ac218fa:in", "1000");
+        selenium.keyUp("j_id1983071270_7ac218fa:in", "0");
+        Thread.sleep(5000);
+        
+        assertTrue(selenium.isTextPresent("<USD>"));
+        assertTrue(selenium.isTextPresent("<HKD>"));
+        assertTrue(selenium.isTextPresent("<JPY>"));
+        assertTrue(selenium.isTextPresent("<EUR>"));
+        assertTrue(selenium.isTextPresent("<GBP>"));
+        assertTrue(selenium.isTextPresent("146.47"));
+        assertTrue(selenium.isTextPresent("1137.82"));
+        assertTrue(selenium.isTextPresent("132625.99"));
+        assertTrue(selenium.isTextPresent("103.37"));
+        assertTrue(selenium.isTextPresent("90.08"));
 
-		
-		Thread.sleep(5000);
-		assertTrue(selenium.isTextPresent("<USD>"));
-		assertTrue(selenium.isTextPresent("<HKD>"));
-		assertTrue(selenium.isTextPresent("<JPY>"));
-		assertTrue(selenium.isTextPresent("<EUR>"));
-		assertTrue(selenium.isTextPresent("<GBP>"));
-		assertTrue(selenium.isTextPresent("146.47"));
-		assertTrue(selenium.isTextPresent("1137.82"));
-		assertTrue(selenium.isTextPresent("132625.99"));
-		assertTrue(selenium.isTextPresent("103.37"));
-		assertTrue(selenium.isTextPresent("90.08"));
-		
-		selenium.click("button1");
-		Thread.sleep(5000);
-		
-		assertTrue(selenium.isTextPresent("USD"));
-		assertTrue(selenium.isTextPresent("HKD"));
-		assertTrue(selenium.isTextPresent("JPY"));
-		assertTrue(selenium.isTextPresent("EUR"));
-		assertTrue(selenium.isTextPresent("GBP"));
-		assertTrue(selenium.isTextPresent("6.8269"));
-		assertTrue(selenium.isTextPresent("0.87887"));
-		assertTrue(selenium.isTextPresent("0.00754"));
-		assertTrue(selenium.isTextPresent("9.6734"));
-		assertTrue(selenium.isTextPresent("11.1009"));
-	}
-	
-	
+        selenium.click("button1");
+        Thread.sleep(5000);
+
+        assertTrue(selenium.isTextPresent("USD"));
+        assertTrue(selenium.isTextPresent("HKD"));
+        assertTrue(selenium.isTextPresent("JPY"));
+        assertTrue(selenium.isTextPresent("EUR"));
+        assertTrue(selenium.isTextPresent("GBP"));
+        assertTrue(selenium.isTextPresent("6.8269"));
+        assertTrue(selenium.isTextPresent("0.87887"));
+        assertTrue(selenium.isTextPresent("0.00754"));
+        assertTrue(selenium.isTextPresent("9.6734"));
+        assertTrue(selenium.isTextPresent("11.1009"));
+    }
+
 }
-		
-
-		
-		
-		
-
-
-
-
-
-

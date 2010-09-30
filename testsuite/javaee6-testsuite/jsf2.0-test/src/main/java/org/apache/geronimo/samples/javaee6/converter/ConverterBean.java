@@ -17,10 +17,7 @@
 package org.apache.geronimo.samples.javaee6.converter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import javax.annotation.Resource;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.event.ActionEvent;
@@ -28,81 +25,80 @@ import javax.faces.event.ActionEvent;
 @ManagedBean(name = "ConverterBean")
 @RequestScoped
 public class ConverterBean {
-	
-	private String inf = "Hide the rate table";
-	private String msg = "Hello@ConverterBean";
-	private String value = "1";
-	private List<ConvertedValue> convertedList;
-	private List<Currency> currencyList;
-	private Boolean render = false;
 
-	public String getMsg() {
-		return msg;
-	}
+    private String inf = "Hide the rate table";
+    private String msg = "Hello@ConverterBean";
+    private String value = "1";
+    private List<ConvertedValue> convertedList;
+    private List<Currency> currencyList;
+    private Boolean render = false;
 
-	public Boolean getRender() {
-		return render;
-	}
+    public String getMsg() {
+        return msg;
+    }
 
-	@SuppressWarnings( { "UnusedDeclaration" })
-	public void toggle(ActionEvent ae) {
-		render = !render;
-	}
+    public Boolean getRender() {
+        return render;
+    }
 
-	public void setMsg(String msg) {
-		this.msg = msg;
-	}
+    @SuppressWarnings( { "UnusedDeclaration" })
+    public void toggle(ActionEvent ae) {
+        render = !render;
+    }
 
-	public List getConvertedList() {
-		return this.convertedList;
-	}
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
 
-	private void setConvertedList() {
-		this.convertedList = new ArrayList();
-		try{
+    public List getConvertedList() {
+        return this.convertedList;
+    }
 
-		for (Currency currency : currencyList) {
-			ConvertedValue cv = new ConvertedValue();
-			cv.setName("<" + currency.getName() + ">");
-			cv.setActualVaule(Double.parseDouble(value) / currency.getRate());
-			this.convertedList.add(cv);
-		}
-		}catch(Exception e){
-		}
-		
-	}
+    private void setConvertedList() {
+        this.convertedList = new ArrayList();
+        try {
 
-	public List getCurrencyList() {
-		return currencyList;
-	}
+            for (Currency currency : currencyList) {
+                ConvertedValue cv = new ConvertedValue();
+                cv.setName("<" + currency.getName() + ">");
+                cv.setActualVaule(Double.parseDouble(value) / currency.getRate());
+                this.convertedList.add(cv);
+            }
+        } catch (Exception e) {
+        }
+    }
 
-	public void setCurrencyList(List currencyList) {
-		this.currencyList = currencyList;
-		setConvertedList();
-	}
+    public List getCurrencyList() {
+        return currencyList;
+    }
 
-	/** Creates a new instance of ConverterBean */
-	public ConverterBean() {
-		this.currencyList = new ArrayList();
-		Currency c = new Currency("USD", 6.8269);
-		currencyList.add(c);
-		c = new Currency("HKD", 0.87887);
-		currencyList.add(c);
-		c = new Currency("JPY", 0.00754);
-		currencyList.add(c);
-		c = new Currency("EUR", 9.6734);
-		currencyList.add(c);
-		c = new Currency("GBP", 11.1009);
-		currencyList.add(c);
-		setConvertedList();		
-	}
+    public void setCurrencyList(List currencyList) {
+        this.currencyList = currencyList;
+        setConvertedList();
+    }
 
-	public String getValue() {
-		return value;
-	}
+    /** Creates a new instance of ConverterBean */
+    public ConverterBean() {
+        this.currencyList = new ArrayList();
+        Currency c = new Currency("USD", 6.8269);
+        currencyList.add(c);
+        c = new Currency("HKD", 0.87887);
+        currencyList.add(c);
+        c = new Currency("JPY", 0.00754);
+        currencyList.add(c);
+        c = new Currency("EUR", 9.6734);
+        currencyList.add(c);
+        c = new Currency("GBP", 11.1009);
+        currencyList.add(c);
+        setConvertedList();
+    }
 
-	public void setValue(String value) {
-		this.value = value;
-		setConvertedList();
-	}
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+        setConvertedList();
+    }
 }

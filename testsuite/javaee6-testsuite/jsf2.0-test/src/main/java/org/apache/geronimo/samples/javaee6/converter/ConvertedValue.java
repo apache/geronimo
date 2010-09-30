@@ -17,23 +17,24 @@
 package org.apache.geronimo.samples.javaee6.converter;
 
 public class ConvertedValue {
-	private String name;
-	private double actualValue;
+    
+    private String name;
+    private double actualValue;
 
-	public double getActualValue() {
-		return actualValue;
-	}
+    public double getActualValue() {
+        return actualValue;
+    }
 
-	public void setActualVaule(double actualValue) {
-		this.actualValue = actualValue;
-	}
+    public void setActualVaule(double actualValue) {
+        this.actualValue = actualValue;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
 }

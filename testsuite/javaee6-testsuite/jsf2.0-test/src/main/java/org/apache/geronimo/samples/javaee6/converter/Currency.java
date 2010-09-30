@@ -17,37 +17,38 @@
 package org.apache.geronimo.samples.javaee6.converter;
 
 public class Currency {
-	private String name;
-	private double rate;
-	private double actualVaule;
+    
+    private String name;
+    private double rate;
+    private double actualVaule;
 
-	public double getActualVaule() {
-		return actualVaule;
-	}
+    public double getActualVaule() {
+        return actualVaule;
+    }
 
-	public void setActualVaule(double actualVaule) {
-		this.actualVaule = actualVaule;
-	}
+    public void setActualVaule(double actualVaule) {
+        this.actualVaule = actualVaule;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public Currency(String name, double rate) {
-		this.name = name;
-		this.rate = rate;
-	}
+    public Currency(String name, double rate) {
+        this.name = name;
+        this.rate = rate;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public double getRate() {
-		return rate;
-	}
+    public double getRate() {
+        return rate;
+    }
 
-	public void setRate(double rate) {
-		this.rate = rate;
-	}
+    public void setRate(double rate) {
+        this.rate = rate;
+    }
 
 }
