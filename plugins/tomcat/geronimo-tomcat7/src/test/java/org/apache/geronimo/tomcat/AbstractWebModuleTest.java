@@ -127,7 +127,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,   //lifecycleListenerChain
                 null,   //cluster
                 null,   //managerRetriever
-                null,   //displayName
+                //displayName
                 null,   //webServices
                 null,   //holder
                 null,   //contextCustomizer
@@ -135,7 +135,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 null,   //application
                 contextSource,  //contextSource
                 (ApplicationPolicyConfigurationManager)runAsSource,   //applicationPolicyConfigurationManager
-                null,   //listenerClassNames
+                //listenerClassNames
                 deploymentAttributes, //Map<String, String> deploymentAttributes
                 webAppInfo, //webAppinfo
                 new HashMap<String, String>(), // Map<String,String> contextAttributes;

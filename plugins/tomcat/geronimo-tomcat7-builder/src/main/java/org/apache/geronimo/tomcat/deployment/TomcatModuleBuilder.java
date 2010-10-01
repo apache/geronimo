@@ -473,11 +473,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 webModuleData.setReferencePattern("Container", tomcatContainerName);
             }
 
-            //get Tomcat display-name
-            if (webApp.getDisplayNames().length > 0) {
-                webModuleData.setAttribute("displayName", webApp.getDisplayName());
-            }
-
             // Process the Tomcat container-config elements
             if (tomcatWebApp.isSetHost()) {
                 String virtualServer = tomcatWebApp.getHost().trim();
@@ -583,9 +578,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
              */
 
             webModuleData.setAttribute("contextAttributes", contextAttributes);
-
-//            Collection<String> listeners = new ArrayList<String>();
-//            webModuleData.setAttribute("listenerClassNames", listeners);
 
             //Handle the role permissions and webservices on the servlets.
             List<org.apache.openejb.jee.Servlet> servletTypes = webApp.getServlet();

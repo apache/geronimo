@@ -116,8 +116,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final String modulePath;
     private final Holder holder;
     private final RuntimeCustomizer contextCustomizer;
-    private final Collection<String> listeners;
-    private String displayName;
     private Map<String, Object> deploymentAttributes;
     private ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
     private Map<String,String> contextAttributes;
@@ -155,7 +153,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamReference(name = "LifecycleListenerChain") LifecycleListenerGBean lifecycleListenerChain,
             @ParamReference(name = "Cluster") CatalinaClusterGBean cluster,
             @ParamReference(name = GBEAN_REF_MANAGER_RETRIEVER) ObjectRetriever managerRetriever,
-            @ParamAttribute(name = "displayName") String displayName,
             @ParamAttribute(name = "webServices") Map<String, AbstractName> webServices,
             @ParamAttribute(name = "holder") Holder holder,
             @ParamReference(name = "ContextCustomizer") RuntimeCustomizer contextCustomizer,
@@ -163,7 +160,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamReference(name = "J2EEApplication") J2EEApplication application,
             @ParamReference(name = "ContextSource") ContextSource contextSource,
             @ParamReference(name = "applicationPolicyConfigurationManager") ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager,
-            @ParamAttribute(name = "listenerClassNames") Collection<String> listenerClassNames,
             @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes,
             @ParamAttribute(name = "webAppInfo") WebAppInfo webAppInfo,
             @ParamAttribute(name = "contextAttributes") Map<String, String> contextAttributes,
@@ -230,9 +226,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         } else {
             realm = null;
         }
-
-        this.displayName = displayName;
-        this.listeners = listenerClassNames;
 
         //Add the valve list
         if (tomcatValveChain != null) {
@@ -477,15 +470,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public Collection<String> getListeners() {
-        return listeners;
+        return Collections.unmodifiableCollection(webAppInfo.listeners);
     }
 
     public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+        return webAppInfo.displayName;
     }
 
     public Object getDeploymentAttribute(String name) {

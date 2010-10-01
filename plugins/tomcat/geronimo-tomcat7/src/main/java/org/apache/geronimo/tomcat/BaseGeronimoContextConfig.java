@@ -31,6 +31,7 @@ import javax.security.auth.message.config.AuthConfigProvider;
 import javax.security.auth.message.config.RegistrationListener;
 import javax.security.auth.message.config.ServerAuthConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.SessionCookieConfig;
 
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.deploy.ErrorPage;
@@ -59,6 +60,7 @@ import org.apache.geronimo.tomcat.security.jacc.JACCSecurityValve;
 import org.apache.geronimo.web.assembler.Assembler;
 import org.apache.geronimo.web.info.ErrorPageInfo;
 import org.apache.geronimo.web.info.LoginConfigInfo;
+import org.apache.geronimo.web.info.SessionConfigInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.xml.sax.InputSource;
 
@@ -88,6 +90,7 @@ public abstract class BaseGeronimoContextConfig extends ContextConfig {
         Assembler assembler = new Assembler();
         assembler.assemble(servletContext, webAppInfo);
         context.setDisplayName(webAppInfo.displayName);
+        context.setDistributable(webAppInfo.distributable);
         for (ErrorPageInfo errorPageInfo: webAppInfo.errorPages) {
             ErrorPage errorPage = new ErrorPage();
             errorPage.setLocation(errorPageInfo.location);
@@ -108,6 +111,23 @@ public abstract class BaseGeronimoContextConfig extends ContextConfig {
             context.addWelcomeFile(welcomeFile);
         }
         authenticatorConfig(webAppInfo.loginConfig);
+        if (webAppInfo.sessionConfig != null) {
+            SessionConfigInfo sessionConfig = webAppInfo.sessionConfig;
+            context.setSessionTimeout(sessionConfig.sessionTimeoutMinutes);
+            if (sessionConfig.sessionTrackingModes != null) {
+                servletContext.setSessionTrackingModes(sessionConfig.sessionTrackingModes);
+            }
+            if (sessionConfig.sessionCookieConfig != null) {
+                SessionCookieConfig sessionCookieConfig = servletContext.getSessionCookieConfig();
+                sessionCookieConfig.setName(sessionConfig.sessionCookieConfig.name);
+                sessionCookieConfig.setComment(sessionConfig.sessionCookieConfig.comment);
+                sessionCookieConfig.setDomain(sessionConfig.sessionCookieConfig.domain);
+                sessionCookieConfig.setHttpOnly(sessionConfig.sessionCookieConfig.httpOnly);
+                sessionCookieConfig.setMaxAge(sessionConfig.sessionCookieConfig.maxAge);
+                sessionCookieConfig.setPath(sessionConfig.sessionCookieConfig.path);
+                sessionCookieConfig.setSecure(sessionConfig.sessionCookieConfig.secure);
+            }
+        }
         context.setConfigured(true);
     }
 
