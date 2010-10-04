@@ -162,6 +162,7 @@
                                 <gbean name="EJBNetworkService">
                                     <attribute name="port">${OpenEJBPort + PortOffset}</attribute>
                                     <attribute name="host">${ServerHostname}</attribute>
+                                    <attribute name="discoveryHost">${DiscoveryHostname}</attribute>
                                     <attribute name="multicastHost">${MulticastDiscoveryAddress}</attribute>
                                     <attribute name="multicastPort">${MulticastDiscoveryPort}</attribute>
                                     <attribute name="multipointHost">${MultipointHost}</attribute>
@@ -203,6 +204,7 @@
                             <config-substitution key="StatelessMinPoolSize">0</config-substitution>                             
                             <config-substitution key="StatelessStrictPooling">true</config-substitution>
                             <config-substitution key="StatelessIdleTimeout">0</config-substitution>                               
+                            <config-substitution key="DiscoveryHostname"></config-substitution>
                             <config-substitution key="MulticastDiscoveryAddress">239.255.3.2</config-substitution>
                             <config-substitution key="MulticastDiscoveryPort">6142</config-substitution>
                             <config-substitution key="MultipointHost">0.0.0.0</config-substitution>

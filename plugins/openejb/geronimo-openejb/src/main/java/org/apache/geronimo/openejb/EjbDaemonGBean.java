@@ -36,7 +36,8 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
     private ServiceManager serviceManager;
 
     private boolean secure;
-    private String discoveryURI = "ejb:ejbd://{bind}:{port}";
+    private String discoveryHost = null;
+    private String discoveryURI = "ejb:ejbd://{discoveryHost}:{port}";
     private String clusterName;
     private String multicastHost;
     private int multicastPort;
@@ -115,6 +116,14 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
 
     public InetSocketAddress getListenAddress() {
         return new InetSocketAddress(host, port);
+    }
+
+    public String getDiscoveryHost() {
+        return discoveryHost;
+    }
+
+    public void setDiscoveryHost(String discoveryHost) {
+        this.discoveryHost = discoveryHost;
     }
 
     public String getDiscoveryURI() {
@@ -198,6 +207,11 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         properties.setProperty("multipoint.group", clusterName);
         properties.setProperty("multipoint.heart_rate", Long.toString(heartRate));
         properties.setProperty("multipoint.max_missed_heartbeats", Integer.toString(maxMissedHeartbeats));
+        if ((discoveryHost != null) && discoveryHost.length() > 0) {
+            properties.setProperty("ejbd.discoveryHost", discoveryHost);
+        } else {
+            properties.setProperty("ejbd.discoveryHost", host);
+        }
         properties.setProperty("ejbd.discovery", discoveryURI);
         properties.setProperty("ejbd.secure", secure + "");
         properties.setProperty("ejbds.disabled", "true");
@@ -223,6 +237,7 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("OpenEJB Daemon", EjbDaemonGBean.class);
         infoBuilder.addAttribute("host", String.class, true);
         infoBuilder.addAttribute("port", int.class, true);
+        infoBuilder.addAttribute("discoveryHost", String.class, true);
         infoBuilder.addAttribute("clusterName", String.class, true);
         infoBuilder.addAttribute("heartRate", long.class, true);
         infoBuilder.addAttribute("maxMissedHeartbeats", int.class, true);
