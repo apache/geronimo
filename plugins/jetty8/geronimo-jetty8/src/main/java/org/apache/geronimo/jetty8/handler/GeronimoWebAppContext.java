@@ -296,7 +296,10 @@ public class GeronimoWebAppContext extends WebAppContext {
         Bundle bundle = integrationContext.getBundle();
         URL url = BundleUtils.getEntry(bundle, uriInContext);
         if (url == null) {
-            return null;
+            url = bundle.getResource("META-INF/resources" + uriInContext);
+            if (url == null) {
+                return null;
+            }
         }
         if (uriInContext.endsWith("/")) {
             Enumeration<String> paths = BundleUtils.getEntryPaths(bundle, uriInContext);
