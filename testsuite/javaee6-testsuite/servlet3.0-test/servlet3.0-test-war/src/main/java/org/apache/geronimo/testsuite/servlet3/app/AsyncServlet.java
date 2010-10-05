@@ -37,11 +37,11 @@ public class AsyncServlet extends HttpServlet {
 		PrintWriter out = resp.getWriter();
 		out.println("<html>");
         out.println("<head>");
-        out.println("<title>Test AsyncServerlet.</title>");  
+        out.println("<title>Test AsyncServlet.</title>");
         out.println("</head>");
         out.println("<body>");
-        out.println("<p id=a>");
-		out.println("Servlet starts at: " + "<font color=red><b id=sst>" + new Date() + "</b></font>" + ".");
+        out.println("<p id='a'>");
+		out.println("Servlet starts at: " + "<font color='red'><b id='sst'>" + new Date() + "</b></font>" + ".");
         out.println("</p>");
 		out.println("<br><br>");
 
@@ -50,8 +50,8 @@ public class AsyncServlet extends HttpServlet {
 		AsyncContext ctx =req.startAsync();
 		new Thread(new TaskExecutor(ctx)).start();
 		
-		out.println("<p id=b>");
-		out.println("Task assigned to executor.Servlet fineshes at: " + "<font color=red><b id=sft>" + new Date() + "</b></font>" + ".");
+		out.println("<p id='b'>");
+		out.println("Task assigned to executor.Servlet finishes at: " + "<font color='red'><b id='sft'>" + new Date() + "</b></font>" + ".");
         out.println("</p>");
 		out.println("<br><br>");
 		out.flush();

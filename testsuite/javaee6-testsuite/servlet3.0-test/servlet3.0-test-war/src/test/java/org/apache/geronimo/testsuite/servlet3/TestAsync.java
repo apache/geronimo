@@ -35,16 +35,16 @@ public class TestAsync extends SeleniumTestSupport {
 
 		assertTrue(selenium.isTextPresent("Servlet starts at:"));
 		assertTrue(selenium
-				.isTextPresent("Task assigned to executor.Servlet fineshes at:"));
+				.isTextPresent("Task assigned to executor.Servlet finishes at:"));
 		assertTrue(selenium.isTextPresent("TaskExecutor starts at:"));
 		assertTrue(selenium.isTextPresent("Task finishes."));
-		assertTrue(selenium.isTextPresent("TaskExecutor fineshes at:"));
+		assertTrue(selenium.isTextPresent("TaskExecutor finishes at:"));
 
-		String[] sftSplit = selenium.getText("xpath=//p[2]").split(":");
+		String[] sftSplit = selenium.getText("xpath=//b[@id='sft']").split(":");
 		int sfti = getTime(sftSplit);
-		String[] tstSplit = selenium.getText("xpath=//p[3]").split(":");
+		String[] tstSplit = selenium.getText("xpath=//b[@id='tst']").split(":");
 		int tsti = getTime(tstSplit);
-		String[] tftSplit = selenium.getText("xpath=//p[5]").split(":");
+		String[] tftSplit = selenium.getText("xpath=//b[@id='tft']").split(":");
 		int tfti = getTime(tftSplit);
 		assertTrue(sfti == tsti);
 		assertTrue(Math.abs(tfti - sfti) == 10);
