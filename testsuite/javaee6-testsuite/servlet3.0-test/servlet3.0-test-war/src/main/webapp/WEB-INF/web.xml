@@ -26,7 +26,8 @@
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
-        <servlet>
+
+    <servlet>
         <servlet-name>WelcomePage</servlet-name>
         <servlet-class>org.apache.geronimo.testsuite.servlet3.app.WebFragmentWelcomePage</servlet-class>
         <load-on-startup>1</load-on-startup>
@@ -34,7 +35,23 @@
     <servlet-mapping>
         <servlet-name>WelcomePage</servlet-name>
         <url-pattern>/WelcomePage/*</url-pattern>
-    </servlet-mapping>  
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>showServlet</servlet-name>
+        <servlet-class>org.apache.geronimo.testsuite.servlet3.app.ShowFileServlet</servlet-class>
+        <multipart-config>
+            <file-size-threshold>1000</file-size-threshold>
+        </multipart-config>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>showServlet</servlet-name>
+        <url-pattern>/showServlet</url-pattern>
+    </servlet-mapping>
+
+
+
+
     <session-config>
         <session-timeout>
             30

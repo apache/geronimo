@@ -28,12 +28,13 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
-@WebFilter(filterName = "MessageFilter", urlPatterns = { "/showServlet" })
+@WebFilter(filterName = "MessageFilter", urlPatterns = { "/showServlet", "/showServletWa" })
 public class FileMessageFilter implements Filter {
 
 	private FilterConfig filterConfig;
+    public static final String FILTERED_STRING = "b, it's filtered because the file size is limited to 10 kb";
 
-	public FileMessageFilter() {
+    public FileMessageFilter() {
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response,
@@ -71,7 +72,7 @@ public class FileMessageFilter implements Filter {
 				if (size > 10000) {
 					message += "The file size is "
 							+ size
-							+ "b, it's filterd because the file size is limited to 10 kb" + targetDirectory;
+							+ FILTERED_STRING + targetDirectory;
 				} else {
 					message += "<font color=green><b>Part:</b> </font>"
 							+ part

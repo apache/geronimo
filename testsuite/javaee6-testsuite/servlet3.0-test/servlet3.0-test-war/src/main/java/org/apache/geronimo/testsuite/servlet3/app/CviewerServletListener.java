@@ -45,6 +45,6 @@ public class CviewerServletListener implements ServletContextListener {
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
-		throw new UnsupportedOperationException("Not supported yet.");
+//		throw new UnsupportedOperationException("Not supported yet.");
 	}
 }

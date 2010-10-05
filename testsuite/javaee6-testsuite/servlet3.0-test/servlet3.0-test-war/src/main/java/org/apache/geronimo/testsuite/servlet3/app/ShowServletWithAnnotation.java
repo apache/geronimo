@@ -21,6 +21,7 @@ package org.apache.geronimo.testsuite.servlet3.app;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  * Servlet implementation class ShowServlet
  */
 @WebServlet(name = "showServletWa", urlPatterns = { "/showServletWa" })
+@MultipartConfig(fileSizeThreshold = 1000)
 public class ShowServletWithAnnotation extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 

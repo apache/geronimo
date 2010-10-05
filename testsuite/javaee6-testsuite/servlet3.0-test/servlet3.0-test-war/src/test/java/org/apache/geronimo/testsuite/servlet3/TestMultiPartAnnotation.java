@@ -19,9 +19,15 @@
 
 package org.apache.geronimo.testsuite.servlet3;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.geronimo.testsuite.servlet3.app.FileMessageFilter;
 import org.testng.annotations.Test;
 
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
+
+import static org.apache.geronimo.testsuite.servlet3.TestMultiPart.DEFAULT_URL;
 
 /**
  * Test MultiPart through File upload.
@@ -29,7 +35,7 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
 public class TestMultiPartAnnotation extends SeleniumTestSupport {
     @Test
     public void testUploadSuccess() throws Exception {
-        String appContextStr = System.getProperty("appContext");
+        String appContextStr = System.getProperty("appContext", DEFAULT_URL);
 		selenium.open(appContextStr);        
         selenium.click("multiAnnotation");
         waitForPageLoad();
@@ -42,7 +48,7 @@ public class TestMultiPartAnnotation extends SeleniumTestSupport {
 
     @Test
     public void testNoFileInput() throws Exception {
-        String appContextStr = System.getProperty("appContext");
+        String appContextStr = System.getProperty("appContext", DEFAULT_URL);
 		selenium.open(appContextStr);        
         selenium.click("multiAnnotation");
         waitForPageLoad();
@@ -54,28 +60,19 @@ public class TestMultiPartAnnotation extends SeleniumTestSupport {
 
     @Test
     public void testFileTooLarge() throws Exception {
-        String appContextStr = System.getProperty("appContext");
+        String appContextStr = System.getProperty("appContext", DEFAULT_URL);
 		selenium.open(appContextStr);        
         selenium.click("multiAnnotation");
         waitForPageLoad();
         uploadFile("large.txt");
         waitForPageLoad();
-        assertTrue(selenium.isTextPresent("The file size is 12110b, it's filterd because the file size is limited to 10 kb"));
+        assertTrue(selenium.isTextPresent(FileMessageFilter.FILTERED_STRING));
     }
 
-    private void uploadFile(String fileName) {
-        String testFileLocation = System.getProperty("testFileLocation");
-        //Test under Linux
-        if (testFileLocation.contains("/")) {
-        	 selenium.type("testFile", testFileLocation + "/" + fileName);
-             selenium.click("//input[@value='Submit The File!']");
-        }
-        //Test under Windows
-        else {
-            testFileLocation = testFileLocation.replace("\\", "\\"+"\\");
-        	selenium.type("testFile", testFileLocation + "\\" + "\\" + fileName);
-            selenium.click("//input[@value='Submit The File!']");
-        }
+    private void uploadFile(String fileName) throws IOException {
+        File file = new File(new File(new File(getBaseDir(), "target"), "test-classes"), fileName);
+        selenium.type("testFile", file.getCanonicalPath());
+        selenium.click("//input[@value='Submit The File!']");
     }
 
 }

@@ -97,16 +97,16 @@
                                     <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.war</moduleArchive>
                                 </configuration>
                             </execution>
-                            <execution>
-                                <id>undeploy-war-as-moduleId</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>undeploy-module</goal>
-                                </goals>
-                                <configuration>
-                                    <moduleId>${project.groupId}/${project.artifactId}/${project.version}/car</moduleId>
-                                </configuration>
-                            </execution>
+                            <!--<execution>-->
+                                <!--<id>undeploy-war-as-moduleId</id>-->
+                                <!--<phase>post-integration-test</phase>-->
+                                <!--<goals>-->
+                                    <!--<goal>undeploy-module</goal>-->
+                                <!--</goals>-->
+                                <!--<configuration>-->
+                                    <!--<moduleId>${project.groupId}/${project.artifactId}/${project.version}/car</moduleId>-->
+                                <!--</configuration>-->
+                            <!--</execution>-->
                         </executions>
                     </plugin>
                     <plugin>
