@@ -98,9 +98,14 @@ public class WebServletAnnotationMergeHandler implements AnnotationMergeHandler 
                     }
                     newServlet.getIconMap().put(null, icon);
                 }
-                //TODO Figure out how to handle MultipartConfig annotation
                 MultipartConfig multipartConfig = cls.getAnnotation(MultipartConfig.class);
                 if (multipartConfig != null) {
+                    org.apache.openejb.jee.MultipartConfig mpc = new org.apache.openejb.jee.MultipartConfig();
+                    mpc.setFileSizeThreshold(multipartConfig.fileSizeThreshold());
+                    mpc.setLocation(multipartConfig.location());
+                    mpc.setMaxFileSize(multipartConfig.maxFileSize());
+                    mpc.setMaxRequestSize(multipartConfig.maxRequestSize());
+                    newServlet.setMultipartConfig(mpc);
                 }
                 webApp.getServlet().add(newServlet);
                 ServletMergeHandler.addServlet(newServlet, mergeContext);
