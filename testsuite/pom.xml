@@ -155,7 +155,6 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>selenium-maven-plugin</artifactId>
-                    <inherited>false</inherited>
                     <executions>
                         <execution>
                             <id>start-selenium</id>
@@ -285,10 +284,10 @@
         <module>commands-testsuite</module>
         <module>corba-testsuite</module>
         <module>enterprise-testsuite</module>
-<!--
-        <module>console-testsuite</module>
-        <module>deployment-testsuite</module>
--->
+        <!--
+                <module>console-testsuite</module>
+                <module>deployment-testsuite</module>
+        -->
         <module>security-testsuite</module>
         <module>web-testsuite</module>
         <module>webservices-testsuite</module>
@@ -311,7 +310,6 @@
                         <plugin>
                             <groupId>org.apache.geronimo.buildsupport</groupId>
                             <artifactId>geronimo-maven-plugin</artifactId>
-                            <inherited>false</inherited>
                             <executions>
                                 <execution>
                                     <id>start-geronimo</id>
@@ -346,6 +344,7 @@
                     </plugins>
                 </pluginManagement>
             </build>
+
         </profile>
 
         <profile>
@@ -368,7 +367,6 @@
                         <plugin>
                             <groupId>org.codehaus.mojo</groupId>
                             <artifactId>selenium-maven-plugin</artifactId>
-                            <inherited>false</inherited>
                             <executions>
                                 <execution>
                                     <id>xvfb</id>
@@ -405,6 +403,79 @@
                 <browser>${browserPath}</browser>
             </properties>
         </profile>
+
+        <profile>
+            <id>maven-3</id>
+            <activation>
+                <file>
+                    <!--  This employs that the basedir expression is only recognized by Maven 3.x (see MNG-2363) -->
+                    <exists>${basedir}</exists>
+                </file>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-site-plugin</artifactId>
+                            <version>3.0-beta-2</version>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <!-- try (unsuccessfully) to get failsafe reports in maven 3 -->
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <configuration>
+                            <reportPlugins>
+                                <plugin>
+                                    <groupId>org.apache.maven.plugins</groupId>
+                                    <artifactId>maven-surefire-report-plugin</artifactId>
+                                    <version>2.6</version>
+                                    <reports>
+                                        <report>report-only</report>
+                                    </reports>
+                                    <configuration>
+                                        <aggregate>true</aggregate>
+                                        <outputName>failsafe-report</outputName>
+                                        <reportsDirectories>
+                                            <reportsDirectory>${project.basedir}/target/failsafe-reports</reportsDirectory>
+                                            <!--<reportsDirectory>target/failsafe-reports</reportsDirectory>-->
+                                        </reportsDirectories>
+                                    </configuration>
+                                    <!--<reportSets>-->
+                                    <!--<reportSet>-->
+                                    <!--<id>integration-tests</id>-->
+                                    <!--<reports>-->
+                                    <!--<report>report-only</report>-->
+                                    <!--</reports>-->
+                                    <!--<configuration>-->
+                                    <!--<aggregate>true</aggregate>-->
+                                    <!--<outputName>failsafe-report</outputName>-->
+                                    <!--<reportsDirectories>-->
+                                    <!--<reportsDirectory>${project.basedir}/target/failsafe-reports</reportsDirectory>-->
+                                    <!--&lt;!&ndash;<reportsDirectory>target/failsafe-reports</reportsDirectory>&ndash;&gt;-->
+                                    <!--</reportsDirectories>-->
+                                    <!--</configuration>-->
+                                    <!--</reportSet>-->
+                                    <!--</reportSets>-->
+                                </plugin>
+                            </reportPlugins>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-descriptor</id>
+                                <goals>
+                                    <goal>attach-descriptor</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 
 </project>
