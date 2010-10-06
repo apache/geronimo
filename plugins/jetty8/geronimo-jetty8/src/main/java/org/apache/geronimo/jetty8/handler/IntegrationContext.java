@@ -20,9 +20,12 @@
 
 package org.apache.geronimo.jetty8.handler;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Context;
+import javax.servlet.ServletContainerInitializer;
 import javax.transaction.UserTransaction;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
@@ -35,6 +38,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnector
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.naming.java.RootContext;
+import org.castor.cache.distributed.EHCache;
 import org.eclipse.jetty.server.Request;
 import org.osgi.framework.Bundle;
 
@@ -50,8 +54,9 @@ public class IntegrationContext {
     private final UserTransaction userTransaction;
     private final Bundle bundle;
     private final Holder holder;
+    private final Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap;
 
-    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder) {
+    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder, Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap) {
         this.componentContext = componentContext;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
@@ -59,6 +64,7 @@ public class IntegrationContext {
         this.userTransaction = userTransaction;
         this.bundle = bundle;
         this.holder = holder;
+        this.servletContainerInitializerMap = servletContainerInitializerMap == null? Collections.<ServletContainerInitializer, Set<Class<?>>>emptyMap(): servletContainerInitializerMap;
     }
 
     public Context getComponentContext() {
@@ -163,5 +169,8 @@ public class IntegrationContext {
             }
         }
     }
-    
+
+    public Map<ServletContainerInitializer, Set<Class<?>>> getServletContainerInitializerMap() {
+        return servletContainerInitializerMap;
+    }
 }

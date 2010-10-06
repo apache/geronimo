@@ -36,6 +36,7 @@ import javax.security.auth.login.LoginException;
 import javax.security.jacc.PolicyContextException;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
+import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
@@ -142,6 +143,9 @@ public class GeronimoWebAppContext extends WebAppContext {
                 assembler.assemble(getServletContext(), webAppInfo);
                 webSecurityConstraintStore.setAnnotationScanRequired(true);
                 ((GeronimoWebAppContext.Context) _scontext).webXmlProcessed = true;
+                for (Map.Entry<ServletContainerInitializer, Set<Class<?>>> entry: integrationContext.getServletContainerInitializerMap().entrySet()) {
+                     entry.getKey().onStartup(entry.getValue(), getServletContext());
+                }
                 super.doStart();
                 if (applicationPolicyConfigurationManager != null) {
                     SpecSecurityBuilder specSecurityBuilder = new SpecSecurityBuilder(webSecurityConstraintStore.exportMergedWebAppInfo());

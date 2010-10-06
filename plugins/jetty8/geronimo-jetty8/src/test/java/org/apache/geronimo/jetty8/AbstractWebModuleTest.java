@@ -178,8 +178,8 @@ public class AbstractWebModuleTest extends TestSupport {
                 null,
                 contextSource,
                 transactionManager,
-                deploymentAttributes,
-                null);
+                deploymentAttributes
+        );
         app.doStart();
         return app;
     }

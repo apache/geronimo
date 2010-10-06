@@ -19,7 +19,9 @@ package org.apache.geronimo.jetty8;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +29,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.security.auth.Subject;
+import javax.servlet.ServletContainerInitializer;
 import javax.servlet.SessionCookieConfig;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
@@ -55,6 +58,7 @@ import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
+import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.info.ErrorPageInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.eclipse.jetty.http.MimeTypes;
@@ -130,8 +134,8 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
                                 @ParamReference(name = "ContextSource") ContextSource contextSource,
                                 @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
 
-                                @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes,
-                                @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws Exception {
+                                @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes
+    ) throws Exception {
 
         assert contextSource != null;
         assert classLoader != null;
@@ -172,7 +176,38 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
 
         Context componentContext = contextSource.getContext();
         UserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
-        IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder);
+        Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap = new LinkedHashMap<ServletContainerInitializer, Set<Class<?>>>();
+        //Set ServletContainerInitializer
+        Map<String, Set<String>> servletContainerInitializerClassNamesMap = (Map<String, Set<String>>) deploymentAttributes.get(WebAttributeName.SERVLET_CONTAINER_INITIALIZERS.name());
+        if (servletContainerInitializerClassNamesMap != null) {
+            for (Map.Entry<String, Set<String>> entry : servletContainerInitializerClassNamesMap.entrySet()) {
+                String servletContainerInitializerClassName = entry.getKey();
+                Set<String> classNames = entry.getValue();
+                try {
+                    ServletContainerInitializer servletContainerInitializer = (ServletContainerInitializer) bundle.loadClass(servletContainerInitializerClassName).newInstance();
+                    if (classNames == null || classNames.size() == 0) {
+                        servletContainerInitializerMap.put(servletContainerInitializer, null);
+                    } else {
+                        Set<Class<?>> classSet = new HashSet<Class<?>>();
+                        for (String cls : classNames) {
+                            try {
+                                classSet.add(bundle.loadClass(cls));
+                            } catch (ClassNotFoundException e) {
+                                log.warn("Fail to load class " + cls + " interested by ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                            }
+                        }
+                        servletContainerInitializerMap.put(servletContainerInitializer, classSet);
+                    }
+                } catch (IllegalAccessException e) {
+                    log.error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                } catch (InstantiationException e) {
+                    log.error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                } catch (ClassNotFoundException e) {
+                    log.error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                }
+            }
+        }
+        IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder, servletContainerInitializerMap);
         webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo, policyContextID, applicationPolicyConfigurationManager);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
@@ -281,9 +316,9 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         return true;
     }
 
-    public URL getWARDirectory() {
-        throw new RuntimeException("don't call this");
-    }
+//    public URL getWARDirectory() {
+//        throw new RuntimeException("don't call this");
+//    }
 
     public String getWARName() {
         //todo: make this return something more consistent
@@ -336,11 +371,6 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
     public String getDisplayName() {
         return webAppContext.getDisplayName();
     }
-
-//    public void setDisplayName(String displayName) {
-//        this.displayName = displayName;
-//        this.webAppContext.setDisplayName(displayName);
-//    }
 
     public String getDeploymentDescriptor() {
         return originalSpecDD;
