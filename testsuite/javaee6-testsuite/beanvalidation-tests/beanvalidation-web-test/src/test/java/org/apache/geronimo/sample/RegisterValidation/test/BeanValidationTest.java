@@ -28,7 +28,7 @@ public class BeanValidationTest extends SeleniumTestSupport {
 
 	@Test
 	public void rightInput() {
-		selenium.open("/beanvalidation-test/");
+		selenium.open("/beanvalidation-web-test/");
 		selenium.selectFrame("registerFrame");
 		selenium.type("name", "gero");
 		selenium.type("age", "23");
@@ -45,7 +45,7 @@ public class BeanValidationTest extends SeleniumTestSupport {
     //test of @NotNull
 	@Test
 	public void testNullName() {
-		selenium.open("/beanvalidation-test/");
+		selenium.open("/beanvalidation-web-test/");
 		selenium.selectFrame("registerFrame");
 		selenium.type("name", "");
 		selenium.type("age", "23");
@@ -64,7 +64,7 @@ public class BeanValidationTest extends SeleniumTestSupport {
 	// test of @Size
 	@Test
 	public void testNameLength(){
-		selenium.open("/beanvalidation-test/");
+		selenium.open("/beanvalidation-web-test/");
 		selenium.selectFrame("registerFrame");
 		selenium.type("name", "geronimo");
 		selenium.type("age", "23");
@@ -82,7 +82,7 @@ public class BeanValidationTest extends SeleniumTestSupport {
 	//test of @Min and @Max
 	@Test
 	public void testAge(){
-		selenium.open("/beanvalidation-test/");
+		selenium.open("/beanvalidation-web-test/");
 		selenium.selectFrame("registerFrame");
 		selenium.type("name", "gero");
 		selenium.type("age", "122");
@@ -99,7 +99,7 @@ public class BeanValidationTest extends SeleniumTestSupport {
 	//test of @Pattern
 	@Test
 	public void testMail(){
-		selenium.open("/beanvalidation-test/");
+		selenium.open("/beanvalidation-web-test/");
 		selenium.selectFrame("registerFrame");
 		selenium.type("name", "gero");
 		selenium.type("age", "23");
@@ -116,7 +116,7 @@ public class BeanValidationTest extends SeleniumTestSupport {
 	//test of the constraints defined by yourself
 	@Test
 	public void testBirthday(){
-		selenium.open("/beanvalidation-test/");
+		selenium.open("/beanvalidation-web-test/");
 		selenium.selectFrame("registerFrame");
 		selenium.type("name", "gero");
 		selenium.type("age", "23");
@@ -134,7 +134,7 @@ public class BeanValidationTest extends SeleniumTestSupport {
 	//test of @Valid
 	@Test
 	public void testAddress(){
-		selenium.open("/beanvalidation-test/");
+		selenium.open("/beanvalidation-web-test/");
 		selenium.selectFrame("registerFrame");
 		selenium.type("name", "gero");
 		selenium.type("age", "23");
@@ -152,7 +152,7 @@ public class BeanValidationTest extends SeleniumTestSupport {
 	//test of @Min.List and groups
 	@Test
 	public void testSalary(){
-		selenium.open("/beanvalidation-test/");
+		selenium.open("/beanvalidation-web-test/");
 		selenium.selectFrame("registerFrame");
 		selenium.type("name", "gero");
 		selenium.type("age", "23");
@@ -169,7 +169,7 @@ public class BeanValidationTest extends SeleniumTestSupport {
 	//test of @Min.List and groups
 	@Test
 	public void testGroup(){
-		selenium.open("/beanvalidation-test/");
+		selenium.open("/beanvalidation-web-test/");
 		selenium.selectFrame("registerFrame");
 		selenium.type("name", "gero");
 		selenium.type("age", "23");

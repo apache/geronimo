@@ -52,7 +52,7 @@
     </description>
 
     <modules>
-        <module>beanvalidation-test</module>
+        <module>beanvalidation-tests</module>
         <module>commonannotation1.1-test</module>
         <!--<module>di1.0-test</module>-->
         <module>ejb3.1lite-test</module>
