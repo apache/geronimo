@@ -26,26 +26,32 @@
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>javaee6-testsuite</artifactId>
+        <artifactId>beanvalidation-tests</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>beanvalidation-tests</artifactId>
+    <artifactId>beanvalidation-ejb-test</artifactId>
     <packaging>pom</packaging>
 
-    <name>Geronimo TestSuite :: Java EE 6 Testsuite :: BeanValidation tests</name>
+    <name>Geronimo TestSuite :: Java EE 6 Testsuite :: BeanValidation tests :: beanvalidation-ejb-test</name>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-validation_1.0_spec</artifactId>
+            <artifactId>geronimo-ejb_3.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-annotation_1.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>   
     </dependencies>
 
     <modules>
-        <module>beanvalidation-web-test</module>
-        <module>beanvalidation-ejb-test</module>
+        <module>beanvalidation-ejb-ejb</module>
+        <module>beanvalidation-ejb-war</module>
+        <module>beanvalidation-ejb-ear</module>
     </modules>
 
 </project>

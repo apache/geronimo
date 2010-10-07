@@ -7,9 +7,9 @@
     to you under the Apache License, Version 2.0 (the
     "License"); you may not use this file except in compliance
     with the License.  You may obtain a copy of the License at
-
+    
      http://www.apache.org/licenses/LICENSE-2.0
-
+    
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
     "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,26 +26,24 @@
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>javaee6-testsuite</artifactId>
+        <artifactId>beanvalidation-ejb-test</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>beanvalidation-tests</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>beanvalidation-ejb-war</artifactId>
+    <packaging>war</packaging>
+    <name>Geronimo TestSuite :: Java EE 6 Testsuite :: BeanValidation tests :: beanvalidation-ejb-test :: BeanValidation EJB War</name>
 
-    <name>Geronimo TestSuite :: Java EE 6 Testsuite :: BeanValidation tests</name>
-
-    <dependencies>
+    <description>
+        Geronimo BeanValidation EJB Test War
+    </description>
+      <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-validation_1.0_spec</artifactId>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>beanvalidation-ejb-ejb</artifactId>
+            <version>${version}</version>
             <scope>provided</scope>
         </dependency>
-    </dependencies>
-
-    <modules>
-        <module>beanvalidation-web-test</module>
-        <module>beanvalidation-ejb-test</module>
-    </modules>
-
+    </dependencies> 
 </project>
+
