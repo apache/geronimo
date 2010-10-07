@@ -24,59 +24,59 @@ public class SecurityEJBTest extends SeleniumTestSupport {
           
     @Test
     public void testEJBSecurityAnnonymous() throws Exception {
-    	 String appContextStr = System.getProperty("appContext");
-    	 selenium.open(baseURL+appContextStr);
-		 selenium.click("link=Annonymous");
-		 selenium.waitForPageToLoad("30000");
-		 selenium.isTextPresent("1. SecurityBean.permitAllMethod:true");
-		 selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:false");
-		 selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:false");
-		 selenium.isTextPresent("4. SecurityBean.denyAllMethod:false");
-		 selenium.isTextPresent("5. SecurityRunAsBean.permitAllMethod:true::SecurityBean.permitAllMethod:true");
-		 selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:false");
-		 selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:false");
-		 selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false");
-		 selenium.click("link=Logout");
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(baseURL+appContextStr);
+        selenium.click("link=Annonymous");
+        selenium.waitForPageToLoad("30000");
+        selenium.isTextPresent("1. SecurityBean.permitAllMethod:true");
+        selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:false");
+        selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:false");
+        selenium.isTextPresent("4. SecurityBean.denyAllMethod:false");
+        selenium.isTextPresent("5. SecurityRunAsBean.permitAllMethod:true::SecurityBean.permitAllMethod:true");
+        selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:false");
+        selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:false");
+        selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false");
+        selenium.click("link=Logout");
     
     }
 
     @Test
     public void testEJBSecurityAdmin() throws Exception {
-    	 String appContextStr = System.getProperty("appContext");
-    	 selenium.open(baseURL+appContextStr);
-		selenium.click("link=Admin");
-		selenium.waitForPageToLoad("30000");
-		selenium.type("j_username", "george");
-		selenium.type("j_password", "bone");
-		selenium.click("//input[@value='Login']");
-		selenium.waitForPageToLoad("30000");
-		selenium.isTextPresent("1. SecurityBean.permitAllMethod:true");
-		selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:false");
-		selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:true");
-		selenium.isTextPresent("4. SecurityBean.denyAllMethod:false");
-		selenium.isTextPresent("5. SecurityRunAsBean.permitAllMethod:true::SecurityBean.permitAllMethod:true");
-		selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:false");
-		selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:true::SecurityBean.rolesAllowedAdminMethod:false");
-		selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false");
-		selenium.click("link=Logout");
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(baseURL+appContextStr);
+        selenium.click("link=Admin");
+        selenium.waitForPageToLoad("30000");
+        selenium.type("j_username", "george");
+        selenium.type("j_password", "bone");
+        selenium.click("//input[@value='Login']");
+        selenium.waitForPageToLoad("30000");
+        selenium.isTextPresent("1. SecurityBean.permitAllMethod:true");
+        selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:false");
+        selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:true");
+        selenium.isTextPresent("4. SecurityBean.denyAllMethod:false");
+        selenium.isTextPresent("5. SecurityRunAsBean.permitAllMethod:true::SecurityBean.permitAllMethod:true");
+        selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:false");
+        selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:true::SecurityBean.rolesAllowedAdminMethod:false");
+        selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false");
+        selenium.click("link=Logout");
     }
     @Test
     public void testEJBSecurityUser() throws Exception {
-    	String appContextStr = System.getProperty("appContext");
-    	selenium.open(baseURL+appContextStr);
-		selenium.click("link=User");
-		selenium.waitForPageToLoad("30000");
-		selenium.type("j_username", "metro");
-		selenium.type("j_password", "mouse");
-		selenium.click("//input[@value='Login']");
-		selenium.waitForPageToLoad("30000");
-		selenium.isTextPresent("1. SecurityBean.permitAllMethod:true");
-		selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:true");
-		selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:false");
-		selenium.isTextPresent("4. SecurityBean.denyAllMethod:false");
-		selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:true::SecurityBean.rolesAllowedUserMethod:true");
-		selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:false");
-		selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false");
-		selenium.click("link=Logout");
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(baseURL+appContextStr);
+        selenium.click("link=User");
+        selenium.waitForPageToLoad("30000");
+        selenium.type("j_username", "metro");
+        selenium.type("j_password", "mouse");
+        selenium.click("//input[@value='Login']");
+        selenium.waitForPageToLoad("30000");
+        selenium.isTextPresent("1. SecurityBean.permitAllMethod:true");
+        selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:true");
+        selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:false");
+        selenium.isTextPresent("4. SecurityBean.denyAllMethod:false");
+        selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:true::SecurityBean.rolesAllowedUserMethod:true");
+        selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:false");
+        selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false");
+        selenium.click("link=Logout");
     }
 }
