@@ -28,15 +28,18 @@ public class SecurityEJBTest extends SeleniumTestSupport {
         selenium.open(baseURL+appContextStr);
         selenium.click("link=Annonymous");
         selenium.waitForPageToLoad("30000");
-        selenium.isTextPresent("1. SecurityBean.permitAllMethod:true");
-        selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:false");
-        selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:false");
-        selenium.isTextPresent("4. SecurityBean.denyAllMethod:false");
-        selenium.isTextPresent("5. SecurityRunAsBean.permitAllMethod:true::SecurityBean.permitAllMethod:true");
-        selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:false");
-        selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:false");
-        selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false");
-        selenium.click("link=Logout");
+        try {
+            assertTrue(selenium.isTextPresent("1. SecurityBean.permitAllMethod:true"));
+            assertTrue(selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:false"));
+            assertTrue(selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:false"));
+            assertTrue(selenium.isTextPresent("4. SecurityBean.denyAllMethod:false"));
+            assertTrue(selenium.isTextPresent("5. SecurityRunAsBean.permitAllMethod:true::SecurityBean.permitAllMethod:true"));
+            assertTrue(selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:false"));
+            assertTrue(selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:false"));
+            assertTrue(selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false"));
+        } finally {
+            selenium.click("link=Logout");
+        }
     
     }
 
@@ -50,15 +53,18 @@ public class SecurityEJBTest extends SeleniumTestSupport {
         selenium.type("j_password", "bone");
         selenium.click("//input[@value='Login']");
         selenium.waitForPageToLoad("30000");
-        selenium.isTextPresent("1. SecurityBean.permitAllMethod:true");
-        selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:false");
-        selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:true");
-        selenium.isTextPresent("4. SecurityBean.denyAllMethod:false");
-        selenium.isTextPresent("5. SecurityRunAsBean.permitAllMethod:true::SecurityBean.permitAllMethod:true");
-        selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:false");
-        selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:true::SecurityBean.rolesAllowedAdminMethod:false");
-        selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false");
-        selenium.click("link=Logout");
+        try {
+            assertTrue(selenium.isTextPresent("1. SecurityBean.permitAllMethod:true"));
+            assertTrue(selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:false"));
+            assertTrue(selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:true"));
+            assertTrue(selenium.isTextPresent("4. SecurityBean.denyAllMethod:false"));
+            assertTrue(selenium.isTextPresent("5. SecurityRunAsBean.permitAllMethod:true::SecurityBean.permitAllMethod:true"));
+            assertTrue(selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:false"));
+            assertTrue(selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:true::SecurityBean.rolesAllowedAdminMethod:false"));
+            assertTrue(selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false"));
+        } finally {
+            selenium.click("link=Logout");
+        }
     }
     @Test
     public void testEJBSecurityUser() throws Exception {
@@ -70,13 +76,17 @@ public class SecurityEJBTest extends SeleniumTestSupport {
         selenium.type("j_password", "mouse");
         selenium.click("//input[@value='Login']");
         selenium.waitForPageToLoad("30000");
-        selenium.isTextPresent("1. SecurityBean.permitAllMethod:true");
-        selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:true");
-        selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:false");
-        selenium.isTextPresent("4. SecurityBean.denyAllMethod:false");
-        selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:true::SecurityBean.rolesAllowedUserMethod:true");
-        selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:false");
-        selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false");
-        selenium.click("link=Logout");
+        try {
+            assertTrue(selenium.isTextPresent("1. SecurityBean.permitAllMethod:true"));
+            assertTrue(selenium.isTextPresent("2. SecurityBean.rolesAllowedUserMethod:true"));
+            assertTrue(selenium.isTextPresent("3. SecurityBean.rolesAllowedAdminMethod:false"));
+            assertTrue(selenium.isTextPresent("4. SecurityBean.denyAllMethod:false"));
+            assertTrue(selenium.isTextPresent("5. SecurityRunAsBean.permitAllMethod:true::SecurityBean.permitAllMethod:true"));
+            assertTrue(selenium.isTextPresent("6. SecurityRunAsBean.rolesAllowedUserMethod:true::SecurityBean.rolesAllowedUserMethod:true"));
+            assertTrue(selenium.isTextPresent("7. SecurityRunAsBean.rolesAllowedAdminMethod:false"));
+            assertTrue(selenium.isTextPresent("8. SecurityRunAsBean.denyAllMethod:false"));
+        } finally {
+            selenium.click("link=Logout");
+        }
     }
 }
