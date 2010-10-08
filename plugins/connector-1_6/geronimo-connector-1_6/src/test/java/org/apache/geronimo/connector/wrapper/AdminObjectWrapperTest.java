@@ -86,7 +86,7 @@ public class AdminObjectWrapperTest extends TestCase {
         kernel = KernelFactory.newInstance(bundleContext).createKernel(j2eeContext.getJ2eeDomainName());
         kernel.boot();
 
-        GBeanData aow = buildGBeanData("name", TARGET_NAME, AdminObjectWrapperGBean.getGBeanInfo());
+        GBeanData aow = buildGBeanData("name", TARGET_NAME, AdminObjectWrapperGBean.class);
         selfName = aow.getAbstractName();
         aow.setAttribute("adminObjectInterface", MockAdminObject.class.getName());
         aow.setAttribute("adminObjectClass", MockAdminObjectImpl.class.getName());
@@ -95,7 +95,7 @@ public class AdminObjectWrapperTest extends TestCase {
         kernel.startGBean(selfName);
     }
 
-    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) {
+    private GBeanData buildGBeanData(String key, String value, Class info) {
         AbstractName abstractName = buildAbstractName(key, value);
         return new GBeanData(abstractName, info);
     }

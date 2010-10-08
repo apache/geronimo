@@ -134,8 +134,8 @@ public class MessageDestinationTest extends TestCase {
         adminObjectRefBuilder.initContext(specDD, plan, module);
         AbstractName n1 = naming.createChildName(baseName, "l1", NameFactory.JCA_ADMIN_OBJECT);
         AbstractName n2 = naming.createChildName(baseName, "l2", NameFactory.JCA_ADMIN_OBJECT);
-        configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.GBEAN_INFO));
-        configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.GBEAN_INFO));
+        configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.class));
+        configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.class));
         adminObjectRefBuilder.buildNaming(specDD, plan, module, componentContext);
         assertEquals(2, module.getJndiScope(JndiScope.comp).size());
     }
@@ -158,8 +158,8 @@ public class MessageDestinationTest extends TestCase {
         adminObjectRefBuilder.initContext(specDD, plan, module);
         AbstractName n1 = naming.createChildName(baseName, "l1", NameFactory.JCA_ADMIN_OBJECT);
         AbstractName n2 = naming.createChildName(baseName, "l2", NameFactory.JCA_ADMIN_OBJECT);
-        configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.GBEAN_INFO));
-        configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.GBEAN_INFO));
+        configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.class));
+        configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.class));
         adminObjectRefBuilder.buildNaming(specDD, plan, module, componentContext);
         assertEquals(2, module.getJndiScope(JndiScope.comp).size());
     }

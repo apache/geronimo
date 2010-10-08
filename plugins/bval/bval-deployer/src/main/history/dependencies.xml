@@ -26,19 +26,4 @@
         <artifactId>j2ee-deployer</artifactId>
         <type>car</type>
     </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-bval</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-bval-builder</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-validation_1.0_spec</artifactId>
-        <type>jar</type>
-    </dependency>
 </plugin-artifact>

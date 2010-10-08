@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.connector.wrapper;
 
+import org.apache.geronimo.bval.ValidatorFactoryGBean; 
 import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.gbean.DynamicGBean;
@@ -41,8 +42,9 @@ public class ActivationSpecWrapperGBean extends ActivationSpecWrapper implements
     public ActivationSpecWrapperGBean(@ParamAttribute(name="activationSpecClass")final String activationSpecClass,
                                       @ParamAttribute(name="containerId")final String containerId,
                                       @ParamReference(name="ResourceAdapaterWrapper", namingType = NameFactory.RESOURCE_ADAPTER)final ResourceAdapterWrapper resourceAdapterWrapper,
-                                      @ParamSpecial(type = SpecialAttributeType.classLoader)final ClassLoader cl) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
-        super(activationSpecClass, containerId, resourceAdapterWrapper, cl);
+                                      @ParamSpecial(type = SpecialAttributeType.classLoader)final ClassLoader cl, 
+                                      @ParamReference(name = "ValidatorFactory", namingType = NameFactory.VALIDATOR_FACTORY) ValidatorFactoryGBean validatorFactory) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+        super(activationSpecClass, containerId, resourceAdapterWrapper, cl, validatorFactory != null ? validatorFactory.getFactory() : null);
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(activationSpec);
     }

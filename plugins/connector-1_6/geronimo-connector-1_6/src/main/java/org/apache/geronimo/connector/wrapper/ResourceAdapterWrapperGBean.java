@@ -23,6 +23,7 @@ import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 
+import org.apache.geronimo.bval.ValidatorFactoryGBean; 
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
@@ -62,8 +63,9 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
             @ParamReference(name="TransactionManager", namingType = NameFactory.JTA_RESOURCE)RecoverableTransactionManager transactionManager,
             @ParamReference(name="TransactionSynchronizationRegistry", namingType = NameFactory.JTA_RESOURCE) TransactionSynchronizationRegistry transactionSynchronizationRegistry,
             @ParamSpecial(type= SpecialAttributeType.classLoader )ClassLoader cl,
-            @ParamSpecial(type= SpecialAttributeType.objectName )String objectName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        super(objectName, resourceAdapterClass, messageListenerToActivationSpecMap, new GeronimoBootstrapContext(workManager, xaTerminator, transactionSynchronizationRegistry), transactionManager, cl);
+            @ParamSpecial(type= SpecialAttributeType.objectName )String objectName, 
+            @ParamReference(name = "ValidatorFactory", namingType = NameFactory.VALIDATOR_FACTORY) ValidatorFactoryGBean validatorFactory) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        super(objectName, resourceAdapterClass, messageListenerToActivationSpecMap, new GeronimoBootstrapContext(workManager, xaTerminator, transactionSynchronizationRegistry), transactionManager, cl, validatorFactory != null ? validatorFactory.getFactory() : null);
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(resourceAdapter);
         this.objectName = objectName;

@@ -31,6 +31,7 @@ import java.util.jar.JarFile;
 
 import javax.naming.Reference;
 import javax.sql.DataSource;
+import org.apache.geronimo.bval.ValidatorFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -135,7 +136,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     Collections.singleton(repository),
                     null,
                     null,
-                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(serviceBuilder), bundleContext),
+                    new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(serviceBuilder), null, bundleContext),
                     activationSpecInfoLocator,
                     null,
                     serviceBuilder,
@@ -157,7 +158,10 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                 context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, rarFile, idBuilder), plan, rarFile, Collections.singleton(configurationStore), artifactResolver, configurationStore);
                 // add the a j2ee server so the application context reference can be resolved
                 context.addGBean("geronimo", J2EEServerImpl.GBEAN_INFO);
-
+                // add the module validator so the connector artifacts will resolve to an instance 
+                AbstractName abstractName = context.getNaming().createChildName(((Module)plan).getModuleName(), "ValidatorFactory", NameFactory.VALIDATOR_FACTORY);
+                GBeanData gbeanData = new GBeanData(abstractName, ValidatorFactoryGBean.class);
+                context.addGBean(gbeanData);
                 configData = context.getConfigurationData();
             } finally {
                 if (context != null) {
@@ -343,7 +347,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         String resourceAdapterName = "testRA";
 
         try {
-            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(new GBeanBuilder(null, null)), bundleContext);
+            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, defaultWorkManagerName, Collections.<NamespaceDrivenBuilder>singleton(new GBeanBuilder(null, null)), null, bundleContext);
             File rarFile = action.getRARFile();
 
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -378,6 +382,10 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                 Bundle bundle = earContext.getDeploymentBundle();
                 moduleBuilder.initContext(earContext, module, bundle);
                 moduleBuilder.addGBeans(earContext, module, bundle, Collections.singleton(repository));
+                // add the module validator so the connector artifacts will resolve to an instance 
+                AbstractName abstractName = earContext.getNaming().createChildName(module.getModuleName(), "ValidatorFactory", NameFactory.VALIDATOR_FACTORY);
+                GBeanData gbeanData = new GBeanData(abstractName, ValidatorFactoryGBean.class);
+                earContext.addGBean(gbeanData);
 
                 ConfigurationData configurationData = earContext.getConfigurationData();
                 AbstractName moduleAbstractName = earContext.getModuleName();

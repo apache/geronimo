@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.connector.wrapper.outbound;
 
+import org.apache.geronimo.bval.ValidatorFactoryGBean;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.outbound.ConnectionManagerContainer;
 import org.apache.geronimo.gbean.AbstractName;
@@ -46,6 +47,7 @@ public class ManagedConnectionFactoryWrapperGBean {
         infoFactory.addAttribute("abstractName", AbstractName.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addReference("ValidatorFactory", ValidatorFactoryGBean.class, NameFactory.VALIDATOR_FACTORY);
 
         infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
 
@@ -61,7 +63,9 @@ public class ManagedConnectionFactoryWrapperGBean {
             "kernel",
             "abstractName",
             "objectName",
-            "classLoader"});
+            "classLoader", 
+            "ValidatorFactory"
+            });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

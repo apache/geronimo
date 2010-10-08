@@ -21,13 +21,19 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
+import javax.validation.ConstraintViolation; 
+import javax.validation.ConstraintViolationException; 
+import javax.validation.Validator; 
+import javax.validation.ValidatorFactory; 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.bval.ValidatorFactoryGBean; 
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.outbound.ConnectionManagerContainer;
 import org.apache.geronimo.gbean.AbstractName;
@@ -61,11 +67,11 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     private DynamicGBeanDelegate delegate;
 
-
     private final Kernel kernel;
     private final AbstractName abstractName;
     private final String objectName;
     private final ClassLoader classLoader;
+    private final ValidatorFactory validatorFactory; 
 
     //default constructor for enhancement proxy endpoint
     public ManagedConnectionFactoryWrapper() {
@@ -81,6 +87,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         classLoader = null;
         resourceAdapterWrapper = null;
         jndiName = null;
+        validatorFactory = null; 
     }
 
     public ManagedConnectionFactoryWrapper(String managedConnectionFactoryClass,
@@ -94,7 +101,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
                                            Kernel kernel,
                                            AbstractName abstractName,
                                            String objectName,
-                                           ClassLoader cl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+                                           ClassLoader cl, 
+                                           ValidatorFactoryGBean validatorFactory) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         this.managedConnectionFactoryClass = managedConnectionFactoryClass;
         this.connectionFactoryInterface = connectionFactoryInterface;
         this.implementedInterfaces = implementedInterfaces;
@@ -102,6 +110,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         this.connectionInterface = connectionInterface;
         this.connectionImplClass = connectionImplClass;
         this.jndiName = jndiName;
+        this.validatorFactory = validatorFactory != null ? validatorFactory.getFactory() : null; 
 
         for (String interfaceName: implementedInterfaces) {
             allImplementedInterfaces.add(cl.loadClass(interfaceName));
@@ -153,6 +162,16 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     }
 
     public void doStart() throws Exception {
+        // if we have a validator factory at this point, then validate 
+        // the resource adaptor instance 
+        if (validatorFactory != null) {
+            Validator validator = validatorFactory.getValidator(); 
+            
+            Set generalSet = validator.validate(managedConnectionFactory);
+            if (!generalSet.isEmpty()) {
+                throw new ConstraintViolationException("Constraint violation for ManagedConnectionFactory " + managedConnectionFactoryClass, generalSet); 
+            }
+        }
         //register with resource adapter
         if (managedConnectionFactory instanceof ResourceAdapterAssociation) {
             if (resourceAdapterWrapper == null) {

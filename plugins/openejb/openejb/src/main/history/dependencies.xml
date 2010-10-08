@@ -7,13 +7,18 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils</artifactId>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.bval</groupId>
-        <artifactId>org.apache.bval.bundle</artifactId>
+        <groupId>javassist</groupId>
+        <artifactId>javassist</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>net.sourceforge.serp</groupId>
+        <artifactId>serp</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -58,11 +63,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-bval</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-openejb</artifactId>
         <type>jar</type>
     </dependency>
@@ -99,11 +99,6 @@
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jms_1.1_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-validation_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -209,6 +204,21 @@
     <dependency>
         <groupId>org.codehaus.swizzle</groupId>
         <artifactId>swizzle-stream</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.codehaus.woodstox</groupId>
+        <artifactId>stax2-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.codehaus.woodstox</groupId>
+        <artifactId>woodstox-core-asl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

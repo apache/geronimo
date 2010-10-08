@@ -62,7 +62,6 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Transactio
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.connector.wrapper.ActivationSpecWrapperGBean;
-import org.apache.geronimo.connector.wrapper.AdminObjectWrapper;
 import org.apache.geronimo.connector.wrapper.AdminObjectWrapperGBean;
 import org.apache.geronimo.connector.wrapper.JCAResourceImplGBean;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterImplGBean;
@@ -98,6 +97,7 @@ import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -201,6 +201,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     private final String defaultWorkManagerName;
 
     private final PackageAdmin packageAdmin;
+    private final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
 
     public ConnectorModuleBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
                                   @ParamAttribute(name = "defaultMaxSize") int defaultMaxSize,
@@ -211,6 +212,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                                   @ParamAttribute(name = "defaultXAThreadCaching") boolean defaultXAThreadCaching,
                                   @ParamAttribute(name = "defaultWorkManagerName") String defaultWorkManagerName,
                                   @ParamReference(name = "ServiceBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<NamespaceDrivenBuilder> serviceBuilders,
+                                  @ParamReference(name = "ModuleBuilderExtensions", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilderExtension> moduleBuilderExtensions,
                                   @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) {
         this.defaultEnvironment = defaultEnvironment;
 
@@ -221,12 +223,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
         this.defaultWorkManagerName = defaultWorkManagerName;
+        this.moduleBuilderExtensions = moduleBuilderExtensions == null ? new ArrayList<ModuleBuilderExtension>() : moduleBuilderExtensions;
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
         ServiceReference sr = bundleContext.getServiceReference(PackageAdmin.class.getName());
         packageAdmin = (PackageAdmin) bundleContext.getService(sr);
-    }
-
-    @Override
+    }   
     public void doStart() throws Exception {
         XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
     }
@@ -250,7 +251,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     public Module createModule(File plan, JarFile moduleFile, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, "rar", null, null, null, naming, idBuilder);
     }
-
+    
     @Override
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object o1, Module module, Naming naming, ModuleIDBuilder moduleIDBuilder) throws DeploymentException {
         return createModule(plan, moduleFile, targetPath, specDDUrl, environment, module, naming, moduleIDBuilder);
@@ -376,7 +377,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         } else {
             name = FileUtils.removeExtension(targetPath, ".rar");
         }
-        return new ConnectorModule<Connector, XmlObject>(standAlone, moduleName, name, environment, moduleFile, targetPath, connector, gerConnector, specDD, parentModule == null? null: parentModule.getJndiContext(), parentModule);
+        
+        Module module = new ConnectorModule<Connector, XmlObject>(standAlone, moduleName, name, environment, moduleFile, targetPath, connector, gerConnector, specDD, parentModule == null? null: parentModule.getJndiContext(), parentModule);
+        
+        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+            mbe.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, null, moduleName, naming, idBuilder);
+        }
+        return module; 
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores, ConfigurationStore targetConfigurationStore, Collection repository) throws DeploymentException {
@@ -413,11 +420,17 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying connector", e);
         }
+        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+            mbe.installModule(earFile, earContext, module, configurationStores, targetConfigurationStore, repository);
+        }
     }
 
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         log.info("deploying bundle " + bundle + " at " + bundle.getLocation());
         ConnectorModule<Connector, XmlObject> resourceModule = (ConnectorModule<Connector, XmlObject>) module;
+        
+        // all connector objects wrappers get injected with the validator reference 
+        AbstractName validatorName = module.getEarContext().getNaming().createChildName(module.getModuleName(), "ValidatorFactory", NameFactory.VALIDATOR_FACTORY);
 
         BundleAnnotationFinder classFinder;
         try {
@@ -489,18 +502,20 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 resourceAdapterGBeanData.setReferencePattern("XATerminator", earContext.getTransactionManagerName());
                 resourceAdapterGBeanData.setReferencePattern("TransactionManager", earContext.getTransactionManagerName());
                 resourceAdapterGBeanData.setReferencePattern("TransactionSynchronizationRegistry", earContext.getTransactionManagerName());
+                
+                resourceAdapterGBeanData.setReferencePattern("ValidatorFactory", validatorName);
                 //This was previously in a separate if block, whether or not resourceAdapterClass was set.  I don't think this makes sense
-                Map activationSpecInfoMap = getActivationSpecInfoMap(resourceAdapter.getInboundResourceAdapter().getMessageAdapter().getMessageListener(), bundle);
+                Map activationSpecInfoMap = getActivationSpecInfoMap(validatorName, resourceAdapter.getInboundResourceAdapter().getMessageAdapter().getMessageListener(), bundle);
                 resourceAdapterModuleData.setAttribute("activationSpecInfoMap", activationSpecInfoMap);
             }
 
             resourceAdapterModuleData.setAttribute("resourceAdapterGBeanData", resourceAdapterGBeanData);
         }
 
-        Map adminObjectInfoMap = getAdminObjectInfoMap(resourceAdapter.getAdminObject(), bundle);
+        Map adminObjectInfoMap = getAdminObjectInfoMap(validatorName, resourceAdapter.getAdminObject(), bundle);
         resourceAdapterModuleData.setAttribute("adminObjectInfoMap", adminObjectInfoMap);
         if (resourceAdapter.getOutboundResourceAdapter() != null) {
-            Map managedConnectionFactoryInfoMap = getManagedConnectionFactoryInfoMap(resourceAdapter.getOutboundResourceAdapter().getConnectionDefinition(), bundle);
+            Map managedConnectionFactoryInfoMap = getManagedConnectionFactoryInfoMap(validatorName, resourceAdapter.getOutboundResourceAdapter().getConnectionDefinition(), bundle);
             resourceAdapterModuleData.setAttribute("managedConnectionFactoryInfoMap", managedConnectionFactoryInfoMap);
         }
 
@@ -538,6 +553,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         serviceBuilders.build(geronimoConnector, earContext, earContext);
 
         addConnectorGBeans(earContext, jcaResourcejsr77Name, resourceAdapterModuleData, connector, geronimoConnector, bundle);
+        
+        // also give the extensions a crack at this 
+        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+            mbe.initContext(earContext, module, bundle);
+        }
 
     }
 
@@ -831,6 +851,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         //all our gbeans are added in  the initContext step
         //in case we decide connectors should be separate bundles
         module.addAsChildConfiguration();
+        for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
+            mbe.addGBeans(earContext, module, bundle, repository);
+        }
     }
 
     public String getSchemaNamespace() {
@@ -948,7 +971,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         }
     }
 
-    private Map<String, GBeanData> getActivationSpecInfoMap(List<MessageListener> messageListeners, Bundle bundle) throws DeploymentException {
+    private Map<String, GBeanData> getActivationSpecInfoMap(AbstractName validatorName, List<MessageListener> messageListeners, Bundle bundle) throws DeploymentException {
         Map<String, GBeanData> activationSpecInfos = new HashMap<String, GBeanData>();
         for (MessageListener messageListener : messageListeners) {
             String messageListenerInterface = messageListener.getMessageListenerType();
@@ -963,6 +986,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
 
             GBeanData activationSpecInfo = new GBeanData(gbeanInfo);
             activationSpecInfo.setAttribute("activationSpecClass", activationSpecClassName);
+            activationSpecInfo.setReferencePattern("ValidatorFactory", validatorName);
             activationSpecInfos.put(messageListenerInterface, activationSpecInfo);
         }
         return activationSpecInfos;
@@ -1023,7 +1047,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         }
     }
 
-    private Map getManagedConnectionFactoryInfoMap(List<ConnectionDefinition> connectionDefinitions, Bundle bundle) throws DeploymentException {
+    private Map getManagedConnectionFactoryInfoMap(AbstractName validatorName, List<ConnectionDefinition> connectionDefinitions, Bundle bundle) throws DeploymentException {
         Map<String, GBeanData> managedConnectionFactoryInfos = new HashMap<String, GBeanData>();
         for (ConnectionDefinition connectionDefinition : connectionDefinitions) {
             GBeanInfoBuilder managedConnectionFactoryInfoBuilder = new GBeanInfoBuilder(ManagedConnectionFactoryWrapper.class, ManagedConnectionFactoryWrapperGBean.GBEAN_INFO);
@@ -1040,15 +1064,16 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             managedConnectionFactoryGBeanData.setAttribute("connectionFactoryImplClass", connectionDefinition.getConnectionFactoryImplClass());
             managedConnectionFactoryGBeanData.setAttribute("connectionInterface", connectionDefinition.getConnectionInterface());
             managedConnectionFactoryGBeanData.setAttribute("connectionImplClass", connectionDefinition.getConnectionImplClass());
+            managedConnectionFactoryGBeanData.setReferencePattern("ValidatorFactory", validatorName);
             managedConnectionFactoryInfos.put(connectionfactoryInterface, managedConnectionFactoryGBeanData);
         }
         return managedConnectionFactoryInfos;
     }
 
-    private Map getAdminObjectInfoMap(List<AdminObject> adminObjects, Bundle bundle) throws DeploymentException {
+    private Map getAdminObjectInfoMap(AbstractName validatorName, List<AdminObject> adminObjects, Bundle bundle) throws DeploymentException {
         Map<String, GBeanData> adminObjectInfos = new HashMap<String, GBeanData>();
         for (AdminObject adminObject : adminObjects) {
-            GBeanInfoBuilder adminObjectInfoBuilder = new GBeanInfoBuilder(AdminObjectWrapper.class, AdminObjectWrapperGBean.GBEAN_INFO);
+            GBeanInfoBuilder adminObjectInfoBuilder = new GBeanInfoBuilder(AdminObjectWrapperGBean.class, new AnnotationGBeanInfoBuilder(AdminObjectWrapperGBean.class).buildGBeanInfo());
             String adminObjectClassName = adminObject.getAdminObjectClass();
             GBeanData adminObjectGBeanData = setUpDynamicGBeanWithProperties(adminObjectClassName, adminObjectInfoBuilder, adminObject.getConfigProperty(), bundle, Collections.<String>emptySet());
 
@@ -1056,6 +1081,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             String adminObjectInterface = adminObject.getAdminObjectInterface();
             adminObjectGBeanData.setAttribute("adminObjectInterface", adminObjectInterface);
             adminObjectGBeanData.setAttribute("adminObjectClass", adminObjectClassName);
+            adminObjectGBeanData.setReferencePattern("ValidatorFactory", validatorName);
             adminObjectInfos.put(adminObjectInterface, adminObjectGBeanData);
         }
         return adminObjectInfos;
