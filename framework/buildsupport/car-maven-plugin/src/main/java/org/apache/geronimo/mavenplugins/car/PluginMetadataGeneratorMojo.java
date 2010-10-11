@@ -134,6 +134,15 @@ public class PluginMetadataGeneratorMojo
      * @parameter
      */
     private List<Dependency> dependencies = Collections.emptyList();
+    
+    
+    /**
+     * An {@link Dependency} to include as a module of the CAR. we need to exclude this 
+     * from the dependencies since we've included its content in the car directly.
+     *
+     * @parameter
+     */
+    private Dependency module = null;
 
     /**
      * Configuration of use of maven dependencies.  If missing or if value element is false, use the explicit list in the car-maven-plugin configuration.
@@ -251,10 +260,16 @@ public class PluginMetadataGeneratorMojo
             }
             instance.setModuleId(artifactType);
             addDependencies(instance);
+            
+            //this module is embeded into the car, we don't want to install it as a dependency again.
+            this.removeIncludedModule(instance.getDependency(), module);
+
+            
             targetDir.mkdirs();
             File targetFile = new File(targetDir.toURI().resolve(pluginMetadataFileName));
             targetFile.getParentFile().mkdirs();
             FileOutputStream out = new FileOutputStream(targetFile);
+
             try {
                 PluginXmlUtil.writePluginMetadata(metadata, out);
             } finally {
@@ -288,6 +303,20 @@ public class PluginMetadataGeneratorMojo
     private void addDependencies(PluginArtifactType instance) throws InvalidConfigException, IOException, NoSuchConfigException, InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
         LinkedHashSet<DependencyType> resolvedDependencies = toDependencies(dependencies, useMavenDependencies, false);
             instance.getDependency().addAll(resolvedDependencies);
+    }
+    
+    private void removeIncludedModule(List<DependencyType> sourceList, Dependency removeTarget) {
+       
+        for (DependencyType dependencyType : sourceList) {
+            if ((dependencyType.getArtifactId().equals(removeTarget.artifactId))
+                    && (dependencyType.getGroupId().equals(removeTarget.groupId))
+                    && (dependencyType.getType().equals(removeTarget.type))
+                    && (dependencyType.getVersion().equals(removeTarget.version))) {
+
+                sourceList.remove(dependencyType);
+            }
+        }
+            
     }
 
 }
