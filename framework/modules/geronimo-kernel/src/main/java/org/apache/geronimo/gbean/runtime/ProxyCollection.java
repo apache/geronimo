@@ -258,4 +258,9 @@ class ProxyCollection implements ReferenceCollection {
     public void clear() {
         throw new UnsupportedOperationException();
     }
+    
+    public String toString(){
+        return proxies.keySet().toString();
+        
+    }
 }

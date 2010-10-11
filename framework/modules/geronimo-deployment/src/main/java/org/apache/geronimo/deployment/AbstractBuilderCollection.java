@@ -88,4 +88,9 @@ public abstract class AbstractBuilderCollection<T extends AbstractNamespaceBuild
     public QNameSet getPlanQNameSet() {
         return null;
     }
+    
+    public String toString(){
+        
+        return builders.toString();
+    }
 }
