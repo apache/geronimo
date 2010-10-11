@@ -261,9 +261,10 @@ public class PluginMetadataGeneratorMojo
             instance.setModuleId(artifactType);
             addDependencies(instance);
             
-            //this module is embeded into the car, we don't want to install it as a dependency again.
-            this.removeIncludedModule(instance.getDependency(), module);
-
+            // this module is embeded into the car, we don't want to install it as a dependency again.
+            if (module != null) {
+                removeIncludedModule(instance.getDependency(), module);
+            }
             
             targetDir.mkdirs();
             File targetFile = new File(targetDir.toURI().resolve(pluginMetadataFileName));
@@ -306,17 +307,14 @@ public class PluginMetadataGeneratorMojo
     }
     
     private void removeIncludedModule(List<DependencyType> sourceList, Dependency removeTarget) {
-       
         for (DependencyType dependencyType : sourceList) {
             if ((dependencyType.getArtifactId().equals(removeTarget.artifactId))
                     && (dependencyType.getGroupId().equals(removeTarget.groupId))
                     && (dependencyType.getType().equals(removeTarget.type))
                     && (dependencyType.getVersion().equals(removeTarget.version))) {
-
                 sourceList.remove(dependencyType);
             }
         }
-            
     }
 
 }
