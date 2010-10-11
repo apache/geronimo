@@ -117,16 +117,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.codehaus.woodstox</groupId>
-        <artifactId>stax2-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.codehaus.woodstox</groupId>
-        <artifactId>woodstox-core-asl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.tranql</groupId>
         <artifactId>tranql-connector</artifactId>
         <type>jar</type>
