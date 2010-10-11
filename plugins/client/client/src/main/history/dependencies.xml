@@ -22,21 +22,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>javassist</groupId>
-        <artifactId>javassist</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>net.sourceforge.serp</groupId>
-        <artifactId>serp</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.aries</groupId>
         <artifactId>org.apache.aries.util</artifactId>
         <type>jar</type>
@@ -354,11 +339,6 @@
     <dependency>
         <groupId>org.codehaus.swizzle</groupId>
         <artifactId>swizzle-stream</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

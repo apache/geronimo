@@ -1002,10 +1002,6 @@
                         <artifactId>javaee-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.openejb</groupId>
-                        <artifactId>ejb31-api-experimental</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>org.apache.geronimo.javamail</groupId>
                         <artifactId>geronimo-javamail_1.4_mail</artifactId>
                     </exclusion>
@@ -1038,6 +1034,10 @@
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging-api</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>org.apache.geronimo.components</groupId>
                         <artifactId>geronimo-transaction</artifactId>
                     </exclusion>
@@ -1068,6 +1068,18 @@
                     <exclusion>
                         <groupId>org.quartz-scheduler</groupId>
                         <artifactId>quartz</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javassist</groupId>
+                        <artifactId>javassist</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>net.sourceforge.serp</groupId>
+                        <artifactId>serp</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
