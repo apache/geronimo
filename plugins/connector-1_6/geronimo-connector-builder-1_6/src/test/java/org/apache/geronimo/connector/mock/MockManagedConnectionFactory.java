@@ -30,6 +30,7 @@ import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapter;
 import javax.security.auth.Subject;
+import javax.validation.constraints.Pattern;
 
 /**
  *
@@ -78,9 +79,15 @@ public class MockManagedConnectionFactory implements ManagedConnectionFactory {
         this.outboundStringProperty4 = outboundStringProperty4;
     }
 
+    // add a simple validation pattern to these fields to allow validation tests.  This 
+    // pattern will allow any word characters as a value, but not the null string. 
+    @Pattern(regexp="[\\w]+" )
     private String outboundStringProperty1;
+    @Pattern(regexp="[\\w]+" )
     private String outboundStringProperty2;
+    @Pattern(regexp="[\\w]+" )
     private String outboundStringProperty3;
+    @Pattern(regexp="[\\w]+" )
     private String outboundStringProperty4;
 
     public void setResourceAdapter(ResourceAdapter resourceAdapter) throws ResourceException {

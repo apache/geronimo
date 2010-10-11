@@ -31,6 +31,7 @@ import java.util.jar.JarFile;
 
 import javax.naming.Reference;
 import javax.sql.DataSource;
+
 import org.apache.geronimo.bval.ValidatorFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -60,6 +61,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
+import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.mock.MockRepository;
@@ -186,6 +188,68 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         };
         executeTestBuildModule(action, false);
     }
+
+    public void testConnectionFactoryValidation() throws Exception {
+        InstallAction action = new InstallAction() {
+            public File getRARFile() {
+                return new File(BASEDIR, "target/test-cf-validation");
+            }
+        };
+        try {
+            executeTestBuildModule(action, true);
+            fail("ConstraintViolation not thrown");
+        } catch (org.apache.geronimo.kernel.config.LifecycleException e) {
+            // we'll get a deployment failure.  The root reason will be a ValidationException, 
+            // but for now, that's difficult to root out and locate. 
+        }
+    }
+
+    public void testResourceAdaptorValidation() throws Exception {
+        InstallAction action = new InstallAction() {
+            public File getRARFile() {
+                return new File(BASEDIR, "target/test-ra-validation");
+            }
+        };
+        try {
+            executeTestBuildModule(action, true);
+            fail("ConstraintViolation not thrown");
+        } catch (org.apache.geronimo.kernel.config.LifecycleException e) {
+            // we'll get a deployment failure.  The root reason will be a ValidationException, 
+            // but for now, that's difficult to root out and locate. 
+        }
+    }
+
+    public void testAdminObjectValidation() throws Exception {
+        InstallAction action = new InstallAction() {
+            public File getRARFile() {
+                return new File(BASEDIR, "target/test-ao-validation");
+            }
+        };
+        try {
+            executeTestBuildModule(action, true);
+            fail("ConstraintViolation not thrown");
+        } catch (org.apache.geronimo.kernel.config.LifecycleException e) {
+            // we'll get a deployment failure.  The root reason will be a ValidationException, 
+            // but for now, that's difficult to root out and locate. 
+        }
+    }
+
+/* TODO:  figure out what the lifecycle is here so this can be processed     
+    public void testActivationSpecBeanValidation() throws Exception {
+        InstallAction action = new InstallAction() {
+            public File getRARFile() {
+                return new File(BASEDIR, "target/test-asb-validation");
+            }
+        };
+        try {
+            executeTestBuildModule(action, true);
+            fail("ConstraintViolation not thrown");
+        } catch (org.apache.geronimo.kernel.config.LifecycleException e) {
+            // we'll get a deployment failure.  The root reason will be a ValidationException, 
+            // but for now, that's difficult to root out and locate. 
+        }
+    }
+ */ 
 
     public void testBuildUnpackedAltSpecDDModule() throws Exception {
         InstallAction action = new InstallAction() {
@@ -433,7 +497,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                 assertNotNull(activationSpecInfo);
                 GBeanInfo activationSpecGBeanInfo = activationSpecInfo.getGBeanInfo();
                 List attributes1 = activationSpecGBeanInfo.getPersistentAttributes();
-                assertEquals(2, attributes1.size());
+                assertEquals(3, attributes1.size());
 
                 Map adminObjectInfoMap = (Map) kernel.getAttribute(moduleAbstractName, "adminObjectInfoMap");
                 assertEquals(1, adminObjectInfoMap.size());

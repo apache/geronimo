@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.connector.mock;
 
+import javax.validation.constraints.Pattern;
+
 /**
  *
  *
@@ -27,6 +29,9 @@ public class MockAdminObjectImpl implements MockAdminObject {
 
     private String tweedle;
 
+    // add a simple validation pattern to these fields to allow validation tests.  This 
+    // pattern will allow any word characters as a value, but not the null string. 
+    @Pattern(regexp="[\\w-]+" )
     public String getTweedle() {
         return tweedle;
     }

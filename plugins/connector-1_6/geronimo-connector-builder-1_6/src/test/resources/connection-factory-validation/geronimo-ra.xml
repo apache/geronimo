@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2">
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+        <moduleId>
+            <groupId>geronimo</groupId>
+            <artifactId>test-ear</artifactId>
+            <version>1.0</version>
+            <type>car</type>
+        </moduleId>
+    </environment>
+
+    <resourceadapter>
+        <resourceadapter-instance>
+            <resourceadapter-name>testRA</resourceadapter-name>
+            <config-property-setting name="RAStringProperty">NewStringValue</config-property-setting>
+            <workmanager>
+                <gbean-link>DefaultWorkManager</gbean-link>
+            </workmanager>
+        </resourceadapter-instance>
+        <outbound-resourceadapter>
+            <connection-definition>
+                <connectionfactory-interface>javax.resource.cci.ConnectionFactory</connectionfactory-interface>
+                <connectiondefinition-instance>
+                    <name>FirstTestOutboundConnectionFactory</name>
+                    <!-- the * in the value will cause a validation failure --> 
+                    <config-property-setting name="OutboundStringProperty1">*newvalue1</config-property-setting>
+                    <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
+                    <connectionmanager>
+                        <container-managed-security/>
+                        <xa-transaction>
+                            <transaction-caching/>
+                        </xa-transaction>
+                        <partitioned-pool>
+                            <max-size>10</max-size>
+                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                            <match-one/>
+                            <partition-by-subject/>
+                        </partitioned-pool>
+                    </connectionmanager>
+                </connectiondefinition-instance>
+            </connection-definition>
+        </outbound-resourceadapter>
+    </resourceadapter>
+
+    <adminobject>
+        <adminobject-interface>org.apache.geronimo.connector.mock.MockAdminObject</adminobject-interface>
+        <adminobject-class>org.apache.geronimo.connector.mock.MockAdminObjectImpl</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>tweedledee</message-destination-name>
+            <config-property-setting name="Tweedle">Dee-value</config-property-setting>
+        </adminobject-instance>
+        <adminobject-instance>
+            <message-destination-name>tweedledum</message-destination-name>
+            <config-property-setting name="Tweedle">Dum-value</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
+
+    <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
+    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.wrapper.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+        <reference name="TransactionManager">
+            <name>TransactionManager</name>
+        </reference>
+    </gbean>
+
+    <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
+        <attribute name="keepAliveTime">5000</attribute>
+        <attribute name="minPoolSize">100</attribute>
+        <attribute name="maxPoolSize">300</attribute>
+        <attribute name="poolName">DefaultThreadPool</attribute>
+    </gbean>
+
+    <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.wrapper.work.GeronimoWorkManagerGBean">
+        <reference name="SyncPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="StartPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="ScheduledPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="WorkContextHandler">
+        </reference>
+    </gbean>
+
+    <gbean name="TransactionContextHandler" class="org.apache.geronimo.connector.wrapper.work.TransactionContextHandlerGBean">
+        <reference name="XAWork">
+            <name>TransactionManager</name>
+        </reference>
+    </gbean>
+
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean"/>
+</connector>

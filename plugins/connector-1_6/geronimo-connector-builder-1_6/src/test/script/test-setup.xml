@@ -97,6 +97,34 @@
                 <exclude name="geronimo-application.xml"/>
             </zipfileset>
         </jar>
+
+        <!-- Build test-cf-validation -->
+        <mkdir dir="${basedir}/target/test-cf-validation/META-INF"/>
+        <copy todir="${basedir}/target/test-cf-validation/META-INF">
+            <fileset dir="${basedir}/src/test/resources/connection-factory-validation"/>
+        </copy>
+        <jar destfile="${basedir}/target/test-cf-validation.rar" basedir="${basedir}/target/test-cf-validation"/>
+
+        <!-- Build test-ra-validation -->
+        <mkdir dir="${basedir}/target/test-ra-validation/META-INF"/>
+        <copy todir="${basedir}/target/test-ra-validation/META-INF">
+            <fileset dir="${basedir}/src/test/resources/resource-adaptor-validation"/>
+        </copy>
+        <jar destfile="${basedir}/target/test-ra-validation.rar" basedir="${basedir}/target/test-ra-validation"/>
+
+        <!-- Build test-ao-validation -->
+        <mkdir dir="${basedir}/target/test-ao-validation/META-INF"/>
+        <copy todir="${basedir}/target/test-ao-validation/META-INF">
+            <fileset dir="${basedir}/src/test/resources/admin-object-validation"/>
+        </copy>
+        <jar destfile="${basedir}/target/test-ao-validation.rar" basedir="${basedir}/target/test-ao-validation"/>
+
+        <!-- Build test-asb-validation.  Validation using bean validation -->
+        <mkdir dir="${basedir}/target/test-asb-validation/META-INF"/>
+        <copy todir="${basedir}/target/test-asb-validation/META-INF">
+            <fileset dir="${basedir}/src/test/resources/activation-spec-bean-validation"/>
+        </copy>
+        <jar destfile="${basedir}/target/test-asb-validation.rar" basedir="${basedir}/target/test-asb-validation"/>
     </target>
     
 </project>

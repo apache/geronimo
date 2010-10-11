@@ -22,6 +22,8 @@ import javax.resource.spi.InvalidPropertyException;
 import javax.resource.spi.ResourceAdapter;
 import javax.resource.ResourceException;
 
+import javax.validation.constraints.Pattern;
+
 /**
  *
  *
@@ -29,7 +31,21 @@ import javax.resource.ResourceException;
  *
  * */
 public class MockActivationSpec implements ActivationSpec {
+    private String asStringProperty;
+
+    @Pattern(regexp="[\\w]+" )
+    public String getASStringProperty() {
+        return asStringProperty;
+    }
+
+    public void setASStringProperty(String asStringProperty) {
+        this.asStringProperty = asStringProperty;
+    }
+    
     public void validate() throws InvalidPropertyException {
+        if ("FAIL".equals(asStringProperty)) {
+            throw new InvalidPropertyException("FAIL"); 
+        }
     }
 
     public ResourceAdapter getResourceAdapter() {

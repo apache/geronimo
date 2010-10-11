@@ -24,6 +24,7 @@ import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterInternalException;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.xa.XAResource;
+import javax.validation.constraints.Pattern;
 
 /**
  *
@@ -58,6 +59,7 @@ public class MockResourceAdapter implements ResourceAdapter {
         return new XAResource[0];
     }
 
+    @Pattern(regexp="[\\w]+" )
     public String getRAStringProperty() {
         return raStringProperty;
     }
