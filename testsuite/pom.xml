@@ -95,7 +95,7 @@
         <module>security-testsuite</module>
         <module>web-testsuite</module>
         <module>webservices-testsuite</module>
-        <module>cluster-testsuite</module>
+        <!--module>cluster-testsuite</module-->
     </modules>
 
     <build>
