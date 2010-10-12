@@ -313,6 +313,7 @@ public class PluginMetadataGeneratorMojo
                     && (dependencyType.getType().equals(removeTarget.type))
                     && (dependencyType.getVersion().equals(removeTarget.version))) {
                 sourceList.remove(dependencyType);
+                break;
             }
         }
     }
