@@ -27,7 +27,7 @@
       <sys:groupId>${project.groupId}</sys:groupId>
       <sys:artifactId>${project.artifactId}</sys:artifactId>
       <sys:version>${project.version}</sys:version>
-      <sys:type>car</sys:type>
+      <sys:type>war</sys:type>
     </sys:moduleId>
     <sys:dependencies/>
     <sys:hidden-classes/>
