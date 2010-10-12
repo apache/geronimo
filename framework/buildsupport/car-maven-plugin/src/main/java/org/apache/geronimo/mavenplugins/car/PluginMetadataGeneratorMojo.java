@@ -307,14 +307,16 @@ public class PluginMetadataGeneratorMojo
     }
     
     private void removeIncludedModule(List<DependencyType> sourceList, Dependency removeTarget) {
+       
         for (DependencyType dependencyType : sourceList) {
-            if ((dependencyType.getArtifactId().equals(removeTarget.artifactId))
-                    && (dependencyType.getGroupId().equals(removeTarget.groupId))
-                    && (dependencyType.getType().equals(removeTarget.type))
-                    && (dependencyType.getVersion().equals(removeTarget.version))) {
+            
+            if (dependencyType.toArtifact().equals(removeTarget.toArtifactType().toArtifact())){
+                
                 sourceList.remove(dependencyType);
-                break;
             }
+            
+            break;
+            
         }
     }
 
