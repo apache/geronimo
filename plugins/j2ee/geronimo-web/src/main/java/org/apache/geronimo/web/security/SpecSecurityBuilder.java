@@ -113,12 +113,12 @@ public class SpecSecurityBuilder {
                 for (String urlPattern : webResourceCollection.urlPatterns) {
                     if (currentPatterns == null) {
                         for (String roleName : roleNames) {
-                            currentPatterns = rolesPatterns.get(roleName);
-                            if (currentPatterns == null) {
-                                currentPatterns = new HashMap<String, URLPattern>();
-                                rolesPatterns.put(roleName, currentPatterns);
+                            Map<String, URLPattern> currentRolePatterns = rolesPatterns.get(roleName);
+                            if (currentRolePatterns == null) {
+                                currentRolePatterns = new HashMap<String, URLPattern>();
+                                rolesPatterns.put(roleName, currentRolePatterns);
                             }
-                            analyzeURLPattern(urlPattern, webResourceCollection.httpMethods, webResourceCollection.omission, transport, currentPatterns);
+                            analyzeURLPattern(urlPattern, webResourceCollection.httpMethods, webResourceCollection.omission, transport, currentRolePatterns);
                         }
                     } else {
                         analyzeURLPattern(urlPattern, webResourceCollection.httpMethods, webResourceCollection.omission, transport, currentPatterns);
@@ -176,8 +176,9 @@ public class SpecSecurityBuilder {
             policyConfiguration.addToExcludedPolicy(new WebUserDataPermission(name, actions));
         }
         for (Map.Entry<String, Map<String, URLPattern>> entry : rolesPatterns.entrySet()) {
+            Set<URLPattern> currentRolePatterns = new HashSet<URLPattern>(entry.getValue().values());
             for (URLPattern pattern : entry.getValue().values()) {
-                String name = pattern.getQualifiedPattern(allSet);
+                String name = pattern.getQualifiedPattern(currentRolePatterns);
                 String actions = pattern.getMethods();
                 WebResourcePermission permission = new WebResourcePermission(name, actions);
                 policyConfiguration.addToRole(entry.getKey(), permission);
