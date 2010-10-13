@@ -57,7 +57,7 @@ public enum EncryptionSetting {
         if (name == null) throw new NullPointerException("Name missing");
         if (type == null) throw new NullPointerException("type missing");
         if (!String.class.getName().equals(type)) return PLAINTEXT;
-        return (name.toLowerCase().indexOf("password") > -1)? ENCRYPTED: PLAINTEXT;
+        return (name.toLowerCase().contains("password") || name.toLowerCase().contains("keystorepass") || name.toLowerCase().contains("truststorepass"))? ENCRYPTED: PLAINTEXT;
     }
 
 }
