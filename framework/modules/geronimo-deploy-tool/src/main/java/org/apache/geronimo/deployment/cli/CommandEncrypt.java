@@ -22,6 +22,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.util.ConfiguredEncryption;
+import org.apache.geronimo.system.util.EncryptionManagerWrapperGBean; 
 
 /**
  * The CLI command to encrypt a given string.
