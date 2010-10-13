@@ -50,7 +50,7 @@ public class EncryptionManager {
         ENCRYPTORS.put("{Standard}", SimpleEncryption.INSTANCE);
     }
 
-    private static String encryptionPrefix = SIMPLE_ENCRYPTION_PREFIX;
+    private static String activeEncryptionPrefix = SIMPLE_ENCRYPTION_PREFIX;
 
     /**
      * Encryption instances should call this to register themselves.
@@ -59,8 +59,8 @@ public class EncryptionManager {
      * @param encryption Encryption instance to do the work.
      */
     public synchronized static void setEncryptionPrefix(String prefix, Encryption encryption) {
-        if (SIMPLE_ENCRYPTION_PREFIX.equals(encryptionPrefix)) {
-            encryptionPrefix = prefix;
+        if (activeEncryptionPrefix.equals(SIMPLE_ENCRYPTION_PREFIX)) {  //only can be set once?
+            activeEncryptionPrefix = prefix;
         }
         ENCRYPTORS.put(prefix, encryption);
     }
@@ -75,14 +75,14 @@ public class EncryptionManager {
     public static String encrypt(Serializable source) {
         if (source instanceof String) {
             String sourceString = (String) source;
-            if (sourceString.startsWith(encryptionPrefix)) {
+            if (sourceString.startsWith(activeEncryptionPrefix)) {
                 return (String) source;
             } else if (sourceString.startsWith("{")) {
                 source = decrypt(sourceString);
             }
         }
-        Encryption encryption = ENCRYPTORS.get(encryptionPrefix);
-        return encryptionPrefix + encryption.encrypt(source);
+        Encryption activeEncryption = ENCRYPTORS.get(activeEncryptionPrefix);
+        return activeEncryptionPrefix + activeEncryption.encrypt(source);
     }
 
     /**
