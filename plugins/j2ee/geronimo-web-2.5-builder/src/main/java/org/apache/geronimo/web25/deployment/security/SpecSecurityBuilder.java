@@ -28,21 +28,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebUserDataPermission;
-import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.PolicyConfiguration;
 import javax.security.jacc.PolicyContextException;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebRoleRefPermission;
+import javax.security.jacc.WebUserDataPermission;
 
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.xbeans.javaee.RoleNameType;
 import org.apache.geronimo.xbeans.javaee.SecurityConstraintType;
+import org.apache.geronimo.xbeans.javaee.SecurityRoleRefType;
+import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
+import org.apache.geronimo.xbeans.javaee.ServletType;
 import org.apache.geronimo.xbeans.javaee.UrlPatternType;
 import org.apache.geronimo.xbeans.javaee.WebAppType;
 import org.apache.geronimo.xbeans.javaee.WebResourceCollectionType;
-import org.apache.geronimo.xbeans.javaee.SecurityRoleType;
-import org.apache.geronimo.xbeans.javaee.ServletType;
-import org.apache.geronimo.xbeans.javaee.SecurityRoleRefType;
 
 /**
  * @version $Rev$ $Date$
@@ -106,19 +106,17 @@ public class SpecSecurityBuilder {
                 transport = securityConstraintType.getUserDataConstraint().getTransportGuarantee().getStringValue().trim().toUpperCase();
             }
 
-            WebResourceCollectionType[] webResourceCollectionTypeArray = securityConstraintType.getWebResourceCollectionArray();
-            for (WebResourceCollectionType webResourceCollectionType : webResourceCollectionTypeArray) {
-                UrlPatternType[] urlPatternTypeArray = webResourceCollectionType.getUrlPatternArray();
-                for (UrlPatternType urlPatternType : urlPatternTypeArray) {
+            for (WebResourceCollectionType webResourceCollectionType : securityConstraintType.getWebResourceCollectionArray()) {
+                for (UrlPatternType urlPatternType : webResourceCollectionType.getUrlPatternArray()) {
                     String url = urlPatternType.getStringValue().trim();
                     if(currentPatterns == null) {
                         for (String roleName : roleNames) {
-                            currentPatterns = rolesPatterns.get(roleName);
-                            if (currentPatterns == null) {
-                                currentPatterns = new HashMap<String, URLPattern>();
-                                rolesPatterns.put(roleName, currentPatterns);
+                            Map<String, URLPattern> currentRolePatterns = rolesPatterns.get(roleName);
+                            if (currentRolePatterns == null) {
+                                currentRolePatterns = new HashMap<String, URLPattern>();
+                                rolesPatterns.put(roleName, currentRolePatterns);
                             }
-                            analyzeURLPattern(url, webResourceCollectionType.getHttpMethodArray(), transport, currentPatterns);
+                            analyzeURLPattern(url, webResourceCollectionType.getHttpMethodArray(), transport, currentRolePatterns);
                         }
                     } else {
                         analyzeURLPattern(url, webResourceCollectionType.getHttpMethodArray(), transport, currentPatterns);
@@ -185,8 +183,9 @@ public class SpecSecurityBuilder {
             }
         }
         for (Map.Entry<String, Map<String, URLPattern>> entry : rolesPatterns.entrySet()) {
+            Set<URLPattern> currentRolePatterns = new HashSet<URLPattern>(entry.getValue().values());
             for (URLPattern pattern : entry.getValue().values()) {
-                String name = pattern.getQualifiedPattern(allSet);
+                String name = pattern.getQualifiedPattern(currentRolePatterns);
                 String actions = pattern.getMethods();
                 WebResourcePermission permission = new WebResourcePermission(name, actions);
                 policyConfiguration.addToRole(entry.getKey(), permission);
