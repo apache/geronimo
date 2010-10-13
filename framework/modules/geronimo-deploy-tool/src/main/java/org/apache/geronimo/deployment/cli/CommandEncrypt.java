@@ -44,7 +44,7 @@ public class CommandEncrypt extends AbstractCommand {
             if (!isOffline(connection)) {
                 // Online encryption            
                 Kernel k = getKernel(connection);
-                Object ret = k.invoke(ConfiguredEncryption.class, "encrypt", new Object[] {commandArgs.getArgs()[0]}, new String[] {"java.lang.String"});
+                Object ret = k.invoke(EncryptionManagerWrapperGBean.class, "encrypt", new Object[] {commandArgs.getArgs()[0]}, new String[] {"java.io.Serializable"});
                 consoleReader.printString(DeployUtils.reformat("Online encryption result: "+ret, 4, 72));
             } else {
                 // Offline encryption
