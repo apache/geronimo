@@ -21,7 +21,6 @@ import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.crypto.EncryptionManager;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.system.util.ConfiguredEncryption;
 import org.apache.geronimo.system.util.EncryptionManagerWrapperGBean; 
 
 /**
