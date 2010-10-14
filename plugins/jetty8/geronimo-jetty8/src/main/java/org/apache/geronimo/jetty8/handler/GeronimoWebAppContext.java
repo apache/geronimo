@@ -147,6 +147,16 @@ public class GeronimoWebAppContext extends WebAppContext {
                      entry.getKey().onStartup(entry.getValue(), getServletContext());
                 }
                 super.doStart();
+                if (!isAvailable()) {
+                    Throwable e = getUnavailableException();
+                    if (e instanceof Exception) {
+                        throw (Exception)e;
+                    }
+                    if (e instanceof Throwable) {
+                        throw new Exception("Could not start web app", e);
+                    }
+                    throw new Exception("Could not start web app for unknown reason");
+                }
                 if (applicationPolicyConfigurationManager != null) {
                     SpecSecurityBuilder specSecurityBuilder = new SpecSecurityBuilder(webSecurityConstraintStore.exportMergedWebAppInfo());
                     Map<String, ComponentPermissions> contextIdPermissionsMap = new HashMap<String, ComponentPermissions>();
