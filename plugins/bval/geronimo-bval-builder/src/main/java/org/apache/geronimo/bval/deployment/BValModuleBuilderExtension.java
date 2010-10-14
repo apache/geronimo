@@ -54,6 +54,8 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -63,6 +65,8 @@ import org.xml.sax.SAXException;
  */
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class BValModuleBuilderExtension implements ModuleBuilderExtension {
+    private static final Logger log = LoggerFactory.getLogger(BValModuleBuilderExtension.class);
+    
     // our default environment
     protected Environment defaultEnvironment;
 
@@ -104,7 +108,7 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
                 // No validation.xml file
                 validationConfig = null;
             } else {
-                // Parse the validation xml and throw deployment exception if there are any errors
+                // Parse the validation xml and log debug messages if there are any errors
                 URL schemaUrl = ValidationParser.class.getClassLoader().getResource("META-INF/validation-configuration-1.0.xsd");
                 SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                 InputStream inp = null;
@@ -123,9 +127,9 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
                         for (JAXBElement<String> mappingFileNameElement : xmlConfig.getConstraintMapping()) {
                             String mappingFileName = mappingFileNameElement.getValue();
                             if(bundle.getEntry(mappingFileName) == null) {
-                                throw new DeploymentException("Non-existent constraint mapping file "+mappingFileName+" specified in "+validationConfig);
+                                log.debug("Non-existent constraint mapping file "+mappingFileName+" specified in "+validationConfig+" in module "+module.getName());
                             } else {
-                                // Parse the constraint mappings file and throw deployment exception if there are any errors
+                                // Parse the constraint mappings file and log debug messages if there are any errors
                                 InputStream inp1 = null;
                                 try { 
                                     jc = JAXBContext.newInstance(ConstraintMappingsType.class);
@@ -136,9 +140,9 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
                                     JAXBElement<ConstraintMappingsType> mappingRoot = unmarshaller.unmarshal(stream, ConstraintMappingsType.class);
                                     ConstraintMappingsType constraintMappings = mappingRoot.getValue();
                                 } catch (JAXBException e) {
-                                    throw new DeploymentException("Error processing constraint mapping file "+mappingFileName+" specified in "+validationConfig, e);
+                                    log.debug("Error processing constraint mapping file "+mappingFileName+" specified in "+validationConfig+" in module "+module.getName(), e);
                                 } catch (IOException e) {
-                                    throw new DeploymentException("Error processing constraint mapping file "+mappingFileName+" specified in "+validationConfig, e);
+                                    log.debug("Error processing constraint mapping file "+mappingFileName+" specified in "+validationConfig+" in module "+module.getName(), e);
                                 } finally {
                                     IOUtils.close(inp1);
                                 }
@@ -146,11 +150,11 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
                         }
                     }
                 } catch (SAXException e) {
-                    throw new DeploymentException("Error processing validation configuration "+validationConfig, e);
+                    log.debug("Error processing validation configuration "+validationConfig+" in module "+module.getName(), e);
                 } catch (JAXBException e) {
-                    throw new DeploymentException("Error processing validation configuration "+validationConfig, e);
+                    log.debug("Error processing validation configuration "+validationConfig+" in module "+module.getName(), e);
                 } catch (IOException e) {
-                    throw new DeploymentException("Error processing validation configuration "+validationConfig, e);
+                    log.debug("Error processing validation configuration "+validationConfig+" in module "+module.getName(), e);
                 } finally {
                     IOUtils.close(inp);
                 }
