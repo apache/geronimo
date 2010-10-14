@@ -692,8 +692,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         if (jettyWebApp.isSetSecurityRealmName()) {
             securityRealmName = jettyWebApp.getSecurityRealmName().trim();
         } else {
-            if (loginConfigInfo == null) return;
-            securityRealmName = loginConfigInfo.realmName.trim();
+            if (loginConfigInfo == null ||loginConfigInfo.realmName == null) return;
+            securityRealmName = loginConfigInfo.realmName;
         }
         AbstractNameQuery configurationFactoryName = new AbstractNameQuery(null, Collections.singletonMap("name", securityRealmName), ConfigurationFactory.class.getName());
         securityFactoryData.setReferencePattern("ConfigurationFactory", configurationFactoryName);
