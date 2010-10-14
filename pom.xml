@@ -2232,6 +2232,10 @@
 
         <profile>
             <id>all-subprojects</id>
+            <properties> 
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+            <!-- mvn release:prepare -DdryRun=true -Pall-subprojects -Papache-release -Dtest=false -->
 
             <modules>
                 <module>testsupport</module>
