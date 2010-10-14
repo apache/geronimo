@@ -25,6 +25,7 @@ public enum EncryptionSetting {
     ENCRYPTED {
         public Object encrypt(Object plaintext) {
             if (plaintext == null) return null;
+            if (plaintext.equals("")) return "";
             return EncryptionManager.encrypt((String)plaintext);
         }
         public Object decrypt(Object encrypted) {
