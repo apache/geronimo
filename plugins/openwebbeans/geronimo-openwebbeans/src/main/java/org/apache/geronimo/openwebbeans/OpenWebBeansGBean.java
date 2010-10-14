@@ -17,35 +17,66 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.openwebbeans;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
-
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.webbeans.config.OpenWebBeansConfiguration;
+import org.apache.webbeans.spi.JNDIService;
+import org.apache.webbeans.web.context.WebContextsService;
+import org.apache.webbeans.web.lifecycle.WebContainerLifecycle;
+import org.osgi.framework.BundleContext;
 
 /**
- * For help on using gbean annotations see:
- * http://cwiki.apache.org/GMOxDOC22/gbean-annotations.html
  *  
  * @version $Rev: 698441 $ $Date: 2008-09-24 00:10:08 -0700 (Wed, 24 Sep 2008) $
  */
 @GBean
 public class OpenWebBeansGBean implements GBeanLifecycle {
     
-
-    public OpenWebBeansGBean() {
+    public OpenWebBeansGBean(@ParamSpecial(type = SpecialAttributeType.bundleContext) final BundleContext bundleContext,
+                             @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) {
+        setConfiguration(OpenWebBeansConfiguration.getInstance());
     }
 
+    private void setConfiguration(OpenWebBeansConfiguration configuration) {
+        configuration.setProperty(OpenWebBeansConfiguration.APPLICATION_IS_JSP, "true");
+        
+        configuration.setProperty(OpenWebBeansConfiguration.CONTAINER_LIFECYCLE, WebContainerLifecycle.class.getName());
+        configuration.setProperty(OpenWebBeansConfiguration.JNDI_SERVICE, NoopJndiService.class.getName());
+        configuration.setProperty(OpenWebBeansConfiguration.SCANNER_SERVICE, OsgiMetaDataScannerService.class.getName());
+        configuration.setProperty(OpenWebBeansConfiguration.CONTEXTS_SERVICE, WebContextsService.class.getName());
+    }
 
     public void doStart() {
+        System.out.println("Start OpenWebBeansGBean");
     }
 
     public void doStop() {
+        System.out.println("Stop OpenWebBeansGBean");
     }
 
     public void doFail() {
         doStop();
+    }
+    
+    public static class NoopJndiService implements JNDIService {
+
+        public void bind(String name, Object object) {
+            System.out.println("Bind");
+        }
+
+        public <T> T lookup(String name, Class<? extends T> expectedClass) {
+            System.out.println("Lookup");
+            return null;
+        }
+
+        public void unbind(String name) {
+            System.out.println("Unbind");
+        }
+        
     }
 
 }

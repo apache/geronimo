@@ -20,6 +20,4 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="OpenWebBeansGBean" class="org.apache.geronimo.openwebbeans.OpenWebBeansGBean"/>
-
 </module>

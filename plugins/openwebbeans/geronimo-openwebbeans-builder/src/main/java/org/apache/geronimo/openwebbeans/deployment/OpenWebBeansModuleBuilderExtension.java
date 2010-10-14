@@ -40,9 +40,12 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.openwebbeans.OpenWebBeansGBean;
+import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.openejb.jee.WebApp;
 import org.apache.webbeans.servlet.WebBeansConfigurationListener;
 import org.apache.xbean.finder.ClassFinder;
@@ -108,24 +111,20 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
             return;
         }
         
-        // Don't do anything for now
-        if (true) {
+        WebModule webModule = (WebModule) module;
+                
+        if (!hasBeansXml(bundle)) {
             return;
         }
         
-        WebModule webModule = (WebModule) module;
-        WebApp webApp = (WebApp) webModule.getSpecDD();
-
         EARContext moduleContext = module.getEarContext();
         Map sharedContext = module.getSharedContext();
-
-        // add the ServletContextListener to the web app context
+        //add the ServletContextListener to the web app context
         GBeanData webAppData = (GBeanData) sharedContext.get(WebModule.WEB_APP_DATA);
-
-        // add web beans listener
-        Object value = webAppData.getAttribute("listenerClassNames");
-        if (value instanceof Collection && !((Collection) value).contains(CONTEXT_LISTENER_NAME)) {
-            ((Collection<String>) value).add(CONTEXT_LISTENER_NAME);
+        // add myfaces listener
+        WebAppInfo webAppInfo = (WebAppInfo) webAppData.getAttribute("webAppInfo");
+        if (webAppInfo != null && !webAppInfo.listeners.contains(CONTEXT_LISTENER_NAME)) {
+            webAppInfo.listeners.add(CONTEXT_LISTENER_NAME);
         }
         AbstractName moduleName = moduleContext.getModuleName();
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
@@ -134,46 +133,39 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         //use the same holder object as the web app.
         Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
         buildingContext.put(NamingBuilder.INJECTION_KEY, holder);
-        
+
+        WebApp webApp = webModule.getSpecDD();
         XmlObject jettyWebApp = webModule.getVendorDD();
 
         ClassFinder classFinder = createOpenWebBeansClassFinder(webApp, webModule);
         webModule.setClassFinder(classFinder);
 
-        namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);
+        namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);    
+        
+        AbstractName webBeansGBeanName = moduleContext.getNaming().createChildName(moduleName, "webbeans-lifecycle", "webbeans");
+        GBeanData providerData = new GBeanData(webBeansGBeanName, OpenWebBeansGBean.class);
+        try {
+            moduleContext.addGBean(providerData);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Duplicate webbean config gbean in web module", e);
+        }
+
+        //make the web app start second after the webbeans machinery
+        webAppData.addDependency(webBeansGBeanName);
     }
 
+    private boolean hasBeansXml(Bundle bundle) {
+        return bundle.getEntry("WEB-INF/beans.xml") != null || bundle.getResource("META-INF/beans.xml") != null;                
+    }
+   
     protected ClassFinder createOpenWebBeansClassFinder(WebApp webApp, WebModule webModule)
-            throws DeploymentException {
+        throws DeploymentException {
         List<Class> classes = getManagedClasses(webApp, webModule);
         return new ClassFinder(classes);
-    }
-
-    /**
-     * getManagedClasses()
-     * <p/>
-     * <p>
-     * Locations to search for the webbean configuration file(s):
-     * <ol>
-     * <li>META-INF/beans.xml
-     * <li>WEB-INF/beans.xml
-     * </ol>
-     * <p/>
-     * <p>
-     * <strong>Notes:</strong>
-     * <ul>
-     * </ul>
-     * 
-     * @param webApp
-     *            spec DD for module
-     * @param webModule
-     *            module being deployed
-     * @return list of all bean classes from libs that contains beans.xml.
-     * @throws org.apache.geronimo.common.DeploymentException
-     *           
-     */
+    }    
+ 
     private List<Class> getManagedClasses(WebApp webApp, WebModule webModule) throws DeploymentException {     
         return Collections.EMPTY_LIST;
-    }    
-
+    }  
+    
 }

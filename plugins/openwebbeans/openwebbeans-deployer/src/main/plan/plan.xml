@@ -33,6 +33,25 @@
                         <type>car</type>
                     </dependency>
                 </dependencies>
+                <!-- Import added so that MyFaces can discover 
+                     META-INF/faces-config.xml in openwebbeans-jsf bundle -->
+                <import-package>org.apache.webbeans.jsf</import-package>
+                <import-package>javassist</import-package>
+                <import-package>javassist.bytecode</import-package>
+                <import-package>javassist.bytecode.annotation</import-package>
+                <import-package>javassist.bytecode.stackmap</import-package>
+                <import-package>javassist.compiler</import-package>
+                <import-package>javassist.compiler.ast</import-package>
+                <import-package>javassist.convert</import-package>
+                <import-package>javassist.expr</import-package>
+                <import-package>javassist.runtime</import-package>
+                <import-package>javassist.scopedpool</import-package>
+                <import-package>javassist.tools</import-package>
+                <import-package>javassist.tools.reflect</import-package>
+                <import-package>javassist.tools.rmi</import-package>
+                <import-package>javassist.tools.web</import-package>
+                <import-package>javassist.util</import-package>
+                <import-package>javassist.util.proxy</import-package>
             </environment>
         </xml-attribute>
     </gbean>
