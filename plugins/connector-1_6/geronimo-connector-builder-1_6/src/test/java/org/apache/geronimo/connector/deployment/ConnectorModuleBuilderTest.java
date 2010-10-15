@@ -726,6 +726,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 
     protected void tearDown() throws Exception {
         kernel.shutdown();
+        ((MockConfigStore)configurationStore).cleanup(); 
         super.tearDown();
     }
 

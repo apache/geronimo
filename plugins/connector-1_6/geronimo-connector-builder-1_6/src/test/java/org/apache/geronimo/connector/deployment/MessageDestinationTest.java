@@ -100,6 +100,11 @@ public class MessageDestinationTest extends TestCase {
         baseName = naming.createRootName(configuration.getId(), "testRoot", NameFactory.RESOURCE_ADAPTER_MODULE);
     }
 
+    protected void tearDown() throws Exception {
+        configStore.cleanup(); 
+        super.tearDown();
+    }
+
     private static final String SPECDD1 = "<web-app xmlns=\"http://java.sun.com/xml/ns/j2ee\">" +
             "<message-destination><message-destination-name>d1</message-destination-name></message-destination>" +
             "<message-destination><message-destination-name>d2</message-destination-name></message-destination>" +

@@ -749,6 +749,7 @@ public class ConfigurationManagerTest extends TestCase {
 
     protected void tearDown() throws Exception {
         kernel.shutdown();
+        ((MockConfigStore)configStore).cleanup(); 
         super.tearDown();
     }
 

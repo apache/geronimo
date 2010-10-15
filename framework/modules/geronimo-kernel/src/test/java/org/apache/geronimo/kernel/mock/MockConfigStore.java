@@ -20,9 +20,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.List; 
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -48,6 +50,8 @@ public class MockConfigStore
 
     protected final Map<Artifact, File> locations = new HashMap<Artifact, File>();
     private Map<Artifact, ConfigurationData> configs = new HashMap<Artifact, ConfigurationData>();
+    private List<File> createdLocations = new ArrayList<File>(); 
+    
 
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         configs.put(configurationData.getId(), configurationData);
@@ -76,6 +80,7 @@ public class MockConfigStore
         try {
             File file = createTempDir();
             locations.put(configId, file);
+            createdLocations.add(file); 
             return file;
         } catch (IOException e) {
             return null;
@@ -96,9 +101,20 @@ public class MockConfigStore
         }
         locations.put(configId, file);
     }
+    
+    /**
+     * Attempt to cleanup and temp directories associated with 
+     * this Mock config store. 
+     */
+    public void cleanup() {
+        for (File file: createdLocations) {
+            FileUtils.recursiveDelete(file);
+        }
+        createdLocations.clear(); 
+    }
 
     private static File createTempDir() throws IOException {
-        File tempDir = File.createTempFile("geronimo-deploymentUtil", ".tmpdir");
+        File tempDir = File.createTempFile("mock-geronimo-deploymentUtil", ".tmpdir");
         tempDir.delete();
         tempDir.mkdirs();
         return tempDir;

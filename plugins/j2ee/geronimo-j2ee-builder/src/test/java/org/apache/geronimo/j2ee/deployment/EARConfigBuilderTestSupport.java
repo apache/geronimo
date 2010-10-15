@@ -145,6 +145,11 @@ public abstract class EARConfigBuilderTestSupport
         defaultParentId.addDependency(new Artifact("org.apache.geronimo.tests", "test", "1", "car"), ImportType.ALL);
     }
 
+    protected void tearDown() throws Exception {
+        configStore.cleanup(); 
+        super.tearDown();
+    }
+
     public void testBuildConfiguration() throws Exception {
         ConfigurationData configurationData = null;
         DeploymentContext context = null;

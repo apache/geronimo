@@ -105,6 +105,11 @@ public class SingleFileHotDeployerTest extends TestSupport {
         configurationManager = new MockConfigurationManager();
     }
 
+    protected void tearDown() throws Exception {
+        store.cleanup(); 
+        super.tearDown();
+    }
+
     private void touch(File file, long lastModified) throws IOException {
         file.createNewFile();
         file.setLastModified(lastModified);

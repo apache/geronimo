@@ -326,7 +326,7 @@ public class Deployer implements GBeanLifecycle {
             DeploymentContext context) throws DeploymentException, IOException, Throwable {
         List<ConfigurationData> configurationDatas = new ArrayList<ConfigurationData>();
 
-        boolean configsCleanupRequired = false;
+        boolean configsCleanupRequired = true;
 
         // Set TCCL to the classloader for the configuration being deployed
         // so that any static blocks invoked during the loading of classes
