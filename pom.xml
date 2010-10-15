@@ -2145,7 +2145,7 @@
             <repository>
                   <id>openejb313staging</id>
                   <name>openejb 3.13 staging repo</name>
-                  <url>https://repository.apache.org/content/repositories/orgapacheopenejb-017/</url>
+                  <url>https://repository.apache.org/content/repositories/orgapacheopenejb-006/</url>
                   <layout>default</layout>
                   <releases>
                       <enabled>true</enabled>
