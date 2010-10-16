@@ -2153,19 +2153,7 @@
                   <snapshots>
                       <enabled>false</enabled>
                   </snapshots>
-            </repository>
-            <repository>
-                  <id>txmanager22staging</id>
-                  <name>txmanager 2.2 staging repo</name>
-                  <url>https://repository.apache.org/content/repositories/orgapachegeronimo-011/</url>
-                  <layout>default</layout>
-                  <releases>
-                      <enabled>true</enabled>
-                  </releases>
-                  <snapshots>
-                      <enabled>false</enabled>
-                  </snapshots>
-            </repository>            
+            </repository>   
             
     </repositories>    
     
