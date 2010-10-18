@@ -258,7 +258,7 @@ public class ArchiveCarMojo
                     archiver.getArchiver().setFilesetmanifest(mergeFilesetManifestConfig);
                 } else {
                     //File configFile = new File(new File(getArtifactInRepositoryDir(), "META-INF"), "imports.txt");
-                    ZipEntry importTxtEntry = includedJarFile.getEntry("META-INFO/imports.txt");
+                    ZipEntry importTxtEntry = includedJarFile.getEntry("META-INF/imports.txt");
                     if (importTxtEntry != null) {
                         StringBuilder imports = new StringBuilder("org.apache.geronimo.kernel.osgi,");
                         if (boot) {
