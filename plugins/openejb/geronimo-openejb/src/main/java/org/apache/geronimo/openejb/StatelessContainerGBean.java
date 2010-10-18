@@ -38,14 +38,36 @@ public class StatelessContainerGBean extends EjbContainer {
      * result in a time-out of 5 milliseconds between invocations.
      * A value of zero would mean no timeout.
      */
-    private final int timeout;
+    private final int accessTimeout;
+    
+    /**
+     * PostConstruct methods are invoked on all instances in the pool
+     * when the bean is undeployed and its pool is closed.  The
+     * CloseTimeout specifies the maximum time to wait for the pool to
+     *  close and PostConstruct methods to be invoked.
+     */
+    private int closeTimeout;
 
     /**
      * Specifies the size of the bean pools for this
      * stateless SessionBean container.
      */
 
-    private final int poolSize;
+    private final int maxSize;
+    
+    
+    /** Specifies the minimum number of bean instances that should be
+     * in this stateless SessionBean container  
+     */
+     private int minSize;
+     
+     
+	/**
+	 * Specifies the maximum time that an instance should be allowed to sit idly
+	 * in the pool without use before it should be retired and removed.
+	 */
+      private int idleTimeout;
+     
 
     /**
      * StrictPooling tells the container what to do when the pool
@@ -67,28 +89,49 @@ public class StatelessContainerGBean extends EjbContainer {
             @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abstractName,
             @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
             @ParamAttribute(name = "provider") String provider,
-            @ParamAttribute(name = "poolSize") int poolSize,
+            @ParamAttribute(name = "maxSize") int maxSize,
+            @ParamAttribute(name = "minSize") int minSize,
             @ParamAttribute(name = "strictPooling") boolean strictPooling,
-            @ParamAttribute(name = "timeout") int timeout,
+            @ParamAttribute(name = "accessTimeout") int accessTimeout,
+            @ParamAttribute(name = "closeTimeout") int closeTimeout,
+            @ParamAttribute(name = "idleTimeout") int idleTimeout,            
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, StatelessSessionContainerInfo.class, openEjbSystem, provider, "STATELESS", properties);
-        set("PoolSize", Integer.toString(poolSize));
+        set("MaxSize", Integer.toString(maxSize));
+        set("MinSize", Integer.toString(minSize));        
         set("StrictPooling", Boolean.toString(strictPooling));
-        set("TimeOut", Integer.toString(timeout));
-        this.poolSize = poolSize;
+        set("AccessTimeout", Integer.toString(accessTimeout));
+        set("CloseTimeout", Integer.toString(closeTimeout));
+        set("IdleTimeout", Integer.toString(idleTimeout));
+        this.maxSize = maxSize;
+        this.minSize= minSize;
         this.strictPooling = strictPooling;
-        this.timeout = timeout;
+        this.accessTimeout = accessTimeout;
+        this.closeTimeout=closeTimeout;
+        this.idleTimeout=idleTimeout;        
     }
 
     public int getPoolSize() {
-        return poolSize;
+        return maxSize;
     }
 
     public boolean isStrictPooling() {
         return strictPooling;
     }
 
-    public int getTimeout() {
-        return timeout;
+    public int getAccessTimeout() {
+        return accessTimeout;
+    }
+
+    public int getCloseTimeout() {
+        return closeTimeout;
+    }
+    
+    public int getIdleTimeout() {
+        return idleTimeout;
+    }    
+
+    public int getPoolMin() {
+        return minSize;
     }
 }

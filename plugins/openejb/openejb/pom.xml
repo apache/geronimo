@@ -163,11 +163,11 @@
                                 </gbean>
                                 <gbean name="DefaultStatefulContainer">
                                     <attribute name="timeout">${StatefulTimeout}</attribute>
-                                    <attribute name="capacity">${Capacity}</attribute>
-                                    <attribute name="bulkPassivate">${BulkPassivate}</attribute>
+                                    <attribute name="capacity">${StatefulCapacity}</attribute>
+                                    <attribute name="bulkPassivate">${StatefulBulkPassivate}</attribute>
                                 </gbean>
                                 <gbean name="DefaultSingletonContainer">
-                                    <attribute name="accessTimeout">${AccessTimeout}</attribute>
+                                    <attribute name="accessTimeout">${SingletonAccessTimeout}</attribute>
                                 </gbean>
                                 <gbean name="DefaultBMPContainer">
                                     <attribute name="poolSize">${BMPPoolSize}</attribute>
@@ -175,18 +175,20 @@
                                 <gbean name="DefaultStatelessContainer">
                                     <attribute name="timeout">${StatelessTimeout}</attribute>
                                     <attribute name="poolSize">${StatelessPoolSize}</attribute>
-                                    <attribute name="strictPooling">${StrictPooling}</attribute>
+                                    <attribute name="strictPooling">${StatelessStrictPooling}</attribute>
+                                    <attribute name="idleTimeout">${StatelessIdleTimeout}</attribute>                                      
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="OpenEJBPort">4201</config-substitution>
                             <config-substitution key="StatefulTimeout">20</config-substitution>
-                            <config-substitution key="Capacity">1000</config-substitution>
-                            <config-substitution key="BulkPassivate">100</config-substitution>
-                            <config-substitution key="AccessTimeout">30</config-substitution>
+                            <config-substitution key="StatefulCapacity">1000</config-substitution>
+                            <config-substitution key="StatefulBulkPassivate">100</config-substitution>
+                            <config-substitution key="SingletonAccessTimeout">30</config-substitution>
                             <config-substitution key="BMPPoolSize">10</config-substitution>
                             <config-substitution key="StatelessTimeout">0</config-substitution>
                             <config-substitution key="StatelessPoolSize">10</config-substitution>
-                            <config-substitution key="StrictPooling">true</config-substitution>
+                            <config-substitution key="StatelessStrictPooling">true</config-substitution>
+                            <config-substitution key="StatelessIdleTimeout">0</config-substitution>                               
                             <config-substitution key="MulticastDiscoveryAddress">239.255.3.2</config-substitution>
                             <config-substitution key="MulticastDiscoveryPort">6142</config-substitution>
                             <config-substitution key="ClusterName">cluster1</config-substitution>
