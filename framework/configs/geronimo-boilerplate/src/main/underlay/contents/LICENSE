@@ -530,7 +530,7 @@ The following artifacts are covered by the Apache License Version 2.0:
 ./repository/org/apache/geronimo/specs/geronimo-servlet_2.5_spec/1.2/geronimo-servlet_2.5_spec-1.2.jar
 ./repository/org/apache/geronimo/specs/geronimo-stax-api_1.0_spec/1.0.1/geronimo-stax-api_1.0_spec-1.0.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-ws-metadata_2.0_spec/1.1.2/geronimo-ws-metadata_2.0_spec-1.1.2.jar
-./repository/org/apache/geronimo/ext/tomcat/catalina/6.0.20.0/catalina-6.0.20.0.jar
+./repository/org/apache/geronimo/ext/tomcat/catalina/6.0.29.0/catalina-6.0.29.0.jar
 ./repository/org/apache/geronimo/ext/tomcat/catalina-ha/6.0.29.0/catalina-ha-6.0.29.0.jar
 ./repository/org/apache/geronimo/ext/tomcat/jasper/6.0.29.0/jasper-6.0.29.0.jar
 ./repository/org/apache/geronimo/ext/tomcat/jasper-el/6.0.29.0/jasper-el-6.0.29.0.jar
@@ -593,7 +593,7 @@ The following artifacts are covered by the Apache License Version 2.0:
 ./lib/log4j-1.2.15.jar
 ./repository/log4j/log4j/1.2.15/log4j-1.2.15.jar
 ./repository/org/apache/geronimo/framework/geronimo-boilerplate/2.2.1/geronimo-boilerplate-2.2.1.car/contents/lib/log4j-1.2.15.jar
-./lib/xbean-reflect-3.6.jar
+./lib/xbean-reflect-3.7.jar
 ./repository/org/apache/xbean/xbean-spring/3.7/xbean-spring-3.7.jar
 ./repository/org/apache/xbean/xbean-finder/3.7/xbean-finder-3.7.jar
 ./repository/org/apache/xbean/xbean-asm-shaded/3.7/xbean-asm-shaded-3.7.jar
@@ -604,10 +604,10 @@ The following artifacts are covered by the Apache License Version 2.0:
 ./repository/org/apache/activemq/activemq-core/5.4.1/activemq-core-5.4.1.jar
 ./repository/org/apache/activemq/kahadb/5.4.1/kahadb-5.4.1.jar
 ./repository/org/apache/geronimo/configs/activemq-ra/2.2.1/activemq-ra-2.2.1.car/rar/activemq-core-5.4.1.jar
-./repository/org/apache/geronimo/configs/activemq-ra/2.2.1/activemq-ra-2.2.1.car/rar/activemq-protobuf-1.0.jar
+./repository/org/apache/geronimo/configs/activemq-ra/2.2.1/activemq-ra-2.2.1.car/rar/activemq-protobuf-1.1.jar
 ./repository/org/apache/geronimo/configs/activemq-ra/2.2.1/activemq-ra-2.2.1.car/rar/activemq-ra-5.4.1.jar
 ./repository/org/apache/geronimo/configs/activemq-ra/2.2.1/activemq-ra-2.2.1.car/rar/kahadb-5.4.1.jar
-./repository/org/apache/activemq/protobuf/activemq-protobuf/1.0/activemq-protobuf-1.0.jar
+./repository/org/apache/activemq/protobuf/activemq-protobuf/1.1/activemq-protobuf-1.1.jar
 ./repository/org/apache/ant/ant/1.7.1/ant-1.7.1.jar
 ./repository/org/apache/ant/ant-launcher/1.7.1/ant-launcher-1.7.1.jar
 ./repository/org/apache/axis2/axis2-jaxws/1.5.2/axis2-jaxws-1.5.2.jar
@@ -644,8 +644,8 @@ The following artifacts are covered by the Apache License Version 2.0:
 ./repository/org/apache/juddi/juddi-ws/2.0rc6/juddi-ws-2.0rc6.jar
 ./repository/org/apache/mina/mina-core/1.1.6/mina-core-1.1.6.jar
 ./repository/org/apache/mina/mina-filter-ssl/1.1.6/mina-filter-ssl-1.1.6.jar
-./repository/org/apache/myfaces/core/myfaces-api/1.2.6/myfaces-api-1.2.6.jar
-./repository/org/apache/myfaces/core/myfaces-impl/1.2.6/myfaces-impl-1.2.6.jar
+./repository/org/apache/myfaces/core/myfaces-api/1.2.6/myfaces-api-1.2.8.jar
+./repository/org/apache/myfaces/core/myfaces-impl/1.2.6/myfaces-impl-1.2.8.jar
 ./repository/org/apache/neethi/neethi/2.0.4/neethi-2.0.4.jar
 ./repository/org/apache/openejb/openejb-core/3.1.3/openejb-core-3.1.3.jar
 ./repository/org/apache/openejb/ejb31-api-experimental/3.1.3/ejb31-api-experimental-3.1.3.jar
@@ -666,7 +666,7 @@ The following artifacts are covered by the Apache License Version 2.0:
 ./repository/org/apache/pluto/pluto-portal-driver-impl/1.1.6/pluto-portal-driver-impl-1.1.6.jar
 ./repository/org/apache/pluto/pluto-taglib/1.1.6/pluto-taglib-1.1.6.jar
 ./repository/org/apache/portals/portlet-api_1.0_spec/1.0/portlet-api_1.0_spec-1.0.jar
-./repository/org/apache/santuario/xmlsec/1.4.2/xmlsec-1.4.2.jar
+./repository/org/apache/santuario/xmlsec/1.4.3/xmlsec-1.4.3.jar
 ./repository/org/apache/velocity/velocity/1.5/velocity-1.5.jar
 ./repository/org/apache/woden/woden-api/1.0M8/woden-api-1.0M8.jar
 ./repository/org/apache/woden/woden-impl-dom/1.0M8/woden-impl-dom-1.0M8.jar
@@ -675,7 +675,7 @@ The following artifacts are covered by the Apache License Version 2.0:
 ./repository/org/apache/ws/commons/axiom/axiom-impl/1.2.9/axiom-impl-1.2.9.jar
 ./repository/org/apache/ws/commons/schema/XmlSchema/1.4.3/XmlSchema-1.4.3.jar
 ./repository/org/apache/ws/scout/scout/1.1/scout-1.1.jar
-./repository/org/apache/ws/security/wss4j/1.5.5/wss4j-1.5.5.jar
+./repository/org/apache/ws/security/wss4j/1.5.8/wss4j-1.5.8.jar
 ./repository/org/apache/xmlbeans/xmlbeans/2.3.0/xmlbeans-2.3.0.jar
 ./repository/org/codehaus/castor/castor/1.0.5/castor-1.0.5.jar
 ./repository/org/codehaus/groovy/groovy-all-minimal/1.5.6/groovy-all-minimal-1.5.6.jar
@@ -1763,7 +1763,7 @@ Distribution License:
 ./repository/com/sun/xml/ws/jaxws-rt/2.1.4/jaxws-rt-2.1.4.jar
 ./repository/com/sun/xml/ws/jaxws-tools/2.1.4/jaxws-tools-2.1.4.jar
 ./repository/javax/servlet/jstl/1.2/jstl-1.2.jar
-./repository/org/jvnet/staxex/stax-ex/1.0/stax-ex-1.0.jar
+./repository/org/jvnet/staxex/stax-ex/1.6/stax-ex-1.6.jar
 
 
 =========================================================================
