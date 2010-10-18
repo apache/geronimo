@@ -173,8 +173,10 @@
                                     <attribute name="poolSize">${BMPPoolSize}</attribute>
                                 </gbean>
                                 <gbean name="DefaultStatelessContainer">
-                                    <attribute name="timeout">${StatelessTimeout}</attribute>
-                                    <attribute name="poolSize">${StatelessPoolSize}</attribute>
+                                    <attribute name="accessTimeout">${StatelessAccessTimeout}</attribute>
+                                    <attribute name="closeTimeout">${StatelessCloseTimeout}</attribute>                                    
+                                    <attribute name="maxSize">${StatelessPoolSize}</attribute>
+                                    <attribute name="minSize">${StatelessMinPoolSize}</attribute>                                    
                                     <attribute name="strictPooling">${StatelessStrictPooling}</attribute>
                                     <attribute name="idleTimeout">${StatelessIdleTimeout}</attribute>                                      
                                 </gbean>
@@ -185,8 +187,10 @@
                             <config-substitution key="StatefulBulkPassivate">100</config-substitution>
                             <config-substitution key="SingletonAccessTimeout">30</config-substitution>
                             <config-substitution key="BMPPoolSize">10</config-substitution>
-                            <config-substitution key="StatelessTimeout">0</config-substitution>
-                            <config-substitution key="StatelessPoolSize">10</config-substitution>
+                            <config-substitution key="StatelessAccessTimeout">0</config-substitution>
+                            <config-substitution key="StatelessCloseTimeout">300000</config-substitution>                            
+                            <config-substitution key="StatelessPoolSize">10</config-substitution> 
+                            <config-substitution key="StatelessMinPoolSize">0</config-substitution>                             
                             <config-substitution key="StatelessStrictPooling">true</config-substitution>
                             <config-substitution key="StatelessIdleTimeout">0</config-substitution>                               
                             <config-substitution key="MulticastDiscoveryAddress">239.255.3.2</config-substitution>
