@@ -175,6 +175,16 @@ public class ArchiveCarMojo
      * @parameter
      */
     private Map instructions;
+    
+    /**
+     * An {@link Dependency} to include as a module of the CAR. we need this here to determine
+     * if the included module is a EBA application.
+     *
+     * @parameter
+     */
+    private Dependency module = null;
+    
+    
 
     //
     // Mojo
@@ -193,14 +203,28 @@ public class ArchiveCarMojo
         //
         // HACK: Generate the filename in the repo... really should delegate this to the repo impl
         //
-
-        File dir = new File(targetRepository, project.getGroupId().replace('.', '/'));
-        dir = new File(dir, project.getArtifactId());
-        dir = new File(dir, project.getVersion());
-        dir = new File(dir, project.getArtifactId() + "-" + project.getVersion() + ".car");
+        
+        String groupId=project.getGroupId().replace('.', '/');
+        String artifactId=project.getArtifactId();
+        String version=project.getVersion();
+        String type="car";
+        
+        if (module != null && module.getType() != null && module.getType().equals("eba")) {
+            groupId = "application";
+            artifactId = module.getArtifactId();
+            version = module.getVersion();
+            type = "eba";
+        }
+        
+        
+        File dir = new File(targetRepository,groupId );
+        dir = new File(dir, artifactId);
+        dir = new File(dir, version);
+        dir = new File(dir, artifactId + "-" + version + "."+type);
 
         return dir;
     }
+    
 
 
     /**
@@ -215,7 +239,7 @@ public class ArchiveCarMojo
 
         try {
             // Incldue the generated artifact contents
-            File artifactDirectory = getArtifactInRepositoryDir();
+            File artifactDirectory = this.getArtifactInRepositoryDir();
 
             if (artifactDirectory.exists()) {
                 archiver.addArchivedFileSet(artifactDirectory);
@@ -251,7 +275,9 @@ public class ArchiveCarMojo
 
             //For no plan car, do nothing
             if (artifactDirectory.exists()) {
-                JarFile includedJarFile = new JarFile(getArtifactInRepositoryDir());
+                
+                JarFile includedJarFile = new JarFile(artifactDirectory) ;
+                
                 if (includedJarFile.getEntry("META-INF/MANIFEST.MF") != null) {
                     FilesetManifestConfig mergeFilesetManifestConfig = new FilesetManifestConfig();
                     mergeFilesetManifestConfig.setValue("merge");
