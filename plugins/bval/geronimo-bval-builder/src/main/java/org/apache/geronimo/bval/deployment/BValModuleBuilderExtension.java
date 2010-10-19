@@ -93,6 +93,7 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
             return;
         }
         
+        String moduleName = null;
         String validationConfig = null; 
         // the location of the validation config varies depending 
         // on the module type
@@ -104,7 +105,14 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
         }
 
         if(validationConfig != null) {
-            if(bundle.getEntry(validationConfig) == null) {
+            URL validationConfigEntry = null;
+            if(module.isStandAlone()) {
+                validationConfigEntry = bundle.getEntry(validationConfig);
+            } else {
+                moduleName = module.getTargetPath();
+                validationConfigEntry = module.getDeployable().getResource(validationConfig);
+            }
+            if(validationConfigEntry == null) {
                 // No validation.xml file
                 validationConfig = null;
             } else {
@@ -117,7 +125,7 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
                     JAXBContext jc = JAXBContext.newInstance(ValidationConfigType.class);
                     Unmarshaller unmarshaller = jc.createUnmarshaller();
                     unmarshaller.setSchema(schema);
-                    inp = bundle.getEntry(validationConfig).openStream();
+                    inp = validationConfigEntry.openStream();
                     StreamSource stream = new StreamSource(inp);
                     JAXBElement<ValidationConfigType> root = unmarshaller.unmarshal(stream, ValidationConfigType.class);
                     ValidationConfigType xmlConfig = root.getValue();
@@ -133,7 +141,11 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
                                 InputStream inp1 = null;
                                 try { 
                                     jc = JAXBContext.newInstance(ConstraintMappingsType.class);
-                                    inp1 = bundle.getEntry(mappingFileName).openStream();
+                                    if(module.isStandAlone()) {
+                                        inp1 = bundle.getEntry(mappingFileName).openStream();
+                                    } else {
+                                        inp1 = module.getDeployable().getResource(mappingFileName).openStream();
+                                    }
                                     stream = new StreamSource(inp1);
                                     unmarshaller = jc.createUnmarshaller();
                                     unmarshaller.setSchema(mappingSchema);
@@ -163,6 +175,7 @@ public class BValModuleBuilderExtension implements ModuleBuilderExtension {
         EARContext moduleContext = module.getEarContext();
         AbstractName abstractName = moduleContext.getNaming().createChildName(module.getModuleName(), "ValidatorFactory", NameFactory.VALIDATOR_FACTORY);
         GBeanData gbeanData = new GBeanData(abstractName, ValidatorFactoryGBean.class);
+        gbeanData.setAttribute("moduleName", moduleName);
         gbeanData.setAttribute("validationConfig", validationConfig);
         try {
             moduleContext.addGBean(gbeanData);
