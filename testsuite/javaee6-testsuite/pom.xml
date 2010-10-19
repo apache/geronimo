@@ -65,6 +65,7 @@
         <!--<module>servlet3.0-security-test</module>-->
         <module>servlet3.0-test</module>
         <!--<module>webbean1.0-test</module>-->
+        <module>ejb3.1-test</module>
     </modules>
 
 </project>
