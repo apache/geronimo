@@ -936,6 +936,10 @@
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.servicemix.bundles</groupId>
+                        <artifactId>org.apache.servicemix.bundles.commons-beanutils</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 

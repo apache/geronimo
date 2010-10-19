@@ -1108,32 +1108,36 @@ following licenses.
 ./lib/agent/transformer.jar
 ./lib/endorsed/yoko-rmi-spec.jar
 ./lib/endorsed/yoko-spec-corba.jar
+./repository/commons-beanutils/commons-beanutils/1.8.3/commons-beanutils-1.8.3.jar
 ./repository/commons-cli/commons-cli/1.2/commons-cli-1.2.jar
 ./repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar
 ./repository/commons-fileupload/commons-fileupload/1.2.1/commons-fileupload-1.2.1.jar
-./repository/commons-lang/commons-lang/2.4/commons-lang-2.4.jar
+./repository/commons-lang/commons-lang/2.5/commons-lang-2.5.jar
 ./repository/commons-net/commons-net/2.0/commons-net-2.0.jar
-./repository/commons-pool/commons-pool/1.5.3/commons-pool-1.5.3.jar
+./repository/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4.jar
 ./repository/org/apache/activemq/activeio-core/3.1.2/activeio-core-3.1.2.jar
 ./repository/org/apache/activemq/activemq-core/5.3.2/activemq-core-5.3.2.jar
 ./repository/org/apache/activemq/kahadb/5.3.2/kahadb-5.3.2.jar
-./repository/org/apache/activemq/protobuf/activemq-protobug/1.0/activema-protobuf-1.0.jar
-./repository/org/apache/aries/application/org.apache.aries.application.api/0.1-incubating/org.apache.aries.application.api-0.1-incubating.jar
-./repository/org/apache/aries/application/org.apache.aries.application.management/0.1-incubating/org.apache.aries.application.management-0.1-incubating.jar
-./repository/org/apache/aries/application/org.apache.aries.application.utils/0.1-incubating/org.apache.aries.application.utils-0.1-incubating.jar
-./repository/org/apache/aries/blueprint/org.apache.aries.blueprint/0.1-incubating/org.apache.aries.blueprint-0.1-incubating.jar
-./repository/org/apache/aries/jmx/org.apache.aries.jmx/0.1-incubating/org.apache.aries.jmx-0.1-incubating.jar
-./repository/org/apache/aries/jmx/org.apache.aries.jmx.blueprint/0.1-incubating/org.apache.aries.jmx.blueprint-0.1-incubating.jar
-./repository/org/apache/aries/jndi/org.apache.aries.jndi.core/0.1-incubating/org.apache.aries.jndi.core-0.1-incubating.jar
-./repository/org/apache/aries/jndi/org.apache.aries.jndi.url/0.1-incubating/org.apache.aries.jndi.url-0.1-incubating.jar
-./repository/org/apache/aries/jpa/org.apache.aries.jpa.api/0.1-incubating/org.apache.aries.jpa.api-0.1-incubating.jar
-./repository/org/apache/aries/jpa/org.apache.aries.jpa.blueprint.aries/0.1-incubating/org.apache.aries.jpa.blueprint.aries-0.1-incubating.jar
-./repository/org/apache/aries/jpa/org.apache.aries.jpa.container/0.1-incubating/org.apache.aries.jpa.container-0.1-incubating.jar
-./repository/org/apache/aries/jpa/org.apache.aries.jpa.container.context/0.1-incubating/org.apache.aries.jpa.container.context-0.1-incubating.jar
-./repository/org/apache/aries/org.apache.aries.util/0.1-incubating/org.apache.aries.util-0.1-incubating.jar
-./repository/org/apache/aries/transaction/org.apache.aries.transaction.blueprint/0.1-incubating/org.apache.aries.transaction.blueprint-0.1-incubating.jar
-./repository/org/apache/aries/web/org.apache.aries.web.urlhandler/0.1-incubating/org.apache.aries.web.urlhandler-0.1-incubating.jar
+./repository/org/apache/activemq/protobuf/activemq-protobuf/1.1/activema-protobuf-1.1.jar
+./repository/org/apache/aries/application/org.apache.aries.application.api/0.2-incubating/org.apache.aries.application.api-0.2-incubating.jar
+./repository/org/apache/aries/application/org.apache.aries.application.management/0.2-incubating/org.apache.aries.application.management-0.2-incubating.jar
+./repository/org/apache/aries/application/org.apache.aries.application.resolver.obr/0.2-incubating/org.apache.aries.application.resolver.obr-0.2-incubating.jar
+./repository/org/apache/aries/application/org.apache.aries.application.utils/0.2-incubating/org.apache.aries.application.utils-0.2-incubating.jar
+./repository/org/apache/aries/blueprint/org.apache.aries.blueprint/0.2-incubating/org.apache.aries.blueprint-0.2-incubating.jar
+./repository/org/apache/aries/jmx/org.apache.aries.jmx/0.2-incubating/org.apache.aries.jmx-0.2-incubating.jar
+./repository/org/apache/aries/jmx/org.apache.aries.jmx.blueprint/0.2-incubating/org.apache.aries.jmx.blueprint-0.2-incubating.jar
+./repository/org/apache/aries/jndi/org.apache.aries.jndi.core/0.2-incubating/org.apache.aries.jndi.core-0.2-incubating.jar
+./repository/org/apache/aries/jndi/org.apache.aries.jndi.url/0.2-incubating/org.apache.aries.jndi.url-0.2-incubating.jar
+./repository/org/apache/aries/jpa/org.apache.aries.jpa.api/0.2-incubating/org.apache.aries.jpa.api-0.2-incubating.jar
+./repository/org/apache/aries/jpa/org.apache.aries.jpa.blueprint.aries/0.2-incubating/org.apache.aries.jpa.blueprint.aries-0.2-incubating.jar
+./repository/org/apache/aries/jpa/org.apache.aries.jpa.container/0.2-incubating/org.apache.aries.jpa.container-0.2-incubating.jar
+./repository/org/apache/aries/jpa/org.apache.aries.jpa.container.context/0.2-incubating/org.apache.aries.jpa.container.context-0.2-incubating.jar
+./repository/org/apache/aries/org.apache.aries.util/0.2-incubating/org.apache.aries.util-0.2-incubating.jar
+./repository/org/apache/aries/transaction/org.apache.aries.transaction.blueprint/0.2-incubating/org.apache.aries.transaction.blueprint-0.2-incubating.jar
+./repository/org/apache/aries/web/org.apache.aries.web.urlhandler/0.2-incubating/org.apache.aries.web.urlhandler-0.2-incubating.jar
+./repository/org/apache/bval/org.apache.bval.bundle/0.1-incubating/org.apache.bval.bundle-0.1-incubating.jar
 ./repository/org/apache/commons/commons-jexl/2.0/commons-jexl-2.0.jar
+./repository/org/apache/commons/commons-math/2.1/commons-math-2.1.jar
 ./repository/org/apache/felix/gogo/org.apache.felix.gogo.commands/0.4.0/org.apache.felix.gogo.commands-0.4.0.jar
 ./repository/org/apache/felix/gogo/org.apache.felix.gogo.runtime/0.4.0/org.apache.felix.gogo.runtime-0.4.0.jar
 ./repository/org/apache/felix/karaf/deployer/org.apache.felix.karaf.deployer.blueprint/1.6.0/org.apache.felix.karaf.deployer.blueprint-1.6.0.jar
@@ -1152,23 +1156,24 @@ following licenses.
 ./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.osgi/1.6.0/org.apache.felix.karaf.shell.osgi-1.6.0.jar
 ./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.packages/1.6.0/org.apache.felix.karaf.shell.packages-1.6.0.jar
 ./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.ssh/1.6.0/org.apache.felix.karaf.shell.ssh-1.6.0.jar
-./repository/org/apache/felix/org.apache.felix.bundlerepository/1.6.2/org.apache.felix.bundlerepository-1.6.2.jar
+./repository/org/apache/felix/org.apache.felix.bundlerepository/1.6.4/org.apache.felix.bundlerepository-1.6.4.jar
 ./repository/org/apache/felix/org.apache.felix.configadmin/1.2.4/org.apache.felix.configadmin-1.2.4.jar
 ./repository/org/apache/felix/org.apache.felix.fileinstall/3.0.0/org.apache.felix.fileinstall-3.0.0.jar
-./repository/org/apache/felix/org.apache.felix.framework/2.0.5/org.apache.felix.framework-2.0.5.jar
+./repository/org/apache/felix/org.apache.felix.framework/3.0.2/org.apache.felix.framework-3.0.2.jar
 ./repository/org/apache/felix/org.apache.felix.metatype/1.0.2/org.apache.felix.metatype-1.0.2.jar
 ./repository/org/apache/felix/org.apache.felix.prefs/1.0.4/org.apache.felix.prefs-1.0.4.jar
 ./repository/org/apache/geronimo/bundles/backport-util-concurrent/2.2_1/backport-util-concurrent-2.2_1.jar
 ./repository/org/apache/geronimo/bundles/castor/1.0.5_1/castor-1.0.5_1.jar
 ./repository/org/apache/geronimo/bundles/commons-digester/1.8_1/commons-digester-1.8_1.jar
 ./repository/org/apache/geronimo/bundles/commons-discovery/0.4_1/commons-discovery-0.4_1.jar
-./repository/org/apache/geronimo/bundles/derby-all/10.5.3.0_1_1/derby-all-10.5.3.0_1_1.jar
+./repository/org/apache/geronimo/bundles/derby-all/10.6.1.0_1/derby-all-10.6.1.0_1.jar
 ./repository/org/apache/geronimo/bundles/dwr/3.0.M1_1/dwr-3.0.M1_1.jar
 ./repository/org/apache/geronimo/bundles/httpcore/4.0.1_1/httpcore-4.0.1_1.jar
 ./repository/org/apache/geronimo/bundles/jaxb-impl/2.2_1/jaxb-impl-2.2_1.jar
 ./repository/org/apache/geronimo/bundles/jstl/1.2_1/jstl-1.2_1.jar
-./repository/org/apache/geronimo/bundles/sxc-jaxb/0.7.2_1/sxc-jaxb-0.7.2_1.jar
-./repository/org/apache/geronimo/bundles/sxc-runtime/0.7.2_1/sxc-runtime-0.7.2_1.jar
+./repository/org/apache/geronimo/bundles/scannotation/1.0.2_1/scannotation-1.0.2_1.jar
+./repository/org/apache/geronimo/bundles/sxc-jaxb/0.7.3_1/sxc-jaxb-0.7.3_1.jar
+./repository/org/apache/geronimo/bundles/sxc-runtime/0.7.3_1/sxc-runtime-0.7.3_1.jar
 ./repository/org/apache/geronimo/bundles/woden-impl-dom/1.0M8_1/woden-impl-dom-1.0M8_1.jar
 ./repository/org/apache/geronimo/bundles/woodstox/3.2.9_1/woodstox-3.2.9_1.jar
 ./repository/org/apache/geronimo/components/geronimo-connector/3.0/geronimo-connector-3.0.jar
@@ -1206,7 +1211,7 @@ following licenses.
 ./repository/org/apache/geronimo/framework/geronimo-shell-base/3.0-M1/geronimo-shell-base-3.0-M1.jar
 ./repository/org/apache/geronimo/framework/geronimo-system/3.0-M1/geronimo-system-3.0-M1.jar
 ./repository/org/apache/geronimo/framework/geronimo-upgrade/3.0-M1/geronimo-upgrade-3.0-M1.jar
-./repository/org/apache/geronimo/javamail/geronimo-javamail_1.4_mail/1.8/geronimo-javamail_1.4_mail-1.8.jar
+./repository/org/apache/geronimo/javamail/geronimo-javamail_1.4_mail/1.8.2/geronimo-javamail_1.4_mail-1.8.2.jar
 ./repository/org/apache/geronimo/modules/geronimo-activemq-blueprint/3.0-M1/geronimo-activemq-blueprint-3.0-M1.jar
 ./repository/org/apache/geronimo/modules/geronimo-activemq-management/3.0-M1/geronimo-activemq-management-3.0-M1.jar
 ./repository/org/apache/geronimo/modules/geronimo-aries-builder/3.0-M1/geronimo-aries-builder-3.0-M1.jar
@@ -1255,8 +1260,9 @@ following licenses.
 ./repository/org/apache/geronimo/schema/geronimo-schema-jee_5/1.2/geronimo-schema-jee_5-1.2.jar
 ./repository/org/apache/geronimo/specs/geronimo-activation_1.1_spec/1.1/geronimo-activation_1.1_spec-1.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-annotation_1.1_spec/1.0/geronimo-annotation_1.1_spec-1.0.jar
+./repository/org/apache/geronimo/specs/geronimo-atinject_1.0_spec/1.0/geronimo-atinject_1.0_spec-1.0.jar
 ./repository/org/apache/geronimo/specs/geronimo-ccpp_1.0_spec/1.0-beta/geronimo-ccpp_1.0_spec-1.0-beta.jar
-./repository/org/apache/geronimo/specs/geronimo-ejb_3.1_spec/1.0/geronimo-ejb_3.1_spec-1.0.jar
+./repository/org/apache/geronimo/specs/geronimo-ejb_3.1_spec/1.0.1/geronimo-ejb_3.1_spec-1.0.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-el_2.2_spec/1.0/geronimo-el_2.2_spec-1.0.jar
 ./repository/org/apache/geronimo/specs/geronimo-interceptor_1.1_spec/1.0/geronimo-interceptor_1.1_spec-1.0.jar
 ./repository/org/apache/geronimo/specs/geronimo-j2ee-connector_1.6_spec/1.0/geronimo-j2ee-connector_1.6_spec-1.0.jar
@@ -1264,10 +1270,11 @@ following licenses.
 ./repository/org/apache/geronimo/specs/geronimo-jacc_1.4_spec/1.0/geronimo-jacc_1.4_spec-1.0.jar
 ./repository/org/apache/geronimo/specs/geronimo-jaspic_1.0_spec/1.1/geronimo-jaspic_1.0_spec-1.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-javaee-deployment_1.1MR3_spec/1.0.1/geronimo-javaee-deployment_1.1MR3_spec-1.0.1.jar
-./repository/org/apache/geronimo/specs/geronimo-jaxb_2.2_spec/1.0/geronimo-jaxb_2.2_spec-1.0.jar
+./repository/org/apache/geronimo/specs/geronimo-jaxb_2.2_spec/1.0.1/geronimo-jaxb_2.2_spec-1.0.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-jaxrpc_1.1_spec/2.1/geronimo-jaxrpc_1.1_spec-2.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-jaxr_1.0_spec/2.1/geronimo-jaxr_1.0_spec-2.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-jaxws_2.2_spec/1.0/geronimo-jaxws_2.2_spec-1.0.jar
+./repository/org/apache/geronimo/specs/geronimo-jcdi_1.0_spec/1.0/geronimo-jcdi_1.0_spec-1.0.jar
 ./repository/org/apache/geronimo/specs/geronimo-jms_1.1_spec/1.1.1/geronimo-jms_1.1_spec-1.1.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-jpa_2.0_spec/1.1/geronimo-jpa_2.0_spec-1.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-jsp_2.2_spec/1.0/geronimo-jsp_2.2_spec-1.0.jar
@@ -1302,7 +1309,6 @@ following licenses.
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.ant/1.7.0_1/org.apache.servicemix.bundles.ant-1.7.0_1.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.bcel/5.2_2/org.apache.servicemix.bundles.bcel-5.2_2.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.cglib/2.1_3_4/org.apache.servicemix.bundles.cglib-2.1_3_4.jar
-./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.commons-beanutils/1.7.0_3/org.apache.servicemix.bundles.commons-beanutils-1.7.0_3.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.commons-codec/1.3_2/org.apache.servicemix.bundles.commons-codec-1.3_2.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.commons-httpclient/3.1_4/org.apache.servicemix.bundles.commons-httpclient-3.1_4.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.commons-io/1.3.2_1/org.apache.servicemix.bundles.commons-io-1.3.2_1.jar
@@ -1850,7 +1856,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 The following artifacts are covered by the ASM License:
 
-./repository/asm/asm/3.1/asm-all-3.2.jar
+./repository/asm/asm/3.2/asm-all-3.2.jar
 ./repository/org/apache/xbean/xbean-asm-shaded/3.7/xbean-asm-shaded-3.7.jar
 ./repository/org/codehaus/groovy/groovy-all-minimal/1.5.6/groovy-all-minimal-1.5.6.jar
 ./repository/org/apache/xbean/xbean-asm-shaded/3.7/xbean-asm-shaded-3.7.jar
@@ -3526,7 +3532,7 @@ under the CDDL license.
 ./repository/org/apache/geronimo/schema/geronimo-schema-javaee_6/1.0/geronimo-schema-javaee_6-1.0.jar
 ./repository/org/apache/geronimo/schema/geronimo-schema-jee_5/1.2/geronimo-schema-jee_5-1.2.jar
 ./repository/org/apache/openjpa/openjpa/2.0.0/openjpa-2.0.0.jar
-./repository/org/apache/aries/jpa/org.apache.aries.jpa.container/0.1-incubating/org.apache.aries.jpa.container-0.1-incubating.jar
+./repository/org/apache/aries/jpa/org.apache.aries.jpa.container/0.2-incubating/org.apache.aries.jpa.container-0.2-incubating.jar
 
 =========================================================================
 ==  KXML2 License                                                      ==
@@ -3798,3 +3804,184 @@ The following artifacts are covered by the XStream License:
 
 ./repository/com/thoughtworks/xstream/xstream/1.3/xstream-1.3.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.xstream/1.3_3/org.apache.servicemix.bundles.xstream-1.3_3.jar
+
+
+=========================================================================
+==  APACHE COMMONS MATH DERIVATIVE WORKS                               ==
+=========================================================================
+
+The Apache commons-math library includes a number of subcomponents
+whose implementation is derived from original sources written
+in C or Fortran.  License terms of the original sources
+are reproduced below.
+
+The following artifact contains works derived from sources covered by 
+these additional licenses: 
+
+./repository/org/apache/commons/commons-math/2.1/commons-math-2.1.jar
+
+===============================================================================
+For the lmder, lmpar and qrsolv Fortran routine from minpack and translated in
+the LevenbergMarquardtOptimizer class in package
+org.apache.commons.math.optimization.general 
+Original source copyright and license statement:
+
+Minpack Copyright Notice (1999) University of Chicago.  All rights reserved
+
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the
+following conditions are met:
+
+1. Redistributions of source code must retain the above
+copyright notice, this list of conditions and the following
+disclaimer.
+
+2. Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials
+provided with the distribution.
+
+3. The end-user documentation included with the
+redistribution, if any, must include the following
+acknowledgment:
+
+   "This product includes software developed by the
+   University of Chicago, as Operator of Argonne National
+   Laboratory.
+
+Alternately, this acknowledgment may appear in the software
+itself, if and wherever such third-party acknowledgments
+normally appear.
+
+4. WARRANTY DISCLAIMER. THE SOFTWARE IS SUPPLIED "AS IS"
+WITHOUT WARRANTY OF ANY KIND. THE COPYRIGHT HOLDER, THE
+UNITED STATES, THE UNITED STATES DEPARTMENT OF ENERGY, AND
+THEIR EMPLOYEES: (1) DISCLAIM ANY WARRANTIES, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO ANY IMPLIED WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE
+OR NON-INFRINGEMENT, (2) DO NOT ASSUME ANY LEGAL LIABILITY
+OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS, OR
+USEFULNESS OF THE SOFTWARE, (3) DO NOT REPRESENT THAT USE OF
+THE SOFTWARE WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS, (4)
+DO NOT WARRANT THAT THE SOFTWARE WILL FUNCTION
+UNINTERRUPTED, THAT IT IS ERROR-FREE OR THAT ANY ERRORS WILL
+BE CORRECTED.
+
+5. LIMITATION OF LIABILITY. IN NO EVENT WILL THE COPYRIGHT
+HOLDER, THE UNITED STATES, THE UNITED STATES DEPARTMENT OF
+ENERGY, OR THEIR EMPLOYEES: BE LIABLE FOR ANY INDIRECT,
+INCIDENTAL, CONSEQUENTIAL, SPECIAL OR PUNITIVE DAMAGES OF
+ANY KIND OR NATURE, INCLUDING BUT NOT LIMITED TO LOSS OF
+PROFITS OR LOSS OF DATA, FOR ANY REASON WHATSOEVER, WHETHER
+SUCH LIABILITY IS ASSERTED ON THE BASIS OF CONTRACT, TORT
+(INCLUDING NEGLIGENCE OR STRICT LIABILITY), OR OTHERWISE,
+EVEN IF ANY OF SAID PARTIES HAS BEEN WARNED OF THE
+POSSIBILITY OF SUCH LOSS OR DAMAGES.
+===============================================================================
+
+Copyright and license statement for the odex Fortran routine developed by
+E. Hairer and G. Wanner and translated in GraggBulirschStoerIntegrator class
+in package org.apache.commons.math.ode.nonstiff:
+
+
+Copyright (c) 2004, Ernst Hairer
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are 
+met:
+
+- Redistributions of source code must retain the above copyright 
+notice, this list of conditions and the following disclaimer.
+
+- Redistributions in binary form must reproduce the above copyright 
+notice, this list of conditions and the following disclaimer in the 
+documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS 
+IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED 
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A 
+PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR 
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+===============================================================================
+
+Copyright and license statement for the original lapack fortran routines
+translated in EigenDecompositionImpl class in package
+org.apache.commons.math.linear:
+
+Copyright (c) 1992-2008 The University of Tennessee.  All rights reserved.
+
+$COPYRIGHT$
+
+Additional copyrights may follow
+
+$HEADER$
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+- Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer. 
+  
+- Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer listed
+  in this license in the documentation and/or other materials
+  provided with the distribution.
+  
+- Neither the name of the copyright holders nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+  
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT  
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT  
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+===============================================================================
+
+Copyright and license statement for the original Mersenne twister C
+routines translated in MersenneTwister class in package 
+org.apache.commons.math.random:
+
+   Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
+   All rights reserved.                          
+
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions
+   are met:
+
+     1. Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+
+     3. The names of its contributors may not be used to endorse or promote 
+        products derived from this software without specific prior written 
+        permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
