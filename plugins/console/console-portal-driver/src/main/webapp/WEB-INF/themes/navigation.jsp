@@ -38,12 +38,18 @@ limitations under the License.
 </c:forEach>
 
 <%
+	
+	List<PageConfig> filteredPageConfigList = NavigationJsonGenerator.filterPagesByRole(pageConfigList,request);
+	    
+
     NavigationJsonGenerator generator = new NavigationJsonGenerator(request.getLocale());
-    String treeJson = generator.generateTreeJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif", "all", 8);
-    String treeJsonBasic = generator.generateTreeJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif","basic", 8);
-    String listJson = generator.generateQuickLauncherJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif", "all");
-    String listJsonBasic = generator.generateQuickLauncherJSON(pageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif","basic");
-    boolean isBasicTreeHasValidItem=generator.isTreeHasValidItem(pageConfigList,"basic");
+
+
+    String treeJson = generator.generateTreeJSON(filteredPageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif", "all", 8);
+    String treeJsonBasic = generator.generateTreeJSON(filteredPageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif","basic", 8);
+    String listJson = generator.generateQuickLauncherJSON(filteredPageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif", "all");
+    String listJsonBasic = generator.generateQuickLauncherJSON(filteredPageConfigList, request.getContextPath(), "/images/ico_doc_16x16.gif","basic");
+    boolean isBasicTreeHasValidItem=generator.isTreeHasValidItem(filteredPageConfigList,"basic");
 
 %>
 
