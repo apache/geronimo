@@ -58,7 +58,7 @@ public class PersistenceUnitGBeanTest extends TestCase {
                 "2.0",
                 SharedCacheMode.NONE,
                 ValidationMode.AUTO,
-                new ValidatorFactoryGBean("Dummy", bundle, getClass().getClassLoader(), null), 
+                new ValidatorFactoryGBean("Dummy", bundle, getClass().getClassLoader(), null, null), 
                 bundle,
                 getClass().getClassLoader());
         assertNotNull(gbean.getManagedClassNames());
