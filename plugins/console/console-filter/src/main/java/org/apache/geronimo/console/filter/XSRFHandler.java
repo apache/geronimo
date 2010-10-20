@@ -85,7 +85,9 @@ public class XSRFHandler
             return false;
         }
 
-        if ((hreq.getQueryString() != null) || (hreq.getParameterNames().hasMoreElements())) {
+        if ((hreq.getQueryString() != null && hreq.getQueryString().length() > 0)
+                || (hreq.getParameterNames().hasMoreElements())) {
+            
             
             if (hreq.getParameterMap().keySet().size() == 1 && hreq.getParameter(NOXSS_SHOW_TREE) != null) {
 
