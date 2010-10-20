@@ -100,7 +100,6 @@
                                 </gbean>
                              </config-xml-content>
                             <config-substitution key="JMXPort">9999</config-substitution>
-                            <copy-file relative-to="server" dest-dir="var">var/</copy-file>
                         </plugin-artifact>
                     </instance>
                 </configuration>
