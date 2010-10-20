@@ -26,7 +26,7 @@ function updateLinks() {
             elements[i].href = link + '&formId=' + formID;
         }
         
-        if(link != null && link.indexOf("/console/portal/")==-1){
+        if(link != null && isURL(link) && link.indexOf("/console/portal/")==-1){
         
             if (document.all) {    //IE
                 elements[i].target="_parent";   
