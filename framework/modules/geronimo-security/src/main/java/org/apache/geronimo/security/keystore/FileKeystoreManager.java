@@ -99,9 +99,11 @@ public class FileKeystoreManager implements KeystoreManager, GBeanLifecycle {
         }
         directory = new File(rootURI);
         if (!directory.exists()) {
-        	directory.mkdirs();
+        	if (directory.mkdirs()) {
+        		log.warn("The keystore directory: " + directory.getAbsolutePath() + " does not exist. System automatically created one.");
+        	}
         }       	
-        if (!directory.isDirectory() || !directory.canRead()) {
+        if (!directory.exists() || !directory.isDirectory() || !directory.canRead()) {
             throw new IllegalStateException("FileKeystoreManager must have a root that's a valid readable directory (not " + directory.getAbsolutePath() + ")");
         }
         log.debug("Keystore directory is " + directory.getAbsolutePath());
