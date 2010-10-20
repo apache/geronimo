@@ -107,11 +107,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-osgi-locator</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-jee</artifactId>
         <type>jar</type>
