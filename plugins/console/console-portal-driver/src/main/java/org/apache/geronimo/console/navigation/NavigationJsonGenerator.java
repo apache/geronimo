@@ -16,12 +16,16 @@
  */
 package org.apache.geronimo.console.navigation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.geronimo.pluto.impl.PageConfig;
 import org.slf4j.Logger;
@@ -52,6 +56,51 @@ public class NavigationJsonGenerator {
     private static  Map<String, Map<String, TreeNode>> navigationTrees=new HashMap<String, Map<String, TreeNode>>();
     
     public static final String ALL = "all";
+    
+    private final static List<String> monitorRolePermitPages = Arrays.asList(
+            "0/Welcome",
+            "1-1-1/Application Server/System Information/Server Information",
+            "1-1-2/Application Server/System Information/Java System Info",
+            "1-1-4/Application Server/System Information/Thread Pools",
+            "1-8/Server/Monitoring"
+    );
+
+    
+    private static Map<String, List<String>> rolePagesMap=new HashMap<String, List<String>>();
+    
+    static {
+        
+        rolePagesMap.put("monitor", monitorRolePermitPages);
+        
+    }
+    
+    public static List<PageConfig> filterPagesByRole(List<PageConfig> pageConfigList, HttpServletRequest request){
+        
+        List<String> permitPages=null;
+        
+        if(request.isUserInRole("monitor")){
+            
+            permitPages=rolePagesMap.get("monitor"); 
+        }
+        
+        if (permitPages == null) {
+            return pageConfigList;
+        }
+
+        List<PageConfig> filteredPageConfigList = new ArrayList<PageConfig>();
+
+        for (PageConfig pc : pageConfigList) {
+
+            if (permitPages.contains(pc.getName())) {
+
+                filteredPageConfigList.add(pc);
+            }
+        }
+        
+        return filteredPageConfigList;
+        
+    };
+    
       
     private ResourceBundle navigationResourcebundle;
          
