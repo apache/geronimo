@@ -108,10 +108,13 @@ public class SpecSecurityBuilder {
                 currentPatterns = uncheckedPatterns;
             }
             String transport = securityConstraint.userDataConstraint == null ? "NONE" : securityConstraint.userDataConstraint;
+            
+            boolean isRolebasedPatten = (currentPatterns == null);
+            
             for (WebResourceCollectionInfo webResourceCollection : securityConstraint.webResourceCollections) {
                 //Calculate HTTP methods list
                 for (String urlPattern : webResourceCollection.urlPatterns) {
-                    if (currentPatterns == null) {
+                    if (isRolebasedPatten) {
                         for (String roleName : roleNames) {
                             Map<String, URLPattern> currentRolePatterns = rolesPatterns.get(roleName);
                             if (currentRolePatterns == null) {
