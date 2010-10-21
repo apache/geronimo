@@ -118,8 +118,8 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
     public ValidatorFactory getFactory() {
         if (factory == null) {
             if (validationConfig == null) {
-                // No validation configuration specified. Create default instance.
-                factory = Validation.buildDefaultValidatorFactory();
+                // just create the default 
+                createDefaultFactory(); 
             } else {
                 // Parse the validation xml
                 ValidationConfigType validationConfigType = null;
@@ -150,7 +150,9 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
                                 out.close();
                                 validationConfigURL = new URL("jar:"+tmpArchiveFile.toURI().toURL()+"!/"+validationConfig);
                             } catch (IOException e) {
-                                throw new ValidationException("Error processing validation configuration "+validationConfig+" in "+moduleName, e);
+                                log.debug("Error processing validation configuration "+validationConfig+" in "+moduleName + " Using default factory.", e);
+                                createDefaultFactory(); 
+                                return factory; 
                             }
                         }
                     }
@@ -158,7 +160,9 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
                     JAXBElement<ValidationConfigType> root = unmarshaller.unmarshal(stream, ValidationConfigType.class);
                     validationConfigType = root.getValue();
                 } catch(Throwable t) {
-                    throw new ValidationException("Unable to create module ValidatorFactory instance", t);
+                    log.debug("Unable to create module ValidatorFactory instance.  Using default factory", t);
+                    createDefaultFactory(); 
+                    return factory; 
                 }
                 // Apply the configuration
                 // TODO: Ideally this processing should happen in BVal code. But, the ValidationParser loads the validation xml and
@@ -168,13 +172,33 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
                 applyConfig(validationConfigType, config);
                 config.ignoreXmlConfiguration();
                 // Create the factory instance
-                factory = config.buildValidatorFactory();
+                ClassLoader oldContextLoader = Thread.currentThread().getContextClassLoader(); 
+                try {
+                    Thread.currentThread().setContextClassLoader(classLoader); 
+                    factory = config.buildValidatorFactory();
+                } finally {
+                    Thread.currentThread().setContextClassLoader(oldContextLoader); 
+                }
                 if(tmpArchiveFile != null) {
                     tmpArchiveFile.delete();
                 }
             }
         }
         return factory; 
+    }
+    
+    /**
+     * Create a default ValidatorFactory
+     */
+    private void createDefaultFactory() {
+        ClassLoader oldContextLoader = Thread.currentThread().getContextClassLoader(); 
+        // No validation configuration specified. Create default instance.
+        try {
+            Thread.currentThread().setContextClassLoader(classLoader); 
+            factory = Validation.buildDefaultValidatorFactory();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldContextLoader); 
+        }
     }
 
     @SuppressWarnings("unchecked")
