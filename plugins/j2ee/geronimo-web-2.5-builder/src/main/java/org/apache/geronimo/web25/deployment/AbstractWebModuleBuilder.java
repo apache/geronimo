@@ -508,10 +508,12 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 transport = securityConstraintType.getUserDataConstraint().getTransportGuarantee().getStringValue().trim().toUpperCase();
             }
 
+            boolean isRolebasedPatten = (currentPatterns == null);            
+            
             for (WebResourceCollectionType webResourceCollectionType : securityConstraintType.getWebResourceCollectionArray()) {
                 for (UrlPatternType urlPatternType : webResourceCollectionType.getUrlPatternArray()) {
                     String url = urlPatternType.getStringValue().trim();
-                    if (currentPatterns == null) {
+                    if (isRolebasedPatten) {
                         for (String roleName : roleNames) {
                             Map<String, URLPattern> currentRolePatterns = rolesPatterns.get(roleName);
                             if (currentRolePatterns == null) {
