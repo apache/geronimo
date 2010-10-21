@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.system.main;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.Main;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -71,7 +73,8 @@ public class EmbeddedDaemon implements Main {
             throw new IllegalArgumentException("Argument type is [" + opaque.getClass() + "]; expected [" + DaemonCLParser.class + "]");
         }
         DaemonCLParser parser = (DaemonCLParser) opaque;
-
+        
+        cleanCache(parser);
         initializeMonitor(parser);
         initializeOverride(parser);
         initializeSecure(parser);
@@ -127,6 +130,13 @@ public class EmbeddedDaemon implements Main {
             for (String anOverride : override) {
                 configs.add(Artifact.create(anOverride));
             }
+        }
+    }
+    
+    protected void cleanCache(DaemonCLParser parser) {
+        if (parser.isCleanCache()) {
+            File cacheFolder = new File(System.getProperty(GERONIMO_HOME) + "/var/cache");
+            FileUtils.recursiveDelete(cacheFolder);
         }
     }
 

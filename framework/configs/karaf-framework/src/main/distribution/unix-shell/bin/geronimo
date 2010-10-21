@@ -433,20 +433,22 @@ else
   echo "  stop --force      Stop Geronimo (followed by kill -KILL)"
   echo ""
   echo "args for debug, jpda run, jpda start, run and start commands:"
-  echo "       --quiet       No startup progress"
-  echo "       --long        Long startup progress"
-  echo "  -v   --verbose     INFO log level"
-  echo "  -vv  --veryverbose DEBUG log level"
-  echo "       --override    Override configurations. USE WITH CAUTION!"
-  echo "       --help        Detailed help."
-  echo "  -s   --secure      Enable Geronimo for 2 way secure JMX communication."
+  echo "  -q     --quiet           No startup progress
+  echo "  -l     --long            Long startup progress
+  echo "  -c     --clean           Clean osgi bundle cache
+  echo "  -v     --verbose         INFO log level
+  echo "  -vv    --veryverbose     DEBUG log level
+  echo "  -vvv   --veryveryverbose Trace log level
+  echo "  -o     --override        Override configurations. USE WITH CAUTION!
+  echo "  -h     --help            Detailed help.
+  echo "  -s     --secure          Enable Geronimo for 2 way secure JMX communication.
   echo ""
   echo "args for stop command:"
-  echo "       --user        Admin user"
-  echo "       --password    Admin password"
-  echo "       --host        Hostname of the server"
-  echo "       --port        RMI port to connect to"
-  echo "       --secure      Enable secure JMX communication"
+  echo "   -u     --user          Admin user
+  echo "   -p     --password      Admin password
+  echo "          --host          Hostname of the server
+  echo "          --port          RMI port to connect to
+  echo "          --secure        Enable secure JMX communication
   exit 1
 
 fi

@@ -40,12 +40,21 @@ public class DaemonCLParser extends BaseCLParser {
 
     private final static String ARGUMENT_SECURE_SHORTFORM = "s";
     private final static String ARGUMENT_SECURE = "secure";
+    
+    private final static String ARGUMENT_CLEAN_CACHE_SHORTFORM = "c";
+    private final static String ARGUMENT_CLEAN_CACHE = "clean";    
+    
     public DaemonCLParser(OutputStream out) {
         super(out);
         addProgressOptions();
         addOverride();
         addSecure();
+        addCleanCache();
     }
+    
+    public boolean isCleanCache() {
+        return commandLine.hasOption(ARGUMENT_CLEAN_CACHE_SHORTFORM);
+    }       
 
     public boolean isSecure() {
         return commandLine.hasOption(ARGUMENT_SECURE_SHORTFORM);
@@ -90,6 +99,16 @@ public class DaemonCLParser extends BaseCLParser {
         options.addOption(ARGUMENT_SECURE_SHORTFORM, ARGUMENT_SECURE, false,
                 "Use secure channel to communicate with the server.  Unsecured channel is used by default.");
     }
+    
+    protected void addCleanCache() {
+
+        options.addOption(ARGUMENT_CLEAN_CACHE_SHORTFORM,
+                ARGUMENT_CLEAN_CACHE,
+                false,
+                "Delete cache folder. This is typically used when developer wants to pick up artifacts modification in repository");
+    }    
+    
+
 
     protected void addProgressOptions() {
         OptionGroup optionGroup = new OptionGroup();
