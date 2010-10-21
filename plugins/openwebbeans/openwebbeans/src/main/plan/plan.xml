@@ -20,4 +20,6 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
+    <gbean name="OWBSingletonServiceInitializer" class="org.apache.geronimo.openwebbeans.SingletonServiceInitializerGBean"/>
+
 </module>

@@ -19,26 +19,49 @@
 
 package org.apache.geronimo.openwebbeans;
 
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import java.util.Map;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
+import org.apache.webbeans.el.el22.EL22Adaptor;
+import org.apache.webbeans.lifecycle.LifecycleFactory;
+import org.apache.webbeans.spi.ContainerLifecycle;
 import org.apache.webbeans.spi.JNDIService;
+import org.apache.webbeans.spi.adaptor.ELAdaptor;
+import org.apache.webbeans.util.WebBeansUtil;
 import org.apache.webbeans.web.context.WebContextsService;
 import org.apache.webbeans.web.lifecycle.WebContainerLifecycle;
-import org.osgi.framework.BundleContext;
 
 /**
  *  
  * @version $Rev: 698441 $ $Date: 2008-09-24 00:10:08 -0700 (Wed, 24 Sep 2008) $
  */
-@GBean
-public class OpenWebBeansGBean implements GBeanLifecycle {
+public class OpenWebBeansWebInitializer {
     
-    public OpenWebBeansGBean(@ParamSpecial(type = SpecialAttributeType.bundleContext) final BundleContext bundleContext,
-                             @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) {
-        setConfiguration(OpenWebBeansConfiguration.getInstance());
+    public OpenWebBeansWebInitializer(Map<String, Object> owbContext, ServletContext servletContext) {
+        GeronimoSingletonService.contextEntered(owbContext);
+
+        try {
+            setConfiguration(OpenWebBeansConfiguration.getInstance());
+            //from OWB's WebBeansConfigurationListener
+            if (servletContext != null) {
+                ContainerLifecycle lifeCycle = LifecycleFactory.getInstance().getLifecycle();
+
+                try
+                {
+                        lifeCycle.startApplication(new ServletContextEvent(servletContext));
+                        servletContext.setAttribute(OpenWebBeansConfiguration.PROPERTY_OWB_APPLICATION, "true");
+                }
+                catch (Exception e)
+                {
+    //             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
+                     WebBeansUtil.throwRuntimeExceptions(e);
+                }
+            }
+        } finally {
+            GeronimoSingletonService.contextExited(null);
+        }
     }
 
     private void setConfiguration(OpenWebBeansConfiguration configuration) {
@@ -48,20 +71,9 @@ public class OpenWebBeansGBean implements GBeanLifecycle {
         configuration.setProperty(OpenWebBeansConfiguration.JNDI_SERVICE, NoopJndiService.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.SCANNER_SERVICE, OsgiMetaDataScannerService.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.CONTEXTS_SERVICE, WebContextsService.class.getName());
+        configuration.setProperty(ELAdaptor.class.getName(), EL22Adaptor.class.getName());
     }
 
-    public void doStart() {
-        System.out.println("Start OpenWebBeansGBean");
-    }
-
-    public void doStop() {
-        System.out.println("Stop OpenWebBeansGBean");
-    }
-
-    public void doFail() {
-        doStop();
-    }
-    
     public static class NoopJndiService implements JNDIService {
 
         public void bind(String name, Object object) {

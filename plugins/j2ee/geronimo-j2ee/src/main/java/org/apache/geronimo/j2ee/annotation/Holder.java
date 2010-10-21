@@ -33,6 +33,7 @@ import java.util.Set;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import org.apache.webbeans.inject.OWBInjector;
 import org.apache.xbean.recipe.ConstructionException;
 import org.apache.xbean.recipe.ObjectRecipe;
 import org.apache.xbean.recipe.Option;
@@ -178,6 +179,14 @@ public class Holder implements Serializable {
         } catch (ConstructionException e) {
             throw (InstantiationException)new InstantiationException("Could not construct object").initCause(e);
         }
+        // TODO we likely don't want to create a new one each time -- investigate the destroy() method
+        OWBInjector beanInjector = new OWBInjector();
+        try {
+            beanInjector.inject(result);
+        } catch (Exception e) {
+            throw (InstantiationException)new InstantiationException("web beans injection problem").initCause(e);
+        }
+
         if (getPostConstruct() != null) {
             try {
                 apply(result, null, postConstruct);

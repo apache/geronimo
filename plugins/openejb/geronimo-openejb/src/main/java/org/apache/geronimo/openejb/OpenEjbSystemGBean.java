@@ -62,11 +62,14 @@ import org.apache.openejb.assembler.classic.ProxyFactoryInfo;
 import org.apache.openejb.assembler.classic.SecurityServiceInfo;
 import org.apache.openejb.assembler.classic.TransactionServiceInfo;
 import org.apache.openejb.assembler.dynamic.PassthroughFactory;
+import org.apache.openejb.cdi.OWBContextThreadListener;
+import org.apache.openejb.cdi.ThreadSingletonService;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ClientModule;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.EjbModule;
 import org.apache.openejb.core.ServerFederation;
+import org.apache.openejb.core.ThreadContext;
 import org.apache.openejb.core.mdb.InboundRecovery;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.resource.XAResourceWrapper;
@@ -162,6 +165,10 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         
         // add our thread context listener
         GeronimoThreadContextListener.init();
+
+        SystemInstance.get().setComponent(ThreadSingletonService.class, new ThreadSingletonServiceAdapter());
+        //probably should be in openejb...
+        ThreadContext.addThreadContextListener(new OWBContextThreadListener());
 
         // process all resource adapters
         processResourceAdapterWrappers(resourceAdapters);

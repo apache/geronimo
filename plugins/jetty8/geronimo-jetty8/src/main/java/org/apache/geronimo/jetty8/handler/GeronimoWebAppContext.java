@@ -39,11 +39,9 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
-import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletSecurityElement;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
 import org.apache.geronimo.osgi.web.WebApplicationConstants;
@@ -210,6 +208,7 @@ public class GeronimoWebAppContext extends WebAppContext {
         boolean txActive = integrationContext.isTxActive();
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(baseRequest);
         ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(baseRequest, newContext);
+        Map<String, Object> owbContext = integrationContext.contextEntered();
         try {
             try {
                 super.doScope(target, baseRequest, request, response);
@@ -217,6 +216,7 @@ public class GeronimoWebAppContext extends WebAppContext {
                 integrationContext.restoreConnectorContext(connectorContext, baseRequest, newContext);
             }
         } finally {
+            integrationContext.contextExited(owbContext);
             integrationContext.restoreContext(context);
             integrationContext.completeTx(txActive, baseRequest);
         }

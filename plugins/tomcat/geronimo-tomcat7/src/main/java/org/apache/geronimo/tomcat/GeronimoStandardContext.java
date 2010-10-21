@@ -48,7 +48,6 @@ import javax.servlet.ServletSecurityElement;
 import org.apache.catalina.Container;
 import org.apache.catalina.ContainerListener;
 import org.apache.catalina.Engine;
-import org.apache.catalina.Globals;
 import org.apache.catalina.InstanceListener;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
@@ -76,6 +75,8 @@ import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.OWBBeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.UserTransactionBeforeAfter;
 import org.apache.geronimo.tomcat.listener.DispatchListener;
 import org.apache.geronimo.tomcat.listener.RunAsInstanceListener;
@@ -144,6 +145,7 @@ public class GeronimoStandardContext extends StandardContext {
         // Create ReadOnlyContext
         javax.naming.Context enc = ctx.getJndiContext();
         setInstanceManager(ctx.getInstanceManager());
+        ServletContext servletContext = getServletContext();
 
         //try to make sure this mbean properties match those of the TomcatWebAppContext
         if (ctx instanceof TomcatWebAppContext) {
@@ -154,13 +156,13 @@ public class GeronimoStandardContext extends StandardContext {
             setJ2EEServer(tomcatWebAppContext.getJ2EEServer());
             //install jasper injection support if required
             if (tomcatWebAppContext.getRuntimeCustomizer() != null) {
-                Map<String, Object> servletContext = new HashMap<String, Object>();
+                Map<String, Object> attributes = new HashMap<String, Object>();
                 Map<Class, Object> customizerContext = new HashMap<Class, Object>();
-                customizerContext.put(Map.class, servletContext);
+                customizerContext.put(Map.class, attributes);
                 customizerContext.put(javax.naming.Context.class, enc);
                 tomcatWebAppContext.getRuntimeCustomizer().customize(customizerContext);
-                for (Map.Entry<String, Object> entry: servletContext.entrySet()) {
-                    getServletContext().setAttribute(entry.getKey(), entry.getValue());
+                for (Map.Entry<String, Object> entry: attributes.entrySet()) {
+                    servletContext.setAttribute(entry.getKey(), entry.getValue());
                 }
             }
             applicationPolicyConfigurationManager = tomcatWebAppContext.getApplicationPolicyConfigurationManager();
@@ -171,7 +173,6 @@ public class GeronimoStandardContext extends StandardContext {
             boolean metaComplete = (Boolean) tomcatWebAppContext.getDeploymentAttribute(WebAttributeName.META_COMPLETE.name());
             webSecurityConstraintStore = new WebSecurityConstraintStore(tomcatWebAppContext.getWebAppInfo(), bundle, schemaVersion >= 2.5f && !metaComplete, getInternalServletContext());
 
-            ServletContext servletContext = getServletContext();
             servletContext.setAttribute(InstanceManager.class.getName(), ctx.getInstanceManager());
 
             //Set some attributes passed from the deployment process
@@ -225,6 +226,8 @@ public class GeronimoStandardContext extends StandardContext {
             interceptor = new ComponentContextBeforeAfter(interceptor, index++, enc);
         }
 
+        interceptor = new OWBBeforeAfter(interceptor, index++, servletContext);
+        
         //Set a PolicyContext BeforeAfter
         SecurityHolder securityHolder = ctx.getSecurityHolder();
         if (securityHolder != null) {
@@ -245,7 +248,7 @@ public class GeronimoStandardContext extends StandardContext {
                     defaultSubject = ContextManager.EMPTY;
                 }
 
-//                interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, index++, policyContextId, defaultSubject);
+                interceptor = new PolicyContextBeforeAfter(interceptor, index++, index++, index++, policyContextId, defaultSubject);
 
             }
         }

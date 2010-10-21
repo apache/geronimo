@@ -155,6 +155,12 @@
             <artifactId>geronimo-persistence-jpa20</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-openwebbeans</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

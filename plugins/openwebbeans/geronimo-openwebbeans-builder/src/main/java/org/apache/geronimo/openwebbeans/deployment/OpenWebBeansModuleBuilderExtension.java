@@ -40,14 +40,12 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.openwebbeans.OpenWebBeansGBean;
+import org.apache.geronimo.openwebbeans.WebBeansConfigurationListener;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.openejb.jee.WebApp;
-import org.apache.webbeans.servlet.WebBeansConfigurationListener;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -65,6 +63,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
     private final Environment defaultEnvironment;
     private final NamingBuilder namingBuilders;
 
+    //this is the geronimo copy
     private static final String CONTEXT_LISTENER_NAME = WebBeansConfigurationListener.class.getName();
 
     public OpenWebBeansModuleBuilderExtension(
@@ -124,7 +123,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         // add myfaces listener
         WebAppInfo webAppInfo = (WebAppInfo) webAppData.getAttribute("webAppInfo");
         if (webAppInfo != null && !webAppInfo.listeners.contains(CONTEXT_LISTENER_NAME)) {
-            webAppInfo.listeners.add(CONTEXT_LISTENER_NAME);
+            webAppInfo.listeners.add(0, CONTEXT_LISTENER_NAME);
         }
         AbstractName moduleName = moduleContext.getModuleName();
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
@@ -142,16 +141,16 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
         namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);    
         
-        AbstractName webBeansGBeanName = moduleContext.getNaming().createChildName(moduleName, "webbeans-lifecycle", "webbeans");
-        GBeanData providerData = new GBeanData(webBeansGBeanName, OpenWebBeansGBean.class);
-        try {
-            moduleContext.addGBean(providerData);
-        } catch (GBeanAlreadyExistsException e) {
-            throw new DeploymentException("Duplicate webbean config gbean in web module", e);
-        }
+//        AbstractName webBeansGBeanName = moduleContext.getNaming().createChildName(moduleName, "webbeans-lifecycle", "webbeans");
+//        GBeanData providerData = new GBeanData(webBeansGBeanName, OpenWebBeansGBean.class);
+//        try {
+//            moduleContext.addGBean(providerData);
+//        } catch (GBeanAlreadyExistsException e) {
+//            throw new DeploymentException("Duplicate webbean config gbean in web module", e);
+//        }
 
         //make the web app start second after the webbeans machinery
-        webAppData.addDependency(webBeansGBeanName);
+//        webAppData.addDependency(webBeansGBeanName);
     }
 
     private boolean hasBeansXml(Bundle bundle) {

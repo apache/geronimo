@@ -37,13 +37,13 @@ public class ComponentContextBeforeAfter implements BeforeAfter{
         context[index] = RootContext.getComponentContext();
         RootContext.setComponentContext(componentContext);
         if (next != null) {
-            next.before(context, httpRequest, httpResponse, 0);
+            next.before(context, httpRequest, httpResponse, dispatch);
         }
     }
 
     public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
         if (next != null) {
-            next.after(context, httpRequest, httpResponse, 0);
+            next.after(context, httpRequest, httpResponse, dispatch);
         }
         RootContext.setComponentContext((Context) context[index]);
     }

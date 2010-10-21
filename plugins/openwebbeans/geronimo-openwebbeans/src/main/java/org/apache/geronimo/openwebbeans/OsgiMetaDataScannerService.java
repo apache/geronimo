@@ -81,24 +81,26 @@ public class OsgiMetaDataScannerService implements ScannerService
         Bundle mainBundle = BundleUtils.getContextBundle(true);
 
 
-        ServiceReference reference = mainBundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
-        try
-        {
-            PackageAdmin packageAdmin = (PackageAdmin) mainBundle.getBundleContext().getService(reference);
+        if (mainBundle != null) {
+            ServiceReference reference = mainBundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
+            try
+            {
+                PackageAdmin packageAdmin = (PackageAdmin) mainBundle.getBundleContext().getService(reference);
 
-            // search for all META-INF/beans.xml files
-            findBeansXml(mainBundle, packageAdmin);
+                // search for all META-INF/beans.xml files
+                findBeansXml(mainBundle, packageAdmin);
 
-            // search for all classes
-            findBeanClasses(mainBundle, packageAdmin);
-        }
-        catch(Exception e)
-        {
-            throw new WebBeansDeploymentException("problem while scanning OSGi bundle", e);
-        }
-        finally
-        {
-            mainBundle.getBundleContext().ungetService(reference);
+                // search for all classes
+                findBeanClasses(mainBundle, packageAdmin);
+            }
+            catch(Exception e)
+            {
+                throw new WebBeansDeploymentException("problem while scanning OSGi bundle", e);
+            }
+            finally
+            {
+                mainBundle.getBundleContext().ungetService(reference);
+            }
         }
 
     }

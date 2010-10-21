@@ -21,24 +21,24 @@
 package org.apache.geronimo.jetty8.handler;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Context;
+import javax.resource.ResourceException;
+import javax.servlet.DispatcherType;
 import javax.servlet.ServletContainerInitializer;
-import javax.transaction.UserTransaction;
+import javax.servlet.ServletException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
-import javax.servlet.ServletException;
-import javax.servlet.DispatcherType;
-import javax.resource.ResourceException;
-
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
-import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
+import javax.transaction.UserTransaction;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
+import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.naming.java.RootContext;
-import org.castor.cache.distributed.EHCache;
+import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
 import org.eclipse.jetty.server.Request;
 import org.osgi.framework.Bundle;
 
@@ -55,6 +55,7 @@ public class IntegrationContext {
     private final Bundle bundle;
     private final Holder holder;
     private final Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap;
+    private final Map<String, Object> owbContext = new HashMap<String, Object>();
 
     public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder, Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap) {
         this.componentContext = componentContext;
@@ -172,5 +173,18 @@ public class IntegrationContext {
 
     public Map<ServletContainerInitializer, Set<Class<?>>> getServletContainerInitializerMap() {
         return servletContainerInitializerMap;
+    }
+
+
+    public Map<String, Object> contextEntered() {
+        return GeronimoSingletonService.contextEntered(owbContext);
+    }
+
+    public void contextExited(Map<String, Object> oldOWBContext) {
+        GeronimoSingletonService.contextExited(oldOWBContext);
+    }
+
+    public Map<String, Object> getOWBContext() {
+        return owbContext;
     }
 }

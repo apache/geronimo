@@ -72,7 +72,6 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
                          @ParamAttribute(name = "deploymentDescriptor") String deploymentDescriptor,
                          @ParamReference(name = "EJBCollection") Collection<? extends EjbDeployment> ejbs,
                          @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
-                         @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                          @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
                          @ParamAttribute(name = "ejbInfo") GeronimoEjbInfo ejbInfo) throws NamingException {
         this.objectName = objectName;

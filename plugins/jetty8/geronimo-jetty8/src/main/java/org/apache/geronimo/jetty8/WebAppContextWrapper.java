@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.jetty8;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -49,12 +48,12 @@ import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.jetty8.handler.GeronimoWebAppContext;
 import org.apache.geronimo.jetty8.handler.IntegrationContext;
 import org.apache.geronimo.jetty8.security.SecurityHandlerFactory;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
+import org.apache.geronimo.openwebbeans.OpenWebBeansWebInitializer;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
@@ -297,6 +296,8 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         }
         //supply web.xml to jasper
         webAppContext.setAttribute(JASPER_WEB_XML_NAME, originalSpecDD);
+        new OpenWebBeansWebInitializer(integrationContext.getOWBContext(), webAppContext.getServletContext());
+
     }
 
 
