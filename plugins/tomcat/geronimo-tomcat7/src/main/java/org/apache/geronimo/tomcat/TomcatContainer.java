@@ -19,7 +19,6 @@ package org.apache.geronimo.tomcat;
 import java.io.File;
 import java.net.URL;
 import java.net.URLStreamHandlerFactory;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -52,6 +51,7 @@ import org.apache.geronimo.osgi.web.WebApplicationConstants;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
@@ -298,6 +298,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         // set the bundle context attribute in the servlet context
         context.getServletContext().setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE,
                                                  contextInfo.getBundle().getBundleContext());
+        context.getServletContext().setAttribute(WebAttributeName.WEB_APP_INFO.name(), contextInfo.getWebAppInfo());
 
         // now set the module context ValidatorFactory in a context property.
         try {
@@ -404,7 +405,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        context.getParent().removeChild(context);
         webServices.remove(contextPath);
     }
 

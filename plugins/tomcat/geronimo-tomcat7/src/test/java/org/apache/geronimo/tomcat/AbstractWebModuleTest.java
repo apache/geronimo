@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.security.auth.login.LoginException;
 import javax.security.jacc.PolicyContextException;
+import javax.servlet.jsp.JspFactory;
 import javax.transaction.TransactionManager;
 
 import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
@@ -93,6 +94,8 @@ public abstract class AbstractWebModuleTest extends TestSupport {
 
     protected TomcatWebAppContext setUpInsecureAppContext(String relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, RunAsSource runAsSource, ObjectRetriever tomcatRealm, ValveGBean valveChain, WebAppInfo webAppInfo) throws Exception {
         configurationBaseURL = cl.getResource("deployables/");
+        //Setup default JSP Factory
+        Class.forName("org.apache.jasper.compiler.JspRuntimeContext");
         URI locationURI = configurationBaseURL.toURI().resolve(relativeWebAppRoot);
         MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), locationURI.toString(), new HashMap<Artifact, ConfigurationData>(), null);
         bundle = bundleContext.getBundle();

@@ -52,15 +52,15 @@ public class JACCRealm implements Realm {
         return old;
     }
 
-    @Override
+    /*@Override
     @Deprecated
     public boolean hasRole(Principal principal, String role) {
         AccessControlContext acc = ContextManager.getCurrentContext();
         String name = currentRequestWrapperName.get();
 
-        /**
+        *//**
          * JACC v1.0 secion B.19
-         */
+         *//*
         if (name == null || name.equals("jsp")) {
             name = "";
         }
@@ -70,7 +70,7 @@ public class JACCRealm implements Realm {
         } catch (AccessControlException e) {
             return false;
         }
-    }
+    }*/
 
     @Override
     public boolean hasRole(Wrapper wrapper, Principal principal, String role) {

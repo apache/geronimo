@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<plugin-artifact xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2" xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3">
+<plugin-artifact xmlns="http://geronimo.apache.org/xml/ns/plugins-1.3" xmlns:ns2="http://geronimo.apache.org/xml/ns/attributes-1.2">
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>tomcat7</artifactId>
@@ -7,8 +7,28 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>commons-collections</groupId>
+        <artifactId>commons-collections</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>castor</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>commons-digester</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>commons-discovery</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -63,6 +83,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-openwebbeans</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-tomcat7</artifactId>
         <type>jar</type>
     </dependency>
@@ -83,11 +108,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-annotation_1.1_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jaxr_1.0_spec</artifactId>
         <type>jar</type>
     </dependency>
@@ -97,8 +117,43 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.myfaces.core</groupId>
+        <artifactId>myfaces-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.myfaces.core</groupId>
+        <artifactId>myfaces-impl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.openejb</groupId>
         <artifactId>openejb-jee</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-jsf</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-osgi</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-web</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.commons-codec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.dom4j</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

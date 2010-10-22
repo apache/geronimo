@@ -141,13 +141,7 @@ public class SecurityValve extends ValveBase implements org.apache.catalina.Auth
         } catch (ServerAuthException e) {
             throw new IOException(e.getMessage(), e.getCause());
         }
-    }
-
-    @Override
-    public void register(Request request, HttpServletResponse response, Principal principal, String authType, String username, String password) {
-        //we don't do this, session tracking is done by the jaspic authenticators
-        throw new IllegalStateException("should not be called in geronimo integration");
-    }
+    }    
 
     @Override
     public void login(String username, String password, Request request) throws ServletException {
