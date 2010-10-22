@@ -362,24 +362,6 @@
         <profile>
             <id>headless</id>
 
-            <!-- Remove pluginRepository once selenium-maven-plugin 1.1 is released -->
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>snapshots.nexus.codehaus.org</id>
-                    <name>snapshots.nexus.codehaus.org</name>
-                    <url>https://nexus.codehaus.org/content/repositories/snapshots/</url>
-                    <layout>default</layout>
-                    <snapshots>
-                        <enabled>true</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                        <checksumPolicy>ignore</checksumPolicy>
-                    </snapshots>
-                    <releases>
-                        <enabled>false</enabled>
-                    </releases>
-                </pluginRepository>
-            </pluginRepositories>
-
             <build>
                 <pluginManagement>
                     <plugins>
