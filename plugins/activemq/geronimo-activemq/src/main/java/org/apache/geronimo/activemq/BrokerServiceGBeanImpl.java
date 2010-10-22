@@ -140,6 +140,10 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
     public synchronized void doStop() throws Exception {
         if (asyncStartup) {
             active.set(false);
+            // ActiveMQ AMQPersistenceAdapter can hang, if we are still starting
+            if (asyncStarted.getCount() > 0) {
+                return;
+            }
         }
         brokerService.stop();
         brokerService.waitUntilStopped();
@@ -148,6 +152,10 @@ public class BrokerServiceGBeanImpl implements BrokerServiceGBean, GBeanLifecycl
     public synchronized void doFail() {
         if (asyncStartup) {
             active.set(false);
+            // ActiveMQ AMQPersistenceAdapter can hang, if we are still starting
+            if (asyncStarted.getCount() > 0) {
+                return;
+            }
         }        
         try {
             brokerService.stop();
