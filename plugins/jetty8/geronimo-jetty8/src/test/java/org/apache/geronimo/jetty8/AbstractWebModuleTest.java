@@ -112,7 +112,8 @@ public class AbstractWebModuleTest extends TestSupport {
     protected WebAppContextWrapper setUpAppContext(String securityRealmName, SecurityHandlerFactory securityHandlerFactory, String policyContextId, RunAsSource runAsSource, String uriString, WebAppInfo webAppInfo) throws Exception {
 
         ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager = null;
-
+        //Setup default JSP Factory
+        Class.forName("org.apache.jasper.compiler.JspRuntimeContext");
         if (securityHandlerFactory == null) {
             Permissions unchecked = new Permissions();
             unchecked.add(new WebUserDataPermission("/", null));

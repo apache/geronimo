@@ -48,6 +48,7 @@ import org.apache.geronimo.osgi.web.WebApplicationConstants;
 import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.assembler.Assembler;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
@@ -96,6 +97,7 @@ public class GeronimoWebAppContext extends WebAppContext {
         setClassLoader(classLoader);
         this.classLoader = classLoader;
         setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE, integrationContext.getBundle().getBundleContext());
+        setAttribute(WebAttributeName.WEB_APP_INFO.name(), webAppInfo);
         // now set the module context ValidatorFactory in a context property.
         try {
             javax.naming.Context ctx = integrationContext.getComponentContext();
