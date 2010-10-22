@@ -28,13 +28,13 @@ import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventHandler;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.web25.deployment.DefaultWebAppInfoFactory;
 import org.apache.geronimo.web25.deployment.WebAppInfoBuilder;
 import org.apache.openejb.jee.JAXBContextFactory;
-import org.apache.openejb.jee.Servlet;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
@@ -73,7 +73,6 @@ public class WebAppXmlAttributeBuilder implements XmlAttributeBuilder {
             Unmarshaller unmarshaller = ctx.createUnmarshaller();
             unmarshaller.setEventHandler(new ValidationEventHandler(){
                 public boolean handleEvent(ValidationEvent validationEvent) {
-                    System.out.println(validationEvent);
                     return false;
                 }
             });
