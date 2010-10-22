@@ -37,7 +37,7 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
 
     private boolean secure;
     private String discoveryHost = null;
-    private String discoveryURI = "ejb:ejbd://{discoveryHost}:{port}";
+    private String discoveryURI = null;
     private String clusterName;
     private String multicastHost;
     private int multicastPort;
@@ -209,10 +209,10 @@ public class EjbDaemonGBean implements NetworkConnector, GBeanLifecycle {
         properties.setProperty("multipoint.max_missed_heartbeats", Integer.toString(maxMissedHeartbeats));
         if ((discoveryHost != null) && discoveryHost.length() > 0) {
             properties.setProperty("ejbd.discoveryHost", discoveryHost);
+            properties.setProperty("ejbd.discovery", "ejb:ejbd://{discoveryHost}:{port}");
         } else {
-            properties.setProperty("ejbd.discoveryHost", host);
+            properties.setProperty("ejbd.discovery", "ejb:ejbd://{host}:{port}");
         }
-        properties.setProperty("ejbd.discovery", discoveryURI);
         properties.setProperty("ejbd.secure", secure + "");
         properties.setProperty("ejbds.disabled", "true");
         if (threads > 0) {
