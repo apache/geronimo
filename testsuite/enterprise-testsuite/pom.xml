@@ -55,6 +55,7 @@
         <module>jpa-tests</module>
         <module>sec-client-tests</module>
         <module>appname-tests</module>
+        <module>bundle-inject-test</module>
     </modules>
 
 </project>

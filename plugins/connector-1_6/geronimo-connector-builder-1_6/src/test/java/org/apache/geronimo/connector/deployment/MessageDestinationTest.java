@@ -142,7 +142,8 @@ public class MessageDestinationTest extends TestCase {
         configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.class));
         configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.class));
         adminObjectRefBuilder.buildNaming(specDD, plan, module, componentContext);
-        assertEquals(2, module.getJndiScope(JndiScope.comp).size());
+        assertTrue(module.getJndiScope(JndiScope.comp).containsKey("comp/env/n1"));
+        assertTrue(module.getJndiScope(JndiScope.comp).containsKey("comp/env/n2"));
     }
 
     private static final String PLAN2 = "<tmp xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
@@ -166,7 +167,8 @@ public class MessageDestinationTest extends TestCase {
         configuration.addGBean(new GBeanData(n1, AdminObjectWrapperGBean.class));
         configuration.addGBean(new GBeanData(n2, AdminObjectWrapperGBean.class));
         adminObjectRefBuilder.buildNaming(specDD, plan, module, componentContext);
-        assertEquals(2, module.getJndiScope(JndiScope.comp).size());
+        assertTrue(module.getJndiScope(JndiScope.comp).containsKey("comp/env/n1"));
+        assertTrue(module.getJndiScope(JndiScope.comp).containsKey("comp/env/n2"));
     }
 
     private static final String SPECDD2 = "<web-app xmlns=\"http://java.sun.com/xml/ns/j2ee\">" +
