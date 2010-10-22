@@ -19,33 +19,33 @@
 
 
 package org.apache.geronimo.bval;
-
-import javax.naming.InitialContext;
+ 
 import javax.naming.NamingException;
 import javax.validation.Validation;
 import javax.validation.ValidationException;
 import javax.validation.ValidatorFactory;
 
-import org.apache.xbean.naming.reference.SimpleReference;
+import org.apache.geronimo.naming.reference.ResourceReference;
 
 /**
  * @version $Rev$ $Date$
  */
-public class DefaultValidatorReference extends SimpleReference {
+public class ValidatorFactoryResourceReference extends ResourceReference<ValidationException> {
+
+    public ValidatorFactoryResourceReference(String query, String type) {
+        super(query, type);
+    }
+    
     @Override
     public Object getContent() throws NamingException {
-        ValidatorFactory factory = null;
-        
+        // get the associated reference and use that to request the validator 
         try {
-            try {
-                factory = (ValidatorFactory)new InitialContext().lookup("java:comp/ValidatorFactory");
-            } catch(NamingException e) {
-                factory = Validation.buildDefaultValidatorFactory();
-            }
-            return factory.getValidator();
-        } catch (ValidationException v) {
-            throw (NamingException)new NamingException("Could not create Validator instance").initCause(v);
+            return (ValidatorFactory)super.getContent();
+        } catch (ValidationException e) {
+            // turn any creation errors into a NamingException 
+            throw (NamingException)new NamingException("Could not create ValidatorFactory instance").initCause(e);
         }
-        
     }
 }
+
+

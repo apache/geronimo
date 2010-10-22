@@ -28,6 +28,7 @@ import javax.validation.ValidatorFactory;
 
 import org.apache.geronimo.bval.DefaultValidatorFactoryReference;
 import org.apache.geronimo.bval.DefaultValidatorReference;
+import org.apache.geronimo.bval.ValidatorFactoryResourceReference;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -72,7 +73,7 @@ public class BValNamingBuilder extends AbstractNamingBuilder {
             moduleContext.getGBeanInstance(abstractName);
             String osgiJndiName = module.getEarContext().getNaming().toOsgiJndiName(abstractName);
             String filter = "(osgi.jndi.service.name=" + osgiJndiName + ')';
-            put("java:comp/ValidatorFactory", new ResourceReference<ValidationException>(filter, ValidatorFactory.class.getName()), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
+            put("java:comp/ValidatorFactory", new ValidatorFactoryResourceReference(filter, ValidatorFactory.class.getName()), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);
         } catch (GBeanNotFoundException e) {
             // if we can't find one on the module, then bind to a default validator factory 
             put("java:comp/ValidatorFactory", new DefaultValidatorFactoryReference(), module.getJndiContext(), Collections.<InjectionTarget>emptyList(), sharedContext);

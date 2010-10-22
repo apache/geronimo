@@ -101,6 +101,11 @@ public class submitInfo extends HttpServlet {
             InitialContext ctx = new InitialContext();
             vf = (ValidatorFactory)ctx.lookup("java:comp/ValidatorFactory");
             validator = (Validator)ctx.lookup("java:comp/Validator");
+            Validator validator2 = (Validator)ctx.lookup("java:comp/Validator");
+            if (validator == validator2) {
+                message += "<b>JNDI Validator is a singleton<br>";
+                violationSize += 1; 
+            }
         } catch (NamingException e) {
             // log this as a violation 
             message += "<b>Unable to obtain validator from JNDI:</b>" + e.getMessage() + "<br>";
