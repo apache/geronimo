@@ -195,7 +195,7 @@ public class DeploymentContext {
             tempBundleFile = FileUtils.createTempFile();
             createTempManifest();
             createPluginMetadata();
-            JarUtils.jarDirectory(baseDir, tempBundleFile);
+            JarUtils.jarDirectory(this.getConfigurationDir(), tempBundleFile);
             String location = "reference:" + tempBundleFile.toURI().toURL();
             tempBundle = bundleContext.installBundle(location);
             if (BundleUtils.canStart(tempBundle)) {
