@@ -341,7 +341,9 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         // determine the source file/dir
         log.debug("Writing config: " + configurationData);
-        File source = configurationData.getConfigurationDir();
+        File source = configurationData.getInPlaceConfigurationDir() == null ? configurationData.getConfigurationDir()
+                : configurationData.getInPlaceConfigurationDir();
+        
         if (!source.exists()) {
             throw new InvalidConfigException("Source does not exist " + source);
         } else if (!source.canRead()) {
