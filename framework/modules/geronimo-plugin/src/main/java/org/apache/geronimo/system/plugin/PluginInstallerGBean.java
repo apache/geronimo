@@ -805,6 +805,7 @@ public class PluginInstallerGBean implements PluginInstaller {
                                     configManager.loadConfiguration(artifact);
                                 } catch (Exception e) {
                                     log.error("Unable to load configuration. ", e);
+                                    poller.setFailure(e);
                                     configManager.uninstallConfiguration(artifact);
                                 }
                             }
