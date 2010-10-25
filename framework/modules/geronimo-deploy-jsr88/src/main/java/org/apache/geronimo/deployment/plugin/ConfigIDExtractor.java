@@ -54,6 +54,10 @@ import org.xml.sax.helpers.DefaultHandler;
 public class ConfigIDExtractor {
 
     private static final Logger log = LoggerFactory.getLogger(ConfigIDExtractor.class);
+    
+    private static final String APPLICATION_SYMBOLICNAME="Application-SymbolicName:";
+    
+    private static final String APPLICATION_VERION="Application-Version:";
 
     /**
      * Attempt to calculate the Geronimo ModuleID for a J2EE application
@@ -87,12 +91,21 @@ public class ConfigIDExtractor {
                 target = new File(module, "META-INF/geronimo-ra.xml");
             } else if(new File(module, "META-INF/application-client.xml").canRead()) {
                 target = new File(module, "META-INF/geronimo-application-client.xml");
-            } else {
+            }  else if(new File(module,"META-INF/APPLICATION.MF").canRead()) {
+                target = new File(module,"META-INF/APPLICATION.MF");
+            }  else {
                 target = new File(module, "META-INF/geronimo-service.xml");
             }
             if(target.canRead()) {
                 Reader in = new BufferedReader(new FileReader(target));
-                String name = extractModuleIdFromPlan(in);
+                
+                String name = null;
+                if (target.getName().endsWith("xml")) {
+                    name = extractModuleIdFromPlan(in);
+                } else if (target.getName().endsWith("MF")) {
+                    name = extractModuleIdFromAPPLICATION_MF(in);
+                }
+                
                 if(name != null) {
                     Artifact artifact = Artifact.create(name);
                     if(artifact.getArtifactId() == null) {
@@ -121,12 +134,23 @@ public class ConfigIDExtractor {
                     entry = input.getJarEntry("META-INF/geronimo-ra.xml");
                 } else if(input.getJarEntry("META-INF/application-client.xml") != null) {
                     entry = input.getJarEntry("META-INF/geronimo-application-client.xml");
+                }  else if(input.getJarEntry("META-INF/APPLICATION.MF") != null) {
+                    entry = input.getJarEntry("META-INF/APPLICATION.MF");
                 } else {
                     entry = input.getJarEntry("META-INF/geronimo-service.xml");
                 }
+                
                 if(entry != null) {
                     Reader in = new BufferedReader(new InputStreamReader(input.getInputStream(entry)));
-                    String name = extractModuleIdFromPlan(in);
+                    
+                    String name = null;
+
+                    if (entry.getName().endsWith("xml")) {
+                        name = extractModuleIdFromPlan(in);
+                    } else if (entry.getName().endsWith("MF")) {
+                        name = extractModuleIdFromAPPLICATION_MF(in);
+                    }
+                    
                     if(name != null) {
                         Artifact artifact = Artifact.create(name);
                         if(artifact.getArtifactId() == null) {
@@ -213,6 +237,50 @@ public class ConfigIDExtractor {
         return list;
     }
 
+    
+    private static String extractModuleIdFromAPPLICATION_MF(Reader APPLICATION_MF) throws IOException,DeploymentException {
+
+        BufferedReader br = new BufferedReader(APPLICATION_MF);
+
+        String artifactID = null;
+        String artifactVersion = null;
+        
+        
+        String line = br.readLine();
+
+        while (line != null) {
+
+            if (line.startsWith(APPLICATION_SYMBOLICNAME)) {
+                artifactID = line.substring(APPLICATION_SYMBOLICNAME.length(), line.length());
+            }
+
+            if (line.startsWith(APPLICATION_VERION)) {
+                artifactVersion = line.substring(APPLICATION_VERION.length(), line.length());
+            }
+
+            line = br.readLine();
+
+        }
+
+        if (artifactID == null || artifactVersion == null) {
+            throw new DeploymentException("Could not determine artifact or version with APPLICATION.MF of your EBA application");
+        }
+        
+        org.osgi.framework.Version version=new org.osgi.framework.Version(artifactVersion.trim());
+
+        return new Artifact("application", artifactID.trim(), getVersion(version), "eba").toString();
+    } 
+    
+    //copied from org.apache.geronimo.aries.builder.ApplicationInstaller.getVersion(Version)
+    private static String getVersion(org.osgi.framework.Version version) {
+        String str = version.getMajor() + "." + version.getMinor() + "." + version.getMicro();
+        String qualifier = version.getQualifier();
+        if (qualifier != null && qualifier.trim().length() > 0) {
+            str += "-" + version.getQualifier().trim();
+        }
+        return str;
+    }
+    
     private static String extractModuleIdFromPlan(Reader plan) throws IOException {
         SAXParserFactory factory = XmlUtil.newSAXParserFactory();
         factory.setNamespaceAware(true);
