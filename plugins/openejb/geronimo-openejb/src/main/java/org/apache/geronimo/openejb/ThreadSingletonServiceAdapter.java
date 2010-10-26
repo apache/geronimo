@@ -25,11 +25,17 @@ import java.util.Map;
 import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
 import org.apache.geronimo.openwebbeans.OpenWebBeansWebInitializer;
 import org.apache.geronimo.openwebbeans.OsgiMetaDataScannerService;
+import org.apache.openejb.AppContext;
 import org.apache.openejb.cdi.CdiAppContextsService;
 import org.apache.openejb.cdi.CdiResourceInjectionService;
+import org.apache.openejb.cdi.OWBContext;
+import org.apache.openejb.cdi.OpenEJBLifecycle;
+import org.apache.openejb.cdi.StartupObject;
 import org.apache.openejb.cdi.ThreadSingletonService;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
+import org.apache.webbeans.corespi.ServiceLoader;
 import org.apache.webbeans.lifecycle.StandaloneLifeCycle;
+import org.apache.webbeans.spi.ContainerLifecycle;
 import org.apache.webbeans.spi.ResourceInjectionService;
 
 /**
@@ -41,10 +47,27 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
     }
 
     @Override
-    public void initialize(org.apache.openejb.cdi.OWBContext owbContext) {
+    public void initialize(StartupObject startupObject) {
+        //share owb singletons
+        OWBContext owbContext = new OWBContext();
         Object old = contextEntered(owbContext);
         try {
-            setConfiguration(OpenWebBeansConfiguration.getInstance());
+            if (old == null) {
+                //not embedded. Are we the first ejb module to try this?
+                if (startupObject.getAppContext().get(OWBContext.class) == null) {
+                    startupObject.getAppContext().set(OWBContext.class, owbContext);
+                    setConfiguration(OpenWebBeansConfiguration.getInstance());
+                    try {
+                        ServiceLoader.getService(ContainerLifecycle.class).startApplication(startupObject);
+                    } catch (Exception e) {
+                        throw new RuntimeException("couldn't start owb context", e);
+                    }
+                }
+                // an existing OWBConfiguration will have already been initialized
+            } else {
+                owbContext = new OWBContext((Map<String, Object>) old);
+                startupObject.getAppContext().set(OWBContext.class, owbContext);
+            }
         } finally {
             contextExited(old);
         }
@@ -52,8 +75,10 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
 
     private void setConfiguration(OpenWebBeansConfiguration configuration) {
         configuration.setProperty(OpenWebBeansConfiguration.USE_EJB_DISCOVERY, "true");
-
-        configuration.setProperty(OpenWebBeansConfiguration.CONTAINER_LIFECYCLE, StandaloneLifeCycle.class.getName());
+        //from CDI builder
+        configuration.setProperty(OpenWebBeansConfiguration.INTERCEPTOR_FORCE_NO_CHECKED_EXCEPTIONS, "false");
+  
+        configuration.setProperty(OpenWebBeansConfiguration.CONTAINER_LIFECYCLE, OpenEJBLifecycle.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.JNDI_SERVICE, OpenWebBeansWebInitializer.NoopJndiService.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.SCANNER_SERVICE, OsgiMetaDataScannerService.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.CONTEXTS_SERVICE, CdiAppContextsService.class.getName());
@@ -69,6 +94,6 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
     @Override
     public void contextExited(Object oldContext) {
         if (oldContext != null && !(oldContext instanceof Map)) throw new IllegalArgumentException("Expecting a Map<String, Object> not " + oldContext.getClass().getName());
-        GeronimoSingletonService.contextExited((Map<String, Object>)oldContext);
+        GeronimoSingletonService.contextExited((Map<String, Object>) oldContext);
     }
 }

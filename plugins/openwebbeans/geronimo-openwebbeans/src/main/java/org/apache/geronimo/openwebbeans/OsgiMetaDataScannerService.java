@@ -52,7 +52,7 @@ public class OsgiMetaDataScannerService implements ScannerService
 
     private boolean configured = false;
 
-    protected ServletContext servletContext = null;
+//    protected ServletContext servletContext = null;
     private static final String META_INF_BEANS_XML = "META-INF/beans.xml";
     private static final String WEB_INF_BEANS_XML = "WEB-INF/beans.xml";
 
@@ -68,10 +68,10 @@ public class OsgiMetaDataScannerService implements ScannerService
     @Override
     public void init(Object object)
     {
-        if (object instanceof ServletContext)
-        {
-            servletContext = (ServletContext) object;
-        }
+//        if (object instanceof ServletContext)
+//        {
+//            servletContext = (ServletContext) object;
+//        }
     }
 
     @Override
@@ -101,6 +101,7 @@ public class OsgiMetaDataScannerService implements ScannerService
             {
                 mainBundle.getBundleContext().ungetService(reference);
             }
+            configured = true;
         }
 
     }
