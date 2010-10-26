@@ -21,6 +21,8 @@
 package org.apache.geronimo.jetty7.handler;
 
 import java.io.IOException;
+import java.util.Map; 
+import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +46,7 @@ public class GeronimoWebAppContext extends WebAppContext {
 
     private Handler handler;
     protected final IntegrationContext integrationContext;
+    protected Map<String, String> contextParamMap; 
 
 
     public GeronimoWebAppContext(SecurityHandler securityHandler, SessionHandler sessionHandler, ServletHandler servletHandler, ErrorHandler errorHandler, IntegrationContext integrationContext, ClassLoader classLoader) {
@@ -51,8 +54,20 @@ public class GeronimoWebAppContext extends WebAppContext {
         this.integrationContext = integrationContext;
         setClassLoader(classLoader);
     }
+    
+    /**
+     * Set any context parameters that need to be set during 
+     * the doStart() phase of the initialization.  
+     * 
+     * @param contextParamMap
+     *               The parameter map;
+     */
+    public void setContextParamMap(Map<String, String> contextParamMap) {
+        this.contextParamMap = contextParamMap; 
+    }
 
-    public void setTwistyHandler(Handler handler) {
+    public void setTwistyHandler(Handler handler)  
+    {  
         this.handler = handler;
     }
 
@@ -62,6 +77,17 @@ public class GeronimoWebAppContext extends WebAppContext {
 
     @Override
     protected void doStart() throws Exception {
+        // jetty 7.2.0 forces the setInitParameter() calls to be delayed until 
+        // the doStart() method is called.  Set these before allowing the superclass to 
+        // complete startup. 
+        if (contextParamMap != null && contextParamMap.size() > 0) {
+            
+            for (Entry<String, String> entry : contextParamMap.entrySet()) {
+
+                getServletContext().setInitParameter(entry.getKey(), entry.getValue());
+            }
+        }
+        
         javax.naming.Context context = integrationContext.setContext();
         boolean txActive = integrationContext.isTxActive();
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);

@@ -243,11 +243,9 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         setDisplayName(displayName);
         
         if (contextParamMap != null && contextParamMap.size() > 0) {
-            
-            for (Entry<String, String> entry : contextParamMap.entrySet()) {
-
-                webAppContext.getServletContext().setInitParameter(entry.getKey(), entry.getValue());
-            }
+            // setting of the parameters needs to be delayed until 
+            // doStart() is called. 
+            webAppContext.setContextParamMap(contextParamMap);
         }
 
         setListenerClassNames(listenerClassNames);
@@ -316,6 +314,13 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         return (Servlet)holder.newInstance(className, webClassLoader, componentContext);
     }
 
+    public Object newFilterInstance(String className) throws InstantiationException, IllegalAccessException {
+        if (className == null) {
+            throw new InstantiationException("no class loaded");
+        }
+        return holder.newInstance(className, webClassLoader, componentContext);
+    }
+
     public void destroyInstance(Object o) throws Exception {
         Class clazz = o.getClass();
         if (holder != null) {
@@ -362,7 +367,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         if (eventListeners != null) {
             Collection<EventListener> listeners = new ArrayList<EventListener>();
             for (String listenerClassName : eventListeners) {
-                EventListener listener = (EventListener) newInstance(listenerClassName);
+                EventListener listener = (EventListener) newFilterInstance(listenerClassName);
                 listeners.add(listener);
             }
             webAppContext.setEventListeners(listeners.toArray(new EventListener[listeners.size()]));
