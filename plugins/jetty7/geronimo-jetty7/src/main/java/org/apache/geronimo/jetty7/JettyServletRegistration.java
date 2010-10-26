@@ -18,8 +18,7 @@ package org.apache.geronimo.jetty7;
 
 import java.util.Set;
 
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
+import javax.servlet.Servlet;
 
 import org.apache.geronimo.jetty7.handler.IntegrationContext;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -38,7 +37,7 @@ public interface JettyServletRegistration {
 
     ClassLoader getWebClassLoader();
 
-    Object newInstance(String className) throws InstantiationException, IllegalAccessException;
+    Servlet newInstance(String className) throws InstantiationException, IllegalAccessException;
 
     void destroyInstance(Object o) throws Exception;
 

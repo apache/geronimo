@@ -123,11 +123,13 @@ public class AbstractWebModuleTest extends TestSupport {
                     return true;
                 }
 
-                public void setConfiguration(Configuration configuration) {
-                }
-
                 public String getAuthMethod() {
                     return null;
+                }
+
+                public void setConfiguration(AuthConfiguration arg0) {
+
+                    
                 }
 
             }, loginService);

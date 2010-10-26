@@ -51,7 +51,6 @@ class InjectionServletHandler extends ServletHandler {
                 
             }
         }
-        servlet = super.customizeServlet(servlet);
         processAnnotations(servlet);
         return servlet;
     }

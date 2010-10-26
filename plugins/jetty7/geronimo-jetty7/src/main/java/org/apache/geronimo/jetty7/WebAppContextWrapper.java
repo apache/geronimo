@@ -25,12 +25,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.security.auth.Subject;
+import javax.servlet.Servlet;
 import javax.transaction.TransactionManager;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
@@ -239,7 +241,15 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
 
         //stuff from spec dd
         setDisplayName(displayName);
-        webAppContext.setInitParams(contextParamMap);
+        
+        if (contextParamMap != null && contextParamMap.size() > 0) {
+            
+            for (Entry<String, String> entry : contextParamMap.entrySet()) {
+
+                webAppContext.getServletContext().setInitParameter(entry.getKey(), entry.getValue());
+            }
+        }
+
         setListenerClassNames(listenerClassNames);
         webAppContext.setDistributable(distributable);
         webAppContext.setWelcomeFiles(welcomeFiles);
@@ -299,11 +309,11 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         return integrationContext;
     }
 
-    public Object newInstance(String className) throws InstantiationException, IllegalAccessException {
+    public Servlet newInstance(String className) throws InstantiationException, IllegalAccessException {
         if (className == null) {
             throw new InstantiationException("no class loaded");
         }
-        return holder.newInstance(className, webClassLoader, componentContext);
+        return (Servlet)holder.newInstance(className, webClassLoader, componentContext);
     }
 
     public void destroyInstance(Object o) throws Exception {

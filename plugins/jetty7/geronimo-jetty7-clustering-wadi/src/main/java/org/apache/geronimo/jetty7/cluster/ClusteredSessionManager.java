@@ -145,7 +145,8 @@ public class ClusteredSessionManager extends AbstractSessionManager {
         }
 
         protected ClusteredSession(org.apache.geronimo.clustering.Session session) {
-            super(System.currentTimeMillis(), session.getSessionId());
+
+            super(System.currentTimeMillis(), 0L, session.getSessionId());
             this.session = session;
             initValues();
         }

@@ -22,7 +22,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.geronimo.jetty7.AbstractPreHandler;
 import org.apache.geronimo.jetty7.PreHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.server.Request;
@@ -39,13 +38,13 @@ public class ClusteredSessionHandler extends SessionHandler {
             throw new IllegalArgumentException("chainedHandler is required");
         }
         this.chainedHandler = chainedHandler;
-        chainedHandler.setNextHandler(new ActualHandler());
 
         setSessionManager(sessionManager);
     }
     
-    @Override
-    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+
+    @Override    
+    public void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         setRequestedId(baseRequest, request);
         try {
@@ -53,19 +52,9 @@ public class ClusteredSessionHandler extends SessionHandler {
         } catch (ServletException e) {
             throw (IOException) new IOException().initCause(e);
         }
-    }
-    
-    protected void doHandle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
-        super.handle(target, baseRequest, request, response);
+        
+        super.doHandle(target, baseRequest, request, response);
     }
 
-    private class ActualHandler extends AbstractPreHandler {
-
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-                throws IOException, ServletException {
-            doHandle(target, baseRequest, request, response);
-        }
-    }
 
 }

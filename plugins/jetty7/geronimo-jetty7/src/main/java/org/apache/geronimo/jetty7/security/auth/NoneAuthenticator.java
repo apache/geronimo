@@ -35,7 +35,8 @@ import org.eclipse.jetty.server.Authentication;
  */
 public class NoneAuthenticator implements Authenticator {
 
-    public void setConfiguration(Configuration configuration) {
+    public void setConfiguration(AuthConfiguration configuration) {
+        
     }
 
     public String getAuthMethod() {
@@ -58,4 +59,6 @@ public class NoneAuthenticator implements Authenticator {
     public boolean secureResponse(ServletRequest request, ServletResponse response, boolean mandatory, Authentication.User validatedUser) throws ServerAuthException {
         return true;
     }
+
+
 }
