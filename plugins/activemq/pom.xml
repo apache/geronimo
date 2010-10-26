@@ -64,6 +64,7 @@
 
     <properties>
         <activemqVersion>5.4.1</activemqVersion>
+        <xmlpullVersion>1.1.3.4a</xmlpullVersion>
     </properties>
 
     <dependencyManagement>

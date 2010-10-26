@@ -110,7 +110,7 @@
                 <exclusion>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-websocket</artifactId>
-                </exclusion>
+                </exclusion>          
 <!--                 <exclusion> -->
 <!--                     <groupId>org.eclipse.jetty</groupId> -->
 <!--                     <artifactId>jetty-util</artifactId> -->
@@ -215,9 +215,19 @@
                     <groupId>aopalliance</groupId>
                     <artifactId>aopalliance</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>xmlpull</groupId>
+                    <artifactId>xmlpull</artifactId>
+                </exclusion>                    
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>xmlpull</groupId>
+            <artifactId>xmlpull</artifactId>
+            <version>${xmlpullVersion}</version>
+        </dependency>        
+        
         <!-- XMPP support -->
         <dependency>
             <groupId>org.apache.activemq</groupId>
