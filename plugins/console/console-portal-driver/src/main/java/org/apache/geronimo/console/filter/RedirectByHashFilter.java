@@ -85,7 +85,7 @@ public class RedirectByHashFilter implements Filter {
                     hash = redirectURLToHash.get(currentRequestURI);     
             }
             
-            log.info("Hash value for page:"+currentRequestURI+" is:"+hash);
+            log.debug("Hash value for page:"+currentRequestURI+" is:"+hash);
             
             //this attribute will be used to add hash to index page.
             request.setAttribute(HASH_OF_CURRENT_PORTAL_PAGE,hash);
@@ -103,7 +103,7 @@ public class RedirectByHashFilter implements Filter {
             //log.info("Redirecting to:" + pageToRedirect+" according to hash:"+hashOfPageToRedirect);
             
            // pageToRedirect=pageToRedirect.substring("/console".length());
-            log.info("Redirecting to:" + pageToRedirect+" according to hash:"+hashOfPageToRedirect);
+            log.debug("Redirecting to:" + pageToRedirect+" according to hash:"+hashOfPageToRedirect);
            // request.getParameterMap().remove(NOXSS_HASH_OF_PAGE_TO_REDIRECT);
             request.getRequestDispatcher(pageToRedirect).forward(request, response);
             
@@ -112,7 +112,7 @@ public class RedirectByHashFilter implements Filter {
             
         } else {
             
-            log.info("no redirect for:" + ((HttpServletRequest)request).getRequestURL());
+            log.debug("no redirect for:" + ((HttpServletRequest)request).getRequestURL());
             filterChain.doFilter(request, response);
         }    
 
