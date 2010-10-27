@@ -79,7 +79,7 @@
         <!--
         Having a single well named version properties makes automatic updating for the weekly build much easier.
         -->
-        <openejbVersion>3.0.3-SNAPSHOT</openejbVersion>
+        <openejbVersion>3.0.3</openejbVersion>
         <derbyVersion>10.5.3.0_1</derbyVersion>
         <externalTomcatVersion>6.0.29.0</externalTomcatVersion>
         <tomcatVersion>6.0.29</tomcatVersion>
@@ -2515,6 +2515,21 @@
             <url>scp://people.apache.org/www/geronimo.apache.org/maven/server</url>
         </site>
     </distributionManagement>
+  
+    <repositories>
+            <repository>
+                  <id>openejb303-staging</id>
+                  <name>Apache OpenEJB 3.0.3</name>
+                  <url>https://repository.apache.org/content/repositories/orgapacheopenejb-002/</url>
+                  <layout>default</layout>
+                  <releases>
+                      <enabled>true</enabled>
+                  </releases>
+                  <snapshots>
+                      <enabled>false</enabled>
+                  </snapshots>
+            </repository>
+    </repositories>    
 
     <profiles>
         <profile>
