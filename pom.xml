@@ -94,7 +94,7 @@
         <openjpaVersion>1.2.2</openjpaVersion>
         <xbeanVersion>3.6</xbeanVersion>
         <wadiVersion>2.0</wadiVersion>
-        <txmanagerVersion>2.2</txmanagerVersion>
+        <txmanagerVersion>2.2.1</txmanagerVersion>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${version}/car</gbeanDeployerBootstrap>
@@ -2521,6 +2521,18 @@
                   <id>openejb303-staging</id>
                   <name>Apache OpenEJB 3.0.3</name>
                   <url>https://repository.apache.org/content/repositories/orgapacheopenejb-002/</url>
+                  <layout>default</layout>
+                  <releases>
+                      <enabled>true</enabled>
+                  </releases>
+                  <snapshots>
+                      <enabled>false</enabled>
+                  </snapshots>
+            </repository>
+            <repository>
+                  <id>txmanager221-staging</id>
+                  <name>txmanager 2.2.1</name>
+                  <url>https://repository.apache.org/content/repositories/orgapachegeronimo-006/</url>
                   <layout>default</layout>
                   <releases>
                       <enabled>true</enabled>
