@@ -226,7 +226,7 @@ if [ -z "$JDB_SRCPATH" ] ; then
 fi
 
 # Classpath: Add the jars in the lib dir
-for file in $GERONIMO_HOME/lib/*.jar
+for file in "$GERONIMO_HOME"/lib/*.jar
 do
   if [ -z "$CLASSPATH" ]; then
     CLASSPATH="$file"
