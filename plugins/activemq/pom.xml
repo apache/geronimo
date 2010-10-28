@@ -101,7 +101,21 @@
                         <groupId>org.osgi</groupId>
                         <artifactId>org.osgi.core</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.jasypt</groupId>
+                        <artifactId>jasypt</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>com.ibm.icu</groupId>
+                      <artifactId>icu4j</artifactId>
+                    </exclusion>
                 </exclusions>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.jasypt</artifactId>
+                <version>1.6_1</version>
             </dependency>
 
             <dependency>
