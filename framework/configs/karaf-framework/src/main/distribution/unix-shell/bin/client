@@ -164,7 +164,7 @@ if [ -z "$GERONIMO_TMPDIR" ] ; then
 fi
 
 # Classpath: Add the jars in the lib dir
-for file in $GERONIMO_HOME/lib/*.jar
+for file in "$GERONIMO_HOME"/lib/*.jar
 do
   if [ -z "$CLASSPATH" ]; then
     CLASSPATH="$file"
@@ -205,7 +205,7 @@ if [ -f "$JAVA_AGENT_JAR" ]; then
     -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
     -Dkaraf.home="$GERONIMO_HOME" \
     -Dkaraf.base="$GERONIMO_HOME" \
-    -Djava.util.logging.config.file=$GERONIMO_HOME/etc/java.util.logging.properties \
+    -Djava.util.logging.config.file="$GERONIMO_HOME"/etc/java.util.logging.properties \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
     -Djava.ext.dirs="$EXT_DIRS" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
@@ -217,7 +217,7 @@ else
     -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
     -Dkaraf.home="$GERONIMO_HOME" \
     -Dkaraf.base="$GERONIMO_HOME" \
-    -Djava.util.logging.config.file=$GERONIMO_HOME/etc/java.util.logging.properties \
+    -Djava.util.logging.config.file="$GERONIMO_HOME"/etc/java.util.logging.properties \
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
     -Djava.ext.dirs="$EXT_DIRS" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
