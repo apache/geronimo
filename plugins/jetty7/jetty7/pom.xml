@@ -132,15 +132,21 @@
                                     <attribute name="host">#{ServerHostname}</attribute>
                                     <attribute name="port">#{HTTPPort + PortOffset}</attribute>
                                     <attribute name="redirectPort">#{HTTPSPortPrimary + PortOffset}</attribute>
+                                    <attribute name="maxThreads">#{webAcceptorThreads}</attribute>
+                                    <attribute name="acceptQueueSize">#{webAcceptorQueueSize}</attribute>
                                 </gbean>
                                 <gbean name="JettyAJP13Connector">
                                     <attribute name="host">#{ServerHostname}</attribute>
                                     <attribute name="port">#{AJPPort + PortOffset}</attribute>
                                     <attribute name="redirectPort">#{HTTPSPortPrimary + PortOffset}</attribute>
+                                    <attribute name="maxThreads">#{webAcceptorThreads}</attribute>
+                                    <attribute name="acceptQueueSize">#{webAcceptorQueueSize}</attribute>
                                 </gbean>
                                 <gbean name="JettySSLConnector">
                                     <attribute name="host">#{ServerHostname}</attribute>
                                     <attribute name="port">#{HTTPSPort + PortOffset}</attribute>
+                                    <attribute name="maxThreads">#{webAcceptorThreads}</attribute>
+                                    <attribute name="acceptQueueSize">#{webAcceptorQueueSize}</attribute>
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="HTTPPort">8080</config-substitution>
@@ -149,6 +155,8 @@
                             <config-substitution key="ServerHostname">0.0.0.0</config-substitution>
                             <config-substitution key="webcontainer">JettyWebContainer</config-substitution>
                             <config-substitution key="webcontainerName">jetty7</config-substitution>
+                            <config-substitution key="webAcceptorThreads">2</config-substitution>
+                            <config-substitution key="webAcceptorQueueSize">50</config-substitution>
                         </plugin-artifact>
                     </instance>
                 </configuration>
