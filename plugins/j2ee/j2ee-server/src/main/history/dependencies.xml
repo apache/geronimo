@@ -7,6 +7,11 @@
         <type>car</type>
     </module-id>
     <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>scannotation</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.components</groupId>
         <artifactId>geronimo-transaction</artifactId>
         <type>jar</type>
@@ -23,12 +28,57 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-annotation_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-atinject_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-el_2.2_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-interceptor_1.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-j2ee-connector_1.6_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jcdi_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-validation_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-impl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-spi</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.howl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

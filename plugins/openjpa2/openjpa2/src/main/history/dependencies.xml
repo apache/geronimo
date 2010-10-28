@@ -37,6 +37,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>scannotation</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>transaction-1_6</artifactId>
         <type>car</type>
@@ -68,7 +73,22 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-atinject_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-ejb_3.1_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-el_2.2_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-interceptor_1.1_spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -82,8 +102,28 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jcdi_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-impl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-spi</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

@@ -38,6 +38,21 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>commons-digester</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>commons-discovery</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>jstl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>scannotation</artifactId>
         <type>jar</type>
     </dependency>
@@ -119,6 +134,11 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-openejb</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-openwebbeans</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -208,6 +228,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-jsp_2.2_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jta_1.1_spec</artifactId>
         <type>jar</type>
     </dependency>
@@ -224,6 +249,16 @@
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-validation_1.0_spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.myfaces.core</groupId>
+        <artifactId>myfaces-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.myfaces.core</groupId>
+        <artifactId>myfaces-impl</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -293,7 +328,37 @@
     </dependency>
     <dependency>
         <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-jsf</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-osgi</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-resource</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
         <artifactId>openwebbeans-spi</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.openwebbeans</groupId>
+        <artifactId>openwebbeans-web</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.commons-codec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.dom4j</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

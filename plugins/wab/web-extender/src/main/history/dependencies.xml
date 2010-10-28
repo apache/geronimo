@@ -78,11 +78,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-annotation_1.1_spec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jacc_1.4_spec</artifactId>
         <type>jar</type>
     </dependency>
