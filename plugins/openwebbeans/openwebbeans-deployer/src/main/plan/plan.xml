@@ -21,9 +21,6 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="OpenWebBeansModuleBuilderExtension" class="org.apache.geronimo.openwebbeans.deployment.OpenWebBeansModuleBuilderExtension">
-        <reference name="NamingBuilders">
-            <name>NamingBuilders</name>
-        </reference>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <dependencies>

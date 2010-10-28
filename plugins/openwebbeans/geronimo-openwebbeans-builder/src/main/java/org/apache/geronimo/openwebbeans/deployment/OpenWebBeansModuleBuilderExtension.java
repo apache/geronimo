@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
@@ -61,16 +62,15 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
     private static final Logger log = LoggerFactory.getLogger(OpenWebBeansModuleBuilderExtension.class);
 
     private final Environment defaultEnvironment;
-    private final NamingBuilder namingBuilders;
+    //only plausible naming builder is ours that adds BeanManager entry
+    private final NamingBuilder namingBuilders  = new OpenWebBeansNamingBuilder();
 
     //this is the geronimo copy
     private static final String CONTEXT_LISTENER_NAME = WebBeansConfigurationListener.class.getName();
 
     public OpenWebBeansModuleBuilderExtension(
-            @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
-            @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
+            @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment) {
         this.defaultEnvironment = defaultEnvironment;
-        this.namingBuilders = namingBuilders;
     }
 
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder)
@@ -108,6 +108,12 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         if (!(module instanceof WebModule)) {
             // not a web module, nothing to do
             return;
+        }
+
+        for (Object subModule: module.getModules()) {
+            if (subModule instanceof EJBModule) {
+                return;
+            }
         }
         
         WebModule webModule = (WebModule) module;
