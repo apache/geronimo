@@ -32,6 +32,7 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.myfaces.config.annotation.GeronimoAnnotationProviderFactory;
 import org.apache.geronimo.myfaces.config.resource.ConfigurationResource;
 import org.apache.geronimo.myfaces.config.resource.GeronimoFacesConfigResourceProviderFactory;
 import org.apache.myfaces.spi.AnnotationProviderFactory;
@@ -95,7 +96,7 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
             cache = new HashMap<String, Object>(EnvironmentCache.smallHashSize);
             EnvironmentCache.put(classLoader, cache);
         }
-        //cache.put(AnnotationProviderFactory.class.getName(), new GeronimoAnnotationProviderFactory(annotationClassSetMap));
+        cache.put(AnnotationProviderFactory.class.getName(), new GeronimoAnnotationProviderFactory(annotationClassSetMap));
         cache.put(FacesConfigResourceProviderFactory.class.getName(), new GeronimoFacesConfigResourceProviderFactory(metaInfConfigurationResources));
     }
 
