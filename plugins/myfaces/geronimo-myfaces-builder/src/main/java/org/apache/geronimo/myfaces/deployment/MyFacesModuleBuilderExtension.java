@@ -21,24 +21,35 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.component.FacesComponent;
+import javax.faces.component.behavior.FacesBehavior;
+import javax.faces.convert.FacesConverter;
+import javax.faces.event.NamedEvent;
+import javax.faces.render.FacesBehaviorRenderer;
+import javax.faces.render.FacesRenderer;
+import javax.faces.validator.FacesValidator;
 import javax.faces.webapp.FacesServlet;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.Deployable;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.AbstractName;
@@ -59,18 +70,26 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.myfaces.LifecycleProviderGBean;
+import org.apache.geronimo.myfaces.config.resource.ConfigurationResource;
+import org.apache.geronimo.myfaces.webapp.GeronimoStartupServletContextListener;
+import org.apache.geronimo.myfaces.webapp.MyFacesWebAppContext;
 import org.apache.geronimo.web.info.WebAppInfo;
-import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.apache.openejb.jee.FacesConfig;
 import org.apache.openejb.jee.FacesManagedBean;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.ParamValue;
 import org.apache.openejb.jee.Servlet;
 import org.apache.openejb.jee.WebApp;
+import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
+import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
+import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -90,21 +109,21 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
     private final NamingBuilder namingBuilders;
 
-    private static final String CONTEXT_LISTENER_NAME = StartupServletContextListener.class.getName();
+    private static final String CONTEXT_LISTENER_NAME = GeronimoStartupServletContextListener.class.getName();
 
     private static final String FACES_SERVLET_NAME = FacesServlet.class.getName();
 
-    private static final String SCHEMA_LOCATION_URL = "http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd";
+    public static final EARContext.Key<Set<ConfigurationResource>> JSF_META_INF_CONFIGURATION_RESOURCES = new EARContext.Key<Set<ConfigurationResource>>() {
 
-    private static final String VERSION = "2.0";
-
-    private static final String JAVAX_FACES_CONFIG_FILES = "javax.faces.CONFIG_FILES";
-
-    private static final String JAVAX_FACES_CONFIG_FILES_SEPARATOR = ",";
+        @Override
+        public Set<ConfigurationResource> get(Map<EARContext.Key, Object> context) {
+            return (Set<ConfigurationResource>) context.get(this);
+        }
+    };
 
     public MyFacesModuleBuilderExtension(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
-                                         @ParamAttribute(name = "providerFactoryNameQuery") AbstractNameQuery providerFactoryNameQuery,
-                                         @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
+            @ParamAttribute(name = "providerFactoryNameQuery") AbstractNameQuery providerFactoryNameQuery,
+            @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
         this.providerFactoryNameQuery = providerFactoryNameQuery;
         this.namingBuilders = namingBuilders;
@@ -115,7 +134,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming,
-                             ModuleIDBuilder idBuilder) throws DeploymentException {
+            ModuleIDBuilder idBuilder) throws DeploymentException {
         mergeEnvironment(module);
     }
 
@@ -138,73 +157,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         if (!(module instanceof WebModule)) {
             return;
         }
-        //For MyFaces uses common Jar Strategy to find the config files, while it is impossible in OSGi environment.
-        //Current workaround is to copy all the files in the lib/*.jar files to a temp folder, and add those files to the context parameter in web.xml file
-        WebModule webModule = (WebModule) module;
-        WebApp webApp = webModule.getSpecDD();
-        ParamValue configFilesPV = null;
-        for (ParamValue pv : webApp.getContextParam()) {
-            if (JAVAX_FACES_CONFIG_FILES.equals(pv.getParamName().trim())) {
-                configFilesPV = pv;
-                break;
-            }
-        }
-        StringBuilder configFiles = new StringBuilder(configFilesPV != null && configFilesPV.getParamValue() != null ? configFilesPV.getParamValue() : "");
-        File libDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "lib");
-        if (!libDirectory.exists()) {
-            return;
-        }
-        for (File jarFile : libDirectory.listFiles()) {
-            if (!jarFile.getName().endsWith(".jar")) {
-                continue;
-            }
-
-            JarFile zipFile;
-            try {
-                zipFile = new JarFile(jarFile);
-            } catch (IOException e) {
-                //Just ignore
-                continue;
-            }
-
-            ZipInputStream in = null;
-            try {
-                in = new ZipInputStream(new FileInputStream(jarFile));
-                ZipEntry zipEntry;
-
-                while ((zipEntry = in.getNextEntry()) != null) {
-                    String name = zipEntry.getName();
-
-                    // Scan config files named as faces-config.xml or *.faces-config.xml under META-INF
-                    if (name.equals("META-INF/faces-cofig.xml") || (name.startsWith("META-INF/") && name.endsWith(".faces-config.xml"))) {
-
-                        // copy config file
-                        String destination = "temp/" + jarFile.getName() + ".tempdir" + "/" + name;
-                        earContext.addFile(module.resolve(destination), zipFile, zipEntry);
-
-                        // add new location of config file name to configFiles
-                        if (configFiles.length() > 0) {
-                            configFiles.append(JAVAX_FACES_CONFIG_FILES_SEPARATOR);
-                        }
-                        configFiles.append("/").append(destination);
-                    }
-                }
-            } catch (Exception e) {
-                throw new DeploymentException("Can not preprocess myfaces application configuration resources", e);
-            } finally {
-                IOUtils.close(in);
-            }
-        }
-
-        // write configFiles back to web.xml
-        if (configFilesPV == null && configFiles.length() > 0) {
-            configFilesPV = new ParamValue();
-            configFilesPV.setParamName(JAVAX_FACES_CONFIG_FILES);
-            webApp.getContextParam().add(configFilesPV);
-        }
-        if (configFilesPV != null && configFiles.length() > 0) {
-            configFilesPV.setParamValue(configFiles.toString());
-        }
+        module.getEarContext().getGeneralData().put(JSF_META_INF_CONFIGURATION_RESOURCES, findMetaInfConfigurationResources(earContext, module));
     }
 
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
@@ -235,6 +188,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                 ((Collection<String>) value).add(CONTEXT_LISTENER_NAME);
             }
         }
+
         AbstractName moduleName = moduleContext.getModuleName();
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleName);
@@ -245,7 +199,38 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
 
         XmlObject jettyWebApp = webModule.getVendorDD();
 
-        ClassFinder classFinder = createMyFacesClassFinder(webApp, webModule);
+        FacesConfig defaultWebAppFacesConfig = getDefaultWebAppFacesConfig(webModule);
+        Set<ConfigurationResource> metaInfConfigurationResources = JSF_META_INF_CONFIGURATION_RESOURCES.get(earContext.getGeneralData());
+        Map<Class<? extends Annotation>, Set<Class>> annotationClassSetMap = null;
+        if (!defaultWebAppFacesConfig.isMetadataComplete()) {
+            annotationClassSetMap = scanJSFAnnotations(earContext, webModule, bundle, metaInfConfigurationResources);
+        }
+
+
+        AbstractName myFacesWebAppContextName = moduleContext.getNaming().createChildName(moduleName, "myFacesWebAppContext", "MyFacesWebAppContext");
+        GBeanData myFacesWebAppContextData = new GBeanData(myFacesWebAppContextName, MyFacesWebAppContext.class);
+        myFacesWebAppContextData.setAttribute("annotationClassSetMap", annotationClassSetMap);
+        myFacesWebAppContextData.setAttribute("metaInfConfigurationResources", metaInfConfigurationResources);
+
+        List<FacesConfig> facesConfigs = new ArrayList<FacesConfig>();
+        facesConfigs.add(defaultWebAppFacesConfig);
+        facesConfigs.addAll(getContextFacesConfigs(webApp, webModule));
+        for (ConfigurationResource configurationResource : metaInfConfigurationResources) {
+            URL url;
+            try {
+                url = configurationResource.getConfigurationResourceURL(bundle);
+            } catch (MalformedURLException e) {
+                throw new DeploymentException("Fail to read the faces Configuration file " + configurationResource.getConfigurationResourcePath()
+                        + (configurationResource.getJarFilePath() == null ? "" : " from jar file " + configurationResource.getJarFilePath()), e);
+            }
+            if (url == null) {
+                throw new DeploymentException("Fail to read the faces Configuration file " + configurationResource.getConfigurationResourcePath()
+                        + (configurationResource.getJarFilePath() == null ? "" : " from jar file " + configurationResource.getJarFilePath()));
+            }
+            facesConfigs.add(parseConfigFile(url, bundle));
+        }
+
+        ClassFinder classFinder = createMyFacesClassFinder(facesConfigs, annotationClassSetMap != null ? annotationClassSetMap.get(ManagedBean.class) : null, bundle);
         webModule.setClassFinder(classFinder);
 
         namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);
@@ -257,6 +242,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         providerData.setReferencePattern("LifecycleProviderFactory", providerFactoryNameQuery);
         try {
             moduleContext.addGBean(providerData);
+            moduleContext.addGBean(myFacesWebAppContextData);
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Duplicate jsf config gbean in web module", e);
         }
@@ -264,6 +250,186 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         //make the web app start second after the injection machinery
         webAppData.addDependency(providerName);
 
+    }
+
+    protected Map<Class<? extends Annotation>, Set<Class>> scanJSFAnnotations(EARContext earContext, Module module, Bundle bundle, Set<ConfigurationResource> metaInfConfigurationResources) throws DeploymentException {
+        ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
+        try {
+            PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
+            final Set<String> requiredJarFiles = new HashSet<String>();
+            for (ConfigurationResource configurationResource : metaInfConfigurationResources) {
+                if (configurationResource.getJarFilePath() != null) {
+                    requiredJarFiles.add(configurationResource.getJarFilePath());
+                }
+            }
+            Map<Class<? extends Annotation>, Set<Class>> annotationClassSetMap = new HashMap<Class<? extends Annotation>, Set<Class>>();
+            BundleAnnotationFinder bundleAnnotationFinder = new BundleAnnotationFinder(packageAdmin, bundle, new ResourceDiscoveryFilter() {
+
+                @Override
+                public boolean directoryDiscoveryRequired(String directory) {
+                    //TODO WEB-INF/classes ???
+                    return true;
+                }
+
+                @Override
+                public boolean rangeDiscoveryRequired(DiscoveryRange discoveryRange) {
+                    return discoveryRange.equals(DiscoveryRange.BUNDLE_CLASSPATH);
+                }
+
+                @Override
+                public boolean zipFileDiscoveryRequired(String jarFile) {
+                    return requiredJarFiles.contains(jarFile);
+                }
+
+            });
+            annotationClassSetMap.put(FacesComponent.class, new HashSet<Class>(bundleAnnotationFinder.findAnnotatedClasses(FacesComponent.class)));
+            annotationClassSetMap.put(FacesConverter.class, new HashSet<Class>(bundleAnnotationFinder.findAnnotatedClasses(FacesConverter.class)));
+            annotationClassSetMap.put(FacesValidator.class, new HashSet<Class>(bundleAnnotationFinder.findAnnotatedClasses(FacesValidator.class)));
+            annotationClassSetMap.put(FacesRenderer.class, new HashSet<Class>(bundleAnnotationFinder.findAnnotatedClasses(FacesRenderer.class)));
+            annotationClassSetMap.put(ManagedBean.class, new HashSet<Class>(bundleAnnotationFinder.findAnnotatedClasses(ManagedBean.class)));
+            annotationClassSetMap.put(NamedEvent.class, new HashSet<Class>(bundleAnnotationFinder.findAnnotatedClasses(NamedEvent.class)));
+            annotationClassSetMap.put(FacesBehavior.class, new HashSet<Class>(bundleAnnotationFinder.findAnnotatedClasses(FacesBehavior.class)));
+            annotationClassSetMap.put(FacesBehaviorRenderer.class, new HashSet<Class>(bundleAnnotationFinder.findAnnotatedClasses(FacesBehaviorRenderer.class)));
+            return annotationClassSetMap;
+        } catch (Exception e) {
+            throw new DeploymentException("Fail to scan JSF annotations", e);
+        } finally {
+            bundle.getBundleContext().ungetService(reference);
+        }
+    }
+
+    protected FacesConfig getDefaultWebAppFacesConfig(WebModule webModule) throws DeploymentException {
+        URL url = webModule.getDeployable().getResource("WEB-INF/faces-config.xml");
+        if (url != null) {
+            Bundle bundle = webModule.getEarContext().getDeploymentBundle();
+            return parseConfigFile(url, bundle);
+        } else {
+            return new FacesConfig();
+        }
+    }
+
+    protected List<FacesConfig> getContextFacesConfigs(WebApp webApp, WebModule webModule) throws DeploymentException {
+        for (ParamValue paramValue : webApp.getContextParam()) {
+            if (paramValue.getParamName().trim().equals(FacesServlet.CONFIG_FILES_ATTR)) {
+                List<FacesConfig> contextFacesConfigs = new ArrayList<FacesConfig>();
+                String configFiles = paramValue.getParamValue().trim();
+                StringTokenizer st = new StringTokenizer(configFiles, ",", false);
+                Bundle bundle = webModule.getEarContext().getDeploymentBundle();
+                while (st.hasMoreTokens()) {
+                    String configfile = st.nextToken().trim();
+                    if (!configfile.equals("")) {
+                        if (configfile.startsWith("/")) {
+                            configfile = configfile.substring(1);
+                        }
+                        URL url = webModule.getEarContext().getTargetURL(webModule.resolve(configfile));
+                        if (url == null) {
+                            throw new DeploymentException("Could not locate config file " + configfile + " configured with " + FacesServlet.CONFIG_FILES_ATTR + " in the web.xml");
+                        } else {
+                            contextFacesConfigs.add(parseConfigFile(url, bundle));
+                        }
+                    }
+                }
+                return contextFacesConfigs;
+            }
+        }
+        return Collections.<FacesConfig> emptyList();
+    }
+
+    protected ClassFinder createMyFacesClassFinder(List<FacesConfig> facesConfigs, Set<Class> annotatedManagedBeanClasses, Bundle bundle) throws DeploymentException {
+        List<Class> managedBeanClasses = new ArrayList<Class>();
+        for (FacesConfig facesConfig : facesConfigs) {
+            for (FacesManagedBean managedBean : facesConfig.getManagedBean()) {
+                String className = managedBean.getManagedBeanClass().trim();
+                Class<?> clas;
+                try {
+                    clas = bundle.loadClass(className);
+                    while (clas != null) {
+                        managedBeanClasses.add(clas);
+                        clas = clas.getSuperclass();
+                    }
+                } catch (ClassNotFoundException e) {
+                    log.warn("MyFacesModuleBuilderExtension: Could not load managed bean class: " + className);
+                }
+            }
+        }
+        if (annotatedManagedBeanClasses != null) {
+            for (Class<?> clas : annotatedManagedBeanClasses) {
+                while (clas != null) {
+                    managedBeanClasses.add(clas);
+                    clas = clas.getSuperclass();
+                }
+            }
+        }
+        return new ClassFinder(managedBeanClasses);
+    }
+
+    protected Set<ConfigurationResource> findMetaInfConfigurationResources(EARContext earContext, Module module) throws DeploymentException {
+        Set<ConfigurationResource> metaInfConfigurationResources = new HashSet<ConfigurationResource>();
+        //1. jar files in the WEB-INF/lib folder
+        File libDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "lib");
+        if (libDirectory.exists()) {
+            for (File file : libDirectory.listFiles()) {
+                if (!file.getName().endsWith(".jar")) {
+                    continue;
+                }
+                try {
+                    if (!JarUtils.isJarFile(file)) {
+                        continue;
+                    }
+                } catch (IOException e) {
+                    continue;
+                }
+                ZipInputStream in = null;
+                JarFile jarFile = null;
+                try {
+                    jarFile = new JarFile(file);
+                    in = new ZipInputStream(new FileInputStream(file));
+                    ZipEntry zipEntry;
+
+                    while ((zipEntry = in.getNextEntry()) != null) {
+                        String name = zipEntry.getName();
+                        // Scan config files named as faces-config.xml or *.faces-config.xml under META-INF
+                        if (name.equals("META-INF/faces-cofig.xml") || (name.startsWith("META-INF/") && name.endsWith(".faces-config.xml"))) {
+                            //TODO Double check the relative jar file path once EAR is really supported
+                            //TODO Should find a way to avoid the file copying
+                            String destination = "META-INF/WEB-INF_lib_" + file.getName() + "/" + name;
+                            earContext.addFile(module.resolve(destination), jarFile, zipEntry);
+                            metaInfConfigurationResources.add(new ConfigurationResource("WEB-INF/lib/" + file.getName(), name, destination));
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new DeploymentException("Can not preprocess myfaces application configuration resources", e);
+                } finally {
+                    IOUtils.close(in);
+                    JarUtils.close(jarFile);
+                }
+            }
+        }
+        //2. WEB-INF/classes/META-INF folder
+        File webInfClassesDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + "META-INF");
+        if (webInfClassesDirectory.exists() && webInfClassesDirectory.isDirectory()) {
+            for (File file : webInfClassesDirectory.listFiles()) {
+                String fileName = file.getName();
+                if (fileName.equals("META-INF/faces-cofig.xml") || (fileName.startsWith("META-INF/") && fileName.endsWith(".faces-config.xml"))) {
+                    //TODO Double check the relative jar file path once EAR is really supported
+                    String filePath = "WEB-INF/classes/META-INF/" + fileName;
+                    metaInfConfigurationResources.add(new ConfigurationResource(null, filePath, filePath));
+                }
+            }
+        }
+        //3. META-INF folder
+        File baseDirectory = new File(earContext.getBaseDir() + File.separator + "META-INF");
+        if (baseDirectory.exists() && baseDirectory.isDirectory()) {
+            for (File file : baseDirectory.listFiles()) {
+                String fileName = file.getName();
+                if (fileName.equals("META-INF/faces-cofig.xml") || (fileName.startsWith("META-INF/") && fileName.endsWith(".faces-config.xml"))) {
+                    //TODO Double check the relative jar file path once EAR is really supported
+                    String filePath = "META-INF/" + fileName;
+                    metaInfConfigurationResources.add(new ConfigurationResource(null, filePath, filePath));
+                }
+            }
+        }
+        return metaInfConfigurationResources;
     }
 
     private boolean hasFacesServlet(WebApp webApp) {
@@ -275,121 +441,22 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         return false;
     }
 
-    protected ClassFinder createMyFacesClassFinder(WebApp webApp, WebModule webModule) throws DeploymentException {
-
-        LinkedHashSet<Class> classes = getFacesClasses(webApp, webModule);
-        return new ClassFinder(new ArrayList<Class>(classes));
-    }
-
-    /**
-     * getFacesConfigFileURL()
-     * <p/>
-     * <p>Locations to search for the MyFaces configuration file(s):
-     * <ol>
-     * <li>META-INF/faces-config.xml
-     * <li>WEB-INF/faces-config.xml
-     * <li>javax.faces.CONFIG_FILES -- Context initialization param of Comma separated
-     * list of URIs of (additional) faces config files
-     * </ol>
-     * <p/>
-     * <p><strong>Notes:</strong>
-     * <ul>
-     * </ul>
-     *
-     * @param webApp    spec DD for module
-     * @param webModule module being deployed
-     * @return list of all managed bean classes from all faces-config xml files.
-     * @throws org.apache.geronimo.common.DeploymentException
-     *          if a faces-config.xml file is located but cannot be parsed.
-     */
-    private LinkedHashSet<Class> getFacesClasses(WebApp webApp, WebModule webModule) throws DeploymentException {
-        log.debug("getFacesClasses( " + webApp.toString() + "," + '\n' + (webModule != null ? webModule.getName() : null) + " ): Entry");
-
-        Deployable deployable = webModule.getDeployable();
-        Bundle bundle = webModule.getEarContext().getDeploymentBundle();
-
-        // 1. META-INF/faces-config.xml
-        LinkedHashSet<Class> classes = new LinkedHashSet<Class>();
-        URL url = deployable.getResource("META-INF/faces-config.xml");
-        if (url != null) {
-            parseConfigFile(url, bundle, classes);
-        }
-
-        // 2. WEB-INF/faces-config.xml
-        url = deployable.getResource("WEB-INF/faces-config.xml");
-        if (url != null) {
-            parseConfigFile(url, bundle, classes);
-        }
-
-        // 3. javax.faces.CONFIG_FILES
-        List<ParamValue> paramValues = webApp.getContextParam();
-        for (ParamValue paramValue : paramValues) {
-            if (paramValue.getParamName().trim().equals("javax.faces.CONFIG_FILES")) {
-                String configFiles = paramValue.getParamValue().trim();
-                StringTokenizer st = new StringTokenizer(configFiles, ",", false);
-                while (st.hasMoreTokens()) {
-                    String configfile = st.nextToken().trim();
-                    if (!configfile.equals("")) {
-                        if (configfile.startsWith("/")) {
-                            configfile = configfile.substring(1);
-                        }
-                        url = webModule.getEarContext().getTargetURL(webModule.resolve(configfile));
-                        if (url == null) {
-                            throw new DeploymentException("Could not locate config file " + configfile);
-                        } else {
-                            parseConfigFile(url, bundle, classes);
-                        }
-                    }
-                }
-                break;
-            }
-        }
-
-        log.debug("getFacesClasses() Exit: " + classes.size() + " " + classes.toString());
-        return classes;
-    }
-
-    private void parseConfigFile(URL url, Bundle bundle, LinkedHashSet<Class> classes) throws DeploymentException {
+    private FacesConfig parseConfigFile(URL url, Bundle bundle) throws DeploymentException {
         log.debug("parseConfigFile( " + url.toString() + " ): Entry");
-
+        InputStream in = null;
         try {
-            InputStream in = url.openStream();
-            FacesConfig facesConfig = null;
-            try {
-                facesConfig = (FacesConfig) JaxbJavaee.unmarshalJavaee(FacesConfig.class, in);
-            } finally {
-                in.close();
-            }
-
-            // Get all the managed beans from the faces configuration file
-            List<FacesManagedBean> managedBeans = facesConfig.getManagedBean();
-            for (FacesManagedBean managedBean : managedBeans) {
-                String className = managedBean.getManagedBeanClass().trim();
-                Class<?> clas;
-                try {
-                    clas = bundle.loadClass(className);
-                    while (clas != null) {
-                        classes.add(clas);
-                        clas = clas.getSuperclass();
-                    }
-                } catch (ClassNotFoundException e) {
-                    log.warn("MyFacesModuleBuilderExtension: Could not load managed bean class: " + className + " mentioned in faces-config.xml file at " + url.toString());
-                }
-            }
+            in = url.openStream();
+            return (FacesConfig) JaxbJavaee.unmarshalJavaee(FacesConfig.class, in);
         } catch (ParserConfigurationException e) {
             throw new DeploymentException("Could not parse alleged faces-config.xml at " + url.toString(), e);
-
         } catch (SAXException e) {
             throw new DeploymentException("Could not parse alleged faces-config.xml at " + url.toString(), e);
-
         } catch (JAXBException e) {
             throw new DeploymentException("Could not parse alleged faces-config.xml at " + url.toString(), e);
-
         } catch (IOException ioe) {
             throw new DeploymentException("Error reading jsf configuration file " + url, ioe);
+        } finally {
+            IOUtils.close(in);
         }
-
-        log.debug("parseConfigFile(): Exit");
     }
-
 }

@@ -43,13 +43,13 @@ import org.osgi.framework.Bundle;
  */
 @GBean
 public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle {
-    
+
     private final Holder holder;
     private final Context context;
     private final ApplicationIndexedLifecycleProviderFactory factory;
     private final ClassLoader classLoader;
     private final Bundle bundle;
-    
+
     public LifecycleProviderGBean(@ParamAttribute(name="holder") Holder holder,
                                   @ParamReference(name="ContextSource", namingType = "Context") ContextSource contextSource,
                                   @ParamReference(name="LifecycleProviderFactory") LifecycleProviderFactorySource factory,
@@ -71,7 +71,7 @@ public class LifecycleProviderGBean implements LifecycleProvider, GBeanLifecycle
     }
 
     public void destroyInstance(Object o) throws IllegalAccessException, InvocationTargetException {
-        Class clazz = o.getClass();
+        Class<?> clazz = o.getClass();
         if (holder != null) {
             Map<String, LifecycleMethod> preDestroy = holder.getPreDestroy();
             if (preDestroy != null) {
