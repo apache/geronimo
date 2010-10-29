@@ -99,7 +99,6 @@ public class JettyFilterMapping extends FilterMapping {
 
                         public void memberRemoved(ReferenceCollectionEvent event) {
                             resetServlets();
-                            resetJettyFilterMappings();
                         }
                     });
                 }
