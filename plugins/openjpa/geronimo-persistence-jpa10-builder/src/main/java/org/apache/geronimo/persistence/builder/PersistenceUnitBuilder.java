@@ -105,9 +105,18 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
 //            buildPersistenceUnits(persistence, module, module.getTargetPath());
         }
         try {
-            File rootBaseFile = module.getRootEarContext().getConfiguration().getConfigurationDir();
+            
+            File rootBaseFile;
+            URI moduleBaseURI;
+            if (module.getRootEarContext().getConfigurationData().getInPlaceConfigurationDir() == null) {
+                rootBaseFile = module.getRootEarContext().getConfigurationData().getConfigurationDir();
+                moduleBaseURI = moduleContext.getBaseDir().toURI();
+            } else {
+                rootBaseFile = module.getRootEarContext().getConfigurationData().getInPlaceConfigurationDir();
+                moduleBaseURI = moduleContext.getConfigurationData().getInPlaceConfigurationDir().toURI();
+            }
             String rootBase = rootBaseFile.toURI().normalize().toString();
-            URI moduleBaseURI = moduleContext.getBaseDir().toURI();
+
             Map rootGeneralData = module.getRootEarContext().getGeneralData();
             ClassPathList manifestcp = (ClassPathList) module.getEarContext().getGeneralData().get(ClassPathList.class);
             if (manifestcp == null) {
