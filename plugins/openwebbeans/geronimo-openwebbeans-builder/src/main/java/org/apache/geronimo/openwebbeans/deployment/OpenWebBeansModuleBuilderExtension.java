@@ -32,10 +32,8 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
@@ -110,12 +108,6 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
             return;
         }
 
-        for (Object subModule: module.getModules()) {
-            if (subModule instanceof EJBModule) {
-                return;
-            }
-        }
-        
         WebModule webModule = (WebModule) module;
                 
         if (!hasBeansXml(bundle)) {
