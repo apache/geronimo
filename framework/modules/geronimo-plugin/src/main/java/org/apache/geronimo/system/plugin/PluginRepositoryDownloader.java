@@ -108,6 +108,7 @@ public class PluginRepositoryDownloader implements PluginRepositoryList {
            userRepository = userRepository + "/";
         }
         try {
+            userRepository = userRepository.replaceAll(" ", "%20");
             URI uri = new URI(userRepository);
             if (!uri.isAbsolute()) {
                 if (userRepository.startsWith("/")) {
