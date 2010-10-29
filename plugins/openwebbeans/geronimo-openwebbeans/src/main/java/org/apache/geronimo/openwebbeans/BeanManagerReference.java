@@ -21,7 +21,7 @@
 package org.apache.geronimo.openwebbeans;
 
 import javax.naming.NamingException;
-import org.apache.webbeans.container.BeanManagerImpl;
+import org.apache.webbeans.container.InjectableBeanManager;
 import org.apache.xbean.naming.reference.SimpleReference;
 
 /**
@@ -31,6 +31,6 @@ public class BeanManagerReference extends SimpleReference {
 
     @Override
     public Object getContent() throws NamingException {
-        return BeanManagerImpl.getManager();
+        return new InjectableBeanManager();
     }
 }

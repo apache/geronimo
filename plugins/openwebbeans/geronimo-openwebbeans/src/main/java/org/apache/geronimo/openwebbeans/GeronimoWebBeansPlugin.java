@@ -25,6 +25,18 @@ import javax.enterprise.event.TransactionPhase;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.ObserverMethod;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
+import javax.jws.WebService;
+import javax.servlet.AsyncListener;
+import javax.servlet.Filter;
+import javax.servlet.Servlet;
+import javax.servlet.ServletContextAttributeListener;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletRequestAttributeListener;
+import javax.servlet.ServletRequestListener;
+import javax.servlet.http.HttpSessionActivationListener;
+import javax.servlet.http.HttpSessionAttributeListener;
+import javax.servlet.http.HttpSessionBindingListener;
+import javax.servlet.http.HttpSessionListener;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
@@ -37,8 +49,8 @@ import org.apache.webbeans.spi.plugins.OpenWebBeansJavaEEPlugin;
 
 public class GeronimoWebBeansPlugin 
     extends AbstractOwbPlugin 
-    implements OpenWebBeansJavaEEPlugin, OpenWebBeansEjbPlugin, TransactionService, SecurityService {
-
+    implements OpenWebBeansJavaEEPlugin, TransactionService, SecurityService {
+ //OpenWebBeansEjbPlugin,
     public <T> Bean<T> defineSessionBean(Class<T> clazz,
                                          ProcessAnnotatedType<T> processAnnotateTypeEvent) {
         // TODO Auto-generated method stub
@@ -69,6 +81,45 @@ public class GeronimoWebBeansPlugin
 
     public boolean isStatelessBean(Class<?> clazz) {
         // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void isManagedBean(Class<?> clazz) throws Exception {
+        if(Servlet.class.isAssignableFrom(clazz) ||
+                Filter.class.isAssignableFrom(clazz) ||
+                ServletContextListener.class.isAssignableFrom(clazz) ||
+                ServletContextAttributeListener.class.isAssignableFrom(clazz) ||
+                HttpSessionActivationListener.class.isAssignableFrom(clazz) ||
+                HttpSessionAttributeListener.class.isAssignableFrom(clazz) ||
+                HttpSessionBindingListener.class.isAssignableFrom(clazz) ||
+                HttpSessionListener.class.isAssignableFrom(clazz) ||
+                ServletRequestListener.class.isAssignableFrom(clazz) ||
+                ServletRequestAttributeListener.class.isAssignableFrom(clazz) ||
+                AsyncListener.class.isAssignableFrom(clazz) )
+        {
+            throw new Exception("Given class  : " + clazz.getName() + " is not managed bean");
+        }
+    }
+
+    @Override
+    public boolean supportsJavaEeComponentInjections(Class<?> clazz) {
+        if(Servlet.class.isAssignableFrom(clazz) ||
+                Filter.class.isAssignableFrom(clazz) ||
+                ServletContextListener.class.isAssignableFrom(clazz) ||
+                ServletContextAttributeListener.class.isAssignableFrom(clazz) ||
+                HttpSessionActivationListener.class.isAssignableFrom(clazz) ||
+                HttpSessionAttributeListener.class.isAssignableFrom(clazz) ||
+                HttpSessionBindingListener.class.isAssignableFrom(clazz) ||
+                HttpSessionListener.class.isAssignableFrom(clazz) ||
+                ServletRequestListener.class.isAssignableFrom(clazz) ||
+                ServletRequestAttributeListener.class.isAssignableFrom(clazz) ||
+                clazz.isAnnotationPresent(WebService.class) ||
+                AsyncListener.class.isAssignableFrom(clazz) )
+        {
+            return true;
+        }
+
         return false;
     }
 
