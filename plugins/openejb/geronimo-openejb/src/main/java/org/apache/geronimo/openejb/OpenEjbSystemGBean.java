@@ -47,6 +47,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
+import org.apache.openejb.AppContext;
 import org.apache.openejb.BeanContext;
 import org.apache.openejb.Container;
 import org.apache.openejb.NoSuchApplicationException;
@@ -421,7 +422,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         }
     }
 
-    public void createApplication(AppInfo appInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException {
+    public AppContext createApplication(AppInfo appInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException {
         Set<AbstractName> names = kernel.listGBeans(new AbstractNameQuery(ResourceAdapterWrapper.class.getName()));
         for (AbstractName name : names) {
             try {
@@ -434,7 +435,7 @@ public class OpenEjbSystemGBean implements OpenEjbSystem {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
         try {
-            assembler.createApplication(appInfo, classLoader);
+            return assembler.createApplication(appInfo, classLoader);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

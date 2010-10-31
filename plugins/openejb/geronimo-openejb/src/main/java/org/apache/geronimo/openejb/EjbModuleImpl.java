@@ -42,10 +42,13 @@ import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.openwebbeans.SharedOwbContext;
+import org.apache.openejb.AppContext;
 import org.apache.openejb.BeanContext;
 import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.UndeployException;
 import org.apache.openejb.assembler.classic.AppInfo;
+import org.apache.openejb.cdi.OWBContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +57,7 @@ import org.slf4j.LoggerFactory;
  */
 
 @GBean(j2eeType = NameFactory.EJB_MODULE)
-public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
+public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContext {
     private static final Logger log = LoggerFactory.getLogger(EjbModuleImpl.class);
     private final J2EEServer server;
     private final J2EEApplication application;
@@ -65,6 +68,7 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
 
     private final OpenEjbSystem openEjbSystem;
     private final AppInfo appInfo;
+    private AppContext appContext;
 
     public EjbModuleImpl(@ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
                          @ParamReference(name = "J2EEServer", namingType = NameFactory.J2EE_SERVER) J2EEServer server,
@@ -166,8 +170,16 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle {
         return result;
     }
 
+    @Override
+    public Map<String, Object> getOWBContext() {
+        if (appContext == null) {
+            throw new IllegalStateException("Not started");
+        }
+        return appContext.get(OWBContext.class).getSingletons();
+    }
+
     public void doStart() throws Exception {
-        openEjbSystem.createApplication(appInfo, classLoader);
+        appContext = openEjbSystem.createApplication(appInfo, classLoader);
         for (String deploymentId: ejbs.keySet()) {
             BeanContext beanContext = openEjbSystem.getDeploymentInfo(deploymentId);
             GeronimoThreadContextListener.get().getEjbDeployment((BeanContext) beanContext);

@@ -80,6 +80,7 @@ import org.apache.geronimo.openejb.EjbModuleImpl;
 import org.apache.geronimo.openejb.GeronimoEjbInfo;
 import org.apache.geronimo.openejb.OpenEjbSystem;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
+import org.apache.geronimo.openwebbeans.SharedOwbContext;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.openejb.OpenEJBException;
@@ -666,6 +667,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException("Could not add ejb module gbean", e);
         }
+        module.getSharedContext().put(SharedOwbContext.class, ejbModuleGBeanData);
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {

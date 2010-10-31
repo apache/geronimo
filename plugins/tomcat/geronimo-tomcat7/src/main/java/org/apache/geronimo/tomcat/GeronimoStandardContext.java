@@ -66,6 +66,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.openwebbeans.OpenWebBeansWebInitializer;
 import org.apache.geronimo.osgi.web.WebApplicationUtils;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
@@ -226,7 +227,12 @@ public class GeronimoStandardContext extends StandardContext {
             interceptor = new ComponentContextBeforeAfter(interceptor, index++, enc);
         }
 
-        interceptor = new OWBBeforeAfter(interceptor, index++, servletContext);
+        Map<String, Object> owbContext = ctx.getOWBContext();
+        if (owbContext == null) {
+            owbContext = new HashMap<String, Object>();
+            new OpenWebBeansWebInitializer(owbContext, servletContext);
+        }
+        interceptor = new OWBBeforeAfter(interceptor, index++, servletContext, owbContext);
         
         //Set a PolicyContext BeforeAfter
         SecurityHolder securityHolder = ctx.getSecurityHolder();

@@ -20,14 +20,12 @@
 
 package org.apache.geronimo.tomcat.interceptor;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
-import org.apache.geronimo.openwebbeans.OpenWebBeansWebInitializer;
 
 /**
  * @version $Rev$ $Date$
@@ -38,11 +36,10 @@ public class OWBBeforeAfter implements BeforeAfter {
     private final int index;
     private final Map<String, Object> owbContext ;
 
-    public OWBBeforeAfter(BeforeAfter next, int index, ServletContext servletContext) {
+    public OWBBeforeAfter(BeforeAfter next, int index, ServletContext servletContext, Map<String, Object> owbContext) {
         this.next = next;
         this.index = index;
-        this.owbContext = new HashMap<String, Object>();
-        new OpenWebBeansWebInitializer(owbContext, servletContext);
+        this.owbContext = owbContext;
     }
 
     @Override

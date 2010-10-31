@@ -77,7 +77,7 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
         configuration.setProperty(OpenWebBeansConfiguration.USE_EJB_DISCOVERY, "true");
         //from CDI builder
         configuration.setProperty(OpenWebBeansConfiguration.INTERCEPTOR_FORCE_NO_CHECKED_EXCEPTIONS, "false");
-  
+
         configuration.setProperty(OpenWebBeansConfiguration.CONTAINER_LIFECYCLE, OpenEJBLifecycle.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.JNDI_SERVICE, OpenWebBeansWebInitializer.NoopJndiService.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.SCANNER_SERVICE, OsgiMetaDataScannerService.class.getName());

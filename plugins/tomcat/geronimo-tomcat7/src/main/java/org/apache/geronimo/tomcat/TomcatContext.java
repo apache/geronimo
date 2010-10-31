@@ -98,4 +98,6 @@ public interface TomcatContext {
     WebAppInfo getWebAppInfo();
 
     Map<String, String> getContextAttributes();
+
+    Map<String, Object> getOWBContext();
 }

@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +72,7 @@ import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.openwebbeans.SharedOwbContext;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.tomcat.LifecycleListenerGBean;
@@ -674,6 +676,14 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             //TODO this may definitely not be the best place for this!
             for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
                 mbe.addGBeans(earContext, module, bundle, repository);
+            }
+            LinkedHashSet<Module<?, ?>> submodules = module.getModules();
+            for (Module<?, ?> subModule: submodules) {
+                if (subModule.getSharedContext().get(SharedOwbContext.class) != null) {
+                    GBeanData data = (GBeanData) subModule.getSharedContext().get(SharedOwbContext.class);
+                    AbstractName name = data.getAbstractName();
+                    webModuleData.setReferencePattern("SharedOwbContext", name);
+                }
             }
             if(tomcatWebApp.isSetSecurityRealmName()) {
                 webModuleData.setReferencePattern("applicationPolicyConfigurationManager", EARContext.JACC_MANAGER_NAME_KEY.get(earContext.getGeneralData()));

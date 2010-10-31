@@ -21,6 +21,7 @@ import java.util.Properties;
 import javax.ejb.spi.HandleDelegate;
 import javax.naming.NamingException;
 
+import org.apache.openejb.AppContext;
 import org.apache.openejb.BeanContext;
 import org.apache.openejb.Container;
 import org.apache.openejb.OpenEJBException;
@@ -53,7 +54,7 @@ public interface OpenEjbSystem {
 
     BeanContext getDeploymentInfo(String deploymentId);
 
-    void createApplication(AppInfo appInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException;
+    AppContext createApplication(AppInfo appInfo, ClassLoader classLoader) throws NamingException, IOException, OpenEJBException;
     
     void removeApplication(AppInfo appInfo, ClassLoader classLoader) throws UndeployException, NoSuchApplicationException;
     

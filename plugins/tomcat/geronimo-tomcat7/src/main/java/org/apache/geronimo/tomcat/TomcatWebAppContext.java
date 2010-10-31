@@ -60,6 +60,7 @@ import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.StatisticsProvider;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
+import org.apache.geronimo.openwebbeans.SharedOwbContext;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
@@ -116,9 +117,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final String modulePath;
     private final Holder holder;
     private final RuntimeCustomizer contextCustomizer;
-    private Map<String, Object> deploymentAttributes;
-    private ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
-    private Map<String,String> contextAttributes;
+    private final Map<String, Object> deploymentAttributes;
+    private final ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
+    private final Map<String,String> contextAttributes;
+    private final Map<String, Object> owbContext;
 
     // JSR 77
     private final String j2EEServer;
@@ -163,6 +165,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes,
             @ParamAttribute(name = "webAppInfo") WebAppInfo webAppInfo,
             @ParamAttribute(name = "contextAttributes") Map<String, String> contextAttributes,
+            @ParamReference(name = "SharedOwbContext")SharedOwbContext sharedOwbContext,
             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel)
             throws Exception {
         assert classLoader != null;
@@ -283,6 +286,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             j2EEServer = null;
             j2EEApplication = null;
         }
+        owbContext = sharedOwbContext == null? null: sharedOwbContext.getOWBContext();
     }
 
     private Map<String, WebServiceContainer> createWebServices(Map<String, AbstractName> webServiceFactoryMap, Kernel kernel) throws Exception {
@@ -547,6 +551,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public Map<String, String> getContextAttributes() {
         return contextAttributes;
     }
+
+    @Override
+    public Map<String, Object> getOWBContext() {
+        return owbContext;
+    }
+
 
     public void doStart() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();

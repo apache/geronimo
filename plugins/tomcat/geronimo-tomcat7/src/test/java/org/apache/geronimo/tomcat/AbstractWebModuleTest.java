@@ -142,6 +142,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
                 deploymentAttributes, //Map<String, String> deploymentAttributes
                 webAppInfo, //webAppinfo
                 new HashMap<String, String>(), // Map<String,String> contextAttributes;
+                null,
                 null);  //kernel
         app.doStart();
         return app;
