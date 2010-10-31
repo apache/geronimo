@@ -25,6 +25,8 @@ import org.apache.webbeans.container.InjectableBeanManager;
 import org.apache.xbean.naming.reference.SimpleReference;
 
 /**
+ * Use this reference instead of directly binding the serializable InjectableBeanManager
+ * so we don't start a BeanManagerImpl at deploy time (with no owb context)
  * @version $Rev:$ $Date:$
  */
 public class BeanManagerReference extends SimpleReference {
