@@ -2518,18 +2518,6 @@
   
     <repositories>
             <repository>
-                  <id>openejb303-staging</id>
-                  <name>Apache OpenEJB 3.0.3</name>
-                  <url>https://repository.apache.org/content/repositories/orgapacheopenejb-002/</url>
-                  <layout>default</layout>
-                  <releases>
-                      <enabled>true</enabled>
-                  </releases>
-                  <snapshots>
-                      <enabled>false</enabled>
-                  </snapshots>
-            </repository>
-            <repository>
                   <id>txmanager221-staging</id>
                   <name>txmanager 2.2.1</name>
                   <url>https://repository.apache.org/content/repositories/orgapachegeronimo-006/</url>
