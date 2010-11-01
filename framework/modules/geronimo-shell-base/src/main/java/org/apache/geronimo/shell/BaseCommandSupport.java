@@ -20,10 +20,16 @@
 package org.apache.geronimo.shell;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.Set;
 
 import org.apache.felix.karaf.shell.console.OsgiCommandSupport;
 import org.apache.geronimo.deployment.cli.ConsoleReader;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.osgi.framework.ServiceReference;
@@ -82,7 +88,7 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
     public String readLine(String msg) throws IOException {
         return readLine(msg, '\0');
     }
-    
+
     private String readLine(String msg, char mask) throws IOException {
         StringBuffer sb = new StringBuffer();
         if (msg != null) {
@@ -100,9 +106,9 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
                     continue;
                 }
                 session.getConsole().print("\b \b");
-                session.getConsole().flush();               
+                session.getConsole().flush();
                 sb.delete(size - 1, size);
-            } else if (c == '\r' || c == '\n') {  
+            } else if (c == '\r' || c == '\n') {
                 session.getConsole().println();
                 session.getConsole().flush();
                 break;
@@ -133,7 +139,7 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
     public String readPassword(String prompt) throws IOException {
         return readLine(prompt, '*');
     }
-    
+
     public Kernel getKernel() {
         ServiceReference reference = bundleContext.getServiceReference(Kernel.class.getName());
         Kernel kernel = null;
@@ -142,17 +148,77 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
         }
         return kernel;
     }
-    
+
     public boolean isEmbedded() {
         return isEmbedded(getKernel());
     }
-    
+
     public boolean isEmbedded(Kernel kernel) {
         if (kernel != null) {
-            Set deamon = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.main.EmbeddedDaemon"));
+            Set<AbstractName> deamon = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.system.main.EmbeddedDaemon"));
             return !deamon.isEmpty();
         } else {
             return false;
-        }  
+        }
+    }
+
+    public boolean isEmbeddedServer(String hostname, int port) {
+        if (!isEmbedded()) {
+            return false;
+        }
+        Kernel kernel = getKernel();
+        try {
+            int embeddedPort = (Integer) kernel.getAttribute("RMIRegistry", "port");
+            if (port != embeddedPort) {
+                return false;
+            }
+            // If it runs here, the user should have access to the local shell.
+            // we should only identify whether the host name is any interface of the local machine, and ignore whether the server is really listening on this interface.
+            return isLocalMachine(hostname);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean isLocalMachine(String hostName) {
+        try {
+            InetAddress hostAddress = InetAddress.getByName(hostName);
+            if (hostAddress.isAnyLocalAddress() || hostAddress.isLoopbackAddress() || hostName.equals(getLocalHostName()) || hostName.equals(getFullLocalHostName())) {
+                return true;
+            } else {
+                Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
+                while (en.hasMoreElements()) {
+                    NetworkInterface iface = en.nextElement();
+                    Enumeration<InetAddress> ien = iface.getInetAddresses();
+                    while (ien.hasMoreElements()) {
+                        InetAddress address = ien.nextElement();
+                        if (address.equals(hostAddress)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        } catch (SocketException e) {
+            return false;
+        } catch (UnknownHostException e) {
+            return false;
+        }
+    }
+
+    private String getLocalHostName() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            return null;
+        }
+    }
+
+    private String getFullLocalHostName() {
+        try {
+            return InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            return null;
+        }
     }
 }

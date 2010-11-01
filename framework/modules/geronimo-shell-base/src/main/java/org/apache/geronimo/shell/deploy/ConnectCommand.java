@@ -20,21 +20,17 @@
 package org.apache.geronimo.shell.deploy;
 
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.apache.geronimo.cli.deployer.ConnectionParamsImpl;
 import org.apache.geronimo.deployment.cli.OfflineServerConnection;
 import org.apache.geronimo.deployment.cli.OnlineServerConnection;
 import org.apache.geronimo.deployment.cli.ServerConnection;
 import org.apache.geronimo.deployment.cli.ServerConnection.UsernamePasswordHandler;
 import org.apache.geronimo.deployment.plugin.factories.BaseDeploymentFactory;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.cli.deployer.ConnectionParamsImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.shell.BaseCommandSupport;
-
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.command.CommandSession;
 
 /**
@@ -138,16 +134,16 @@ public class ConnectCommand extends BaseCommandSupport {
      */
     protected ServerConnection openConnection(boolean quiet) throws Exception {
         Kernel kernel = getKernel();
-        
+
         ServerConnection connection;
-        
-        if (isEmbedded(kernel)) {
+
+        if (isEmbeddedServer(hostname, port)) {
             connection = new OfflineServerConnection(kernel, false);
         } else {
             if (!quiet) {
                 println("Connecting to Geronimo server: " + hostname + ":" + port);
             }
-        
+
             BaseDeploymentFactory deploymentFactory = new BaseDeploymentFactory();
             ConnectionParamsImpl connectionParams = new ConnectionParamsImpl(null, hostname, port, null, username, password, false, false, false, secure);
             connection = new OnlineServerConnection(connectionParams, new ShellUserPasswordHandler(session), deploymentFactory);
