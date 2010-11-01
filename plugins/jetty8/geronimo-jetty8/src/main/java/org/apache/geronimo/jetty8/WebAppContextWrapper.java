@@ -54,6 +54,7 @@ import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.openwebbeans.OpenWebBeansWebInitializer;
+import org.apache.geronimo.openwebbeans.SharedOwbContext;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.transaction.GeronimoUserTransaction;
@@ -132,6 +133,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
                                 @ParamReference(name = "J2EEApplication") J2EEApplication application,
                                 @ParamReference(name = "ContextSource") ContextSource contextSource,
                                 @ParamReference(name = "TransactionManager") TransactionManager transactionManager,
+                                @ParamReference(name = "SharedOwbContext") SharedOwbContext sharedOwbContext,
 
                                 @ParamAttribute(name = "deploymentAttributes") Map<String, Object> deploymentAttributes
     ) throws Exception {
@@ -206,7 +208,9 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
                 }
             }
         }
-        IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder, servletContainerInitializerMap);
+        Map<String, Object> owbContext = sharedOwbContext == null? new HashMap<String, Object>(): sharedOwbContext.getOWBContext();
+
+        IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder, servletContainerInitializerMap, owbContext);
         webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo, policyContextID, applicationPolicyConfigurationManager);
         webAppContext.setContextPath(contextPath);
         //See Jetty-386.  Setting this to true can expose secured content.
@@ -296,8 +300,10 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
         }
         //supply web.xml to jasper
         webAppContext.setAttribute(JASPER_WEB_XML_NAME, originalSpecDD);
-        new OpenWebBeansWebInitializer(integrationContext.getOWBContext(), webAppContext.getServletContext());
-
+        if (sharedOwbContext == null) {
+            //we have to initialize the owb context
+            new OpenWebBeansWebInitializer(integrationContext.getOWBContext(), webAppContext.getServletContext());
+        }
     }
 
 

@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.jar.JarFile;
 
@@ -72,6 +73,7 @@ import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
+import org.apache.geronimo.openwebbeans.SharedOwbContext;
 import org.apache.geronimo.schema.ElementConverter;
 import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -524,6 +526,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 webModuleData.setAttribute("compactPath", Boolean.TRUE);
             }
 
+            LinkedHashSet<Module<?, ?>> submodules = module.getModules();
+            for (Module<?, ?> subModule: submodules) {
+                if (subModule.getSharedContext().get(SharedOwbContext.class) != null) {
+                    GBeanData data = (GBeanData) subModule.getSharedContext().get(SharedOwbContext.class);
+                    AbstractName name = data.getAbstractName();
+                    webModuleData.setReferencePattern("SharedOwbContext", name);
+                }
+            }
             //Save Deployment Attributes
             Map<String, Object> deploymentAttributes = new HashMap<String, Object>();
             deploymentAttributes.put(WebAttributeName.META_COMPLETE.name(), webApp.isMetadataComplete());
@@ -598,7 +608,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         JettyAuthenticationType authType = jettyWebApp.getAuthentication();
         if (loginConfigInfo != null || authType != null || jettyWebApp.isSetSecurityRealmName()) {
             AbstractName factoryName = moduleContext.getNaming().createChildName(module.getModuleName(), "securityHandlerFactory", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-            webModuleData.setReferencePattern("SecurityHandlerFactory", factoryName);
 
 
             if (authType != null) {
@@ -609,40 +618,46 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
                 configureConfigurationFactory(jettyWebApp, null, securityFactoryData);
                 moduleContext.addGBean(securityFactoryData);
                 configureLocalJaspicProvider(new JettyAuthenticationWrapper(authType), contextPath, module, securityFactoryData);
+                webModuleData.setReferencePattern("SecurityHandlerFactory", factoryName);
                 //otherwise rely on pre-configured jaspi
             } else {
-                GBeanData securityFactoryData = new GBeanData(factoryName, JettySecurityHandlerFactory.class);
-                configureConfigurationFactory(jettyWebApp, loginConfigInfo, securityFactoryData);
-                BuiltInAuthMethod auth = BuiltInAuthMethod.NONE;
-                if (loginConfigInfo != null) {
-                    if (loginConfigInfo.authMethod != null) {
-                        String authMethod = loginConfigInfo.authMethod.trim();
-                        auth = BuiltInAuthMethod.getValueOf(authMethod);
+                if ((loginConfigInfo != null && loginConfigInfo.realmName != null) || jettyWebApp.isSetSecurityRealmName()) {
+                    GBeanData securityFactoryData = new GBeanData(factoryName, JettySecurityHandlerFactory.class);
+                    configureConfigurationFactory(jettyWebApp, loginConfigInfo, securityFactoryData);
+                    BuiltInAuthMethod auth = BuiltInAuthMethod.NONE;
+                    if (loginConfigInfo != null) {
+                        if (loginConfigInfo.authMethod != null) {
+                            String authMethod = loginConfigInfo.authMethod.trim();
+                            auth = BuiltInAuthMethod.getValueOf(authMethod);
 
-                        if (auth == BuiltInAuthMethod.BASIC) {
-                            securityFactoryData.setAttribute("realmName", loginConfigInfo.realmName);
-                        } else if (auth == BuiltInAuthMethod.DIGEST) {
-                            securityFactoryData.setAttribute("realmName", loginConfigInfo.realmName);
-                        } else if (auth == BuiltInAuthMethod.FORM) {
-                            if (loginConfigInfo.formLoginPage != null) {
-                                securityFactoryData.setAttribute("loginPage", loginConfigInfo.formLoginPage);
-                                securityFactoryData.setAttribute("errorPage", loginConfigInfo.formErrorPage);
+                            if (auth == BuiltInAuthMethod.BASIC) {
+                                securityFactoryData.setAttribute("realmName", loginConfigInfo.realmName);
+                            } else if (auth == BuiltInAuthMethod.DIGEST) {
+                                securityFactoryData.setAttribute("realmName", loginConfigInfo.realmName);
+                            } else if (auth == BuiltInAuthMethod.FORM) {
+                                if (loginConfigInfo.formLoginPage != null) {
+                                    securityFactoryData.setAttribute("loginPage", loginConfigInfo.formLoginPage);
+                                    securityFactoryData.setAttribute("errorPage", loginConfigInfo.formErrorPage);
+                                }
+                            } else if (auth == BuiltInAuthMethod.CLIENTCERT) {
+                                //nothing to do
+                            } else {
+                                throw new DeploymentException("unrecognized auth method, use jaspi to configure: " + authMethod);
                             }
-                        } else if (auth == BuiltInAuthMethod.CLIENTCERT) {
-                            //nothing to do
-                        } else {
-                            throw new DeploymentException("unrecognized auth method, use jaspi to configure: " + authMethod);
-                        }
 
-                    } else {
-                        throw new DeploymentException("No auth method configured and no jaspi configured");
+                        } else {
+                            throw new DeploymentException("No auth method configured and no jaspi configured");
+                        }
+                        if (loginConfigInfo.realmName != null) {
+                            webModuleData.setAttribute("realmName", loginConfigInfo.realmName);
+                        }
                     }
-                    if (loginConfigInfo.realmName != null) {
-                        webModuleData.setAttribute("realmName", loginConfigInfo.realmName);
-                    }
+                    securityFactoryData.setAttribute("authMethod", auth);
+                    moduleContext.addGBean(securityFactoryData);
+                    webModuleData.setReferencePattern("SecurityHandlerFactory", factoryName);
+                } else {
+                    log.warn("partial security info but no realm to authenticate against");
                 }
-                securityFactoryData.setAttribute("authMethod", auth);
-                moduleContext.addGBean(securityFactoryData);
             }
         }
     }
@@ -692,7 +707,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         if (jettyWebApp.isSetSecurityRealmName()) {
             securityRealmName = jettyWebApp.getSecurityRealmName().trim();
         } else {
-            if (loginConfigInfo == null ||loginConfigInfo.realmName == null) return;
             securityRealmName = loginConfigInfo.realmName;
         }
         AbstractNameQuery configurationFactoryName = new AbstractNameQuery(null, Collections.singletonMap("name", securityRealmName), ConfigurationFactory.class.getName());

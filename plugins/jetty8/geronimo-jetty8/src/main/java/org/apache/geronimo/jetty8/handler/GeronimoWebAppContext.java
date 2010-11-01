@@ -136,6 +136,7 @@ public class GeronimoWebAppContext extends WebAppContext {
         boolean txActive = integrationContext.isTxActive();
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);
         ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
+        Map<String, Object> oldOwbContext = integrationContext.contextEntered();
         try {
             setRestrictListeners(false);
             try {
@@ -181,6 +182,7 @@ public class GeronimoWebAppContext extends WebAppContext {
                 integrationContext.restoreConnectorContext(connectorContext, null, newContext);
             }
         } finally {
+            integrationContext.contextExited(oldOwbContext);
             integrationContext.restoreContext(context);
             integrationContext.completeTx(txActive, null);
         }

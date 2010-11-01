@@ -55,9 +55,9 @@ public class IntegrationContext {
     private final Bundle bundle;
     private final Holder holder;
     private final Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap;
-    private final Map<String, Object> owbContext = new HashMap<String, Object>();
+    private final Map<String, Object> owbContext;
 
-    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder, Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap) {
+    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder, Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap, Map<String, Object> owbContext) {
         this.componentContext = componentContext;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
@@ -66,6 +66,7 @@ public class IntegrationContext {
         this.bundle = bundle;
         this.holder = holder;
         this.servletContainerInitializerMap = servletContainerInitializerMap == null? Collections.<ServletContainerInitializer, Set<Class<?>>>emptyMap(): servletContainerInitializerMap;
+        this.owbContext = owbContext;
     }
 
     public Context getComponentContext() {
