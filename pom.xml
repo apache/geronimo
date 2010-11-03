@@ -65,7 +65,7 @@
         <tomcatVersion>6.0.29.0</tomcatVersion>
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
-        <openejbVersion>3.1.4-SNAPSHOT</openejbVersion>
+        <openejbVersion>3.1.4</openejbVersion>
         <derbyVersion>10.5.3.0_1</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
         <axis2Version>1.5.2</axis2Version>
@@ -2176,6 +2176,18 @@
                       <enabled>false</enabled>
                   </snapshots>
             </repository>
+            <repository>
+                  <id>openejb-staging</id>
+                  <name>openejb 3.1.4</name>
+                  <url>https://repository.apache.org/content/repositories/orgapacheopenejb-005/</url>
+                  <layout>default</layout>
+                  <releases>
+                      <enabled>true</enabled>
+                  </releases>
+                  <snapshots>
+                      <enabled>false</enabled>
+                  </snapshots>
+            </repository>            
     </repositories>        
 
     <profiles>
