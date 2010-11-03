@@ -389,7 +389,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                     while ((zipEntry = in.getNextEntry()) != null) {
                         String name = zipEntry.getName();
                         // Scan config files named as faces-config.xml or *.faces-config.xml under META-INF
-                        if (name.equals("META-INF/faces-cofig.xml") || (name.startsWith("META-INF/") && name.endsWith(".faces-config.xml"))) {
+                        if (name.equals("META-INF/faces-config.xml") || (name.startsWith("META-INF/") && name.endsWith(".faces-config.xml"))) {
                             //TODO Double check the relative jar file path once EAR is really supported
                             //TODO Should find a way to avoid the file copying
                             String destination = "META-INF/WEB-INF_lib_" + file.getName() + "/" + name;
