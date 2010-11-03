@@ -33,9 +33,11 @@
 		 <div id="top" class="top"><ui:insert name="top"></ui:insert>
 	</div>
 	<div id="left"><ui:insert name="left">
+	<h:form id="form1">
 		<h:commandButton id="button1" value="Show Exchange Rate"
-			onclick="jsf.ajax.request(this, event, {execute: 'button1', render: 'pg1'}); return false;"
+			onclick="jsf.ajax.request(this, event, {execute: '@this', render: 'pg1'}); return false;"
 			actionListener="#{ConverterBean.toggle}" />
+	</h:form>		
 		<h:panelGroup id="pg1">
 			<h:dataTable id="out1" value="#{ConverterBean.currencyList}" var="item"
 				rendered="#{ConverterBean.render}">
@@ -52,7 +54,7 @@
 					<h:outputText value="#{item.rate}" />
 				</h:column>
 			</h:dataTable>
-		</h:panelGroup>
+		</h:panelGroup>		
 	</ui:insert>
 	</div>
       </ui:composition>
