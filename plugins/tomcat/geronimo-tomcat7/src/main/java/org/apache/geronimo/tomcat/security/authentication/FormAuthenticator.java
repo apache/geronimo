@@ -431,7 +431,7 @@ public class FormAuthenticator implements Authenticator {
     }
 
     private void disableClientCache(HttpServletResponse response) {
-        response.setHeader("Cache-Control", "No-cache");
+        response.setHeader("Cache-Control", "No-cache,no-store");
         response.setDateHeader("Expires", 1);
     }
 
