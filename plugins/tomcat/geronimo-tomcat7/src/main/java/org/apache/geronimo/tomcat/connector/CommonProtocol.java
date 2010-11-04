@@ -21,6 +21,8 @@ package org.apache.geronimo.tomcat.connector;
 public interface CommonProtocol {
     public boolean getAllowTrace();
     public void setAllowTrace(boolean allowTrace);
+    public long getAsyncTimeout();
+    public void setAsyncTimeout(long asyncTimeout);  
     public boolean getEnableLookups();
     public void setEnableLookups(boolean enableLookups);
     public int getMaxPostSize();

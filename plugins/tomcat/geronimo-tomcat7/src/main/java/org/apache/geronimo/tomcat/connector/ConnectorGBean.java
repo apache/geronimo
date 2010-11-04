@@ -216,6 +216,14 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     public boolean getAllowTrace() {
         return connector.getAllowTrace();
     }
+    
+    public long getAsyncTimeout() {
+        return  connector.getAsyncTimeout();
+    }
+
+    public void setAsyncTimeout(long asyncTimeout) {
+        connector.setAsyncTimeout(asyncTimeout);
+    }    
 
     public void setEnableLookups(boolean enabled) {
         connector.setEnableLookups(enabled);
