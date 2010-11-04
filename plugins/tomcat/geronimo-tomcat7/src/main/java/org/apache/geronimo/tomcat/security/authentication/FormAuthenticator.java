@@ -240,14 +240,6 @@ public class FormAuthenticator implements Authenticator {
         if (sreq == null)
             return (false);
 
-        // Is there a saved principal?
-        if (session.getNote(Constants.FORM_PRINCIPAL_NOTE) == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(Constants.FORM_PRINCIPAL_NOTE + " is not found in the session, match request fails");
-            }
-            return false;
-        }
-
         // Does the request URI match?
         String requestURI = request.getRequestURI();
         if (requestURI == null)
