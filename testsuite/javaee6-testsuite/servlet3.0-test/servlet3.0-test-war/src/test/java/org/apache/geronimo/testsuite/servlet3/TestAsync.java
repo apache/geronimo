@@ -39,20 +39,10 @@ public class TestAsync extends SeleniumTestSupport {
         assertTrue(selenium.isTextPresent("Task finishes."));
         assertTrue(selenium.isTextPresent("TaskExecutor finishes at:"));
 
-        String[] sftSplit = selenium.getText("xpath=//b[@id='sft']").split(":");
-        int sfti = getTime(sftSplit);
-        String[] tstSplit = selenium.getText("xpath=//b[@id='tst']").split(":");
-        int tsti = getTime(tstSplit);
-        String[] tftSplit = selenium.getText("xpath=//b[@id='tft']").split(":");
-        int tfti = getTime(tftSplit);
+        long sfti = Long.parseLong(selenium.getText("xpath=//b[@id='sft']"))/1000;
+        long tsti = Long.parseLong(selenium.getText("xpath=//b[@id='tst']"))/1000;
+        long tfti = Long.parseLong(selenium.getText("xpath=//b[@id='tft']"))/1000;
         assertTrue(sfti == tsti);
-        assertTrue(Math.abs(tfti - sfti) == 10);
-    }
-
-    private int getTime(String[] timeSplit) {
-        String time = timeSplit[timeSplit.length - 1].substring(0, 2);
-        int timei = Integer.parseInt(time);
-        return timei;
-    }
-
-}
+        long intervalTimeMills = tfti - sfti;
+        assertTrue(intervalTimeMills > 9L && intervalTimeMills < 12L);
+    }}
