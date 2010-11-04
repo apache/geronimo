@@ -171,5 +171,11 @@ public interface WebManager extends NetworkManager {
             this.required = required;
         }
 
+        @Override
+        public String toString() {
+            return "ConnectorAttribute [attributeName=" + attributeName + ", stringValue=" + stringValue
+                    + ", required=" + required + "]";
+        }
+
     }
 }
