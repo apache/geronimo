@@ -410,7 +410,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         if (webInfClassesDirectory.exists() && webInfClassesDirectory.isDirectory()) {
             for (File file : webInfClassesDirectory.listFiles()) {
                 String fileName = file.getName();
-                if (fileName.equals("META-INF/faces-cofig.xml") || (fileName.startsWith("META-INF/") && fileName.endsWith(".faces-config.xml"))) {
+                if (fileName.equals("faces-config.xml") || fileName.endsWith(".faces-config.xml")) {
                     //TODO Double check the relative jar file path once EAR is really supported
                     String filePath = "WEB-INF/classes/META-INF/" + fileName;
                     metaInfConfigurationResources.add(new ConfigurationResource(null, filePath, filePath));
@@ -422,13 +422,26 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         if (baseDirectory.exists() && baseDirectory.isDirectory()) {
             for (File file : baseDirectory.listFiles()) {
                 String fileName = file.getName();
-                if (fileName.equals("META-INF/faces-cofig.xml") || (fileName.startsWith("META-INF/") && fileName.endsWith(".faces-config.xml"))) {
+                if (fileName.equals("faces-config.xml") || fileName.endsWith(".faces-config.xml")) {
                     //TODO Double check the relative jar file path once EAR is really supported
                     String filePath = "META-INF/" + fileName;
                     metaInfConfigurationResources.add(new ConfigurationResource(null, filePath, filePath));
                 }
             }
         }
+        //default WEB-INF/faces-config.xml is handled by myfaces no matter what we do???
+//        //4. WEB-INF folder
+//        baseDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF");
+//        if (baseDirectory.exists() && baseDirectory.isDirectory()) {
+//            for (File file : baseDirectory.listFiles()) {
+//                String fileName = file.getName();
+//                if (fileName.equals("faces-config.xml") || fileName.endsWith(".faces-config.xml")) {
+//                    //TODO Double check the relative jar file path once EAR is really supported
+//                    String filePath = "WEB-INF/" + fileName;
+//                    metaInfConfigurationResources.add(new ConfigurationResource(null, filePath, filePath));
+//                }
+//            }
+//        }
         return metaInfConfigurationResources;
     }
 
