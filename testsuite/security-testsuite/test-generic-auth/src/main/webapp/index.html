@@ -1,0 +1,33 @@
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+    
+     http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <body>
+        <h3>Testing The Properties File Security Realm</h3>
+        <p>The 2 properties files are located under <I>WASCE_HOME</I>/var/security: <b>demo_groups.properties</b> & <b>demo_users.properties</b></p>
+        <p>
+        Once this sample has been installed, click on <a href='protect/hello.html'>Protect</a> to validate against the properties file. You will be shown a login screen, use the following usernames and passwords to login:
+        <p>username=<b>alan</b>    password=<b>starcraft</b></p>
+        <p>username=<b>metro</b>    password=<b>mouse</b></p>
+        <p>username=<b>george</b>    password=<b>bone</b></p>
+        
+        If everything works, you should see "hello world" in your browser.
+        </p>
+        <p>At this point you have an application that is validating username and passwords against the properties file based on the security configuration you provided earlier. Now, if you go back here and click on <a href='forbidden/'>Forbidden</a> you should receive a 403 - Forbidden HTTP error.</p>
+    </body>
+</html>
