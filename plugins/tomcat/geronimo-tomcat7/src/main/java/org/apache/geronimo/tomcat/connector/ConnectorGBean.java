@@ -26,6 +26,7 @@ import javax.management.j2ee.statistics.Stats;
 import org.apache.catalina.Executor;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.LifecycleState;
 import org.apache.catalina.connector.Connector;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -50,26 +51,32 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
     protected final ServerInfo serverInfo;
 
-    protected final Connector connector;
+    protected Connector connector;
 
     protected final TomcatContainer container;
 
     private String name;
 
     private boolean wrappedConnector;
+    
+    private String tomcatProtocol;
+    
+    private Map<String, String> initParams;
 
     public ConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
-                        @ParamAttribute(manageable=false, name = "initParams") Map<String, String> initParams,
-                        @ParamAttribute(manageable=false, name = "protocol") String tomcatProtocol,
+                        @ParamAttribute(manageable=false, name = "initParams") Map<String, String> _initParams,
+                        @ParamAttribute(manageable=false, name = "protocol") String _tomcatProtocol,
                         @ParamReference(name = "TomcatContainer") TomcatContainer container,
                         @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
                         @ParamAttribute(manageable=false, name = "connector") Connector conn)  throws Exception {
 
         //Relief for new Tomcat-only parameters that may come in the future
-        if (initParams == null){
+        if (_initParams == null){
             initParams = new HashMap<String, String>();
 
         }
+        initParams  = (_initParams == null)?new HashMap<String, String>():_initParams;
+        
 
         // Do we really need this?? For Tomcat I don't think so...
         // validateProtocol(protocol);
@@ -86,7 +93,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
             throw new IllegalArgumentException("serverInfo cannot be null.");
         }
 
-        tomcatProtocol = validateProtocol(tomcatProtocol);
+        tomcatProtocol = validateProtocol(_tomcatProtocol);
 
         this.name = name;
         this.container = container;
@@ -94,15 +101,28 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
         // Create the Connector object
         if (conn == null) {
+           
+            //create a connector in connector management portlet will reach here. 
             this.connector = new Connector(tomcatProtocol);
             for (LifecycleListener listener : TomcatServerGBean.LifecycleListeners) {
                 this.connector.addLifecycleListener(listener);
             }
             wrappedConnector = false;
+        } else if (conn.getState().equals(LifecycleState.DESTROYED)) {
+           
+            //restarting a connector in connector management portlet will reach here.
+            this.connector = new Connector(tomcatProtocol);
+            for (LifecycleListener listener : TomcatServerGBean.LifecycleListeners) {
+                this.connector.addLifecycleListener(listener);
+            }
         } else {
+            
+          //the connectors defined in server.xml will reach here.
             connector = conn;
             wrappedConnector = true;
+
         }
+        
 
         setParameters(connector, initParams);
 
@@ -115,7 +135,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
     public void doStart() throws LifecycleException {
 
-        if (wrappedConnector) {
+        if (wrappedConnector && this.connector.getState().equals(LifecycleState.STARTED)) {
             return;
         }
 
@@ -176,6 +196,8 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
         container.addConnector(this.connector);
 
+        this.connector.start();
+
         log.debug("{} connector started", name);
 
     }
@@ -183,6 +205,14 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     public void doStop() {
         if (!wrappedConnector) {
             container.removeConnector(connector);
+        }
+        
+        try {
+            connector.stop();
+            connector.destroy();
+        } catch (LifecycleException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
         log.debug("{} connector stopped", name);
     }
