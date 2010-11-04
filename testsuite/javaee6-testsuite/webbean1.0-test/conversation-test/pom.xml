@@ -17,9 +17,7 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
 <!-- $Rev$ $Date$ -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -33,8 +31,9 @@
     <artifactId>conversation-test</artifactId>
     <name>Geronimo TestSuite :: Java EE 6 Testsuite :: Web Bean :: conversation-test</name>
     <packaging>war</packaging>
+
     <dependencyManagement>
-        <dependencies>            
+        <dependencies>
             <dependency>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>myfaces</artifactId>
@@ -45,43 +44,28 @@
         </dependencies>
     </dependencyManagement>
 
-
-	<dependencies>
+    <dependencies>
         <!-- JSR-314 API - JSF 2.0 -->
         <dependency>
             <groupId>org.apache.myfaces.core</groupId>
             <artifactId>myfaces-api</artifactId>
             <scope>provided</scope>
-        </dependency>        
-
+        </dependency>
         <!-- JSR-299 API - Web Beans 1.0-->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jcdi_1.0_spec</artifactId>
-			<scope>provided</scope>
+            <scope>provided</scope>
         </dependency>
-
         <!-- JSR-330 API - Dependency Injection for Java 1.0-->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-atinject_1.0_spec</artifactId>
-			<scope>provided</scope>
+            <scope>provided</scope>
         </dependency>
+    </dependencies>
 
-      </dependencies>
-	  <build>
-		<plugins>
-			<plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <configuration>
-                        <archiveClasses>false</archiveClasses>
-                    </configuration>
-                </plugin>
-			</plugins>
-	  </build>
-     
-       <profiles>
+    <profiles>
         <profile>
             <id>it</id>
             <activation>
@@ -121,21 +105,20 @@
                             </execution>
                         </executions>
                     </plugin>
-					<plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>                            
-                        <configuration>                                
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
                             <suiteXmlFiles>
                                 <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
-							<testFailureIgnore>true</testFailureIgnore>
                             <systemPropertyVariables>
                                 <appContext>${project.artifactId}</appContext>
                             </systemPropertyVariables>
-                        </configuration>                            
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
-	    </profile>
-       </profiles>
+        </profile>
+    </profiles>
 </project>
