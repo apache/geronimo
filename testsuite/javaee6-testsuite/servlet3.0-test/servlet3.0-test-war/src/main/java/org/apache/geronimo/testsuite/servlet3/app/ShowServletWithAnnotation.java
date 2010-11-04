@@ -20,6 +20,7 @@ package org.apache.geronimo.testsuite.servlet3.app;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -33,64 +34,64 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "showServletWa", urlPatterns = { "/showServletWa" })
 @MultipartConfig(fileSizeThreshold = 1000)
 public class ShowServletWithAnnotation extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * @see HttpServlet#HttpServlet()
-	 */
-	public ShowServletWithAnnotation() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public ShowServletWithAnnotation() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
 
-	protected void processRequest(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		response.setContentType("text/html;charset=UTF-8");
-		PrintWriter out = response.getWriter();
+    protected void processRequest(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
 
-		try {
-			out.println("<html>");
-			out.println("<head>");
-			out.println("<title>File Upload System</title>");
-			out.println("</head>");
-			out.println("<body>");
-			out.println("<h2><font color=\"green\">A listener is dectecting online person number.</font></h2>");
-			String message = request.getAttribute("message").toString();
-			if (message.indexOf("returns null!") < 0) {
-				out.println("<h2><font color=\"green\">Attributes and content of the file:</font></h2>");
-			}
-			out.println(message + "<br/>");
-			out.println("</body>");
-			out.println("</html>");
+        try {
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>File Upload System</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h2><font color=\"green\">A listener is dectecting online person number.</font></h2>");
+            String message = request.getAttribute("message").toString();
+            if (message.indexOf("returns null!") < 0) {
+                out.println("<h2><font color=\"green\">Attributes and content of the file:</font></h2>");
+            }
+            out.println(message + "<br/>");
+            out.println("</body>");
+            out.println("</html>");
 
-		} finally {
-			out.close();
-		}
-	}
+        } finally {
+            out.close();
+        }
+    }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		processRequest(request, response);
+    /**
+     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+     *      response)
+     */
+    protected void doGet(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+        processRequest(request, response);
 
-	}
+    }
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		processRequest(request, response);
-	}
+    /**
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+     *      response)
+     */
+    protected void doPost(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+        // TODO Auto-generated method stub
+        processRequest(request, response);
+    }
 
-	@Override
-	public String getServletInfo() {
-		return "Short description";
-	}
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }
 
 }

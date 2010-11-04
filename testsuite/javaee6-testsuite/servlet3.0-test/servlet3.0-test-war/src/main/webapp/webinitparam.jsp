@@ -25,13 +25,13 @@
 <title>Welcome TO Apache Geronimo Sample Application</title>
 </head>
 <body>
-	<h1 align = "center">Welcome To Apache Geronimo Sample Application</h1>
-	<p>
-	<h2>
-	<% 
-		String output = (String)request.getAttribute("output");
-		out.println(output);
-	%>
-	</h2>
+    <h1 align = "center">Welcome To Apache Geronimo Sample Application</h1>
+    <p>
+    <h2>
+    <% 
+        String output = (String)request.getAttribute("output");
+        out.println(output);
+    %>
+    </h2>
 </body>
 </html>

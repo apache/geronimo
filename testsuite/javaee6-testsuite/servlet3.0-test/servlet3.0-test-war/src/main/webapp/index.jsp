@@ -26,15 +26,15 @@
 
 <body>
   <font face="Verdana, Helvetica, Arial">  
-	<br />
-	<a href="./sample-docu-cv.jsp" id="cviewer">Test Annotations and ServletContextListener.</a>
-	<br />
-	<a href="./selectFile.jsp" id="fileupload">Test File Upload.</a>
-	<br />
-	<a href="./jarresource.jsp" id="jarresource">Test Access Jar Resource.</a>
-	<br />
-	<a href="./async" id="async">Test AsyncServlet.</a>
-	<br />
+    <br />
+    <a href="./sample-docu-cv.jsp" id="cviewer">Test Annotations and ServletContextListener.</a>
+    <br />
+    <a href="./selectFile.jsp" id="fileupload">Test File Upload.</a>
+    <br />
+    <a href="./jarresource.jsp" id="jarresource">Test Access Jar Resource.</a>
+    <br />
+    <a href="./async" id="async">Test AsyncServlet.</a>
+    <br />
     <a href="./add" id="add">Test Add Servlet Mapping through ServletContainerInitializer.</a>
     <br />
     <a href="./WelcomePage" id="welcome">Test WebFragment.</a>

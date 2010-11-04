@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,11 +33,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AddedServletOnStartup extends HttpServlet {
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		PrintWriter out = resp.getWriter();
-		out.println("<html>");
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        PrintWriter out = resp.getWriter();
+        out.println("<html>");
         out.println("<head>");
         out.println("<title>Test ServletContainerInitializer.</title>");  
         out.println("</head>");
@@ -48,13 +47,13 @@ public class AddedServletOnStartup extends HttpServlet {
         out.println("</p>");
         out.println("</body>");
         out.println("</html>");
-		
-	}
+        
+    }
 
-	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(req, resp);
-	}
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        // TODO Auto-generated method stub
+        doGet(req, resp);
+    }
 }

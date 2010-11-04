@@ -19,41 +19,40 @@
 
 package org.apache.geronimo.testsuite.servlet3;
 
-import org.testng.annotations.Test;
-
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
+import org.testng.annotations.Test;
 
 public class TestAsync extends SeleniumTestSupport {
 
-	@Test
-	public void testAsyncServlet() throws Exception {
-		String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);
+    @Test
+    public void testAsyncServlet() throws Exception {
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(appContextStr);
 
-		selenium.click("link=Test AsyncServlet.");
-		waitForPageLoad();
+        selenium.click("link=Test AsyncServlet.");
+        waitForPageLoad();
 
-		assertTrue(selenium.isTextPresent("Servlet starts at:"));
-		assertTrue(selenium
-				.isTextPresent("Task assigned to executor.Servlet finishes at:"));
-		assertTrue(selenium.isTextPresent("TaskExecutor starts at:"));
-		assertTrue(selenium.isTextPresent("Task finishes."));
-		assertTrue(selenium.isTextPresent("TaskExecutor finishes at:"));
+        assertTrue(selenium.isTextPresent("Servlet starts at:"));
+        assertTrue(selenium
+                .isTextPresent("Task assigned to executor.Servlet finishes at:"));
+        assertTrue(selenium.isTextPresent("TaskExecutor starts at:"));
+        assertTrue(selenium.isTextPresent("Task finishes."));
+        assertTrue(selenium.isTextPresent("TaskExecutor finishes at:"));
 
-		String[] sftSplit = selenium.getText("xpath=//b[@id='sft']").split(":");
-		int sfti = getTime(sftSplit);
-		String[] tstSplit = selenium.getText("xpath=//b[@id='tst']").split(":");
-		int tsti = getTime(tstSplit);
-		String[] tftSplit = selenium.getText("xpath=//b[@id='tft']").split(":");
-		int tfti = getTime(tftSplit);
-		assertTrue(sfti == tsti);
-		assertTrue(Math.abs(tfti - sfti) == 10);
-	}
+        String[] sftSplit = selenium.getText("xpath=//b[@id='sft']").split(":");
+        int sfti = getTime(sftSplit);
+        String[] tstSplit = selenium.getText("xpath=//b[@id='tst']").split(":");
+        int tsti = getTime(tstSplit);
+        String[] tftSplit = selenium.getText("xpath=//b[@id='tft']").split(":");
+        int tfti = getTime(tftSplit);
+        assertTrue(sfti == tsti);
+        assertTrue(Math.abs(tfti - sfti) == 10);
+    }
 
-	private int getTime(String[] timeSplit) {
-		String time = timeSplit[timeSplit.length - 1].substring(0, 2);
-		int timei = Integer.parseInt(time);
-		return timei;
-	}
+    private int getTime(String[] timeSplit) {
+        String time = timeSplit[timeSplit.length - 1].substring(0, 2);
+        int timei = Integer.parseInt(time);
+        return timei;
+    }
 
 }

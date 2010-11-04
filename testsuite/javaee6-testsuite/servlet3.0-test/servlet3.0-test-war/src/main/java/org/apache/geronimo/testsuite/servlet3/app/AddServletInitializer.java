@@ -29,13 +29,13 @@ import javax.servlet.http.HttpServlet;
 @HandlesTypes(HttpServlet.class)
 public class AddServletInitializer implements ServletContainerInitializer {
 
-	public void onStartup(Set<Class<?>> classes, ServletContext ctx)
-			throws ServletException {
-		for (Class tc : classes) {
-			System.out.println(tc.getName());
-		}
-		
-		ServletRegistration reg = ctx.addServlet("testAdd", AddedServletOnStartup.class);
-		reg.addMapping("/add");
-	}
+    public void onStartup(Set<Class<?>> classes, ServletContext ctx)
+            throws ServletException {
+        for (Class tc : classes) {
+            System.out.println(tc.getName());
+        }
+        
+        ServletRegistration reg = ctx.addServlet("testAdd", AddedServletOnStartup.class);
+        reg.addMapping("/add");
+    }
 }

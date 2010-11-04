@@ -19,15 +19,14 @@
 
 package org.apache.geronimo.testsuite.servlet3;
 
+import static org.apache.geronimo.testsuite.servlet3.TestMultiPart.DEFAULT_URL;
+
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.geronimo.testsuite.servlet3.app.FileMessageFilter;
-import org.testng.annotations.Test;
-
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
-
-import static org.apache.geronimo.testsuite.servlet3.TestMultiPart.DEFAULT_URL;
+import org.testng.annotations.Test;
 
 /**
  * Test MultiPart through File upload.
@@ -36,12 +35,12 @@ public class TestMultiPartAnnotation extends SeleniumTestSupport {
     @Test
     public void testUploadSuccess() throws Exception {
         String appContextStr = System.getProperty("appContext", DEFAULT_URL);
-		selenium.open(appContextStr);        
+        selenium.open(appContextStr);        
         selenium.click("multiAnnotation");
         waitForPageLoad();
         uploadFile("small.txt");
         waitForPageLoad();
-		assertEquals("File Upload System", selenium.getTitle());
+        assertEquals("File Upload System", selenium.getTitle());
         //assertTrue(selenium.isTextPresent("Size=35"));
         assertTrue(selenium.isTextPresent("This is a file no larger than 10k."));
     }
@@ -49,7 +48,7 @@ public class TestMultiPartAnnotation extends SeleniumTestSupport {
     @Test
     public void testNoFileInput() throws Exception {
         String appContextStr = System.getProperty("appContext", DEFAULT_URL);
-		selenium.open(appContextStr);        
+        selenium.open(appContextStr);        
         selenium.click("multiAnnotation");
         waitForPageLoad();
         selenium.click("//input[@value='Submit The File!']");
@@ -61,7 +60,7 @@ public class TestMultiPartAnnotation extends SeleniumTestSupport {
     @Test
     public void testFileTooLarge() throws Exception {
         String appContextStr = System.getProperty("appContext", DEFAULT_URL);
-		selenium.open(appContextStr);        
+        selenium.open(appContextStr);        
         selenium.click("multiAnnotation");
         waitForPageLoad();
         uploadFile("large.txt");

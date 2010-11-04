@@ -18,6 +18,7 @@
 package org.apache.geronimo.testsuite.servlet3.app;
 
 import java.util.EnumSet;
+
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
@@ -29,22 +30,22 @@ import javax.servlet.annotation.WebListener;
 @WebListener()
 public class CviewerServletListener implements ServletContextListener {
 
-	public void contextInitialized(ServletContextEvent sce) {
-		ServletContext sc = sce.getServletContext();
-		// Regist servlet
-		ServletRegistration sr = sc.addServlet("ClassViewer",
-				"org.apache.geronimo.testsuite.servlet3.app.CViewerServlet");
-		sr.addMapping("/ClassViewer");
+    public void contextInitialized(ServletContextEvent sce) {
+        ServletContext sc = sce.getServletContext();
+        // Regist servlet
+        ServletRegistration sr = sc.addServlet("ClassViewer",
+                "org.apache.geronimo.testsuite.servlet3.app.CViewerServlet");
+        sr.addMapping("/ClassViewer");
 
-		// Register Filter
-		FilterRegistration fr = sc.addFilter("CViewerFilter",
-				"org.apache.geronimo.testsuite.servlet3.app.CviewerFilter");
-		fr.addMappingForServletNames(EnumSet.of(DispatcherType.REQUEST), true,
-				"ClassViewer");
+        // Register Filter
+        FilterRegistration fr = sc.addFilter("CViewerFilter",
+                "org.apache.geronimo.testsuite.servlet3.app.CviewerFilter");
+        fr.addMappingForServletNames(EnumSet.of(DispatcherType.REQUEST), true,
+                "ClassViewer");
 
-	}
+    }
 
-	public void contextDestroyed(ServletContextEvent sce) {
-//		throw new UnsupportedOperationException("Not supported yet.");
-	}
+    public void contextDestroyed(ServletContextEvent sce) {
+//        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

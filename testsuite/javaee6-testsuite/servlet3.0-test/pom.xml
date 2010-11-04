@@ -50,6 +50,6 @@
         <module>fragment2</module>
         <module>fragment3</module>
         <module>servlet3.0-test-jar</module>
-        <module>servlet3.0-test-war</module>		
+        <module>servlet3.0-test-war</module>        
     </modules>
 </project>

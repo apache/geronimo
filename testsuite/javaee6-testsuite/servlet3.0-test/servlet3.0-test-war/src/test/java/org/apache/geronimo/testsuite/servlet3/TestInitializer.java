@@ -23,12 +23,12 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
 import org.testng.annotations.Test;
 
 public class TestInitializer extends SeleniumTestSupport {
-	@Test
-	public void testServletContainerInitializerClass() throws Exception {
+    @Test
+    public void testServletContainerInitializerClass() throws Exception {
         String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);		
-		selenium.click("link=Test Add Servlet Mapping through ServletContainerInitializer.");
-		waitForPageLoad();
-		assertTrue(selenium.isTextPresent("Add this servlet correctly through ServletContainerInitializer."));
-	}
+        selenium.open(appContextStr);        
+        selenium.click("link=Test Add Servlet Mapping through ServletContainerInitializer.");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("Add this servlet correctly through ServletContainerInitializer."));
+    }
 }

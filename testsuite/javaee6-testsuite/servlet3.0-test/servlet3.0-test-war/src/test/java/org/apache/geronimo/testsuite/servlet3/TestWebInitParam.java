@@ -22,14 +22,14 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
 import org.testng.annotations.Test;
 
 public class TestWebInitParam extends SeleniumTestSupport{
-	
-	@Test
-	public void testValidContent() throws Exception{
-		String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);		
-		selenium.click("link=Test Annotation @WebInitParam.");
-		waitForPageLoad();
-		assertTrue(selenium.isTextPresent("Hello World!"));
-	}
+    
+    @Test
+    public void testValidContent() throws Exception{
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(appContextStr);        
+        selenium.click("link=Test Annotation @WebInitParam.");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("Hello World!"));
+    }
 
 }

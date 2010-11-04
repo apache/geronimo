@@ -17,9 +17,8 @@
 package org.apache.geronimo.testsuite.servlet3.app;
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,7 +42,7 @@ public class ShowFileServlet extends HttpServlet {
             out.println("<h3>Currently,there are " + "<font color=\"green\">" + getServletContext().getAttribute("onLineNumber") + "</font> people visiting this file upload system!<br/><hr></h3>");
             String message = request.getAttribute("message").toString();
             if (message.indexOf("returns null!") < 0) {
-            	out.println("<h2><font color=\"green\">Attributes and content of the file:</font></h2>");
+                out.println("<h2><font color=\"green\">Attributes and content of the file:</font></h2>");
             } 
             out.println(message + "<br/>");
             out.println("</body>");

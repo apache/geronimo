@@ -19,20 +19,19 @@
  
 package org.apache.geronimo.testsuite.servlet3;
 
-import org.testng.annotations.Test;
-
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
+import org.testng.annotations.Test;
 
 public class TestJarresource extends SeleniumTestSupport{
 
-	@Test
-	public void testJarResources() throws Exception {
-		String appContextStr = System.getProperty("appContext");
-		selenium.open(appContextStr);		
-		selenium.click("link=Test Access Jar Resource.");
-		waitForPageLoad();
-		assertTrue(selenium.isTextPresent("This is a JSP executed inside a jar file of the web module. "));
+    @Test
+    public void testJarResources() throws Exception {
+        String appContextStr = System.getProperty("appContext");
+        selenium.open(appContextStr);        
+        selenium.click("link=Test Access Jar Resource.");
+        waitForPageLoad();
+        assertTrue(selenium.isTextPresent("This is a JSP executed inside a jar file of the web module. "));
         //if the machine is using ipv6, this is apt to be "The remote host is 0:0:0:0:0:0:0:1%0. "
-//		assertTrue(selenium.isTextPresent("The remote host is 127.0.0.1."));
-	}
+//        assertTrue(selenium.isTextPresent("The remote host is 127.0.0.1."));
+    }
 }

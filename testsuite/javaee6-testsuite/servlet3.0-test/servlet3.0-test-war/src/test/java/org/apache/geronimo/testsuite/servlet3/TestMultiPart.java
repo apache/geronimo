@@ -23,9 +23,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.geronimo.testsuite.servlet3.app.FileMessageFilter;
-import org.testng.annotations.Test;
-
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
+import org.testng.annotations.Test;
 
 /**
  * Test MultiPart through File upload.

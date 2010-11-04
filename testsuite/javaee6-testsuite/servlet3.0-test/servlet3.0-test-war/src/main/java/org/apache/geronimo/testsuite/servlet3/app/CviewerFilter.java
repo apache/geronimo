@@ -17,6 +17,7 @@
 package org.apache.geronimo.testsuite.servlet3.app;
 
 import java.io.IOException;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -29,7 +30,7 @@ public class CviewerFilter implements Filter {
     public CviewerFilter() {
     }
 
-    
+
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
@@ -48,7 +49,7 @@ public class CviewerFilter implements Filter {
                 className = "java.lang.Integer";
             }
 
-            Class clazz = null;
+            Class<?> clazz = null;
 
             try {
                 clazz = Class.forName(className);
@@ -67,16 +68,16 @@ public class CviewerFilter implements Filter {
         }
 
     }
-    
-    
+
+
     public void init(FilterConfig filterConfig) {
     }
 
-    
+
     public void destroy() {
     }
 
-    
+
     @Override
     public String toString() {
        // if (filterConfig == null) {
