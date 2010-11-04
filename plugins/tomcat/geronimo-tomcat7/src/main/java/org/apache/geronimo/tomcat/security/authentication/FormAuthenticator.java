@@ -49,11 +49,16 @@ import org.apache.tomcat.util.buf.CharChunk;
 import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.http.MimeHeaders;
 import org.apache.tomcat.util.res.StringManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class FormAuthenticator implements Authenticator {
+
+    private static final Logger logger = LoggerFactory.getLogger(FormAuthenticator.class);
+
     protected static final StringManager sm =
             StringManager.getManager(Constants.Package);
 
@@ -77,28 +82,13 @@ public class FormAuthenticator implements Authenticator {
                 return new AuthResult(TomcatAuthStatus.SUCCESS, null, false);
             }
             if (matchRequest(request, session)) {
-                //            if (log.isDebugEnabled())
-                //                log.debug("Restore request from session '"
-                //                          + session.getIdInternal()
-                //                          + "'");
-//                UserIdentity userIdentity = (UserIdentity)
-//                        session.getNote(Constants.FORM_PRINCIPAL_NOTE);
-                //            register(request, response, principal, Constants.FORM_METHOD,
-                //                     (String) session.getNote(Constants.SESS_USERNAME_NOTE),
-                //                     (String) session.getNote(Constants.SESS_PASSWORD_NOTE));
-                //             If we're caching principals we no longer need the username
-                // and password in the session, so remove them
-                //            if (cache) {
-                //                session.removeNote(Constants.SESS_USERNAME_NOTE);
-                //                session.removeNote(Constants.SESS_PASSWORD_NOTE);
-                //            }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Restore request from session '" + session.getIdInternal() + "'");
+                }
                 if (!restoreRequest(request, session)) {
-//                    if (log.isDebugEnabled())
-//                        log.debug("Proceed to restored request");
-//                    return new AuthResult(TomcatAuthStatus.SUCCESS, userIdentity);
-//                } else {
-//                    if (log.isDebugEnabled())
-//                        log.debug("Restore of original request failed");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Proceed to restored request");
+                    }
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST);
                     return new AuthResult(TomcatAuthStatus.SEND_FAILURE, null, false);
                 }
@@ -122,16 +112,16 @@ public class FormAuthenticator implements Authenticator {
 
             // No -- Save this request and redirect to the form login page
             if (!loginAction) {
-//                session = request.getSessionInternal(true);
-//                if (log.isDebugEnabled())
-//                    log.debug("Save request in session '" + session.getIdInternal() + "'");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Save request in session '" + session.getIdInternal() + "'");
+                }
                 if (!isAuthMandatory) {
                     return new AuthResult(TomcatAuthStatus.SUCCESS, null, false);
                 }
                 try {
                     saveRequest(request, session);
                 } catch (IOException ioe) {
-//                    log.debug("Request body too big to save during authentication");
+                    logger.debug("Request body too big to save during authentication");
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST,
                             sm.getString("authenticator.requestBodyTooBig"));
                     return new AuthResult(TomcatAuthStatus.SEND_FAILURE, null, false);
@@ -147,27 +137,25 @@ public class FormAuthenticator implements Authenticator {
 //            }
             String username = request.getParameter(Constants.FORM_USERNAME);
             String password = request.getParameter(Constants.FORM_PASSWORD);
-//            if (log.isDebugEnabled())
-//                log.debug("Authenticating username '" + username + "'");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Authenticating username '" + username + "'");
+            }
             UserIdentity userIdentity = loginService.login(username, password);
             if (userIdentity == null) {
-//                if (isAuthMandatory) {
                 forwardToErrorPage(request, response);
                 //TODO right status?
                 return new AuthResult(TomcatAuthStatus.SEND_FAILURE, unauthenticatedIdentity, false);
-//                } else {
-//                    userIdentity = unauthenticatedIdentity;
-//                }
             }
 
-//            if (log.isDebugEnabled())
-//                log.debug("Authentication of '" + username + "' was successful");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Authentication of '" + username + "' was successful");
+            }
 
             session = request.getSessionInternal(false);
             if (session == null) {
-//                if (containerLog.isDebugEnabled())
-//                    containerLog.debug
-//                        ("User took so long to log on the session expired");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("User took so long to log on the session expired");
+                }
                 response.sendError(HttpServletResponse.SC_REQUEST_TIMEOUT,
                         sm.getString("authenticator.sessionExpired"));
                 return new AuthResult(TomcatAuthStatus.SEND_FAILURE, unauthenticatedIdentity, false);
@@ -176,8 +164,9 @@ public class FormAuthenticator implements Authenticator {
             // Redirect the user to the original request URI (which will cause
             // the original request to be restored)
             requestURI = savedRequestURL(session);
-//            if (log.isDebugEnabled())
-//                log.debug("Redirecting to original '" + requestURI + "'");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Redirecting to original '" + requestURI + "'");
+            }
             if (requestURI == null) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST,
                         sm.getString("authenticator.formlogin"));
@@ -213,7 +202,7 @@ public class FormAuthenticator implements Authenticator {
             disp.forward(request.getRequest(), response);
             response.flushBuffer();
         } catch (Throwable t) {
-//            log.warn("Unexpected error forwarding to login page", t);
+            logger.warn("Unexpected error forwarding to login page", t);
         }
     }
 
@@ -231,7 +220,7 @@ public class FormAuthenticator implements Authenticator {
             disp.forward(request.getRequest(), response);
             response.flushBuffer();
         } catch (Throwable t) {
-//            log.warn("Unexpected error forwarding to error page", t);
+            logger.warn("Unexpected error forwarding to error page", t);
         }
     }
 
@@ -252,14 +241,18 @@ public class FormAuthenticator implements Authenticator {
             return (false);
 
         // Is there a saved principal?
-        if (session.getNote(Constants.FORM_PRINCIPAL_NOTE) == null)
-            return (false);
+        if (session.getNote(Constants.FORM_PRINCIPAL_NOTE) == null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(Constants.FORM_PRINCIPAL_NOTE + " is not found in the session, match request fails");
+            }
+            return false;
+        }
 
         // Does the request URI match?
         String requestURI = request.getRequestURI();
         if (requestURI == null)
-            return (false);
-        return (requestURI.equals(sreq.getRequestURI()));
+            return false;
+        return requestURI.equals(sreq.getRequestURI());
 
     }
 
@@ -280,40 +273,40 @@ public class FormAuthenticator implements Authenticator {
         SavedRequest saved = (SavedRequest)
                 session.getNote(Constants.FORM_REQUEST_NOTE);
         session.removeNote(Constants.FORM_REQUEST_NOTE);
-//        session.removeNote(Constants.FORM_PRINCIPAL_NOTE);
+        //session.removeNote(Constants.FORM_PRINCIPAL_NOTE);
         if (saved == null)
             return (false);
 
         // Modify our current request to reflect the original one
         request.clearCookies();
-        Iterator cookies = saved.getCookies();
+        Iterator<Cookie> cookies = saved.getCookies();
         while (cookies.hasNext()) {
-            request.addCookie((Cookie) cookies.next());
+            request.addCookie(cookies.next());
         }
 
         MimeHeaders rmh = request.getCoyoteRequest().getMimeHeaders();
         rmh.recycle();
         boolean cachable = "GET".equalsIgnoreCase(saved.getMethod()) ||
                 "HEAD".equalsIgnoreCase(saved.getMethod());
-        Iterator names = saved.getHeaderNames();
+        Iterator<String> names = saved.getHeaderNames();
         while (names.hasNext()) {
-            String name = (String) names.next();
+            String name = names.next();
             // The browser isn't expecting this conditional response now.
             // Assuming that it can quietly recover from an unexpected 412.
             // BZ 43687
             if (!("If-Modified-Since".equalsIgnoreCase(name) ||
                     (cachable && "If-None-Match".equalsIgnoreCase(name)))) {
-                Iterator values = saved.getHeaderValues(name);
+                Iterator<String> values = saved.getHeaderValues(name);
                 while (values.hasNext()) {
-                    rmh.addValue(name).setString((String) values.next());
+                    rmh.addValue(name).setString(values.next());
                 }
             }
         }
 
         request.clearLocales();
-        Iterator locales = saved.getLocales();
+        Iterator<Locale> locales = saved.getLocales();
         while (locales.hasNext()) {
-            request.addLocale((Locale) locales.next());
+            request.addLocale(locales.next());
         }
 
         request.getCoyoteRequest().getParameters().recycle();
@@ -368,18 +361,18 @@ public class FormAuthenticator implements Authenticator {
             for (int i = 0; i < cookies.length; i++)
                 saved.addCookie(cookies[i]);
         }
-        Enumeration names = request.getHeaderNames();
+        Enumeration<String> names = request.getHeaderNames();
         while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
-            Enumeration values = request.getHeaders(name);
+            String name = names.nextElement();
+            Enumeration<String> values = request.getHeaders(name);
             while (values.hasMoreElements()) {
-                String value = (String) values.nextElement();
+                String value = values.nextElement();
                 saved.addHeader(name, value);
             }
         }
-        Enumeration locales = request.getLocales();
+        Enumeration<Locale> locales = request.getLocales();
         while (locales.hasMoreElements()) {
-            Locale locale = (Locale) locales.nextElement();
+            Locale locale = locales.nextElement();
             saved.addLocale(locale);
         }
 
