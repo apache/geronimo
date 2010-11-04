@@ -17,9 +17,7 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
 <!-- $Rev$ $Date$ -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -35,7 +33,7 @@
     <packaging>war</packaging>
 
     <dependencyManagement>
-        <dependencies>            
+        <dependencies>
             <dependency>
                 <groupId>org.apache.geronimo.plugins</groupId>
                 <artifactId>myfaces</artifactId>
@@ -46,96 +44,60 @@
         </dependencies>
     </dependencyManagement>
 
-		<dependencies>
-		<!--Servlet API-->
+    <dependencies>
+        <!--Servlet API-->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_3.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-
-		<!--JPA 2.0-->
-		 <dependency>
+        <!-- JSF -->
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!--JPA 2.0-->
+        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jpa_2.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-		
-		<!-- JSF -->
-         <dependency>
-            <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-api</artifactId>
-			<scope>provided</scope>
-        </dependency>
-		
-		<!--Derby-->
-		<dependency>
-			<groupId>org.apache.geronimo.bundles</groupId>
-			<artifactId>derby-all</artifactId>
-			<version>10.6.1.0_1</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<!-- Interceptor API -->		
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-interceptor_1.1_spec</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-		<!-- EL API -->
-		<dependency>
-		    <groupId>org.apache.geronimo.specs</groupId>
-		    <artifactId>geronimo-el_2.2_spec</artifactId>
-		    <scope>provided</scope>
-		</dependency>
-		
-		<!-- Common Validator -->		
+        <!-- EL API -->
         <dependency>
-        	<groupId>commons-validator</groupId>
-        	<artifactId>commons-validator</artifactId>
-        	<version>1.3.1</version>
-        </dependency>	
-		
-		<!-- OpenJPA -->
-		<dependency>
-			<groupId>org.apache.openjpa</groupId>
-			<artifactId>openjpa</artifactId>
-			<version>2.0.0</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		 <!-- JSR-299 API -->
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-el_2.2_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Interceptor API -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-interceptor_1.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- JTA API -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- JSR-299 API -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jcdi_1.0_spec</artifactId>
-			<version>1.0</version>
-			<scope>provided</scope>
+            <version>1.0</version>
+            <scope>provided</scope>
         </dependency>
-
         <!-- JSR-330 API -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-atinject_1.0_spec</artifactId>
-			<version>1.0</version>
-			<scope>provided</scope>
+            <version>1.0</version>
+            <scope>provided</scope>
         </dependency>
-		
-      </dependencies>
+    </dependencies>
 
-        <build>            
-            <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <archiveClasses>false</archiveClasses>                    
-                </configuration>
-            </plugin>
-            </plugins>
-       </build>
-     
-       <profiles>
+    <profiles>
         <profile>
             <id>it</id>
             <activation>
@@ -175,18 +137,17 @@
                             </execution>
                         </executions>
                     </plugin>
-					<plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>                            
-                        <configuration>                                
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
                             <suiteXmlFiles>
                                 <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
                             </suiteXmlFiles>
-							<!--<testFailureIgnore>true</testFailureIgnore>-->
-                        </configuration>                            
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
-	    </profile>
-       </profiles>
+        </profile>
+    </profiles>
 </project>

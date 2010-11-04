@@ -17,6 +17,8 @@
  * under the License.
  */
 
+package org.apache.webbeans.sample.reservation.test;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.apache.geronimo.testsupport.SeleniumTestSupport;

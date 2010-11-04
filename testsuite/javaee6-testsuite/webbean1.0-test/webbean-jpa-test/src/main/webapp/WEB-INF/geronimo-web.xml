@@ -18,28 +18,15 @@ specific language governing permissions and limitations
 under the License.
 -->
 <web:web-app xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0" 
-    xmlns:client="http://geronimo.apache.org/xml/ns/j2ee/application-client-2.0" 
-    xmlns:conn="http://geronimo.apache.org/xml/ns/j2ee/connector-1.2" 
     xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2" 
-    xmlns:ejb="http://openejb.apache.org/xml/ns/openejb-jar-2.2" 
-    xmlns:name="http://geronimo.apache.org/xml/ns/naming-1.2" 
-    xmlns:pers="http://java.sun.com/xml/ns/persistence" 
-    xmlns:pkgen="http://openejb.apache.org/xml/ns/pkgen-2.1" 
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0" 
     xmlns:web="http://geronimo.apache.org/xml/ns/j2ee/web-2.0.1">
     <dep:environment>
         <dep:moduleId>
             <dep:groupId>${project.groupId}</dep:groupId>
             <dep:artifactId>${project.artifactId}</dep:artifactId>
             <dep:version>${project.version}</dep:version>
-            <dep:type>car</dep:type>
+            <dep:type>war</dep:type>
         </dep:moduleId>
-        <dep:dependencies>            
-        </dep:dependencies>
-        <dep:hidden-classes>
-            <dep:filter>org.apache.log4j</dep:filter>
-        </dep:hidden-classes>
     </dep:environment>
     <web:context-root>/webbean-jpa-test</web:context-root>
-    <dep:gbean class="org.apache.geronimo.system.logging.log4j.ApplicationLog4jConfigurationGBean" name="DirectoryLog4jConfiguration"/>
 </web:web-app>
