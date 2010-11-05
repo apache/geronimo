@@ -307,14 +307,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         return integrationContext;
     }
 
-    public Servlet newInstance(String className) throws InstantiationException, IllegalAccessException {
-        if (className == null) {
-            throw new InstantiationException("no class loaded");
-        }
-        return (Servlet)holder.newInstance(className, webClassLoader, componentContext);
-    }
-
-    public Object newFilterInstance(String className) throws InstantiationException, IllegalAccessException {
+    public Object newInstance(String className) throws InstantiationException, IllegalAccessException {
         if (className == null) {
             throw new InstantiationException("no class loaded");
         }
@@ -367,7 +360,7 @@ public class WebAppContextWrapper implements GBeanLifecycle, JettyServletRegistr
         if (eventListeners != null) {
             Collection<EventListener> listeners = new ArrayList<EventListener>();
             for (String listenerClassName : eventListeners) {
-                EventListener listener = (EventListener) newFilterInstance(listenerClassName);
+                EventListener listener = (EventListener) newInstance(listenerClassName);
                 listeners.add(listener);
             }
             webAppContext.setEventListeners(listeners.toArray(new EventListener[listeners.size()]));

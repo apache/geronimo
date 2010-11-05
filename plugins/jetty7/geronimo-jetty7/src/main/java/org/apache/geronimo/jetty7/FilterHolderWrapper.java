@@ -18,6 +18,8 @@ package org.apache.geronimo.jetty7;
 
 import java.util.Map;
 
+import javax.servlet.Filter;
+
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectorInstanceContext;
 import org.apache.geronimo.connector.outbound.connectiontracking.SharedConnectorInstanceContext;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -101,6 +103,7 @@ public class FilterHolderWrapper implements GBeanLifecycle {
             ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
             try {
                 try {
+                    super.setFilter((Filter)newInstance());
                     super.doStart();
                 } finally {
                     integrationContext.restoreConnectorContext(connectorContext, null, newContext);

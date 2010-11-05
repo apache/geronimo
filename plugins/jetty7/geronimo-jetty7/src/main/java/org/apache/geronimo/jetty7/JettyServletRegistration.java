@@ -37,7 +37,7 @@ public interface JettyServletRegistration {
 
     ClassLoader getWebClassLoader();
 
-    Servlet newInstance(String className) throws InstantiationException, IllegalAccessException;
+    Object newInstance(String className) throws InstantiationException, IllegalAccessException;
 
     void destroyInstance(Object o) throws Exception;
 
