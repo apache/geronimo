@@ -41,7 +41,7 @@
         <cm:location>file:$(karaf.base)/etc/blueprint-activemq-placeholder.cfg</cm:location>
     </cm:property-placeholder>
 
-    <amq:brokerService brokerName="${activemq.brokerName}" tmpDataDirectory="${activemq.data}/tmp_storage" >
+    <amq:brokerService brokerName="${activemq.brokerName}" tmpDataDirectory="${activemq.data}/tmp_storage" schedulerSupport="false">
 
         <!--
             Configure per-destination policies on the broker. The policies
