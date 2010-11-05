@@ -56,6 +56,7 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.put("workmanager", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("resource-adapter", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("web-container", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("env-entry", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
 
         GERONIMO_SCHEMA_CONVERSIONS.put("security", new SecurityElementConverter());
         GERONIMO_SCHEMA_CONVERSIONS.put("default-subject", new NamespaceElementConverter(GERONIMO_SECURITY_NAMESPACE));
