@@ -35,9 +35,12 @@ import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.myfaces.config.annotation.GeronimoAnnotationProviderFactory;
 import org.apache.geronimo.myfaces.config.resource.ConfigurationResource;
 import org.apache.geronimo.myfaces.config.resource.GeronimoFacesConfigResourceProviderFactory;
+import org.apache.geronimo.myfaces.config.resource.osgi.api.ConfigRegistry;
 import org.apache.myfaces.spi.AnnotationProviderFactory;
 import org.apache.myfaces.spi.FacesConfigResourceProviderFactory;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * @version $Rev$ $Date$
@@ -57,7 +60,8 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
 
     public MyFacesWebAppContext(@ParamAttribute(name = "annotationClassSetMap") Map<Class<? extends Annotation>, Set<Class<?>>> annotationClassSetMap,
             @ParamAttribute(name = "metaInfConfigurationResources") Set<ConfigurationResource> metaInfConfigurationResources, @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
-            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) {
+            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
+            @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) {
         this.annotationClassSetMap = annotationClassSetMap;
         this.bundle = bundle;
         this.classLoader = classLoader;
@@ -69,6 +73,10 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(e);
         }
+        ServiceReference ref = bundleContext.getServiceReference(ConfigRegistry.class.getName());
+        ConfigRegistry configRegistry = (ConfigRegistry) bundleContext.getService(ref);
+        this.metaInfConfigurationResources.addAll(configRegistry.getRegisteredConfigUrls());
+        bundleContext.ungetService(ref);
     }
 
     public Map<Class<? extends Annotation>, Set<Class<?>>> getAnnotationClassSetMap() {

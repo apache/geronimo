@@ -109,5 +109,23 @@
         </dependency>
 
     </dependencies>
-
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <!--<Export-Package>org.apache.geronimo.osgi.registry.api;version=1.0</Export-Package>-->
+                        <!--<Import-Package>*</Import-Package>-->
+                        <!--<Private-Package>org.apache.geronimo.myfaces.config.resource.osgi</Private-Package>-->
+                        <!--<Bundle-SymbolicName>${groupId}.${artifactId};singleton=true</Bundle-SymbolicName>-->
+                        <Bundle-Activator>org.apache.geronimo.myfaces.config.resource.osgi.Activator</Bundle-Activator>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>
