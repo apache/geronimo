@@ -55,6 +55,7 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.put("workmanager", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("resource-adapter", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
         GERONIMO_SCHEMA_CONVERSIONS.put("web-container", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("env-entry", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
 
         GERONIMO_SCHEMA_CONVERSIONS.put("gbean", new GBeanElementConverter());
         GERONIMO_SCHEMA_CONVERSIONS.put("environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
