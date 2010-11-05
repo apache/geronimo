@@ -78,16 +78,16 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
     {
         this.lifeCycle = LifecycleFactory.getInstance().getLifecycle();
 
-//        try
-//        {
+        try
+        {
 //                this.lifeCycle.startApplication(event);
-//                event.getServletContext().setAttribute(OpenWebBeansConfiguration.PROPERTY_OWB_APPLICATION, "true");
-//        }
-//        catch (Exception e)
-//        {
-//             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
-//             WebBeansUtil.throwRuntimeExceptions(e);
-//        }
+                event.getServletContext().setAttribute(OpenWebBeansConfiguration.PROPERTY_OWB_APPLICATION, "true");
+        }
+        catch (Exception e)
+        {
+             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
+             WebBeansUtil.throwRuntimeExceptions(e);
+        }
     }
 
 
