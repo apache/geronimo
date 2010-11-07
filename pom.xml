@@ -79,7 +79,7 @@
 
         <connectorSuffix />
         <connectorSpec>geronimo-j2ee-connector_1.5_spec</connectorSpec>
-        <txmanagerVersion>2.2.1</txmanagerVersion>
+        <txmanagerVersion>2.2.1-SNAPSHOT</txmanagerVersion>
         <servletSpec>geronimo-servlet_2.5_spec</servletSpec>
 
         <monitoringConsoleVersion>${version}</monitoringConsoleVersion>
@@ -2164,18 +2164,6 @@
     </pluginRepositories>
     
     <repositories>
-            <repository>
-                  <id>txmanager221-staging</id>
-                  <name>txmanager 2.2.1</name>
-                  <url>https://repository.apache.org/content/repositories/orgapachegeronimo-006/</url>
-                  <layout>default</layout>
-                  <releases>
-                      <enabled>true</enabled>
-                  </releases>
-                  <snapshots>
-                      <enabled>false</enabled>
-                  </snapshots>
-            </repository>
             <repository>
                   <id>openejb-staging</id>
                   <name>openejb 3.1.4</name>
