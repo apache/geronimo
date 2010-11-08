@@ -79,7 +79,7 @@
 
         <connectorSuffix />
         <connectorSpec>geronimo-j2ee-connector_1.5_spec</connectorSpec>
-        <txmanagerVersion>2.2.1-SNAPSHOT</txmanagerVersion>
+        <txmanagerVersion>2.2.1</txmanagerVersion>
         <servletSpec>geronimo-servlet_2.5_spec</servletSpec>
 
         <monitoringConsoleVersion>${version}</monitoringConsoleVersion>
@@ -2175,7 +2175,19 @@
                   <snapshots>
                       <enabled>false</enabled>
                   </snapshots>
-            </repository>            
+            </repository>
+            <repository>
+                  <id>txmanager-staging</id>
+                  <name>txmanager 2.2.1</name>
+                  <url>https://repository.apache.org/content/repositories/orgapachegeronimo-037/</url>
+                  <layout>default</layout>
+                  <releases>
+                      <enabled>true</enabled>
+                  </releases>
+                  <snapshots>
+                      <enabled>false</enabled>
+                  </snapshots>
+            </repository>   
     </repositories>        
 
     <profiles>
