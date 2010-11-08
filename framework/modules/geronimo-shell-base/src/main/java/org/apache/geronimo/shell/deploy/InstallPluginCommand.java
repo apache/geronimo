@@ -40,7 +40,7 @@ public class InstallPluginCommand extends ConnectCommand {
 
         CommandInstallCAR command = new CommandInstallCAR();
 
-        BaseCommandArgs args = new BaseCommandArgs(pluginFile.split(""));
+        BaseCommandArgs args = new BaseCommandArgs(pluginFile.trim().split("[ ]"));
 
         command.execute(this, connection, args);
         return null;
