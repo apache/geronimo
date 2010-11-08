@@ -110,7 +110,7 @@ public class AssembleServerCommand extends ConnectCommand {
 
         if (pluginArtifacts != null) {
             command.assembleServer((GeronimoDeploymentManager)connection.getDeploymentManager(), pluginArtifacts, plugins, "repository", relativeServerPath, this);
-            ((GeronimoDeploymentManager)connection.getDeploymentManager()).archive(relativeServerPath, "var/temp", new Artifact(group, artifact, (String)version, format));
+            ((GeronimoDeploymentManager)connection.getDeploymentManager()).archive(relativeServerPath, "var/temp", new Artifact(group, artifact, version, format));
         } else {
             PluginListType pluginsToInstall;
 
@@ -144,9 +144,9 @@ public class AssembleServerCommand extends ConnectCommand {
                 pluginsToInstall = command.getInstallList(plugins, this, null);
             }
 
-            if (pluginsToInstall == null) {
-                command.assembleServer((GeronimoDeploymentManager)connection.getDeploymentManager(), pluginsToInstall, "repository", relativeServerPath, this);
-                ((GeronimoDeploymentManager)connection.getDeploymentManager()).archive(relativeServerPath, "var/temp", new Artifact(group, artifact, (String)version, format));
+            if (pluginsToInstall != null) {
+                command.assembleServer((GeronimoDeploymentManager) connection.getDeploymentManager(), pluginsToInstall, "repository", relativeServerPath, this);
+                ((GeronimoDeploymentManager) connection.getDeploymentManager()).archive(relativeServerPath, "var/temp", new Artifact(group, artifact, version, format));
             }
         }
         return null;
