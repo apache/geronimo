@@ -294,7 +294,18 @@ shift
 @REM use long format of startup progress to be consistent with
 @REM the unix version of the start processing
 set _LONG_OPT=--long
+if ""%1""==""--help"" goto setHelp
+if ""%1""==""-h"" goto setHelp
+if ""%1""==""-help"" goto setHelp
+goto setNonHelp
+:setHelp
+@REM print help information in current window
+set _EXECJAVA=%_RUNJAVA%
+goto setHelpEnd
+:setNonHelp
+@REM if it is not to print help information, open another window
 set _EXECJAVA=start "Geronimo Application Server" /d"%GERONIMO_HOME%\bin" %GERONIMO_WIN_START_ARGS% %_RUNJAVA%
+:setHelpEnd
 set CONSOLE_OPTS=-Dkaraf.startLocalConsole=false -Dkaraf.startRemoteShell=true
 goto execCmd
 
