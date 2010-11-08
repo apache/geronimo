@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 589946 $ $Date: 2007-10-29 22:53:25 -0400 (Mon, 29 Oct 2007) $ -->
+<!-- $Rev$ $Date$ -->
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 

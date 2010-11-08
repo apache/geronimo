@@ -247,7 +247,7 @@ public class Connector15DCBTest extends TestCase {
             if(setting.getName().equals("Driver")) {
                 assertEquals("org.apache.derby.jdbc.EmbeddedDriver", setting.getStringValue());
             } else if(setting.getName().equals("ConnectionURL")) {
-                assertEquals("jdbc:derby:TestDatabase;create=true", setting.getStringValue());
+                assertEquals("jdbc:derby:TestDatabase;create=true;user=dbadmin;password=manager", setting.getStringValue());
             } else fail("Unknown connection setting '"+setting.getName()+"'");
         }
         // Make sure the original objects didn't lose track of the null config settings

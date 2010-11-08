@@ -30,8 +30,8 @@
       var="ds"
       driver="org.apache.derby.jdbc.EmbeddedDriver"
       url="jdbc:derby:${db};create=true"
-      user=""
-      password=""
+      user="${userName}"
+      password="${userPassword}"
     />
 </c:if>
 

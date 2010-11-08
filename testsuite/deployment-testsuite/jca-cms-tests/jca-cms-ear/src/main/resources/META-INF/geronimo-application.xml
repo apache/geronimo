@@ -65,7 +65,7 @@
                         </connectiondefinition-instance>
                         <connectiondefinition-instance>
                             <name>configuredsecurityds</name>
-                            <config-property-setting name="UserName">system</config-property-setting>
+                            <config-property-setting name="UserName">dbadmin</config-property-setting>
                             <config-property-setting name="Password">manager</config-property-setting>
                             <config-property-setting name="DatabaseName">TestDatabase</config-property-setting>
                             <config-property-setting name="CreateDatabase">true</config-property-setting>
@@ -151,11 +151,11 @@
                                 <id>test</id>
                                 <credential>
                                     <type>org.apache.geronimo.security.credentialstore.NameCallbackHandler</type>
-                                    <value>george</value>
+                                    <value>dbadmin</value>
                                 </credential>
                                 <credential>
                                     <type>org.apache.geronimo.security.credentialstore.PasswordCallbackHandler</type>
-                                    <value>bone</value>
+                                    <value>manager</value>
                                 </credential>
                             </subject>
                             <subject>

@@ -45,7 +45,7 @@
     </dependencies>
     
     <modules>
-        <module>geronimo-derby</module>
+        <!--module>geronimo-derby</module-->
         <module>geronimo-timer</module>
         <module>system-database</module>
         <module>sysdb-portlets</module>

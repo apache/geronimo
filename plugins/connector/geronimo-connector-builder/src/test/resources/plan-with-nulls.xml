@@ -48,7 +48,7 @@
 <!--
                     <config-property-setting name="UserName" xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
 -->
-                    <config-property-setting name="ConnectionURL">jdbc:derby:TestDatabase;create=true</config-property-setting>
+                    <config-property-setting name="ConnectionURL">jdbc:derby:TestDatabase;create=true;user=dbadmin;password=manager</config-property-setting>
                     <connectionmanager>
                         <local-transaction/>
                         <single-pool>

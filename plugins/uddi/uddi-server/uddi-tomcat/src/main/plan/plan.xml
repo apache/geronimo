@@ -55,8 +55,8 @@
                         <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
                         <connectiondefinition-instance>
                             <name>jdbc/juddiDB</name>
-                            <config-property-setting name="UserName"></config-property-setting>
-                            <config-property-setting name="Password"></config-property-setting>
+                            <config-property-setting name="UserName">dbadmin</config-property-setting>
+                            <config-property-setting name="Password">manager</config-property-setting>
                             <config-property-setting name="DatabaseName">UddiDatabase</config-property-setting>
                             <config-property-setting name="CreateDatabase">false</config-property-setting>
                             <connectionmanager>

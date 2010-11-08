@@ -38,6 +38,8 @@ public class DerbyNetworkGBean implements GBeanLifecycle {
     private NetworkServerControl network;
     private String host = "localhost";
     private int port = 1527;
+    private String userName="dbadmin";
+    private String userPassword="manager";
 
     public DerbyNetworkGBean(DerbySystem system) {
     }
@@ -53,7 +55,23 @@ public class DerbyNetworkGBean implements GBeanLifecycle {
     public int getPort() {
         return port;
     }
+    
+     public String getUserName() {
+         return userName;
+     }
 
+     public void setUserName(String userName) {
+         this.userName = userName;
+     }
+
+     public String getUserPassword() {
+         return userPassword;
+     }
+
+     public void setUserPassword(String userPassword) {
+         this.userPassword = userPassword;
+     }
+     
     public void setPort(int port) {
         this.port = port;
     }
@@ -64,7 +82,7 @@ public class DerbyNetworkGBean implements GBeanLifecycle {
 
     public void doStart() throws Exception {
         InetAddress address = InetAddress.getByName(host);
-        network = new NetworkServerControl(address, port);
+        network = new NetworkServerControl(address, port, userName, userPassword);
         network.start(null); // todo work out how to add this to our log stream
         log.debug("Started on host " + host + ':' + port);
     }
@@ -93,6 +111,8 @@ public class DerbyNetworkGBean implements GBeanLifecycle {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Derby Connector", DerbyNetworkGBean.class);
         infoFactory.addAttribute("host", String.class, true, true);
         infoFactory.addAttribute("port", Integer.TYPE, true, true);
+        infoFactory.addAttribute("userName", String.class, true, true);
+        infoFactory.addAttribute("userPassword", String.class, true, true);
         infoFactory.addAttribute("address", InetSocketAddress.class, false);
         infoFactory.addReference("derbySystem", DerbySystem.class, "GBean");
         infoFactory.setConstructor(new String[]{"derbySystem"});

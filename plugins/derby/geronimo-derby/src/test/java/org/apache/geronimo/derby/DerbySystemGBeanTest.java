@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
@@ -33,11 +34,15 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
  */
 public class DerbySystemGBeanTest extends TestCase {
     private File systemDir;
+    private Kernel kernel;
 
     public void testCreateSystemUsingServerInfo() throws Exception {
+    
+        System.setProperty("derby.connection.requireAuthentication", "false");
+        
         ServerInfo serverInfo = new BasicServerInfo(systemDir.toString());
         String derbyDir = "var/dbderby";
-        DerbySystemGBean gbean = new DerbySystemGBean(serverInfo, derbyDir);
+        DerbySystemGBean gbean = new DerbySystemGBean(serverInfo, derbyDir, kernel);
         try {
             gbean.doStart();
             new org.apache.derby.jdbc.EmbeddedDriver();
@@ -50,7 +55,7 @@ public class DerbySystemGBeanTest extends TestCase {
     }
 
     private void connect() throws SQLException {
-        Connection c = DriverManager.getConnection("jdbc:derby:testdb;create=true");
+        Connection c = DriverManager.getConnection("jdbc:derby:testdb;create=true;user=dbadmin;password=manager");
         c.close();
     }
 
@@ -67,6 +72,8 @@ public class DerbySystemGBeanTest extends TestCase {
             delete(systemDir);
             throw e;
         }
+        
+        kernel = new MockKernel();
     }
 
     protected void tearDown() throws Exception {

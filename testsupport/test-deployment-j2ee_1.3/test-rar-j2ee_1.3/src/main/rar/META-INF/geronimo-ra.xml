@@ -38,10 +38,10 @@
                 <rar:connectionfactory-interface>javax.sql.DataSource</rar:connectionfactory-interface>
                 <rar:connectiondefinition-instance>
                     <rar:name>RARDBDatasource-1_3</rar:name>
-                    <rar:config-property-setting name="Password"/>
+                    <rar:config-property-setting name="UserName">dbadmin</rar:config-property-setting>
+                    <rar:config-property-setting name="Password">manager</rar:config-property-setting>
                     <rar:config-property-setting name="LoginTimeout"/>
                     <rar:config-property-setting name="DatabaseName">DefaultDB-1_3</rar:config-property-setting>
-                    <rar:config-property-setting name="UserName"/>
                     <rar:config-property-setting name="ShutdownDatabase"/>
                     <rar:connectionmanager>
                         <rar:local-transaction/>

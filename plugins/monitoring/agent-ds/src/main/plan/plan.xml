@@ -27,8 +27,8 @@
                 <connectiondefinition-instance>
                     <name>jdbc/ActiveDS</name>
                     <config-property-setting name="CreateDatabase">true</config-property-setting>
-                    <config-property-setting name="Password">monitor</config-property-setting>
-                    <config-property-setting name="UserName">monitor</config-property-setting>
+                    <config-property-setting name="Password">manager</config-property-setting>
+                    <config-property-setting name="UserName">dbadmin</config-property-setting>
                     <config-property-setting name="DatabaseName">ActiveMRCDB</config-property-setting>
                     <connectionmanager>
                         <local-transaction/>
@@ -46,8 +46,8 @@
                 <connectiondefinition-instance>
                     <name>jdbc/ArchiveDS</name>
                     <config-property-setting name="CreateDatabase">true</config-property-setting>
-                    <config-property-setting name="Password">monitor</config-property-setting>
-                    <config-property-setting name="UserName">monitor</config-property-setting>
+                    <config-property-setting name="Password">manager</config-property-setting>
+                    <config-property-setting name="UserName">dbadmin</config-property-setting>
                     <config-property-setting name="DatabaseName">ArchiveMRCDB</config-property-setting>
                     <connectionmanager>
                         <local-transaction/>

@@ -28,12 +28,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.util.KernelManagementHelper;
 import org.apache.geronimo.console.util.ManagementHelper;
+import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.derby.DerbySystemGBean;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.management.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 
@@ -67,6 +70,13 @@ public class DerbyConnectionUtil {
     private static final String EMPTY_PROPS = "";
     
     private static AbstractName SYSTEM_DATASOURCE_NAME = null;
+    
+    private static final String DERBYNETWORK_GBEAN_NAME = "DerbyNetwork";
+    
+    private static final String DERBYNETWORK_GBEAN_ATTRIBUTE_USERNAME = "userName";
+    
+    private static final String DERBYNETWORK_GBEAN_ATTRIBUTE_USERPASSWORD = "userPassword";
+    
     
     static {
         try {
@@ -120,7 +130,7 @@ public class DerbyConnectionUtil {
      *
      * @param dbName
      * @return
-     * @throws SQLException
+     * @throws SQLException 
      */
     private static Connection getConnection(String dbName, String properties,
             String protocol, String driver) throws SQLException {
@@ -134,10 +144,40 @@ public class DerbyConnectionUtil {
         if (SYSTEM_DB.equalsIgnoreCase(dbName)) {
             return getSystemDBConnection();
         } else {
-            return DriverManager.getConnection(protocol + dbName + properties);
+            String userName = getDerbyConnectionUsername();
+            String password = getDerbyConnectionUserPassword();
+            return DriverManager.getConnection(protocol + dbName + properties + ";user=" + userName + ";password="
+                    + password);
         }
     }
 
+    /**
+     * Get user name of Derby connection
+     */
+    
+    public static String getDerbyConnectionUsername() {
+
+        try {
+            return (String) PortletManager.getKernel().getAttribute(DERBYNETWORK_GBEAN_NAME,
+                    DERBYNETWORK_GBEAN_ATTRIBUTE_USERNAME);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    /**
+     * Get user password of Derby connection
+     */
+
+    public static String getDerbyConnectionUserPassword() {
+        try {
+            return (String) PortletManager.getKernel().getAttribute(DERBYNETWORK_GBEAN_NAME,
+                    DERBYNETWORK_GBEAN_ATTRIBUTE_USERPASSWORD);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
     /**
      * Get a connection to derby.
      *

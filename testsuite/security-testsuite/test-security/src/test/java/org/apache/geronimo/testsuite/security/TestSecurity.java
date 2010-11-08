@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 public class TestSecurity extends SeleniumTestSupport {
     
-    @Test
+    @Test (dependsOnGroups = { "failure" }, alwaysRun=true )
     public void testLogin() throws Exception {
         selenium.open("/demo/protect/hello.html");
         selenium.type("j_username", "george");
@@ -36,38 +36,39 @@ public class TestSecurity extends SeleniumTestSupport {
         assertEquals("hello world.", selenium.getText("xpath=/html"));
     }
 
-    @Test
+    @Test (groups = { "failure" })
     public void testBadPasswordLogin() throws Exception {   
         testFailure("george", "bonee");
     }
     
-    @Test
+    @Test (groups = { "failure" })
     public void testBadUser() throws Exception {  
         testFailure("doesnotexist", "bonee");
     }
     
-    @Test
+    @Test (groups = { "failure" })
     public void testNullPasswordLogin() throws Exception {        
         testFailure("george", null);
     }
     
-    @Test
+    @Test (groups = { "failure" })
     public void testNullUserLogin() throws Exception {        
         testFailure(null, "bone");
     }
     
-    @Test
+    @Test (groups = { "failure" })
     public void testNullCredentialsLogin() throws Exception {        
         testFailure(null, null);
     }
     
-    @Test
+    @Test (groups = { "failure" })
     public void testEmptyCredentialsLogin() throws Exception {        
         testFailure("", "");
     }
     
     private void testFailure(String username, String password) throws Exception {
         selenium.open("/demo/protect/hello.html");
+        
         if (username != null) {
             selenium.type("j_username", username);
         }

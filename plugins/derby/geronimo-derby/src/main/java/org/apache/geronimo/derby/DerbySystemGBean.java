@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 import java.sql.DriverManager;
@@ -37,19 +38,41 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
     private static final Log log = LogFactory.getLog("DerbySystem");
     private static final String SYSTEM_HOME = "derby.system.home";
     private static final String SHUTDOWN_ALL = "jdbc:derby:;shutdown=true";
+    private static final String DERBYNETWORK_GBEAN_NAME = "DerbyNetwork";    
+    private static final String DERBYNETWORK_GBEAN_ATTRIBUTE_USERNAME = "userName";    
+    private static final String DERBYNETWORK_GBEAN_ATTRIBUTE_USERPASSWORD = "userPassword";
 
     private final ServerInfo serverInfo;
     private final String systemHome;
     private String actualHome;
+    private Kernel kernel;
 
-    public DerbySystemGBean(ServerInfo serverInfo, String derbySystemHome) {
-        this.serverInfo = serverInfo;
-        this.systemHome = derbySystemHome;
-    }
+    public DerbySystemGBean(ServerInfo serverInfo, String derbySystemHome, Kernel kernel) {
+         this.serverInfo = serverInfo;
+         this.systemHome = derbySystemHome;
+         this.kernel = kernel;
+     }
 
     public String getDerbyHome() {
         return actualHome;
     }
+    
+    private String getDerbyUserID() {
+         try {
+             return (String) kernel.getAttribute(DERBYNETWORK_GBEAN_NAME, DERBYNETWORK_GBEAN_ATTRIBUTE_USERNAME);
+         } catch (Exception e) {
+             return null;
+         }
+     }
+ 
+     private String getDerbyUserPassword() {
+         try {
+             return (String) kernel.getAttribute(DERBYNETWORK_GBEAN_NAME, DERBYNETWORK_GBEAN_ATTRIBUTE_USERPASSWORD);
+         } catch (Exception e) {
+             return null;
+         }
+     }
+     
 
     public void doStart() throws Exception {
         // set up the system property for the database home
@@ -62,6 +85,13 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
         // set the magic system property that causes derby to use explicity
         // file sync instead of relying on vm support for file open rws
         System.setProperty("derby.storage.fileSyncTransactionLog", "true");
+        
+     
+        // set system property to enable Derby user authentication
+        if (System.getProperty("derby.connection.requireAuthentication") == null) {
+            System.setProperty("derby.connection.requireAuthentication", "true");
+            System.setProperty("derby.authentication.provider", "org.apache.geronimo.derby.DerbyUserAuthenticator");
+        }
 
         // load the Embedded driver to initialize the home
         new org.apache.derby.jdbc.EmbeddedDriver();
@@ -70,7 +100,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
 
     public void doStop() throws Exception {
         try {
-            DriverManager.getConnection(SHUTDOWN_ALL, null, null);
+            DriverManager.getConnection(SHUTDOWN_ALL, getDerbyUserID(), getDerbyUserPassword());
         } catch (SQLException e) {
             // SQLException gets thrown on successful shutdown so ignore
         }
@@ -80,7 +110,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
 
     public void doFail() {
         try {
-            DriverManager.getConnection(SHUTDOWN_ALL, null, null);
+            DriverManager.getConnection(SHUTDOWN_ALL, getDerbyUserID(), getDerbyUserPassword());
         } catch (SQLException e) {
             // SQLException gets thrown on successful shutdown so ignore
         }
@@ -98,8 +128,9 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DerbySystemGBean.class);
         infoFactory.addAttribute("derbySystemHome", String.class, true);
         infoFactory.addAttribute("derbyHome", String.class, false);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
-        infoFactory.setConstructor(new String[]{"ServerInfo", "derbySystemHome"});
+        infoFactory.setConstructor(new String[]{"ServerInfo", "derbySystemHome", "kernel"});
         infoFactory.setPriority(GBeanInfo.PRIORITY_CLASSLOADER);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

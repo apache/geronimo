@@ -79,7 +79,7 @@
                         </goals>
                         <configuration>
                             <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
-                            <url>jdbc:derby:${derby.system.home}/UddiDatabase;create=true</url>
+                            <url>jdbc:derby:${derby.system.home}/UddiDatabase;create=true;user=dbadmin;password=manager</url>
                             <autocommit>true</autocommit>
                             <onError>abort</onError>
                             <delimiter>;</delimiter>
