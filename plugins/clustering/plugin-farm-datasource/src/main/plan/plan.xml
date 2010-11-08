@@ -26,8 +26,8 @@
                 <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
                 <connectiondefinition-instance>
                     <name>PluginFarmDatasource</name>
-                    <config-property-setting name="UserName"></config-property-setting>
-                    <config-property-setting name="Password"></config-property-setting>
+                    <config-property-setting name="UserName">dbadmin</config-property-setting>
+                    <config-property-setting name="Password">manager</config-property-setting>
                     <config-property-setting name="DatabaseName">PluginFarmDatatabase</config-property-setting>
                     <config-property-setting name="CreateDatabase">true</config-property-setting>
                     <connectionmanager>
@@ -41,8 +41,8 @@
                 </connectiondefinition-instance>
                 <connectiondefinition-instance>
                     <name>NoTxPluginFarmDatasource</name>
-                    <config-property-setting name="UserName"></config-property-setting>
-                    <config-property-setting name="Password"></config-property-setting>
+                    <config-property-setting name="UserName">dbadmin</config-property-setting>
+                    <config-property-setting name="Password">manager</config-property-setting>
                     <config-property-setting name="DatabaseName">PluginFarmDatatabase</config-property-setting>
                     <config-property-setting name="CreateDatabase">true</config-property-setting>
                     <connectionmanager>

@@ -43,8 +43,8 @@ public class TestServlet extends HttpServlet {
 
     @Resource(name="configuredsecurityds")
     private DataSource csds;
-    @Resource(name="cmsds")
-    private DataSource cmsds;
+//    @Resource(name="cmsds")
+//    private DataSource cmsds;
 
     public void init() {
         System.out.println("Test Servlet init");
@@ -70,6 +70,7 @@ public class TestServlet extends HttpServlet {
             out.println("Could not get configured connection");
             e.printStackTrace(out);
         }
+        /*
         //now get a connection through the configured default subject
         if (cmsds == null) {
             out.println("No container managed datasource found");
@@ -95,6 +96,7 @@ public class TestServlet extends HttpServlet {
             out.println("Could not get container managed connection");
             e.printStackTrace(out);
         }
+        */
     }
 
 

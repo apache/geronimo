@@ -77,12 +77,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.modules</groupId>
-            <artifactId>geronimo-derby</artifactId>
-            <version>${version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.tranql</groupId>
             <artifactId>tranql-connector-derby-embed-xa</artifactId>
             <type>rar</type>
@@ -117,6 +111,8 @@
                                <gbean name="DerbyNetwork">
                                    <attribute name="host">#{ServerHostname}</attribute>
                                    <attribute name="port">#{DerbyPort + PortOffset}</attribute>
+                                   <attribute name="userName">dbadmin</attribute>
+                                   <attribute name="userPassword">manager</attribute>
                                </gbean>
                            </config-xml-content>
                            <config-substitution key="DerbyPort">1527</config-substitution>

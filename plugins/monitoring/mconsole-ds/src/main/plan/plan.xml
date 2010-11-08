@@ -27,7 +27,8 @@
                 <connectiondefinition-instance>
                     <name>MonitoringClientDS</name>
                     <config-property-setting name="CreateDatabase">true</config-property-setting>
-                    <config-property-setting name="UserName">app</config-property-setting>
+                    <config-property-setting name="Password">manager</config-property-setting>
+                    <config-property-setting name="UserName">dbadmin</config-property-setting>
                     <config-property-setting name="DatabaseName">MonitoringClientDB</config-property-setting>
                     <connectionmanager>
                         <local-transaction/>
@@ -41,7 +42,8 @@
                 <connectiondefinition-instance>
                     <name>NoTxMonitoringClientDS</name>
                     <config-property-setting name="CreateDatabase">true</config-property-setting>
-                    <config-property-setting name="UserName">app</config-property-setting>
+                    <config-property-setting name="Password">manager</config-property-setting>
+                    <config-property-setting name="UserName">dbadmin</config-property-setting>
                     <config-property-setting name="DatabaseName">MonitoringClientDB</config-property-setting>
                     <connectionmanager>
                         <no-transaction/>

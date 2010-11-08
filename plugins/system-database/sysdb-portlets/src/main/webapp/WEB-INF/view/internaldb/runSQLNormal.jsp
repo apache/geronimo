@@ -142,8 +142,8 @@ function <portlet:namespace/>validateForm3(){
           var="ds"
           driver="org.apache.derby.jdbc.EmbeddedDriver"
           url="jdbc:derby:${useDB};create=true"
-          user=""
-          password=""
+          user="${userName}"
+      		password="${userPassword}"
         />
       </c:if>
 	</c:if>

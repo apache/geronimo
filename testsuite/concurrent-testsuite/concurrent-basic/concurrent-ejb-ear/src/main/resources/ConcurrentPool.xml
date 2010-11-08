@@ -40,7 +40,8 @@
                                 <connectiondefinition-instance>
                                         <name>ConcurrentPool</name>
                                         <config-property-setting name="Driver">org.apache.derby.jdbc.EmbeddedDriver</config-property-setting>
-                                        <config-property-setting name="UserName">app</config-property-setting>
+                                        <config-property-setting name="UserName">dbadmin</config-property-setting>
+                                        <config-property-setting name="Password">manager</config-property-setting>
                                         <config-property-setting name="ConnectionURL">jdbc:derby:ConcurrentDB;create=true</config-property-setting>
                                         <connectionmanager>
                                                 <local-transaction/>

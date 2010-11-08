@@ -137,9 +137,9 @@ public class DBViewerPortlet extends BasePortlet {
         if (LISTTBLS_ACTION.equals(action)) {
             renderRequest.setAttribute("db", db);
             renderRequest.setAttribute("viewTables", viewTables);
-            renderRequest.setAttribute("ds", DerbyConnectionUtil
-                    .getDataSourceForDataBaseName(db));
-
+            renderRequest.setAttribute("ds", DerbyConnectionUtil.getDataSourceForDataBaseName(db));
+            renderRequest.setAttribute("userName", DerbyConnectionUtil.getDerbyConnectionUsername());
+            renderRequest.setAttribute("userPassword", DerbyConnectionUtil.getDerbyConnectionUserPassword());
             if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             	listTablesView.include(renderRequest, renderResponse);
             } else {
@@ -149,12 +149,13 @@ public class DBViewerPortlet extends BasePortlet {
             renderRequest.setAttribute("db", db);
             renderRequest.setAttribute("tbl", tbl);
             renderRequest.setAttribute("viewTables", viewTables);
-            renderRequest.setAttribute("ds", DerbyConnectionUtil
-                    .getDataSourceForDataBaseName(db));
+            renderRequest.setAttribute("ds", DerbyConnectionUtil.getDataSourceForDataBaseName(db));
+            renderRequest.setAttribute("userName", DerbyConnectionUtil.getDerbyConnectionUsername());
+            renderRequest.setAttribute("userPassword", DerbyConnectionUtil.getDerbyConnectionUserPassword());
             if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
-            	viewTableContentsView.include(renderRequest, renderResponse);
+                viewTableContentsView.include(renderRequest, renderResponse);
             } else {
-            	viewTableContentsMaximizedView.include(renderRequest, renderResponse);
+                viewTableContentsMaximizedView.include(renderRequest, renderResponse);
             }
         } else {
             renderRequest.setAttribute("databases", helper

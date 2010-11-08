@@ -26,4 +26,19 @@
         <artifactId>derbytools</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>j2ee-server</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>j2ee-security</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-derby</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

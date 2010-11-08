@@ -290,7 +290,7 @@ public class Connector15DCBTest extends TestCase {
             } else if(setting.getName().equals("ExceptionSorterClass")) {
                 assertEquals("", setting.getStringValue());
             } else if(setting.getName().equals("ConnectionURL")) {
-                assertEquals("jdbc:derby:TestDatabase;create=true", setting.getStringValue());
+                assertEquals("jdbc:derby:TestDatabase;create=true;user=dbadmin;password=manager", setting.getStringValue());
             } else fail("Unknown connection setting '"+setting.getName()+"'");
         }
     }
