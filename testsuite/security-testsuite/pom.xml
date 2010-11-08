@@ -88,10 +88,10 @@
                         </executions>
                     </plugin>
 
-                    <plugin>
+                    <!--<plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>selenium-maven-plugin</artifactId>
-                    </plugin>
+                    </plugin>-->
                     
                     <plugin>
                         <groupId>org.apache.geronimo.buildsupport</groupId>
@@ -117,6 +117,7 @@
             <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
             <modules>
                 <module>test-security</module>
+                <module>test-generic-auth</module>
             </modules>
         </profile>
     </profiles>
