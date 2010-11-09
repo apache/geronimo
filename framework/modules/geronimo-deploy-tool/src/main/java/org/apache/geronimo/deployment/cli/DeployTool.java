@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.enterprise.deploy.spi.factories.DeploymentFactory;
-
 import org.apache.geronimo.cli.deployer.CommandArgs;
 import org.apache.geronimo.cli.deployer.CommandFileCommandMetaData;
 import org.apache.geronimo.cli.deployer.CommandMetaData;
@@ -97,16 +95,12 @@ public class DeployTool implements Main {
     ServerConnection con = null;
     private boolean multipleCommands = false;
     private final Kernel kernel;
-    private final DeploymentFactory deploymentFactory;
 
-    public DeployTool(Kernel kernel, DeploymentFactory deploymentFactory) {
+    public DeployTool(Kernel kernel) {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
-        } else if (null == deploymentFactory) {
-            throw new IllegalArgumentException("deploymentFactory is required");
         }
         this.kernel = kernel;
-        this.deploymentFactory = deploymentFactory;
     }
 
     public int execute(Object opaque) {
@@ -166,7 +160,7 @@ public class DeployTool implements Main {
                         if (parser.isOffline()) {
                             con = new OfflineServerConnection(kernel, true);
                         } else {
-                            con = new OnlineServerConnection(parser, consoleReader, deploymentFactory);
+                            con = new OnlineServerConnection(parser, consoleReader);
                         }
                     }
                     try {
@@ -227,10 +221,9 @@ public class DeployTool implements Main {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("DeployTool", DeployTool.class, "DeployTool");
 
-        infoBuilder.addReference(GBEAN_REF_DEPLOYMENT_FACTORY, DeploymentFactory.class);
         infoBuilder.addInterface(Main.class);
 
-        infoBuilder.setConstructor(new String[] {"kernel", GBEAN_REF_DEPLOYMENT_FACTORY});
+        infoBuilder.setConstructor(new String[] {"kernel"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

@@ -40,20 +40,17 @@ import org.apache.geronimo.kernel.util.JarUtils;
  */
 public class OnlineServerConnection extends ServerConnection {
 
-    private final DeploymentFactory geronimoDeploymentFactory;
-
     private final ServerConnection.UsernamePasswordHandler handler;
-    
+
     private boolean logToSysErr;
 
     private boolean verboseMessages;
 
-    public OnlineServerConnection(ConnectionParams params, ConsoleReader consoleReader, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
-        this(params, new DefaultUserPasswordHandler(consoleReader), geronimoDeploymentFactory);
+    public OnlineServerConnection(ConnectionParams params, ConsoleReader consoleReader) throws DeploymentException {
+        this(params, new DefaultUserPasswordHandler(consoleReader));
     }
 
-    public OnlineServerConnection(ConnectionParams params, ServerConnection.UsernamePasswordHandler handler, DeploymentFactory geronimoDeploymentFactory) throws DeploymentException {
-        this.geronimoDeploymentFactory = geronimoDeploymentFactory;
+    public OnlineServerConnection(ConnectionParams params, ServerConnection.UsernamePasswordHandler handler) throws DeploymentException {
         this.handler = handler;
         String uri = params.getURI();
         String driver = params.getDriver();
@@ -64,7 +61,7 @@ public class OnlineServerConnection extends ServerConnection {
         verboseMessages = params.isVerbose();
         logToSysErr = params.isSyserr();
         boolean secure = params.isSecure();
-        
+
         if ((driver != null) && uri == null) {
             throw new DeploymentSyntaxException("A custom driver requires a custom URI");
         }
@@ -74,7 +71,7 @@ public class OnlineServerConnection extends ServerConnection {
         if (host != null || port != null) {
             uri = DeployUtils.getConnectionURI(host, port, secure);
         }
-        
+
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(DeployUtils.class.getClassLoader());
         try {
@@ -91,8 +88,6 @@ public class OnlineServerConnection extends ServerConnection {
         DeploymentFactoryManager mgr = DeploymentFactoryManager.getInstance();
         if (driver != null) {
             loadDriver(driver, mgr);
-        } else {
-            mgr.registerDeploymentFactory(geronimoDeploymentFactory);
         }
         String useURI = argURI == null ? DeployUtils.getConnectionURI(null, null, secure) : argURI;
         if (user == null && password == null) {

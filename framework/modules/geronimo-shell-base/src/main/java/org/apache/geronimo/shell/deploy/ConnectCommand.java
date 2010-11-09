@@ -144,9 +144,8 @@ public class ConnectCommand extends BaseCommandSupport {
                 println("Connecting to Geronimo server: " + hostname + ":" + port);
             }
 
-            BaseDeploymentFactory deploymentFactory = new BaseDeploymentFactory();
             ConnectionParamsImpl connectionParams = new ConnectionParamsImpl(null, hostname, port, null, username, password, false, false, false, secure);
-            connection = new OnlineServerConnection(connectionParams, new ShellUserPasswordHandler(session), deploymentFactory);
+            connection = new OnlineServerConnection(connectionParams, new ShellUserPasswordHandler(session));
         }
 
         // Disconnect previous connection if any

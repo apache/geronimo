@@ -35,23 +35,22 @@ import org.apache.geronimo.kernel.Kernel;
  * @version $Rev$ $Date$
  */
 public class LocalDeploymentManager extends ExtendedDeploymentManager {
-    
+
     private static final Logger log = LoggerFactory.getLogger(LocalDeploymentManager.class);
-    
+
     private static final AbstractNameQuery CONFIGURER_QUERY = new AbstractNameQuery(ModuleConfigurer.class.getName());
 
     public LocalDeploymentManager(Kernel kernel) throws IOException {
         super(loadModuleConfigurers(kernel));
         initialize(kernel);
     }
-    
+
     private static Collection<ModuleConfigurer> loadModuleConfigurers(Kernel kernel) {
         Collection<ModuleConfigurer> moduleConfigurers = new ArrayList<ModuleConfigurer>();
-        Set configurerNames = kernel.listGBeans(CONFIGURER_QUERY);
-        for (Object configurerName : configurerNames) {
-            AbstractName name = (AbstractName) configurerName;
+        Set<AbstractName> configurerNames = kernel.listGBeans(CONFIGURER_QUERY);
+        for (AbstractName configurerName : configurerNames) {
             try {
-                Object o = kernel.getGBean(name);
+                Object o = kernel.getGBean(configurerName);
                 if (!(o instanceof ModuleConfigurer)) {
                     log.error("Gbean classloader: " + o.getClass().getClassLoader());
                     log.error("ModuleConfigurer classloader: " + ModuleConfigurer.class.getClassLoader());
@@ -59,10 +58,10 @@ public class LocalDeploymentManager extends ExtendedDeploymentManager {
                 ModuleConfigurer configurer = (ModuleConfigurer) o;
                 moduleConfigurers.add(configurer);
             } catch (GBeanNotFoundException e) {
-                log.warn("No gbean found for name returned in query : " + name);
+                log.warn("No gbean found for name returned in query : " + configurerName);
             }
         }
         return moduleConfigurers;
     }
-    
+
 }

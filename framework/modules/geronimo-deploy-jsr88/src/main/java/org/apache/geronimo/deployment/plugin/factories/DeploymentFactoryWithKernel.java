@@ -21,16 +21,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
-import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
+import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 
 import org.apache.geronimo.deployment.spi.ModuleConfigurer;
-import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
@@ -43,22 +39,17 @@ import org.apache.geronimo.kernel.Kernel;
  */
 @GBean(j2eeType = "DeploymentFactory")
 public class DeploymentFactoryWithKernel extends BaseDeploymentFactory {
-    private final Kernel kernel;
-    private final RemoteDeploymentManager remoteDeploymentManager;
-    
-    public DeploymentFactoryWithKernel(@ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) {
-        this(kernel, null);
-    }
 
-    public DeploymentFactoryWithKernel(Kernel kernel, RemoteDeploymentManager remoteDeploymentManager) {
+    private final Kernel kernel;
+
+    public DeploymentFactoryWithKernel(@ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
         }
         this.kernel = kernel;
-        this.remoteDeploymentManager = remoteDeploymentManager;
         DeploymentFactoryManager.getInstance().registerDeploymentFactory(this);
     }
-    
+
     protected Collection<ModuleConfigurer> getModuleConfigurers() throws DeploymentManagerCreationException {
         Collection<ModuleConfigurer> moduleConfigurers = new ArrayList<ModuleConfigurer>();
         Set<AbstractName> configurerNames = kernel.listGBeans(new AbstractNameQuery(ModuleConfigurer.class.getName()));
@@ -67,21 +58,10 @@ public class DeploymentFactoryWithKernel extends BaseDeploymentFactory {
                 ModuleConfigurer configurer = (ModuleConfigurer) kernel.getGBean(configurerName);
                 moduleConfigurers.add(configurer);
             } catch (GBeanNotFoundException e) {
-                throw (AssertionError)new AssertionError("No gbean found for name returned in query : " + configurerName).initCause(e);
+                throw (AssertionError) new AssertionError("No gbean found for name returned in query : " + configurerName).initCause(e);
             }
         }
         return moduleConfigurers;
-    }
-    
-    protected RemoteDeploymentManager getRemoteDeploymentManager() throws DeploymentManagerCreationException {
-        if (remoteDeploymentManager != null) {
-            return remoteDeploymentManager;
-        }
-        try {
-            return kernel.getGBean(RemoteDeploymentManager.class);
-        } catch (Exception e) {
-            throw (DeploymentManagerCreationException) new DeploymentManagerCreationException("See nested").initCause(e);
-        }
     }
 
 }

@@ -20,29 +20,8 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="DeployTool" class="org.apache.geronimo.deployment.cli.DeployTool" >
-        <reference name="DeploymentFactory">
-            <name>DeploymentFactory</name>
-        </reference>
-    </gbean>
+    <gbean name="DeployTool" class="org.apache.geronimo.deployment.cli.DeployTool" />
 
     <gbean name="DeploymentFactory" class="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryWithKernel" />
-
-    <gbean name="ModuleConfigurerRegistry" class="org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager">
-        <references name="ModuleConfigurers">
-            <pattern>
-                <name>ClientConfigurer</name>
-            </pattern>
-            <pattern>
-                <name>EARConfigurer</name>
-            </pattern>
-            <pattern>
-                <name>RARConfigurer</name>
-            </pattern>
-            <pattern>
-                <name>WARConfigurer</name>
-            </pattern>
-        </references>
-    </gbean>
 
 </module>

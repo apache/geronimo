@@ -48,7 +48,8 @@ public abstract class AbstractURLContextFactory implements ObjectFactory {
                 }
             }
         }
-        throw new NamingException("Could not locate a way to look up " + o + " in url context for " + urlScheme);
+        return null;
+        //throw new NamingException("Could not locate a way to look up " + o + " in url context for " + urlScheme);
     }
 
     protected abstract Context getContext() throws NamingException;

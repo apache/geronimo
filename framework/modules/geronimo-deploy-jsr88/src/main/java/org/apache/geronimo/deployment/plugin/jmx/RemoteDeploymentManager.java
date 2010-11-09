@@ -72,7 +72,7 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
     public JMXConnector getJMXConnector() {
         return this.jmxConnector;
     }
-    
+
     public boolean isSameMachine() {
         return isSameMachine;
     }
@@ -85,12 +85,12 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
         }
         try {
             InetAddress dest = InetAddress.getByName(hostname);
-            Enumeration en = NetworkInterface.getNetworkInterfaces();
+            Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
             while (en.hasMoreElements()) {
-                NetworkInterface iface = (NetworkInterface) en.nextElement();
-                Enumeration ine = iface.getInetAddresses();
+                NetworkInterface iface = en.nextElement();
+                Enumeration<InetAddress> ine = iface.getInetAddresses();
                 while (ine.hasMoreElements()) {
-                    InetAddress address = (InetAddress) ine.nextElement();
+                    InetAddress address = ine.nextElement();
                     if (address.equals(dest)) {
                         isSameMachine = true;
                     }
@@ -112,7 +112,7 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
             throw (IllegalStateException) new IllegalStateException("Unable to close connection").initCause(e);
         }
     }
-    
+
     @Override
     protected <T> T getImplementation(AbstractName name, Class<T> clazz) {
         return kernel.getProxyManager().createProxy(name, clazz);
