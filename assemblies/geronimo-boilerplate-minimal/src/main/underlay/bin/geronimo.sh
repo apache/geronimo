@@ -316,35 +316,60 @@ elif [ "$1" = "run" ]; then
 
 elif [ "$1" = "start" ] ; then
   shift
-  touch "$GERONIMO_OUT"
-  if [ -f "$JAVA_AGENT_JAR" ]; then
-      $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-        -javaagent:"$JAVA_AGENT_JAR" \
-        -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
-        -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-        -Djava.ext.dirs="$EXT_DIRS" \
-        -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
-        -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" \
-        >> $GERONIMO_OUT 2>&1 &
-        echo ""
-        echo "Geronimo started in background. PID: $!"
-        if [ ! -z "$GERONIMO_PID" ]; then
-          echo $! > $GERONIMO_PID
-        fi
+  ISHelp=false
+  case "$1" in
+  --help) ISHelp=true;;
+  -help) ISHelp=true;;
+  -h) ISHelp=true;;
+  esac
+  if $ISHelp; then
+    if [ -f "$JAVA_AGENT_JAR" ]; then
+	      exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
+	        -javaagent:"$JAVA_AGENT_JAR" \
+	        -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+	        -Djava.endorsed.dirs="$ENDORSED_DIRS" \
+	        -Djava.ext.dirs="$EXT_DIRS" \
+	        -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
+	        -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@"
+	  else
+	      exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
+	        -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+	        -Djava.endorsed.dirs="$ENDORSED_DIRS" \
+	        -Djava.ext.dirs="$EXT_DIRS" \
+	        -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
+	        -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@"
+	  fi
   else
-      $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-        -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
-        -Djava.endorsed.dirs="$ENDORSED_DIRS" \
-        -Djava.ext.dirs="$EXT_DIRS" \
-        -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
-        -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" \
-        >> $GERONIMO_OUT 2>&1 &
-        echo ""
-        echo "Geronimo started in background. PID: $!"
-        if [ ! -z "$GERONIMO_PID" ]; then
-          echo $! > $GERONIMO_PID
-        fi
-  fi
+    touch "$GERONIMO_OUT"
+	  if [ -f "$JAVA_AGENT_JAR" ]; then
+	      $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
+	        -javaagent:"$JAVA_AGENT_JAR" \
+	        -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+	        -Djava.endorsed.dirs="$ENDORSED_DIRS" \
+	        -Djava.ext.dirs="$EXT_DIRS" \
+	        -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
+	        -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" \
+	        >> $GERONIMO_OUT 2>&1 &
+	        echo ""
+	        echo "Geronimo started in background. PID: $!"
+	        if [ ! -z "$GERONIMO_PID" ]; then
+	          echo $! > $GERONIMO_PID
+	        fi
+	  else
+	      $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
+	        -Dorg.apache.geronimo.home.dir="$GERONIMO_HOME" \
+	        -Djava.endorsed.dirs="$ENDORSED_DIRS" \
+	        -Djava.ext.dirs="$EXT_DIRS" \
+	        -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
+	        -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" \
+	        >> $GERONIMO_OUT 2>&1 &
+	        echo ""
+	        echo "Geronimo started in background. PID: $!"
+	        if [ ! -z "$GERONIMO_PID" ]; then
+	          echo $! > $GERONIMO_PID
+	        fi
+	  fi
+  fi  
 
 elif [ "$1" = "stop" ] ; then
   shift

@@ -272,6 +272,16 @@ shift
 @REM use long format of startup progress to be consistent with
 @REM the unix version of the start processing
 set _LONG_OPT=--long
+if ""%1""==""--help"" goto setHelp
+if ""%1""==""-h"" goto setHelp
+if ""%1""==""-help"" goto setHelp
+goto setNonHelp
+:setHelp
+@REM print help information in current window
+set _EXECJAVA=internalLauncherNoExit.bat
+goto execCmd
+:setNonHelp
+@REM if it is not to print help information, open another window
 set _EXECJAVA=start "Geronimo" /d"%GERONIMO_HOME%\bin" %GERONIMO_WIN_START_ARGS% internalLauncher.bat
 goto execCmd
 
