@@ -8,11 +8,6 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>javassist</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>scannotation</artifactId>
         <type>jar</type>
     </dependency>
@@ -159,6 +154,11 @@
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.howl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

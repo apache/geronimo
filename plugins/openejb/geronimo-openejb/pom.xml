@@ -141,8 +141,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>javassist</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
         </dependency>
         
         <dependency>
