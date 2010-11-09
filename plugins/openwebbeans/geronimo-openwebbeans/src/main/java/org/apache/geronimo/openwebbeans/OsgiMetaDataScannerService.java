@@ -148,7 +148,7 @@ public class OsgiMetaDataScannerService implements ScannerService
                 Class<?> cls = mainBundle.loadClass(clsName);
                 beanClasses.add(cls);
             }
-            catch(Exception e)
+            catch(Throwable e)
             {
                 logger.info("cannot load class from bundle: " + clsName);
             }
