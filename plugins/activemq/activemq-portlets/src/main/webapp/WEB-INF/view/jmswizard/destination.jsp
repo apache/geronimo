@@ -21,6 +21,22 @@
 <fmt:setBundle basename="activemq"/>
 <portlet:defineObjects/>
 
+<!-- GERONIMO-5167: Work around for Activemq - the physical name can not be null in activemq -->
+<script language="javascript">
+function checknullphysicalname(){
+    var jmsForm = document.getElementById("<portlet:namespace/>JMSForm"); 
+    var index = 0;
+    while(jmsForm.elements["destination.${data.currentDestinationID}.instance-config-" + index]){
+        var currentElement = jmsForm.elements["destination.${data.currentDestinationID}.instance-config-" + index];
+        if(currentElement.title == "PhysicalName" && currentElement.value == ""){
+            currentElement.value = jmsForm.elements["destination.${data.currentDestinationID}.name"].value;
+            break;             
+        }
+        index++;
+    }
+}
+</script>
+
 <p><fmt:message key="jmswizard.destination.title" /></p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
@@ -82,17 +98,7 @@
       <tr>
         <th><div align="right">${prop.name}:</div></th>
         <td>
-        <!-- GERONIMO-5167: Work around for Activemq - the physical name can not be null in activemq -->
-        <c:choose>
-          <c:when test="${prop.name == 'PhysicalName'}">
-            <div id="non-null-input-div">
-              <input name="destination.${data.currentDestinationID}.instance-config-${status.index}" type="text" size="20" value="${data.currentDestination.instanceProps[index] == null ? prop.defaultValue : data.currentDestination.instanceProps[index]}" />
-            </div>
-          </c:when>
-          <c:otherwise>
-              <input name="destination.${data.currentDestinationID}.instance-config-${status.index}" type="text" size="20" value="${data.currentDestination.instanceProps[index] == null ? prop.defaultValue : data.currentDestination.instanceProps[index]}" />
-          </c:otherwise>
-        </c:choose>
+        <input name="destination.${data.currentDestinationID}.instance-config-${status.index}" title="${prop.name}"  type="text" size="20" value="${data.currentDestination.instanceProps[index] == null ? prop.defaultValue : data.currentDestination.instanceProps[index]}" />
         </td>
       </tr>
       <tr>
@@ -106,20 +112,12 @@
         <td></td>
         <td>
             <input type="hidden" name="nextAction" value="review" />
-            <input type="submit" value='<fmt:message key="jmswizard.common.next"/>' onclick="javascript:checknullphysicalname('destination.${data.currentDestinationID}.name')" />
+            <input type="submit" value='<fmt:message key="jmswizard.common.next"/>' onclick="javascript:checknullphysicalname()" />
         </td>
       </tr>
     </table>
 </form>
-<script language="javascript">
-function checknullphysicalname(destinationInputBoxName){
-    var physicalNameInput = document.getElementById("non-null-input-div").getElementsByTagName("input")[0];
-    if (physicalNameInput.value==""){
-        physicalNameInput.value=document.getElementById(destinationInputBoxName).value;
-    }
-}
-</script>
-    
+   
 <!--   END OF FORM TO COLLECT DATA FOR THIS PAGE   -->
 
 

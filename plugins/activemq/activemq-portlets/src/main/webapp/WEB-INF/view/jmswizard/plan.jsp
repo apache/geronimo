@@ -62,7 +62,7 @@
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
         <th valign="top" style="min-width: 140px"><div align="right"><fmt:message key="jmswizard.plan.deploymentPlan" />:</div></th>
-        <td><textarea rows="30" cols="60" readonly>${deploymentPlan}</textarea></td>
+        <td><textarea rows="40" cols="120" readonly>${deploymentPlan}</textarea></td>
       </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
