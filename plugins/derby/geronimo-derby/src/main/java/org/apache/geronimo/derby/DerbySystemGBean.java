@@ -46,6 +46,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
     private final String systemHome;
     private String actualHome;
     private Kernel kernel;
+    private boolean disableAuthentication = false;
 
     public DerbySystemGBean(ServerInfo serverInfo, String derbySystemHome, Kernel kernel) {
          this.serverInfo = serverInfo;
@@ -91,6 +92,8 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
         if (System.getProperty("derby.connection.requireAuthentication") == null) {
             System.setProperty("derby.connection.requireAuthentication", "true");
             System.setProperty("derby.authentication.provider", "org.apache.geronimo.derby.DerbyUserAuthenticator");
+        }else if ("false".equals(System.getProperty("derby.connection.requireAuthentication"))){
+            disableAuthentication = true;
         }
 
         // load the Embedded driver to initialize the home
@@ -100,7 +103,11 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
 
     public void doStop() throws Exception {
         try {
-            DriverManager.getConnection(SHUTDOWN_ALL, getDerbyUserID(), getDerbyUserPassword());
+            if (disableAuthentication) {
+                DriverManager.getConnection(SHUTDOWN_ALL, null, null); 
+            } else {
+                DriverManager.getConnection(SHUTDOWN_ALL, getDerbyUserID(), getDerbyUserPassword());
+            }
         } catch (SQLException e) {
             // SQLException gets thrown on successful shutdown so ignore
         }
@@ -110,7 +117,11 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
 
     public void doFail() {
         try {
-            DriverManager.getConnection(SHUTDOWN_ALL, getDerbyUserID(), getDerbyUserPassword());
+            if (disableAuthentication) {
+                DriverManager.getConnection(SHUTDOWN_ALL, null, null); 
+            } else {
+                DriverManager.getConnection(SHUTDOWN_ALL, getDerbyUserID(), getDerbyUserPassword());
+            }
         } catch (SQLException e) {
             // SQLException gets thrown on successful shutdown so ignore
         }
