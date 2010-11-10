@@ -92,6 +92,9 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
             System.setProperty("derby.authentication.provider", "org.apache.geronimo.derby.DerbyUserAuthenticator");
         }else if ("false".equals(System.getProperty("derby.connection.requireAuthentication"))){
             disableAuthentication = true;
+        }else {
+            System.setProperty("derby.connection.requireAuthentication", "true");
+            System.setProperty("derby.authentication.provider", "org.apache.geronimo.derby.DerbyUserAuthenticator");
         }
 
         // load the Embedded driver to initialize the home

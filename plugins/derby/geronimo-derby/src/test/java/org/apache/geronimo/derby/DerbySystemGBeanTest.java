@@ -38,7 +38,7 @@ public class DerbySystemGBeanTest extends TestCase {
 
     public void testCreateSystemUsingServerInfo() throws Exception {
         
-        System.setProperty("derby.connection.requireAuthentication", "true");
+        System.setProperty("derby.connection.requireAuthentication", "false");
         
         ServerInfo serverInfo = new BasicServerInfo(systemDir.toString());
         String derbyDir = "var/dbderby";
