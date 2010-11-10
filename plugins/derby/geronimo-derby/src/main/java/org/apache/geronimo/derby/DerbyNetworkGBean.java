@@ -82,7 +82,12 @@ public class DerbyNetworkGBean implements GBeanLifecycle {
 
     public void doStart() throws Exception {
         InetAddress address = InetAddress.getByName(host);
-        network = new NetworkServerControl(address, port, userName, userPassword);
+     // set system property to enable Derby user authentication
+        if ("false".equals(System.getProperty("derby.connection.requireAuthentication"))){
+            network = new NetworkServerControl(address, port);
+        } else {
+            network = new NetworkServerControl(address, port, userName, userPassword);
+        }        
         network.start(null); // todo work out how to add this to our log stream
         log.debug("Started on host " + host + ':' + port);
     }
