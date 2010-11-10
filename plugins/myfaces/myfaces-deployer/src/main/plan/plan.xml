@@ -35,6 +35,11 @@
                         <type>car</type>
                     </dependency>
                 </dependencies>
+                <!--
+                This is a workaround for wired bundle cache in the BundleClassloader,
+                add the import package explicitly to make sure the myface-core-impl is wired immediately the application bundle is resolved
+                -->
+                <import-package>org.apache.myfaces.ee6</import-package>
             </environment>
         </xml-attribute>
     </gbean>

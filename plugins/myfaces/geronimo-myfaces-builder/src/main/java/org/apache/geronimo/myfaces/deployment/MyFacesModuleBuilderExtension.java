@@ -173,9 +173,6 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         if (!hasFacesServlet(webApp)) {
             return;
         }
-        //This is a workaround for wired bundle cache in the BundleClassloader,
-        //add the import package explicitly to make sure the myface-core-impl is wired immediately the application bundle is resolved
-        module.getEnvironment().addImportPackage("org.apache.myfaces.ee6");
 
         EARContext moduleContext = module.getEarContext();
         Map sharedContext = module.getSharedContext();
