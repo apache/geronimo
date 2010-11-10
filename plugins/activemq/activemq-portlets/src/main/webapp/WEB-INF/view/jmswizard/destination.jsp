@@ -60,15 +60,16 @@
         </c:forEach>
       </c:if>
     </c:forEach>
+    <br/>
     <table border="0">
     <!-- ENTRY FIELD: Admin Object Name -->
       <tr>
         <th><div align="right"><fmt:message key="jmswizard.destination.messageDestinationName" />:</div></th>
-        <td><input name="destination.${data.currentDestinationID}.name" type="text" size="20" value="${data.currentDestination.name}" /></td>
+        <td><input name="destination.${data.currentDestinationID}.name" id="destination.${data.currentDestinationID}.name" type="text" size="20" value="${data.currentDestination.name}" /></td>
       </tr>
       <tr>
         <td></td>
-        <td><fmt:message key="jmswizard.common.connectionFactoryExp" /></td>
+        <td><fmt:message key="jmswizard.common.destinationExp" /></td>
       </tr>
 
     <!-- ENTRY FIELD: Config Properties -->
@@ -80,7 +81,19 @@
       <c:set var="index" value="instance-config-${status.index}" />
       <tr>
         <th><div align="right">${prop.name}:</div></th>
-        <td><input name="destination.${data.currentDestinationID}.instance-config-${status.index}" type="text" size="20" value="${data.currentDestination.instanceProps[index] == null ? prop.defaultValue : data.currentDestination.instanceProps[index]}" /></td>
+        <td>
+        <!-- GERONIMO-5167: Work around for Activemq - the physical name can not be null in activemq -->
+        <c:choose>
+          <c:when test="${prop.name == 'PhysicalName'}">
+            <div id="non-null-input-div">
+              <input name="destination.${data.currentDestinationID}.instance-config-${status.index}" type="text" size="20" value="${data.currentDestination.instanceProps[index] == null ? prop.defaultValue : data.currentDestination.instanceProps[index]}" />
+            </div>
+          </c:when>
+          <c:otherwise>
+              <input name="destination.${data.currentDestinationID}.instance-config-${status.index}" type="text" size="20" value="${data.currentDestination.instanceProps[index] == null ? prop.defaultValue : data.currentDestination.instanceProps[index]}" />
+          </c:otherwise>
+        </c:choose>
+        </td>
       </tr>
       <tr>
         <td></td>
@@ -93,11 +106,20 @@
         <td></td>
         <td>
             <input type="hidden" name="nextAction" value="review" />
-            <input type="submit" value='<fmt:message key="jmswizard.common.next"/>' />
+            <input type="submit" value='<fmt:message key="jmswizard.common.next"/>' onclick="javascript:checknullphysicalname('destination.${data.currentDestinationID}.name')" />
         </td>
       </tr>
     </table>
 </form>
+<script language="javascript">
+function checknullphysicalname(destinationInputBoxName){
+    var physicalNameInput = document.getElementById("non-null-input-div").getElementsByTagName("input")[0];
+    if (physicalNameInput.value==""){
+        physicalNameInput.value=document.getElementById(destinationInputBoxName).value;
+    }
+}
+</script>
+    
 <!--   END OF FORM TO COLLECT DATA FOR THIS PAGE   -->
 
 
