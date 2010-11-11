@@ -121,6 +121,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
     private final Map<String,String> contextAttributes;
     private final Map<String, Object> owbContext;
+    private final InstanceManager instanceManager;
 
     // JSR 77
     private final String j2EEServer;
@@ -287,6 +288,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             j2EEApplication = null;
         }
         owbContext = sharedOwbContext == null? null: sharedOwbContext.getOWBContext();
+        instanceManager = new TomcatInstanceManager(holder, classLoader, componentContext);
     }
 
     private Map<String, WebServiceContainer> createWebServices(Map<String, AbstractName> webServiceFactoryMap, Kernel kernel) throws Exception {
@@ -449,7 +451,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public InstanceManager getInstanceManager() {
-        return new TomcatInstanceManager(holder, classLoader, componentContext);
+        return instanceManager;
     }
 
     public Bundle getBundle() {
@@ -556,7 +558,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public Map<String, Object> getOWBContext() {
         return owbContext;
     }
-
 
     public void doStart() throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
