@@ -288,7 +288,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             j2EEApplication = null;
         }
         owbContext = sharedOwbContext == null? null: sharedOwbContext.getOWBContext();
-        instanceManager = new TomcatInstanceManager(holder, classLoader, componentContext);
+        instanceManager = new TomcatInstanceManager(this.holder, classLoader, componentContext);
     }
 
     private Map<String, WebServiceContainer> createWebServices(Map<String, AbstractName> webServiceFactoryMap, Kernel kernel) throws Exception {
