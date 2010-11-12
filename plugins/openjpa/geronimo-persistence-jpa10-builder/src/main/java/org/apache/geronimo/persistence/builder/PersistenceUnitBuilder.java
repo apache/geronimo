@@ -109,7 +109,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             File rootBaseFile;
             URI moduleBaseURI;
             if (module.getRootEarContext().getInPlaceConfigurationDir() == null) {
-                rootBaseFile = module.getRootEarContext().getConfigurationDir();
+                rootBaseFile = module.getRootEarContext().getConfiguration().getConfigurationDir();
                 moduleBaseURI = moduleContext.getBaseDir().toURI();
             } else {
                 rootBaseFile = module.getRootEarContext().getInPlaceConfigurationDir();
