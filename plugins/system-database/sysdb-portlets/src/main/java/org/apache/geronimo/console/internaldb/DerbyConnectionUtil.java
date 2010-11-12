@@ -144,10 +144,15 @@ public class DerbyConnectionUtil {
         if (SYSTEM_DB.equalsIgnoreCase(dbName)) {
             return getSystemDBConnection();
         } else {
-            String userName = getDerbyConnectionUsername();
+            if ("false".equals(System.getProperty("derby.connection.requireAuthentication"))){
+                return DriverManager.getConnection(protocol + dbName + properties); 
+            } else{
+               String userName = getDerbyConnectionUsername();
             String password = getDerbyConnectionUserPassword();
             return DriverManager.getConnection(protocol + dbName + properties + ";user=" + userName + ";password="
-                    + password);
+                    + password); 
+            }
+            
         }
     }
 
