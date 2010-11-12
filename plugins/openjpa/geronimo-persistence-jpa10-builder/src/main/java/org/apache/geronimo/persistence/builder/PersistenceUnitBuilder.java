@@ -108,12 +108,12 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             
             File rootBaseFile;
             URI moduleBaseURI;
-            if (module.getRootEarContext().getConfigurationData().getInPlaceConfigurationDir() == null) {
-                rootBaseFile = module.getRootEarContext().getConfigurationData().getConfigurationDir();
+            if (module.getRootEarContext().getInPlaceConfigurationDir() == null) {
+                rootBaseFile = module.getRootEarContext().getConfigurationDir();
                 moduleBaseURI = moduleContext.getBaseDir().toURI();
             } else {
-                rootBaseFile = module.getRootEarContext().getConfigurationData().getInPlaceConfigurationDir();
-                moduleBaseURI = moduleContext.getConfigurationData().getInPlaceConfigurationDir().toURI();
+                rootBaseFile = module.getRootEarContext().getInPlaceConfigurationDir();
+                moduleBaseURI = moduleContext.getInPlaceConfigurationDir().toURI();
             }
             String rootBase = rootBaseFile.toURI().normalize().toString();
 
