@@ -142,11 +142,16 @@ public class DerbyConnectionUtil {
         // because it is not binded to our JNDI Context.
         if (SYSTEM_DB.equalsIgnoreCase(dbName)) {
             return getSystemDBConnection();
-        } else {        	
-            String userName = getDerbyConnectionUsername();
-            String password = getDerbyConnectionUserPassword();
-            return DriverManager.getConnection(protocol + dbName + properties + ";user=" + userName + ";password="
-                    + password);
+        } else {
+            if ("false".equals(System.getProperty("derby.connection.requireAuthentication"))){
+                return DriverManager.getConnection(protocol + dbName + properties); 
+            } else{
+                String userName = getDerbyConnectionUsername();
+                String password = getDerbyConnectionUserPassword();
+                return DriverManager.getConnection(protocol + dbName + properties + ";user=" + userName + ";password="
+                        + password);
+            }
+            
         }
     }
 
