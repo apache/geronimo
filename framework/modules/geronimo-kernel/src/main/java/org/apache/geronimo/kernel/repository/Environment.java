@@ -42,6 +42,7 @@ public class Environment implements Serializable {
     private final LinkedHashSet<String> imports = new LinkedHashSet<String>();
     private final LinkedHashSet<String> exports = new LinkedHashSet<String>();
     private final LinkedHashSet<String> requireBundles = new LinkedHashSet<String>();
+    private final LinkedHashSet<String> dynamicImports = new LinkedHashSet<String>();
     private String bundleActivator;
     private final ClassLoadingRules classLoadingRules;
     private boolean suppressDefaultEnvironment;
@@ -172,6 +173,18 @@ public class Environment implements Serializable {
         return Collections.unmodifiableList(new ArrayList<String>(requireBundles));
     }
 
+    public void addDynamicImportPackages(Collection<String> imports) {
+        this.dynamicImports.addAll(imports);
+    }
+
+    public void addDynamicImportPackage(String imports) {
+        this.dynamicImports.add(imports);
+    }
+
+    public List<String> getDynamicImportPackages() {
+        return Collections.unmodifiableList(new ArrayList<String>(dynamicImports));
+    }
+    
     public Manifest getManifest() throws ManifestException {
         Manifest manifest = new Manifest();
         manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_MANIFESTVERSION, "2"));
@@ -190,10 +203,16 @@ public class Environment implements Serializable {
         if (!imports.isEmpty()) {
             manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.IMPORT_PACKAGE, imports));
         }
+        
         if (!exports.isEmpty()) {
             manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.EXPORT_PACKAGE, exports));
         }
-        manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.DYNAMICIMPORT_PACKAGE, "*"));
+        
+        if (dynamicImports.isEmpty()) {
+            manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.DYNAMICIMPORT_PACKAGE, "*"));
+        } else {
+            manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.DYNAMICIMPORT_PACKAGE, dynamicImports));
+        }
 
         if (!bundleClassPath.isEmpty()) {
             Manifest.Attribute bundleClassPath = new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.BUNDLE_CLASSPATH, this.bundleClassPath);

@@ -165,6 +165,7 @@
             <xs:element name="import-package" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="export-package" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="require-bundle" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="dynamic-import-package" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:element name="hidden-classes" type="sys:classFilterType"
                 minOccurs="0">

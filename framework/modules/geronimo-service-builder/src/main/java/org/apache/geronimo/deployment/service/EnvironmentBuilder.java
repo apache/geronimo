@@ -78,6 +78,9 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
             for (String requireBundle : environmentType.getRequireBundleArray()) {
                 environment.addRequireBundle(requireBundle);
             }
+            for (String dynamicImportPackage: environmentType.getDynamicImportPackageArray()) {
+                environment.addDynamicImportPackage(trim(dynamicImportPackage));
+            }
                         
             environment.setSuppressDefaultEnvironment(environmentType.isSetSuppressDefaultEnvironment());
             
@@ -98,6 +101,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
             environment.addImportPackages(additionalEnvironment.getImportPackages());
             environment.addExportPackages(additionalEnvironment.getExportPackages());
             environment.addRequireBundles(additionalEnvironment.getRequireBundles());
+            environment.addDynamicImportPackages(additionalEnvironment.getDynamicImportPackages());
             if (environment.getBundleActivator() == null && additionalEnvironment.getBundleActivator() != null) {
                 environment.setBundleActivator(additionalEnvironment.getBundleActivator());
             }
@@ -144,6 +148,9 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         }
         for (String requireBundle : environment.getRequireBundles()) {
             environmentType.addRequireBundle(requireBundle);
+        }
+        for (String dynamicImportPackage: environment.getDynamicImportPackages()) {
+            environmentType.addDynamicImportPackage(dynamicImportPackage);
         }
         
         ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
