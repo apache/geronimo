@@ -17,11 +17,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>jstl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-server</artifactId>
         <type>car</type>
@@ -202,8 +197,33 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.taglibs</groupId>
+        <artifactId>taglibs-standard-impl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.taglibs</groupId>
+        <artifactId>taglibs-standard-jstlel</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.taglibs</groupId>
+        <artifactId>taglibs-standard-spec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-asm-shaded</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-bundleutils</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>xbean-finder</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

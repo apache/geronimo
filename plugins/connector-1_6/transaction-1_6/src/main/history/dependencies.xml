@@ -32,6 +32,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.components</groupId>
+        <artifactId>geronimo-transaction</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-server</artifactId>
         <type>car</type>

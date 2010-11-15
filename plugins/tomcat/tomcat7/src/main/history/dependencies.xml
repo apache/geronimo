@@ -52,6 +52,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.ext.tomcat</groupId>
+        <artifactId>util</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>geronimo-deployment</artifactId>
         <type>jar</type>
