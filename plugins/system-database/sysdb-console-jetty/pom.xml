@@ -222,6 +222,12 @@
             <artifactId>tranql-connector-sqlserver2005-xa</artifactId>
             <type>rar</type>
         </dependency>
+        
+        <dependency>
+            <groupId>org.tranql</groupId>
+            <artifactId>tranql-connector-db2ISeries-xa</artifactId>
+            <type>rar</type>
+        </dependency>        
 
         <dependency>
             <groupId>org.directwebremoting</groupId>

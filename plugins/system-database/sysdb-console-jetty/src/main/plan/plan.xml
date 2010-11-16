@@ -102,6 +102,14 @@ limitations under the License.
         <attribute name="specific">true</attribute>
         <attribute name="RARName">org.tranql/tranql-connector-db2-xa//rar</attribute>
     </gbean>
+    <gbean name="Database2a" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
+        <attribute name="name">DB2ISeries XA</attribute>
+        <attribute name="URLPrototype">null</attribute>
+        <attribute name="driverClassName">null</attribute>
+        <attribute name="defaultPort">0</attribute>
+        <attribute name="specific">true</attribute>
+        <attribute name="RARName">org.tranql/tranql-connector-db2ISeries-xa//rar</attribute>
+    </gbean>
     <gbean name="Database3" class="org.apache.geronimo.console.databasemanager.wizard.DatabaseDriverGBean">
         <attribute name="name">DB2 (DataDirect)</attribute>
         <attribute name="URLPrototype">jdbc:datadirect:db2://{Host}:{Port};DatabaseName={Database}</attribute>
