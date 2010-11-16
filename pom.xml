@@ -1209,6 +1209,24 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            
+            <!-- tranql db2ISeries -->
+            <dependency>
+                <groupId>org.tranql</groupId>
+                <artifactId>tranql-connector-db2ISeries-xa</artifactId>
+                <version>1.0</version>
+                <type>rar</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector-db2ISeries-common</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.tranql</groupId>
+                        <artifactId>tranql-connector</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
             <dependency>
                 <groupId>juddi</groupId>
