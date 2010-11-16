@@ -2176,18 +2176,6 @@
                       <enabled>false</enabled>
                   </snapshots>
             </repository>
-            <repository>
-                  <id>txmanager-staging</id>
-                  <name>txmanager 2.2.1</name>
-                  <url>https://repository.apache.org/content/repositories/orgapachegeronimo-037/</url>
-                  <layout>default</layout>
-                  <releases>
-                      <enabled>true</enabled>
-                  </releases>
-                  <snapshots>
-                      <enabled>false</enabled>
-                  </snapshots>
-            </repository>   
     </repositories>        
 
     <profiles>
