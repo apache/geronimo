@@ -2515,33 +2515,6 @@
             <url>scp://people.apache.org/www/geronimo.apache.org/maven/server</url>
         </site>
     </distributionManagement>
-  
-    <repositories>
-            <repository>
-                  <id>txmanager221-staging</id>
-                  <name>txmanager 2.2.1</name>
-                  <url>https://repository.apache.org/content/repositories/orgapachegeronimo-037/</url>
-                  <layout>default</layout>
-                  <releases>
-                      <enabled>true</enabled>
-                  </releases>
-                  <snapshots>
-                      <enabled>false</enabled>
-                  </snapshots>
-            </repository>
-            <repository>
-                  <id>tranql-staging</id>
-                  <name>tranql</name>
-                  <url>https://nexus.codehaus.org/content/repositories/orgtranql-023/</url>
-                  <layout>default</layout>
-                  <releases>
-                      <enabled>true</enabled>
-                  </releases>
-                  <snapshots>
-                      <enabled>false</enabled>
-                  </snapshots>
-            </repository>
-    </repositories>    
 
     <profiles>
         <profile>
