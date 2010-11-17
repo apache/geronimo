@@ -211,7 +211,7 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
         return (String[]) mappings.get(uri);
     }
 
-    private void init() throws JasperException {
+    private synchronized void init() throws JasperException {
         if (initialized) return;
         try {
             processWebDotXml();
@@ -462,8 +462,6 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
             URL[] urls = ((URLClassLoader) loader).getURLs();
             for (int i=0; i<urls.length; i++) {
                 URLConnection conn = urls[i].openConnection();
-             // Avoid concurrent access to the scannedJars ArrayList and also potential duplication
-                synchronized (this) {
                 if (conn instanceof JarURLConnection) {
                     if (needScanJar(loader,
                                     ((JarURLConnection) conn).getJarFile().getName())) {
@@ -481,7 +479,6 @@ public class GeronimoTldLocationsCache extends TldLocationsCache {
                         scannedJars.add(urlStr);
                     }
                 }
-            }
           }
         }
     }
