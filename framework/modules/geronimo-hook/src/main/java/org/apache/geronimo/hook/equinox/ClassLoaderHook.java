@@ -45,7 +45,9 @@ public class ClassLoaderHook implements ClassLoadingHook, BundleExtender {
         Collections.synchronizedMap(new HashMap<Long, String>());
     
     public void addDynamicImportPackage(long bundleId, String packages) {
-        dynamicPackages.put(bundleId, packages);
+        if (packages != null && packages.trim().length() > 0) {
+            dynamicPackages.put(bundleId, packages);
+        }
     }
     
     public void removeDynamicImportPackage(long bundleId) {
