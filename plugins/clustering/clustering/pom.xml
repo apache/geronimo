@@ -65,6 +65,13 @@
             <version>${version}</version>
             <type>car</type>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>jmx-security</artifactId>
+            <version>${version}</version>
+            <type>car</type>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
@@ -89,6 +96,11 @@
                             <config-xml-content>
                                 <gbean name="Node">
                                     <attribute name="nodeName">#{ClusterNodeName}</attribute>
+                                    <reference name="JMXConnector">
+                                      <pattern>
+                                        <name>JMXService</name>
+                                      </pattern>
+                                    </reference>
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="ClusterNodeName">NODE</config-substitution>
