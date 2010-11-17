@@ -69,9 +69,9 @@ public class ClusteredSessionManager extends AbstractSessionManager {
     }
 
     @Override
-    protected void removeSession(String idInCluster) {
+    protected boolean removeSession(String idInCluster) {
         synchronized (idToSession) {
-            idToSession.remove(idInCluster);
+            return idToSession.remove(idInCluster) != null;
         }
     }
 
@@ -141,20 +141,16 @@ public class ClusteredSessionManager extends AbstractSessionManager {
             } catch (SessionAlreadyExistException e) {
                 throw (IllegalStateException) new IllegalStateException().initCause(e);
             }
-            initValues();
+
         }
 
         protected ClusteredSession(org.apache.geronimo.clustering.Session session) {
 
             super(System.currentTimeMillis(), 0L, session.getSessionId());
             this.session = session;
-            initValues();
+
         }
 
-        @Override
-        protected Map newAttributeMap() {
-            return session.getState();
-        }
 
         @Override
         protected String getClusterId() {

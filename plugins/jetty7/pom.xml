@@ -37,7 +37,7 @@
     </description>
 
     <properties>
-        <jettyVersion>7.2.0.v20101020</jettyVersion>
+        <jettyVersion>7.2.1.v20101111</jettyVersion>
     </properties>
 
     <dependencyManagement>
