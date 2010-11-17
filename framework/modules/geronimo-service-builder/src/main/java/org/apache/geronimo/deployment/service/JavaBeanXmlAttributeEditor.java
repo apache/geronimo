@@ -77,6 +77,17 @@ public class JavaBeanXmlAttributeEditor extends PropertyEditorSupport {
             JavabeanDocument document = JavabeanDocument.Factory.parse(text);
             JavabeanType javaBeanType = document.getJavabean();
             
+            /* Logic to utilize encrypted password value for farming gbean*/ 
+            PropertyType[] pt = javaBeanType.getPropertyArray();
+            for (int i = 0; i < pt.length; i++) {
+                if (javaBeanType.getPropertyArray()[i].getName().endsWith("Password")
+                        || javaBeanType.getPropertyArray()[i].getName().endsWith("password")) {
+                    String decryptedValue = (String) EncryptionManager.decrypt(javaBeanType.getPropertyArray()[i]
+                            .getStringValue());
+                    javaBeanType.getPropertyArray()[i].setStringValue(decryptedValue);
+                }
+            }
+            
             Object javabean = xmlAttributeBuilder.getValue(javaBeanType,
                 javaBeanClazz.getName(),
                 getClass().getClassLoader());
