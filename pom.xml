@@ -93,7 +93,7 @@
         <plutoVersion>1.1.6-G643117</plutoVersion>
         <openjpaVersion>1.2.2</openjpaVersion>
         <xbeanVersion>3.6</xbeanVersion>
-        <wadiVersion>2.0</wadiVersion>
+        <wadiVersion>2.1.2</wadiVersion>
         <txmanagerVersion>2.2.1</txmanagerVersion>
 
         <!-- Deployers -->
