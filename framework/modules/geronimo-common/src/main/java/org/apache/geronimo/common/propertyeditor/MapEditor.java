@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.crypto.EncryptionManager;
 
 /**
  * A property editor for {@link java.util.Map}.
@@ -44,7 +45,15 @@ public class MapEditor
             ByteArrayInputStream is = new ByteArrayInputStream(text == null? new byte[0]: text.getBytes());
             Properties p = new Properties();
             p.load(is);
-            
+            Iterator it=p.keySet().iterator();
+            while(it.hasNext()){
+                String key=it.next().toString();
+                if(key.endsWith("Password")||key.endsWith("password")){
+                  String encryptedValue=(String)p.get(key);
+                  String decryptedValue=(String)EncryptionManager.decrypt(encryptedValue);
+                  p.put(key, decryptedValue);
+                }
+            }
             setValue((Map)p);
         } catch (IOException e) {
             throw new PropertyEditorException(e.getMessage(), e);
@@ -72,6 +81,15 @@ public class MapEditor
                             value = "";
                         }
                         p.put(key, value);
+                    }
+                }
+                Iterator it=p.keySet().iterator();
+                while(it.hasNext()){
+                    String key=it.next().toString();
+                    if(key.endsWith("Password")||key.endsWith("password")){
+                      String value=(String)p.get(key);
+                      String encryptedValue=EncryptionManager.encrypt(value);
+                      p.put(key, encryptedValue);
                     }
                 }
                 map = p;
