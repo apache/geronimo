@@ -73,20 +73,18 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder)
             throws DeploymentException {
-        if (!(module instanceof WebModule)) {
+        if (!(module instanceof WebModule) || !hasBeanXml(module)) {
             // not a web module, nothing to do
             return;
         }
 
         EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
-
     }
 
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl,
             Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming,
             ModuleIDBuilder idBuilder) throws DeploymentException {
-
-        if (!(module instanceof WebModule)) {
+        if (!(module instanceof WebModule) || !hasBeanXml(module)) {
             // not a web module, nothing to do
             return;
         }
@@ -109,11 +107,11 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         }
 
         WebModule webModule = (WebModule) module;
-                
+
         if (!hasBeansXml(bundle)) {
             return;
         }
-        
+
         EARContext moduleContext = module.getEarContext();
         Map sharedContext = module.getSharedContext();
         //add the ServletContextListener to the web app context
@@ -137,8 +135,8 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         ClassFinder classFinder = createOpenWebBeansClassFinder(webApp, webModule);
         webModule.setClassFinder(classFinder);
 
-        namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);    
-        
+        namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);
+
 //        AbstractName webBeansGBeanName = moduleContext.getNaming().createChildName(moduleName, "webbeans-lifecycle", "webbeans");
 //        GBeanData providerData = new GBeanData(webBeansGBeanName, OpenWebBeansGBean.class);
 //        try {
@@ -152,17 +150,21 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
     }
 
     private boolean hasBeansXml(Bundle bundle) {
-        return bundle.getEntry("WEB-INF/beans.xml") != null || bundle.getResource("META-INF/beans.xml") != null;                
+        return bundle.getEntry("WEB-INF/beans.xml") != null || bundle.getResource("META-INF/beans.xml") != null;
     }
-   
+
+    private boolean hasBeanXml(Module webModule) {
+        return webModule.getDeployable().getResource("WEB-INF/beans.xml") != null || webModule.getDeployable().getResource("META-INF/beans.xml") != null;
+    }
+
     protected ClassFinder createOpenWebBeansClassFinder(WebApp webApp, WebModule webModule)
         throws DeploymentException {
         List<Class> classes = getManagedClasses(webApp, webModule);
         return new ClassFinder(classes);
-    }    
- 
-    private List<Class> getManagedClasses(WebApp webApp, WebModule webModule) throws DeploymentException {     
+    }
+
+    private List<Class> getManagedClasses(WebApp webApp, WebModule webModule) throws DeploymentException {
         return Collections.EMPTY_LIST;
-    }  
-    
+    }
+
 }
