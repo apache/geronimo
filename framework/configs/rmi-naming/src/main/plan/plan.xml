@@ -64,5 +64,6 @@
     
     <gbean name="EncryptionManagerWrapper" class="org.apache.geronimo.system.util.EncryptionManagerWrapperGBean">
     </gbean>
+     <gbean name="EncryptionManagerGBean" class="org.apache.geronimo.system.util.EncryptionManagerGBean"/>
 
 </module>
