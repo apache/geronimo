@@ -34,7 +34,7 @@
     </description>
 
     <properties>
-        <jettyVersion>8.0.0.M2-SNAPSHOT</jettyVersion>
+        <jettyVersion>8.0.0.M3-SNAPSHOT</jettyVersion>
     </properties>
 
     <dependencyManagement>
