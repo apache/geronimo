@@ -126,14 +126,14 @@ public class AbstractWebModuleTest extends TestSupport {
             final AccessControlContext acc = ContextManager.registerSubjectShort(subject, null, null);
             securityHandlerFactory = new ServerAuthenticationGBean(new Authenticator() {
                 public Authentication validateRequest(ServletRequest request, ServletResponse response, boolean mandatory) throws ServerAuthException {
-                    return new UserAuthentication(this, new GeronimoUserIdentity(subject, new GeronimoUserPrincipal("foo"), acc));
+                    return new UserAuthentication("test", new GeronimoUserIdentity(subject, new GeronimoUserPrincipal("foo"), acc));
                 }// most likely validatedUser is not needed here.
 
                 public boolean secureResponse(ServletRequest request, ServletResponse response, boolean mandatory, Authentication.User validatedUser) throws ServerAuthException {
                     return true;
                 }
 
-                public void setConfiguration(Configuration configuration) {
+                public void setConfiguration(AuthConfiguration configuration) {
                 }
 
                 public String getAuthMethod() {

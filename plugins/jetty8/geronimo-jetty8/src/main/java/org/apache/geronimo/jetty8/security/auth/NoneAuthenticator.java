@@ -35,7 +35,7 @@ import org.eclipse.jetty.server.Authentication;
  */
 public class NoneAuthenticator implements Authenticator {
 
-    public void setConfiguration(Configuration configuration) {
+    public void setConfiguration(AuthConfiguration configuration) {
     }
 
     public String getAuthMethod() {
