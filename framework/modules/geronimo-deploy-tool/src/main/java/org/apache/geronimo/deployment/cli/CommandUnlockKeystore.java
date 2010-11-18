@@ -124,7 +124,7 @@ public class CommandUnlockKeystore extends AbstractCommand {
         if (aliasPassword == null) {
             throw new DeploymentException("No alias with the name " + aliasName + " exists in the kyeStoreTruststore password properties file::" + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
         }
-        AbstractNameQuery abstractNameQuery = new AbstractNameQuery("org.apache.geronimo.system.util.EncryptionManagerGBean");
+        AbstractNameQuery abstractNameQuery = new AbstractNameQuery("org.apache.geronimo.system.util.EncryptionManagerWrapperGBean");
         Iterator it = kernel.listGBeans(abstractNameQuery).iterator();
         abstractName = (AbstractName) it.next();
         try {
@@ -171,7 +171,7 @@ public class CommandUnlockKeystore extends AbstractCommand {
         if (keyStorePassword == null) {
             throw new DeploymentException("No keyStorePassword attribute named " + keyStoreName + " exists in the kyeStoreTruststore password properties file::" + System.getProperty(KEYSTORE_TRUSTSTORE_PASSWORD_FILE, DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE));
         }
-        AbstractNameQuery abstractNameQuery = new AbstractNameQuery("org.apache.geronimo.system.util.EncryptionManagerGBean");
+        AbstractNameQuery abstractNameQuery = new AbstractNameQuery("org.apache.geronimo.system.util.EncryptionManagerWrapperGBean");
         Iterator it = kernel.listGBeans(abstractNameQuery).iterator();
         abstractName = (AbstractName) it.next();
         try {
