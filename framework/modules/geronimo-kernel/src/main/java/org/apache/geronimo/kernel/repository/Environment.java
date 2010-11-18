@@ -64,6 +64,7 @@ public class Environment implements Serializable {
         imports.addAll(environment.imports);
         exports.addAll(environment.exports);
         requireBundles.addAll(environment.requireBundles);
+        dynamicImports.addAll(environment.dynamicImports);
         bundleActivator = environment.bundleActivator;
         suppressDefaultEnvironment = environment.isSuppressDefaultEnvironment();
         classLoadingRules = environment.classLoadingRules;
