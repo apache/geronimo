@@ -2401,7 +2401,7 @@ only found in cxf
                     <id>jetty.oss.sonatype.org</id>
                     <name>Jetty Repository</name>
                     <layout>default</layout>
-                    <url>http://oss.sonatype.org/content/repositories/jetty/</url>
+                    <url>http://oss.sonatype.org/content/groups/jetty-with-staging</url>
                     <snapshots>
                         <enabled>true</enabled>
                     </snapshots>
