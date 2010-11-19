@@ -2162,21 +2162,7 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-    
-    <repositories>
-            <repository>
-                  <id>openejb-staging</id>
-                  <name>openejb 3.1.4</name>
-                  <url>https://repository.apache.org/content/repositories/orgapacheopenejb-005/</url>
-                  <layout>default</layout>
-                  <releases>
-                      <enabled>true</enabled>
-                  </releases>
-                  <snapshots>
-                      <enabled>false</enabled>
-                  </snapshots>
-            </repository>
-    </repositories>        
+           
 
     <profiles>
         <profile>
