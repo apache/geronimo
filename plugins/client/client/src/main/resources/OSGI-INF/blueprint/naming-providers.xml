@@ -69,7 +69,10 @@ limitations under the License.
         <service-properties>
             <entry key="osgi.jndi.url.scheme" value="rmi"/>
         </service-properties>
-        <bean class="com.sun.jndi.url.rmi.rmiURLContextFactory"/>
+        <bean class="org.apache.geronimo.naming.rmi.rmiURLContextFactory">
+          <argument ref="blueprintBundle"/>
+          <argument value="com.sun.jndi.url.rmi.rmiURLContextFactory"/>
+        </bean>
     </service>
 
     <service id="OpenEJBInitialContextFactory">
