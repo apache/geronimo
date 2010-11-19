@@ -329,7 +329,10 @@ public class ContextManager {
             throw new ProviderException("Invalid key: " + key.toString());
         }
         IdentificationPrincipal principal = new IdentificationPrincipal(subjectId);
-        subject.getPrincipals().add(principal);
+        
+        if(!subject.isReadOnly()){
+            subject.getPrincipals().add(principal);
+        }
         Context context = new Context(subjectId, acc, subject, callerPrincipal, groups);
         subjectIds.put(context.getId(), subject);
         subjectContexts.put(subject, context);
