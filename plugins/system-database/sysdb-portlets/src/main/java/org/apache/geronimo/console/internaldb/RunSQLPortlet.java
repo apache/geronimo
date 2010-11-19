@@ -133,8 +133,13 @@ public class RunSQLPortlet extends BasePortlet {
             }
             renderRequest.setAttribute("singleSelectStmt", singleSelectStmt);
             renderRequest.setAttribute("ds", DerbyConnectionUtil.getDataSource(useDB));
-            renderRequest.setAttribute("userName", DerbyConnectionUtil.getDerbyConnectionUsername());
-            renderRequest.setAttribute("userPassword", DerbyConnectionUtil.getDerbyConnectionUserPassword());
+            if("false".equals(System.getProperty("derby.connection.requireAuthentication"))){
+            	renderRequest.setAttribute("userName", "app");
+                renderRequest.setAttribute("userPassword", "app");
+            } else {
+            	renderRequest.setAttribute("userName", DerbyConnectionUtil.getDerbyConnectionUsername());
+                renderRequest.setAttribute("userPassword", DerbyConnectionUtil.getDerbyConnectionUserPassword());
+            }
         }
         if ((action != null) && (action.trim().length() > 0)) {
             //set action to null so that subsequent renders of portlet
