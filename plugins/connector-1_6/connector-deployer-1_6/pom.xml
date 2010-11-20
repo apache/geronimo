@@ -117,11 +117,6 @@
                             <type>car</type>
                         </dependency>
                     </dependencies>
-                    <instructions>
-                        <!--packages containing "impl" or "internal" are excluded by default -->
-                        <Import-Package>org.apache.xmlbeans.impl.schema;version="2.4",org.apache.geronimo.deployment.xbeans.impl,org.apache.geronimo.deployment.javabean.xbeans.impl</Import-Package>
-                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                    </instructions>
                     <instance>
                         <plugin-artifact>
                             <!--<config-xml-content>-->
