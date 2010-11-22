@@ -27,7 +27,6 @@ import java.util.Set;
 
 import javax.security.auth.login.LoginException;
 import javax.security.jacc.PolicyContextException;
-import javax.servlet.jsp.JspFactory;
 import javax.transaction.TransactionManager;
 
 import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;

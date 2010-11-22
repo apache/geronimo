@@ -22,12 +22,14 @@ package org.apache.geronimo.tomcat;
 
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.apache.tomcat.InstanceManager;
 import org.apache.geronimo.j2ee.annotation.Holder;
+import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
 
 /**
  * @version $Rev$ $Date$
@@ -37,7 +39,7 @@ public class TomcatInstanceManager implements InstanceManager {
     private final Holder holder;
     private final ClassLoader classLoader;
     private final Context context;
-
+    private Map<String, Object> owbContext ;
 
     public TomcatInstanceManager(Holder holder, ClassLoader classLoader, Context context) {
         this.holder = holder;
@@ -46,7 +48,9 @@ public class TomcatInstanceManager implements InstanceManager {
     }
 
     public Object newInstance(String fqcn, ClassLoader classLoader) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
+        Map<String, Object> oldContext = null;
         try {
+            oldContext = GeronimoSingletonService.contextEntered(owbContext);
             return holder.newInstance(fqcn, classLoader, context);
         } catch (IllegalAccessException e) {
             throw e;
@@ -54,14 +58,18 @@ public class TomcatInstanceManager implements InstanceManager {
             throw e;
         } catch (Exception e) {
             throw (InstantiationException) new InstantiationException().initCause(e);
+        } finally {
+            GeronimoSingletonService.contextExited(oldContext);
         }
     }
 
     public Object newInstance(String className) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
+        Map<String, Object> oldContext = null;
         try {
             //TODO Specification 13.4.1 p125
             //The @ServletSecurity annotation is not applied to the url-patterns of a ServletRegistration created using the addServlet(String, Servlet)  method of the ServletContext interface,
             //unless the Servlet was constructed by the createServlet method of the ServletContext interface.
+            oldContext = GeronimoSingletonService.contextEntered(owbContext);
             return holder.newInstance(className, classLoader, context);
         } catch (IllegalAccessException e) {
             throw e;
@@ -69,14 +77,20 @@ public class TomcatInstanceManager implements InstanceManager {
             throw e;
         } catch (Exception e) {
             throw (InstantiationException) new InstantiationException().initCause(e);
+        }finally {
+            GeronimoSingletonService.contextExited(oldContext);
         }
     }
 
     public void destroyInstance(Object o) throws IllegalAccessException, InvocationTargetException {
+        Map<String, Object> oldContext = null;
         try {
+            oldContext = GeronimoSingletonService.contextEntered(owbContext);
             holder.destroyInstance(o);
         } catch (Exception e) {
             throw new InvocationTargetException(e, "Attempted to destroy instance");
+        }finally {
+            GeronimoSingletonService.contextExited(oldContext);
         }
     }
 
@@ -86,5 +100,9 @@ public class TomcatInstanceManager implements InstanceManager {
         //b. The users create the instances by themselves, then use add***(String name, *** instance)
         //For a, we should have done the resource injections, for b, we are not need to do the resource injections
         //Correct me if I miss anything !
+    }
+
+    public void setOWBContext(Map<String, Object> owbContext) {
+        this.owbContext = owbContext;
     }
 }

@@ -232,8 +232,11 @@ public class GeronimoStandardContext extends StandardContext {
             owbContext = new HashMap<String, Object>();
             new OpenWebBeansWebInitializer(owbContext, servletContext);
         }
+        if (getInstanceManager() instanceof TomcatInstanceManager) {
+            ((TomcatInstanceManager) getInstanceManager()).setOWBContext(owbContext);
+        }
         interceptor = new OWBBeforeAfter(interceptor, index++, servletContext, owbContext);
-        
+
         //Set a PolicyContext BeforeAfter
         SecurityHolder securityHolder = ctx.getSecurityHolder();
         if (securityHolder != null) {
