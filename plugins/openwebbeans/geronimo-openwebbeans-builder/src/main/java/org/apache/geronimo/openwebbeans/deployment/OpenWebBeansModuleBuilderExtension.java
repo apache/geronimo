@@ -17,14 +17,22 @@
 
 package org.apache.geronimo.openwebbeans.deployment;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
 
+import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.spi.Producer;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -32,6 +40,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -45,9 +54,14 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openwebbeans.WebBeansConfigurationListener;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.openejb.jee.WebApp;
+import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
+import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
+import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,14 +75,16 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
     private final Environment defaultEnvironment;
     //only plausible naming builder is ours that adds BeanManager entry
-    private final NamingBuilder namingBuilders  = new OpenWebBeansNamingBuilder();
+    private final NamingBuilder namingBuilders;
 
     //this is the geronimo copy
     private static final String CONTEXT_LISTENER_NAME = WebBeansConfigurationListener.class.getName();
 
     public OpenWebBeansModuleBuilderExtension(
-            @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment) {
+            @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+            @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
+        this.namingBuilders = namingBuilders;
     }
 
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder)
@@ -164,7 +180,46 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
     }
 
     private List<Class> getManagedClasses(WebApp webApp, WebModule webModule) throws DeploymentException {
-        return Collections.EMPTY_LIST;
-    }
+        Bundle bundle = webModule.getEarContext().getDeploymentBundle();
+        ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
+        try {
+            PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
+            Map<Class<? extends Annotation>, Set<Class>> annotationClassSetMap = new HashMap<Class<? extends Annotation>, Set<Class>>();
+            BundleAnnotationFinder bundleAnnotationFinder = new BundleAnnotationFinder(packageAdmin, bundle, new ResourceDiscoveryFilter() {
 
+                @Override
+                public boolean directoryDiscoveryRequired(String directory) {
+                    //TODO WEB-INF/classes ???
+                    return true;
+                }
+
+                @Override
+                public boolean rangeDiscoveryRequired(DiscoveryRange discoveryRange) {
+                    return discoveryRange.equals(DiscoveryRange.BUNDLE_CLASSPATH);
+                }
+
+                @Override
+                public boolean zipFileDiscoveryRequired(String jarFile) {
+                    //????
+                    return true;
+                }
+
+            });
+            Set<Class<?>> classes = new HashSet<Class<?>>();
+            List<Method> methods = bundleAnnotationFinder.findAnnotatedMethods(Produces.class);
+            for (Method method: methods) {
+                classes.add(method.getDeclaringClass());
+            }
+            List<Field> fields = bundleAnnotationFinder.findAnnotatedFields(Produces.class);
+            for (Field field: fields) {
+                classes.add(field.getDeclaringClass());
+            }
+            return new ArrayList(classes);
+        } catch (Exception e) {
+            throw new DeploymentException("Fail to scan jsr299 annotations", e);
+        } finally {
+            bundle.getBundleContext().ungetService(reference);
+        }
+    }
+    
 }

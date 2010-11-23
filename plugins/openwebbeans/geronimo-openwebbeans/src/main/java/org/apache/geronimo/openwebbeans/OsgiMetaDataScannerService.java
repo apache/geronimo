@@ -18,8 +18,11 @@
  */
 package org.apache.geronimo.openwebbeans;
 
+import org.apache.webbeans.config.OpenWebBeansConfiguration;
+import org.apache.webbeans.corespi.se.DefaultBDABeansXmlScanner;
 import org.apache.webbeans.exception.WebBeansDeploymentException;
 import org.apache.webbeans.logger.WebBeansLogger;
+import org.apache.webbeans.spi.BDABeansXmlScanner;
 import org.apache.webbeans.spi.ScannerService;
 
 import org.apache.xbean.finder.BundleAssignableClassFinder;
@@ -52,9 +55,11 @@ public class OsgiMetaDataScannerService implements ScannerService
 
     private boolean configured = false;
 
-//    protected ServletContext servletContext = null;
     private static final String META_INF_BEANS_XML = "META-INF/beans.xml";
     private static final String WEB_INF_BEANS_XML = "WEB-INF/beans.xml";
+
+    protected boolean isBDAScannerEnabled = false;
+    protected BDABeansXmlScanner bdaBeansXmlScanner;
 
     /** All classes which have to be scanned for Bean information */
     private Set<Class<?>> beanClasses = new HashSet<Class<?>>();
@@ -68,10 +73,15 @@ public class OsgiMetaDataScannerService implements ScannerService
     @Override
     public void init(Object object)
     {
-//        if (object instanceof ServletContext)
-//        {
-//            servletContext = (ServletContext) object;
-//        }
+        // set per BDA beans.xml flag here because setting it in constructor
+        // occurs before
+        // properties are loaded.
+        String usage = OpenWebBeansConfiguration.getInstance().getProperty(OpenWebBeansConfiguration.USE_BDA_BEANSXML_SCANNER);
+        this.isBDAScannerEnabled = Boolean.parseBoolean(usage);
+        if (isBDAScannerEnabled)
+        {
+            bdaBeansXmlScanner = new DefaultBDABeansXmlScanner();
+        }
     }
 
     @Override
@@ -220,5 +230,17 @@ public class OsgiMetaDataScannerService implements ScannerService
     public Set<Class<?>> getBeanClasses()
     {
         return beanClasses;
+    }
+
+    @Override
+    public boolean isBDABeansXmlScanningEnabled()
+    {
+        return isBDAScannerEnabled;
+    }
+
+    @Override
+    public BDABeansXmlScanner getBDABeansXmlScanner()
+    {
+        return bdaBeansXmlScanner;
     }
 }

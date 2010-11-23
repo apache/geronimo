@@ -33,6 +33,7 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.openejb.jee.JndiConsumer;
+import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -88,7 +89,15 @@ public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBui
     }
 
     public QName getBaseQName() {
-        throw new IllegalStateException("Don't call this");
+        return new QName("foo");
+    }
+
+    public QNameSet getSpecQNameSet() {
+        return QNameSet.EMPTY;
+    }
+
+    public QNameSet getPlanQNameSet() {
+        return QNameSet.EMPTY;
     }
 
 }

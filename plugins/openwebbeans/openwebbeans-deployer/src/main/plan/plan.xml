@@ -21,6 +21,9 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="OpenWebBeansModuleBuilderExtension" class="org.apache.geronimo.openwebbeans.deployment.OpenWebBeansModuleBuilderExtension">
+        <reference name="NamingBuilders">
+            <name>OWBNamingBuilders</name>
+        </reference>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <dependencies>
@@ -51,6 +54,19 @@
                 <import-package>javassist.util.proxy</import-package>
             </environment>
         </xml-attribute>
+    </gbean>
+
+    <gbean name="OWBNamingBuilder" class="org.apache.geronimo.openwebbeans.deployment.OpenWebBeansNamingBuilder"/>
+
+    <gbean name="OWBNamingBuilders" class="org.apache.geronimo.j2ee.deployment.NamingBuilderCollection">
+        <references name="NamingBuilders">
+            <pattern>
+                <name>NamingBuilders</name>
+            </pattern>
+            <pattern>
+                <name>OWBNamingBuilder</name>
+            </pattern>
+        </references>
     </gbean>
 
 </module>

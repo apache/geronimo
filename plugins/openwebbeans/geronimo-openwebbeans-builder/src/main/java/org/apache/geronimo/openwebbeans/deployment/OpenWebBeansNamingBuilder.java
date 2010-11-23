@@ -24,8 +24,10 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.deployment.AbstractNamingBuilder;
 import org.apache.geronimo.openwebbeans.BeanManagerReference;
 import org.apache.openejb.jee.InjectionTarget;
@@ -36,6 +38,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev:$ $Date:$
  */
+@GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class OpenWebBeansNamingBuilder extends AbstractNamingBuilder {
     @Override
     public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
@@ -44,11 +47,11 @@ public class OpenWebBeansNamingBuilder extends AbstractNamingBuilder {
 
     @Override
     public QNameSet getSpecQNameSet() {
-        return null;
+        return QNameSet.EMPTY;
     }
 
     @Override
     public QNameSet getPlanQNameSet() {
-        return null;
+        return QNameSet.EMPTY;
     }
 }
