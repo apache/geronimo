@@ -31,6 +31,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -73,7 +74,7 @@ public final class JarUtils {
             if (url.getProtocol().equalsIgnoreCase("jar")) {
                 // url.openStream() locks the jar file and does not release the lock even after the stream is closed.
                 // This problem is avoided by using JarFile APIs.
-                File file = new File(url.getFile().substring(5, url.getFile().indexOf("!/")));
+                File file = new File(URLDecoder.decode(url.getFile().substring(5, url.getFile().indexOf("!/")),"UTF-8"));
                 String path = url.getFile().substring(url.getFile().indexOf("!/") + 2);
                 jarFile = new JarFile(file);
                 JarEntry jarEntry = jarFile.getJarEntry(path);
