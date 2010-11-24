@@ -39,13 +39,10 @@
         <cglib.version>2.1_3_4</cglib.version>
         <commons.logging.version>1.1.1</commons.logging.version>
         <depends.maven.plugin.version>1.0</depends.maven.plugin.version>
-        <easymock.version>2.4</easymock.version>
-        <equinox.version>3.5.1.v20090827</equinox.version>
+        <easymock.version>2.4</easymock.version>        
         <felix.bundlerepository.version>1.6.4</felix.bundlerepository.version>
-        <felix.compendium.version>1.2.0</felix.compendium.version>
-        <felix.configadmin.version>1.2.4</felix.configadmin.version>
-        <felix.fileinstall.version>3.0.0</felix.fileinstall.version>
-        <felix.framework.version>3.0.2</felix.framework.version>
+        <felix.compendium.version>1.2.0</felix.compendium.version>        
+        <felix.fileinstall.version>3.0.0</felix.fileinstall.version>        
         <felix.gogo.version>0.4.0</felix.gogo.version>
         <felix.osgi.version>1.4.0</felix.osgi.version>
         <felix.plugin.version>2.1.0</felix.plugin.version>
@@ -59,8 +56,7 @@
         <maven.version>2.0.9</maven.version>
         <mina.version>2.0.0-RC1</mina.version>
         <pax.exam.version>1.2.0</pax.exam.version>
-        <pax.runner.version>1.4.0</pax.runner.version>
-        <pax.url.version>1.1.2</pax.url.version>
+        <pax.runner.version>1.4.0</pax.runner.version>        
         <sshd.version>0.4.0</sshd.version>
     </properties>
 
