@@ -59,14 +59,12 @@
             <type>car</type>
         </dependency>
         
-        <!--
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>osgi-console-jetty</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-        -->
         
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.configs</groupId>-->

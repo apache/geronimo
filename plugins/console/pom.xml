@@ -44,6 +44,9 @@
         <module>plugin-portlets</module>
         <module>plugin-console-jetty</module>
         <module>plugin-console-tomcat</module>
+        <module>osgi-portlets</module>
+        <module>osgi-console-jetty</module>
+        <module>osgi-console-tomcat</module>
     </modules>
 
     <profiles>
