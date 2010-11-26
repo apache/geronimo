@@ -34,7 +34,7 @@
     </description>
 
     <properties>
-        <myfacesVersion>2.0.2</myfacesVersion>
+        <myfacesVersion>2.0.3-SNAPSHOT</myfacesVersion>
     </properties>
     
     <modules>
@@ -66,7 +66,7 @@
         <dependencies>
             <dependency>
                 <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-api</artifactId>
+                <artifactId>myfaces-bundle</artifactId>
                 <version>${myfacesVersion}</version>
                 <exclusions>
                     <exclusion>
@@ -81,14 +81,6 @@
                         <groupId>javax.el</groupId>
                         <artifactId>el-api</artifactId>
                     </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-impl</artifactId>
-                <version>${myfacesVersion}</version>
-                <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
@@ -111,8 +103,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
-            
         </dependencies>
     </dependencyManagement>
                 

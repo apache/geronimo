@@ -72,7 +72,7 @@
 
         <dependency>
             <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-api</artifactId>
+            <artifactId>myfaces-bundle</artifactId>
         </dependency>
 
         <dependency>
