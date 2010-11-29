@@ -44,7 +44,7 @@ public class GOperationInfo implements Serializable {
     /**
      * Parameters of this method.
      */
-    private final List parameters;
+    private final List<String> parameters;
 
     /**
      * Target method name.
@@ -52,7 +52,7 @@ public class GOperationInfo implements Serializable {
     private final String methodName;
 
     public GOperationInfo(String name, String type) {
-        this(name, name, Collections.EMPTY_LIST, type);
+        this(name, name, Collections.<String>emptyList(), type);
     }
 
     public GOperationInfo(String name, Class[] paramTypes, String returnType) {
@@ -69,15 +69,15 @@ public class GOperationInfo implements Serializable {
         this(name, name, Arrays.asList(paramTypes), returnType);
     }
     
-    public GOperationInfo(String name, List parameters, String returnType) {
+    public GOperationInfo(String name, List<String> parameters, String returnType) {
         this(name, name, parameters, returnType);
     }
     
-    public GOperationInfo(String name, String methodName, List parameters, String returnType) {
+    public GOperationInfo(String name, String methodName, List<String> parameters, String returnType) {
         this.name = name;
         this.returnType = returnType;
         this.methodName = methodName;
-        this.parameters = Collections.unmodifiableList(new ArrayList(parameters));
+        this.parameters = Collections.unmodifiableList(new ArrayList<String>(parameters));
     }
 
     public String getName() {
@@ -92,7 +92,7 @@ public class GOperationInfo implements Serializable {
         return methodName;
     }
 
-    public List getParameterList() {
+    public List<String> getParameterList() {
         return parameters;
     }
 
@@ -110,8 +110,8 @@ public class GOperationInfo implements Serializable {
 
         xml.append("<parameters>");
 
-        for (Iterator loop = parameters.iterator(); loop.hasNext(); ) {
-            xml.append("<parameterType>" + loop.next().toString() + "</parameterType>");
+        for (Iterator<String> loop = parameters.iterator(); loop.hasNext(); ) {
+            xml.append("<parameterType>" + loop.next() + "</parameterType>");
         }
 
         xml.append("</parameters>");

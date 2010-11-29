@@ -48,6 +48,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
@@ -235,7 +236,8 @@ public class DeploymentContext {
         env.setConfigId(new Artifact(id.getGroupId(), id.getArtifactId() + "-DEPLOYMENT", id.getVersion(), id.getType()));
         env.addToBundleClassPath(bundleClassPath);
         env.setBundleActivator(null);
-
+        env.addDynamicImportPackage("*");
+        
         Manifest manifest;
         try {
             manifest = env.getManifest();
@@ -534,16 +536,20 @@ public class DeploymentContext {
             throw new DeploymentException(message.toString());
         }
 
-        List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
-        Collections.sort(gbeans, new GBeanData.PriorityComparator());
         // TODO OSGI figure out exports
-        environment.addImportPackages(getImports(gbeans));
         environment.addToBundleClassPath(bundleClassPath);
-        //TODO OSGI leave out if we use a extender mechanism
+        // TODO OSGI leave out if we use a extender mechanism
         if (environment.getBundleActivator() == null) {
             environment.setBundleActivator(ConfigurationActivator.class.getName());
         }
+        List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
+        Collections.sort(gbeans, new GBeanData.PriorityComparator());        
+        LinkedHashSet<String> imports = getImports(gbeans);
+        addImport(imports, environment.getBundleActivator());
+        environment.addImportPackages(imports);
 
+        environment.addDynamicImportPackage("*");
+        
         if (tempBundle != null) {
             try {
                 createPluginMetadata();
@@ -578,6 +584,12 @@ public class DeploymentContext {
             }
             for (GReferenceInfo refInfo: info.getReferences()) {
                 addImport(imports, refInfo.getReferenceType());
+            }
+            for (GOperationInfo opInfo: info.getOperations()) {
+                addImport(imports, opInfo.getReturnType());
+                for (String paramType : opInfo.getParameterList()) {
+                    addImport(imports, paramType);
+                }
             }
         }
         return imports;

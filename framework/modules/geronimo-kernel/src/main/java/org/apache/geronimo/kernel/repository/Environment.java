@@ -209,9 +209,7 @@ public class Environment implements Serializable {
             manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.EXPORT_PACKAGE, exports));
         }
         
-        if (dynamicImports.isEmpty()) {
-            manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.DYNAMICIMPORT_PACKAGE, "*"));
-        } else {
+        if (!dynamicImports.isEmpty()) {
             manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.DYNAMICIMPORT_PACKAGE, dynamicImports));
         }
 
