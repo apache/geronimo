@@ -30,6 +30,18 @@
     <name>Geronimo TestSuite :: Java EE 6 Testsuite :: jsf2.0-test</name>
     <packaging>war</packaging>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>myfaces</artifactId>
+                <version>${geronimoVersion}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -43,37 +55,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-api</artifactId>
-            <version>2.0.0</version>
+            <artifactId>myfaces-bundle</artifactId>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>validation-api</artifactId>
-                    <groupId>javax.validation</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>el-api</artifactId>
-                    <groupId>javax.el</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <archiveClasses>false</archiveClasses>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <profiles>
         <profile>

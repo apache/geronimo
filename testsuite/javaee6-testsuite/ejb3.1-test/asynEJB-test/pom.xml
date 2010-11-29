@@ -17,11 +17,8 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
 <!-- $Rev$ $Date$ -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -32,7 +29,7 @@
 
     <artifactId>asynEJB-test</artifactId>
     <name>Geronimo TestSuite :: Java EE 6 Testsuite :: AsynEJB-test</name>
-   <description>
+    <description>
     </description>
     <packaging>war</packaging>
 
@@ -42,89 +39,75 @@
             <artifactId>geronimo-servlet_3.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-          <dependency>
+        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-annotation_1.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-jpa_2.0_spec</artifactId>
-			<scope>provided</scope>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jpa_2.0_spec</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_3.1_spec</artifactId>
             <scope>provided</scope>
-        </dependency>		
-    </dependencies> 
-	
-	<build>
-		<plugins>
-			<plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <configuration>
-                        <archiveClasses>false</archiveClasses>
-                    </configuration>
-                </plugin>
-			</plugins>
-	</build>
-	
-	<profiles>
-    <profile>
-        <id>it</id>
-        <activation>
-            <property>
-                <name>it</name>
-            </property>
-        </activation>
-    <build>        
-        <plugins>   
+        </dependency>
+    </dependencies>
 
-		    <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>
-							${project.build.testOutputDirectory}/testng.xml
-						</suiteXmlFile>
-                    </suiteXmlFiles>
-					<systemPropertyVariables>
-                         <appContext>${project.artifactId}</appContext>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>geronimo-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy-wars</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>deploy-module</goal>
-                        </goals>
+    <profiles>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>it</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.war</moduleArchive>
+                            <suiteXmlFiles>
+                                <suiteXmlFile>
+                                    ${project.build.testOutputDirectory}/testng.xml 
+                                </suiteXmlFile>
+                            </suiteXmlFiles>
+                            <systemPropertyVariables>
+                                <appContext>${project.artifactId}</appContext>
+                            </systemPropertyVariables>
                         </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>undeploy-war-as-moduleId</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>undeploy-module</goal>
-                        </goals>
-                        <configuration>
-                            <moduleId>${project.groupId}/${project.artifactId}/${project.version}/war</moduleId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    </profile>
-</profiles>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>deploy-wars</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.war</moduleArchive>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>undeploy-war-as-moduleId</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>${project.groupId}/${project.artifactId}/${project.version}/war</moduleId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

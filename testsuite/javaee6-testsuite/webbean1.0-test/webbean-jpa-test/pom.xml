@@ -54,7 +54,7 @@
         <!-- JSF -->
         <dependency>
             <groupId>org.apache.myfaces.core</groupId>
-            <artifactId>myfaces-api</artifactId>
+            <artifactId>myfaces-bundle</artifactId>
             <scope>provided</scope>
         </dependency>
         <!--JPA 2.0-->
