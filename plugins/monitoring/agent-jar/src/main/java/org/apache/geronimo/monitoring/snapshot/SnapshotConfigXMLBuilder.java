@@ -17,7 +17,6 @@
 package org.apache.geronimo.monitoring.snapshot;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -26,7 +25,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,6 +35,8 @@ import org.w3c.dom.NodeList;
  * In charge of dealing with the XML processing of the snapshot's data.
  */
 public class SnapshotConfigXMLBuilder {
+ 
+
     private static Log log = LogFactory.getLog(SnapshotConfigXMLBuilder.class);
     
     private static final String pathToXML = 
@@ -45,7 +45,9 @@ public class SnapshotConfigXMLBuilder {
     private static final String SNAPSHOT_CONFIG = "snapshot-config";
     private static final String DURATION = "duration";
     private static final String RETENTION = "retention";
+    private static final String SNAPSHOT_THREAD_START = "snapshotThreadStart";
     private static final String MBEAN = "mbean"; 
+    
     
     /**
      * @return A list of all mbean names that have been previously saved.
@@ -129,13 +131,14 @@ public class SnapshotConfigXMLBuilder {
             return true;
         }
     }
-    
+
     /**
      * Saves the duration of the snapshot as a configuration attribute
      * @param duration
      */
     public static void saveDuration(long duration) {
-        saveAttribute(DURATION, duration);
+        
+        saveAttribute(DURATION, Long.toString(duration));
     }
 
     /**
@@ -143,7 +146,16 @@ public class SnapshotConfigXMLBuilder {
      * @param retention
      */
     public static void saveRetention(int retention) {
-        saveAttribute(RETENTION, retention);
+        saveAttribute(RETENTION, Integer.toString(retention));
+    }
+    
+    /**
+     * Remember the flag to determine if the snapshot thread 
+     * should be started when the server is restarted.
+     * @param snapshotThreadStart
+     */
+    public static void saveSnapshotThreadStatus(boolean snapshotThreadStart) {
+        saveAttribute(SNAPSHOT_THREAD_START, Boolean.toString(snapshotThreadStart));
     }
     
     /**
@@ -152,7 +164,7 @@ public class SnapshotConfigXMLBuilder {
      * @param attrName
      * @param attributeValue
      */
-    private static void saveAttribute(String attrName, long attributeValue) {
+    private static void saveAttribute(String attrName, String attributeValue) {
         Document doc = openDocument();
         // get the root node        
         Element rootElement = doc.getDocumentElement();
@@ -164,14 +176,14 @@ public class SnapshotConfigXMLBuilder {
             Node configNode = configNodes.item(i);
             if(attrName.equals(configNode.getNodeName())) {
                 // found a match
-                configNode.setTextContent(attributeValue + "");
+                configNode.setTextContent(attributeValue);
                 foundNode = true;
             }
         }
         // if there was not a duration node, make one
         if(!foundNode) {
             Element element = doc.createElement(attrName);
-            element.setTextContent(attributeValue + "");
+            element.setTextContent(attributeValue);
             rootElement.appendChild(element);
         }
         try {
@@ -315,4 +327,6 @@ public class SnapshotConfigXMLBuilder {
             }
         }
     }
+
+   
 }

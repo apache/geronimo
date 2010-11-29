@@ -17,7 +17,6 @@
 package org.apache.geronimo.monitoring;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,32 +27,23 @@ import javax.management.Attribute;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
-import javax.management.j2ee.Management;
-import javax.management.j2ee.ManagementHome;
-import javax.management.j2ee.statistics.BoundedRangeStatistic;
 import javax.management.j2ee.statistics.RangeStatistic;
 import javax.management.j2ee.statistics.Stats;
 import javax.management.j2ee.statistics.CountStatistic;
 import javax.management.j2ee.statistics.Statistic;
 import javax.management.j2ee.statistics.TimeStatistic;
-import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 
-import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
-import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 
 import org.apache.geronimo.monitoring.MBeanHelper;
-
-import org.apache.xbean.naming.context.WritableContext.NestedWritableContext;
 
 import org.apache.geronimo.monitoring.snapshot.SnapshotThread;
 import org.apache.geronimo.monitoring.snapshot.SnapshotConfigXMLBuilder;
@@ -71,6 +61,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
     private static final int DEFAULT_RETENTION = 30;
     private static final String RETENTION = "retention";
     private static final String DURATION = "duration";
+    private static final String SNAPSHOT_THREAD_START = "snapshotThreadStart";
 
     // mbean server to talk to other components
     private static MBeanServer mbServer = null;
@@ -175,9 +166,18 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      * Stops the snapshot thread
      */
     public boolean stopSnapshot() {
+        
+       saveSnapshotThreadStatus(false);
+       return  this.stopSnapshotOnly();
+       
+    }
+    
+    private boolean stopSnapshotOnly(){
+        
         if(snapshotThread != null) {
             if(snapshotThread.getSnapshotDuration() != Long.MAX_VALUE) {
                 saveDuration(snapshotThread.getSnapshotDuration());
+                saveSnapshotThreadStatus(false);
                 snapshotThread.setSnapshotDuration(Long.MAX_VALUE);
                 log.info("Snapshot thread stopped.");
                 return true;
@@ -188,6 +188,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
             log.error("There is not a snapshot thread running. Stopping aborted.");
             return false;
         }
+        
     }
     
     /**
@@ -297,9 +298,12 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
     public boolean startSnapshot(Long interval, Integer retention) {
         if((snapshotThread == null || (snapshotThread != null && (snapshotThread.SnapshotStatus() == 0))) && interval.longValue() > 0) {
             saveDuration(interval.longValue());
-            saveRetention(retention.intValue());
+            saveRetention(retention.intValue());      
+            saveSnapshotThreadStatus(true);
             snapshotThread = new SnapshotThread(interval.longValue(), mbServer);
+            snapshotThread.setName("JMX Monitoring Agent Snapshot Thread");
             snapshotThread.start();
+
             log.info("Snapshot thread successfully created.");
             return true;
         } else {
@@ -349,7 +353,29 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      * Executes when the GBean starts up. Also starts the snapshot thread.
      */
     public void doStart() {
-    
+        
+        String shouldJMXSnapshotBeOnlineStr="";
+        boolean shouldJMXSnapshotBeOnline = false;
+
+        try {
+            shouldJMXSnapshotBeOnlineStr = SnapshotConfigXMLBuilder.getAttributeValue(SNAPSHOT_THREAD_START);
+            shouldJMXSnapshotBeOnline = Boolean.parseBoolean(shouldJMXSnapshotBeOnlineStr);
+        } catch (Exception e1) {
+            log.debug("can't parse boolean value for string:"+shouldJMXSnapshotBeOnlineStr+",shouldJMXSnapshotBeOnline will be the defaul value:false", e1);            
+        }
+        
+        if (shouldJMXSnapshotBeOnline) {
+            String duration="";
+            long interval=DEFAULT_DURATION;
+            try {
+                duration=SnapshotConfigXMLBuilder.getAttributeValue(DURATION);
+                interval = Long.parseLong(duration);
+            } catch (Exception e) {
+                log.warn("failed to parse DURATION:+"+duration, e);
+            }
+
+            this.startSnapshot(interval);
+        }
     }
     
     /**
@@ -357,7 +383,7 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
      */
     public void doStop() {
         if(SnapshotStatus() == 1) {
-            stopSnapshot();
+            stopSnapshotOnly();
         }
     }
     
@@ -367,6 +393,10 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
     
     private void saveRetention(int retention) {
         SnapshotConfigXMLBuilder.saveRetention(retention);
+    }
+    
+    private void saveSnapshotThreadStatus(boolean snapshotThreadStart) {
+        SnapshotConfigXMLBuilder.saveSnapshotThreadStatus(snapshotThreadStart);
     }
     
     /**
