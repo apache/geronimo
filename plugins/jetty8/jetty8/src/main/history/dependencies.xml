@@ -93,12 +93,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.myfaces.core</groupId>
-        <artifactId>myfaces-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.myfaces.core</groupId>
-        <artifactId>myfaces-impl</artifactId>
+        <artifactId>myfaces-bundle</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -109,11 +104,6 @@
     <dependency>
         <groupId>org.apache.openwebbeans</groupId>
         <artifactId>openwebbeans-jsf</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-osgi</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
