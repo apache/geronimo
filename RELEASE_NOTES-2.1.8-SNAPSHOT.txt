@@ -1,4 +1,4 @@
-Release Notes -- Apache Geronimo -- Version 2.1.7
+Release Notes -- Apache Geronimo -- Version ##VERSION##
 
 
 Geronimo URLs
@@ -58,59 +58,27 @@ Plan Creator (added in Geronimo 2.1.2)
   the user through a sequence of steps and generates geronimo-web.xml automatically.
 
 
-Geronimo 2.1.7 Issues Resolved
+Geronimo ##VERSION## Issues Resolved
 ------------------------------
 ** Bug
-GERONIMO-5706 When derby authentication is disabled, DB manager portlet run SQL error: Caused by: java.sql.SQLException: Schema 'DBADMIN' does not exist
-GERONIMO-5695 Upgrade wadi to 2.1.2
-GERONIMO-5693 Encryption logic for connectionPassword attribute in ldap realm
-GERONIMO-5692 Unlock keystore command line utility does not work with Configured Encryption
-GERONIMO-5691 Farming module provision of utilizing encrypted password instead of plain text
-GERONIMO-5690 Clustering module fails to start on disabling JMXService gbean
-GERONIMO-5683 Thread safety for needScanJar(), scanJar(), and scannedJars.add() in GeronimoTldLocationsCache 
-GERONIMO-5672 Overriding an env-entry in geronimo-web.xml fails with a DeploymentException
-GERONIMO-5640 Qualified web resource permission for each role should be calculated based its own url set
-GERONIMO-5638 Remove the encrypt(String) method in ConfiguredEncryption 
-GERONIMO-5591 Removing the least used and oldest statements from prepared statement cache 
-GERONIMO-5590 startup script does not consume --help option 
-GERONIMO-5578 incorrect behaviour of security-constraint configuration in web.xml 
-GERONIMO-5558 Transaction Commit status is not configured correctly 
-GERONIMO-5540 Enable connecting to a ldap server anonymously on console on Geronimo 2.1 and 3.0 
-GERONIMO-5530 NullPointerException during MDB deployment 
-GERONIMO-5519 Transaction recovery might commit the wrong branch on an XAResource 
-GERONIMO-5452 PersistenceUnitBuilder cannot find persistence.xml on inPlace deployments 
-GERONIMO-5424 Encrypt truststore pass for tomcat web ssl connector 
-GERONIMO-5402 Incorrect instructions to utilize ConfiguredEncryption 
-GERONIMO-5401 Geronimo encrypts empty passwords 
-GERONIMO-5384 Geronimo console doesn't seem to handle % in sql statements right. 
-GERONIMO-5330 env-entry values should not be trimmed
-GERONIMO-5305 DisableMcastInterceptor GBean should disable the mcast receiver also with mcast sender 
-GERONIMO-5167 " ERROR [JNDIReferenceFactory] null" when I deploy new JMS Resource Group for Active MQ 
-GERONIMO-4757 "java.lang.IllegalStateException" error when use install-plugin goal 
-GERONIMO-4217 Check for all data primitive types when shortcutting to the primordial classloader
+
 
 ** Improvement
-GERONIMO-5696 Add db2 for iSeries tranql xa connector to server
-GERONIMO-5676 Improve testsuite execution structure in order to be able to run all suites against a manual started server
-GERONIMO-5533 Upgrade to Tomcat 6.0.29
-GERONIMO-5206 Assembly may start failed when server-security-config car is not assembled
-GERONIMO-5196 Add a own authenticator for Spnego login
-GERONIMO-4583 Remove obsolete plugins from plugins group
-GERONIMO-4296 Start Derby NetworkServerControl with credentials to prevent unauthorized shutdowns
+
 
 ** New Feature
-GERONIMO-5197 Generic Header based authentication support in geronimo
+
 
 
 Certification Status
 --------------------
-Apache Geronimo v2.1.7 has passed 100% of SUN's Java Enterprise Edition 5.0 
+Apache Geronimo v##VERSION## has passed 100% of SUN's Java Enterprise Edition 5.0 
 Certification Test Suite. See "Distributions" for further details.
 
 
 Distributions
 -------------
-Apache Geronimo v2.1.7 is available in five distributions so you can pick the 
+Apache Geronimo v##VERSION## is available in five distributions so you can pick the 
 one that best fits your environment.
 
 The available distributions are as follows:
@@ -139,8 +107,5 @@ All programming elements of the Java EE 5.0 Specification are available.
 Known Issues and Limitations
 ----------------------------
 ** Bug
-GERONIMO-5700 Active MQ Fixes in geronimo for AMQ-1779, AMQ-1431 and AMQ-1760
-GERONIMO-5431 Web Connector portlet does not persist values
-GERONIMO-4861 Deployment Plan XML Parsing - Not add generated namespace names to closing tags
-GERONIMO-4668 Parse XML error after deploying a EJB security jar
+
 

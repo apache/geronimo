@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo v2.1.7
+Apache Geronimo v##VERSION##
 
 http://geronimo.apache.org/
 ------------------------------------------------------
@@ -9,7 +9,7 @@ ______________________
 Release Notes
 ======================
 
- Please read the RELEASE_NOTES-2.1.7.txt for a complete list of new features 
+ Please read the RELEASE_NOTES-##VERSION##.txt for a complete list of new features 
  available in this release. 
  
   
