@@ -24,7 +24,7 @@
 
     <properties>
         <!-- This may be helpful in selecting the desired geronimo version -->
-        <geronimoVersion>2.2</geronimoVersion>
+        <geronimoVersion>2.2.1</geronimoVersion>
 
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car</gbeanDeployerBootstrap>
         <gbeanDeployer>org.apache.geronimo.framework/geronimo-gbean-deployer/${geronimoVersion}/car</gbeanDeployer>
