@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo v@VERSION@ 
+Apache Geronimo v2.2.1 
 
 http://geronimo.apache.org/
 ------------------------------------------------------
@@ -9,7 +9,7 @@ ______________________
 Release Notes
 ======================
 
- Please read the RELEASE_NOTES-@VERSION@.txt for a complete list of new features 
+ Please read the RELEASE_NOTES-2.2.1.txt for a complete list of new features 
  available in this release. 
  
   
@@ -151,7 +151,7 @@ GShell
    geronimo/start-server --help 
 
  For more information on GShell and GShell commands, see the
- Geronimo @VERSION@ documentation.
+ Geronimo 2.2.1 documentation.
 
 ______________________
 Script

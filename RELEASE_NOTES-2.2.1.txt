@@ -1,4 +1,4 @@
-Release Notes -- Apache Geronimo -- Version @VERSION@
+Release Notes -- Apache Geronimo -- Version 2.2.1
 
 
 Geronimo URLs
@@ -25,7 +25,7 @@ You need a platform that supports the Sun JDK 5.0+ (J2SE 1.5.0+) or greater.
 Most testing has been done on Linux, Mac OS X, and Windows.
 
 
-Geronimo @VERSION@ Enhancements
+Geronimo 2.2.1 Enhancements
 -------------------------
 
 Annotation based gbeans
@@ -45,6 +45,7 @@ Clustering Support
   deployed in a cluster can now be centrally managed.  In this
   scheme, cluster membership is maintained through a multicast heartbeat, and
   plugin-plugin-list and plugin-list-cluster association is tracked in a database.
+- Stateless session bean failover support  
 
 ActiveMQ 5.4.1
 - We have upgraded to the latest released ActiveMQ version.  The ActiveMQ broker is
@@ -65,7 +66,11 @@ JASPIC support (jsr-196)
 App-independent principal-role mapping
 - principal-role mapping can be configured independently of an application and used by reference.
 
-Geronimo @VERSION@ Issues Resolved
+Improvements to console menu navigation.
+-   The menu tree could be collapsed/expanded
+-   A quick launcher box is added for user to quick access a menu item.
+
+Geronimo 2.2.1 Issues Resolved
 ------------------------------
 
 ** New Feature
@@ -236,13 +241,13 @@ Geronimo @VERSION@ Issues Resolved
 
 Certification Status
 --------------------
-Apache Geronimo v@VERSION@ has passed 100% of SUN's Java Enterprise Edition 5.0 
+Apache Geronimo v2.2.1 has passed 100% of SUN's Java Enterprise Edition 5.0 
 Certification Test Suite. See "Distributions" for further details.
 
 
 Distributions
 -------------
-Apache Geronimo v@VERSION@ is available in five distributions so you can pick the 
+Apache Geronimo v2.2.1 is available in five distributions so you can pick the 
 one that best fits your environment.
 
 The available distributions are as follows:
