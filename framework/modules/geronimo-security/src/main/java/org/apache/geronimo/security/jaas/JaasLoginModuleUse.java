@@ -25,7 +25,7 @@ import java.util.Set;
 
 import javax.security.auth.login.AppConfigurationEntry;
 
-import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
+import org.apache.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;

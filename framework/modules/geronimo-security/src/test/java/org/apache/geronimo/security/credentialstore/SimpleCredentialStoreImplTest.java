@@ -27,7 +27,7 @@ import java.util.Collections;
 
 import javax.security.auth.Subject;
 
-import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
+import org.apache.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.osgi.MockBundle;

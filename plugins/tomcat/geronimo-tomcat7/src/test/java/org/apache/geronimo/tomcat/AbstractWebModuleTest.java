@@ -29,7 +29,7 @@ import javax.security.auth.login.LoginException;
 import javax.security.jacc.PolicyContextException;
 import javax.transaction.TransactionManager;
 
-import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
+import org.apache.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.j2ee.jndi.ContextSource;

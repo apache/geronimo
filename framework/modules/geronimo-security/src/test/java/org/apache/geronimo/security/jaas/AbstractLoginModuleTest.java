@@ -20,7 +20,7 @@
 
 package org.apache.geronimo.security.jaas;
 
-import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
+import org.apache.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.gbean.GBeanData;

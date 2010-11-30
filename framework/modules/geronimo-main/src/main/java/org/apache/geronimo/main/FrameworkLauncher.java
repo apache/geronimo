@@ -210,7 +210,7 @@ public class FrameworkLauncher {
     }
     
     private static void processSecurityProperties(Properties m_configProps) {
-        String prop = m_configProps.getProperty("org.apache.felix.karaf.security.providers");
+        String prop = m_configProps.getProperty("org.apache.karaf.security.providers");
         if (prop != null) {
             String[] providers = prop.split(",");
             for (String provider : providers) {

@@ -31,7 +31,7 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import junit.framework.TestCase;
-import org.apache.felix.karaf.jaas.boot.ProxyLoginModule;
+import org.apache.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;

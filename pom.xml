@@ -135,6 +135,15 @@
         <pluginSrcRepoLocal>~/.m2/repository/</pluginSrcRepoLocal>
         <pluginSrcRepoCentral>http://repo1.maven.org/maven2/</pluginSrcRepoCentral>
         <pluginSrcRepoApacheSnapshots>http://repository.apache.org/snapshots/</pluginSrcRepoApacheSnapshots>
+        
+        <!-- OSGI properties -->
+        <felix.bundlerepository.version>1.6.4</felix.bundlerepository.version>
+        <karaf.version>2.1.2</karaf.version>
+        <karaf.osgi.version>2.1.2</karaf.osgi.version>
+        <aries.blueprint.version>0.2-incubating</aries.blueprint.version>
+        <aries.jmx.version>0.2-incubating</aries.jmx.version>
+        <aries.util.version>0.2-incubating</aries.util.version>
+        <aries.jndi.version>0.2-incubating</aries.jndi.version>
     </properties>
 
     <dependencyManagement>
@@ -1853,7 +1862,7 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.bundlerepository</artifactId>
-                <version>1.6.4</version>
+                <version>${felix.bundlerepository.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.felix</groupId>
@@ -1887,10 +1896,14 @@ only found in cxf
             </dependency>
 
             <dependency>
-                <groupId>org.apache.felix.karaf.shell</groupId>
-                <artifactId>org.apache.felix.karaf.shell.console</artifactId>
-                <version>1.6.0</version>
+                <groupId>org.apache.karaf.shell</groupId>
+                <artifactId>org.apache.karaf.shell.console</artifactId>
+                <version>${karaf.version}</version>
                 <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.felix.gogo</groupId>
+                        <artifactId>org.apache.felix.gogo.runtime</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>jline</groupId>
                         <artifactId>jline</artifactId>
@@ -1907,33 +1920,33 @@ only found in cxf
             </dependency>
 
             <dependency>
-                <groupId>org.apache.felix.karaf.jaas</groupId>
-                <artifactId>org.apache.felix.karaf.jaas.boot</artifactId>
-                <version>1.6.0</version>
+                <groupId>org.apache.karaf.jaas</groupId>
+                <artifactId>org.apache.karaf.jaas.boot</artifactId>
+                <version>${karaf.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries</groupId>
                 <artifactId>org.apache.aries.util</artifactId>
-                <version>0.2-incubating</version>
+                <version>${aries.util.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jndi</groupId>
                 <artifactId>org.apache.aries.jndi</artifactId>
-                <version>0.2-incubating</version>
+                <version>${aries.jndi.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jmx</groupId>
                 <artifactId>org.apache.aries.jmx</artifactId>
-                <version>0.2-incubating</version>
+                <version>${aries.jmx.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries.jmx</groupId>
                 <artifactId>org.apache.aries.jmx.blueprint</artifactId>
-                <version>0.2-incubating</version>
+                <version>${aries.jmx.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -1945,7 +1958,7 @@ only found in cxf
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint</artifactId>
-                <version>0.2-incubating</version>
+                <version>${aries.blueprint.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>

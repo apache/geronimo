@@ -20,7 +20,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            default-activation="lazy">
 
-    <command-bundle xmlns="http://felix.apache.org/karaf/xmlns/shell/v1.0.0">
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="geronimo/stop-server">
             <action class="org.apache.geronimo.shell.geronimo.StopServerCommand"></action>
         </command>

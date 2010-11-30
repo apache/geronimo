@@ -17,6 +17,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.aries</groupId>
         <artifactId>org.apache.aries.util</artifactId>
         <type>jar</type>
@@ -314,11 +319,6 @@
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.commons-jexl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.commons-lang</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

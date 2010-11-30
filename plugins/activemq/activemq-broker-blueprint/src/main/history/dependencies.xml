@@ -12,11 +12,6 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>commons-net</groupId>
         <artifactId>commons-net</artifactId>
         <type>jar</type>

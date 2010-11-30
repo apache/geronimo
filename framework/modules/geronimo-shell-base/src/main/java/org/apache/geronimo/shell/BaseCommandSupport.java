@@ -27,7 +27,7 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Set;
 
-import org.apache.felix.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.geronimo.deployment.cli.ConsoleReader;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;

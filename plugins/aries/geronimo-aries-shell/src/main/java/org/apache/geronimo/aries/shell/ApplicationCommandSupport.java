@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.aries.application.management.AriesApplicationContext;
 import org.apache.aries.application.management.AriesApplicationContextManager;
 import org.apache.aries.application.management.AriesApplicationManager;
-import org.apache.felix.karaf.shell.console.OsgiCommandSupport;
+import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.osgi.framework.ServiceReference;
 
 /**
