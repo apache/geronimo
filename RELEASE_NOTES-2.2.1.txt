@@ -84,6 +84,7 @@ Geronimo 2.2.1 Issues Resolved
     
 ** Improvement
     * [GERONIMO-5696] -	Add db2 for iSeries tranql xa connector to server
+    * [GERONIMO-5668] -	Use fewer acceptor threads for Jetty
     * [GERONIMO-5533] -	Upgrade to Tomcat 6.0.29
     * [GERONIMO-5532] -	Add config-substitution.properties overrrides options to geronimo-maven-plugin start-server goal
     * [GERONIMO-5504] -	Add "overrides" and "overriDir" parameters to geronimo-maven-plugin start-server goal
@@ -161,6 +162,7 @@ Geronimo 2.2.1 Issues Resolved
     * [GERONIMO-5330] -	env-entry values should not be trimmed
     * [GERONIMO-5325] -	iframe causes some portlets display incorrectly
     * [GERONIMO-5324] -	the "Console navigation" is always displayed in Chinese although the browser language has been set to English-US
+    * [GERONIMO-5312] -	support asynchronous start of ActiveMQ BrokerService
     * [GERONIMO-5303] -	Improve metadata of encrypt command
     * [GERONIMO-5274] -	Deploy New/Install New Application portlet needs some love to help out newbies
     * [GERONIMO-5254] -	The ActiveMQ XML configuration is incorrect regarding memoryUsage limit
@@ -271,4 +273,17 @@ user (such as Tomcat web container with CXF for Web Services).
 Supported features
 ------------------
 All programming elements of the Java EE 5.0 Specification are available.  
+
+
+
+Known Issues and Limitations
+----------------------------
+** Bug
+GERONIMO-5635 corrupt JobSchedulerStore can cause server restart to fail 
+GERONIMO-5142 runtime errors if JAVA_HOME or JRE_HOME is not specified
+GERONIMO-5052 	Re-enable Single Sign On for G2.2 with Tomcat
+GERONIMO-4901 Shutting down Geronimo destroys pending Timers
+GERONIMO-4494 Add and remove connectors for broker do not work
+
+
 
