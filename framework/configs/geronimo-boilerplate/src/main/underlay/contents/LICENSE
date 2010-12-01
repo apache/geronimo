@@ -1422,6 +1422,7 @@ The following artifacts are covered by the Creative Commons Public Domain
 License:
 
 ./repository/backport-util-concurrent/backport-util-concurrent/2.2/backport-util-concurrent-2.2.jar
+./repository/org/apache/geronimo/modules/geronimo-concurrent-core/2.2.1/geronimo-concurrent-core-2.2.1.jar(FutureTask.java,ThreadPoolExecutor.java, RejectedExecutionHandler.java)
 
 
 =========================================================================
@@ -2400,7 +2401,7 @@ The following artifacts are covered by the above UNICODE License:
 
 
 =========================================================================
-==  public domain License                                                    ==
+==   creative commons copyright-only dedication                                                    ==
 =========================================================================
 The person or persons who have associated work with this document (the "Dedicator" or "Certifier") hereby 
 either (a) certifies that, to the best of his knowledge, the work of authorship identified is in the public domain
