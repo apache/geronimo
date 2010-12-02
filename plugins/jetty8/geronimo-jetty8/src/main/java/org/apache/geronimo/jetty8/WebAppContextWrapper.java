@@ -61,6 +61,7 @@ import org.apache.geronimo.transaction.GeronimoUserTransaction;
 import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.info.ErrorPageInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
+import org.apache.webbeans.config.WebBeansContext;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.SessionManager;
@@ -208,8 +209,9 @@ public class WebAppContextWrapper implements GBeanLifecycle, WebModule {
                 }
             }
         }
-        Map<String, Object> owbContext = sharedOwbContext == null? new HashMap<String, Object>(): sharedOwbContext.getOWBContext();
 
+        final WebBeansContext owbContext = (sharedOwbContext == null) ? new WebBeansContext() : sharedOwbContext.getOWBContext();
+        
         IntegrationContext integrationContext = new IntegrationContext(componentContext, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator, userTransaction, bundle, holder, servletContainerInitializerMap, owbContext);
         webAppContext = new GeronimoWebAppContext(securityHandler, sessionHandler, servletHandler, null, integrationContext, classLoader, modulePath, webAppInfo, policyContextID, applicationPolicyConfigurationManager);
         webAppContext.setContextPath(contextPath);

@@ -20,11 +20,12 @@
 
 package org.apache.geronimo.openwebbeans;
 
-import java.util.Map;
+import org.apache.webbeans.config.WebBeansContext;
 
 /**
  * @version $Rev:$ $Date:$
  */
-public interface SharedOwbContext {
-    Map<String, Object> getOWBContext();
+public interface SharedOwbContext
+{
+    WebBeansContext getOWBContext();
 }

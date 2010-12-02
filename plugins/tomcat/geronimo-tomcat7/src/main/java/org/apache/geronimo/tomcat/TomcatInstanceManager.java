@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 import org.apache.tomcat.InstanceManager;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
+import org.apache.webbeans.config.WebBeansContext;
 
 /**
  * @version $Rev$ $Date$
@@ -39,7 +40,7 @@ public class TomcatInstanceManager implements InstanceManager {
     private final Holder holder;
     private final ClassLoader classLoader;
     private final Context context;
-    private Map<String, Object> owbContext ;
+    private WebBeansContext owbContext ;
 
     public TomcatInstanceManager(Holder holder, ClassLoader classLoader, Context context) {
         this.holder = holder;
@@ -48,7 +49,7 @@ public class TomcatInstanceManager implements InstanceManager {
     }
 
     public Object newInstance(String fqcn, ClassLoader classLoader) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
-        Map<String, Object> oldContext = null;
+        WebBeansContext oldContext = null;
         try {
             oldContext = GeronimoSingletonService.contextEntered(owbContext);
             return holder.newInstance(fqcn, classLoader, context);
@@ -64,7 +65,7 @@ public class TomcatInstanceManager implements InstanceManager {
     }
 
     public Object newInstance(String className) throws IllegalAccessException, InvocationTargetException, NamingException, InstantiationException, ClassNotFoundException {
-        Map<String, Object> oldContext = null;
+        WebBeansContext oldContext = null;
         try {
             //TODO Specification 13.4.1 p125
             //The @ServletSecurity annotation is not applied to the url-patterns of a ServletRegistration created using the addServlet(String, Servlet)  method of the ServletContext interface,
@@ -83,7 +84,7 @@ public class TomcatInstanceManager implements InstanceManager {
     }
 
     public void destroyInstance(Object o) throws IllegalAccessException, InvocationTargetException {
-        Map<String, Object> oldContext = null;
+        WebBeansContext oldContext = null;
         try {
             oldContext = GeronimoSingletonService.contextEntered(owbContext);
             holder.destroyInstance(o);
@@ -102,7 +103,7 @@ public class TomcatInstanceManager implements InstanceManager {
         //Correct me if I miss anything !
     }
 
-    public void setOWBContext(Map<String, Object> owbContext) {
+    public void setOWBContext(WebBeansContext owbContext) {
         this.owbContext = owbContext;
     }
 }

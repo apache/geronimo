@@ -93,6 +93,7 @@ import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 import org.apache.naming.resources.FileDirContext;
 import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.util.IntrospectionUtils;
+import org.apache.webbeans.config.WebBeansContext;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceRegistration;
 
@@ -227,9 +228,9 @@ public class GeronimoStandardContext extends StandardContext {
             interceptor = new ComponentContextBeforeAfter(interceptor, index++, enc);
         }
 
-        Map<String, Object> owbContext = ctx.getOWBContext();
+        WebBeansContext owbContext = ctx.getOWBContext();
         if (owbContext == null) {
-            owbContext = new HashMap<String, Object>();
+            owbContext = new WebBeansContext();
             new OpenWebBeansWebInitializer(owbContext, servletContext);
         }
         if (getInstanceManager() instanceof TomcatInstanceManager) {

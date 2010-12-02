@@ -33,6 +33,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.tomcat.InstanceManager;
+import org.apache.webbeans.config.WebBeansContext;
 import org.osgi.framework.Bundle;
 
 /**
@@ -99,5 +100,5 @@ public interface TomcatContext {
 
     Map<String, String> getContextAttributes();
 
-    Map<String, Object> getOWBContext();
+    WebBeansContext getOWBContext();
 }

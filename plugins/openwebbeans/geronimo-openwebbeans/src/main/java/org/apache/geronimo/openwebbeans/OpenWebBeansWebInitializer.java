@@ -19,11 +19,10 @@
 
 package org.apache.geronimo.openwebbeans;
 
-import java.util.Map;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
+import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.el.el22.EL22Adaptor;
 import org.apache.webbeans.lifecycle.LifecycleFactory;
 import org.apache.webbeans.resource.spi.se.StandaloneResourceInjectionService;
@@ -41,7 +40,7 @@ import org.apache.webbeans.web.lifecycle.WebContainerLifecycle;
  */
 public class OpenWebBeansWebInitializer {
     
-    public OpenWebBeansWebInitializer(Map<String, Object> owbContext, ServletContext servletContext) {
+    public OpenWebBeansWebInitializer(WebBeansContext owbContext, ServletContext servletContext) {
         GeronimoSingletonService.contextEntered(owbContext);
 
         try {

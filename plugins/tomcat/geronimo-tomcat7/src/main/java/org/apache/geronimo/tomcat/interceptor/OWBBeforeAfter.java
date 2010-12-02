@@ -26,6 +26,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
+import org.apache.webbeans.config.WebBeansContext;
 
 /**
  * @version $Rev$ $Date$
@@ -34,9 +35,9 @@ public class OWBBeforeAfter implements BeforeAfter {
 
     private final BeforeAfter next;
     private final int index;
-    private final Map<String, Object> owbContext ;
+    private final WebBeansContext owbContext ;
 
-    public OWBBeforeAfter(BeforeAfter next, int index, ServletContext servletContext, Map<String, Object> owbContext) {
+    public OWBBeforeAfter(BeforeAfter next, int index, ServletContext servletContext, WebBeansContext owbContext) {
         this.next = next;
         this.index = index;
         this.owbContext = owbContext;
@@ -55,6 +56,6 @@ public class OWBBeforeAfter implements BeforeAfter {
         if (next != null) {
             next.after(context, httpRequest, httpResponse, dispatch);
         }
-        GeronimoSingletonService.contextExited((Map<String, Object>) context[index]);
+        GeronimoSingletonService.contextExited((WebBeansContext) context[index]);
     }
 }

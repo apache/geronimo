@@ -53,6 +53,7 @@ import org.apache.geronimo.web.assembler.Assembler;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
 import org.apache.geronimo.web.security.WebSecurityConstraintStore;
+import org.apache.webbeans.config.WebBeansContext;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.Request;
@@ -136,7 +137,7 @@ public class GeronimoWebAppContext extends WebAppContext {
         boolean txActive = integrationContext.isTxActive();
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(null);
         ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(null, newContext);
-        Map<String, Object> oldOwbContext = integrationContext.contextEntered();
+        WebBeansContext oldOwbContext = integrationContext.contextEntered();
         try {
             setRestrictListeners(false);
             try {
@@ -212,7 +213,7 @@ public class GeronimoWebAppContext extends WebAppContext {
         boolean txActive = integrationContext.isTxActive();
         SharedConnectorInstanceContext newContext = integrationContext.newConnectorInstanceContext(baseRequest);
         ConnectorInstanceContext connectorContext = integrationContext.setConnectorInstance(baseRequest, newContext);
-        Map<String, Object> owbContext = integrationContext.contextEntered();
+        WebBeansContext owbContext = integrationContext.contextEntered();
         try {
             try {
                 super.doScope(target, baseRequest, request, response);

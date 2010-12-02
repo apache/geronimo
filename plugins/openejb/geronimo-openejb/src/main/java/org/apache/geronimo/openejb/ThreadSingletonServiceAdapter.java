@@ -33,6 +33,7 @@ import org.apache.openejb.cdi.OpenEJBLifecycle;
 import org.apache.openejb.cdi.StartupObject;
 import org.apache.openejb.cdi.ThreadSingletonService;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
+import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.corespi.ServiceLoader;
 import org.apache.webbeans.lifecycle.StandaloneLifeCycle;
 import org.apache.webbeans.spi.ContainerLifecycle;
@@ -65,8 +66,7 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
                 }
                 // an existing OWBConfiguration will have already been initialized
             } else {
-                owbContext = new OWBContext((Map<String, Object>) old);
-                startupObject.getAppContext().set(OWBContext.class, owbContext);
+                startupObject.getAppContext().set(OWBContext.class, (OWBContext) old);
             }
         } finally {
             contextExited(old);
@@ -94,6 +94,6 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
     @Override
     public void contextExited(Object oldContext) {
         if (oldContext != null && !(oldContext instanceof Map)) throw new IllegalArgumentException("Expecting a Map<String, Object> not " + oldContext.getClass().getName());
-        GeronimoSingletonService.contextExited((Map<String, Object>) oldContext);
+        GeronimoSingletonService.contextExited((WebBeansContext) oldContext);
     }
 }

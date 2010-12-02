@@ -39,6 +39,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnecti
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
+import org.apache.webbeans.config.WebBeansContext;
 import org.eclipse.jetty.server.Request;
 import org.osgi.framework.Bundle;
 
@@ -55,9 +56,9 @@ public class IntegrationContext {
     private final Bundle bundle;
     private final Holder holder;
     private final Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap;
-    private final Map<String, Object> owbContext;
+    private final WebBeansContext owbContext;
 
-    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder, Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap, Map<String, Object> owbContext) {
+    public IntegrationContext(Context componentContext, Set<String> unshareableResources, Set<String> applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator, UserTransaction userTransaction, Bundle bundle, Holder holder, Map<ServletContainerInitializer, Set<Class<?>>> servletContainerInitializerMap, WebBeansContext webBeansContext) {
         this.componentContext = componentContext;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
@@ -66,7 +67,7 @@ public class IntegrationContext {
         this.bundle = bundle;
         this.holder = holder;
         this.servletContainerInitializerMap = servletContainerInitializerMap == null? Collections.<ServletContainerInitializer, Set<Class<?>>>emptyMap(): servletContainerInitializerMap;
-        this.owbContext = owbContext;
+        this.owbContext = webBeansContext;
     }
 
     public Context getComponentContext() {
@@ -177,15 +178,15 @@ public class IntegrationContext {
     }
 
 
-    public Map<String, Object> contextEntered() {
+    public WebBeansContext contextEntered() {
         return GeronimoSingletonService.contextEntered(owbContext);
     }
 
-    public void contextExited(Map<String, Object> oldOWBContext) {
+    public void contextExited(WebBeansContext oldOWBContext) {
         GeronimoSingletonService.contextExited(oldOWBContext);
     }
 
-    public Map<String, Object> getOWBContext() {
+    public WebBeansContext getOWBContext() {
         return owbContext;
     }
 }

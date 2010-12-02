@@ -262,6 +262,7 @@ public class AbstractWebModuleTest extends TestSupport {
         connector.setPort(5678);
         connector.setHost("localhost");
         connector.setMaxThreads(2);
+        System.out.println("DMB STARTING JETTY ON PORT 5678");
         connector.doStart();
 
         TransactionManagerImpl transactionManager = new TransactionManagerImpl();

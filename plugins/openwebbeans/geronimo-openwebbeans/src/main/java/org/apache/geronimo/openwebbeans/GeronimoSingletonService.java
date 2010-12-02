@@ -22,6 +22,7 @@ package org.apache.geronimo.openwebbeans;
 
 import java.util.Map;
 
+import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.config.WebBeansFinder;
 import org.apache.webbeans.exception.WebBeansException;
 import org.apache.webbeans.spi.SingletonService;
@@ -32,7 +33,7 @@ import org.osgi.framework.Bundle;
  */
 public class GeronimoSingletonService implements SingletonService {
 
-    private static final ThreadLocal<Map<String, Object>> contexts = new ThreadLocal<Map<String, Object>>();
+    private static final ThreadLocal<WebBeansContext> contexts = new ThreadLocal<WebBeansContext>();
     private static Bundle bundle;
 
     public static void init(Bundle owbBundle) {
@@ -43,40 +44,24 @@ public class GeronimoSingletonService implements SingletonService {
     public GeronimoSingletonService() {
     }
 
-    public static Map<String, Object> contextEntered(Map<String, Object> newContext) {
-        Map<String, Object> oldContext = contexts.get();
+    public static WebBeansContext contextEntered(WebBeansContext newContext) {
+        final WebBeansContext oldContext = contexts.get();
         contexts.set(newContext);
         return oldContext;
     }
 
-    public static void contextExited(Map<String, Object> oldContext) {
+    public static void contextExited(WebBeansContext oldContext) {
         contexts.set(oldContext);
     }
 
     @Override
     public Object get(Object key, String singletonClassName) {
-        Map<String, Object> context = getContext();
-        Object service = context.get(singletonClassName);
-        if (service == null) {
-            try {
-                Class clazz = bundle.loadClass(singletonClassName);
-                service = clazz.newInstance();
-            } catch (ClassNotFoundException e) {
-                throw new WebBeansException("Could not locate requested class " + singletonClassName + " in bundle " + bundle, e);
-            } catch (InstantiationException e) {
-                throw new WebBeansException("Could not create instance of class " + singletonClassName, e);
-            } catch (IllegalAccessException e) {
-                throw new WebBeansException("Could not create instance of class " + singletonClassName, e);
-            } catch (NoClassDefFoundError e) {
-                throw new WebBeansException("Could not locate requested class " + singletonClassName + " in bundle " + bundle, e);
-            }
-            context.put(singletonClassName, service);
-        }
-        return service;
+        WebBeansContext context = getContext();
+        return context.get(singletonClassName);
     }
 
-    private Map<String, Object> getContext() {
-        Map<String, Object> context = contexts.get();
+    private WebBeansContext getContext() {
+        WebBeansContext context = contexts.get();
         if (context == null) {
             throw new IllegalStateException("On a thread without an initialized context");
         }
@@ -90,7 +75,7 @@ public class GeronimoSingletonService implements SingletonService {
 
     @Override
     public boolean isExist(Object key, String singletonClassName) {
-        return getContext().containsKey(singletonClassName);
+        throw new UnsupportedOperationException("isExist is never called");
     }
 
     @Override

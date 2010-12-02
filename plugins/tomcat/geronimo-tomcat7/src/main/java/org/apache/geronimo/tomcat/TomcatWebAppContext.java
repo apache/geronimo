@@ -73,6 +73,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerFactory;
 import org.apache.naming.resources.DirContextURLStreamHandler;
 import org.apache.tomcat.InstanceManager;
+import org.apache.webbeans.config.WebBeansContext;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +121,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Map<String, Object> deploymentAttributes;
     private final ApplicationPolicyConfigurationManager applicationPolicyConfigurationManager;
     private final Map<String,String> contextAttributes;
-    private final Map<String, Object> owbContext;
+    private final WebBeansContext owbContext;
     private final InstanceManager instanceManager;
 
     // JSR 77
@@ -555,7 +556,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     @Override
-    public Map<String, Object> getOWBContext() {
+    public WebBeansContext getOWBContext() {
         return owbContext;
     }
 
