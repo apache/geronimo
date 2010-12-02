@@ -66,6 +66,7 @@
         <module>servlet3.0-test</module>
         <!--<module>webbean1.0-test</module>-->
         <module>ejb3.1-test</module>
+        <module>jpa2.0-test</module>
     </modules>
 
 </project>
