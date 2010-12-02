@@ -85,7 +85,7 @@
         <tranqlDerbyVersion>1.6</tranqlDerbyVersion>
 
         <monitoringConsoleVersion>${project.version}</monitoringConsoleVersion>
-        <pax.logging.version>1.5.2</pax.logging.version>
+        <pax.logging.version>1.5.3</pax.logging.version>
         <woodstoxVersion>3.2.9_1</woodstoxVersion>
         <sxcVersion>0.7.3_1</sxcVersion>
 
