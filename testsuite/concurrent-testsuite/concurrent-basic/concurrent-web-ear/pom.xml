@@ -19,15 +19,14 @@
 		$Rev: 618875 $ $Date: 2008-02-05 23:04:08 -0500 (Tue, 05 Feb 2008) $
 	-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>org.apache.geronimo.testsuite</groupId>
 		<artifactId>concurrent-basic</artifactId>
-		<version>2.2.1-SNAPSHOT</version>
+		<version>2.2.1</version>
 	</parent>
 
 	<artifactId>concurrent-web-ear</artifactId>
