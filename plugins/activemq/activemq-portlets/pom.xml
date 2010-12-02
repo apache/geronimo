@@ -46,22 +46,9 @@
             <artifactId>geronimo-jsp_2.2_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-       
         <dependency>
-            <groupId>org.apache.taglibs</groupId>
-            <artifactId>taglibs-standard-spec</artifactId>
-            <scope>provided</scope>
-        </dependency>
-            
-        <dependency>
-            <groupId>org.apache.taglibs</groupId>
-            <artifactId>taglibs-standard-impl</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.taglibs</groupId>
-            <artifactId>taglibs-standard-jstlel</artifactId>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>jstl</artifactId>
             <scope>provided</scope>
         </dependency>
 

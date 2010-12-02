@@ -994,21 +994,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.taglibs</groupId>
-                <artifactId>taglibs-standard-spec</artifactId>
-                <version>1.2-SNAPSHOT</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.apache.taglibs</groupId>
-                <artifactId>taglibs-standard-impl</artifactId>
-                <version>1.2-SNAPSHOT</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.apache.taglibs</groupId>
-                <artifactId>taglibs-standard-jstlel</artifactId>
-                <version>1.2-SNAPSHOT</version>
+                <groupId>org.apache.geronimo.bundles</groupId>
+                <artifactId>jstl</artifactId>
+                <version>1.2_1</version>
             </dependency>
 
             <dependency>

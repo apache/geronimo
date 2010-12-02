@@ -43,6 +43,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>jstl</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>scannotation</artifactId>
         <type>jar</type>
     </dependency>
@@ -354,21 +359,6 @@
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.wsdl4j</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.taglibs</groupId>
-        <artifactId>taglibs-standard-impl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.taglibs</groupId>
-        <artifactId>taglibs-standard-jstlel</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.taglibs</groupId>
-        <artifactId>taglibs-standard-spec</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
