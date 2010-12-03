@@ -65,13 +65,6 @@ public abstract class ModuleMojoSupport
     private DeploymentManager deploymentManager;
 
     /**
-     * Whether to stop or proceed when errors and failures are encountered
-     *
-     * @parameter expression="${stopOnFailure}" default-value="false"
-     */
-    protected boolean stopOnFailure = false;
-
-    /**
      * Get a deployment manager; if the manager was previosuly initialized then that cached instance is used.
      *
      * @return  Deployment manager instance; never null
