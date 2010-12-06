@@ -89,7 +89,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder idBuilder)
             throws DeploymentException {
-        if (!(module instanceof WebModule) || !hasBeanXml(module)) {
+        if (!(module instanceof WebModule) /*|| !hasBeanXml(module)*/) {
             // not a web module, nothing to do
             return;
         }
@@ -100,7 +100,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl,
             Environment environment, Object moduleContextInfo, AbstractName earName, Naming naming,
             ModuleIDBuilder idBuilder) throws DeploymentException {
-        if (!(module instanceof WebModule) || !hasBeanXml(module)) {
+        if (!(module instanceof WebModule) /*|| !hasBeanXml(module)*/) {
             // not a web module, nothing to do
             return;
         }
@@ -124,9 +124,9 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
         WebModule webModule = (WebModule) module;
 
-        if (!hasBeansXml(bundle)) {
-            return;
-        }
+//        if (!hasBeansXml(bundle)) {
+//            return;
+//        }
 
         EARContext moduleContext = module.getEarContext();
         Map sharedContext = module.getSharedContext();
