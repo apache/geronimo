@@ -25,31 +25,41 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
+import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.SynchronousBundleListener;
+import org.osgi.service.packageadmin.ExportedPackage;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +67,7 @@ import org.slf4j.LoggerFactory;
  * @version $Rev$ $Date$
  */
 @GBean
+@OsgiService
 public class DependencyManager implements SynchronousBundleListener {
     private static final Logger log = LoggerFactory.getLogger(DependencyManager.class);
 
@@ -67,8 +78,12 @@ public class DependencyManager implements SynchronousBundleListener {
 
     private final ArtifactResolver artifactResolver;
 
-    private final Map<Bundle, PluginArtifactType> pluginMap =
-        Collections.synchronizedMap(new WeakHashMap<Bundle, PluginArtifactType>());
+    private final Map<Long, PluginArtifactType> pluginMap =
+            Collections.synchronizedMap(new WeakHashMap<Long, PluginArtifactType>());
+
+    private final Map<Long, List<Bundle>> bundleMap = new ConcurrentHashMap<Long, List<Bundle>>();
+    private final Map<Long, Set<ExportPackage>> bundleExportPackagesMap = new ConcurrentHashMap<Long, Set<ExportPackage>>();
+    private final Map<Artifact, Bundle> artifactBundleMap = new ConcurrentHashMap<Artifact, Bundle>();
 
     public DependencyManager(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
                              @ParamReference(name = "Repositories", namingType = "Repository") Collection<Repository> repositories,
@@ -79,6 +94,26 @@ public class DependencyManager implements SynchronousBundleListener {
         bundleContext.addBundleListener(this);
         ServiceReference ref = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
         repositoryAdmin = ref == null? null: (RepositoryAdmin) bundleContext.getService(ref);
+        //init installed bundles
+        for (Bundle bundle : bundleContext.getBundles()) {
+            addArtifactBundleEntry(bundle);
+        }
+        //Check the car who loads me ...
+        try {
+            PluginArtifactType pluginArtifact = getCachedPluginMetadata(bundleContext.getBundle());
+            if (pluginArtifact != null) {
+                List<Bundle> dependentBundles = new ArrayList<Bundle>(pluginArtifact.getDependency().size());
+                for (DependencyType dependency : pluginArtifact.getDependency()) {
+                    Bundle dependentBundle = getBundle(dependency.toArtifact());
+                    if (dependentBundle != null) {
+                        dependentBundles.add(dependentBundle);
+                    }
+                }
+                bundleMap.put(bundleContext.getBundle().getBundleId(), dependentBundles);
+            }
+        } catch (Exception e) {
+            log.error("Fail to read the dependency info from bundle " + bundleContext.getBundle().getLocation());
+        }
     }
 
     public void bundleChanged(BundleEvent bundleEvent) {
@@ -87,6 +122,86 @@ public class DependencyManager implements SynchronousBundleListener {
             installed(bundleEvent.getBundle());
         } else if (eventType == BundleEvent.STARTING) {
             starting(bundleEvent.getBundle());
+        } else if (eventType == BundleEvent.UNINSTALLED) {
+            uninstall(bundleEvent.getBundle());
+        }
+    }
+
+    public Set<ExportPackage> getExportedPackages(Bundle bundle) {
+        Set<ExportPackage> exportPackages = bundleExportPackagesMap.get(bundle.getBundleId());
+        if (exportPackages == null) {
+            exportPackages = getExportPackagesInternal(bundle);
+            bundleExportPackagesMap.put(bundle.getBundleId(), exportPackages);
+        }
+        return exportPackages;
+    }
+
+    public List<Bundle> getDependentBundles(Bundle bundle) {
+        List<Bundle> dependentBundles = bundleMap.get(bundle.getBundleId());
+        return dependentBundles == null ? Collections.<Bundle>emptyList() : dependentBundles;
+    }
+
+    public Bundle getBundle(Artifact artifact) {
+        if(!artifact.isResolved()) {
+            try {
+                if (artifactResolver != null) {
+                    artifact = artifactResolver.resolveInClassLoader(artifact);
+                }
+            } catch (MissingDependencyException e) {
+            }
+        }
+        return artifactBundleMap.get(artifact);
+    }
+
+    public Artifact toArtifact(String installationLocation) {
+        if (installationLocation == null || !installationLocation.startsWith("mvn:")) {
+            return null;
+        }
+        String[] artifactFragments = installationLocation.substring(4).split("[/]");
+        if(artifactFragments.length < 2) {
+            return null;
+        }
+        return new Artifact(artifactFragments[0], artifactFragments[1], artifactFragments.length > 2 ? artifactFragments[2] : "" ,artifactFragments.length > 3 && artifactFragments[3].length() > 0 ?artifactFragments[3] : "jar" );
+    }
+
+    private void addArtifactBundleEntry(Bundle bundle) {
+        Artifact artifact = toArtifact(bundle.getLocation());
+        if (artifact != null) {
+            artifactBundleMap.put(artifact, bundle);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("fail to resovle artifact from the bundle location " + bundle.getLocation());
+            }
+        }
+    }
+
+    private void removeArtifactBundleEntry(Bundle bundle) {
+        Artifact artifact = toArtifact(bundle.getLocation());
+        if (artifact != null) {
+            artifactBundleMap.remove(artifact);
+        }
+    }
+
+    private Set<ExportPackage> getExportPackagesInternal(Bundle bundle) {
+        ServiceReference reference = null;
+        try {
+            reference = bundleContext.getServiceReference(PackageAdmin.class.getName());
+            PackageAdmin packageAdmin = (PackageAdmin) bundleContext.getService(reference);
+            ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(bundle);
+            if (exportedPackages != null) {
+                Set<ExportPackage> exportPackageNames = new HashSet<ExportPackage>();
+                for (ExportedPackage exportedPackage : exportedPackages) {
+                    Map<String, String> attributes = new HashMap<String, String>();
+                    attributes.put(Constants.VERSION_ATTRIBUTE, exportedPackage.getVersion().toString());
+                    exportPackageNames.add(new ExportPackage(exportedPackage.getName(), attributes, Collections.<String, String>emptyMap()));
+                }
+                return exportPackageNames;
+            }
+            return Collections.<ExportPackage>emptySet();
+        } finally {
+            if (reference != null) {
+                bundleContext.ungetService(reference);
+            }
         }
     }
 
@@ -94,7 +209,9 @@ public class DependencyManager implements SynchronousBundleListener {
         PluginArtifactType pluginArtifactType = null;
         URL info = bundle.getEntry("META-INF/geronimo-plugin.xml");
         if (info != null) {
-            log.debug("found geronimo-plugin.xml for bundle " + bundle);
+            if (log.isDebugEnabled()) {
+                log.debug("found geronimo-plugin.xml for bundle " + bundle);
+            }
             InputStream in = null;
             try {
                 in = info.openStream();
@@ -113,28 +230,38 @@ public class DependencyManager implements SynchronousBundleListener {
         return pluginArtifactType;
     }
 
+    private void uninstall(Bundle bundle) {
+        removeArtifactBundleEntry(bundle);
+        bundleMap.remove(bundle.getBundleId());
+        pluginMap.remove(bundle.getBundleId());
+    }
+
     private void installRepository(Bundle bundle) {
         if (repositoryAdmin != null) {
             URL info = bundle.getEntry("OSGI-INF/obr/repository.xml");
             if (info != null) {
-                log.debug("found repository.xml for bundle " + bundle);
+                if (log.isDebugEnabled()) {
+                    log.debug("found repository.xml for bundle " + bundle);
+                }
                 try {
                     repositoryAdmin.addRepository(info);
                 } catch (Exception e) {
                     log.info("Error adding respository.xml for bundle " + bundle, e);
                 }
             } else {
-                log.debug("did not find respository.xml for bundle " + bundle);
+                if (log.isDebugEnabled()) {
+                    log.debug("did not find respository.xml for bundle " + bundle);
+                }
             }
         }
     }
 
     private PluginArtifactType getCachedPluginMetadata(Bundle bundle) {
-        PluginArtifactType pluginArtifactType = pluginMap.get(bundle);
+        PluginArtifactType pluginArtifactType = pluginMap.get(bundle.getBundleId());
         if (pluginArtifactType == null) {
             pluginArtifactType = getPluginMetadata(bundle);
             if (pluginArtifactType != null) {
-                pluginMap.put(bundle, pluginArtifactType);
+                pluginMap.put(bundle.getBundleId(), pluginArtifactType);
             }
             //take this opportunity to install obr repo fragment
             // installRepository(bundle);
@@ -143,23 +270,28 @@ public class DependencyManager implements SynchronousBundleListener {
     }
 
     private void installed(Bundle bundle) {
+        addArtifactBundleEntry(bundle);
         PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
         if (pluginArtifactType != null) {
             List<DependencyType> dependencies = pluginArtifactType.getDependency();
+            List<Bundle> dependentBundles = new ArrayList<Bundle>(dependencies.size());
             try {
                 for (DependencyType dependencyType : dependencies) {
-                    log.debug("Installing artifact: " + dependencyType);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Installing artifact: " + dependencyType);
+                    }
                     Artifact artifact = dependencyType.toArtifact();
                     if (artifactResolver != null) {
                         artifact = artifactResolver.resolveInClassLoader(artifact);
                     }
                     String location = locateBundle(artifact);
                     try {
-                        bundleContext.installBundle(location);
+                        dependentBundles.add(bundleContext.installBundle(location));
                     } catch (BundleException e) {
                         log.warn("Could not install bundle for artifact: " + artifact, e);
                     }
                 }
+                bundleMap.put(bundle.getBundleId(), dependentBundles);
             } catch (Exception e) {
                 log.error("Could not install bundle dependency", e);
             }
@@ -211,5 +343,4 @@ public class DependencyManager implements SynchronousBundleListener {
         }
         throw new NoSuchConfigException(configurationId);
     }
-
 }
