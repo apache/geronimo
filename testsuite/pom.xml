@@ -132,13 +132,18 @@
                     <artifactId>maven-war-plugin</artifactId>
                     <configuration>
                         <webXml>${project.basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
-                        <webResources>
+                        <webResources combine.self="override">
                             <resource>
                                 <directory>${project.basedir}/src/main/webapp</directory>
                                 <filtering>true</filtering>
                             </resource>
                             <resource>
                                 <directory>${project.build.outputDirectory}</directory>
+                                <includes>
+                                    <include>META-INF/LICENSE*</include>
+                                    <include>META-INF/NOTICE*</include>
+                                    <include>META-INF/DISCLAIMER*</include>
+                                </includes>
                             </resource>
                         </webResources>
                     </configuration>
