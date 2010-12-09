@@ -71,7 +71,8 @@
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <attribute name="maxThreads">50</attribute>
+        <attribute name="maxThreads">2</attribute>
+        <attribute name="acceptQueueSize">50</attribute>
     </gbean>
 
     <gbean name="JettyAJP13Connector" class="org.apache.geronimo.jetty8.connector.AJP13Connector">
@@ -83,7 +84,8 @@
         <reference name="ThreadPool">
             <name>DefaultThreadPool</name>
         </reference>
-        <attribute name="maxThreads">50</attribute>
+        <attribute name="maxThreads">2</attribute>
+        <attribute name="acceptQueueSize">50</attribute>
     </gbean>
 
     <!-- DONT USE THIS ONE -->
@@ -120,7 +122,8 @@
         <attribute name="clientAuthRequired">false</attribute>
         <attribute name="algorithm">Default</attribute>
         <attribute name="secureProtocol">TLS</attribute>
-        <attribute name="maxThreads">50</attribute>
+        <attribute name="maxThreads">2</attribute>
+        <attribute name="acceptQueueSize">50</attribute>
         <reference name="JettyContainer">
             <name>JettyWebContainer</name>
         </reference>
