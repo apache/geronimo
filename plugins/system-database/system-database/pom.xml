@@ -82,6 +82,13 @@
             <type>rar</type>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>server-security-config</artifactId>
+            <version>${version}</version>
+            <type>car</type>           
+        </dependency>
+        
     </dependencies>
     
     <build>
