@@ -33,22 +33,7 @@
     <packaging>car</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>${jetty}-deployer</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>jasper-deployer</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-        
+
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>openejb-portlets</artifactId>
@@ -57,16 +42,38 @@
             <scope>provided</scope>
         </dependency>
 
-	<dependency>
-           <groupId>org.apache.geronimo.configs</groupId>
-           <artifactId>openejb</artifactId>
-           <version>${project.version}</version>
-           <type>car</type>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <version>${project.version}</version>
         </dependency>
-	
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>${jetty}-deployer</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper-deployer</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.plugins</groupId>
             <artifactId>console-jetty</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openejb</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
@@ -85,7 +92,7 @@
             <type>car</type>
         </dependency>
 
-    </dependencies> 
+    </dependencies>
 
     <build>
         <plugins>
@@ -106,6 +113,9 @@
                         <type>war</type>
                     </module>
                     <category>Administration</category>
+                    <description>
+                        OpenEJB Server plugin for Jetty
+                    </description>
                     <osiApproved>true</osiApproved>
                     <useMavenDependencies>
                         <value>true</value>

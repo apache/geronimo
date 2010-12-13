@@ -18,6 +18,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.plugins</groupId>
+        <artifactId>openejb-console-tomcat</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>osgi-console-tomcat</artifactId>
         <type>car</type>
     </dependency>

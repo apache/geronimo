@@ -17,19 +17,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2">
-    
+
     <!-- This is where the files are accessed from. (aka - portletContext) -->
     <context-root>/openejb-server</context-root>
 
     <!-- required for pluto cross context dispatches -->
     <cross-context />
-
-    <!-- i18n support -->
-    <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean">
-        <reference name="ConsoleResourceRegistry">
-            <name>ConsoleResourceRegistry</name>
-        </reference>
-    </gbean>
 
     <security-realm-name>geronimo-admin</security-realm-name>
     <security xmlns="http://geronimo.apache.org/xml/ns/security-1.2">
@@ -39,14 +32,21 @@ limitations under the License.
             </role>
         </role-mappings>
     </security>
-    
+
+    <!-- i18n support -->
+    <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean">
+        <reference name="ConsoleResourceRegistry">
+            <name>ConsoleResourceRegistry</name>
+        </reference>
+    </gbean>
+
     <!-- Start off a ACEGBean, this is the lifecycle for the portlet -->
     <gbean name="EJBServerACEGBean" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
         <attribute name="pageTitle">1-4/Application Server/EJB Server</attribute>
         <attribute name="portletContext">/openejb-server</attribute>
         <attribute name="portletList">[EJBServerPortlet]</attribute>
         <attribute name="icon">/images/ico_beanjar_16x16.gif</attribute>
-	<reference name="PortalContainerServices">
+        <reference name="PortalContainerServices">
             <name>PlutoPortalServices</name>
         </reference>
     </gbean>

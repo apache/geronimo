@@ -39,14 +39,17 @@
             <artifactId>geronimo-servlet_3.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jsp_2.2_spec</artifactId>
+            <groupId>org.apache.portals</groupId>
+            <artifactId>portlet-api_2.0_spec</artifactId>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>jstl</artifactId>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>jstl</artifactId>
+            <scope>provided</scope>    
         </dependency>
 
         <dependency>
@@ -59,10 +62,9 @@
 
         <!-- for jspc maven plugin -->
         <dependency>
-            <groupId>org.apache.geronimo.plugins</groupId>
-            <artifactId>pluto-support</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
+            <groupId>org.apache.portals.pluto</groupId>
+            <artifactId>pluto-taglib</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -177,8 +179,8 @@
                 </configuration>
             </plugin>
             <plugin>
-                  <groupId>org.codehaus.mojo</groupId>
-                  <artifactId>native2ascii-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>native2ascii-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
