@@ -17,6 +17,11 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.framework</groupId>
+        <artifactId>server-security-config</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.tranql</groupId>
         <artifactId>tranql-connector-derby-embed-xa</artifactId>
         <type>rar</type>
