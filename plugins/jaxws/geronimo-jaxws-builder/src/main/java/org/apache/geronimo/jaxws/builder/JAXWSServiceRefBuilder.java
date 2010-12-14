@@ -99,7 +99,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
     public void buildNaming(ServiceRef serviceRef, GerServiceRefType gerServiceRef, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         //TODO normalize or use normalized name from jee's map
-        String name = normalize(getStringValue(serviceRef.getServiceRefName()));
+        String name = serviceRef.getKey();
 
         String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
         Class serviceInterfaceClass = loadClass(serviceInterfaceName, bundle, "service");
