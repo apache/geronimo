@@ -101,7 +101,6 @@
                 <module>geronimo-gbean-deployer/src/it/metadatageneration-it4</module>
             </modules>
         </profile>
-
     </profiles>
 
 </project>

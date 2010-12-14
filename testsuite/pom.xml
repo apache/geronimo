@@ -302,6 +302,14 @@
 
     <profiles>
         <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>console-testsuite</module>
+                <module>deployment-testsuite</module>
+            </modules>
+        </profile>
+        <profile>
             <id>it</id>
             <activation>
                 <property>

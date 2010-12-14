@@ -50,6 +50,8 @@
         <module>test-tld</module>
         <module>test-myfaces</module>
 <!--
+        <module>test-jetty</module>
+        <module>test-tomcat</module>
         <module>test-web-forward</module>
         <module>test-web-references</module>
 -->
@@ -87,6 +89,8 @@
             <modules>
                 <module>test-jetty</module>
                 <module>test-tomcat</module>
+                <module>test-web-forward</module>
+                <module>test-web-references</module>
             </modules>
         </profile>
 

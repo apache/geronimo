@@ -54,5 +54,26 @@
 -->
         <module>stax-tests</module>
     </modules>
+        
+    <profiles>
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+        <!--
+                <module>jaxr-tests</module>
+                <module>jaxrpc-jaxws-tests</module>
+                <module>jaxrpc-tests</module>
+                <module>jaxws-catalog-tests</module>
+                <module>jaxws-catalog-tests</module>
+                <module>jaxws-mtom-tests</module>
+                <module>jaxws-provider-tests</module>
+                <module>jaxws-tests</module>
+                <module>jaxws-wsa-tests</module>
+                <module>saaj-tests</module>
+        -->
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

@@ -69,5 +69,21 @@
         <module>jpa2.0-test</module>
         <!--<module>restful-test</module>-->
     </modules>
+        
+    <profiles>
+        <profile>
+            <id>all-subprojects</id>
+            <!-- use for things like versions:set and perhaps release when build has to run on all projects -->
+            <modules>
+                <module>di1.0-test</module>
+                <module>el2.2-test</module>
+                <module>interceptors1.1-test</module>
+                <module>jsp2.2-test</module>
+                <module>servlet3.0-security-test</module>
+                <module>webbean1.0-test</module>
+                <module>restful-test</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
