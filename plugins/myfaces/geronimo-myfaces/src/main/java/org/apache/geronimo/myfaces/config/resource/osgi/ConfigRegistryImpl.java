@@ -20,14 +20,26 @@
 
 package org.apache.geronimo.myfaces.config.resource.osgi;
 
+import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.myfaces.FacesConfigDigester;
 import org.apache.geronimo.myfaces.config.resource.osgi.api.ConfigRegistry;
+import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.myfaces.config.element.FacesConfig;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
+
 
 /**
  * @version $Rev:$ $Date:$
@@ -36,6 +48,10 @@ public class ConfigRegistryImpl implements ConfigRegistry {
     private final Activator activator;
 
     private final Set<URL> urls = new HashSet<URL>();
+
+    private Map<Long, FacesConfig> bundleIdFacesConfigMap = new ConcurrentHashMap<Long, FacesConfig>();
+
+    private FacesConfigDigester facesConfigDigester = new FacesConfigDigester();
 
     public ConfigRegistryImpl(Activator activator) {
         this.activator = activator;
@@ -47,6 +63,14 @@ public class ConfigRegistryImpl implements ConfigRegistry {
         if (url != null) {
             log(LogService.LOG_DEBUG, "found META-INF/faces-config.xml");
             urls.add(url);
+            InputStream in = null;
+            try {
+                in = url.openStream();
+                bundleIdFacesConfigMap.put(bundle.getBundleId(), facesConfigDigester.getFacesConfig(in, url.toExternalForm()));
+            } catch (Exception e) {
+            } finally {
+                IOUtils.close(in);
+            }
         }
         return url;
     }
@@ -54,14 +78,45 @@ public class ConfigRegistryImpl implements ConfigRegistry {
     public void removeBundle(Bundle bundle, Object object) {
         log(LogService.LOG_DEBUG, "unregistering bundle for META-INF/faces-config.xml " + bundle.getSymbolicName() + " url: " + object);
         if (object != null) {
-            urls.remove((URL)object);
+            urls.remove(object);
         }
+        bundleIdFacesConfigMap.remove(bundle.getBundleId());
     }
 
     @Override
     public Set<URL> getRegisteredConfigUrls() {
         return Collections.unmodifiableSet(urls);
     }
+
+    public Set<URL> getDependentConfigUrls(Bundle bundle) {
+        return null;
+    }
+
+    public List<FacesConfig> getDependentFacesConfigs(Bundle bundle) {
+        BundleContext bundleContext = activator.getBundleContext();
+        ServiceReference serviceReference = null;
+        try {
+            serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
+            if (serviceReference == null) {
+                return Collections.<FacesConfig> emptyList();
+            }
+            DependencyManager dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
+            List<Bundle> dependentBundles = dependencyManager.getDependentBundles(bundle);
+            List<FacesConfig> dependentFacesConfigs = new ArrayList<FacesConfig>();
+            for (Bundle dependentBundle : dependentBundles) {
+                FacesConfig facesConfig = bundleIdFacesConfigMap.get(dependentBundle.getBundleId());
+                if (facesConfig != null) {
+                    dependentFacesConfigs.add(facesConfig);
+                }
+            }
+            return dependentFacesConfigs;
+        } finally {
+            if (serviceReference != null) {
+                bundleContext.ungetService(serviceReference);
+            }
+        }
+    }
+
 
     private void log(int level, String message) {
         activator.log(level, message);

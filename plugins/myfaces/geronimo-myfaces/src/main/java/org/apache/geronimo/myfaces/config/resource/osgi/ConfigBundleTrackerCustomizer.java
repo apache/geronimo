@@ -20,7 +20,6 @@ package org.apache.geronimo.myfaces.config.resource.osgi;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 

@@ -73,6 +73,10 @@ public class Activator implements BundleActivator {
         registryRegistration.unregister();
 	}
 
+    public BundleContext getBundleContext() {
+        return context;
+    }
+
 	void log(int level, String message) {
 	    synchronized (logServices) {
 	        for (LogService log : logServices) {
