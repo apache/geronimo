@@ -41,15 +41,9 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
                                                      boolean isEJB,
                                                      Map correctedPortLocations)
             throws DeploymentException {
+        
         Map<String, PortInfo> map = new HashMap<String, PortInfo>();
-        discoverPOJOWebServices(module, correctedPortLocations, map);
-        return map;
-    }
-
-    private void discoverPOJOWebServices(Module module,
-                                         Map correctedPortLocations,
-                                         Map<String, PortInfo> map)
-        throws DeploymentException {
+        
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         WebApp webApp = (WebApp) module.getSpecDD();
 
@@ -117,6 +111,10 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
                 }
             }
         }
+        
+        return map;
     }
+
+
 
 }
