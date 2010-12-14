@@ -184,6 +184,13 @@ public abstract class AbstractCarMojo
      * @required
      */
     protected MavenFileFilter mavenFileFilter;
+    /**
+     * System properties.
+     *
+     * @parameter
+     */
+    protected Map<String, String> systemProperties;
+    private Map<String,String> previousSystemProperties;
 
     //
     // MojoSupport Hooks
@@ -374,7 +381,7 @@ public abstract class AbstractCarMojo
         if (useMavenDependencies == null || !useMavenDependencies.isValue()) {
             dependencies.addAll(dependencyTypes);
             localDependencies = new HashSet<Artifact>();
-            for (DependencyType dependency: dependencies) {
+            for (DependencyType dependency : dependencies) {
                 localDependencies.add(geronimoToMavenArtifact(dependency.toArtifact()));
             }
         } else {
@@ -441,6 +448,43 @@ public abstract class AbstractCarMojo
         artifactType.setVersion(project.getVersion());
         artifactType.setType(project.getArtifact().getType());
         return artifactType;
+    }
+
+    protected void cleanup() {
+        unsetSystemProperties(previousSystemProperties);
+    }
+
+    protected Map<String, String> setSystemProperties() {
+        if (previousSystemProperties != null) {
+            throw new IllegalStateException("setSystemProperties called twice");
+        }
+        if (systemProperties == null) {
+            return Collections.emptyMap();
+        } else {
+            getLog().debug("Setting system properties: " + systemProperties);
+            previousSystemProperties = new HashMap<String, String>();
+            for (Map.Entry<String, String> entry : systemProperties.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                String oldValue = System.setProperty(key, value);
+                previousSystemProperties.put(key, oldValue);
+            }
+            return previousSystemProperties;
+        }
+    }
+
+    protected void unsetSystemProperties(Map<String, String> previousSystemProperties) {
+        if (previousSystemProperties != null) {
+            for (Map.Entry<String, String> entry : previousSystemProperties.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (value == null) {
+                    System.clearProperty(key);
+                } else {
+                    System.setProperty(key, value);
+                }
+            }
+        }
     }
 
 
@@ -627,7 +671,7 @@ public abstract class AbstractCarMojo
     private void setLoggingLevel() {
         if (System.getProperty("org.ops4j.pax.logging.DefaultServiceLog.level") == null) {
             System.setProperty("org.ops4j.pax.logging.DefaultServiceLog.level",
-                               log.isDebugEnabled() ? "DEBUG" : "INFO");
+                    log.isDebugEnabled() ? "DEBUG" : "INFO");
         }
     }
 
@@ -644,157 +688,157 @@ public abstract class AbstractCarMojo
         // This list and the version numbers needs to be synchronized with the list
         // in the karaf framework config.properties file.
         properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES,
-                       "org.osgi.framework;version=1.5.0," +
-                       "org.osgi.framework.launch;version=1.0.0," +
-                       "org.osgi.framework.hooks.service;version=1.0.0," +
-                       "org.osgi.service.packageadmin;version=1.2.0," +
-                       "org.osgi.service.startlevel;version=1.1.0," +
-                       "org.osgi.service.url;version=1.0.0," +
-                       "org.osgi.util.tracker;version=1.4.0," +
-                       "javax.accessibility," +
-                       "javax.annotation.processing," + 
-                       "javax.activity," +
-                       "javax.crypto," +
-                       "javax.crypto.interfaces," +
-                       "javax.crypto.spec," +
-                       "javax.imageio," +
-                       "javax.imageio.event," +
-                       "javax.imageio.metadata," +
-                       "javax.imageio.plugins.bmp," +
-                       "javax.imageio.plugins.jpeg," +
-                       "javax.imageio.spi," +
-                       "javax.imageio.stream," +
-                       "javax.jws;version=2.0," +
-                       "javax.jws.soap;version=2.0," +
-                       "javax.lang.model," +
-                       "javax.lang.model.element," +
-                       "javax.lang.model.type," +
-                       "javax.lang.model.util," +
-                       "javax.management," +
-                       "javax.management.loading," +
-                       "javax.management.modelmbean," +
-                       "javax.management.monitor," +
-                       "javax.management.openmbean," +
-                       "javax.management.relation," +
-                       "javax.management.remote," +
-                       "javax.management.remote.rmi," +
-                       "javax.management.timer," +
-                       "javax.naming," +
-                       "javax.naming.directory," +
-                       "javax.naming.event," +
-                       "javax.naming.ldap," +
-                       "javax.naming.spi," +
-                       "javax.net," +
-                       "javax.net.ssl," +
-                       "javax.print," +
-                       "javax.print.attribute," +
-                       "javax.print.attribute.standard," +
-                       "javax.print.event," +
-                       "javax.rmi," +
-                       "javax.rmi.CORBA," +
-                       "javax.rmi.ssl," +
-                       "javax.script," +
-                       "javax.security.auth," +
-                       "javax.security.auth.callback," +
-                       "javax.security.auth.kerberos," +
-                       "javax.security.auth.login," +
-                       "javax.security.auth.spi," +
-                       "javax.security.auth.x500," +
-                       "javax.security.cert," +
-                       "javax.security.sasl," +
-                       "javax.sound.midi," +
-                       "javax.sound.midi.spi," +
-                       "javax.sound.sampled," +
-                       "javax.sound.sampled.spi," +
-                       "javax.sql," +
-                       "javax.sql.rowset," +
-                       "javax.sql.rowset.serial," +
-                       "javax.sql.rowset.spi," +
-                       "javax.swing," +
-                       "javax.swing.border," +
-                       "javax.swing.colorchooser," +
-                       "javax.swing.event," +
-                       "javax.swing.filechooser," +
-                       "javax.swing.plaf," +
-                       "javax.swing.plaf.basic," +
-                       "javax.swing.plaf.metal," +
-                       "javax.swing.plaf.multi," +
-                       "javax.swing.plaf.synth," +
-                       "javax.swing.table," +
-                       "javax.swing.text," +
-                       "javax.swing.text.html," +
-                       "javax.swing.text.html.parser," +
-                       "javax.swing.text.rtf," +
-                       "javax.swing.tree," +
-                       "javax.swing.undo," +
-                       "javax.tools," +
-                       "javax.transaction;javax.transaction.xa;version=1.1;partial=true;mandatory:=partial," +
-                       "javax.util.concurrent;version=1.0," +
-                       "javax.util.concurrent.locks;version=1.0," +
-                       "javax.xml," +
-                       "javax.xml.namespace;version=1.0," +
-                       "javax.xml.crypto," +
-                       "javax.xml.crypto.dom," +
-                       "javax.xml.crypto.dsig," +
-                       "javax.xml.crypto.dsig.dom," +
-                       "javax.xml.crypto.dsig.keyinfo," +
-                       "javax.xml.crypto.dsig.spec," +
-                       "javax.xml.datatype," +
-                       "javax.xml.parsers," +
-                       "javax.xml.transform," +
-                       "javax.xml.transform.dom," +
-                       "javax.xml.transform.sax," +
-                       "javax.xml.transform.stax," +
-                       "javax.xml.transform.stream," +
-                       "javax.xml.validation," +
-                       "javax.xml.xpath," +
-                       "org.ietf.jgss," +
-                       "org.omg.CORBA," +
-                       "org.omg.CORBA_2_3," +
-                       "org.omg.CORBA_2_3.portable," +
-                       "org.omg.CORBA.DynAnyPackage," +
-                       "org.omg.CORBA.ORBPackage," +
-                       "org.omg.CORBA.portable," +
-                       "org.omg.CORBA.TypeCodePackage," +
-                       "org.omg.CosNaming," +
-                       "org.omg.CosNaming.NamingContextExtPackage," +
-                       "org.omg.CosNaming.NamingContextPackage," +
-                       "org.omg.Dynamic," +
-                       "org.omg.DynamicAny," +
-                       "org.omg.DynamicAny.DynAnyFactoryPackage," +
-                       "org.omg.DynamicAny.DynAnyPackage," +
-                       "org.omg.IOP," +
-                       "org.omg.IOP.CodecFactoryPackage," +
-                       "org.omg.IOP.CodecPackage," +
-                       "org.omg.Messaging," +
-                       "org.omg.PortableInterceptor," +
-                       "org.omg.PortableInterceptor.ORBInitInfoPackage," +
-                       "org.omg.PortableServer," +
-                       "org.omg.PortableServer.CurrentPackage," +
-                       "org.omg.PortableServer.POAManagerPackage," +
-                       "org.omg.PortableServer.POAPackage," +
-                       "org.omg.PortableServer.portable," +
-                       "org.omg.PortableServer.ServantLocatorPackage," +
-                       "org.omg.SendingContext," +
-                       "org.omg.stub.java.rmi," +
-                       "org.omg.stub.javax.management.remote.rmi," +
-                       "org.w3c.dom," +
-                       "org.w3c.dom.bootstrap," +
-                       "org.w3c.dom.css," +
-                       "org.w3c.dom.events," +
-                       "org.w3c.dom.html," +
-                       "org.w3c.dom.ls," +
-                       "org.w3c.dom.ranges," +
-                       "org.w3c.dom.stylesheets," +
-                       "org.w3c.dom.traversal," +
-                       "org.w3c.dom.views," +
-                       "org.w3c.dom.xpath," +
-                       "org.xml.sax," +
-                       "org.xml.sax.ext," +
-                       "org.xml.sax.helpers");
+                "org.osgi.framework;version=1.5.0," +
+                        "org.osgi.framework.launch;version=1.0.0," +
+                        "org.osgi.framework.hooks.service;version=1.0.0," +
+                        "org.osgi.service.packageadmin;version=1.2.0," +
+                        "org.osgi.service.startlevel;version=1.1.0," +
+                        "org.osgi.service.url;version=1.0.0," +
+                        "org.osgi.util.tracker;version=1.4.0," +
+                        "javax.accessibility," +
+                        "javax.annotation.processing," +
+                        "javax.activity," +
+                        "javax.crypto," +
+                        "javax.crypto.interfaces," +
+                        "javax.crypto.spec," +
+                        "javax.imageio," +
+                        "javax.imageio.event," +
+                        "javax.imageio.metadata," +
+                        "javax.imageio.plugins.bmp," +
+                        "javax.imageio.plugins.jpeg," +
+                        "javax.imageio.spi," +
+                        "javax.imageio.stream," +
+                        "javax.jws;version=2.0," +
+                        "javax.jws.soap;version=2.0," +
+                        "javax.lang.model," +
+                        "javax.lang.model.element," +
+                        "javax.lang.model.type," +
+                        "javax.lang.model.util," +
+                        "javax.management," +
+                        "javax.management.loading," +
+                        "javax.management.modelmbean," +
+                        "javax.management.monitor," +
+                        "javax.management.openmbean," +
+                        "javax.management.relation," +
+                        "javax.management.remote," +
+                        "javax.management.remote.rmi," +
+                        "javax.management.timer," +
+                        "javax.naming," +
+                        "javax.naming.directory," +
+                        "javax.naming.event," +
+                        "javax.naming.ldap," +
+                        "javax.naming.spi," +
+                        "javax.net," +
+                        "javax.net.ssl," +
+                        "javax.print," +
+                        "javax.print.attribute," +
+                        "javax.print.attribute.standard," +
+                        "javax.print.event," +
+                        "javax.rmi," +
+                        "javax.rmi.CORBA," +
+                        "javax.rmi.ssl," +
+                        "javax.script," +
+                        "javax.security.auth," +
+                        "javax.security.auth.callback," +
+                        "javax.security.auth.kerberos," +
+                        "javax.security.auth.login," +
+                        "javax.security.auth.spi," +
+                        "javax.security.auth.x500," +
+                        "javax.security.cert," +
+                        "javax.security.sasl," +
+                        "javax.sound.midi," +
+                        "javax.sound.midi.spi," +
+                        "javax.sound.sampled," +
+                        "javax.sound.sampled.spi," +
+                        "javax.sql," +
+                        "javax.sql.rowset," +
+                        "javax.sql.rowset.serial," +
+                        "javax.sql.rowset.spi," +
+                        "javax.swing," +
+                        "javax.swing.border," +
+                        "javax.swing.colorchooser," +
+                        "javax.swing.event," +
+                        "javax.swing.filechooser," +
+                        "javax.swing.plaf," +
+                        "javax.swing.plaf.basic," +
+                        "javax.swing.plaf.metal," +
+                        "javax.swing.plaf.multi," +
+                        "javax.swing.plaf.synth," +
+                        "javax.swing.table," +
+                        "javax.swing.text," +
+                        "javax.swing.text.html," +
+                        "javax.swing.text.html.parser," +
+                        "javax.swing.text.rtf," +
+                        "javax.swing.tree," +
+                        "javax.swing.undo," +
+                        "javax.tools," +
+                        "javax.transaction;javax.transaction.xa;version=1.1;partial=true;mandatory:=partial," +
+                        "javax.util.concurrent;version=1.0," +
+                        "javax.util.concurrent.locks;version=1.0," +
+                        "javax.xml," +
+                        "javax.xml.namespace;version=1.0," +
+                        "javax.xml.crypto," +
+                        "javax.xml.crypto.dom," +
+                        "javax.xml.crypto.dsig," +
+                        "javax.xml.crypto.dsig.dom," +
+                        "javax.xml.crypto.dsig.keyinfo," +
+                        "javax.xml.crypto.dsig.spec," +
+                        "javax.xml.datatype," +
+                        "javax.xml.parsers," +
+                        "javax.xml.transform," +
+                        "javax.xml.transform.dom," +
+                        "javax.xml.transform.sax," +
+                        "javax.xml.transform.stax," +
+                        "javax.xml.transform.stream," +
+                        "javax.xml.validation," +
+                        "javax.xml.xpath," +
+                        "org.ietf.jgss," +
+                        "org.omg.CORBA," +
+                        "org.omg.CORBA_2_3," +
+                        "org.omg.CORBA_2_3.portable," +
+                        "org.omg.CORBA.DynAnyPackage," +
+                        "org.omg.CORBA.ORBPackage," +
+                        "org.omg.CORBA.portable," +
+                        "org.omg.CORBA.TypeCodePackage," +
+                        "org.omg.CosNaming," +
+                        "org.omg.CosNaming.NamingContextExtPackage," +
+                        "org.omg.CosNaming.NamingContextPackage," +
+                        "org.omg.Dynamic," +
+                        "org.omg.DynamicAny," +
+                        "org.omg.DynamicAny.DynAnyFactoryPackage," +
+                        "org.omg.DynamicAny.DynAnyPackage," +
+                        "org.omg.IOP," +
+                        "org.omg.IOP.CodecFactoryPackage," +
+                        "org.omg.IOP.CodecPackage," +
+                        "org.omg.Messaging," +
+                        "org.omg.PortableInterceptor," +
+                        "org.omg.PortableInterceptor.ORBInitInfoPackage," +
+                        "org.omg.PortableServer," +
+                        "org.omg.PortableServer.CurrentPackage," +
+                        "org.omg.PortableServer.POAManagerPackage," +
+                        "org.omg.PortableServer.POAPackage," +
+                        "org.omg.PortableServer.portable," +
+                        "org.omg.PortableServer.ServantLocatorPackage," +
+                        "org.omg.SendingContext," +
+                        "org.omg.stub.java.rmi," +
+                        "org.omg.stub.javax.management.remote.rmi," +
+                        "org.w3c.dom," +
+                        "org.w3c.dom.bootstrap," +
+                        "org.w3c.dom.css," +
+                        "org.w3c.dom.events," +
+                        "org.w3c.dom.html," +
+                        "org.w3c.dom.ls," +
+                        "org.w3c.dom.ranges," +
+                        "org.w3c.dom.stylesheets," +
+                        "org.w3c.dom.traversal," +
+                        "org.w3c.dom.views," +
+                        "org.w3c.dom.xpath," +
+                        "org.xml.sax," +
+                        "org.xml.sax.ext," +
+                        "org.xml.sax.helpers");
 
         properties.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA,
-                        "net.sf.cglib.asm," +
+                "net.sf.cglib.asm," +
                         "net.sf.cglib.core," +
                         "net.sf.cglib.proxy," +
                         "net.sf.cglib.reflect," +
@@ -851,93 +895,93 @@ public abstract class AbstractCarMojo
                         "org.apache.yoko," +
                         "org.apache.yoko.osgi," +
                         "org.apache.yoko.rmispec.util"
-                );
-                        /*
+        );
+        /*
 
-                        "org.apache.log4j;version=\"1.2.12\"," +
-                        "org.apache.log4j.helpers;version=\"1.2.12\"," +
-                        "org.apache.log4j.spi;version=\"1.2.12\"," +
-                        "org.apache.log4j.xml;version=\"1.2.12\"," +
+                                "org.apache.log4j;version=\"1.2.12\"," +
+                                "org.apache.log4j.helpers;version=\"1.2.12\"," +
+                                "org.apache.log4j.spi;version=\"1.2.12\"," +
+                                "org.apache.log4j.xml;version=\"1.2.12\"," +
 
-                        "org.codehaus.classworlds," +
-                        "org.codehaus.classworlds.realm," +
+                                "org.codehaus.classworlds," +
+                                "org.codehaus.classworlds.realm," +
 
-                        "org.codehaus.plexus," +
-                        "org.codehaus.plexus.archiver," +
-                        "org.codehaus.plexus.archiver.jar," +
-                        "org.codehaus.plexus.archiver.tar," +
-                        "org.codehaus.plexus.archiver.util," +
-                        "org.codehaus.plexus.archiver.zip," +
-                        "org.codehaus.plexus.component," +
-                        "org.codehaus.plexus.component.annotations," +
-                        "org.codehaus.plexus.component.composition," +
-                        "org.codehaus.plexus.component.configurator," +
-                        "org.codehaus.plexus.component.configurator.converters," +
-                        "org.codehaus.plexus.component.configurator.expression," +
-                        "org.codehaus.plexus.component.discovery," +
-                        "org.codehaus.plexus.component.factory," +
-                        "org.codehaus.plexus.component.manager," +
-                        "org.codehaus.plexus.component.repository," +
-                        "org.codehaus.plexus.component.repository.exception," +
-                        "org.codehaus.plexus.component.repository.io," +
-                        "org.codehaus.plexus.configuration," +
-                        "org.codehaus.plexus.configuration.processor," +
-                        "org.codehaus.plexus.configuration.xml," +
-                        "org.codehaus.plexus.context," +
-                        "org.codehaus.plexus.embed," +
-                        "org.codehaus.plexus.lifecycle," +
-                        "org.codehaus.plexus.lifecycle.phase," +
-                        "org.codehaus.plexus.logging," +
-                        "org.codehaus.plexus.logging.console," +
-                        "org.codehaus.plexus.personality," +
-                        "org.codehaus.plexus.personality.plexus," +
-                        "org.codehaus.plexus.personality.plexus.lifecycle," +
-                        "org.codehaus.plexus.personality.plexus.lifecycle.phase," +
-                        "org.codehaus.plexus.util," +
-                        "org.codehaus.plexus.util.xml," +
+                                "org.codehaus.plexus," +
+                                "org.codehaus.plexus.archiver," +
+                                "org.codehaus.plexus.archiver.jar," +
+                                "org.codehaus.plexus.archiver.tar," +
+                                "org.codehaus.plexus.archiver.util," +
+                                "org.codehaus.plexus.archiver.zip," +
+                                "org.codehaus.plexus.component," +
+                                "org.codehaus.plexus.component.annotations," +
+                                "org.codehaus.plexus.component.composition," +
+                                "org.codehaus.plexus.component.configurator," +
+                                "org.codehaus.plexus.component.configurator.converters," +
+                                "org.codehaus.plexus.component.configurator.expression," +
+                                "org.codehaus.plexus.component.discovery," +
+                                "org.codehaus.plexus.component.factory," +
+                                "org.codehaus.plexus.component.manager," +
+                                "org.codehaus.plexus.component.repository," +
+                                "org.codehaus.plexus.component.repository.exception," +
+                                "org.codehaus.plexus.component.repository.io," +
+                                "org.codehaus.plexus.configuration," +
+                                "org.codehaus.plexus.configuration.processor," +
+                                "org.codehaus.plexus.configuration.xml," +
+                                "org.codehaus.plexus.context," +
+                                "org.codehaus.plexus.embed," +
+                                "org.codehaus.plexus.lifecycle," +
+                                "org.codehaus.plexus.lifecycle.phase," +
+                                "org.codehaus.plexus.logging," +
+                                "org.codehaus.plexus.logging.console," +
+                                "org.codehaus.plexus.personality," +
+                                "org.codehaus.plexus.personality.plexus," +
+                                "org.codehaus.plexus.personality.plexus.lifecycle," +
+                                "org.codehaus.plexus.personality.plexus.lifecycle.phase," +
+                                "org.codehaus.plexus.util," +
+                                "org.codehaus.plexus.util.xml," +
 
-                        "org.apache.maven," +
-                        "org.apache.maven.plugin," +
-                        "org.apache.maven.lifecyle," +
-                        "org.apache.maven.shared," +
-                        "org.apache.maven.shared.filtering," +
+                                "org.apache.maven," +
+                                "org.apache.maven.plugin," +
+                                "org.apache.maven.lifecyle," +
+                                "org.apache.maven.shared," +
+                                "org.apache.maven.shared.filtering," +
 
-                        "com.thoughtworks.xstream," +
-                        "com.thoughtworks.xstream.alias," +
-                        "com.thoughtworks.xstream.converters," +
-                        "com.thoughtworks.xstream.converters.basic," +
-                        "com.thoughtworks.xstream.converters.reflection," +
-                        "com.thoughtworks.xstream.core," +
-                        "com.thoughtworks.xstream.io," +
-                        "com.thoughtworks.xstream.io.xml," +
-                        "com.thoughtworks.xstream.mapper," +
-                        "javax.management," +
-                        "javax.rmi.ssl," +
-                        "javax.xml.parsers," +
-                        "javax.xml.transform," +
-                        "net.sf.cglib.asm," +
-                        "net.sf.cglib.core," +
-                        "net.sf.cglib.proxy," +
-                        "net.sf.cglib.reflect," +
-                        "org.apache.xbean.recipe;version=\"3.6\"," +
-                        "org.objectweb.asm," +
-                        "org.objectweb.asm.commons," +
-                        "org.osgi.framework;version=\"1.4\"," +
-                                "org.slf4j;version=\"1.5.6\"," +
-                                "org.slf4j.impl;version=\"1.5.6\"," +
-                                "org.slf4j.bridge;version=\"1.5.6\"," +
-                        "org.w3c.dom," +
-                        "org.xml.sax," +
-                        "org.xml.sax.helpers," +
-                        "sun.misc," +
-                        "org.apache.xmlbeans," +
-                        "org.apache.xml.resolver," +
-                        "org.apache.commons.cli," +
-                        "javax.enterprise.deploy," +
-                        "javax.enterprise.deploy.model," +
-                        "javax.enterprise.deploy.shared," +
-                        "javax.enterprise.deploy.spi");
-*/
+                                "com.thoughtworks.xstream," +
+                                "com.thoughtworks.xstream.alias," +
+                                "com.thoughtworks.xstream.converters," +
+                                "com.thoughtworks.xstream.converters.basic," +
+                                "com.thoughtworks.xstream.converters.reflection," +
+                                "com.thoughtworks.xstream.core," +
+                                "com.thoughtworks.xstream.io," +
+                                "com.thoughtworks.xstream.io.xml," +
+                                "com.thoughtworks.xstream.mapper," +
+                                "javax.management," +
+                                "javax.rmi.ssl," +
+                                "javax.xml.parsers," +
+                                "javax.xml.transform," +
+                                "net.sf.cglib.asm," +
+                                "net.sf.cglib.core," +
+                                "net.sf.cglib.proxy," +
+                                "net.sf.cglib.reflect," +
+                                "org.apache.xbean.recipe;version=\"3.6\"," +
+                                "org.objectweb.asm," +
+                                "org.objectweb.asm.commons," +
+                                "org.osgi.framework;version=\"1.4\"," +
+                                        "org.slf4j;version=\"1.5.6\"," +
+                                        "org.slf4j.impl;version=\"1.5.6\"," +
+                                        "org.slf4j.bridge;version=\"1.5.6\"," +
+                                "org.w3c.dom," +
+                                "org.xml.sax," +
+                                "org.xml.sax.helpers," +
+                                "sun.misc," +
+                                "org.apache.xmlbeans," +
+                                "org.apache.xml.resolver," +
+                                "org.apache.commons.cli," +
+                                "javax.enterprise.deploy," +
+                                "javax.enterprise.deploy.model," +
+                                "javax.enterprise.deploy.shared," +
+                                "javax.enterprise.deploy.spi");
+        */
 
         properties.put(Constants.FRAMEWORK_BOOTDELEGATION, "sun.*,com.sun.*");
 
@@ -963,12 +1007,15 @@ public abstract class AbstractCarMojo
         //enable mvn url handling
 //        new org.ops4j.pax.url.mvn.internal.Activator().start(framework.getBundleContext());
         //don't allow mvn urls
-        System.setProperty("geronimo.build.car", "true");
+        if (systemProperties == null) {
+            systemProperties = new HashMap<String, String>();
+        }
+        systemProperties.put("geronimo.build.car", "true");
         //Fix JIRA GERONIMO-5400
         if (null == System.getProperty("openejb.log.factory")) {
-            System.setProperty("openejb.log.factory", "org.apache.openejb.util.PaxLogStreamFactory");
+            systemProperties.put("openejb.log.factory", "org.apache.openejb.util.PaxLogStreamFactory");
         }
-
+        setSystemProperties();
         return framework;
     }
 

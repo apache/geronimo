@@ -209,6 +209,7 @@ public class InstallModulesMojo extends AbstractCarMojo {
         if (downloadPoller.isFailed()) {
             throw new MojoExecutionException("Could not download all dependencies", downloadPoller.getFailure());
         }
+        cleanup();
     }
 
 

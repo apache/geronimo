@@ -184,20 +184,12 @@ public class PackageMojo extends AbstractCarMojo {
      */
     protected String pluginMetadataFileName = null;
     private BundleContext bundleContext;
-    
-    /**
-     * System properties.
-     * 
-     * @parameter 
-     */
-    protected Map<String, String> systemProperties;
 
     //
     // Mojo
     //
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        Map<String, String> oldSystemProperties = setSystemProperties();
         try {
             // We need to make sure to clean up any previous work first or this operation will fail
             FileUtils.forceDelete(targetRepository);
@@ -245,38 +237,10 @@ public class PackageMojo extends AbstractCarMojo {
         } catch (Exception e) {
             throw new MojoExecutionException("could not package plugin", e);
         } finally {
-            unsetSystemProperties(oldSystemProperties);
+            cleanup();
         }
     }
 
-    private Map<String, String> setSystemProperties() {
-        if (systemProperties == null) {
-            return Collections.emptyMap();
-        } else {
-            getLog().debug("Setting system properties: " + systemProperties);
-            Map<String, String> previousSystemProperties = new HashMap<String, String>();
-            for (Map.Entry<String, String> entry : systemProperties.entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                String oldValue = System.setProperty(key, value);
-                previousSystemProperties.put(key, oldValue);
-            }       
-            return previousSystemProperties;
-        }
-    }
-    
-    private void unsetSystemProperties(Map<String, String> previousSystemProperties) {
-        for (Map.Entry<String, String> entry : previousSystemProperties.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (value == null) {
-                System.clearProperty(key);
-            } else {
-                System.setProperty(key, value);
-            }
-        }        
-    }
-    
     private File getArtifactInRepositoryDir() {
         //
         // HACK: Generate the filename in the repo... really should delegate this to the repo impl
@@ -386,16 +350,16 @@ public class PackageMojo extends AbstractCarMojo {
      */
     private synchronized Kernel createKernel() throws Exception {
         // first return our cached version
-        if (kernel != null) {
-            return kernel;
-        }
+//        if (kernel != null) {
+//            return kernel;
+//        }
         getLog().debug("Creating kernel...");
 
         // check the registry in case someone else created one
-        kernel = KernelRegistry.getKernel(KERNEL_NAME);
-        if (kernel != null) {
-            return kernel;
-        }
+//        kernel = KernelRegistry.getKernel(KERNEL_NAME);
+//        if (kernel != null) {
+//            return kernel;
+//        }
 
         // boot one ourselves
         bundleContext = getFramework().getBundleContext();
