@@ -34,7 +34,7 @@
     </description>
 
     <properties>
-        <myfacesVersion>2.0.3-SNAPSHOT</myfacesVersion>
+        <myfacesVersion>2.0.3</myfacesVersion>
     </properties>
     
     <modules>
