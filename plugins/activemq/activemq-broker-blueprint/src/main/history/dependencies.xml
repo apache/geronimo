@@ -73,6 +73,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.commons-codec</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.jasypt</artifactId>
         <type>jar</type>
     </dependency>

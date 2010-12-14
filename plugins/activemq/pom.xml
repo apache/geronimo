@@ -51,7 +51,7 @@
         <profile>
             <id>all-subprojects</id>
             <modules>
-                <module>activemq-jetty-server</module>
+               <module>activemq-jetty-server</module>
             </modules>
         </profile>
         <profile>

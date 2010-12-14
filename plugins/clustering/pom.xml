@@ -52,13 +52,13 @@
         <profile>
             <id>it</id>
             <modules>
-                <module>clustering-it</module>
+               <!-- <module>clustering-it</module> -->
             </modules>
         </profile>
         <profile>
             <id>all-subprojects</id>
             <modules>
-                <module>clustering-it</module>
+               <!-- <module>clustering-it</module> -->
             </modules>
         </profile>
     </profiles>

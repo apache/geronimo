@@ -224,10 +224,6 @@
                             <artifactId>cglib-nodep</artifactId>
                         </element>
                         <element>
-                            <groupId>log4j</groupId>
-                            <artifactId>log4j</artifactId>
-                        </element>
-                        <element>
                             <groupId>xpp3</groupId>
                             <artifactId>xpp3_min</artifactId>
                         </element>
