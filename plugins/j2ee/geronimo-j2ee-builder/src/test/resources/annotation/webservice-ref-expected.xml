@@ -37,6 +37,28 @@
         <mapped-name>mappedName11</mapped-name>
     </service-ref>
     <service-ref>
+        <service-ref-name>WebServiceRef14</service-ref-name>
+        <service-interface>boolean</service-interface>
+        <service-ref-type>boolean</service-ref-type>
+        <wsdl-file>WEB-INF/wsdl/WebServiceRef14.wsdl</wsdl-file>
+        <mapped-name>mappedName14</mapped-name>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationExample</injection-target-class>
+            <injection-target-name>annotatedMethod1</injection-target-name>
+        </injection-target>
+    </service-ref>
+    <service-ref>
+        <service-ref-name>WebServiceRef15</service-ref-name>
+        <service-interface>javax.xml.ws.Service</service-interface>
+        <service-ref-type>java.lang.String</service-ref-type>
+        <wsdl-file>WEB-INF/wsdl/WebServiceRef15.wsdl</wsdl-file>
+        <mapped-name>mappedName15</mapped-name>
+        <injection-target>
+            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationExample</injection-target-class>
+            <injection-target-name>annotatedMethod2</injection-target-name>
+        </injection-target>
+    </service-ref>
+    <service-ref>
         <service-ref-name>WebServiceRef3</service-ref-name>
         <service-interface>javax.xml.ws.Service</service-interface>
         <service-ref-type>java.lang.String</service-ref-type>
@@ -91,28 +113,6 @@
         <injection-target>
             <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.HandlerChainAnnotationExample</injection-target-class>
             <injection-target-name>annotatedMethod3</injection-target-name>
-        </injection-target>
-    </service-ref>
-    <service-ref>
-        <service-ref-name>WebServiceRef14</service-ref-name>
-        <service-interface>boolean</service-interface>
-        <service-ref-type>boolean</service-ref-type>
-        <wsdl-file>WEB-INF/wsdl/WebServiceRef14.wsdl</wsdl-file>
-        <mapped-name>mappedName14</mapped-name>
-        <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationExample</injection-target-class>
-            <injection-target-name>annotatedMethod1</injection-target-name>
-        </injection-target>
-    </service-ref>
-    <service-ref>
-        <service-ref-name>WebServiceRef15</service-ref-name>
-        <service-interface>javax.xml.ws.Service</service-interface>
-        <service-ref-type>java.lang.String</service-ref-type>
-        <wsdl-file>WEB-INF/wsdl/WebServiceRef15.wsdl</wsdl-file>
-        <mapped-name>mappedName15</mapped-name>
-        <injection-target>
-            <injection-target-class>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationExample</injection-target-class>
-            <injection-target-name>annotatedMethod2</injection-target-name>
         </injection-target>
     </service-ref>
     <service-ref>
