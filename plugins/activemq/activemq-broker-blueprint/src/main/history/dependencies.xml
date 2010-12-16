@@ -7,11 +7,6 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>commons-net</groupId>
         <artifactId>commons-net</artifactId>
         <type>jar</type>

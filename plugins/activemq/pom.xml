@@ -116,6 +116,12 @@
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.jasypt</artifactId>
                 <version>1.6_1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-codec</groupId>
+                        <artifactId>commons-codec</artifactId>
+                    </exclusion>
+               </exclusions>
             </dependency>
 
             <dependency>

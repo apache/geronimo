@@ -1102,6 +1102,7 @@ following licenses.
 ./jsr88/geronimo-deploy-jsr88-full.jar
 ./lib/commons-cli.jar
 ./lib/geronimo-cli.jar
+./lib/geronimo-hook.jar
 ./lib/geronimo-main.jar
 ./lib/geronimo-rmi-loader.jar
 ./lib/karaf-jaas-boot.jar
@@ -1136,56 +1137,54 @@ following licenses.
 ./repository/org/apache/aries/web/org.apache.aries.web.urlhandler/0.2-incubating/org.apache.aries.web.urlhandler-0.2-incubating.jar
 ./repository/org/apache/bval/org.apache.bval.bundle/0.2-incubating/org.apache.bval.bundle-0.2-incubating.jar
 ./repository/org/apache/commons/commons-jexl/2.0/commons-jexl-2.0.jar
-./repository/org/apache/felix/gogo/org.apache.felix.gogo.commands/0.4.0/org.apache.felix.gogo.commands-0.4.0.jar
-./repository/org/apache/felix/gogo/org.apache.felix.gogo.runtime/0.4.0/org.apache.felix.gogo.runtime-0.4.0.jar
-./repository/org/apache/karaf/deployer/org.apache.karaf.deployer.blueprint/2.1.2/org.apache.karaf.deployer.blueprint-2.1.2.jar
-./repository/org/apache/karaf/deployer/org.apache.karaf.deployer.features/2.1.2/org.apache.karaf.deployer.features-2.1.2.jar
-./repository/org/apache/karaf/features/org.apache.karaf.features.command/2.1.2/org.apache.karaf.features.command-2.1.2.jar
-./repository/org/apache/karaf/features/org.apache.karaf.features.core/2.1.2/org.apache.karaf.features.core-2.1.2.jar
-./repository/org/apache/karaf/features/org.apache.karaf.features.management/2.1.2/org.apache.karaf.features.management-2.1.2.jar
-./repository/org/apache/karaf/jaas/org.apache.karaf.jaas.boot/2.1.2/org.apache.karaf.jaas.boot-2.1.2.jar
-./repository/org/apache/karaf/jaas/org.apache.karaf.jaas.config/2.1.2/org.apache.karaf.jaas.config-2.1.2.jar
-./repository/org/apache/karaf/org.apache.karaf.commons/2.1.2/org.apache.karaf.commons-2.1.2.jar
-./repository/org/apache/karaf/shell/org.apache.karaf.shell.commands/2.1.2/org.apache.karaf.shell.commands-2.1.2.jar
-./repository/org/apache/karaf/shell/org.apache.karaf.shell.config/2.1.2/org.apache.karaf.shell.config-2.1.2.jar
-./repository/org/apache/karaf/shell/org.apache.karaf.shell.console/2.1.2/org.apache.karaf.shell.console-2.1.2.jar
-./repository/org/apache/karaf/shell/org.apache.karaf.shell.log/2.1.2/org.apache.karaf.shell.log-2.1.2.jar
-./repository/org/apache/karaf/shell/org.apache.karaf.shell.obr/2.1.2/org.apache.karaf.shell.obr-2.1.2.jar
-./repository/org/apache/karaf/shell/org.apache.karaf.shell.osgi/2.1.2/org.apache.karaf.shell.osgi-2.1.2.jar
-./repository/org/apache/karaf/shell/org.apache.karaf.shell.packages/2.1.2/org.apache.karaf.shell.packages-2.1.2.jar
-./repository/org/apache/karaf/shell/org.apache.karaf.shell.ssh/2.1.2/org.apache.karaf.shell.ssh-2.1.2.jar
+./repository/org/apache/felix/karaf/deployer/org.apache.felix.karaf.deployer.blueprint/1.6.0/org.apache.felix.karaf.deployer.blueprint-1.6.0.jar
+./repository/org/apache/felix/karaf/deployer/org.apache.felix.karaf.deployer.features/1.6.0/org.apache.felix.karaf.deployer.features-1.6.0.jar
+./repository/org/apache/felix/karaf/features/org.apache.felix.karaf.features.command/1.6.0/org.apache.felix.karaf.features.command-1.6.0.jar
+./repository/org/apache/felix/karaf/features/org.apache.felix.karaf.features.core/1.6.0/org.apache.felix.karaf.features.core-1.6.0.jar
+./repository/org/apache/felix/karaf/features/org.apache.felix.karaf.features.management/1.6.0/org.apache.felix.karaf.features.management-1.6.0.jar
+./repository/org/apache/felix/karaf/jaas/org.apache.felix.karaf.jaas.boot/1.6.0/org.apache.felix.karaf.jaas.boot-1.6.0.jar
+./repository/org/apache/felix/karaf/jaas/org.apache.felix.karaf.jaas.config/1.6.0/org.apache.felix.karaf.jaas.config-1.6.0.jar
+./repository/org/apache/felix/karaf/org.apache.felix.karaf.commons/1.6.0/org.apache.felix.karaf.commons-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.commands/1.6.0/org.apache.felix.karaf.shell.commands-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.config/1.6.0/org.apache.felix.karaf.shell.config-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.console/1.6.0/org.apache.felix.karaf.shell.console-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.log/1.6.0/org.apache.felix.karaf.shell.log-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.obr/1.6.0/org.apache.felix.karaf.shell.obr-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.osgi/1.6.0/org.apache.felix.karaf.shell.osgi-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.packages/1.6.0/org.apache.felix.karaf.shell.packages-1.6.0.jar
+./repository/org/apache/felix/karaf/shell/org.apache.felix.karaf.shell.ssh/1.6.0/org.apache.felix.karaf.shell.ssh-1.6.0.jar
 ./repository/org/apache/felix/org.apache.felix.bundlerepository/1.6.4/org.apache.felix.bundlerepository-1.6.4.jar
 ./repository/org/apache/felix/org.apache.felix.configadmin/1.2.4/org.apache.felix.configadmin-1.2.4.jar
 ./repository/org/apache/felix/org.apache.felix.fileinstall/3.0.0/org.apache.felix.fileinstall-3.0.0.jar
 ./repository/org/apache/felix/org.apache.felix.framework/3.0.2/org.apache.felix.framework-3.0.2.jar
 ./repository/org/apache/felix/org.apache.felix.metatype/1.0.2/org.apache.felix.metatype-1.0.2.jar
 ./repository/org/apache/felix/org.apache.felix.prefs/1.0.4/org.apache.felix.prefs-1.0.4.jar
-./repository/org/apache/geronimo/bundles/axiom-api/1.2.8_1-SNAPSHOT/axiom-api-1.2.8_1-SNAPSHOT.jar
-./repository/org/apache/geronimo/bundles/axis2/1.5_1-SNAPSHOT/axis2-1.5_1-SNAPSHOT.jar
+./repository/org/apache/geronimo/bundles/axiom-api/1.2.8_1/axiom-api-1.2.8_1.jar
+./repository/org/apache/geronimo/bundles/axis2/1.5_1/axis2-1.5_1.jar
 ./repository/org/apache/geronimo/bundles/castor/1.0.5_1/castor-1.0.5_1.jar
 ./repository/org/apache/geronimo/bundles/commons-digester/1.8_1/commons-digester-1.8_1.jar
 ./repository/org/apache/geronimo/bundles/commons-discovery/0.4_1/commons-discovery-0.4_1.jar
 ./repository/org/apache/geronimo/bundles/derby-all/10.6.1.0_1/derby-all-10.6.1.0_1.jar
 ./repository/org/apache/geronimo/bundles/dwr/3.0.M1_1/dwr-3.0.M1_1.jar
 ./repository/org/apache/geronimo/bundles/httpcore/4.0.1_1/httpcore-4.0.1_1.jar
-./repository/org/apache/geronimo/bundles/javassist/3.12.0.GA_1-SNAPSHOT/javassist-3.12.0.GA_1-SNAPSHOT.jar
 ./repository/org/apache/geronimo/bundles/jaxb-impl/2.2_1/jaxb-impl-2.2_1.jar
+./repository/org/apache/geronimo/bundles/json/20090211_1/json-20090211_1.jar
 ./repository/org/apache/geronimo/bundles/jstl/1.2_1/jstl-1.2_1.jar
 ./repository/org/apache/geronimo/bundles/scannotation/1.0.2_1/scannotation-1.0.2_1.jar
 ./repository/org/apache/geronimo/bundles/sxc-jaxb/0.7.3_1/sxc-jaxb-0.7.3_1.jar
 ./repository/org/apache/geronimo/bundles/sxc-runtime/0.7.3_1/sxc-runtime-0.7.3_1.jar
 ./repository/org/apache/geronimo/bundles/woden-impl-dom/1.0M8_1/woden-impl-dom-1.0M8_1.jar
 ./repository/org/apache/geronimo/bundles/woodstox/3.2.9_1/woodstox-3.2.9_1.jar
-./repository/org/apache/geronimo/components/geronimo-connector/3.1-SNAPSHOT/geronimo-connector-3.1-SNAPSHOT.jar
-./repository/org/apache/geronimo/components/geronimo-jaspi/1.2-SNAPSHOT/geronimo-jaspi-1.2-SNAPSHOT.jar
-./repository/org/apache/geronimo/components/geronimo-transaction/3.1-SNAPSHOT/geronimo-transaction-3.1-SNAPSHOT.jar
-./repository/org/apache/geronimo/ext/tomcat/catalina/7.0.0.2-SNAPSHOT/catalina-7.0.0.2-SNAPSHOT.jar
-./repository/org/apache/geronimo/ext/tomcat/catalina-ha/7.0.0.2-SNAPSHOT/catalina-ha-7.0.0.2-SNAPSHOT.jar
-./repository/org/apache/geronimo/ext/tomcat/jasper/7.0.0.2-SNAPSHOT/jasper-7.0.0.2-SNAPSHOT.jar
-./repository/org/apache/geronimo/ext/tomcat/jasper-el/7.0.0.2-SNAPSHOT/jasper-el-7.0.0.2-SNAPSHOT.jar
-./repository/org/apache/geronimo/ext/tomcat/shared/7.0.0.2-SNAPSHOT/shared-7.0.0.2-SNAPSHOT.jar
-./repository/org/apache/geronimo/ext/tomcat/tribes/7.0.0.2-SNAPSHOT/tribes-7.0.0.2-SNAPSHOT.jar
-./repository/org/apache/geronimo/ext/tomcat/util/7.0.0.2-SNAPSHOT/util-7.0.0.2-SNAPSHOT.jar
+./repository/org/apache/geronimo/components/geronimo-connector/3.1/geronimo-connector-3.1.jar
+./repository/org/apache/geronimo/components/geronimo-jaspi/1.1.1/geronimo-jaspi-1.1.1.jar
+./repository/org/apache/geronimo/components/geronimo-transaction/3.1/geronimo-transaction-3.1.jar
+./repository/org/apache/geronimo/ext/tomcat/catalina/7.0.0.2/catalina-7.0.0.2.jar
+./repository/org/apache/geronimo/ext/tomcat/catalina-ha/7.0.0.2/catalina-ha-7.0.0.2.jar
+./repository/org/apache/geronimo/ext/tomcat/jasper/7.0.0.2/jasper-7.0.0.2.jar
+./repository/org/apache/geronimo/ext/tomcat/jasper-el/7.0.0.2/jasper-el-7.0.0.2.jar
+./repository/org/apache/geronimo/ext/tomcat/shared/7.0.0.2/shared-7.0.0.2.jar
+./repository/org/apache/geronimo/ext/tomcat/tribes/7.0.0.2/tribes-7.0.0.2.jar
+./repository/org/apache/geronimo/ext/tomcat/util/7.0.0.2/util-7.0.0.2.jar
 ./repository/org/apache/geronimo/framework/geronimo-blueprint/3.0-SNAPSHOT/geronimo-blueprint-3.0-SNAPSHOT.jar
 ./repository/org/apache/geronimo/framework/geronimo-cli/3.0-SNAPSHOT/geronimo-cli-3.0-SNAPSHOT.jar
 ./repository/org/apache/geronimo/framework/geronimo-common/3.0-SNAPSHOT/geronimo-common-3.0-SNAPSHOT.jar
@@ -1234,6 +1233,8 @@ following licenses.
 ./repository/org/apache/geronimo/modules/geronimo-jasper-builder/3.0-SNAPSHOT/geronimo-jasper-builder-3.0-SNAPSHOT.jar
 ./repository/org/apache/geronimo/modules/geronimo-jaxws/3.0-SNAPSHOT/geronimo-jaxws-3.0-SNAPSHOT.jar
 ./repository/org/apache/geronimo/modules/geronimo-jaxws-builder/3.0-SNAPSHOT/geronimo-jaxws-builder-3.0-SNAPSHOT.jar
+./repository/org/apache/geronimo/modules/geronimo-jetty8/3.0-SNAPSHOT/geronimo-jetty8-3.0-SNAPSHOT.jar
+./repository/org/apache/geronimo/modules/geronimo-jetty8-builder/3.0-SNAPSHOT/geronimo-jetty8-builder-3.0-SNAPSHOT.jar
 ./repository/org/apache/geronimo/modules/geronimo-mail/3.0-SNAPSHOT/geronimo-mail-3.0-SNAPSHOT.jar
 ./repository/org/apache/geronimo/modules/geronimo-myfaces/3.0-SNAPSHOT/geronimo-myfaces-3.0-SNAPSHOT.jar
 ./repository/org/apache/geronimo/modules/geronimo-myfaces-builder/3.0-SNAPSHOT/geronimo-myfaces-builder-3.0-SNAPSHOT.jar
@@ -1258,16 +1259,12 @@ following licenses.
 ./repository/org/apache/geronimo/plugins/console-core/3.0-SNAPSHOT/console-core-3.0-SNAPSHOT.jar
 ./repository/org/apache/geronimo/plugins/console-filter/3.0-SNAPSHOT/console-filter-3.0-SNAPSHOT.jar
 ./repository/org/apache/geronimo/plugins/geronimo-pluto/3.0-SNAPSHOT/geronimo-pluto-3.0-SNAPSHOT.jar
-./repository/org/apache/geronimo/plugins/console-core/3.0-M1/console-core-3.0-M1.jar
-./repository/org/apache/geronimo/plugins/console-filter/3.0-M1/console-filter-3.0-M1.jar
-./repository/org/apache/geronimo/plugins/geronimo-pluto/3.0-M1/geronimo-pluto-3.0-M1.jar
 ./repository/org/apache/geronimo/specs/geronimo-activation_1.1_spec/1.1/geronimo-activation_1.1_spec-1.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-annotation_1.1_spec/1.0.1/geronimo-annotation_1.1_spec-1.0.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-atinject_1.0_spec/1.0/geronimo-atinject_1.0_spec-1.0.jar
 ./repository/org/apache/geronimo/specs/geronimo-ccpp_1.0_spec/1.0-beta/geronimo-ccpp_1.0_spec-1.0-beta.jar
-./repository/org/apache/geronimo/specs/geronimo-ejb_3.0_spec/1.0.1/geronimo-ejb_3.0_spec-1.0.1.jar
-./repository/org/apache/geronimo/specs/geronimo-ejb_3.1_spec/1.0.2-SNAPSHOT/geronimo-ejb_3.1_spec-1.0.2-SNAPSHOT.jar
-./repository/org/apache/geronimo/specs/geronimo-el_2.2_spec/1.1-SNAPSHOT/geronimo-el_2.2_spec-1.1-SNAPSHOT.jar
+./repository/org/apache/geronimo/specs/geronimo-ejb_3.1_spec/1.0.2/geronimo-ejb_3.1_spec-1.0.2.jar
+./repository/org/apache/geronimo/specs/geronimo-el_2.2_spec/1.0.1/geronimo-el_2.2_spec-1.0.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-interceptor_1.1_spec/1.0/geronimo-interceptor_1.1_spec-1.0.jar
 ./repository/org/apache/geronimo/specs/geronimo-j2ee-connector_1.6_spec/1.0/geronimo-j2ee-connector_1.6_spec-1.0.jar
 ./repository/org/apache/geronimo/specs/geronimo-j2ee-management_1.1_spec/1.0.1/geronimo-j2ee-management_1.1_spec-1.0.1.jar
@@ -1289,9 +1286,24 @@ following licenses.
 ./repository/org/apache/geronimo/specs/geronimo-stax-api_1.2_spec/1.0/geronimo-stax-api_1.2_spec-1.0.jar
 ./repository/org/apache/geronimo/specs/geronimo-validation_1.0_spec/1.1/geronimo-validation_1.0_spec-1.1.jar
 ./repository/org/apache/geronimo/specs/geronimo-ws-metadata_2.0_spec/1.1.3/geronimo-ws-metadata_2.0_spec-1.1.3.jar
+./repository/org/apache/karaf/deployer/org.apache.karaf.deployer.blueprint/2.1.2/org.apache.karaf.deployer.blueprint-2.1.2.jar
+./repository/org/apache/karaf/deployer/org.apache.karaf.deployer.features/2.1.2/org.apache.karaf.deployer.features-2.1.2.jar
+./repository/org/apache/karaf/features/org.apache.karaf.features.command/2.1.2/org.apache.karaf.features.command-2.1.2.jar
+./repository/org/apache/karaf/features/org.apache.karaf.features.core/2.1.2/org.apache.karaf.features.core-2.1.2.jar
+./repository/org/apache/karaf/features/org.apache.karaf.features.management/2.1.2/org.apache.karaf.features.management-2.1.2.jar
+./repository/org/apache/karaf/jaas/org.apache.karaf.jaas.boot/2.1.2/org.apache.karaf.jaas.boot-2.1.2.jar
+./repository/org/apache/karaf/jaas/org.apache.karaf.jaas.config/2.1.2/org.apache.karaf.jaas.config-2.1.2.jar
+./repository/org/apache/karaf/org.apache.karaf.management/2.1.2/org.apache.karaf.management-2.1.2.jar
+./repository/org/apache/karaf/shell/org.apache.karaf.shell.commands/2.1.2/org.apache.karaf.shell.commands-2.1.2.jar
+./repository/org/apache/karaf/shell/org.apache.karaf.shell.config/2.1.2/org.apache.karaf.shell.config-2.1.2.jar
+./repository/org/apache/karaf/shell/org.apache.karaf.shell.console/2.1.2/org.apache.karaf.shell.console-2.1.2.jar
+./repository/org/apache/karaf/shell/org.apache.karaf.shell.log/2.1.2/org.apache.karaf.shell.log-2.1.2.jar
+./repository/org/apache/karaf/shell/org.apache.karaf.shell.obr/2.1.2/org.apache.karaf.shell.obr-2.1.2.jar
+./repository/org/apache/karaf/shell/org.apache.karaf.shell.osgi/2.1.2/org.apache.karaf.shell.osgi-2.1.2.jar
+./repository/org/apache/karaf/shell/org.apache.karaf.shell.packages/2.1.2/org.apache.karaf.shell.packages-2.1.2.jar
+./repository/org/apache/karaf/shell/org.apache.karaf.shell.ssh/2.1.2/org.apache.karaf.shell.ssh-2.1.2.jar
 ./repository/org/apache/mina/mina-core/2.0.0-RC1/mina-core-2.0.0-RC1.jar
-./repository/org/apache/myfaces/core/myfaces-api/2.0.2/myfaces-api-2.0.2.jar
-./repository/org/apache/myfaces/core/myfaces-impl/2.0.2/myfaces-impl-2.0.2.jar
+./repository/org/apache/myfaces/core/myfaces-bundle/2.0.3/myfaces-bundle-2.0.3.jar
 ./repository/org/apache/neethi/neethi/2.0.4/neethi-2.0.4.jar
 ./repository/org/apache/openejb/commons-dbcp-all/1.3-r699049/commons-dbcp-all-1.3-r699049.jar
 ./repository/org/apache/openejb/openejb-api/3.2-SNAPSHOT/openejb-api-3.2-SNAPSHOT.jar
@@ -1328,10 +1340,10 @@ following licenses.
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.commons-httpclient/3.1_4/org.apache.servicemix.bundles.commons-httpclient-3.1_4.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.commons-io/1.3.2_3/org.apache.servicemix.bundles.commons-io-1.3.2_3.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.commons-jexl/1.1_3/org.apache.servicemix.bundles.commons-jexl-1.1_3.jar
-./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.commons-lang/2.4_3/org.apache.servicemix.bundles.commons-lang-2.4_3.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.dom4j/1.6.1_2/org.apache.servicemix.bundles.dom4j-1.6.1_2.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.howl/1.0.1-1_1/org.apache.servicemix.bundles.howl-1.0.1-1_1.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jasypt/1.6_1/org.apache.servicemix.bundles.jasypt-1.6_1.jar
+./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.javassist/3.12.0.ga_1/org.apache.servicemix.bundles.javassist-3.12.0.ga_1.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jdt-core/3.2.3_3/org.apache.servicemix.bundles.jdt-core-3.2.3_3.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jline/0.9.94_1/org.apache.servicemix.bundles.jline-0.9.94_1.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.quartz/1.8.3_1/org.apache.servicemix.bundles.quartz-1.8.3_1.jar
@@ -1343,7 +1355,6 @@ following licenses.
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.xstream/1.3_3/org.apache.servicemix.bundles.xstream-1.3_3.jar
 ./repository/org/apache/sshd/sshd-core/0.4.0/sshd-core-0.4.0.jar
 ./repository/org/apache/woden/woden-api/1.0M8/woden-api-1.0M8.jar
-./repository/org/apache/ws/commons/axiom/axiom-api/1.2.8/axiom-api-1.2.8.jar
 ./repository/org/apache/ws/commons/axiom/axiom-dom/1.2.8/axiom-dom-1.2.8.jar
 ./repository/org/apache/ws/commons/axiom/axiom-impl/1.2.8/axiom-impl-1.2.8.jar
 ./repository/org/apache/ws/commons/schema/XmlSchema/1.4.6/XmlSchema-1.4.6.jar
@@ -1359,19 +1370,19 @@ following licenses.
 ./repository/org/apache/yoko/yoko-rmi-spec/1.1/yoko-rmi-spec-1.1.jar
 ./repository/org/apache/yoko/yoko-spec-corba/1.1/yoko-spec-corba-1.1.jar
 ./repository/org/codehaus/swizzle/swizzle-stream/1.0.1/swizzle-stream-1.0.1.jar
-./repository/org/eclipse/jetty/jetty-ajp/8.0.0.M2-SNAPSHOT/jetty-ajp-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-continuation/8.0.0.M2-SNAPSHOT/jetty-continuation-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-http/8.0.0.M2-SNAPSHOT/jetty-http-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-io/8.0.0.M2-SNAPSHOT/jetty-io-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-jaspi/8.0.0.M2-SNAPSHOT/jetty-jaspi-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-security/8.0.0.M2-SNAPSHOT/jetty-security-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-server/8.0.0.M2-SNAPSHOT/jetty-server-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-servlet/8.0.0.M2-SNAPSHOT/jetty-servlet-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-util/8.0.0.M2-SNAPSHOT/jetty-util-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-webapp/8.0.0.M2-SNAPSHOT/jetty-webapp-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-xml/8.0.0.M2-SNAPSHOT/jetty-xml-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/osgi/3.5.1.v20090827/osgi-3.5.1.v20090827.jar
-./repository/org/ops4j/pax/logging/pax-logging-api/1.5.2/pax-logging-api-1.5.2.jar
+./repository/org/eclipse/jetty/jetty-ajp/8.0.0.M2/jetty-ajp-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-continuation/8.0.0.M2/jetty-continuation-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-http/8.0.0.M2/jetty-http-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-io/8.0.0.M2/jetty-io-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-jaspi/8.0.0.M2/jetty-jaspi-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-security/8.0.0.M2/jetty-security-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-server/8.0.0.M2/jetty-server-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-servlet/8.0.0.M2/jetty-servlet-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-util/8.0.0.M2/jetty-util-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-webapp/8.0.0.M2/jetty-webapp-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-xml/8.0.0.M2/jetty-xml-8.0.0.M2.jar
+./repository/org/eclipse/osgi/3.6.0.v20100517/osgi-3.6.0.v20100517.jar
+./repository/org/ops4j/pax/logging/pax-logging-api/1.5.3/pax-logging-api-1.5.3.jar
 ./repository/org/ops4j/pax/url/pax-url-mvn/1.1.2/pax-url-mvn-1.1.2.jar
 ./repository/org/ops4j/pax/url/pax-url-wrap/1.1.2/pax-url-wrap-1.1.2.jar
 ./repository/org/osgi/org.osgi.compendium/4.2.0/org.osgi.compendium-4.2.0.jar
@@ -2054,19 +2065,18 @@ to a jury trial in any resulting litigation.
 The following artifacts are covered by the Eclipse Public License:
 
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jdt-core/3.2.3_3/org.apache.servicemix.bundles.jdt-core-3.2.3_3.jar
-./repository/org/eclipse/jetty/jetty-ajp/8.0.0.M2-SNAPSHOT/jetty-ajp-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-continuation/8.0.0.M2-SNAPSHOT/jetty-continuation-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-http/8.0.0.M2-SNAPSHOT/jetty-http-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-io/8.0.0.M2-SNAPSHOT/jetty-io-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-jaspi/8.0.0.M2-SNAPSHOT/jetty-jaspi-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-security/8.0.0.M2-SNAPSHOT/jetty-security-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-server/8.0.0.M2-SNAPSHOT/jetty-server-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-servlet/8.0.0.M2-SNAPSHOT/jetty-servlet-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-util/8.0.0.M2-SNAPSHOT/jetty-util-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-webapp/8.0.0.M2-SNAPSHOT/jetty-webapp-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/jetty/jetty-xml/8.0.0.M2-SNAPSHOT/jetty-xml-8.0.0.M2-SNAPSHOT.jar
-./repository/org/eclipse/osgi/3.5.1.v20090827/osgi-3.5.1.v20090827.jar
-
+./repository/org/eclipse/jetty/jetty-ajp/8.0.0.M2/jetty-ajp-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-continuation/8.0.0.M2/jetty-continuation-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-http/8.0.0.M2/jetty-http-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-io/8.0.0.M2/jetty-io-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-jaspi/8.0.0.M2/jetty-jaspi-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-security/8.0.0.M2/jetty-security-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-server/8.0.0.M2/jetty-server-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-servlet/8.0.0.M2/jetty-servlet-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-util/8.0.0.M2/jetty-util-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-webapp/8.0.0.M2/jetty-webapp-8.0.0.M2.jar
+./repository/org/eclipse/jetty/jetty-xml/8.0.0.M2/jetty-xml-8.0.0.M2.jar
+./repository/org/eclipse/osgi/3.6.0.v20100517/osgi-3.6.0.v20100517.jar
 
 =========================================================================
 ==  HOWL License                                                       ==
@@ -2461,7 +2471,7 @@ Foundation as compatible with Apache Software License.
 
 The following artifacts are covered by the SLF4J License:
 
-./repository/org/ops4j/pax/logging/pax-logging-api/1.5.2/pax-logging-api-1.5.2.jar
+./repository/org/ops4j/pax/logging/pax-logging-api/1.5.3/pax-logging-api-1.5.3.jar
 
 
 =========================================================================
@@ -3732,7 +3742,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The following artifacts are covered by the XPP License:
 
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.xpp3/1.1.4c_3/org.apache.servicemix.bundles.xpp3-1.1.4c_3.jar
-./repository/xpp3/xpp3_min/1.1.4c/xpp3_min-1.1.4c.jar
 
 =========================================================================
 ==  XStream License                                                    ==
@@ -3769,7 +3778,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following artifacts are covered by the XStream License:
 
-./repository/com/thoughtworks/xstream/xstream/1.3/xstream-1.3.jar
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.xstream/1.3_3/org.apache.servicemix.bundles.xstream-1.3_3.jar
 
 =========================================================================
@@ -4253,7 +4261,7 @@ the LGPL.
 Apache Geronimo elects to include this software in this distribution
 under the Mozilla license.
 
-./repository/org/apache/geronimo/bundles/javassist/3.12.0.GA_1-SNAPSHOT/javassist-3.12.0.GA_1-SNAPSHOT.jar
+./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.javassist/3.12.0.ga_1/org.apache.servicemix.bundles.javassist-3.12.0.ga_1.jar
 
 =========================================================================
 ==  DOM4J LICENSE                                                      ==
@@ -4303,3 +4311,33 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 The following artifacts are covered by the DOM4J License:
 
 ./repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.dom4j/1.6.1_2/org.apache.servicemix.bundles.dom4j-1.6.1_2.jar
+
+
+=========================================================================
+==  JSON LICENSE                                                      ==
+=========================================================================
+
+Copyright (c) 2002 JSON.org
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
+this software and associated documentation files (the "Software"), to deal in 
+the Software without restriction, including without limitation the rights to use, 
+copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
+Software, and to permit persons to whom the Software is furnished to do so, 
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.
+
+The Software shall be used for Good, not Evil.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS 
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER 
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+
+The following artifacts are covered by the JSON License:
+
+./repository/org/apache/geronimo/bundles/json/20090211_1/json-20090211_1.jar
