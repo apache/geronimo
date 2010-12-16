@@ -343,7 +343,6 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         if (log.isDebugEnabled()) {
             log.debug("parseTLDFile( " + url.toString() + " ): Entry");
         }
-        System.out.println("Test--------------------------" + url);
         List<String> listenerClassNames = new ArrayList<String>();
         List<String> tagClassNames = new ArrayList<String>();
         parseTldFile(url, listenerClassNames, tagClassNames);
