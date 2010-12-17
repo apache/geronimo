@@ -80,7 +80,7 @@
         <springVersion>2.5.6-SEC02</springVersion>
         <xbeanVersion>3.8-SNAPSHOT</xbeanVersion>
         <jetty>jetty8</jetty>
-        <txmanagerVersion>3.1-SNAPSHOT</txmanagerVersion>
+        <txmanagerVersion>3.1</txmanagerVersion>
         <tranqlVersion>1.6</tranqlVersion>
         <tranqlDerbyVersion>1.6</tranqlDerbyVersion>
 
