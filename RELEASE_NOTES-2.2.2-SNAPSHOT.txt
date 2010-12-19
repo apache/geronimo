@@ -1,4 +1,4 @@
-Release Notes -- Apache Geronimo -- Version 2.2.1
+Release Notes -- Apache Geronimo -- Version 2.2.2-SNAPSHOT
 
 
 Geronimo URLs
@@ -25,7 +25,7 @@ You need a platform that supports the Sun JDK 5.0+ (J2SE 1.5.0+) or greater.
 Most testing has been done on Linux, Mac OS X, and Windows.
 
 
-Geronimo 2.2.1 Enhancements
+Geronimo 2.2.2-SNAPSHOT Enhancements
 -------------------------
 
 Annotation based gbeans
@@ -70,7 +70,7 @@ Improvements to console menu navigation.
 -   The menu tree could be collapsed/expanded
 -   A quick launcher box is added for user to quick access a menu item.
 
-Geronimo 2.2.1 Issues Resolved
+Geronimo 2.2.2-SNAPSHOT Issues Resolved
 ------------------------------
 
 ** New Feature
@@ -89,7 +89,7 @@ Geronimo 2.2.1 Issues Resolved
     * [GERONIMO-5532] -	Add config-substitution.properties overrrides options to geronimo-maven-plugin start-server goal
     * [GERONIMO-5504] -	Add "overrides" and "overriDir" parameters to geronimo-maven-plugin start-server goal
     * [GERONIMO-5444] -	Add slight delay during async startup of ActiveMQ
-    * [GERONIMO-5373] -	Enable previous released geronimo 2.2 plugins installable on G 2.2.1
+    * [GERONIMO-5373] -	Enable previous released geronimo 2.2 plugins installable on G 2.2.2-SNAPSHOT
     * [GERONIMO-5354] -	Support configuration from openejb portlet for added attributes of stateless ejb container.
     * [GERONIMO-5277] -	Update CXF to 2.1.9 , Update myfaces to 1.28
     * [GERONIMO-5244] -	Upgrade to AMQ 5.3.1
@@ -147,14 +147,14 @@ Geronimo 2.2.1 Issues Resolved
     * [GERONIMO-5372] -	Linux cann't grap file lock from windows but windows can grap share file lock from linux
     * [GERONIMO-5371] -	Connection refused when change ServerHostName attribute to short hostname
     * [GERONIMO-5370] -	ActiveMQ: After failover, messages will not be delivered to MessageEndpoint
-    * [GERONIMO-5369] -	Geronimo 2.2.1 start failed on jdk 1.5.22, but successfully on JDK 1.6
+    * [GERONIMO-5369] -	Geronimo 2.2.2-SNAPSHOT start failed on jdk 1.5.22, but successfully on JDK 1.6
     * [GERONIMO-5368] -	Search failed when find text in debug views
     * [GERONIMO-5364] -	"HTTP Status 400 - XSSXSRFFilter blocked HttpServletRequest due to invalid FORM content" error
     * [GERONIMO-5358] -	NPE "Error deploying 'ejb/mgmt/MEJB'." when starting geronimo server.
     * [GERONIMO-5357] -	Run ActiveMQ 5.4 in Geronimo 2.2?
     * [GERONIMO-5356] -	EJB Client can access a stopped EJB Node
     * [GERONIMO-5349] -	Update <geronimoVersion> attribute in g221 sample branch pom.xml
-    * [GERONIMO-5348] -	Fail to install plugin from Geronimo2.2.1 Sample Plugin URL
+    * [GERONIMO-5348] -	Fail to install plugin from Geronimo2.2.2-SNAPSHOT Sample Plugin URL
     * [GERONIMO-5347] -	Upgrade selenium to support latest version browsers in testsuite.
     * [GERONIMO-5341] -	(master node)NODE-A's Web Application page in Console doesn't display the app(cviewer) which has been deployed.
     * [GERONIMO-5339] -	cannot assign instance of org.apache.catalina.tribes.UniqueId to field org.codehaus.wadi.tribes.TribesPeer.uniqueId of type org.apache.catalina.tribes.UniqueId error when deploy wadi based session bean cluster to tomcat build.
@@ -243,13 +243,13 @@ Geronimo 2.2.1 Issues Resolved
 
 Certification Status
 --------------------
-Apache Geronimo v2.2.1 has passed 100% of SUN's Java Enterprise Edition 5.0 
+Apache Geronimo v2.2.2-SNAPSHOT has passed 100% of SUN's Java Enterprise Edition 5.0 
 Certification Test Suite. See "Distributions" for further details.
 
 
 Distributions
 -------------
-Apache Geronimo v2.2.1 is available in five distributions so you can pick the 
+Apache Geronimo v2.2.2-SNAPSHOT is available in five distributions so you can pick the 
 one that best fits your environment.
 
 The available distributions are as follows:
