@@ -154,6 +154,7 @@
                             <artifact-alias server="client" key="org.apache.geronimo.configs/j2ee-server//car">org.apache.geronimo.configs/client/${version}/car</artifact-alias>
                             <artifact-alias server="client" key="org.apache.geronimo.configs/j2ee-server/${version}/car">org.apache.geronimo.configs/client/${version}/car</artifact-alias>
                             <artifact-alias server="client" key="org.apache.geronimo.configs/j2ee-server/2.2/car">org.apache.geronimo.configs/client/${version}/car</artifact-alias>
+			    <artifact-alias server="client" key="org.apache.geronimo.configs/j2ee-server/2.2.1/car">org.apache.geronimo.configs/client/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </instance>
                 </configuration>

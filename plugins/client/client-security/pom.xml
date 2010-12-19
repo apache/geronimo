@@ -79,6 +79,7 @@
                             <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-security//car">org.apache.geronimo.configs/client-security/${version}/car</artifact-alias>
                             <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-security/${version}/car">org.apache.geronimo.configs/client-security/${version}/car</artifact-alias>
                             <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-security/2.2/car">org.apache.geronimo.configs/client-security/${version}/car</artifact-alias>
+			    <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-security/2.2.1/car">org.apache.geronimo.configs/client-security/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </instance>
                 </configuration>

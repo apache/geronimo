@@ -106,6 +106,7 @@
                             <artifact-alias server="client" key="org.apache.geronimo.configs/transaction//car">org.apache.geronimo.configs/client-transaction/${version}/car</artifact-alias>
                             <artifact-alias server="client" key="org.apache.geronimo.configs/transaction/${version}/car">org.apache.geronimo.configs/client-transaction/${version}/car</artifact-alias>
                             <artifact-alias server="client" key="org.apache.geronimo.configs/transaction/2.2/car">org.apache.geronimo.configs/client-transaction/${version}/car</artifact-alias>
+			    <artifact-alias server="client" key="org.apache.geronimo.configs/transaction/2.2.1/car">org.apache.geronimo.configs/client-transaction/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </instance>
                 </configuration>

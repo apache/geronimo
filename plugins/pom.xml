@@ -126,6 +126,7 @@
                             <source-repository>${PluginSrcRepoApacheSnapshots}</source-repository>
                             <artifact-alias key="${groupId}/${artifactId}//car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                             <artifact-alias key="${groupId}/${artifactId}/2.2/car">${groupId}/${artifactId}/${version}/car</artifact-alias>
+			    <artifact-alias key="${groupId}/${artifactId}/2.2.1/car">${groupId}/${artifactId}/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </commonInstance>
                 </configuration>

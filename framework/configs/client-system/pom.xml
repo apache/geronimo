@@ -208,6 +208,7 @@
                             <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-system//car">org.apache.geronimo.framework/client-system/${version}/car</artifact-alias>
                             <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-system/${version}/car">org.apache.geronimo.framework/client-system/${version}/car</artifact-alias>
                             <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-system/2.2/car">org.apache.geronimo.framework/client-system/${version}/car</artifact-alias>
+			    <artifact-alias server="client" key="org.apache.geronimo.framework/j2ee-system/2.2.1/car">org.apache.geronimo.framework/client-system/${version}/car</artifact-alias>
                         </plugin-artifact>
                     </instance>
 
