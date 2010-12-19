@@ -22,7 +22,7 @@ under the License.
         <dep:moduleId>
             <dep:groupId>org.superbiz</dep:groupId>
             <dep:artifactId>load-beans</dep:artifactId>
-            <dep:version>2.2.1</dep:version>
+            <dep:version>2.2.2-SNAPSHOT</dep:version>
             <dep:type>car</dep:type>
         </dep:moduleId>
     </dep:environment>
