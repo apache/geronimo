@@ -50,7 +50,6 @@ import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
 /**
  * @version $Revision$
@@ -77,9 +76,9 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         super(transactionSupport, pooling, getSubjectSource(containerManagedSecurity), connectionTracker, transactionManager, managedConnectionFactoryWrapper.getManagedConnectionFactory(), objectName, classLoader);
         this.kernel = kernel;
         this.abstractName = abstractName;
-        
+
         doRecovery();
-        
+
     }
 
     public GenericConnectionManagerGBean() {
@@ -142,5 +141,5 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
     public Object $getResource() throws ResourceException {
         return createConnectionFactory();
     }
-    
+
 }

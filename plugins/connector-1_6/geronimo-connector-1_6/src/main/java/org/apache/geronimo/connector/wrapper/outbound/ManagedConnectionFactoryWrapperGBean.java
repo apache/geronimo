@@ -18,7 +18,6 @@ package org.apache.geronimo.connector.wrapper.outbound;
 
 import org.apache.geronimo.bval.ValidatorFactoryGBean;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
-import org.apache.geronimo.connector.outbound.ConnectionManagerContainer;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -63,7 +62,7 @@ public class ManagedConnectionFactoryWrapperGBean {
             "kernel",
             "abstractName",
             "objectName",
-            "classLoader", 
+            "classLoader",
             "ValidatorFactory"
             });
 

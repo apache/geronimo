@@ -20,15 +20,8 @@ package org.apache.geronimo.connector.wrapper;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-import javax.resource.spi.ResourceAdapterAssociation;
-import javax.validation.ConstraintViolation; 
-import javax.validation.ConstraintViolationException; 
-import javax.validation.Validator; 
-import javax.validation.ValidatorFactory; 
-
-import org.apache.geronimo.bval.ValidatorFactoryGBean; 
+import org.apache.geronimo.bval.ValidatorFactoryGBean;
 import org.apache.geronimo.connector.AdminObjectWrapper;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.gbean.AbstractName;
@@ -77,11 +70,11 @@ public class AdminObjectWrapperGBean extends AdminObjectWrapper implements Dynam
             @ParamAttribute(name="adminObjectClass") String adminObjectClass,
             @ParamReference(name="ResourceAdapterWrapper", namingType = NameFactory.JCA_RESOURCE_ADAPTER) ResourceAdapterWrapper resourceAdapterWrapper,
             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
-            @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abstractName, 
-            @ParamSpecial(type = SpecialAttributeType.objectName) String objectName, 
-            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader cl, 
+            @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName abstractName,
+            @ParamSpecial(type = SpecialAttributeType.objectName) String objectName,
+            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader cl,
             @ParamReference(name = "ValidatorFactory", namingType = NameFactory.VALIDATOR_FACTORY) ValidatorFactoryGBean validatorFactory) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
-        super(adminObjectInterface, adminObjectClass, resourceAdapterWrapper, cl, validatorFactory == null ? null : validatorFactory.getFactory()); 
+        super(adminObjectInterface, adminObjectClass, resourceAdapterWrapper, cl, validatorFactory == null ? null : validatorFactory.getFactory());
         this.kernel = kernel;
         this.abstractName = abstractName;
         this.objectName = objectName;

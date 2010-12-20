@@ -25,12 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+
 import org.apache.geronimo.connector.mock.MockAdminObject;
 import org.apache.geronimo.connector.mock.MockAdminObjectImpl;
-import org.apache.geronimo.connector.wrapper.AdminObjectWrapperGBean;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;

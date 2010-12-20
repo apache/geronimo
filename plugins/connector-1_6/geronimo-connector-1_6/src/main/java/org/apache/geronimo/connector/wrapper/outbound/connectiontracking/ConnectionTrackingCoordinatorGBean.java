@@ -17,21 +17,17 @@
 
 package org.apache.geronimo.connector.wrapper.outbound.connectiontracking;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.manager.MonitorableTransactionManager;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
-import org.apache.geronimo.connector.outbound.connectiontracking.GeronimoTransactionListener;
-import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnectionAssociator;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 
 /**
- * 
+ *
  * @version $Revision$
  */
 @GBean(j2eeType = NameFactory.JCA_CONNECTION_TRACKER)

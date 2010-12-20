@@ -20,10 +20,11 @@ package org.apache.geronimo.connector.wrapper;
 import java.util.Map;
 
 import javax.resource.spi.XATerminator;
-import javax.resource.spi.work.WorkManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 
-import org.apache.geronimo.bval.ValidatorFactoryGBean; 
+import org.apache.geronimo.bval.ValidatorFactoryGBean;
+import org.apache.geronimo.connector.GeronimoBootstrapContext;
+import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
@@ -36,11 +37,9 @@ import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
-import org.apache.geronimo.connector.ResourceAdapterWrapper;
-import org.apache.geronimo.connector.GeronimoBootstrapContext;
 
 /**
- * 
+ *
  * @version $Revision$
  */
 
@@ -63,7 +62,7 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
             @ParamReference(name="TransactionManager", namingType = NameFactory.JTA_RESOURCE)RecoverableTransactionManager transactionManager,
             @ParamReference(name="TransactionSynchronizationRegistry", namingType = NameFactory.JTA_RESOURCE) TransactionSynchronizationRegistry transactionSynchronizationRegistry,
             @ParamSpecial(type= SpecialAttributeType.classLoader )ClassLoader cl,
-            @ParamSpecial(type= SpecialAttributeType.objectName )String objectName, 
+            @ParamSpecial(type= SpecialAttributeType.objectName )String objectName,
             @ParamReference(name = "ValidatorFactory", namingType = NameFactory.VALIDATOR_FACTORY) ValidatorFactoryGBean validatorFactory) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         super(objectName, resourceAdapterClass, messageListenerToActivationSpecMap, new GeronimoBootstrapContext(workManager, xaTerminator, transactionSynchronizationRegistry), transactionManager, cl, validatorFactory != null ? validatorFactory.getFactory() : null);
         delegate = new DynamicGBeanDelegate();
@@ -93,7 +92,7 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
     }
 
     public boolean isStatisticsProvider() {
-        return false;                 
+        return false;
     }
 
     public boolean isEventProvider() {

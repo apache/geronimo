@@ -20,6 +20,7 @@ import java.util.Hashtable;
 
 import javax.management.ObjectName;
 import javax.resource.ResourceException;
+
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamReference;
@@ -30,7 +31,6 @@ import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.ObjectNameUtil;
 import org.apache.geronimo.management.geronimo.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.geronimo.naming.ResourceSource;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceException;
 import org.osgi.framework.ServiceFactory;
