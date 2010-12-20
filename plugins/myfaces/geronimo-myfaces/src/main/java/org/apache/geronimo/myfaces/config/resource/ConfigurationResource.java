@@ -32,12 +32,9 @@ public class ConfigurationResource implements Serializable {
 
     private String jarFilePath;
 
-    private String tempPath;
-
-    public ConfigurationResource(String jarFilePath, String configurationResourcePath, String tempPath) {
+    public ConfigurationResource(String jarFilePath, String configurationResourcePath) {
         this.jarFilePath = jarFilePath;
-        this.configurationResourcePath = configurationResourcePath;
-        this.tempPath = tempPath;
+        this.configurationResourcePath = configurationResourcePath.startsWith("/") ? configurationResourcePath : "/" + configurationResourcePath;
     }
 
     public String getConfigurationResourcePath() {
@@ -57,7 +54,10 @@ public class ConfigurationResource implements Serializable {
     }
 
     public URL getConfigurationResourceURL(Bundle bundle) throws MalformedURLException {
-        return bundle.getEntry(tempPath);
+        if (jarFilePath == null) {
+            return bundle.getEntry(configurationResourcePath);
+        }
+        return new URL("jar:" + bundle.getEntry(jarFilePath) + "!" + configurationResourcePath);
     }
 
     @Override

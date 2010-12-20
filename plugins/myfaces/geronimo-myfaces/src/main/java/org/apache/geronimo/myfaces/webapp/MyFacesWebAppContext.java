@@ -17,7 +17,12 @@
 
 package org.apache.geronimo.myfaces.webapp;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -25,6 +30,7 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.myfaces.config.resource.ConfigurationResource;
 import org.apache.myfaces.config.element.FacesConfigData;
 import org.osgi.framework.Bundle;
 
@@ -42,11 +48,23 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
 
     private ClassLoader classLoader;
 
-    public MyFacesWebAppContext(@ParamAttribute(name = "facesConfigData") FacesConfigData facesConfigData, @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
-            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) {
+    private List<URL> faceletConfigResources;
+
+    public MyFacesWebAppContext(@ParamAttribute(name = "facesConfigData") FacesConfigData facesConfigData,
+                                                                @ParamAttribute(name = "faceletConfigResources") Set<ConfigurationResource> faceletConfigResources,
+                                                                @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
+                                                                @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) {
         this.bundle = bundle;
         this.facesConfigData = facesConfigData;
         this.classLoader = classLoader;
+        this.faceletConfigResources = new ArrayList<URL>(faceletConfigResources.size());
+        try {
+            for (ConfigurationResource faceletConfigResource : faceletConfigResources) {
+                this.faceletConfigResources.add(faceletConfigResource.getConfigurationResourceURL(bundle));
+            }
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     public FacesConfigData getFacesConfigData() {
@@ -55,6 +73,10 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
 
     public ClassLoader getClassLoader() {
         return classLoader;
+    }
+
+    public List<URL> getRuntimeFaceletConfigResources() {
+        return faceletConfigResources;
     }
 
     @Override

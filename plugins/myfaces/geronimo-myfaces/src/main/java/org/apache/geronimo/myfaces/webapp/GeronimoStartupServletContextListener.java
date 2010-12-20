@@ -20,11 +20,13 @@ package org.apache.geronimo.myfaces.webapp;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
+import org.apache.geronimo.myfaces.facelet.GeronimoFaceletConfigResourceProviderFactory;
 import org.apache.geronimo.myfaces.info.GeronimoFacesConfigurationMergerFactory;
 import org.apache.geronimo.osgi.web.WebApplicationConstants;
 import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.myfaces.shared_impl.webapp.webxml.WebXml;
+import org.apache.myfaces.spi.FaceletConfigResourceProviderFactory;
 import org.apache.myfaces.spi.FacesConfigurationMergerFactory;
 import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.osgi.framework.Bundle;
@@ -49,6 +51,7 @@ public class GeronimoStartupServletContextListener extends StartupServletContext
         runtimeSpiProviders.put(FacesConfigurationMergerFactory.class.getName(), Arrays.asList(GeronimoFacesConfigurationMergerFactory.class.getName()));
         ServiceProviderFinderFactory.setServiceProviderFinder(servletContext, new GeronimoServiceProviderFinder(runtimeSpiProviders, webAppContext.getClassLoader()));*/
         servletContext.setAttribute(FacesConfigurationMergerFactory.class.getName(), new GeronimoFacesConfigurationMergerFactory());
+        servletContext.setAttribute(FaceletConfigResourceProviderFactory.class.getName(), new GeronimoFaceletConfigResourceProviderFactory());
         super.contextInitialized(servletContextEvent);
     }
 }

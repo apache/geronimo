@@ -130,6 +130,14 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         }
     };
 
+    public static final EARContext.Key<Set<ConfigurationResource>> JSF_FACELET_CONFIG_RESOURCES = new EARContext.Key<Set<ConfigurationResource>>() {
+
+        @Override
+        public Set<ConfigurationResource> get(Map<EARContext.Key, Object> context) {
+            return (Set<ConfigurationResource>) context.get(this);
+        }
+    };
+
     public MyFacesModuleBuilderExtension(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
             @ParamAttribute(name = "providerFactoryNameQuery") AbstractNameQuery providerFactoryNameQuery,
             @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
@@ -158,7 +166,6 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         if (!hasFacesServlet(webApp)) {
             return;
         }
-
         EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
     }
 
@@ -168,6 +175,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             return;
         }
         module.getEarContext().getGeneralData().put(JSF_META_INF_CONFIGURATION_RESOURCES, findMetaInfConfigurationResources(earContext, module));
+        module.getEarContext().getGeneralData().put(JSF_FACELET_CONFIG_RESOURCES, findFaceletConfigResources(earContext, module));
     }
 
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
@@ -258,6 +266,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         AbstractName myFacesWebAppContextName = moduleContext.getNaming().createChildName(moduleName, "myFacesWebAppContext", "MyFacesWebAppContext");
         GBeanData myFacesWebAppContextData = new GBeanData(myFacesWebAppContextName, MyFacesWebAppContext.class);
 
+        myFacesWebAppContextData.setAttribute("faceletConfigResources", JSF_FACELET_CONFIG_RESOURCES.get(earContext.getGeneralData()));
         ClassLoader deploymentClassLoader = new BundleClassLoader(bundle);
         ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -448,10 +457,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                         // Scan config files named as faces-config.xml or *.faces-config.xml under META-INF
                         if (name.equals("META-INF/faces-config.xml") || (name.startsWith("META-INF/") && name.endsWith(".faces-config.xml"))) {
                             //TODO Double check the relative jar file path once EAR is really supported
-                            //TODO Should find a way to avoid the file copying
-                            String destination = "META-INF/WEB-INF_lib_" + file.getName() + "/" + name;
-                            earContext.addFile(module.resolve(destination), jarFile, zipEntry);
-                            metaInfConfigurationResources.add(new ConfigurationResource("WEB-INF/lib/" + file.getName(), name, destination));
+                            metaInfConfigurationResources.add(new ConfigurationResource("WEB-INF/lib/" + file.getName(), name));
                         }
                     }
                 } catch (Exception e) {
@@ -466,11 +472,14 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         File webInfClassesDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + "META-INF");
         if (webInfClassesDirectory.exists() && webInfClassesDirectory.isDirectory()) {
             for (File file : webInfClassesDirectory.listFiles()) {
+                if (file.isDirectory()) {
+                    continue;
+                }
                 String fileName = file.getName();
                 if (fileName.equals("faces-config.xml") || fileName.endsWith(".faces-config.xml")) {
                     //TODO Double check the relative jar file path once EAR is really supported
                     String filePath = "WEB-INF/classes/META-INF/" + fileName;
-                    metaInfConfigurationResources.add(new ConfigurationResource(null, filePath, filePath));
+                    metaInfConfigurationResources.add(new ConfigurationResource(null, filePath));
                 }
             }
         }
@@ -478,15 +487,90 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         File baseDirectory = new File(earContext.getBaseDir() + File.separator + "META-INF");
         if (baseDirectory.exists() && baseDirectory.isDirectory()) {
             for (File file : baseDirectory.listFiles()) {
+                if (file.isDirectory()) {
+                    continue;
+                }
                 String fileName = file.getName();
                 if (fileName.equals("faces-config.xml") || fileName.endsWith(".faces-config.xml")) {
                     //TODO Double check the relative jar file path once EAR is really supported
                     String filePath = "META-INF/" + fileName;
-                    metaInfConfigurationResources.add(new ConfigurationResource(null, filePath, filePath));
+                    metaInfConfigurationResources.add(new ConfigurationResource(null, filePath));
                 }
             }
         }
         return metaInfConfigurationResources;
+    }
+
+    protected Set<ConfigurationResource> findFaceletConfigResources(EARContext earContext, Module module) throws DeploymentException {
+        Set<ConfigurationResource> faceletConfigResources = new HashSet<ConfigurationResource>();
+        //1. jar files in the WEB-INF/lib folder
+        File libDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "lib");
+        if (libDirectory.exists()) {
+            for (File file : libDirectory.listFiles()) {
+                if (!file.getName().endsWith(".jar")) {
+                    continue;
+                }
+                try {
+                    if (!JarUtils.isJarFile(file)) {
+                        continue;
+                    }
+                } catch (IOException e) {
+                    continue;
+                }
+                ZipInputStream in = null;
+                JarFile jarFile = null;
+                try {
+                    jarFile = new JarFile(file);
+                    in = new ZipInputStream(new FileInputStream(file));
+                    ZipEntry zipEntry;
+
+                    while ((zipEntry = in.getNextEntry()) != null) {
+                        String name = zipEntry.getName();
+                        // Scan config files named as faces-config.xml or *.faces-config.xml under META-INF
+                        if (name.startsWith("META-INF/") && name.endsWith(".taglib.xml")) {
+                            //TODO Double check the relative jar file path once EAR is really supported
+                            faceletConfigResources.add(new ConfigurationResource("WEB-INF/lib/" + file.getName(), name));
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new DeploymentException("Can not preprocess myfaces application configuration resources", e);
+                } finally {
+                    IOUtils.close(in);
+                    JarUtils.close(jarFile);
+                }
+            }
+        }
+        //2. WEB-INF/classes/META-INF folder
+        File webInfClassesDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + "META-INF");
+        if (webInfClassesDirectory.exists() && webInfClassesDirectory.isDirectory()) {
+            for (File file : webInfClassesDirectory.listFiles()) {
+                if (file.isDirectory()) {
+                    continue;
+                }
+                String fileName = file.getName();
+                if (fileName.equals("faces-config.xml") || fileName.endsWith(".taglib.xml")) {
+                    //TODO Double check the relative jar file path once EAR is really supported
+                    String filePath = "WEB-INF/classes/META-INF/" + fileName;
+                    faceletConfigResources.add(new ConfigurationResource(null, filePath));
+                }
+            }
+        }
+        //3. META-INF folder
+        File baseDirectory = new File(earContext.getBaseDir() + File.separator + "META-INF");
+        if (baseDirectory.exists() && baseDirectory.isDirectory()) {
+            for (File file : baseDirectory.listFiles()) {
+                if (file.isDirectory()) {
+                    continue;
+                }
+                String fileName = file.getName();
+                if (fileName.endsWith(".taglib.xml")) {
+                    //TODO Double check the relative jar file path once EAR is really supported
+                    String filePath = "META-INF/" + fileName;
+                    faceletConfigResources.add(new ConfigurationResource(null, filePath));
+                }
+            }
+        }
+        return faceletConfigResources;
     }
 
     private boolean hasFacesServlet(WebApp webApp) {
