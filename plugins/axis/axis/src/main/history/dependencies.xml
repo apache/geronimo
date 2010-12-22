@@ -7,78 +7,13 @@
         <type>car</type>
     </module-id>
     <dependency>
-        <groupId>axis</groupId>
-        <artifactId>axis</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>axis</groupId>
-        <artifactId>axis-wsdl4j</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-impl</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>com.sun.xml.stream.buffer</groupId>
-        <artifactId>streambuffer</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>com.sun.xml.ws</groupId>
-        <artifactId>jaxws-rt</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>commons-discovery</groupId>
-        <artifactId>commons-discovery</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
         <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>javax.activation</groupId>
-        <artifactId>activation</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>javax.xml.stream</groupId>
-        <artifactId>stax-api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.axis</groupId>
-        <artifactId>axis-jaxrpc</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.axis</groupId>
-        <artifactId>axis-saaj</artifactId>
+        <artifactId>commons-logging-api</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>axis</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>commons-discovery</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -109,36 +44,6 @@
     <dependency>
         <groupId>org.apache.juddi</groupId>
         <artifactId>uddi-ws</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-axis</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-http</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openejb</groupId>
-        <artifactId>openejb-webservices</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.ws.commons.schema</groupId>
-        <artifactId>XmlSchema</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.jvnet.staxex</groupId>
-        <artifactId>stax-ex</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>wsdl4j</groupId>
-        <artifactId>wsdl4j</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

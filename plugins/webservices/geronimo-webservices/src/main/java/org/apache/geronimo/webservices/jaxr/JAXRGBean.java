@@ -19,18 +19,25 @@ package org.apache.geronimo.webservices.jaxr;
 import javax.xml.registry.ConnectionFactory;
 import javax.xml.registry.JAXRException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.naming.ResourceSource;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.OsgiService;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.naming.ResourceSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple GBean to provide access to a JAXR ConnectionFactory
  *
  * @version $Rev$ $Date$
  */
+@GBean(j2eeType = NameFactory.JAXR_CONNECTION_FACTORY)
+@OsgiService
 public class JAXRGBean implements ResourceSource
 {
     private static final Logger log = LoggerFactory.getLogger(JAXRGBean.class);
@@ -38,7 +45,8 @@ public class JAXRGBean implements ResourceSource
     private final ClassLoader cl;
     private final String connectionFactoryClass;
 
-    public JAXRGBean(String connectionFactoryClass, ClassLoader cl) {
+    public JAXRGBean(@ParamAttribute(name="connectionFactoryClass")String connectionFactoryClass,
+                     @ParamSpecial(type = SpecialAttributeType.classLoader)ClassLoader cl) {
         this.cl = cl;
         this.connectionFactoryClass = connectionFactoryClass;
     }
@@ -66,27 +74,5 @@ public class JAXRGBean implements ResourceSource
 
         return null;
     }
-
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JAXRGBean.class,
-                NameFactory.JAXR_CONNECTION_FACTORY);
-
-        infoFactory.addAttribute("connectionFactoryClass", String.class, true, true);
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoFactory.addOperation("$getResource");
-
-        infoFactory.setConstructor(new String[] {"connectionFactoryClass", "classLoader"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 
 }
