@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -104,6 +105,7 @@ import org.apache.openejb.config.ClearEmptyMappedName;
 import org.apache.openejb.config.CmpJpaConversion;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.DeploymentLoader;
+import org.apache.openejb.config.DeploymentModule;
 import org.apache.openejb.config.DynamicDeployer;
 import org.apache.openejb.config.FinderFactory;
 import org.apache.openejb.config.GeneratedClientModules;
@@ -299,8 +301,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         if (targetPath == null) throw new NullPointerException("targetPath is null");
         if (targetPath.endsWith("/")) throw new IllegalArgumentException("targetPath must not end with a '/'");
 
-        // Load the module file
-        DeploymentLoader loader = new DeploymentLoader(ddDir);
+        // Load the module file, except for ejb module, ejb web service seems also used the parsed data by DeploymentLoader
+        Set<Class<? extends DeploymentModule>> loadingRequiredModuleTypes = new HashSet<Class<? extends DeploymentModule>>();
+        loadingRequiredModuleTypes.add(org.apache.openejb.config.EjbModule.class);
+        loadingRequiredModuleTypes.add(org.apache.openejb.config.WsModule.class);
+        DeploymentLoader loader = new DeploymentLoader(ddDir, loadingRequiredModuleTypes);
         AppModule appModule;
         try {
             appModule = loader.load(new File(moduleFile.getName()));
