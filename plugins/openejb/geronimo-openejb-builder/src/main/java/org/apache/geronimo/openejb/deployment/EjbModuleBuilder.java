@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -96,6 +97,7 @@ import org.apache.openejb.assembler.classic.StatefulBeanInfo;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.DeploymentLoader;
+import org.apache.openejb.config.DeploymentModule;
 import org.apache.openejb.config.ReadDescriptors;
 import org.apache.openejb.config.UnknownModuleTypeException;
 import org.apache.openejb.config.UnsupportedModuleTypeException;
@@ -228,7 +230,10 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         if (targetPath.endsWith("/")) throw new IllegalArgumentException("targetPath must not end with a '/'");
 
         // Load the module file
-        DeploymentLoader loader = new DeploymentLoader();
+        Set<Class<? extends DeploymentModule>> loadingRequiredModuleTypes = new HashSet<Class<? extends DeploymentModule>>();
+        loadingRequiredModuleTypes.add(org.apache.openejb.config.EjbModule.class);
+        loadingRequiredModuleTypes.add(org.apache.openejb.config.WsModule.class);
+        DeploymentLoader loader = new DeploymentLoader(loadingRequiredModuleTypes);
         AppModule appModule;
         try {
             appModule = loader.load(new File(moduleFile.getName()));
@@ -394,7 +399,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
                 } else if (ref.getType().equals(MessageDrivenContext.class.getName())) {
                     iterator.remove();
                 } else if (ref.getType().equals(TimerService.class.getName())) {
-                    iterator.remove();   
+                    iterator.remove();
                 } else if (ref.getType().equals(WebServiceContext.class.getName())) {
                     iterator.remove();
                 } else {
@@ -621,7 +626,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle {
         openEjbConfiguration.containerSystem = new ContainerSystemInfo();
         openEjbConfiguration.facilities = new FacilitiesInfo();
         boolean offline = true;
-        
+
         ConfigurationFactory configurationFactory = new ConfigurationFactory(offline,
             ejbModule.getPreAutoConfigDeployer(),
             openEjbConfiguration);
