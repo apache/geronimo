@@ -17,7 +17,6 @@
 
 package org.apache.geronimo.jasper.deployment;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,7 +38,6 @@ import org.apache.geronimo.deployment.DeployableBundle;
 import org.apache.geronimo.deployment.DeployableJarFile;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -65,13 +63,15 @@ import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web25.deployment.WebAppInfoBuilder;
+import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.JspConfig;
 import org.apache.openejb.jee.JspPropertyGroup;
+import org.apache.openejb.jee.Listener;
+import org.apache.openejb.jee.Tag;
 import org.apache.openejb.jee.Taglib;
+import org.apache.openejb.jee.TldTaglib;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -343,81 +343,51 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         if (log.isDebugEnabled()) {
             log.debug("parseTLDFile( " + url.toString() + " ): Entry");
         }
-        List<String> listenerClassNames = new ArrayList<String>();
-        List<String> tagClassNames = new ArrayList<String>();
-        parseTldFile(url, listenerClassNames, tagClassNames);
+        try {
+            InputStream in = null;
+            TldTaglib tl;
+            try {
+                in = url.openStream();
+                tl = (TldTaglib) JaxbJavaee.unmarshalTaglib(TldTaglib.class, in);
+            } finally {
+                IOUtils.close(in);
+            }
 
-        // Get all the listeners from the TLD file
-        for (String className : listenerClassNames) {
-            if (!excludedListenerNames.contains(className)) {
+            // Get all the listeners from the TLD file
+            for (Listener listener : tl.getListener()) {
+                String className = listener.getListenerClass();
+                if (!excludedListenerNames.contains(className)) {
+                    try {
+                        Class<?> clas = bundle.loadClass(className);
+                        while (clas != null) {
+                            classes.add(clas);
+                            clas = clas.getSuperclass();
+                        }
+                        listenerNames.add(className);
+                    } catch (ClassNotFoundException e) {
+                        log.warn("JspModuleBuilderExtension: Could not load listener class: " + className + " mentioned in TLD file at " + url.toString());
+                    }
+                }
+            }
+
+            // Get all the tags from the TLD file
+            for (Tag tag : tl.getTag()) {
+                String className = tag.getTagClass();
                 try {
                     Class<?> clas = bundle.loadClass(className);
                     while (clas != null) {
                         classes.add(clas);
                         clas = clas.getSuperclass();
                     }
-                    listenerNames.add(className);
                 } catch (ClassNotFoundException e) {
-                    log.warn("JspModuleBuilderExtension: Could not load listener class: " + className + " mentioned in TLD file at " + url.toString());
+                    log.warn("JspModuleBuilderExtension: Could not load tag class: " + className + " mentioned in TLD file at " + url.toString());
                 }
             }
-        }
-
-        // Get all the tags from the TLD file
-        for (String className : tagClassNames) {
-            try {
-                Class<?> clas = bundle.loadClass(className);
-                while (clas != null) {
-                    classes.add(clas);
-                    clas = clas.getSuperclass();
-                }
-            } catch (ClassNotFoundException e) {
-                log.warn("JspModuleBuilderExtension: Could not load tag class: " + className + " mentioned in TLD file at " + url.toString());
-            }
+        } catch (Exception ioe) {
+            throw new DeploymentException("Could not find TLD file at " + url.toString(), ioe);
         }
         if (log.isDebugEnabled()) {
             log.debug("parseTLDFile(): Exit");
-        }
-    }
-
-    protected void parseTldFile(URL url, List<String> listenerClassNames, List<String> tagClassNames)
-            throws DeploymentException {
-        InputStream in = null;
-        XmlCursor cursor = null;
-        try {
-            in = url.openStream();
-            XmlObject xmlObject = XmlBeansUtil.parse(in);
-            cursor = xmlObject.newCursor();
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            String namespaceURI = cursor.getName().getNamespaceURI();
-            cursor.toStartDoc();
-            cursor.toChild(namespaceURI, "taglib");
-            if (!cursor.toFirstChild()) {
-                return;
-            }
-            do {
-                String name = cursor.getName().getLocalPart();
-                if ("tag".equals(name)) {
-                    cursor.push();
-                    if (cursor.toChild(namespaceURI, "tag-class") || cursor.toChild(namespaceURI, "tagclass")) {
-                        tagClassNames.add(cursor.getTextValue());
-                    }
-                    cursor.pop();
-                } else if ("listener".equals(name)) {
-                    cursor.push();
-                    if (cursor.toChild(namespaceURI, "listener-class")) {
-                        listenerClassNames.add(cursor.getTextValue());
-                    }
-                    cursor.pop();
-                }
-            } while (cursor.toNextSibling());
-        } catch (IOException e) {
-            throw new DeploymentException("JspModuleBuilderExtension: Could not parse tld file " + url, e);
-        } catch (XmlException e) {
-            throw new DeploymentException("JspModuleBuilderExtension: Could not parse tld file " + url, e);
-        } finally {
-            IOUtils.close(in);
         }
     }
 
