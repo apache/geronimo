@@ -18,7 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1">
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1" xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2">
 
   <context-root>/juddi</context-root>
   <!--<gbean name="UDDIResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">-->
@@ -29,4 +29,12 @@
       <!--<name>ServerInfo</name>-->
     <!--</reference>-->
   <!--</gbean>-->
+  <naming:resource-ref>
+        <naming:ref-name>jdbc/juddiDB</naming:ref-name>
+        <naming:resource-link>jdbc/juddiDB</naming:resource-link>
+    </naming:resource-ref>
+    <naming:resource-ref>
+        <naming:ref-name>jdbc/NoTxJuddiDB</naming:ref-name>
+        <naming:resource-link>jdbc/NoTxJuddiDB</naming:resource-link>
+    </naming:resource-ref>
 </web-app>

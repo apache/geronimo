@@ -31,13 +31,16 @@
     <description>
         UDDI plugin
     </description>
-
+        <properties>    
+        <juddiv3.version>3.0.5-SNAPSHOT</juddiv3.version>
+    </properties>    
     <modules>
         <module>uddi-db</module>
+    <module>uddi-war-repackage</module>
         <module>uddi-jetty</module>
         <module>uddi-tomcat</module>
   </modules>
-
+  
 
     <dependencyManagement>
         <dependencies>
@@ -48,10 +51,17 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+        <dependency>
+                <groupId>org.apache.geronimo.plugins</groupId>
+                <artifactId>axis</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.apache.juddi</groupId>
                 <artifactId>juddiv3-war</artifactId>
-                <version>3.0.1</version>
+                <version>${juddiv3.version}</version>
                 <type>war</type>
                 <scope>provided</scope>
             </dependency>

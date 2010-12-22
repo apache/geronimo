@@ -74,15 +74,10 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.juddi</groupId>
-            <artifactId>juddiv3-war</artifactId>
-            <type>war</type>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>uddi-war-repackage</artifactId>
+     	    <version>${project.version}</version>
             <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
         </dependency>
 
         <dependency>
@@ -91,12 +86,55 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
+	
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jasper</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
+	
+        <dependency>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa</artifactId>
+        </dependency>
+        
+        <dependency>
+	    <groupId>org.apache.geronimo.specs</groupId>
+	    <artifactId>geronimo-jaxr_1.0_spec</artifactId>
+        </dependency>              
+        
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>scout</artifactId>
+        </dependency>
+	
+	<dependency>	
+	    <groupId>org.apache.juddi</groupId>
+            <artifactId>uddi-ws</artifactId>
+        </dependency>
+	
+	<dependency>
+             <groupId>commons-collections</groupId>
+             <artifactId>commons-collections</artifactId>
+        </dependency>
+
+	<dependency>
+	    <groupId>commons-lang</groupId>
+	    <artifactId>commons-lang</artifactId>
+	</dependency>
+    
+	<dependency>	    
+	    <groupId>org.apache.geronimo.bundles</groupId>
+	    <artifactId>commons-digester</artifactId>
+	 </dependency>          
+	     
+	<dependency>	     
+	    <groupId>commons-beanutils</groupId>
+	    <artifactId>commons-beanutils</artifactId>
+	</dependency>   
+			
+		
     </dependencies>
     
     <build>
@@ -114,9 +152,9 @@
                     </deploymentConfigs>
                     <category>Web Services</category>
                     <module>
-                        <groupId>org.apache.juddi</groupId>
-                        <artifactId>juddiv3-war</artifactId>
-                        <type>war</type>
+                        <groupId>org.apache.geronimo.plugins</groupId>
+                        <artifactId>uddi-war-repackage</artifactId>
+                        <type>jar</type>
                     </module>
                 </configuration>
             </plugin>

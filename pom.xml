@@ -725,7 +725,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>scout</artifactId>
-                <version>1.2.2_1-SNAPSHOT</version>
+                <version>1.2.2_1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -2402,7 +2402,19 @@ only found in cxf
                 <module>assemblies</module>
             </modules>
 
-            <repositories>
+            <repositories>            
+		<repository>
+                    <id>geornimo bundle stage</id>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-024/</url>
+                    <layout>default</layout>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                </repository>
+
                 <repository>
                     <!-- org.eclipse.jetty routing -->
                     <id>jetty.oss.sonatype.org</id>
