@@ -21,11 +21,27 @@
 package org.apache.geronimo.myfaces.config.resource.osgi.api;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Set;
+
+import org.apache.myfaces.config.element.FacesConfig;
+import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev:$ $Date:$
  */
 public interface ConfigRegistry {
+
+    /**
+     * Get the URL list of founded faces-config.xml for all the started bundles
+     * @return
+     */
     Set<URL> getRegisteredConfigUrls();
+
+    /**
+     * Get the parsed FacesConfig instances from the dependency tree of the specified bundle
+     * @param bundle
+     * @return
+     */
+    List<FacesConfig> getDependentFacesConfigs(Bundle bundle);
 }

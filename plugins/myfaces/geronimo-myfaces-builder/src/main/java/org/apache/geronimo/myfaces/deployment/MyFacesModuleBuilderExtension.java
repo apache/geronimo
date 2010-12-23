@@ -245,9 +245,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         try {
             ref = bundle.getBundleContext().getServiceReference(ConfigRegistry.class.getName());
             ConfigRegistry configRegistry = (ConfigRegistry) bundle.getBundleContext().getService(ref);
-            for (URL url : configRegistry.getRegisteredConfigUrls()) {
-                classloaderFacesConfigs.add(parseConfigFile(url, url.toExternalForm()));
-            }
+            classloaderFacesConfigs.addAll(configRegistry.getDependentFacesConfigs(bundle));
         } finally {
             if (ref != null) {
                 bundle.getBundleContext().ungetService(ref);
