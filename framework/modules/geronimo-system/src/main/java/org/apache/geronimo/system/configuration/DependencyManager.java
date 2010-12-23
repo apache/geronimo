@@ -81,7 +81,7 @@ public class DependencyManager implements SynchronousBundleListener {
     private final Map<Long, PluginArtifactType> pluginMap =
             Collections.synchronizedMap(new WeakHashMap<Long, PluginArtifactType>());
 
-    private final Map<Long, List<Bundle>> bundleMap = new ConcurrentHashMap<Long, List<Bundle>>();
+    private final Map<Long, Set<Long>> dependentBundleIdsMap = new ConcurrentHashMap<Long, Set<Long>>();
     private final Map<Long, Set<ExportPackage>> bundleExportPackagesMap = new ConcurrentHashMap<Long, Set<ExportPackage>>();
     private final Map<Artifact, Bundle> artifactBundleMap = new ConcurrentHashMap<Artifact, Bundle>();
 
@@ -102,14 +102,14 @@ public class DependencyManager implements SynchronousBundleListener {
         try {
             PluginArtifactType pluginArtifact = getCachedPluginMetadata(bundleContext.getBundle());
             if (pluginArtifact != null) {
-                List<Bundle> dependentBundles = new ArrayList<Bundle>(pluginArtifact.getDependency().size());
+                Set<Long> dependentBundleIds = new HashSet<Long>();
                 for (DependencyType dependency : pluginArtifact.getDependency()) {
                     Bundle dependentBundle = getBundle(dependency.toArtifact());
                     if (dependentBundle != null) {
-                        dependentBundles.add(dependentBundle);
+                        dependentBundleIds.add(dependentBundle.getBundleId());
                     }
                 }
-                bundleMap.put(bundleContext.getBundle().getBundleId(), dependentBundles);
+                dependentBundleIdsMap.put(bundleContext.getBundle().getBundleId(), dependentBundleIds);
             }
         } catch (Exception e) {
             log.error("Fail to read the dependency info from bundle " + bundleContext.getBundle().getLocation());
@@ -137,8 +137,15 @@ public class DependencyManager implements SynchronousBundleListener {
     }
 
     public List<Bundle> getDependentBundles(Bundle bundle) {
-        List<Bundle> dependentBundles = bundleMap.get(bundle.getBundleId());
-        return dependentBundles == null ? Collections.<Bundle>emptyList() : dependentBundles;
+        Set<Long> dependentBundleIds = dependentBundleIdsMap.get(bundle.getBundleId());
+        if (dependentBundleIds == null || dependentBundleIds.size() == 0) {
+            return Collections.<Bundle> emptyList();
+        }
+        List<Bundle> dependentBundles = new ArrayList<Bundle>(dependentBundleIds.size());
+        for (Long dependentBundleId : dependentBundleIds) {
+            dependentBundles.add(bundleContext.getBundle(dependentBundleId));
+        }
+        return dependentBundles;
     }
 
     public Bundle getBundle(Artifact artifact) {
@@ -232,7 +239,7 @@ public class DependencyManager implements SynchronousBundleListener {
 
     private void uninstall(Bundle bundle) {
         removeArtifactBundleEntry(bundle);
-        bundleMap.remove(bundle.getBundleId());
+        dependentBundleIdsMap.remove(bundle.getBundleId());
         pluginMap.remove(bundle.getBundleId());
     }
 
@@ -274,7 +281,7 @@ public class DependencyManager implements SynchronousBundleListener {
         PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
         if (pluginArtifactType != null) {
             List<DependencyType> dependencies = pluginArtifactType.getDependency();
-            List<Bundle> dependentBundles = new ArrayList<Bundle>(dependencies.size());
+            Set<Long> dependentBundleIds = new HashSet<Long>();
             try {
                 for (DependencyType dependencyType : dependencies) {
                     if (log.isDebugEnabled()) {
@@ -286,12 +293,19 @@ public class DependencyManager implements SynchronousBundleListener {
                     }
                     String location = locateBundle(artifact);
                     try {
-                        dependentBundles.add(bundleContext.installBundle(location));
+                        Bundle installedBundle = bundleContext.installBundle(location);
+                        if (dependentBundleIds.add(installedBundle.getBundleId())) {
+                            Set<Long> parentDependentBundleIds = dependentBundleIdsMap.get(installedBundle
+                                    .getBundleId());
+                            if (parentDependentBundleIds != null) {
+                                dependentBundleIds.addAll(parentDependentBundleIds);
+                            }
+                        }
                     } catch (BundleException e) {
                         log.warn("Could not install bundle for artifact: " + artifact, e);
                     }
                 }
-                bundleMap.put(bundle.getBundleId(), dependentBundles);
+                dependentBundleIdsMap.put(bundle.getBundleId(), dependentBundleIds);
             } catch (Exception e) {
                 log.error("Could not install bundle dependency", e);
             }
@@ -305,7 +319,9 @@ public class DependencyManager implements SynchronousBundleListener {
             List<DependencyType> dependencies = pluginArtifactType.getDependency();
             try {
                 for (DependencyType dependencyType : dependencies) {
-                    log.debug("Starting artifact: " + dependencyType);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Starting artifact: " + dependencyType);
+                    }
                     Artifact artifact = dependencyType.toArtifact();
                     if (artifactResolver != null) {
                         artifact = artifactResolver.resolveInClassLoader(artifact);
