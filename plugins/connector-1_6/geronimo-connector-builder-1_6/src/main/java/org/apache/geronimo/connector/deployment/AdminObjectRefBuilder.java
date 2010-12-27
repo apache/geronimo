@@ -284,6 +284,9 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
         if ("javax.validation.ValidatorFactory".equals(type)) {
             return new JndiReference("java:comp/ValidatorFactory");
         }
+        if ("javax.enterprise.inject.spi.BeanManager".equals(type)) {
+            return new JndiReference("java:comp/BeanManager");
+        }
         if ("javax.transaction.TransactionSynchronizationRegistry".equals(type)) {
             return new JndiReference("java:comp/TransactionSynchronizationRegistry");
         }
@@ -433,7 +436,8 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 "javax.ejb.EntityContext", 
                 "javax.ejb.TimerService", 
                 "javax.validation.Validator", 
-                "javax.validation.ValidatorFactory", 
+                "javax.validation.ValidatorFactory",
+                "javax.enterprise.inject.spi.BeanManager",
                 "javax.transaction.UserTransaction", 
                 "javax.transaction.TransactionManager", 
                 "javax.transaction.TransactionSynchronizationRegistry",
