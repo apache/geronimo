@@ -25,7 +25,6 @@ import org.apache.webbeans.config.OpenWebBeansConfiguration;
 import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.el.el22.EL22Adaptor;
 import org.apache.webbeans.lifecycle.LifecycleFactory;
-import org.apache.webbeans.resource.spi.se.StandaloneResourceInjectionService;
 import org.apache.webbeans.spi.ContainerLifecycle;
 import org.apache.webbeans.spi.JNDIService;
 import org.apache.webbeans.spi.ResourceInjectionService;
@@ -72,7 +71,7 @@ public class OpenWebBeansWebInitializer {
         configuration.setProperty(OpenWebBeansConfiguration.JNDI_SERVICE, NoopJndiService.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.SCANNER_SERVICE, OsgiMetaDataScannerService.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.CONTEXTS_SERVICE, WebContextsService.class.getName());
-        configuration.setProperty(ResourceInjectionService.class.getName(), StandaloneResourceInjectionService.class.getName());
+        configuration.setProperty(ResourceInjectionService.class.getName(), GeronimoResourceInjectionService.class.getName());
         configuration.setProperty(ELAdaptor.class.getName(), EL22Adaptor.class.getName());
     }
 
