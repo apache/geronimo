@@ -46,6 +46,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.transaction.manager.RecoverableTransactionManager;
@@ -62,6 +63,8 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
     //externalizable format version
     private static final int VERSION = 1;
 
+    private ManagedConnectionFactoryWrapper managedConnectionFactoryWrapper;
+
     public GenericConnectionManagerGBean(@ParamAttribute(name="transactionSupport") TransactionSupport transactionSupport,
                                          @ParamAttribute(name="pooling")PoolingSupport pooling,
                                          @ParamAttribute(name="containerManagedSecurity")boolean containerManagedSecurity,
@@ -76,13 +79,17 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
         super(transactionSupport, pooling, getSubjectSource(containerManagedSecurity), connectionTracker, transactionManager, managedConnectionFactoryWrapper.getManagedConnectionFactory(), objectName, classLoader);
         this.kernel = kernel;
         this.abstractName = abstractName;
-
+        this.managedConnectionFactoryWrapper = managedConnectionFactoryWrapper;
         doRecovery();
 
     }
 
     public GenericConnectionManagerGBean() {
         super();
+    }
+
+    public JCAManagedConnectionFactory getJCAManagedConnectionFactory() {
+        return managedConnectionFactoryWrapper;
     }
 
     public ConnectionManager getConnectionManager() {

@@ -56,12 +56,12 @@ public class JCAConnectionFactoryImpl implements JCAConnectionFactory, ServiceFa
 
     @Override
     public String getManagedConnectionFactory() {
-        return ((JCAManagedConnectionFactory)connectionManager.getManagedConnectionFactory()).getObjectName();
+        return getManagedConnectionFactoryInstance().getObjectName();
     }
 
     @Override
     public JCAManagedConnectionFactory getManagedConnectionFactoryInstance() {
-        return ((JCAManagedConnectionFactory)connectionManager.getManagedConnectionFactory());
+        return connectionManager.getJCAManagedConnectionFactory();
     }
 
     @Override
