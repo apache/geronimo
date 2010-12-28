@@ -289,7 +289,15 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
     public static AbstractNameQuery buildAbstractNameQuery(Artifact configId, String module, String name, String type, String moduleType) {
-        return ENCConfigBuilder.buildAbstractNameQuery(configId, module, name, type, moduleType);
+        return ENCConfigBuilder.buildAbstractNameQuery(configId, module, normalizeJndiName(name), type, moduleType);
+    }
+    
+    private static String normalizeJndiName(String name) {
+        if (name.indexOf("java:comp/env/") != -1) {
+            return name.substring("java:comp/env/".length(), name.length());
+        } else {
+            return name.trim();
+        }
     }
 
     public static Class assureInterface(String interfaceName, String superInterfaceName, String interfaceType, Bundle bundle) throws DeploymentException {
