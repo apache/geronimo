@@ -32,7 +32,7 @@
         <dep:dependencies>
             <dep:dependency>
                 <dep:groupId>org.apache.geronimo.configs</dep:groupId>
-                <dep:artifactId>activemq-broker</dep:artifactId>
+                <dep:artifactId>activemq-broker-blueprint</dep:artifactId>
                 <dep:version>${version}</dep:version>
                 <dep:type>car</dep:type>
             </dep:dependency>

@@ -24,11 +24,10 @@ import javax.jms.Session;
 import javax.jms.MessageListener;
 import javax.jms.JMSException;
 import javax.jms.Topic;
-import javax.jms.TopicConnection;
-import javax.jms.TopicConnectionFactory;
-import javax.jms.TopicSubscriber;
-import javax.jms.TopicPublisher;
-import javax.jms.TopicSession;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 
 import javax.jms.TextMessage;
 import javax.servlet.Servlet;
@@ -45,7 +44,8 @@ public class JMSTopicSenderReceiver extends HttpServlet implements Servlet {
 
 
     @Resource(name="MSConnectionFactory")
-    TopicConnectionFactory tcf = null;
+    ConnectionFactory tcf = null;
+    
     @Resource(name="TestTopic")
     Topic topic = null;
 
@@ -73,15 +73,15 @@ public class JMSTopicSenderReceiver extends HttpServlet implements Servlet {
 
             String type = arg0.getParameter("type");
 
-            TopicConnection connection = tcf.createTopicConnection();
-            TopicSession session = connection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-            TopicSubscriber topicSubscriber = session.createSubscriber(topic);
+            Connection connection = tcf.createConnection();
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageConsumer topicSubscriber = session.createConsumer(topic);
             TestListener test = new TestListener(latch);
             topicSubscriber.setMessageListener(test);
             connection.start();
-            TopicPublisher topicPublisher = session.createPublisher(topic);
+            MessageProducer topicPublisher = session.createProducer(topic);
             TextMessage tmsg = session.createTextMessage("JMS - Test Topic Message");
-            topicPublisher.publish(tmsg);
+            topicPublisher.send(tmsg);
             latch.await(1, TimeUnit.SECONDS);
             out.println("<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>");
             out.println("<head><title>JMS Topic Sender Receiver</title></head>");
