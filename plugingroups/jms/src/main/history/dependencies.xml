@@ -21,4 +21,9 @@
         <artifactId>framework</artifactId>
         <type>car</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-activemq-ra</artifactId>
+        <type>rar</type>
+    </dependency>
 </plugin-artifact>

@@ -56,6 +56,12 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
+	<dependency>
+	    <groupId>org.apache.geronimo.modules</groupId>
+	    <artifactId>geronimo-activemq-ra</artifactId>
+	    <version>${project.version}</version>
+            <type>rar</type>
+	</dependency>	
     </dependencies>
 
     <build>
