@@ -151,4 +151,9 @@
         <artifactId>xmlpull</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>xpp3</groupId>
+        <artifactId>xpp3</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

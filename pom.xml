@@ -68,7 +68,7 @@
         <openejbVersion>3.1.5-SNAPSHOT</openejbVersion>
         <derbyVersion>10.5.3.0_1</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
-        <axis2Version>1.5.2</axis2Version>
+        <axis2Version>1.5.4</axis2Version>
         <axiomVersion>1.2.9</axiomVersion>
         <springVersion>3.0.3.RELEASE</springVersion>
         <openjpaVersion>1.2.2</openjpaVersion>
