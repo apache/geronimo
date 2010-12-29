@@ -19,6 +19,7 @@ package org.apache.geronimo.gbean;
 import java.beans.Introspector;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -202,6 +203,14 @@ public class GBeanInfoBuilder {
             constructor = source.getConstructor();
 
             priority = source.getPriority();
+            
+            osgiService=source.isOsgiService();
+            
+            if (source.getServiceInterfaces() != null && source.getServiceInterfaces().length > 0) {
+                
+                serviceInterfaces.addAll(Arrays.asList(source.getServiceInterfaces()));
+            }
+
         }
         if (j2eeType != null) {
             this.j2eeType = j2eeType;
