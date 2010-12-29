@@ -108,7 +108,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
     @Override
     public void buildNaming(ServiceRef serviceRef, GerServiceRefType gerServiceRefType, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         //TODO name needs to be normalized or get normalized name from jee's map.
-        String name = normalize(serviceRef.getServiceRefName());
+        String name = serviceRef.getKey();
         Bundle bundle = module.getEarContext().getDeploymentBundle();
 
 //            Map credentialsNameMap = (Map) serviceRefCredentialsNameMap.get(name);
