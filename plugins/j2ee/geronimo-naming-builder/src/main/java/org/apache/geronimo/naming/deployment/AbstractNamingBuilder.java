@@ -293,8 +293,8 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
     
     private static String normalizeJndiName(String name) {
-        if (name.indexOf("java:comp/env/") != -1) {
-            return name.substring("java:comp/env/".length(), name.length());
+        if (name.startsWith("java:")) {
+            return name.substring(name.indexOf("/env/") + 5);
         } else {
             return name.trim();
         }
