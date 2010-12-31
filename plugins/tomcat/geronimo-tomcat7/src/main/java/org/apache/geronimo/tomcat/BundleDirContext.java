@@ -224,8 +224,18 @@ public class BundleDirContext extends BaseDirContext {
     }
 
     @Override
-    protected Attributes doGetAttributes(String arg0, String[] arg1) throws NamingException {
-        return new ResourceAttributes();
+    protected Attributes doGetAttributes(String name, String[] attrIds) throws NamingException {
+        name = getName(name);
+        URL url = BundleUtils.getEntry(bundle, name);
+        if (url == null) {
+            return null;
+        }
+        ResourceAttributes resourceAttributes = new ResourceAttributes();
+        resourceAttributes.setLastModified(bundle.getLastModified());
+        resourceAttributes.setCreation(bundle.getLastModified());
+        resourceAttributes.setName(url.toString());
+        //TODO How to set content length ?
+        return resourceAttributes;
     }
 
     @Override
