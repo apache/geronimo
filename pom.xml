@@ -1002,7 +1002,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>json</artifactId>
-                <version>20090211_1-SNAPSHOT</version>
+                <version>20090211_1</version>
             </dependency>
         
             <dependency>
@@ -1402,7 +1402,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>axiom-api</artifactId>
-                <version>${axiomVersion}_1-SNAPSHOT</version>
+                <version>${axiomVersion}_1</version>
             </dependency>
 
             <dependency>
