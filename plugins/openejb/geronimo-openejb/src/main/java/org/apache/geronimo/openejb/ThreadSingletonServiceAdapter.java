@@ -20,12 +20,9 @@
 
 package org.apache.geronimo.openejb;
 
-import java.util.Map;
-
 import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
 import org.apache.geronimo.openwebbeans.OpenWebBeansWebInitializer;
 import org.apache.geronimo.openwebbeans.OsgiMetaDataScannerService;
-import org.apache.openejb.AppContext;
 import org.apache.openejb.cdi.CdiAppContextsService;
 import org.apache.openejb.cdi.CdiResourceInjectionService;
 import org.apache.openejb.cdi.OWBContext;
@@ -35,7 +32,6 @@ import org.apache.openejb.cdi.ThreadSingletonService;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
 import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.corespi.ServiceLoader;
-import org.apache.webbeans.lifecycle.StandaloneLifeCycle;
 import org.apache.webbeans.spi.ContainerLifecycle;
 import org.apache.webbeans.spi.ResourceInjectionService;
 
@@ -66,7 +62,7 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
                 }
                 // an existing OWBConfiguration will have already been initialized
             } else {
-                startupObject.getAppContext().set(OWBContext.class, (OWBContext) old);
+                startupObject.getAppContext().set(OWBContext.class, new OWBContext((WebBeansContext) old));
             }
         } finally {
             contextExited(old);
@@ -93,7 +89,7 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
 
     @Override
     public void contextExited(Object oldContext) {
-        if (oldContext != null && !(oldContext instanceof Map)) throw new IllegalArgumentException("Expecting a Map<String, Object> not " + oldContext.getClass().getName());
+        if (oldContext != null && !(oldContext instanceof WebBeansContext)) throw new IllegalArgumentException("Expecting a WebBeansContext not " + oldContext.getClass().getName());
         GeronimoSingletonService.contextExited((WebBeansContext) oldContext);
     }
 }
