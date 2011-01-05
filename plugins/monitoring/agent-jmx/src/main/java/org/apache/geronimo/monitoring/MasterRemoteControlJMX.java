@@ -95,7 +95,10 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
        
         // set up SnaphotDBHelper with the necessary data sources
         // Note: do not put this in the constructor...datasources are not injected by then
+        ClassLoader oldCl = null;
         try {
+            oldCl = Thread.currentThread().getContextClassLoader();
+            Thread.currentThread().setContextClassLoader(MasterRemoteControlJMX.class.getClassLoader());
             InitialContext ic = new InitialContext();
             activeDS = (DataSource)ic.lookup("jca:/org.apache.geronimo.plugins/agent-ds/JCAManagedConnectionFactory/jdbc/ActiveDS");
             archiveDS = (DataSource)ic.lookup("jca:/org.apache.geronimo.plugins/agent-ds/JCAManagedConnectionFactory/jdbc/ArchiveDS");
@@ -104,6 +107,8 @@ public class MasterRemoteControlJMX implements GBeanLifecycle {
         } catch(Exception e) {
             log.error(e.getMessage());
             e.printStackTrace();
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCl);
         }
         snapshotDBHelper = new SnapshotDBHelper(activeDS, archiveDS);
     }
