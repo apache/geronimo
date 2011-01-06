@@ -48,6 +48,7 @@ import org.apache.geronimo.cli.deployer.RedeployCommandMetaData;
 import org.apache.geronimo.cli.deployer.RestartCommandMetaData;
 import org.apache.geronimo.cli.deployer.SearchPluginsCommandMetaData;
 import org.apache.geronimo.cli.deployer.StartCommandMetaData;
+import org.apache.geronimo.cli.deployer.StatsQueryCommandMetaData;
 import org.apache.geronimo.cli.deployer.StopCommandMetaData;
 import org.apache.geronimo.cli.deployer.UndeployCommandMetaData;
 import org.apache.geronimo.cli.deployer.UnlockKeystoreCommandMetaData;
@@ -94,6 +95,7 @@ public class DeployTool implements Main {
         commands.put(InstallLibraryCommandMetaData.META_DATA, new CommandInstallLibrary());
         commands.put(EncryptCommandMetaData.META_DATA, new CommandEncrypt());
         commands.put(UnlockKeystoreCommandMetaData.META_DATA, new CommandUnlockKeystore());
+        commands.put(StatsQueryCommandMetaData.META_DATA, new CommandStatsQuery());
     }
 
     private boolean failed = false;
