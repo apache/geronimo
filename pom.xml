@@ -2404,8 +2404,8 @@ only found in cxf
 
             <repositories>            
 		<repository>
-                    <id>geornimo bundle stage</id>
-                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-024/</url>
+                    <id>geornimo bundle scout-1.2.2_1 stage</id>
+                    <url>https://repository.apache.org/content/repositories/orgapachegeronimo-068/</url>
                     <layout>default</layout>
                     <snapshots>
                         <enabled>false</enabled>
