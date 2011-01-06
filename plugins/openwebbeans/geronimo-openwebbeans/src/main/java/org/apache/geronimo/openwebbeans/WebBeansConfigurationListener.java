@@ -34,6 +34,7 @@ import javax.servlet.http.HttpSessionListener;
 import org.apache.webbeans.component.InjectionPointBean;
 import org.apache.webbeans.config.OWBLogConst;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
+import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.conversation.ConversationManager;
 import org.apache.webbeans.corespi.ServiceLoader;
 import org.apache.webbeans.el.ELContextStore;
@@ -206,7 +207,7 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
         }
         this.lifeCycle.getContextService().endContext(SessionScoped.class, event.getSession());
 
-        ConversationManager conversationManager = ConversationManager.getInstance();
+        ConversationManager conversationManager = WebBeansContext.getInstance().getConversationManager();
         conversationManager.destroyConversationContextWithSessionId(event.getSession().getId());
     }
 

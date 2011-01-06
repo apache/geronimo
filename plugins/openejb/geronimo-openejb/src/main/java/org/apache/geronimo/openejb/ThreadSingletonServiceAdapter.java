@@ -53,7 +53,7 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
                 //not embedded. Are we the first ejb module to try this?
                 if (startupObject.getAppContext().get(OWBContext.class) == null) {
                     startupObject.getAppContext().set(OWBContext.class, owbContext);
-                    setConfiguration(OpenWebBeansConfiguration.getInstance());
+                    setConfiguration(WebBeansContext.getInstance().getOpenWebBeansConfiguration());
                     try {
                         ServiceLoader.getService(ContainerLifecycle.class).startApplication(startupObject);
                     } catch (Exception e) {

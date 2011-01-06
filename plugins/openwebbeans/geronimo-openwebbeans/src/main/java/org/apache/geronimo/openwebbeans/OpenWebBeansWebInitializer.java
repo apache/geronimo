@@ -43,7 +43,7 @@ public class OpenWebBeansWebInitializer {
         GeronimoSingletonService.contextEntered(owbContext);
 
         try {
-            setConfiguration(OpenWebBeansConfiguration.getInstance());
+            setConfiguration(WebBeansContext.getInstance().getOpenWebBeansConfiguration());
             //from OWB's WebBeansConfigurationListener
             if (servletContext != null) {
                 ContainerLifecycle lifeCycle = LifecycleFactory.getInstance().getLifecycle();

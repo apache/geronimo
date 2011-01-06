@@ -19,6 +19,7 @@
 package org.apache.geronimo.openwebbeans;
 
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
+import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.corespi.se.DefaultBDABeansXmlScanner;
 import org.apache.webbeans.exception.WebBeansDeploymentException;
 import org.apache.webbeans.logger.WebBeansLogger;
@@ -35,7 +36,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-import javax.servlet.ServletContext;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
@@ -76,7 +76,7 @@ public class OsgiMetaDataScannerService implements ScannerService
         // set per BDA beans.xml flag here because setting it in constructor
         // occurs before
         // properties are loaded.
-        String usage = OpenWebBeansConfiguration.getInstance().getProperty(OpenWebBeansConfiguration.USE_BDA_BEANSXML_SCANNER);
+        String usage = WebBeansContext.getInstance().getOpenWebBeansConfiguration().getProperty(OpenWebBeansConfiguration.USE_BDA_BEANSXML_SCANNER);
         this.isBDAScannerEnabled = Boolean.parseBoolean(usage);
         if (isBDAScannerEnabled)
         {
