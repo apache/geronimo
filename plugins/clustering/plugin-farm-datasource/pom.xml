@@ -22,7 +22,7 @@
     <parent>
         <artifactId>clustering</artifactId>
         <groupId>org.apache.geronimo.plugins</groupId>
-        <version>3.0-M2-SNAPSHOT</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.geronimo.configs</groupId>

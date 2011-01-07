@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>plugingroups</artifactId>
-        <version>3.0-M2-SNAPSHOT</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>jms</artifactId>

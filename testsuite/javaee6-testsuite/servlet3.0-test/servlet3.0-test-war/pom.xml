@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>servlet3.0-test</artifactId>
-        <version>3.0-M2-SNAPSHOT</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>servlet3.0-test-war</artifactId>

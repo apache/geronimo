@@ -24,7 +24,7 @@
   <parent>
     <artifactId>security-testsuite</artifactId>
     <groupId>org.apache.geronimo.testsuite</groupId>
-    <version>3.0-M2-SNAPSHOT</version>
+    <version>3.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>test-security-basic-authentication</artifactId>

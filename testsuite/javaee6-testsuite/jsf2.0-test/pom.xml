@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>javaee6-testsuite</artifactId>
-        <version>3.0-M2-SNAPSHOT</version>
+        <version>3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>jsf2.0-test</artifactId>
