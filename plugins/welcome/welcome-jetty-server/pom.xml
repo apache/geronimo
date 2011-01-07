@@ -101,6 +101,6 @@
         </dependency>
     </dependencies>
     <properties>
-        <geronimoVersion>3.0-SNAPSHOT</geronimoVersion>
+        <geronimoVersion>3.0-M2-SNAPSHOT</geronimoVersion>
     </properties>
 </project>

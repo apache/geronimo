@@ -71,7 +71,7 @@
                         <dependency>
                             <groupId>org.apache.geronimo.configs</groupId>
                             <artifactId>openwebbeans</artifactId>
-                            <version>3.0-SNAPSHOT</version>
+                            <version>3.0-M2-SNAPSHOT</version>
                             <type>car</type>
                             <import>classes</import>
                         </dependency>

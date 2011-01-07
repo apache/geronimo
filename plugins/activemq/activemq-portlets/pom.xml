@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>activemq</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M2-SNAPSHOT</version>
     </parent>
 
     <artifactId>activemq-portlets</artifactId>
