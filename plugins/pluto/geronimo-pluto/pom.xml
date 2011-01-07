@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.geronimo.plugins</groupId>
         <artifactId>pluto</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M2-SNAPSHOT</version>
     </parent>
     
     <artifactId>geronimo-pluto</artifactId>

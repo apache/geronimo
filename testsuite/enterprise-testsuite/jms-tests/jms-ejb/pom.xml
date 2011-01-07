@@ -27,7 +27,7 @@
     <parent>
         <artifactId>jms-tests</artifactId>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M2-SNAPSHOT</version>
     </parent>
 
     <name>Geronimo TestSuite :: Enterprise Testsuite :: JMS EJB</name>

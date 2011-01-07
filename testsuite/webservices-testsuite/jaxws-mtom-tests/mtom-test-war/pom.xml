@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>jaxws-mtom-tests</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M2-SNAPSHOT</version>
     </parent>
     <artifactId>mtom-test-war</artifactId>
     <name>Geronimo TestSuite :: WebServices TestSuite :: JAX-WS MTOM WAR Test Client</name>
