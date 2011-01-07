@@ -31,7 +31,6 @@ import org.apache.openejb.cdi.StartupObject;
 import org.apache.openejb.cdi.ThreadSingletonService;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
 import org.apache.webbeans.config.WebBeansContext;
-import org.apache.webbeans.corespi.ServiceLoader;
 import org.apache.webbeans.spi.ContainerLifecycle;
 import org.apache.webbeans.spi.ResourceInjectionService;
 
@@ -53,9 +52,10 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
                 //not embedded. Are we the first ejb module to try this?
                 if (startupObject.getAppContext().get(OWBContext.class) == null) {
                     startupObject.getAppContext().set(OWBContext.class, owbContext);
-                    setConfiguration(WebBeansContext.getInstance().getOpenWebBeansConfiguration());
+                    WebBeansContext webBeansContext = owbContext.getSingletons();
+                    setConfiguration(webBeansContext.getOpenWebBeansConfiguration());
                     try {
-                        ServiceLoader.getService(ContainerLifecycle.class).startApplication(startupObject);
+                        webBeansContext.getService(ContainerLifecycle.class).startApplication(startupObject);
                     } catch (Exception e) {
                         throw new RuntimeException("couldn't start owb context", e);
                     }

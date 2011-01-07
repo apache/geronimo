@@ -29,9 +29,11 @@ import java.lang.reflect.Modifier;
 
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.spi.Bean;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import org.apache.webbeans.component.ResourceBean;
 import org.apache.webbeans.exception.WebBeansException;
 import org.apache.webbeans.spi.ResourceInjectionService;
 import org.apache.webbeans.spi.api.ResourceReference;
@@ -114,17 +116,20 @@ public class GeronimoResourceInjectionService implements ResourceInjectionServic
     public void clear() {
     }
 
-    /**                                                                                                                                                                   
-     * delegation of serialization behavior                                                                                                                               
+    /**
+     * delegation of serialization behavior
      */
-    public <T> void writeExternal(Bean<T> bean, T actualResource, ObjectOutput out) throws IOException{}
+    public <T> void writeExternal(Bean<T> bean, T actualResource, ObjectOutput out) throws IOException {
+        //do nothing
+    }
 
-    /**                                                                                                                                                                   
-     * delegation of serialization behavior                                                                                                                               
+    /**
+     * delegation of serialization behavior
      */
     public <T> T readExternal(Bean<T> bean, ObjectInput out) throws IOException,
-                                                                    ClassNotFoundException {
-        return null;
+            ClassNotFoundException {
+        return (T) ((ResourceBean)bean).getActualInstance();
     }
+        
 
 }

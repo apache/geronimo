@@ -18,6 +18,13 @@
  */
 package org.apache.geronimo.openwebbeans;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
 import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.corespi.se.DefaultBDABeansXmlScanner;
@@ -25,7 +32,6 @@ import org.apache.webbeans.exception.WebBeansDeploymentException;
 import org.apache.webbeans.logger.WebBeansLogger;
 import org.apache.webbeans.spi.BDABeansXmlScanner;
 import org.apache.webbeans.spi.ScannerService;
-
 import org.apache.xbean.finder.BundleAssignableClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
@@ -35,13 +41,6 @@ import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
-
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.zip.ZipEntry;
 
 /**
  * In an OSGi environment, resources will not be delivered in
@@ -53,6 +52,7 @@ public class OsgiMetaDataScannerService implements ScannerService
 {
     private WebBeansLogger logger = WebBeansLogger.getLogger(OsgiMetaDataScannerService.class);
 
+    private final WebBeansContext webBeansContext;
     private boolean configured = false;
 
     private static final String META_INF_BEANS_XML = "META-INF/beans.xml";
@@ -70,13 +70,17 @@ public class OsgiMetaDataScannerService implements ScannerService
     /**contains all the JARs we found with valid beans.xml in it */
     private Set<String> beanArchiveJarNames = new HashSet<String>();
 
+    public OsgiMetaDataScannerService(WebBeansContext webBeansContext) {
+        this.webBeansContext = webBeansContext;
+    }
+
     @Override
     public void init(Object object)
     {
         // set per BDA beans.xml flag here because setting it in constructor
         // occurs before
         // properties are loaded.
-        String usage = WebBeansContext.getInstance().getOpenWebBeansConfiguration().getProperty(OpenWebBeansConfiguration.USE_BDA_BEANSXML_SCANNER);
+        String usage = webBeansContext.getOpenWebBeansConfiguration().getProperty(OpenWebBeansConfiguration.USE_BDA_BEANSXML_SCANNER);
         this.isBDAScannerEnabled = Boolean.parseBoolean(usage);
         if (isBDAScannerEnabled)
         {

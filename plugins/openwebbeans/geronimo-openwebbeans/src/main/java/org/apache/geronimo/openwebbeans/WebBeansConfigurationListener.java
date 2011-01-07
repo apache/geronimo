@@ -36,11 +36,10 @@ import org.apache.webbeans.config.OWBLogConst;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
 import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.conversation.ConversationManager;
-import org.apache.webbeans.corespi.ServiceLoader;
 import org.apache.webbeans.el.ELContextStore;
-import org.apache.webbeans.lifecycle.LifecycleFactory;
 import org.apache.webbeans.logger.WebBeansLogger;
 import org.apache.webbeans.spi.ContainerLifecycle;
+import org.apache.webbeans.spi.ContextsService;
 import org.apache.webbeans.spi.FailOverService;
 import org.apache.webbeans.util.WebBeansUtil;
 import org.apache.webbeans.web.context.WebContextsService;
@@ -59,16 +58,15 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
     /**Logger instance*/
     private static final WebBeansLogger logger = WebBeansLogger.getLogger(WebBeansConfigurationListener.class);
 
-    protected FailOverService failoverService = null;
+    protected FailOverService failoverService;
 
     /**Manages the container lifecycle*/
-    protected ContainerLifecycle lifeCycle = null;
+    protected WebBeansContext webBeansContext;
     /**
      * Default constructor
      */
     public WebBeansConfigurationListener()
     {
-        failoverService = ServiceLoader.getService(FailOverService.class);
     }
 
 
@@ -77,8 +75,8 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
      */
     public void contextInitialized(ServletContextEvent event)
     {
-        this.lifeCycle = LifecycleFactory.getInstance().getLifecycle();
-
+        this.webBeansContext = WebBeansContext.getInstance();
+        this.failoverService = webBeansContext.getService(FailOverService.class);
         try
         {
 //                this.lifeCycle.startApplication(event);
@@ -97,8 +95,8 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
      */
     public void contextDestroyed(ServletContextEvent event)
     {
-        this.lifeCycle.stopApplication(event);
-        this.lifeCycle = null;
+        this.webBeansContext.getService(ContainerLifecycle.class).stopApplication(event);
+        this.webBeansContext = null;
         event.getServletContext().setAttribute(OpenWebBeansConfiguration.PROPERTY_OWB_APPLICATION, "false");
     }
 
@@ -134,7 +132,7 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
             elStore.destroyELContextStore();
         }
 
-        this.lifeCycle.getContextService().endContext(RequestScoped.class, event);
+        this.webBeansContext.getContextsService().endContext(RequestScoped.class, event);
 
         this.cleanupRequestThreadLocals();
     }
@@ -163,7 +161,7 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
                 logger.debug("Starting a new request : [{0}]", event.getServletRequest().getRemoteAddr());
             }
 
-            this.lifeCycle.getContextService().startContext(RequestScoped.class, event);
+            this.webBeansContext.getContextsService().startContext(RequestScoped.class, event);
 
             // we don't initialise the Session here but do it lazily if it gets requested
             // the first time. See OWB-457
@@ -187,7 +185,7 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
             {
                 logger.debug("Starting a session with session id : [{0}]", event.getSession().getId());
             }
-            this.lifeCycle.getContextService().startContext(SessionScoped.class, event.getSession());
+            this.webBeansContext.getContextsService().startContext(SessionScoped.class, event.getSession());
         }
         catch (Exception e)
         {
@@ -205,9 +203,9 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
         {
             logger.debug("Destroying a session with session id : [{0}]", event.getSession().getId());
         }
-        this.lifeCycle.getContextService().endContext(SessionScoped.class, event.getSession());
+        this.webBeansContext.getContextsService().endContext(SessionScoped.class, event.getSession());
 
-        ConversationManager conversationManager = WebBeansContext.getInstance().getConversationManager();
+        ConversationManager conversationManager = webBeansContext.getConversationManager();
         conversationManager.destroyConversationContextWithSessionId(event.getSession().getId());
     }
 

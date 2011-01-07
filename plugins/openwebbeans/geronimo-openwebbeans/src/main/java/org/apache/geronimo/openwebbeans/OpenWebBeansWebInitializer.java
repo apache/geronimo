@@ -24,7 +24,6 @@ import javax.servlet.ServletContextEvent;
 import org.apache.webbeans.config.OpenWebBeansConfiguration;
 import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.el.el22.EL22Adaptor;
-import org.apache.webbeans.lifecycle.LifecycleFactory;
 import org.apache.webbeans.spi.ContainerLifecycle;
 import org.apache.webbeans.spi.JNDIService;
 import org.apache.webbeans.spi.ResourceInjectionService;
@@ -43,10 +42,10 @@ public class OpenWebBeansWebInitializer {
         GeronimoSingletonService.contextEntered(owbContext);
 
         try {
-            setConfiguration(WebBeansContext.getInstance().getOpenWebBeansConfiguration());
+            setConfiguration(owbContext.getOpenWebBeansConfiguration());
             //from OWB's WebBeansConfigurationListener
             if (servletContext != null) {
-                ContainerLifecycle lifeCycle = LifecycleFactory.getInstance().getLifecycle();
+                ContainerLifecycle lifeCycle = WebBeansContext.getInstance().getService(ContainerLifecycle.class);
 
                 try
                 {
