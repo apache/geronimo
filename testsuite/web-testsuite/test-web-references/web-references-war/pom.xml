@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
         <artifactId>test-web-references</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M2-SNAPSHOT</version>
     </parent>
 
     <artifactId>web-references-war</artifactId>
