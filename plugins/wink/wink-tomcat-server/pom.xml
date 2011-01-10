@@ -79,12 +79,12 @@
     </plugins>
   </build>
   <dependencies>
-    <dependency>
-      <groupId>org.apache.geronimo.framework</groupId>
-      <artifactId>karaf-framework</artifactId>
-      <version>${project.version}</version>
-      <type>car</type>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.plugingroups</groupId>
+            <artifactId>framework</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
     <dependency>
       <groupId>org.apache.geronimo.configs</groupId>
       <artifactId>tomcat7</artifactId>

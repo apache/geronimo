@@ -72,6 +72,10 @@
             <pattern>
                 <name>BValModuleBuilderExtension</name>
             </pattern>
+            <pattern>
+                <name>WinkModuleBuilderExtension</name>
+            </pattern>     
+            
         </references>
         <reference name="ResourceEnvironmentSetter">
             <name>ResourceRefBuilder</name>

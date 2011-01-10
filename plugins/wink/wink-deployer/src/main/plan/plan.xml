@@ -21,7 +21,6 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <gbean name="WinkModuleBuilderExtension" class="org.apache.geronimo.wink.deployment.WinkModuleBuilderExtension">
-        <attribute name="providerFactoryNameQuery">?name=WinkLifecycleProviderFactory#org.apache.geronimo.wink.LifecycleProviderFactoryGBean</attribute>
         <reference name="NamingBuilders">
             <name>NamingBuilders</name>
         </reference>
@@ -35,8 +34,13 @@
                         <type>car</type>
                     </dependency>
                 </dependencies>
-                <!-- This is a workaround for wired bundle cache in the BundleClassloader, add the import package explicitly to make sure the myface-core-impl is wired immediately the application bundle is resolved -->
-                <import-package>org.apache.Wink.ee6</import-package>
+                <!--
+                This is a workaround for wired bundle cache in the BundleClassloader,
+                add the import package explicitly to make sure the wink-common and wink-server
+                are wired immediately the application bundle is resolved
+                -->
+                <import-package>org.apache.wink.server.internal.resources</import-package>
+                <import-package>org.apache.wink.common.internal.runtime</import-package>                  
             </environment>
         </xml-attribute>
     </gbean>

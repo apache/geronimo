@@ -17,6 +17,16 @@
         <type>car</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>wink</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>wink-deployer</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.plugingroups</groupId>
         <artifactId>client</artifactId>
         <type>car</type>
