@@ -28,13 +28,13 @@
 
 	<dependencies>
 
-		<dependency>
-			<groupId>org.apache.servicemix.specs</groupId>
-			<artifactId>org.apache.servicemix.specs.jsr311-api-1.1</artifactId>
-			<version>1.5.0</version>
-			<scope>provided</scope>
-		</dependency>
-		
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxrs_1.1_spec</artifactId>
+            <version>1.0</version>
+			<scope>provided</scope>            
+        </dependency>
+
 	</dependencies>
 	<build>
 		<plugins>
