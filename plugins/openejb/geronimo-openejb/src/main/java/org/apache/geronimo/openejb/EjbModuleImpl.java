@@ -176,7 +176,7 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContex
         if (appContext == null) {
             throw new IllegalStateException("Not started");
         }
-        return appContext.get(OWBContext.class).getSingletons();
+        return appContext.get(OWBContext.class).getWebBeansContext();
     }
 
     public void doStart() throws Exception {

@@ -20,18 +20,15 @@
 
 package org.apache.geronimo.openwebbeans;
 
-import java.util.Map;
-
 import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.config.WebBeansFinder;
-import org.apache.webbeans.exception.WebBeansException;
 import org.apache.webbeans.spi.SingletonService;
 import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
  */
-public class GeronimoSingletonService implements SingletonService {
+public class GeronimoSingletonService implements SingletonService<WebBeansContext> {
 
     private static final ThreadLocal<WebBeansContext> contexts = new ThreadLocal<WebBeansContext>();
     private static Bundle bundle;
@@ -55,9 +52,8 @@ public class GeronimoSingletonService implements SingletonService {
     }
 
     @Override
-    public Object get(Object key, String singletonClassName) {
-        WebBeansContext context = getContext();
-        return context.get(singletonClassName);
+    public WebBeansContext get(Object key) {
+        return getContext();
     }
 
     private WebBeansContext getContext() {
@@ -73,18 +69,4 @@ public class GeronimoSingletonService implements SingletonService {
         getContext().clear();
     }
 
-    @Override
-    public boolean isExist(Object key, String singletonClassName) {
-        throw new UnsupportedOperationException("isExist is never called");
-    }
-
-    @Override
-    public Object getExist(Object key, String singletonClassName) {
-        return getContext().get(singletonClassName);
-    }
-
-    @Override
-    public Object getKey(Object singleton) {
-        return null;
-    }
 }
