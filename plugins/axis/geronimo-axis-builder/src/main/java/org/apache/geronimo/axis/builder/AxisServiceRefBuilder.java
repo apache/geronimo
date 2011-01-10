@@ -157,7 +157,7 @@ public class AxisServiceRefBuilder extends AbstractNamingBuilder implements Serv
         List<HandlerInfoInfo> handlerInfos = buildHandlerInfoList(serviceRef.getHandler(), bundle);
 
 //we could get a Reference or the actual serializable Service back.
-        Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRef, module, bundle);
+        Object ref = axisBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, gerServiceRefType, module, bundle);
         put(name, ref, module.getJndiContext(), serviceRef.getInjectionTarget(), sharedContext);
         //getJndiContextMap(componentContext).put(ENV + name, ref);
     }
