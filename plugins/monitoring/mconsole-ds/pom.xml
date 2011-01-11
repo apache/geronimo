@@ -71,6 +71,14 @@
                         <artifactId>tranql-connector-derby-embed-local</artifactId>
                         <type>rar</type>
                     </module>
+                    <instance>
+                        <plugin-artifact>
+                            <copy-file relative-to="server" dest-dir="bin">META-INF/database/derby/runsql.bat</copy-file>
+                            <copy-file relative-to="server" dest-dir="bin">META-INF/database/derby/runsql.sh</copy-file>
+                            <copy-file relative-to="server" dest-dir="bin">META-INF/database/derby/disable-monitoring.sql</copy-file>
+                            <copy-file relative-to="server" dest-dir="bin">META-INF/database/derby/enable-monitoring.sql</copy-file>
+                        </plugin-artifact>
+                    </instance>
                 </configuration>
             </plugin>
         </plugins>
