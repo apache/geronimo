@@ -78,6 +78,13 @@
             <type>car</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>openwebbeans</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
+
        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jaxws_2.2_spec</artifactId>
