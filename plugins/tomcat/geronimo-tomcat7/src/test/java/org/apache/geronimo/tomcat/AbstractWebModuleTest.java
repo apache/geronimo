@@ -62,6 +62,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
+import org.apache.webbeans.config.WebBeansFinder;
 import org.osgi.framework.Bundle;
 
 
@@ -92,6 +93,7 @@ public abstract class AbstractWebModuleTest extends TestSupport {
     }
 
     protected TomcatWebAppContext setUpInsecureAppContext(String relativeWebAppRoot, URL configurationBaseURL, SecurityHolder securityHolder, RunAsSource runAsSource, ObjectRetriever tomcatRealm, ValveGBean valveChain, WebAppInfo webAppInfo) throws Exception {
+        WebBeansFinder.clearInstances(getClass().getClassLoader());
         configurationBaseURL = cl.getResource("deployables/");
         //Setup default JSP Factory
         Class.forName("org.apache.jasper.compiler.JspRuntimeContext");
