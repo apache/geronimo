@@ -3,7 +3,7 @@
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jetty8</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
     <dependency>
@@ -29,6 +29,11 @@
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>j2ee-server</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>openwebbeans</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -59,11 +64,6 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jetty8</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-openwebbeans</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

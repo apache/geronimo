@@ -53,7 +53,6 @@ public class OsgiMetaDataScannerService implements ScannerService
     private WebBeansLogger logger = WebBeansLogger.getLogger(OsgiMetaDataScannerService.class);
 
     private final WebBeansContext webBeansContext;
-    private boolean configured = false;
 
     private static final String META_INF_BEANS_XML = "META-INF/beans.xml";
     private static final String WEB_INF_BEANS_XML = "WEB-INF/beans.xml";
@@ -62,13 +61,13 @@ public class OsgiMetaDataScannerService implements ScannerService
     protected BDABeansXmlScanner bdaBeansXmlScanner;
 
     /** All classes which have to be scanned for Bean information */
-    private Set<Class<?>> beanClasses = new HashSet<Class<?>>();
+    private final Set<Class<?>> beanClasses = new HashSet<Class<?>>();
 
     /** the URLs of all META-INF/beans.xml files */
-    private Set<URL> beanXMLs = new HashSet<URL>();
+    private final Set<URL> beanXMLs = new HashSet<URL>();
 
     /**contains all the JARs we found with valid beans.xml in it */
-    private Set<String> beanArchiveJarNames = new HashSet<String>();
+    private final Set<String> beanArchiveJarNames = new HashSet<String>();
 
     public OsgiMetaDataScannerService(WebBeansContext webBeansContext) {
         this.webBeansContext = webBeansContext;
@@ -115,7 +114,6 @@ public class OsgiMetaDataScannerService implements ScannerService
             {
                 mainBundle.getBundleContext().ungetService(reference);
             }
-            configured = true;
         }
 
     }
@@ -137,8 +135,7 @@ public class OsgiMetaDataScannerService implements ScannerService
             @Override
             public boolean jarFileDiscoveryRequired(String jarUrl)
             {
-                boolean isValidBeanArchive = beanArchiveJarNames.contains(jarUrl);
-                return isValidBeanArchive;
+                return beanArchiveJarNames.contains(jarUrl);
             }
 
             @Override

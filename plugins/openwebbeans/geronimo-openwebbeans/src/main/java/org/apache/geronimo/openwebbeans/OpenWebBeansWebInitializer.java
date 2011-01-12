@@ -33,31 +33,30 @@ import org.apache.webbeans.web.context.WebContextsService;
 import org.apache.webbeans.web.lifecycle.WebContainerLifecycle;
 
 /**
- *  
  * @version $Rev: 698441 $ $Date: 2008-09-24 00:10:08 -0700 (Wed, 24 Sep 2008) $
  */
 public class OpenWebBeansWebInitializer {
-    
-    public OpenWebBeansWebInitializer(WebBeansContext owbContext, ServletContext servletContext) {
-        GeronimoSingletonService.contextEntered(owbContext);
+
+    public OpenWebBeansWebInitializer(WebBeansContext webBeansContext, ServletContext servletContext) {
+        GeronimoSingletonService.contextEntered(webBeansContext);
 
         try {
-            setConfiguration(owbContext.getOpenWebBeansConfiguration());
+            setConfiguration(webBeansContext.getOpenWebBeansConfiguration());
             //from OWB's WebBeansConfigurationListener
             if (servletContext != null) {
-                ContainerLifecycle lifeCycle = WebBeansContext.getInstance().getService(ContainerLifecycle.class);
+                ContainerLifecycle lifeCycle = webBeansContext.getService(ContainerLifecycle.class);
 
-                try
-                {
-                        lifeCycle.startApplication(new ServletContextEvent(servletContext));
-                        servletContext.setAttribute(OpenWebBeansConfiguration.PROPERTY_OWB_APPLICATION, "true");
+                try {
+                    lifeCycle.startApplication(new ServletContextEvent(servletContext));
                 }
-                catch (Exception e)
-                {
-    //             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
-                     WebBeansUtil.throwRuntimeExceptions(e);
+                catch (Exception e) {
+                    //             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
+                    WebBeansUtil.throwRuntimeExceptions(e);
                 }
+                boolean isWBApplication = !webBeansContext.getScannerService().getBeanXmls().isEmpty();
+                servletContext.setAttribute(OpenWebBeansConfiguration.PROPERTY_OWB_APPLICATION, Boolean.toString(isWBApplication));
             }
+
         } finally {
             GeronimoSingletonService.contextExited(null);
         }
@@ -65,7 +64,7 @@ public class OpenWebBeansWebInitializer {
 
     private void setConfiguration(OpenWebBeansConfiguration configuration) {
         configuration.setProperty(OpenWebBeansConfiguration.APPLICATION_IS_JSP, "true");
-        
+
         configuration.setProperty(OpenWebBeansConfiguration.CONTAINER_LIFECYCLE, WebContainerLifecycle.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.JNDI_SERVICE, NoopJndiService.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.SCANNER_SERVICE, OsgiMetaDataScannerService.class.getName());
@@ -77,18 +76,15 @@ public class OpenWebBeansWebInitializer {
     public static class NoopJndiService implements JNDIService {
 
         public void bind(String name, Object object) {
-            System.out.println("Bind");
         }
 
         public <T> T lookup(String name, Class<? extends T> expectedClass) {
-            System.out.println("Lookup");
             return null;
         }
 
         public void unbind(String name) {
-            System.out.println("Unbind");
         }
-        
+
     }
 
 }

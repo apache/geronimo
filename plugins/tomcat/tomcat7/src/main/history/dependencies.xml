@@ -3,7 +3,7 @@
     <module-id>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>tomcat7</artifactId>
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0-M2-SNAPSHOT</version>
         <type>car</type>
     </module-id>
     <dependency>
@@ -29,6 +29,11 @@
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jasper</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>openwebbeans</artifactId>
         <type>car</type>
     </dependency>
     <dependency>
@@ -69,11 +74,6 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-j2ee-schema</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-openwebbeans</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
