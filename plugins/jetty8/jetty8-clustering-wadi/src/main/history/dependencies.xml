@@ -58,11 +58,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-openwebbeans</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-wab</artifactId>
         <type>jar</type>
     </dependency>

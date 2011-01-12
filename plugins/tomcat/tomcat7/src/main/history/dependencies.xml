@@ -33,6 +33,11 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>openwebbeans</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>transaction-1_6</artifactId>
         <type>car</type>
     </dependency>
@@ -69,11 +74,6 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-j2ee-schema</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.modules</groupId>
-        <artifactId>geronimo-openwebbeans</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
