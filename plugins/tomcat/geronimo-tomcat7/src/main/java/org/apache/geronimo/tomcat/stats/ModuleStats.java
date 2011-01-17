@@ -18,9 +18,6 @@
 
 package org.apache.geronimo.tomcat.stats;
 
-import java.util.Iterator;
-import java.util.Set;
-
 import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
@@ -60,13 +57,9 @@ public class ModuleStats {
             log.error("Error - " + ex.toString());
         }
         // Query Session Managers
-        Set<ObjectInstance> set = mBeanServer.queryMBeans(mgrName, null);
-        Iterator<ObjectInstance> iterator = set.iterator();
-        ObjectName objectName;
-        while (iterator.hasNext()) {
-            ObjectInstance oi = iterator.next();
-            objectName = oi.getObjectName();
-            if (objectName.getKeyProperty("path").indexOf(context.getPath()) > -1) {
+        for (ObjectInstance oi : mBeanServer.queryMBeans(mgrName, null)) {
+            ObjectName objectName = oi.getObjectName();
+            if (objectName.getKeyProperty("context").indexOf(context.getPath()) > -1) {
                 mgrName = objectName;
                 break;
 

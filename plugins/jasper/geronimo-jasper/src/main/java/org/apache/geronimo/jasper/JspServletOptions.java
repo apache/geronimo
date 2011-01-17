@@ -45,123 +45,158 @@ public class JspServletOptions implements Options {
         tldLocationsCache = new GeronimoTldLocationsCache(context);
     }
 
+    @Override
     public boolean genStringAsCharArray() {
         return delegate.genStringAsCharArray();
     }
 
+    @Override
     public Map<String, TagLibraryInfo> getCache() {
         return delegate.getCache();
     }
 
+    @Override
     public int getCheckInterval() {
         return delegate.getCheckInterval();
     }
 
+    @Override
     public boolean getClassDebugInfo() {
         return delegate.getClassDebugInfo();
     }
 
+    @Override
     public String getClassPath() {
         return delegate.getClassPath();
     }
 
+    @Override
     public String getCompiler() {
         return delegate.getCompiler();
     }
 
+    @Override
     public String getCompilerClassName() {
         return delegate.getCompilerClassName();
     }
 
+    @Override
     public String getCompilerSourceVM() {
         return delegate.getCompilerSourceVM();
     }
 
+    @Override
     public String getCompilerTargetVM() {
         return delegate.getCompilerTargetVM();
     }
 
+    @Override
     public boolean getDevelopment() {
         return delegate.getDevelopment();
     }
 
+    @Override
     public boolean getDisplaySourceFragment() {
         return delegate.getDisplaySourceFragment();
     }
 
+    @Override
     public boolean getErrorOnUseBeanInvalidClassAttribute() {
         return delegate.getErrorOnUseBeanInvalidClassAttribute();
     }
 
+    @Override
     public boolean getFork() {
         return delegate.getFork();
     }
 
+    @Override
     public String getIeClassId() {
         return delegate.getIeClassId();
     }
 
+    @Override
     public String getJavaEncoding() {
         return delegate.getJavaEncoding();
     }
 
+    @Override
     public JspConfig getJspConfig() {
         return delegate.getJspConfig();
     }
 
+    @Override
     public boolean getKeepGenerated() {
         return delegate.getKeepGenerated();
     }
 
+    @Override
     public boolean getMappedFile() {
         return delegate.getMappedFile();
     }
 
+    @Override
     public int getModificationTestInterval() {
         return delegate.getModificationTestInterval();
     }
 
+    @Override
     public File getScratchDir() {
         return delegate.getScratchDir();
     }
 
+    @Override
     public TagPluginManager getTagPluginManager() {
         return delegate.getTagPluginManager();
     }
 
+    @Override
     public TldLocationsCache getTldLocationsCache() {
         return tldLocationsCache;
     }
 
+    @Override
     public boolean getTrimSpaces() {
         return delegate.getTrimSpaces();
     }
 
+    @Override
     public boolean isCaching() {
         return delegate.isCaching();
     }
 
+    @Override
     public boolean isPoolingEnabled() {
         return delegate.isPoolingEnabled();
     }
 
+    @Override
     public boolean isSmapDumped() {
         return delegate.isSmapDumped();
     }
 
+    @Override
     public boolean isSmapSuppressed() {
         return delegate.isSmapSuppressed();
     }
 
+    @Override
     public boolean isXpoweredBy() {
         return delegate.isXpoweredBy();
     }
 
+    @Override
     public boolean getRecompileOnFail() {
         return delegate.getRecompileOnFail();
     }
 
+    @Override
     public int getMaxLoadedJsps() {
         return delegate.getMaxLoadedJsps();
+    }
+
+    @Override
+    public int getJspIdleTimeout() {
+        return delegate.getJspIdleTimeout();
     }
 }
