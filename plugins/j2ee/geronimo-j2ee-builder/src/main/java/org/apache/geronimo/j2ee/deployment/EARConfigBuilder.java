@@ -134,6 +134,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private final SingleElementCollection appClientConfigBuilder;
     private final SingleElementCollection resourceReferenceBuilder;
     private final NamespaceDrivenBuilderCollection serviceBuilders;
+    private final Collection<ModuleBuilderExtension> BValModuleBuilders;
     private final Collection<ModuleBuilderExtension> persistenceUnitBuilders;
     private final NamingBuilder namingBuilders;
 
@@ -174,6 +175,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             @ParamReference(name = "ActivationSpecInfoLocator", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilder> resourceReferenceBuilder,
                             @ParamReference(name = "AppClientConfigBuilder", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilder> appClientConfigBuilder,
                             @ParamReference(name = "ServiceBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<NamespaceDrivenBuilder> serviceBuilders,
+                            @ParamReference(name = "BValModuleBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilderExtension> BValModuleBuilders,
                             @ParamReference(name = "PersistenceUnitBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilderExtension> persistenceUnitBuilders,
                             @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders,
                             @ParamReference(name = "ArtifactResolvers", namingType = "ArtifactResolver") Collection<? extends ArtifactResolver> artifactResolvers,
@@ -193,6 +195,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 new SingleElementCollection<ModuleBuilder>(resourceReferenceBuilder),
                 new SingleElementCollection<ModuleBuilder>(appClientConfigBuilder),
                 serviceBuilders,
+                BValModuleBuilders,
                 persistenceUnitBuilders,
                 namingBuilders,
                 kernel.getNaming(),
@@ -213,6 +216,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             ActivationSpecInfoLocator activationSpecInfoLocator,
                             ModuleBuilder appClientConfigBuilder,
                             NamespaceDrivenBuilder serviceBuilder,
+                            ModuleBuilderExtension BValModuleBuilder,
                             ModuleBuilderExtension persistenceUnitBuilder,
                             NamingBuilder namingBuilders,
                             Naming naming,
@@ -231,6 +235,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 new SingleElementCollection<ActivationSpecInfoLocator>(activationSpecInfoLocator),
                 new SingleElementCollection<ModuleBuilder>(appClientConfigBuilder),
                 serviceBuilder == null ? Collections.<NamespaceDrivenBuilder>emptySet() : Collections.singleton(serviceBuilder),
+                BValModuleBuilder == null ? Collections.<ModuleBuilderExtension>emptySet() : Collections.singleton(BValModuleBuilder),
                 persistenceUnitBuilder == null ? Collections.<ModuleBuilderExtension>emptySet() : Collections.singleton(persistenceUnitBuilder),
                 namingBuilders,
                 naming,
@@ -252,6 +257,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                              SingleElementCollection resourceReferenceBuilder,
                              SingleElementCollection appClientConfigBuilder,
                              Collection<NamespaceDrivenBuilder> serviceBuilders,
+                             Collection<ModuleBuilderExtension> BValModuleBuilders,
                              Collection<ModuleBuilderExtension> persistenceUnitBuilders,
                              NamingBuilder namingBuilders,
                              Naming naming,
@@ -267,6 +273,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         this.connectorConfigBuilder = connectorConfigBuilder;
         this.appClientConfigBuilder = appClientConfigBuilder;
         this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+        this.BValModuleBuilders = BValModuleBuilders;
         this.persistenceUnitBuilders = persistenceUnitBuilders;
         this.namingBuilders = namingBuilders;
 
@@ -646,6 +653,11 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             }
 
             if (ConfigurationModuleType.EAR == applicationType) {
+                
+                for (ModuleBuilderExtension mbe : BValModuleBuilders) {
+                    mbe.initContext(earContext, applicationInfo, earContext.getDeploymentBundle());
+                }                
+                
                 // process persistence unit in EAR library directory
                 for (ModuleBuilderExtension mbe : persistenceUnitBuilders) {
                     mbe.initContext(earContext, applicationInfo, earContext.getDeploymentBundle());

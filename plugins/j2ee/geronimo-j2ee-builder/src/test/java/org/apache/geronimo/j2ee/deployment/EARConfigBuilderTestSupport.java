@@ -82,6 +82,8 @@ public abstract class EARConfigBuilderTestSupport
     protected static final NamespaceDrivenBuilder securityBuilder = null;
 
     protected static final NamespaceDrivenBuilder serviceBuilder = null;
+    
+    protected static final ModuleBuilderExtension BValModuleBuilder = null;
 
     protected static final ModuleBuilderExtension persistenceUnitBuilder = null;
 
@@ -167,6 +169,7 @@ public abstract class EARConfigBuilderTestSupport
                     activationSpecInfoLocator,
                     appClientConfigBuilder,
                     serviceBuilder,
+                    BValModuleBuilder,
                     persistenceUnitBuilder,
                     namingBuilder,
                     naming,
@@ -200,6 +203,7 @@ public abstract class EARConfigBuilderTestSupport
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
                 serviceBuilder,
+                BValModuleBuilder,
                 persistenceUnitBuilder,
                 namingBuilder,
                 naming,
@@ -239,6 +243,7 @@ public abstract class EARConfigBuilderTestSupport
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
                 serviceBuilder,
+                BValModuleBuilder,
                 persistenceUnitBuilder,
                 namingBuilder,
                 naming,
@@ -278,6 +283,7 @@ public abstract class EARConfigBuilderTestSupport
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
                 serviceBuilder,
+                BValModuleBuilder,
                 persistenceUnitBuilder,
                 namingBuilder,
                 naming,
@@ -317,6 +323,7 @@ public abstract class EARConfigBuilderTestSupport
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
                 serviceBuilder,
+                BValModuleBuilder,
                 persistenceUnitBuilder,
                 namingBuilder,
                 naming,
@@ -356,6 +363,7 @@ public abstract class EARConfigBuilderTestSupport
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
                 serviceBuilder,
+                BValModuleBuilder,
                 persistenceUnitBuilder,
                 namingBuilder,
                 naming,
@@ -396,6 +404,7 @@ public abstract class EARConfigBuilderTestSupport
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
                 serviceBuilder,
+                BValModuleBuilder,
                 persistenceUnitBuilder,
                 namingBuilder,
                 naming,
@@ -435,6 +444,7 @@ public abstract class EARConfigBuilderTestSupport
                 activationSpecInfoLocator,
                 appClientConfigBuilder,
                 serviceBuilder,
+                BValModuleBuilder,
                 persistenceUnitBuilder,
                 namingBuilder,
                 naming,

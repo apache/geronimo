@@ -40,6 +40,11 @@
                 <name>SecurityBuilder</name>
             </pattern>
         </references>
+        <references name="BValModuleBuilders">
+            <pattern>
+                <name>BValModuleBuilderExtension</name>
+            </pattern>
+        </references>
         <references name="PersistenceUnitBuilders">
             <pattern>
                 <name>PersistenceUnitBuilder</name>
