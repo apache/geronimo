@@ -20,9 +20,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -43,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class TldRegistration implements GBeanLifecycle {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TldRegistration.class);
-    
+
     private final Bundle bundle;
     private final String packageNameList;
 
@@ -52,7 +50,7 @@ public class TldRegistration implements GBeanLifecycle {
         this.bundle = bundle;
         this.packageNameList = packageNameList;
     }
-    
+
     public void doStart() throws Exception {
         ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
         PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
@@ -62,7 +60,7 @@ public class TldRegistration implements GBeanLifecycle {
             bundle.getBundleContext().ungetService(reference);
         }
     }
-    
+
     private void registerTlds(PackageAdmin packageAdmin) throws Exception {
         String[] packageNames = packageNameList.split(",");
         for (String packageName : packageNames) {
@@ -71,7 +69,7 @@ public class TldRegistration implements GBeanLifecycle {
                 LOGGER.warn("Package {} is not currently exported by any active bundle", packageName);
             } else {
                 Bundle exportingBundle = exportedPackage.getExportingBundle();
-                
+
                 BundleResourceFinder resourceFinder = new BundleResourceFinder(packageAdmin, exportingBundle, "META-INF/", ".tld");
                 TldResourceFinderCallback callback = new TldResourceFinderCallback();
                 resourceFinder.find(callback);
@@ -79,26 +77,26 @@ public class TldRegistration implements GBeanLifecycle {
                     exportingBundle.getBundleContext().registerService(TldProvider.class.getName(), callback, null);
                 }
             }
-        }        
+        }
     }
-        
+
     public void doFail() {
     }
 
     public void doStop() throws Exception {
     }
-             
+
     private static class TldResourceFinderCallback implements ResourceFinderCallback, TldProvider {
 
         private final List<TldProvider.TldEntry> tlds = new ArrayList<TldProvider.TldEntry>();
 
         private TldResourceFinderCallback() {
         }
-        
+
         public Collection<TldProvider.TldEntry> getTlds() {
             return tlds;
         }
-        
+
         public boolean foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception {
             LOGGER.debug("Found {} TLD in bundle {}", url, bundle);
             tlds.add(new TldProvider.TldEntry(bundle, url));
@@ -112,7 +110,7 @@ public class TldRegistration implements GBeanLifecycle {
             tlds.add(new TldProvider.TldEntry(bundle, url, jarURL));
             return false;
         }
-        
+
     }
 
 }
