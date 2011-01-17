@@ -128,7 +128,6 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         try {
             rarFile = JarUtils.createJarFile(new File(BASEDIR, "target/test-ear-noger.ear"));
             GBeanBuilder serviceBuilder = new GBeanBuilder(null, null);
-//            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, transactionContextManagerName, connectionTrackerName, null, null, null, new AbstractNameQuery(serverName, J2EEServerImpl.GBEAN_INFO.getInterfaces()), null, null, ejbReferenceBuilder, null,
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment,
                     transactionManagerName,
                     connectionTrackerName,
@@ -142,6 +141,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                     activationSpecInfoLocator,
                     null,
                     serviceBuilder,
+                    null, 
                     null,
                     new NamingBuilderCollection(Collections.<NamingBuilder>emptyList()),
                     kernel.getNaming(),
