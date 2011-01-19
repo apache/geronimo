@@ -52,7 +52,6 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
@@ -582,7 +581,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
 
             webModuleData.setAttribute("contextAttributes", contextAttributes);
 
-            //Handle webservices and the role permissions on the servlets.
+            //Handle the role permissions and webservices on the servlets.
             List<org.apache.openejb.jee.Servlet> servletTypes = webApp.getServlet();
             Map<String, AbstractName> webServices = new HashMap<String, AbstractName>();
             Class<?> baseServletClass;
@@ -591,46 +590,43 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load javax.servlet.Servlet in bundle " + bundle, e);
             }
-            
-            
-            // web services fake servlet 
-            for (org.apache.openejb.jee.Servlet servletType : servletTypes) {
-
-                if (servletType.getServletClass() != null) {
-                    String servletName = servletType.getServletName().trim();
-                    String servletClassName = servletType.getServletClass().trim();
-                    Class servletClass;
-                    try {
-                        servletClass = webBundle.loadClass(servletClassName);
-                    } catch (ClassNotFoundException e) {
-                        throw new DeploymentException("Could not load servlet class " + servletClassName + " from bundle " + bundle, e);
-                    }
-                    if (!baseServletClass.isAssignableFrom(servletClass)) {
-                        //fake servletData
-                        AbstractName servletAbstractName = moduleContext.getNaming().createChildName(moduleName, servletName, NameFactory.SERVLET);
-                        GBeanData servletData = new GBeanData();
-                        servletData.setAbstractName(servletAbstractName);
-                        //let the web service builder deal with configuring the gbean with the web service stack
-                        //Here we just extract the factory reference
-                        boolean configured = false;
-                        for (WebServiceBuilder serviceBuilder : webServiceBuilder) {
-                            if (serviceBuilder.configurePOJO(servletData, servletName, module, servletClassName, moduleContext)) {
-                                configured = true;
-                                break;
-                            }
-                        }
-                        if (!configured) {
-                            throw new DeploymentException("POJO web service: " + servletName + " not configured by any web service builder");
-                        }
-                        ReferencePatterns patterns = servletData.getReferencePatterns("WebServiceContainerFactory");
-                        AbstractName wsContainerFactoryName = patterns.getAbstractName();
-                        webServices.put(servletName, wsContainerFactoryName);
-                        //force all the factories to start before the web app that needs them.
-                        webModuleData.addDependency(wsContainerFactoryName);
-                    }
-
-                }
-            }
+//            for (org.apache.openejb.jee.Servlet servletType : servletTypes) {
+//
+//                if (servletType.getServletClass() != null) {
+//                    String servletName = servletType.getServletName().trim();
+//                    String servletClassName = servletType.getServletClass().trim();
+//                    Class servletClass;
+//                    try {
+//                        servletClass = webBundle.loadClass(servletClassName);
+//                    } catch (ClassNotFoundException e) {
+//                        throw new DeploymentException("Could not load servlet class " + servletClassName + " from bundle " + bundle, e);
+//                    }
+//                    if (!baseServletClass.isAssignableFrom(servletClass)) {
+//                        //fake servletData
+//                        AbstractName servletAbstractName = moduleContext.getNaming().createChildName(moduleName, servletName, NameFactory.SERVLET);
+//                        GBeanData servletData = new GBeanData();
+//                        servletData.setAbstractName(servletAbstractName);
+//                        //let the web service builder deal with configuring the gbean with the web service stack
+//                        //Here we just extract the factory reference
+//                        boolean configured = false;
+//                        for (WebServiceBuilder serviceBuilder : webServiceBuilder) {
+//                            if (serviceBuilder.configurePOJO(servletData, servletName, module, servletClassName, moduleContext)) {
+//                                configured = true;
+//                                break;
+//                            }
+//                        }
+//                        if (!configured) {
+//                            throw new DeploymentException("POJO web service: " + servletName + " not configured by any web service builder");
+//                        }
+//                        ReferencePatterns patterns = servletData.getReferencePatterns("WebServiceContainerFactory");
+//                        AbstractName wsContainerFactoryName = patterns.getAbstractName();
+//                        webServices.put(servletName, wsContainerFactoryName);
+//                        //force all the factories to start before the web app that needs them.
+//                        webModuleData.addDependency(wsContainerFactoryName);
+//                    }
+//
+//                }
+//            }
 
 
             webModuleData.setAttribute("webServices", webServices);
