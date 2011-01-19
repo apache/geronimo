@@ -37,11 +37,11 @@
         <module>geronimo-jetty8-minimal</module>
         <!-- <module>geronimo-jetty8-eba</module> -->
         <module>geronimo-jetty8-javaee6-web</module>
-        <module>geronimo-jetty8-javaee6</module>
+        <!-- <module>geronimo-jetty8-javaee6</module> -->
         <module>geronimo-tomcat7-minimal</module>
         <!-- <module>geronimo-tomcat7-eba</module> -->
         <module>geronimo-tomcat7-javaee6-web</module>
-        <module>geronimo-tomcat7-javaee6</module>
+        <!-- <module>geronimo-tomcat7-javaee6</module> -->
     </modules>
 
     <build>
