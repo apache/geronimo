@@ -33,6 +33,7 @@ import javax.validation.spi.ValidationProvider;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -55,14 +56,15 @@ import org.apache.geronimo.naming.ResourceSource;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 
 /**
- * GBean that provides access to ValidatorFactory instances for a module 
+ * GBean that provides access to ValidatorFactory instances for a module
  * <p/>
- * This GBean is used to generate ValidatorFactory instances.  This will use  
- * a validation.xml config file, if it exists, or create a default bean validation 
- * factory. 
+ * This GBean is used to generate ValidatorFactory instances.  This will use
+ * a validation.xml config file, if it exists, or create a default bean validation
+ * factory.
  *
  * @version $Rev$ $Date$
  */
@@ -71,15 +73,30 @@ import org.slf4j.LoggerFactory;
 @OsgiService
 public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<ValidationException> {
     private static final Logger log = LoggerFactory.getLogger(ValidatorFactoryGBean.class);
+    private static final JAXBContext VALIDATION_FACTORY_CONTEXT;
+    private static final Schema VALIDATION_FACTORY_SCHEMA ;
+
+    static {
+        URL schemaUrl = ValidationParser.class.getClassLoader().getResource("META-INF/validation-configuration-1.0.xsd");
+        SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        try {
+            VALIDATION_FACTORY_SCHEMA = sf.newSchema(schemaUrl);
+            VALIDATION_FACTORY_CONTEXT = JAXBContext.newInstance(ValidationConfigType.class);
+        } catch (SAXException e) {
+            throw new RuntimeException("Fail to initialize the schema instance", e);
+        } catch (JAXBException e) {
+            throw new RuntimeException("Fail to initialize the JAXB context instance", e);
+        }
+    }
 
     private final String objectName;
     private final Bundle bundle;
     private final ClassLoader classLoader;
     // module file name if the module is not standalone module. Will be null otherwise.
     private final String moduleName;
-    // module validation configuration 
-    private String validationConfig; 
-    // The created ValidatorFactory 
+    // module validation configuration
+    private String validationConfig;
+    // The created ValidatorFactory
     private ValidatorFactory factory;
     // Temporary file to hold the extracted archive in case of nested archives
     private File tmpArchiveFile;
@@ -104,32 +121,28 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
 
     @Override
     public Object $getResource() throws ValidationException {
-        // return the current factory instance 
-        return getFactory(); 
+        // return the current factory instance
+        return getFactory();
     }
-    
-    
+
+
     /**
-     * Retrieve (and potentially create) the ValidatorFactory 
-     * instance for this module. 
-     * 
+     * Retrieve (and potentially create) the ValidatorFactory
+     * instance for this module.
+     *
      * @return A ValidatorFactory instance configured using the validation xml for this module.
      */
     public ValidatorFactory getFactory() {
         if (factory == null) {
             if (validationConfig == null) {
-                // just create the default 
-                createDefaultFactory(); 
+                // just create the default
+                createDefaultFactory();
             } else {
                 // Parse the validation xml
                 ValidationConfigType validationConfigType = null;
-                URL schemaUrl = ValidationParser.class.getClassLoader().getResource("META-INF/validation-configuration-1.0.xsd");
-                SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                 try {
-                    Schema schema = sf.newSchema(schemaUrl);
-                    JAXBContext jc = JAXBContext.newInstance(ValidationConfigType.class);
-                    Unmarshaller unmarshaller = jc.createUnmarshaller();
-                    unmarshaller.setSchema(schema);
+                    Unmarshaller unmarshaller = VALIDATION_FACTORY_CONTEXT.createUnmarshaller();
+                    unmarshaller.setSchema(VALIDATION_FACTORY_SCHEMA);
                     URL validationConfigURL = null;
                     if(moduleName == null) {
                         // Standalone module
@@ -151,8 +164,8 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
                                 validationConfigURL = new URL("jar:"+tmpArchiveFile.toURI().toURL()+"!/"+validationConfig);
                             } catch (IOException e) {
                                 log.debug("Error processing validation configuration "+validationConfig+" in "+moduleName + " Using default factory.", e);
-                                createDefaultFactory(); 
-                                return factory; 
+                                createDefaultFactory();
+                                return factory;
                             }
                         }
                     }
@@ -161,8 +174,8 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
                     validationConfigType = root.getValue();
                 } catch(Throwable t) {
                     log.debug("Unable to create module ValidatorFactory instance.  Using default factory", t);
-                    createDefaultFactory(); 
-                    return factory; 
+                    createDefaultFactory();
+                    return factory;
                 }
                 // Apply the configuration
                 // TODO: Ideally this processing should happen in BVal code. But, the ValidationParser loads the validation xml and
@@ -172,32 +185,32 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
                 applyConfig(validationConfigType, config);
                 config.ignoreXmlConfiguration();
                 // Create the factory instance
-                ClassLoader oldContextLoader = Thread.currentThread().getContextClassLoader(); 
+                ClassLoader oldContextLoader = Thread.currentThread().getContextClassLoader();
                 try {
-                    Thread.currentThread().setContextClassLoader(classLoader); 
+                    Thread.currentThread().setContextClassLoader(classLoader);
                     factory = config.buildValidatorFactory();
                 } finally {
-                    Thread.currentThread().setContextClassLoader(oldContextLoader); 
+                    Thread.currentThread().setContextClassLoader(oldContextLoader);
                 }
                 if(tmpArchiveFile != null) {
                     tmpArchiveFile.delete();
                 }
             }
         }
-        return factory; 
+        return factory;
     }
-    
+
     /**
      * Create a default ValidatorFactory
      */
     private void createDefaultFactory() {
-        ClassLoader oldContextLoader = Thread.currentThread().getContextClassLoader(); 
+        ClassLoader oldContextLoader = Thread.currentThread().getContextClassLoader();
         // No validation configuration specified. Create default instance.
         try {
-            Thread.currentThread().setContextClassLoader(classLoader); 
+            Thread.currentThread().setContextClassLoader(classLoader);
             factory = Validation.buildDefaultValidatorFactory();
         } finally {
-            Thread.currentThread().setContextClassLoader(oldContextLoader); 
+            Thread.currentThread().setContextClassLoader(oldContextLoader);
         }
     }
 
@@ -282,8 +295,10 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
     }
 
     public void doStart() throws Exception {
-        log.debug("Starting " + objectName); 
-        // if there is an explicit configuration provided, we need to process 
+        if (log.isDebugEnabled()) {
+            log.debug("Starting " + objectName);
+        }
+        // if there is an explicit configuration provided, we need to process
         // this now in case there are exceptions
         if (validationConfig != null) {
             getFactory();
