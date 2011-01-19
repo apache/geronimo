@@ -163,7 +163,7 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
                                 out.close();
                                 validationConfigURL = new URL("jar:"+tmpArchiveFile.toURI().toURL()+"!/"+validationConfig);
                             } catch (IOException e) {
-                                log.debug("Error processing validation configuration "+validationConfig+" in "+moduleName + " Using default factory.", e);
+                                log.warn("Error processing validation configuration "+validationConfig+" in "+moduleName + " Using default factory.", e);
                                 createDefaultFactory();
                                 return factory;
                             }
@@ -173,7 +173,7 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
                     JAXBElement<ValidationConfigType> root = unmarshaller.unmarshal(stream, ValidationConfigType.class);
                     validationConfigType = root.getValue();
                 } catch(Throwable t) {
-                    log.debug("Unable to create module ValidatorFactory instance.  Using default factory", t);
+                    log.warn("Unable to create module ValidatorFactory instance.  Using default factory", t);
                     createDefaultFactory();
                     return factory;
                 }
@@ -267,12 +267,16 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
             }
         }
         for (PropertyType property : xmlConfig.getProperty()) {
-            log.debug("Found property '" + property.getName() + "' with value '" + property.getValue() + "' in " + validationConfig);
+            if (log.isDebugEnabled()) {
+                log.debug("Found property '" + property.getName() + "' with value '" + property.getValue() + "' in " + validationConfig);
+            }
             target.addProperty(property.getName(), property.getValue());
         }
         for (JAXBElement<String> mappingFileNameElement : xmlConfig.getConstraintMapping()) {
             String mappingFileName = mappingFileNameElement.getValue();
-            log.debug("Opening input stream for " + mappingFileName);
+            if (log.isDebugEnabled()) {
+                log.debug("Opening input stream for " + mappingFileName);
+            }
             InputStream in = null;
             try {
                 if(moduleName == null) {
@@ -307,7 +311,9 @@ public class ValidatorFactoryGBean implements GBeanLifecycle, ResourceSource<Val
 
     public void doStop() throws Exception {
         factory = null;
-        log.debug("Stopped " + objectName);
+        if (log.isDebugEnabled()) {
+            log.debug("Stopped " + objectName);
+        }
     }
 
     public void doFail() {
