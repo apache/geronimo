@@ -58,9 +58,9 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     private String name;
 
     private boolean wrappedConnector;
-    
+
     private String tomcatProtocol;
-    
+
     private Map<String, String> initParams;
 
     public ConnectorGBean(@ParamAttribute(manageable=false, name = "name") String name,
@@ -76,7 +76,7 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
         }
         initParams  = (_initParams == null)?new HashMap<String, String>():_initParams;
-        
+
 
         // Do we really need this?? For Tomcat I don't think so...
         // validateProtocol(protocol);
@@ -101,28 +101,28 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
 
         // Create the Connector object
         if (conn == null) {
-           
-            //create a connector in connector management portlet will reach here. 
+
+            //create a connector in connector management portlet will reach here.
             this.connector = new Connector(tomcatProtocol);
             for (LifecycleListener listener : TomcatServerGBean.LifecycleListeners) {
                 this.connector.addLifecycleListener(listener);
             }
             wrappedConnector = false;
         } else if (conn.getState().equals(LifecycleState.DESTROYED)) {
-           
+
             //restarting a connector in connector management portlet will reach here.
             this.connector = new Connector(tomcatProtocol);
             for (LifecycleListener listener : TomcatServerGBean.LifecycleListeners) {
                 this.connector.addLifecycleListener(listener);
             }
         } else {
-            
+
           //the connectors defined in server.xml will reach here.
             connector = conn;
             wrappedConnector = true;
 
         }
-        
+
 
         setParameters(connector, initParams);
 
@@ -205,16 +205,14 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     public void doStop() {
         if (!wrappedConnector) {
             container.removeConnector(connector);
+            try {
+                connector.stop();
+                connector.destroy();
+            } catch (LifecycleException e) {
+                log.error("fail to stop connector", e);
+            }
+            log.debug("{} connector stopped", name);
         }
-        
-        try {
-            connector.stop();
-            connector.destroy();
-        } catch (LifecycleException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        log.debug("{} connector stopped", name);
     }
 
     /**
@@ -246,14 +244,14 @@ public abstract class ConnectorGBean extends BaseGBean implements CommonProtocol
     public boolean getAllowTrace() {
         return connector.getAllowTrace();
     }
-    
+
     public long getAsyncTimeout() {
         return  connector.getAsyncTimeout();
     }
 
     public void setAsyncTimeout(long asyncTimeout) {
         connector.setAsyncTimeout(asyncTimeout);
-    }    
+    }
 
     public void setEnableLookups(boolean enabled) {
         connector.setEnableLookups(enabled);
