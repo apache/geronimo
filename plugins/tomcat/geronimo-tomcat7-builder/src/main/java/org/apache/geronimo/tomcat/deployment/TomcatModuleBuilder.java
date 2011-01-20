@@ -689,28 +689,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 webModuleData.setReferencePattern("applicationPolicyConfigurationManager", EARContext.JACC_MANAGER_NAME_KEY.get(earContext.getGeneralData()));
             }
             //not truly metadata complete until MBEs have run
-            //if (!webApp.isMetadataComplete()) {
             if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f) {
-                //Those elements have been processed by Geronimo, Tomcat no need to do it now.
-                //Also, currently, it seems that Tomcat could not handle those jndi elements correctly
                 webApp.setMetadataComplete(true);
-
-                //remove naming stuff from webApp so tomcat doesn't process it uselessly
-                webApp.getEjbLocalRef().clear();
-                webApp.getEjbRef().clear();
-                webApp.getEnvEntry().clear();
-                webApp.getDataSource().clear();
-                webApp.getMessageDestinationRef().clear();
-                webApp.getResourceEnvRef().clear();
-                webApp.getResourceRef().clear();
-                webApp.getServiceRef().clear();
-
                 String specDeploymentPlan = getSpecDDAsString(webModule);
                 module.setOriginalSpecDD(specDeploymentPlan);
-
                 earContext.addFile(new URI("./WEB-INF/web.xml"), specDeploymentPlan);
             }
-            //}
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             module.addAsChildConfiguration();
         } catch (DeploymentException de) {
