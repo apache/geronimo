@@ -2248,7 +2248,7 @@ only found in cxf
                             </assembly>
                         </assemblies>
 
-                        <defaultAssemblyId>jetty</defaultAssemblyId>
+                        <defaultAssemblyId>tomcat-web</defaultAssemblyId>
 
                         <optionSets>
                             <optionSet>
