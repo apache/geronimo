@@ -241,6 +241,12 @@ public class DeploymentContext {
         env.setBundleActivator(null);
         env.addDynamicImportPackage("*");
 
+        OSGiMetaDataBuilder osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext, new DummyExportPackagesSelector());
+        try {
+            osgiMetaDataBuilder.build(env);
+        } catch (IllegalConfigurationException e) {
+            throw new DeploymentException(e);
+        }
         Manifest manifest;
         try {
             manifest = env.getManifest();
