@@ -381,7 +381,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // always add WEB-INF/classes to the classpath regardless of whether
             // any classes exist.  This must be searched BEFORE the WEB-INF/lib jar files,
             // per the servlet specifications.
-            moduleContext.addToClassPath(module.resolve("WEB-INF/classes/").getPath());
+            moduleContext.addToClassPath(module.resolve("WEB-INF/classes").getPath());
             manifestcp.add("WEB-INF/classes");      // NOTE:  Spec requires there be no trailing "/" on this. 
             // install the libs
             for (ZipEntry entry : libs) {
