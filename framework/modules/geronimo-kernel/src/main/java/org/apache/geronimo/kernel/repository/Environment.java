@@ -126,6 +126,14 @@ public class Environment implements Serializable {
         this.bundleClassPath.add(bundleClassPath);
     }
 
+    public void removeBundleClassPath(Collection<String> bundleClassPath) {
+        this.bundleClassPath.removeAll(bundleClassPath);
+    }
+
+    public void removeBundleClassPath(String bundleClassPath) {
+        this.bundleClassPath.remove(bundleClassPath);
+    }
+
     public List<String> getBundleClassPath() {
         return Collections.unmodifiableList(new ArrayList<String>(bundleClassPath));
     }
@@ -150,6 +158,14 @@ public class Environment implements Serializable {
         this.exports.add(exports);
     }
 
+    public void removeExportPackages(Collection<String> exports) {
+        this.exports.removeAll(exports);
+    }
+
+    public void removeExportPackage(String exports) {
+        this.exports.remove(exports);
+    }
+
     public List<String> getExportPackages() {
         return Collections.unmodifiableList(new ArrayList<String>(exports));
     }
@@ -170,6 +186,14 @@ public class Environment implements Serializable {
         this.requireBundles.add(symbolicName);
     }
 
+    public void removeRequireBundles(Collection<String> symbolicNames) {
+        this.requireBundles.removeAll(symbolicNames);
+    }
+
+    public void removeRequireBundle(String symbolicName) {
+        this.requireBundles.remove(symbolicName);
+    }
+
     public List<String> getRequireBundles() {
         return Collections.unmodifiableList(new ArrayList<String>(requireBundles));
     }
@@ -182,10 +206,26 @@ public class Environment implements Serializable {
         this.dynamicImports.add(imports);
     }
 
+    public void removeDynamicImportPackages(Collection<String> imports) {
+        this.dynamicImports.removeAll(imports);
+    }
+
+    public void removeDynamicImportPackage(String imports) {
+        this.dynamicImports.remove(imports);
+    }
+
     public List<String> getDynamicImportPackages() {
         return Collections.unmodifiableList(new ArrayList<String>(dynamicImports));
     }
-    
+
+    public void removeImportPackage(String importPackage) {
+        this.imports.remove(importPackage);
+    }
+
+    public void removeImportPackages(Collection<String> importPackages) {
+        this.imports.removeAll(importPackages);
+    }
+
     public Manifest getManifest() throws ManifestException {
         Manifest manifest = new Manifest();
         manifest.addConfiguredAttribute(new Manifest.Attribute(Constants.BUNDLE_MANIFESTVERSION, "2"));
@@ -204,11 +244,11 @@ public class Environment implements Serializable {
         if (!imports.isEmpty()) {
             manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.IMPORT_PACKAGE, imports));
         }
-        
+
         if (!exports.isEmpty()) {
             manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.EXPORT_PACKAGE, exports));
         }
-        
+
         if (!dynamicImports.isEmpty()) {
             manifest.addConfiguredAttribute(new Manifest.Attribute(Manifest.Attribute.Separator.COMMA, Constants.DYNAMICIMPORT_PACKAGE, dynamicImports));
         }

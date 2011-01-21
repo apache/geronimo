@@ -125,9 +125,13 @@ public abstract class AbstractRepository implements WriteableRepository {
         ArtifactTypeHandler typeHandler = typeHandlers.get(destination.getType());
         if (typeHandler == null) typeHandler = DEFAULT_TYPE_HANDLER;
         typeHandler.install(source, size, destination, monitor, location);
-        
+
         if (destination.getType().equalsIgnoreCase("car")) {
             log.debug("Installed module configuration; id={}; location={}", destination, location);
         }
+    }
+
+    public File getRootFile() {
+        return rootFile;
     }
 }

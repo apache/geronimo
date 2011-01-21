@@ -22,8 +22,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,7 +63,6 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
-import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.mock.MockRepository;
@@ -73,12 +74,16 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
+import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 import org.apache.geronimo.transaction.wrapper.manager.GeronimoTransactionManagerGBean;
+import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.packageadmin.RequiredBundle;
@@ -160,7 +165,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                 context = configBuilder.buildConfiguration(false, configBuilder.getConfigurationID(plan, rarFile, idBuilder), plan, rarFile, Collections.singleton(configurationStore), artifactResolver, configurationStore);
                 // add the a j2ee server so the application context reference can be resolved
                 context.addGBean("geronimo", J2EEServerImpl.GBEAN_INFO);
-                // add the module validator so the connector artifacts will resolve to an instance 
+                // add the module validator so the connector artifacts will resolve to an instance
                 AbstractName abstractName = context.getNaming().createChildName(((Module)plan).getModuleName(), "ValidatorFactory", NameFactory.VALIDATOR_FACTORY);
                 GBeanData gbeanData = new GBeanData(abstractName, ValidatorFactoryGBean.class);
                 context.addGBean(gbeanData);
@@ -199,8 +204,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             executeTestBuildModule(action, true);
             fail("ConstraintViolation not thrown");
         } catch (org.apache.geronimo.kernel.config.LifecycleException e) {
-            // we'll get a deployment failure.  The root reason will be a ValidationException, 
-            // but for now, that's difficult to root out and locate. 
+            // we'll get a deployment failure.  The root reason will be a ValidationException,
+            // but for now, that's difficult to root out and locate.
         }
     }
 
@@ -214,8 +219,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             executeTestBuildModule(action, true);
             fail("ConstraintViolation not thrown");
         } catch (org.apache.geronimo.kernel.config.LifecycleException e) {
-            // we'll get a deployment failure.  The root reason will be a ValidationException, 
-            // but for now, that's difficult to root out and locate. 
+            // we'll get a deployment failure.  The root reason will be a ValidationException,
+            // but for now, that's difficult to root out and locate.
         }
     }
 
@@ -229,12 +234,12 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             executeTestBuildModule(action, true);
             fail("ConstraintViolation not thrown");
         } catch (org.apache.geronimo.kernel.config.LifecycleException e) {
-            // we'll get a deployment failure.  The root reason will be a ValidationException, 
-            // but for now, that's difficult to root out and locate. 
+            // we'll get a deployment failure.  The root reason will be a ValidationException,
+            // but for now, that's difficult to root out and locate.
         }
     }
 
-/* TODO:  figure out what the lifecycle is here so this can be processed     
+/* TODO:  figure out what the lifecycle is here so this can be processed
     public void testActivationSpecBeanValidation() throws Exception {
         InstallAction action = new InstallAction() {
             public File getRARFile() {
@@ -245,11 +250,11 @@ public class ConnectorModuleBuilderTest extends TestSupport {
             executeTestBuildModule(action, true);
             fail("ConstraintViolation not thrown");
         } catch (org.apache.geronimo.kernel.config.LifecycleException e) {
-            // we'll get a deployment failure.  The root reason will be a ValidationException, 
-            // but for now, that's difficult to root out and locate. 
+            // we'll get a deployment failure.  The root reason will be a ValidationException,
+            // but for now, that's difficult to root out and locate.
         }
     }
- */ 
+ */
 
     public void testBuildUnpackedAltSpecDDModule() throws Exception {
         InstallAction action = new InstallAction() {
@@ -446,7 +451,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                 Bundle bundle = earContext.getDeploymentBundle();
                 moduleBuilder.initContext(earContext, module, bundle);
                 moduleBuilder.addGBeans(earContext, module, bundle, Collections.singleton(repository));
-                // add the module validator so the connector artifacts will resolve to an instance 
+                // add the module validator so the connector artifacts will resolve to an instance
                 AbstractName abstractName = earContext.getNaming().createChildName(module.getModuleName(), "ValidatorFactory", NameFactory.VALIDATOR_FACTORY);
                 GBeanData gbeanData = new GBeanData(abstractName, ValidatorFactoryGBean.class);
                 earContext.addGBean(gbeanData);
@@ -474,8 +479,8 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 
             // load the configuration
             configurationManager.loadConfiguration(configurationData);
-            Configuration configuration = configurationManager.getConfiguration(configurationId);
             configurationManager.startConfiguration(configurationId);
+            Configuration configuration = configurationManager.getConfiguration(configurationId);
             Set<AbstractName> gb = configuration.getGBeans().keySet();
             for (AbstractName name : gb) {
                 if (State.RUNNING_INDEX != kernel.getGBeanState(name)) {
@@ -665,6 +670,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
                 }
             };
         bundleContext.registerService(PackageAdmin.class.getName(), packageAdmin, null);
+        bundleContext.registerService(DependencyManager.class.getName(), new MockDependencyManager(bundleContext, Collections.<Repository> emptyList(), null), new Hashtable());
         kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
         kernel.boot();
 
@@ -726,7 +732,7 @@ public class ConnectorModuleBuilderTest extends TestSupport {
 
     protected void tearDown() throws Exception {
         kernel.shutdown();
-        ((MockConfigStore)configurationStore).cleanup(); 
+        ((MockConfigStore)configurationStore).cleanup();
         super.tearDown();
     }
 
@@ -746,4 +752,26 @@ public class ConnectorModuleBuilderTest extends TestSupport {
         }
     }
 
+    private class MockDependencyManager extends DependencyManager {
+
+        public MockDependencyManager(BundleContext bundleContext, Collection<Repository> repositories, ArtifactResolver artifactResolver) {
+            super(bundleContext, repositories, artifactResolver);
+        }
+
+        @Override
+        public synchronized Set<ExportPackage> getExportedPackages(Bundle bundle) {
+           return Collections.<ExportPackage>emptySet();
+        }
+
+        @Override
+        public List<Bundle> getDependentBundles(Bundle bundle) {
+            return Collections.<Bundle>emptyList();
+        }
+
+        @Override
+        public Bundle getBundle(Artifact artifact) {
+            return null;
+        }
+
+    }
 }

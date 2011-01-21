@@ -21,8 +21,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -44,7 +46,11 @@ import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.geronimo.testsupport.TestSupport;
+import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 
 /**
@@ -90,6 +96,7 @@ public class SingleFileHotDeployerTest extends TestSupport {
         }
         bundleContext = new MockBundleContext(getClass().getClassLoader(), BASEDIR.getAbsolutePath(), null, Collections.singletonMap(baseLocation, NEW_ID));
         ((MockBundleContext)bundleContext).setConfigurationManager(new MockConfigurationManager());
+        bundleContext.registerService(DependencyManager.class.getName(), new MockDependencyManager(bundleContext, Collections.<Repository> emptyList(), null), new Hashtable());
         File someFile = new File(dir, "someFile");
         someFile.createNewFile();
 
@@ -106,7 +113,7 @@ public class SingleFileHotDeployerTest extends TestSupport {
     }
 
     protected void tearDown() throws Exception {
-        store.cleanup(); 
+        store.cleanup();
         super.tearDown();
     }
 
@@ -326,6 +333,29 @@ public class SingleFileHotDeployerTest extends TestSupport {
         }
     }
 */
+
+    private class MockDependencyManager extends DependencyManager {
+
+        public MockDependencyManager(BundleContext bundleContext, Collection<Repository> repositories, ArtifactResolver artifactResolver) {
+            super(bundleContext, repositories, artifactResolver);
+        }
+
+        @Override
+        public synchronized Set<ExportPackage> getExportedPackages(Bundle bundle) {
+           return Collections.<ExportPackage>emptySet();
+        }
+
+        @Override
+        public List<Bundle> getDependentBundles(Bundle bundle) {
+            return Collections.<Bundle>emptyList();
+        }
+
+        @Override
+        public Bundle getBundle(Artifact artifact) {
+            return null;
+        }
+
+    }
 
     private class MockConfigurationManager extends org.apache.geronimo.kernel.mock.MockConfigurationManager {
         private ConfigurationData loadedConfigurationData;

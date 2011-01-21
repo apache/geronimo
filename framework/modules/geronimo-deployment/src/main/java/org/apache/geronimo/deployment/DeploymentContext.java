@@ -43,6 +43,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.IllegalConfigurationException;
+import org.apache.geronimo.deployment.util.osgi.DummyExportPackagesSelector;
+import org.apache.geronimo.deployment.util.osgi.OSGiMetaDataBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -237,7 +240,7 @@ public class DeploymentContext {
         env.addToBundleClassPath(bundleClassPath);
         env.setBundleActivator(null);
         env.addDynamicImportPackage("*");
-        
+
         Manifest manifest;
         try {
             manifest = env.getManifest();
@@ -543,13 +546,26 @@ public class DeploymentContext {
             environment.setBundleActivator(ConfigurationActivator.class.getName());
         }
         List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
-        Collections.sort(gbeans, new GBeanData.PriorityComparator());        
-        LinkedHashSet<String> imports = getImports(gbeans);
-        addImport(imports, environment.getBundleActivator());
-        environment.addImportPackages(imports);
+        Collections.sort(gbeans, new GBeanData.PriorityComparator());
 
-        environment.addDynamicImportPackage("*");
-        
+        OSGiMetaDataBuilder osgiMetaDataBuilder = null;
+        //TODO Import package calculation is only used for deployed applications, should be use the same way for car package later
+        if (System.getProperty("geronimo.build.car") == null) {
+            osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext);
+        } else {
+            LinkedHashSet<String> imports = getImports(gbeans);
+            addImport(imports, environment.getBundleActivator());
+            environment.addImportPackages(imports);
+            environment.addDynamicImportPackage("*");
+            osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext, new DummyExportPackagesSelector());
+        }
+
+        try {
+            osgiMetaDataBuilder.build(environment);
+        } catch (IllegalConfigurationException e) {
+            throw new DeploymentException(e);
+        }
+
         if (tempBundle != null) {
             try {
                 createPluginMetadata();
