@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.transaction.UserTransaction;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
@@ -32,6 +33,7 @@ import org.apache.geronimo.connector.outbound.connectiontracking.TrackedConnecti
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.web.info.WebAppInfo;
+import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.tomcat.InstanceManager;
 import org.apache.webbeans.config.WebBeansContext;
 import org.osgi.framework.Bundle;
@@ -60,19 +62,19 @@ public interface TomcatContext {
 
     Kernel getKernel();
 
-    Set getApplicationManagedSecurityResources();
+    Set<String> getApplicationManagedSecurityResources();
 
     TrackedConnectionAssociator getTrackedConnectionAssociator();
 
-    Set getUnshareableResources();
+    Set<String> getUnshareableResources();
 
     Realm getRealm();
 
     Valve getClusteredValve();
 
-    List getValveChain();
+    List<Valve> getValveChain();
 
-    List getLifecycleListenerChain();
+    List<LifecycleListener> getLifecycleListenerChain();
 
     CatalinaCluster getCluster();
 
@@ -84,7 +86,7 @@ public interface TomcatContext {
 
     boolean isDisableCookies();
 
-    Map getWebServices();
+    Map<String, WebServiceContainer> getWebServices();
 
     InstanceManager getInstanceManager();
 
