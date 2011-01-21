@@ -302,7 +302,7 @@ var jsonStore=new dojo.data.ItemFileWriteStore({data:jsonData});
 
 <table jsid="grid1" id="grid1" dojoType="dojox.grid.EnhancedGrid"
 	plugins="{indirectSelection: true}" store="jsonStore"
-	query="{ id: '*' }" style="width:100%;margin:0px 0px;">
+	query="{ id: '*' }" queryOptions ="{ignoreCase: true}" style="width:100%;margin:0px 0px;">
 	<thead>
 		<tr>
 			<th field="id">Id</th>
@@ -321,7 +321,7 @@ var headersStore=new dojo.data.ItemFileWriteStore({data:""});
 </script>
 <div id="singleBundleDiv" style="display:none">
 <table jsid="headersgrid" id="headersgrid" dojoType="dojox.grid.DataGrid"
-	store="headersStore" autoHeight="true" escapeHTMLInData="false" style="width:100%;margin:0px 0px;">
+	store="headersStore" autoHeight="true" escapeHTMLInData="false" selectable="true" style="width:100%;margin:0px 0px;">
 	<thead>
 		<tr>
 			<th field="hkey" width="20%">Header Name</th>
