@@ -34,6 +34,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeployableBundle;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
@@ -62,6 +63,7 @@ import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -123,6 +125,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
         Map<String, Persistence.PersistenceUnit> overrides = new HashMap<String, Persistence.PersistenceUnit>();
         try {
             for (XmlObject raw : raws) {
+             
                 Persistence persistence = fromXmlObject(raw);
                 for (Persistence.PersistenceUnit unit : persistence.getPersistenceUnit()) {
                     overrides.put(unit.getName().trim(), unit);
@@ -335,7 +338,29 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
     }
 
     private Persistence fromXmlObject(XmlObject xmlObject) throws JAXBException {
-        XMLStreamReader reader = xmlObject.newXMLStreamReader();
+        
+        /* 
+         * To avoid illegal exception in JAXB. Convert 
+         * 
+         * <xml-fragment> ... </xml-fragment> 
+         * to
+         * <persistence xmlns="http://java.sun.com/xml/ns/persistence"> ... </persistence>
+         * 
+         * before unmarshalling it 
+         */
+        XmlObject newXmlObject=XmlObject.Factory.newInstance();
+        XmlCursor newXmlCursor=newXmlObject.newCursor();
+        newXmlCursor.toNextToken();
+        newXmlCursor.beginElement(PERSISTENCE_QNAME);
+        
+        XmlCursor oldXmlCursor=xmlObject.newCursor();
+        oldXmlCursor.copyXmlContents(newXmlCursor);
+        
+        oldXmlCursor.dispose();
+        newXmlCursor.dispose();
+        
+        
+        XMLStreamReader reader = newXmlObject.newXMLStreamReader();
         JAXBContext context = JAXBContextFactory.newInstance(Persistence.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         return (Persistence) unmarshaller.unmarshal(reader);

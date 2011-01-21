@@ -633,15 +633,19 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         ejbModule.setOriginalSpecDD(XmlUtil.marshal(ejbJar));
 
         // Get the geronimo-openejb plan
-//            GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
+           GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
 
         // We must set all mapped name references back to null or Geronimo will blow up
-//        unmapReferences(ejbJar, geronimoEjbJarType);
+        unmapReferences(ejbJar, geronimoEjbJarType);
 
         // create a xmlbeans version of the ejb-jar.xml file, because the jndi code is coupled based on xmlbeans objects
+       /* EjbJarType ejbJarType = XmlUtil.convertToXmlbeans(ejbJar);
+        ejbModule.setSpecDD(ejbJarType);*/
 
         // convert the plan to xmlbeans since geronimo naming is coupled on xmlbeans objects
-//            ejbModule.setVendorDD(geronimoOpenejb);
+            OpenejbGeronimoEjbJarType geronimoOpenejb = XmlUtil.convertToXmlbeans(geronimoEjbJarType);
+            
+           ejbModule.getVendorDD().set(geronimoOpenejb);
 
         // todo move namingBuilders.buildEnvironment() here when geronimo naming supports it
 

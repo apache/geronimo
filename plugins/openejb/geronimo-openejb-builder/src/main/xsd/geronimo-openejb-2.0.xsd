@@ -66,7 +66,7 @@
             <!-- GBeans -->
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element ref="sys:service"/>
-                <xs:any namespace="http://java.sun.com/xml/ns/persistence"/>
+                <xs:any processContents="lax" namespace="http://java.sun.com/xml/ns/persistence"/>
             </xs:choice>
         </xs:sequence>
     </xs:complexType>
