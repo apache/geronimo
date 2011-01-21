@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -112,7 +113,7 @@ public class GeronimoStandardContext extends StandardContext {
     private Subject defaultSubject = null;
     private RunAsSource runAsSource = RunAsSource.NULL;
 
-    private Map webServiceMap = null;
+    private Map<String, WebServiceContainer> webServiceMap = null;
 
     private boolean pipelineInitialized;
 
@@ -127,6 +128,15 @@ public class GeronimoStandardContext extends StandardContext {
 
     private Bundle bundle;
     private ServiceRegistration serviceRegistration;
+
+    private ThreadLocal<Stack<Object[]>> beforeAfterContexts = new ThreadLocal<Stack<Object[]>>() {
+
+        @Override
+        protected Stack<Object[]> initialValue() {
+            return new Stack<Object[]>();
+        }
+
+    };
 
     public GeronimoStandardContext() {
         setXmlNamespaceAware(true);
@@ -285,18 +295,18 @@ public class GeronimoStandardContext extends StandardContext {
         addValve(new SystemMethodValve());
 
         // Add User Defined Valves
-        List valveChain = ctx.getValveChain();
+        List<Valve> valveChain = ctx.getValveChain();
         if (valveChain != null) {
-            for (Object valve : valveChain) {
-                addValve((Valve)valve);
+            for (Valve valve : valveChain) {
+                addValve(valve);
             }
         }
 
         // Add User Defined Listeners
-        List listenerChain = ctx.getLifecycleListenerChain();
+        List<LifecycleListener> listenerChain = ctx.getLifecycleListenerChain();
         if (listenerChain != null) {
-            for (Object listener : listenerChain) {
-                addLifecycleListener((LifecycleListener)listener);
+            for (LifecycleListener listener : listenerChain) {
+                addLifecycleListener(listener);
             }
         }
 
@@ -452,7 +462,7 @@ public class GeronimoStandardContext extends StandardContext {
                 Valve valve = getPipeline().getFirst();
                 valve.invoke(null, null);
 
-                // if a servlet uses run-as then make sure role desgnates have been provided
+                // if a servlet uses run-as then make sure role designates have been provided
                 if (hasRunAsServlet()) {
                     if (runAsSource == null) {
                         throw new GeronimoSecurityException("web.xml or annotation specifies a run-as role but no subject configuration supplied for run-as roles");
@@ -513,8 +523,8 @@ public class GeronimoStandardContext extends StandardContext {
 
         ClassLoader cl = this.getParentClassLoader();
 
-        Class baseServletClass;
-        Class servletClass;
+        Class<?> baseServletClass;
+        Class<?> servletClass;
         try {
             baseServletClass = cl.loadClass(Servlet.class.getName());
             servletClass = cl.loadClass(servletClassName);
@@ -522,7 +532,7 @@ public class GeronimoStandardContext extends StandardContext {
             if (!baseServletClass.isAssignableFrom(servletClass)) {
                 //Nope - its probably a webservice, so lets see...
                 if (webServiceMap != null) {
-                    WebServiceContainer webServiceContainer = (WebServiceContainer) webServiceMap.get(wrapper.getName());
+                    WebServiceContainer webServiceContainer = webServiceMap.get(wrapper.getName());
 
                     if (webServiceContainer != null) {
                         //Yep its a web service
@@ -815,5 +825,26 @@ public class GeronimoStandardContext extends StandardContext {
     public void addSecurityRole(String role) {
         super.addSecurityRole(role);
         webSecurityConstraintStore.declareRoles(role);
+    }
+
+    @Override
+    protected ClassLoader bindThread() {
+        ClassLoader oldClassLoader =  super.bindThread();
+        Object context[] = null;
+
+        if (beforeAfter != null){
+            context = new Object[contextCount];
+            beforeAfterContexts.get().push(context);
+            beforeAfter.before(context, null, null, BeforeAfter.EDGE_SERVLET);
+        }
+        return oldClassLoader;
+    }
+
+    @Override
+    protected void unbindThread(ClassLoader oldContextClassLoader) {
+        super.unbindThread(oldContextClassLoader);
+        if (beforeAfter != null){
+            beforeAfter.after(beforeAfterContexts.get().pop(), null, null, 0);
+        }
     }
 }
