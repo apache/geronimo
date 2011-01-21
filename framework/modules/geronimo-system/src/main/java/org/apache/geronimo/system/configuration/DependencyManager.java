@@ -96,7 +96,7 @@ public class DependencyManager implements SynchronousBundleListener {
         repositoryAdmin = ref == null? null: (RepositoryAdmin) bundleContext.getService(ref);
         //init installed bundles
         for (Bundle bundle : bundleContext.getBundles()) {
-            addArtifactBundleEntry(bundle);
+            installed(bundle);
         }
         //Check the car who loads me ...
         try {
@@ -118,7 +118,8 @@ public class DependencyManager implements SynchronousBundleListener {
 
     public void bundleChanged(BundleEvent bundleEvent) {
         int eventType = bundleEvent.getType();
-        if (eventType == BundleEvent.INSTALLED) {
+        //TODO Need to optimize the codes, as we will not receive the INSTALLED event after the cache is created
+        if (eventType == BundleEvent.INSTALLED || eventType == BundleEvent.RESOLVED) {
             installed(bundleEvent.getBundle());
         } else if (eventType == BundleEvent.STARTING) {
             starting(bundleEvent.getBundle());
