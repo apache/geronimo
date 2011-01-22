@@ -140,16 +140,20 @@ public class MockBundle implements Bundle {
 
     public URL getEntry(String s) {
         if (s.startsWith("/")) {
-            s = s.substring(1);   
+            s = s.substring(1);
         }
         try {
             return new URL(location + "/" + s);
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            try {
+                return new File(location + File.separator + s).toURI().toURL();
+            } catch (MalformedURLException e1) {
+               throw new RuntimeException(e1);
+            }
         }
     }
 
-    
+
     public long getLastModified() {
         return 0;
     }
@@ -158,8 +162,8 @@ public class MockBundle implements Bundle {
         File base = getLocationFile();
         if (base == null) {
             return null;
-        }        
-        String filePattern = path;        
+        }
+        String filePattern = path;
         if (!filePattern.endsWith("/")) {
             filePattern += "/";
         }
@@ -185,13 +189,13 @@ public class MockBundle implements Bundle {
                 file = new File( (new URI(location)).getPath() );
             } catch (URISyntaxException e) {
                 // ignore
-            }            
+            }
         } else {
             file = new File(location);
         }
         return file;
     }
-    
+
     public BundleContext getBundleContext() {
         // if no bundle context was provided, just give an empty Mock one
         if (bundleContext == null) {
