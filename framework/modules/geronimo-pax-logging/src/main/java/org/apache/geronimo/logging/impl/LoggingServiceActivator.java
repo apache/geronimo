@@ -17,6 +17,15 @@
 
 package org.apache.geronimo.logging.impl;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Handler;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 import org.apache.geronimo.logging.SystemLog;
 import org.apache.geronimo.main.ServerInfo;
 import org.ops4j.pax.logging.service.internal.Activator;
@@ -50,6 +59,27 @@ public class LoggingServiceActivator implements BundleActivator {
         }
         
         activator.start(context);
+        
+        if (!Boolean.valueOf(context.getProperty("org.ops4j.pax.logging.skipJUL"))) {
+            // ensure PAX's JdkHandler is re-installed after JUL reset 
+            
+            final LogManager manager = LogManager.getLogManager();
+            final Handler[] paxHandlers = manager.getLogger("").getHandlers();
+
+            manager.addPropertyChangeListener(new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent evt) {
+                    Logger rootLogger = manager.getLogger("");
+                    Handler[] handlers = rootLogger.getHandlers();
+                    List<Handler> handlerList = (handlers == null) ? Collections.<Handler>emptyList() : Arrays.asList(handlers);                    
+                    for (Handler h : paxHandlers) {
+                        if (!handlerList.contains(h)) {
+                            rootLogger.addHandler(h);
+                        }
+                    }
+                    rootLogger.warning("java.util.logging has been reset by application or component");
+                }
+            });
+        }
     }
 
     private <T> T getService(BundleContext context, Class<T> name) {
