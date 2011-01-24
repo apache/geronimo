@@ -550,6 +550,7 @@ public class DeploymentContext {
         // TODO OSGI leave out if we use a extender mechanism
         if (environment.getBundleActivator() == null) {
             environment.setBundleActivator(ConfigurationActivator.class.getName());
+            environment.addImportPackage(getImportPackageName(ConfigurationActivator.class.getName()));
         }
         List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
@@ -567,7 +568,7 @@ public class DeploymentContext {
         }
 
         try {
-            osgiMetaDataBuilder.build(environment);
+            osgiMetaDataBuilder.build(environment, configuration.getModuleType() == ConfigurationModuleType.CAR);
         } catch (IllegalConfigurationException e) {
             throw new DeploymentException(e);
         }
@@ -618,8 +619,18 @@ public class DeploymentContext {
     }
 
     private static void addImport(LinkedHashSet<String> imports, String className) {
+        String packageName = getImportPackageName(className);
+        if (packageName == null || packageName.startsWith("java.")) {
+            return;
+        }
+        imports.add(packageName);
+    }
+
+    private static String getImportPackageName(String className) {
         int pos = className.lastIndexOf('.');
-        if (pos < 0 ) return;
+        if (pos < 0) {
+            return null;
+        }
         int count = 0;
         while (className.charAt(count) == '[') {
             count++;
@@ -628,10 +639,8 @@ public class DeploymentContext {
             count++;
         }
         className = className.substring(count, pos);
-        if (className.startsWith("java.")) return;
-        imports.add(className);
+        return className;
     }
-
 
     public void addAdditionalDeployment(ConfigurationData configurationData) {
         additionalDeployment.add(configurationData);

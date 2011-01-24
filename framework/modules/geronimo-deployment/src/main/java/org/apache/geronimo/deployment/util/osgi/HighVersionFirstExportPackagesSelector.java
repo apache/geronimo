@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
@@ -44,7 +45,12 @@ public class HighVersionFirstExportPackagesSelector implements ExportPackagesSel
         Map<String, Version> packageNameVersionMap = new HashMap<String, Version>();
         DependencyManager dependencyManager = context.getDependencyManager();
         for (Dependency dependency : context.getEnvironment().getDependencies()) {
-            Bundle dependentBundle = dependencyManager.getBundle(dependency.getArtifact());
+            Artifact resolvedArtifact = context.resolveArtifact(dependency.getArtifact());
+            if(resolvedArtifact == null) {
+                logger.warn("Dependency " + dependency.getArtifact() + " could not be resolved, its export packages are ignored");
+                continue;
+            }
+            Bundle dependentBundle = dependencyManager.getBundle(resolvedArtifact);
             if (dependentBundle == null) {
                 logger.warn("Fail to resolve the bundle corresponding to the artifact " + dependency.getArtifact() + ", its export packages are ignored");
                 continue;
@@ -54,7 +60,7 @@ public class HighVersionFirstExportPackagesSelector implements ExportPackagesSel
                 bundleIdExportPackages.put(dependentBundle.getBundleId(), exportPackages);
                 recordHighestPackageVersion(packageNameVersionMap, exportPackages);
             }
-            for (Long parentDependentBundleId : dependencyManager.getFullDependentBundleIds(dependentBundle)) {
+            for (Long parentDependentBundleId : context.getFullDependentBundleIds(dependentBundle)) {
                 if (!bundleIdExportPackages.containsKey(parentDependentBundleId)) {
                     Set<ExportPackage> parentExportPackages = context.getEffectExportPackages(parentDependentBundleId);
                     if (parentExportPackages.size() > 0) {

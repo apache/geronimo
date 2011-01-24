@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.deployment.util.osgi;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,14 +25,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.geronimo.system.plugin.model.DependencyType;
+import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
+import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class OSGiBuildContext {
+
+    private static final Logger logger = LoggerFactory.getLogger(OSGiBuildContext.class);
 
     private List<String> hiddenImportPackageNamePrefixes;
 
@@ -42,6 +53,10 @@ public class OSGiBuildContext {
     private Environment environment;
 
     private boolean inverseClassLoading;
+
+    private boolean clientModule;
+
+    private ArtifactResolver clientArtifactResolver;
 
     public OSGiBuildContext(Environment environment, List<String> hiddenImportPackageNamePrefixes, Set<String> hiddenImportPackageNames, DependencyManager dependencyManager,
             boolean inverseClassLoading) {
@@ -96,5 +111,76 @@ public class OSGiBuildContext {
             }
         }
         return exportPackages;
+    }
+
+    public Artifact resolveArtifact(Artifact artifact) {
+        if (clientModule) {
+            try {
+                return clientArtifactResolver.resolveInClassLoader(artifact);
+            } catch (MissingDependencyException e) {
+                logger.warn("Fail to resovle artifact " + artifact + " with client artifact resolver", e);
+                return null;
+            }
+        }
+        return artifact;
+    }
+
+    public Set<Long> getFullDependentBundleIds(Bundle bundle) {
+        if (clientModule) {
+            return getFullClientDependentBundleIds(bundle.getBundleId());
+        }
+        return dependencyManager.getFullDependentBundleIds(bundle);
+    }
+
+    private Set<Long> getFullClientDependentBundleIds(long bundleId) {
+        Artifact artifact = dependencyManager.getArtifact(bundleId);
+        if (artifact == null) {
+            return Collections.emptySet();
+        }
+        Artifact resolvedDependentArtifact = resolveArtifact(artifact);
+        if (resolvedDependentArtifact == null) {
+            return Collections.emptySet();
+        }
+        Set<Long> dependentBundleIds = new HashSet<Long>();
+        searchFullClientDependentBundleIds(resolvedDependentArtifact, dependentBundleIds);
+        return dependentBundleIds;
+
+    }
+
+    private void searchFullClientDependentBundleIds(Artifact resolvedClientArtifact, Set<Long> dependentBundleIds) {
+        if (resolvedClientArtifact == null) {
+            return;
+        }
+        Bundle resolvedBundle = dependencyManager.getBundle(resolvedClientArtifact);
+        if (resolvedBundle == null || dependentBundleIds.contains(resolvedBundle.getBundleId())) {
+            return;
+        }
+        PluginArtifactType pluginArtifact = dependencyManager.getCachedPluginMetadata(resolvedBundle);
+        if (pluginArtifact != null) {
+            for (DependencyType dependency : pluginArtifact.getDependency()) {
+                Artifact resolvedDependentArtifact = resolveArtifact(dependency.toArtifact());
+                if (resolvedDependentArtifact == null) {
+                    continue;
+                }
+                searchFullClientDependentBundleIds(resolvedDependentArtifact, dependentBundleIds);
+            }
+        }
+        dependentBundleIds.add(resolvedBundle.getBundleId());
+    }
+
+    public boolean isClientModule() {
+        return clientModule;
+    }
+
+    public void setClientModule(boolean clientModule) {
+        this.clientModule = clientModule;
+    }
+
+    public ArtifactResolver getClientArtifactResolver() {
+        return clientArtifactResolver;
+    }
+
+    public void setClientArtifactResolver(ArtifactResolver clientArtifactResolver) {
+        this.clientArtifactResolver = clientArtifactResolver;
     }
 }

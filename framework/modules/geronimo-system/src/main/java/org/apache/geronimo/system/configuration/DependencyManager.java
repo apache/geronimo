@@ -92,6 +92,7 @@ public class DependencyManager implements SynchronousBundleListener {
 
     private final Map<Artifact, Bundle> artifactBundleMap = new ConcurrentHashMap<Artifact, Bundle>();
 
+    private final Map<Long, Artifact> bundleIdArtifactMap = new ConcurrentHashMap<Long, Artifact>();
 
     public DependencyManager(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
             @ParamReference(name = "Repositories", namingType = "Repository") Collection<Repository> repositories,
@@ -205,6 +206,10 @@ public class DependencyManager implements SynchronousBundleListener {
         return artifactBundleMap.get(artifact);
     }
 
+    public Artifact getArtifact(long bundleId) {
+        return bundleIdArtifactMap.get(bundleId);
+    }
+
     public Artifact toArtifact(String installationLocation) {
         if (installationLocation == null) {
             return null;
@@ -247,6 +252,7 @@ public class DependencyManager implements SynchronousBundleListener {
         Artifact artifact = toArtifact(bundle.getLocation());
         if (artifact != null) {
             artifactBundleMap.put(artifact, bundle);
+            bundleIdArtifactMap.put(bundle.getBundleId(), artifact);
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("fail to resovle artifact from the bundle location " + bundle.getLocation());
@@ -258,6 +264,7 @@ public class DependencyManager implements SynchronousBundleListener {
         Artifact artifact = toArtifact(bundle.getLocation());
         if (artifact != null) {
             artifactBundleMap.remove(artifact);
+            bundleIdArtifactMap.remove(bundle.getBundleId());
         }
     }
 
@@ -342,7 +349,7 @@ public class DependencyManager implements SynchronousBundleListener {
         }
     }
 
-    private PluginArtifactType getCachedPluginMetadata(Bundle bundle) {
+    public PluginArtifactType getCachedPluginMetadata(Bundle bundle) {
         PluginArtifactType pluginArtifactType = pluginMap.get(bundle.getBundleId());
         if (pluginArtifactType == null) {
             pluginArtifactType = getPluginMetadata(bundle);

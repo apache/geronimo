@@ -24,6 +24,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.common.IllegalConfigurationException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
@@ -32,11 +36,15 @@ import org.apache.xbean.osgi.bundle.util.HeaderParser.HeaderElement;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class OSGiMetaDataBuilder {
+
+    private static final Logger logger = LoggerFactory.getLogger(OSGiMetaDataBuilder.class);
 
     private static final Version ZERO_VERSION = new Version(0, 0, 0);
 
@@ -55,6 +63,10 @@ public class OSGiMetaDataBuilder {
     }
 
     public void build(Environment environment) throws IllegalConfigurationException {
+        build(environment, false);
+    }
+
+    public void build(Environment environment, boolean clientModule) throws IllegalConfigurationException {
         processClassloadingRules(environment);
         ServiceReference serviceReference = null;
         try {
@@ -63,7 +75,7 @@ public class OSGiMetaDataBuilder {
             if (serviceReference != null) {
                 dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
             }
-            OSGiBuildContext context = createOSGiBuildContext(environment, dependencyManager);
+            OSGiBuildContext context = createOSGiBuildContext(environment, dependencyManager, clientModule);
             processImportPackages(context);
         } finally {
             if (serviceReference != null) {
@@ -83,7 +95,7 @@ public class OSGiMetaDataBuilder {
         }*/
     }
 
-    protected OSGiBuildContext createOSGiBuildContext(Environment environment, DependencyManager dependencyManager) throws IllegalConfigurationException {
+    protected OSGiBuildContext createOSGiBuildContext(Environment environment, DependencyManager dependencyManager, boolean clientModule) throws IllegalConfigurationException {
         List<String> hiddenImportPackageNamePrefixes = new ArrayList<String>();
         Set<String> hiddenImportPackageNames = new HashSet<String>();
 
@@ -133,7 +145,13 @@ public class OSGiMetaDataBuilder {
         }
         environment.removeDynamicImportPackages(removedDynamicImportPackages);
 
-        return new OSGiBuildContext(environment, hiddenImportPackageNamePrefixes, hiddenImportPackageNames, dependencyManager, environment.getClassLoadingRules().isInverseClassLoading());
+        OSGiBuildContext osgiBuildContext = new OSGiBuildContext(environment, hiddenImportPackageNamePrefixes, hiddenImportPackageNames, dependencyManager, environment.getClassLoadingRules()
+                .isInverseClassLoading());
+        osgiBuildContext.setClientModule(clientModule);
+        if (clientModule) {
+            osgiBuildContext.setClientArtifactResolver(getClientArtifactResolver());
+        }
+        return osgiBuildContext;
     }
 
     protected void processImportPackages(OSGiBuildContext context) {
@@ -158,5 +176,32 @@ public class OSGiMetaDataBuilder {
     protected String toImportPackageName(ExportPackage exportPackage) {
         //TODO If mandatory attribute exists, do we need to handle it ?
         return exportPackage.getVersion().equals(ZERO_VERSION) ? exportPackage.getName() : exportPackage.getName() + ";version=" + exportPackage.getVersion();
+    }
+
+    private ArtifactResolver getClientArtifactResolver() {
+        ServiceReference kernelReference = null;
+        try {
+            kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
+            if (kernelReference == null) {
+                return null;
+            }
+            Kernel kernel = (Kernel) bundleContext.getService(kernelReference);
+            return (ArtifactResolver) kernel.getGBean("ClientArtifactResolver");
+        } catch (GBeanNotFoundException e) {
+            logger.warn("Fail to get client artifact resolver, OSGi metadata for client module might not generate correctly", e);
+            return null;
+        } catch (InternalKernelException e) {
+            logger.warn("Fail to get client artifact resolver, OSGi metadata for client module might not generate correctly", e);
+            return null;
+        } catch (IllegalStateException e) {
+            logger.warn("Fail to get client artifact resolver, OSGi metadata for client module might not generate correctly", e);
+            return null;
+        } finally {
+            if (kernelReference != null)
+                try {
+                    bundleContext.ungetService(kernelReference);
+                } catch (Exception e) {
+                }
+        }
     }
 }
