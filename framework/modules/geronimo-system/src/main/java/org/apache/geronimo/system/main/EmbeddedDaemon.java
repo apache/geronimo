@@ -62,6 +62,13 @@ public class EmbeddedDaemon implements Main {
     static String GERONIMO_HOME = "org.apache.geronimo.home.dir";
     static String DEFAULT_KEYSTORE_TRUSTSTORE_PASSWORD_FILE = System.getProperty(GERONIMO_HOME)
             + "/var/config/config-substitutions.properties";
+    static String[] CACHES_TO_CLEAN;
+    
+    static {
+        
+        String CACHES_TO_CLEAN_STRING= System.getProperty("directorys.to.remove.on.start");
+        CACHES_TO_CLEAN = CACHES_TO_CLEAN_STRING.split(",");
+    }
 
     public EmbeddedDaemon(Kernel kernel, Bundle bundle) {
         this.kernel = kernel;
@@ -135,8 +142,10 @@ public class EmbeddedDaemon implements Main {
     
     protected void cleanCache(DaemonCLParser parser) {
         if (parser.isCleanCache()) {
-            File cacheFolder = new File(System.getProperty(GERONIMO_HOME) + "/var/cache");
-            FileUtils.recursiveDelete(cacheFolder);
+            for (String path:CACHES_TO_CLEAN){
+                File cacheFolder = new File(System.getProperty(GERONIMO_HOME) + path);
+                FileUtils.recursiveDelete(cacheFolder);
+            }
         }
     }
 
