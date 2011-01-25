@@ -53,8 +53,8 @@
         <module>sec-tests</module>
 -->
         <module>jpa-tests</module>
-        <module>sec-client-tests</module>
-        <module>appname-tests</module>
+        <!--<module>sec-client-tests</module>
+        <module>appname-tests</module>-->
         <module>bundle-inject-test</module>
     </modules>
         
@@ -66,6 +66,8 @@
                 <module>ejb-tests</module>
                 <module>jms-tests</module>
                 <module>sec-tests</module>
+                <module>sec-client-tests</module>
+                <module>appname-tests</module>
             </modules>
         </profile>
     </profiles>
