@@ -42,7 +42,7 @@
 <!--
         <module>corba-helloworld</module>
 -->
-        <module>corba-marshal</module>
+        <!--<module>corba-marshal</module>-->
         <module>corba-mytime</module>
     </modules>
 
