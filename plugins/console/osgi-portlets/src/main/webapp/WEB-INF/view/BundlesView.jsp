@@ -207,6 +207,7 @@ function hideLoadingDIV(){
 			load: function(response, ioArgs){
 				var bundle=dojo.fromJson(response);
 				var item=dijit.byId("grid1").store.newItem(bundle);
+				dijit.byId("grid1").sort();
 			}
 		});
 		
