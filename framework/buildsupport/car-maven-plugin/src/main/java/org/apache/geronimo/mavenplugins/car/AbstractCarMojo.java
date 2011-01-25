@@ -773,7 +773,7 @@ public abstract class AbstractCarMojo
                         "javax.swing.undo," +
                         "javax.tools," +
                         "javax.transaction;javax.transaction.xa;version=1.1;partial=true;mandatory:=partial," +
-                        "javax.util.concurrent;version=1.0," +
+                        //"javax.util.concurrent;version=1.0," +
                         "javax.util.concurrent.locks;version=1.0," +
                         "javax.xml," +
                         "javax.xml.namespace;version=1.0," +
@@ -865,7 +865,6 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.kernel.lifecycle," +
                         "org.apache.geronimo.kernel.management," +
                         "org.apache.geronimo.kernel.osgi," +
-                        "org.apache.geronimo.kernel.osgi.jar," +
                         "org.apache.geronimo.kernel.proxy," +
                         "org.apache.geronimo.kernel.repository," +
                         "org.apache.geronimo.kernel.rmi," +
@@ -876,7 +875,6 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.system.configuration.condition," +
                         "org.apache.geronimo.system.jmx," +
                         "org.apache.geronimo.system.logging," +
-                        "org.apache.geronimo.system.logging.jul," +
                         "org.apache.geronimo.system.logging.log4j," +
                         "org.apache.geronimo.system.main," +
                         "org.apache.geronimo.system.plugin," +
@@ -885,7 +883,6 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.system.repository," +
                         "org.apache.geronimo.system.resolver," +
                         "org.apache.geronimo.system.serverinfo," +
-                        "org.apache.geronimo.system.sharedlib," +
                         "org.apache.geronimo.system.threads," +
                         "org.apache.geronimo.system.util," +
                         "org.apache.geronimo.transformer," +
