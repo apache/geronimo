@@ -318,9 +318,22 @@ goto execCmd
 :execCmd
 @REM Get remaining unshifted command line arguments and save them in the
 set CMD_LINE_ARGS=
+
+
 :setArgs
+set OSGI_CACHE_CLEAN_ARGS =
+set CACHES_TO_CLEAN_STRING =
+
 if ""%1""=="""" goto doneSetArgs
 set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
+
+set clean=false
+if ""%1""==""-c"" set clean=true
+if ""%1""==""--clean"" set clean=true
+if "%clean%"=="true" (
+    set OSGI_CACHE_CLEAN_ARGS=-Dorg.osgi.framework.storage.clean=onFirstInit
+    set CACHES_TO_CLEAN_STRING=-Ddirectorys.to.remove.on.start="/var/catalina/work,/var/catalina/resources"
+) 
 shift
 goto setArgs
 :doneSetArgs
@@ -335,11 +348,11 @@ cmd /c exit /b 0
 
 @REM Execute Java with the applicable properties
 if not "%JDB%" == "" goto doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% %CONSOLE_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"  -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_HOME%" -Djava.util.logging.config.file="%GERONIMO_HOME%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" %MAINCLASS% %_LONG_OPT% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% %JAVA_AGENT_OPTS% %CONSOLE_OPTS%  -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"  -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_HOME%" -Djava.util.logging.config.file="%GERONIMO_HOME%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" %OSGI_CACHE_CLEAN_ARGS% %CACHES_TO_CLEAN_STRING% -classpath "%CLASSPATH%" %MAINCLASS% %_LONG_OPT% %CMD_LINE_ARGS% 
 goto end
 
 :doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" %CONSOLE_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"  -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_HOME%" -Djava.util.logging.config.file="%GERONIMO_HOME%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath "%CLASSPATH%" %MAINCLASS% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" %CONSOLE_OPTS% -Dorg.apache.geronimo.home.dir="%GERONIMO_HOME%"  -Dkaraf.home="%GERONIMO_HOME%" -Dkaraf.base="%GERONIMO_HOME%" -Djava.util.logging.config.file="%GERONIMO_HOME%\etc\java.util.logging.properties" -Djava.endorsed.dirs="%GERONIMO_HOME%\lib\endorsed;%JRE_HOME%\lib\endorsed" -Djava.ext.dirs="%GERONIMO_HOME%\lib\ext;%JRE_HOME%\lib\ext" -Djava.io.tmpdir="%GERONIMO_TMPDIR%"  %OSGI_CACHE_CLEAN_ARGS% %CACHES_TO_CLEAN_STRING% -classpath "%CLASSPATH%" %MAINCLASS% %CMD_LINE_ARGS%
 goto end
 
 :end
