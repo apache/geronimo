@@ -282,14 +282,15 @@ function hideLoadingDIV(){
 		<td align="right">
 			<label>Filter by Symbolic Name: </label>
 			<div type="text" jsid="filteredSymbolicName" id="filteredSymbolicName" dojoType="dijit.form.TextBox" style="width: 16em;">
-				<script type="dojo/method" event="onKeyUp" args="evt">
-				    var fitlerStr = dojo.byId("filteredSymbolicName").value;
+			</div>
+			<button dojoType="dijit.form.Button">Go
+				<script type="dojo/method" event="onClick" args="evt">
+					var fitlerStr = dojo.byId("filteredSymbolicName").value;
         			dijit.byId("grid1").filter({
             			symbolicName: "*" + fitlerStr + "*"     
-        			});       
-					dojo.stopEvent(evt);
+        			});
 				</script>
-			</div>
+			</button>
 		</td>
 	</tr> 
 </table>
@@ -302,7 +303,7 @@ var jsonStore=new dojo.data.ItemFileWriteStore({data:jsonData});
 
 <table jsid="grid1" id="grid1" dojoType="dojox.grid.EnhancedGrid"
 	plugins="{indirectSelection: true}" store="jsonStore"
-	query="{ id: '*' }" queryOptions ="{ignoreCase: true}" style="width:100%;margin:0px 0px;">
+	query="{ id: '*' }" queryOptions ="{ignoreCase: true}" sortFields="[{attribute:'id',descending:true}]" style="width:100%;margin:0px 0px;">
 	<thead>
 		<tr>
 			<th field="id">Id</th>
