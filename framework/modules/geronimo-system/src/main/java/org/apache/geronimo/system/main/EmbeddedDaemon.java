@@ -67,7 +67,12 @@ public class EmbeddedDaemon implements Main {
     static {
         
         String CACHES_TO_CLEAN_STRING= System.getProperty("directorys.to.remove.on.start");
-        CACHES_TO_CLEAN = CACHES_TO_CLEAN_STRING.split(",");
+        if (CACHES_TO_CLEAN_STRING != null) {
+            CACHES_TO_CLEAN = CACHES_TO_CLEAN_STRING.split(",");
+        }
+        else {
+            CACHES_TO_CLEAN = new String[0];
+        }
     }
 
     public EmbeddedDaemon(Kernel kernel, Bundle bundle) {
