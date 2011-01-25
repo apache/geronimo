@@ -62,6 +62,7 @@ import org.apache.geronimo.system.configuration.condition.JexlExpressionParser;
 import org.apache.geronimo.system.configuration.condition.ParserUtils;
 import org.apache.geronimo.system.plugin.model.AttributesType;
 import org.apache.geronimo.system.plugin.model.GbeanType;
+import org.apache.geronimo.system.plugin.model.ModuleType;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.xml.sax.SAXException;
 import org.osgi.framework.Bundle;
@@ -438,6 +439,15 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
 
     static void write(ServerOverride serverOverride, Writer writer) throws XMLStreamException, JAXBException, IOException {
         AttributesType attributes = serverOverride.writeXml();
+        
+        // we don't need to write wab configuration to config.xml
+        for (Iterator<ModuleType> it = attributes.getModule().iterator(); it.hasNext();) {
+            ModuleType module = it.next();
+            if (module.getName().endsWith("wab")) {
+                it.remove();
+            }
+        }
+        
         AttributesXmlUtil.writeAttributes(attributes, writer);
         writer.flush();
     }
