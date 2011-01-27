@@ -280,6 +280,9 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                                                  contextInfo.getBundle().getBundleContext());
         context.getServletContext().setAttribute(WebAttributeName.WEB_APP_INFO.name(), contextInfo.getWebAppInfo());
 
+        context.getServletContext().setAttribute("org.springframework.osgi.web." + BundleContext.class.getName(), 
+                                                 contextInfo.getBundle().getBundleContext());
+
         // now set the module context ValidatorFactory in a context property.
         try {
             javax.naming.Context ctx = contextInfo.getJndiContext();

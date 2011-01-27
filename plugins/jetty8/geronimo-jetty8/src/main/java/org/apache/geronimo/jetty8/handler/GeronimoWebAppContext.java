@@ -67,6 +67,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.URLResource;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 /**
@@ -97,8 +98,14 @@ public class GeronimoWebAppContext extends WebAppContext {
         this.integrationContext = integrationContext;
         setClassLoader(classLoader);
         this.classLoader = classLoader;
-        setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE, integrationContext.getBundle().getBundleContext());
+        setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE, 
+                     integrationContext.getBundle().getBundleContext());
+
         setAttribute(WebAttributeName.WEB_APP_INFO.name(), webAppInfo);
+
+        setAttribute("org.springframework.osgi.web." + BundleContext.class.getName(), 
+                     integrationContext.getBundle().getBundleContext());
+
         // now set the module context ValidatorFactory in a context property.
         try {
             javax.naming.Context ctx = integrationContext.getComponentContext();
