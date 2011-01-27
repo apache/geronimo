@@ -35,6 +35,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.felix.bundlerepository.RepositoryAdmin;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamReference;
@@ -47,6 +48,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
@@ -70,7 +72,7 @@ import org.slf4j.LoggerFactory;
  */
 @GBean
 @OsgiService
-public class DependencyManager implements SynchronousBundleListener {
+public class DependencyManager implements SynchronousBundleListener, GBeanLifecycle {
 
     private static final Logger log = LoggerFactory.getLogger(DependencyManager.class);
 
@@ -78,7 +80,7 @@ public class DependencyManager implements SynchronousBundleListener {
 
     private final Collection<Repository> repositories;
 
-    private final RepositoryAdmin repositoryAdmin;
+    private RepositoryAdmin repositoryAdmin;
 
     private final ArtifactResolver artifactResolver;
 
@@ -94,35 +96,14 @@ public class DependencyManager implements SynchronousBundleListener {
 
     private final Map<Long, Artifact> bundleIdArtifactMap = new ConcurrentHashMap<Long, Artifact>();
 
+    private ServiceReference respositoryAdminReference;
+
     public DependencyManager(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
             @ParamReference(name = "Repositories", namingType = "Repository") Collection<Repository> repositories,
             @ParamReference(name = "ArtifactResolver", namingType = "ArtifactResolver") ArtifactResolver artifactResolver) {
         this.bundleContext = bundleContext;
         this.repositories = repositories;
         this.artifactResolver = artifactResolver;
-        bundleContext.addBundleListener(this);
-        ServiceReference ref = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
-        repositoryAdmin = ref == null ? null : (RepositoryAdmin) bundleContext.getService(ref);
-        //init installed bundles
-        for (Bundle bundle : bundleContext.getBundles()) {
-            installed(bundle);
-        }
-        //Check the car who loads me ...
-        try {
-            PluginArtifactType pluginArtifact = getCachedPluginMetadata(bundleContext.getBundle());
-            if (pluginArtifact != null) {
-                Set<Long> dependentBundleIds = new HashSet<Long>();
-                for (DependencyType dependency : pluginArtifact.getDependency()) {
-                    Bundle dependentBundle = getBundle(dependency.toArtifact());
-                    if (dependentBundle != null) {
-                        dependentBundleIds.add(dependentBundle.getBundleId());
-                    }
-                }
-                dependentBundleIdsMap.put(bundleContext.getBundle().getBundleId(), dependentBundleIds);
-            }
-        } catch (Exception e) {
-            log.error("Fail to read the dependency info from bundle " + bundleContext.getBundle().getLocation());
-        }
     }
 
     public void bundleChanged(BundleEvent bundleEvent) {
@@ -310,15 +291,12 @@ public class DependencyManager implements SynchronousBundleListener {
             } catch (Throwable e) {
                 log.warn("Could not read geronimo metadata for bundle: " + bundle, e);
             } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                    }
-                }
+                IOUtils.close(in);
             }
         } else {
-            log.debug("did not find geronimo-plugin.xml for bundle " + bundle);
+            if (log.isDebugEnabled()) {
+                log.debug("did not find geronimo-plugin.xml for bundle " + bundle);
+            }
         }
         return pluginArtifactType;
     }
@@ -326,6 +304,7 @@ public class DependencyManager implements SynchronousBundleListener {
     private void uninstall(Bundle bundle) {
         removeArtifactBundleEntry(bundle);
         dependentBundleIdsMap.remove(bundle.getBundleId());
+        fullDependentBundleIdsMap.remove(bundle.getBundleId());
         pluginMap.remove(bundle.getBundleId());
     }
 
@@ -363,6 +342,9 @@ public class DependencyManager implements SynchronousBundleListener {
     }
 
     public void installed(Bundle bundle) {
+        if (bundleIdArtifactMap.containsKey(bundle.getBundleId())) {
+            return;
+        }
         addArtifactBundleEntry(bundle);
         PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
         if (pluginArtifactType == null) {
@@ -449,5 +431,60 @@ public class DependencyManager implements SynchronousBundleListener {
             }
         }
         throw new NoSuchConfigException(configurationId);
+    }
+
+    @Override
+    public void doStart() throws Exception {
+        bundleContext.addBundleListener(this);
+        respositoryAdminReference = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
+        repositoryAdmin = respositoryAdminReference == null ? null : (RepositoryAdmin) bundleContext.getService(respositoryAdminReference);
+        //init installed bundles
+        for (Bundle bundle : bundleContext.getBundles()) {
+            installed(bundle);
+        }
+        //Check the car who loads me ...
+        try {
+            PluginArtifactType pluginArtifact = getCachedPluginMetadata(bundleContext.getBundle());
+            if (pluginArtifact != null) {
+                Set<Long> dependentBundleIds = new HashSet<Long>();
+                for (DependencyType dependency : pluginArtifact.getDependency()) {
+                    Bundle dependentBundle = getBundle(dependency.toArtifact());
+                    if (dependentBundle != null) {
+                        dependentBundleIds.add(dependentBundle.getBundleId());
+                    }
+                }
+                long bundleId = bundleContext.getBundle().getBundleId();
+                dependentBundleIdsMap.put(bundleId, dependentBundleIds);
+                fullDependentBundleIdsMap.put(bundleId, dependentBundleIds);
+            }
+        } catch (Exception e) {
+            log.error("Fail to read the dependency info from bundle " + bundleContext.getBundle().getLocation());
+        }
+    }
+
+    @Override
+    public void doStop() throws Exception {
+        if (respositoryAdminReference != null) {
+            try {
+                bundleContext.ungetService(respositoryAdminReference);
+            } catch (Exception e) {
+            }
+        }
+        bundleContext.removeBundleListener(this);
+        //Some clean up work
+        pluginMap.clear();
+        dependentBundleIdsMap.clear();
+        fullDependentBundleIdsMap.clear();
+        bundleExportPackagesMap.clear();
+        artifactBundleMap.clear();
+        bundleIdArtifactMap.clear();
+    }
+
+    @Override
+    public void doFail() {
+        try {
+            doStop();
+        } catch (Exception e) {
+        }
     }
 }
