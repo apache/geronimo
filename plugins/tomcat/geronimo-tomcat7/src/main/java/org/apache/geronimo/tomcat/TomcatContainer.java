@@ -17,8 +17,6 @@
 package org.apache.geronimo.tomcat;
 
 import java.io.File;
-import java.net.URL;
-import java.net.URLStreamHandlerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -55,7 +53,6 @@ import org.apache.geronimo.web.WebAttributeName;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.naming.resources.DirContextURLStreamHandlerFactory;
 import org.apache.tomcat.InstanceManager;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -93,7 +90,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     private final String objectName;
     private final String[] applicationListeners;
     private final WebManager manager;
-    private static boolean first = true;
     private final BundleContext bundleContext;
     private final ClassLoader classLoader;
 
@@ -121,22 +117,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
         this.bundleContext = bundleContext;
         this.classLoader = classLoader;
-        // Register a stream handler factory for the JNDI protocol
-        URLStreamHandlerFactory streamHandlerFactory =
-            new DirContextURLStreamHandlerFactory();
-        if (first) {
-            first = false;
-            try {
-                URL.setURLStreamHandlerFactory(streamHandlerFactory);
-            } catch (Exception e) {
-                // Log and continue anyway, this is not critical
-                log.error("Error registering jndi stream handler", e);
-            } catch (Throwable t) {
-                // This is likely a dual registration
-                log.info("Dual registration of jndi stream handler: "
-                         + t.getMessage());
-            }
-        }
 
         if (catalinaHome == null)
             catalinaHome = DEFAULT_CATALINA_HOME;
@@ -311,10 +291,16 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
         // Set the context for the Tomcat implementation
         contextInfo.setContext(context);
-
         // Have the context to set its properties if its a GeronimoStandardContext
         if (context instanceof GeronimoStandardContext) {
             ((GeronimoStandardContext) context).setContextProperties(contextInfo);
+        }
+
+        // add application listeners to the new context
+        if (applicationListeners != null) {
+            for (String listener : applicationListeners) {
+                context.addApplicationListener(listener);
+            }
         }
 
         try {
