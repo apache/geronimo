@@ -104,7 +104,9 @@ public class OsgiMetaDataScannerService implements ScannerService
                 findBeansXml(mainBundle, packageAdmin);
 
                 // search for all classes
-                findBeanClasses(mainBundle, packageAdmin);
+                if (!beanXMLs.isEmpty()) {
+                    findBeanClasses(mainBundle, packageAdmin);
+                }
             }
             catch(Exception e)
             {
