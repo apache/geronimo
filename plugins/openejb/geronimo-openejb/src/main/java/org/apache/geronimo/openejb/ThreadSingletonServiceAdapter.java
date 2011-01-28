@@ -25,7 +25,6 @@ import org.apache.geronimo.openwebbeans.OpenWebBeansWebInitializer;
 import org.apache.geronimo.openwebbeans.OsgiMetaDataScannerService;
 import org.apache.openejb.cdi.CdiAppContextsService;
 import org.apache.openejb.cdi.CdiResourceInjectionService;
-import org.apache.openejb.cdi.OWBContext;
 import org.apache.openejb.cdi.OpenEJBLifecycle;
 import org.apache.openejb.cdi.StartupObject;
 import org.apache.openejb.cdi.ThreadSingletonService;
@@ -37,7 +36,10 @@ import org.apache.webbeans.spi.ResourceInjectionService;
 /**
  * @version $Rev$ $Date$
  */
-public class ThreadSingletonServiceAdapter extends GeronimoSingletonService implements ThreadSingletonService {
+public class ThreadSingletonServiceAdapter implements ThreadSingletonService {
+
+    private final GeronimoSingletonService geronimoSingletonService = new GeronimoSingletonService();
+
     public ThreadSingletonServiceAdapter() {
         super();
     }
@@ -45,28 +47,29 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
     @Override
     public void initialize(StartupObject startupObject) {
         //share owb singletons
-        OWBContext owbContext = new OWBContext();
-        Object old = contextEntered(owbContext);
-        try {
-            if (old == null) {
-                //not embedded. Are we the first ejb module to try this?
-                if (startupObject.getAppContext().get(OWBContext.class) == null) {
-                    startupObject.getAppContext().set(OWBContext.class, owbContext);
-                    WebBeansContext webBeansContext = owbContext.getWebBeansContext();
+        WebBeansContext webBeansContext = startupObject.getAppContext().get(WebBeansContext.class);
+        if (webBeansContext == null) {
+            webBeansContext = new WebBeansContext();
+            Object old = contextEntered(webBeansContext);
+            try {
+                if (old == null) {
+                    //not embedded. Are we the first ejb module to try this?
+                    startupObject.getAppContext().set(WebBeansContext.class, webBeansContext);
                     setConfiguration(webBeansContext.getOpenWebBeansConfiguration());
                     try {
                         webBeansContext.getService(ContainerLifecycle.class).startApplication(startupObject);
                     } catch (Exception e) {
                         throw new RuntimeException("couldn't start owb context", e);
                     }
+                    // an existing OWBConfiguration will have already been initialized
+                } else {
+                    startupObject.getAppContext().set(WebBeansContext.class, (WebBeansContext) old);
                 }
-                // an existing OWBConfiguration will have already been initialized
-            } else {
-                startupObject.getAppContext().set(OWBContext.class, new OWBContext((WebBeansContext) old));
+            } finally {
+                contextExited(old);
             }
-        } finally {
-            contextExited(old);
         }
+
     }
 
     private void setConfiguration(OpenWebBeansConfiguration configuration) {
@@ -83,13 +86,23 @@ public class ThreadSingletonServiceAdapter extends GeronimoSingletonService impl
     }
 
     @Override
-    public Object contextEntered(org.apache.openejb.cdi.OWBContext owbContext) {
-        return GeronimoSingletonService.contextEntered(owbContext.getWebBeansContext());
+    public Object contextEntered(WebBeansContext owbContext) {
+        return GeronimoSingletonService.contextEntered(owbContext);
     }
 
     @Override
     public void contextExited(Object oldContext) {
         if (oldContext != null && !(oldContext instanceof WebBeansContext)) throw new IllegalArgumentException("Expecting a WebBeansContext not " + oldContext.getClass().getName());
         GeronimoSingletonService.contextExited((WebBeansContext) oldContext);
+    }
+
+    @Override
+    public WebBeansContext get(Object key) {
+        return geronimoSingletonService.get(key);
+    }
+
+    @Override
+    public void clear(Object key) {
+        geronimoSingletonService.clear(key);
     }
 }
