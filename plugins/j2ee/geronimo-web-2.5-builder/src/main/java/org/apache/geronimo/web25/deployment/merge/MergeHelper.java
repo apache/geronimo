@@ -206,11 +206,11 @@ public class MergeHelper {
                     return isJarFile ? url.equals(prefix) : false;
                 }
             });
-            List<Class> webServlets = bundleAnnotationFinder.findAnnotatedClasses(WebServlet.class);
+            List<Class<?>> webServlets = bundleAnnotationFinder.findAnnotatedClasses(WebServlet.class);
             WEB_SERVLET_ANNOTATION_MERGE_HANDLER.merge(webServlets.toArray(new Class<?>[0]), webApp, mergeContext);
-            List<Class> webFilters = bundleAnnotationFinder.findAnnotatedClasses(WebFilter.class);
+            List<Class<?>> webFilters = bundleAnnotationFinder.findAnnotatedClasses(WebFilter.class);
             WEB_FILTER_ANNOTATION_MERGE_HANDLER.merge(webFilters.toArray(new Class<?>[0]), webApp, mergeContext);
-            List<Class> webListeners = bundleAnnotationFinder.findAnnotatedClasses(WebListener.class);
+            List<Class<?>> webListeners = bundleAnnotationFinder.findAnnotatedClasses(WebListener.class);
             WEB_LISTENER_ANNOTATION_MERGE_HANDLER.merge(webListeners.toArray(new Class<?>[0]), webApp, mergeContext);
         } catch (Exception e) {
             throw new DeploymentException("Fail to merge annotations in " + prefix, e);

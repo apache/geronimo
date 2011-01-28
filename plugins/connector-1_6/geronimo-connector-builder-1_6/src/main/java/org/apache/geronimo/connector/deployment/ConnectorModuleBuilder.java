@@ -564,11 +564,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
     private Connector mergeMetadata(Bundle bundle, BundleAnnotationFinder classFinder, Connector connector) throws DeploymentException {
         Class<? extends ResourceAdapter> raClass = null;
         if (connector == null) {
-            List<Class> resourceAdapterClasses = classFinder.findAnnotatedClasses(javax.resource.spi.Connector.class);
+            List<Class<?>> resourceAdapterClasses = classFinder.findAnnotatedClasses(javax.resource.spi.Connector.class);
             if (resourceAdapterClasses.size() != 1) {
                 throw new DeploymentException("Not exactly one resource adapter: " + resourceAdapterClasses);
             }
-            raClass = resourceAdapterClasses.get(0);
+            raClass = resourceAdapterClasses.get(0).asSubclass(ResourceAdapter.class);
             connector = new Connector();
 //          connector.setDescriptions(ra.description());
             connector.setMetadataComplete(false);
@@ -619,7 +619,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
                 inboundResource.setMessageAdapter(new MessageAdapter());
             }
             MessageAdapter messageAdapter = inboundResource.getMessageAdapter();
-            List<Class> activationSpecClasses = classFinder.findAnnotatedClasses(Activation.class);
+            List<Class<?>> activationSpecClasses = classFinder.findAnnotatedClasses(Activation.class);
 
             for (Class<?> asClass : activationSpecClasses) {
                 Activation activation = asClass.getAnnotation(Activation.class);
@@ -670,14 +670,14 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
             }
 
             //outbound
-            for (Class<? extends ManagedConnectionFactory> mcfClass : classFinder.findAnnotatedClasses(javax.resource.spi.ConnectionDefinition.class)) {
+            for (Class<?> mcfClass : classFinder.findAnnotatedClasses(javax.resource.spi.ConnectionDefinition.class)) {
                 javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation = mcfClass.getAnnotation(javax.resource.spi.ConnectionDefinition.class);
-                buildConnectionDefinition(mcfClass, connectionDefinitionAnnotation, outboundResourceAdapter);
+                buildConnectionDefinition(mcfClass.asSubclass(ManagedConnectionFactory.class), connectionDefinitionAnnotation, outboundResourceAdapter);
             }
-            for (Class<? extends ManagedConnectionFactory> mcfClass : classFinder.findAnnotatedClasses(ConnectionDefinitions.class)) {
+            for (Class<?> mcfClass : classFinder.findAnnotatedClasses(ConnectionDefinitions.class)) {
                 ConnectionDefinitions connectionDefinitionAnnotations = mcfClass.getAnnotation(ConnectionDefinitions.class);
                 for (javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation : connectionDefinitionAnnotations.value()) {
-                    buildConnectionDefinition(mcfClass, connectionDefinitionAnnotation, outboundResourceAdapter);
+                    buildConnectionDefinition(mcfClass.asSubclass(ManagedConnectionFactory.class), connectionDefinitionAnnotation, outboundResourceAdapter);
                 }
             }
             if (outboundResourceAdapter.getConnectionDefinition().size() > 0) {
@@ -789,7 +789,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         return list;
     }
 
-    private void buildConnectionDefinition(Class mcfClass, javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation, OutboundResourceAdapter outboundResourceAdapter) throws DeploymentException {
+    private void buildConnectionDefinition(Class<? extends ManagedConnectionFactory> mcfClass, javax.resource.spi.ConnectionDefinition connectionDefinitionAnnotation, OutboundResourceAdapter outboundResourceAdapter) throws DeploymentException {
         ConnectionDefinition connectionDefinition = getConnectionDefinition(connectionDefinitionAnnotation, outboundResourceAdapter);
         if (connectionDefinition.getManagedConnectionFactoryClass() == null) {
             connectionDefinition.setManagedConnectionFactoryClass(mcfClass.getName());

@@ -814,7 +814,7 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
         // Find the list of classes from the application-client.xml we want to search for
         // annotations in
         //------------------------------------------------------------------------------------
-        List<Class> classes = new ArrayList<Class>();
+        List<Class<?>> classes = new ArrayList<Class<?>>();
 
         // Get the classloader from the module's EARContext
         Bundle bundle = appClientModule.getEarContext().getDeploymentBundle();

@@ -341,14 +341,14 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                 }
 
             });
-            annotationClassSetMap.put(FacesComponent.class, new HashSet(bundleAnnotationFinder.findAnnotatedClasses(FacesComponent.class)));
-            annotationClassSetMap.put(FacesConverter.class, new HashSet(bundleAnnotationFinder.findAnnotatedClasses(FacesConverter.class)));
-            annotationClassSetMap.put(FacesValidator.class, new HashSet(bundleAnnotationFinder.findAnnotatedClasses(FacesValidator.class)));
-            annotationClassSetMap.put(FacesRenderer.class, new HashSet(bundleAnnotationFinder.findAnnotatedClasses(FacesRenderer.class)));
-            annotationClassSetMap.put(javax.faces.bean.ManagedBean.class, new HashSet(bundleAnnotationFinder.findAnnotatedClasses(javax.faces.bean.ManagedBean.class)));
-            annotationClassSetMap.put(NamedEvent.class, new HashSet(bundleAnnotationFinder.findAnnotatedClasses(NamedEvent.class)));
-            annotationClassSetMap.put(FacesBehavior.class, new HashSet(bundleAnnotationFinder.findAnnotatedClasses(FacesBehavior.class)));
-            annotationClassSetMap.put(FacesBehaviorRenderer.class, new HashSet(bundleAnnotationFinder.findAnnotatedClasses(FacesBehaviorRenderer.class)));
+            annotationClassSetMap.put(FacesComponent.class, new HashSet<Class<?>>(bundleAnnotationFinder.findAnnotatedClasses(FacesComponent.class)));
+            annotationClassSetMap.put(FacesConverter.class, new HashSet<Class<?>>(bundleAnnotationFinder.findAnnotatedClasses(FacesConverter.class)));
+            annotationClassSetMap.put(FacesValidator.class, new HashSet<Class<?>>(bundleAnnotationFinder.findAnnotatedClasses(FacesValidator.class)));
+            annotationClassSetMap.put(FacesRenderer.class, new HashSet<Class<?>>(bundleAnnotationFinder.findAnnotatedClasses(FacesRenderer.class)));
+            annotationClassSetMap.put(javax.faces.bean.ManagedBean.class, new HashSet<Class<?>>(bundleAnnotationFinder.findAnnotatedClasses(javax.faces.bean.ManagedBean.class)));
+            annotationClassSetMap.put(NamedEvent.class, new HashSet<Class<?>>(bundleAnnotationFinder.findAnnotatedClasses(NamedEvent.class)));
+            annotationClassSetMap.put(FacesBehavior.class, new HashSet<Class<?>>(bundleAnnotationFinder.findAnnotatedClasses(FacesBehavior.class)));
+            annotationClassSetMap.put(FacesBehaviorRenderer.class, new HashSet<Class<?>>(bundleAnnotationFinder.findAnnotatedClasses(FacesBehaviorRenderer.class)));
             return new AnnotationConfigurator() {
 
                 @Override
@@ -408,7 +408,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
     }
 
     protected ClassFinder createMyFacesClassFinder(List<FacesConfig> facesConfigs, Bundle bundle) throws DeploymentException {
-        List<Class> managedBeanClasses = new ArrayList<Class>();
+        List<Class<?>> managedBeanClasses = new ArrayList<Class<?>>();
         for (FacesConfig facesConfig : facesConfigs) {
             for (ManagedBean managedBean : facesConfig.getManagedBeans()) {
                 String className = managedBean.getManagedBeanClassName().trim();

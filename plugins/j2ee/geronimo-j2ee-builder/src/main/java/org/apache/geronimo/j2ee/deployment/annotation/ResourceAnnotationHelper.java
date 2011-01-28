@@ -94,7 +94,7 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
     private static void processResource(JndiConsumer annotatedApp, AbstractFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
         log.debug("processResource(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
-        List<Class> classeswithResource = classFinder.findAnnotatedClasses(Resource.class);
+        List<Class<?>> classeswithResource = classFinder.findAnnotatedClasses(Resource.class);
         List<Method> methodswithResource = classFinder.findAnnotatedMethods(Resource.class);
         List<Field> fieldswithResource = classFinder.findAnnotatedFields(Resource.class);
 
@@ -140,7 +140,7 @@ public final class ResourceAnnotationHelper extends AnnotationHelper {
     private static void processResources(JndiConsumer annotatedApp, AbstractFinder classFinder, ResourceProcessor resourceProcessor) throws Exception {
         log.debug("processResources(): Entry");
 
-        List<Class> classeswithResources = classFinder.findAnnotatedClasses(Resources.class);
+        List<Class<?>> classeswithResources = classFinder.findAnnotatedClasses(Resources.class);
 
         // Class-level annotation(s)
         List<Resource> resourceList = new ArrayList<Resource>();

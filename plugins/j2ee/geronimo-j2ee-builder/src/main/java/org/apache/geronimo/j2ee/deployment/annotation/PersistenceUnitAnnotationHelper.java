@@ -99,7 +99,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
     private static void processPersistenceUnit(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceUnit(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
-        List<Class> classeswithPersistenceUnit = classFinder.findAnnotatedClasses(PersistenceUnit.class);
+        List<Class<?>> classeswithPersistenceUnit = classFinder.findAnnotatedClasses(PersistenceUnit.class);
         List<Method> methodswithPersistenceUnit = classFinder.findAnnotatedMethods(PersistenceUnit.class);
         List<Field> fieldswithPersistenceUnit = classFinder.findAnnotatedFields(PersistenceUnit.class);
 
@@ -144,7 +144,7 @@ public final class PersistenceUnitAnnotationHelper extends AnnotationHelper {
     private static void processPersistenceUnits(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceUnits(): Entry");
 
-        List<Class> classeswithPersistenceUnits = classFinder.findAnnotatedClasses(PersistenceUnits.class);
+        List<Class<?>> classeswithPersistenceUnits = classFinder.findAnnotatedClasses(PersistenceUnits.class);
 
         // Class-level annotation(s)
         List<PersistenceUnit> persistenceUnitList = new ArrayList<PersistenceUnit>();

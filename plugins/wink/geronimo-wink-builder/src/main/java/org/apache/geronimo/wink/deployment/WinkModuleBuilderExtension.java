@@ -156,7 +156,7 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
    
 
     protected ClassFinder createWinkClassFinder(List<FacesConfig> facesConfigs, Set<Class> annotatedManagedBeanClasses, Bundle bundle) throws DeploymentException {
-        List<Class> managedBeanClasses = new ArrayList<Class>();
+        List<Class<?>> managedBeanClasses = new ArrayList<Class<?>>();
         for (FacesConfig facesConfig : facesConfigs) {
             for (FacesManagedBean managedBean : facesConfig.getManagedBean()) {
                 String className = managedBean.getManagedBeanClass().trim();

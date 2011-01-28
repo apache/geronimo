@@ -87,7 +87,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are discovered correctly
         //-------------------------------------------------
-        List<Class> annotatedClasses = classFinder.findAnnotatedClasses(EJBs.class);
+        List<Class<?>> annotatedClasses = classFinder.findAnnotatedClasses(EJBs.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
         assertTrue(annotatedClasses.contains(EJBAnnotationExample.class));
@@ -131,7 +131,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are discovered correctly
         //-------------------------------------------------
-        List<Class> annotatedClasses = classFinder.findAnnotatedClasses(HandlerChain.class);
+        List<Class<?>> annotatedClasses = classFinder.findAnnotatedClasses(HandlerChain.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
         assertTrue(annotatedClasses.contains(HandlerChainAnnotationExample.class));
@@ -173,7 +173,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are discovered correctly
         //-------------------------------------------------
-        List<Class> annotatedClasses = classFinder.findAnnotatedClasses(PersistenceContexts.class);
+        List<Class<?>> annotatedClasses = classFinder.findAnnotatedClasses(PersistenceContexts.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
         assertTrue(annotatedClasses.contains(PersistenceContextAnnotationExample.class));
@@ -212,7 +212,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
 
     public void testPersistenceUnitAnnotationHelper() throws Exception {
 
-        List<Class> annotatedClasses = classFinder.findAnnotatedClasses(PersistenceUnits.class);
+        List<Class<?>> annotatedClasses = classFinder.findAnnotatedClasses(PersistenceUnits.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
         assertTrue(annotatedClasses.contains(PersistenceUnitAnnotationExample.class));
@@ -254,7 +254,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are discovered correctly
         //-------------------------------------------------
-        List<Class> annotatedClasses = classFinder.findAnnotatedClasses(WebServiceRefs.class);
+        List<Class<?>> annotatedClasses = classFinder.findAnnotatedClasses(WebServiceRefs.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
         assertTrue(annotatedClasses.contains(WebServiceRefAnnotationExample.class));
@@ -300,7 +300,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are discovered correctly
         //-------------------------------------------------
-        List<Class> annotatedClasses = classFinder.findAnnotatedClasses(DeclareRoles.class);
+        List<Class<?>> annotatedClasses = classFinder.findAnnotatedClasses(DeclareRoles.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
         assertTrue(annotatedClasses.contains(SecurityAnnotationExample.class));

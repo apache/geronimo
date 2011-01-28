@@ -90,7 +90,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
     private static void processDeclareRoles(WebApp webApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processDeclareRoles(): Entry: webApp: " + webApp.toString());
 
-        List<Class> classesWithDeclareRoles = classFinder.findAnnotatedClasses(DeclareRoles.class);
+        List<Class<?>> classesWithDeclareRoles = classFinder.findAnnotatedClasses(DeclareRoles.class);
 
         // Class-level annotation
         for (Class cls : classesWithDeclareRoles) {
@@ -117,7 +117,7 @@ public final class SecurityAnnotationHelper extends AnnotationHelper {
     private static void processRunAs(WebApp webApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processRunAs(): Entry: webApp: " + webApp.toString());
 
-        List<Class> classesWithRunAs = classFinder.findAnnotatedClasses(RunAs.class);
+        List<Class<?>> classesWithRunAs = classFinder.findAnnotatedClasses(RunAs.class);
 
         // Class-level annotation
         for (Class cls : classesWithRunAs) {

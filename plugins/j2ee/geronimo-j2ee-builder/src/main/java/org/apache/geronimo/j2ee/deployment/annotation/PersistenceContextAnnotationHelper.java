@@ -102,7 +102,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
     private static void processPersistenceContext(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceContext(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
-        List<Class> classeswithPersistenceContext = classFinder.findAnnotatedClasses(PersistenceContext.class);
+        List<Class<?>> classeswithPersistenceContext = classFinder.findAnnotatedClasses(PersistenceContext.class);
         List<Method> methodswithPersistenceContext = classFinder.findAnnotatedMethods(PersistenceContext.class);
         List<Field> fieldswithPersistenceContext = classFinder.findAnnotatedFields(PersistenceContext.class);
 
@@ -147,7 +147,7 @@ public final class PersistenceContextAnnotationHelper extends AnnotationHelper {
     private static void processPersistenceContexts(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processPersistenceContexts(): Entry");
 
-        List<Class> classeswithPersistenceContexts = classFinder.findAnnotatedClasses(PersistenceContexts.class);
+        List<Class<?>> classeswithPersistenceContexts = classFinder.findAnnotatedClasses(PersistenceContexts.class);
 
         // Class-level annotation(s)
         List<PersistenceContext> persistenceContextList = new ArrayList<PersistenceContext>();

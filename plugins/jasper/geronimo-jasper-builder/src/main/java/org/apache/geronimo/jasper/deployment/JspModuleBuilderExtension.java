@@ -156,7 +156,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
 
         Collection<URL> urls = getTldFiles(webApp, webModule);
         LinkedHashSet<Class<?>> classes = getListenerClasses(webApp, webModule, urls, listenerNames);
-        ClassFinder classFinder = new ClassFinder(new ArrayList<Class>(classes));
+        ClassFinder classFinder = new ClassFinder(new ArrayList<Class<?>>(classes));
         webModule.setClassFinder(classFinder);
 
         namingBuilders.buildNaming(webApp, jettyWebApp, webModule, buildingContext);

@@ -71,7 +71,7 @@ public class AdvancedWARWebServiceFinder implements WebServiceFinder {
             // partial web.xml, discover all web service classes
 
             Map<String, List<String>> classServletMap = createClassServetMap(webApp);
-            List<Class> services = WARWebServiceFinder.discoverWebServices(module, bundle, false);
+            List<Class<?>> services = WARWebServiceFinder.discoverWebServices(module, bundle, false);
             String contextRoot = ((WebModule) module).getContextRoot();
             for (Class service : services) {
                 // skip interfaces and such
