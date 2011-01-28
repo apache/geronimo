@@ -74,6 +74,7 @@
                 <!-- not needed for car-maven-plugin -->
                 <module>geronimo-shell</module>
                 <module>geronimo-shell-base</module>
+                <module>geronimo-shell-diagnose</module>
                 <module>geronimo-blueprint</module>
                 <module>geronimo-core</module>
                 <module>geronimo-deploy-jsr88-bootstrapper</module>
