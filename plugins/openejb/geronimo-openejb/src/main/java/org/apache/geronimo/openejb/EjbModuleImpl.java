@@ -48,7 +48,6 @@ import org.apache.openejb.BeanContext;
 import org.apache.openejb.NoSuchApplicationException;
 import org.apache.openejb.UndeployException;
 import org.apache.openejb.assembler.classic.AppInfo;
-import org.apache.openejb.cdi.OWBContext;
 import org.apache.webbeans.config.WebBeansContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,7 +175,7 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContex
         if (appContext == null) {
             throw new IllegalStateException("Not started");
         }
-        return appContext.get(OWBContext.class).getWebBeansContext();
+        return appContext.get(WebBeansContext.class);
     }
 
     public void doStart() throws Exception {
