@@ -175,11 +175,11 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
     protected ClassFinder createOpenWebBeansClassFinder(WebApp webApp, WebModule webModule)
         throws DeploymentException {
-        List<Class> classes = getManagedClasses(webApp, webModule);
+        List<Class<?>> classes = getManagedClasses(webApp, webModule);
         return new ClassFinder(classes);
     }
 
-    private List<Class> getManagedClasses(WebApp webApp, WebModule webModule) throws DeploymentException {
+    private List<Class<?>> getManagedClasses(WebApp webApp, WebModule webModule) throws DeploymentException {
         Bundle bundle = webModule.getEarContext().getDeploymentBundle();
         ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
         try {
@@ -214,7 +214,7 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
             for (Field field: fields) {
                 classes.add(field.getDeclaringClass());
             }
-            return new ArrayList(classes);
+            return new ArrayList<Class<?>>(classes);
         } catch (Exception e) {
             throw new DeploymentException("Fail to scan jsr299 annotations", e);
         } finally {

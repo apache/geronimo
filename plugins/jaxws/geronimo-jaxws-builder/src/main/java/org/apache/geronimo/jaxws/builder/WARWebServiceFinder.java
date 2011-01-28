@@ -84,7 +84,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
      * Returns a list of any classes annotated with @WebService or
      * @WebServiceProvider annotation.
      */
-    static List<Class> discoverWebServices(Module module, 
+    static List<Class<?>> discoverWebServices(Module module,
                                            Bundle bundle,
                                            boolean isEJB) 
             throws DeploymentException {
@@ -102,7 +102,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
      * Returns a list of any classes annotated with @WebService or
      * @WebServiceProvider annotation.
      */
-    static List<Class> discoverWebServices(Bundle bundle, 
+    static List<Class<?>> discoverWebServices(Bundle bundle,
                                            boolean isEJB) 
             throws DeploymentException {
         LOG.debug("Discovering web service classes");
@@ -111,7 +111,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
         PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(sr);
         try {
             BundleAnnotationFinder classFinder = new BundleAnnotationFinder(packageAdmin, bundle);
-            List<Class> classes = new ArrayList<Class>();
+            List<Class<?>> classes = new ArrayList<Class<?>>();
             classes.addAll(classFinder.findAnnotatedClasses(WebService.class));
             classes.addAll(classFinder.findAnnotatedClasses(WebServiceProvider.class));
             return classes;
@@ -126,7 +126,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
      * Returns a list of any classes annotated with @WebService or
      * @WebServiceProvider annotation.
      */
-    static List<Class> discoverWebServices(JarFile moduleFile,
+    static List<Class<?>> discoverWebServices(JarFile moduleFile,
                                            boolean isEJB,
                                            ClassLoader parentClassLoader)
             throws DeploymentException {
@@ -205,7 +205,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
         TemporaryClassLoader tempClassLoader;
         try {
             tempClassLoader = new TemporaryClassLoader(urls, parentClassLoader);
-            List<Class> classes = new ArrayList<Class>();
+            List<Class<?>> classes = new ArrayList<Class<?>>();
             for (URL url : urlList) {
                 try {
                     ClassFinder classFinder = new ClassFinder(tempClassLoader, Collections.singletonList(url));

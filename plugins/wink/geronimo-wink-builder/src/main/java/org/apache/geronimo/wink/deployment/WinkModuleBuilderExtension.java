@@ -181,7 +181,7 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
             Set<String> classes = bundleClassFinder.find();
 
             for (String clazz : classes) {
-                applicationClasses.add((Class<Application>) bundle.loadClass(clazz));
+                applicationClasses.add(bundle.loadClass(clazz).asSubclass(Application.class));
             }
 
         } catch (Exception e) {
@@ -321,9 +321,9 @@ public class WinkModuleBuilderExtension implements ModuleBuilderExtension {
 
     }
 
-    protected ClassFinder createWinkClassFinder(List<FacesConfig> facesConfigs, Set<Class> annotatedJAXRSClasses,
+    protected ClassFinder createWinkClassFinder(List<FacesConfig> facesConfigs, Set<Class<?>> annotatedJAXRSClasses,
             Bundle bundle) throws DeploymentException {
-        List<Class> managedBeanClasses = new ArrayList<Class>();
+        List<Class<?>> managedBeanClasses = new ArrayList<Class<?>>();
         for (FacesConfig facesConfig : facesConfigs) {
             for (FacesManagedBean managedBean : facesConfig.getManagedBean()) {
                 String className = managedBean.getManagedBeanClass().trim();

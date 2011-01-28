@@ -53,7 +53,7 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
         if (webApp.getServlet().size() == 0) {
             // web.xml not present (empty really), discover annotated
             // classes and update DD
-            List<Class> services = WARWebServiceFinder.discoverWebServices(module.getModuleFile(), false, this.getClass().getClassLoader());
+            List<Class<?>> services = WARWebServiceFinder.discoverWebServices(module.getModuleFile(), false, this.getClass().getClassLoader());
             String contextRoot = ((WebModule) module).getContextRoot();
             for (Class service : services) {
                 // skip interfaces and such

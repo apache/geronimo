@@ -100,10 +100,10 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
         // step 1: process annotations and update deployment descriptor
         if ((module != null) && (module.getClassFinder() != null)) {
 
-            List<Class> classes;        
+            List<Class<?>> classes;
             classes = module.getClassFinder().findAnnotatedClasses(DataSourceDefinitions.class);
             if (classes != null) {
-                for (Class clazz : classes) {
+                for (Class<?> clazz : classes) {
                     DataSourceDefinitions dsDefinitions = (DataSourceDefinitions) clazz.getAnnotation(DataSourceDefinitions.class);
                     for (DataSourceDefinition dsDefinition : dsDefinitions.value()) {
                         processDefinition(dsDefinition, specDD);
@@ -113,7 +113,7 @@ public class DataSourceBuilder extends AbstractNamingBuilder {
             }
             classes = module.getClassFinder().findAnnotatedClasses(DataSourceDefinition.class);
             if (classes != null) {
-                for (Class clazz : classes) {
+                for (Class<?> clazz : classes) {
                     DataSourceDefinition dsDefinition = (DataSourceDefinition) clazz.getAnnotation(DataSourceDefinition.class);
                     processDefinition(dsDefinition, specDD);
                 }

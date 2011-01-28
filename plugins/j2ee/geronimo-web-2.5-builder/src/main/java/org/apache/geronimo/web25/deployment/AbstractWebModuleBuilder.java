@@ -642,7 +642,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             for (Listener listener : webApp.getListener()) {
                 addClass(bundle, classes, listener.getListenerClass());
             }
-            return new ClassFinder(new ArrayList<Class>(classes));
+            return new ClassFinder(new ArrayList<Class<?>>(classes));
         } catch (Exception e) {
             throw new DeploymentException(e);
         }

@@ -429,13 +429,13 @@ public class EjbDeploymentBuilder {
         //
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, gbean.getAbstractName());
-        Class ejbClass;
+        Class<?> ejbClass;
         try {
             ejbClass = ejbModule.getEarContext().getDeploymentBundle().loadClass(bean.getEjbClass());
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load ejb class", e);
         }
-        List<Class> classes = new ArrayList<Class>();
+        List<Class<?>> classes = new ArrayList<Class<?>>();
         while (ejbClass != null && !ejbClass.equals(Object.class)) {
             classes.add(ejbClass);
             ejbClass = ejbClass.getSuperclass();

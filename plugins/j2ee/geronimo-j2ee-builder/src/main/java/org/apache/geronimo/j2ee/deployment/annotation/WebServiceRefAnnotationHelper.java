@@ -100,7 +100,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
     private static void processWebServiceRef(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processWebServiceRef(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
-        List<Class> classeswithWebServiceRef = classFinder.findAnnotatedClasses(WebServiceRef.class);
+        List<Class<?>> classeswithWebServiceRef = classFinder.findAnnotatedClasses(WebServiceRef.class);
         List<Method> methodswithWebServiceRef = classFinder.findAnnotatedMethods(WebServiceRef.class);
         List<Field> fieldswithWebServiceRef = classFinder.findAnnotatedFields(WebServiceRef.class);
 
@@ -145,7 +145,7 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
     private static void processWebServiceRefs(JndiConsumer annotatedApp, AbstractFinder classFinder) throws DeploymentException {
         log.debug("processWebServiceRefs(): Entry");
 
-        List<Class> classeswithWebServiceRefs = classFinder.findAnnotatedClasses(WebServiceRefs.class);
+        List<Class<?>> classeswithWebServiceRefs = classFinder.findAnnotatedClasses(WebServiceRefs.class);
 
         // Class-level annotation(s)
         List<WebServiceRef> webServiceRefList = new ArrayList<WebServiceRef>();

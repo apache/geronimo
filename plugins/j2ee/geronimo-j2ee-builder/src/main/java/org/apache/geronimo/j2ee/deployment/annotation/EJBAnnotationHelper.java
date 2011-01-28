@@ -112,7 +112,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
     private static void processEJB(JndiConsumer annotatedApp, AbstractFinder classFinder) throws Exception {
         log.debug("processEJB(): Entry: AnnotatedApp: " + annotatedApp.toString());
 
-        List<Class> classesWithEJB = classFinder.findAnnotatedClasses(EJB.class);
+        List<Class<?>> classesWithEJB = classFinder.findAnnotatedClasses(EJB.class);
         List<Method> methodsWithEJB = classFinder.findAnnotatedMethods(EJB.class);
         List<Field> fieldsWithEJB = classFinder.findAnnotatedFields(EJB.class);
 
@@ -157,7 +157,7 @@ public final class EJBAnnotationHelper extends AnnotationHelper {
     private static void processEJBs(JndiConsumer annotatedApp, AbstractFinder classFinder) throws Exception {
         log.debug("processEJBs(): Entry");
 
-        List<Class> classesWithEJBs = classFinder.findAnnotatedClasses(EJBs.class);
+        List<Class<?>> classesWithEJBs = classFinder.findAnnotatedClasses(EJBs.class);
 
         // Class-level annotation(s)
         List<EJB> ejbList = new ArrayList<EJB>();

@@ -28,16 +28,6 @@
     </dependency>
     <dependency>
         <groupId>org.apache.bval</groupId>
-        <artifactId>bval-core</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.bval</groupId>
-        <artifactId>bval-jsr303</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.bval</groupId>
         <artifactId>org.apache.bval.bundle</artifactId>
         <type>jar</type>
     </dependency>
@@ -304,11 +294,6 @@
     <dependency>
         <groupId>org.apache.openwebbeans</groupId>
         <artifactId>openwebbeans-ee</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.openwebbeans</groupId>
-        <artifactId>openwebbeans-ee-common</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>

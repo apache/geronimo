@@ -54,7 +54,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         //-------------------------------------------------
         // Ensure annotations are discovered correctly
         //-------------------------------------------------
-        List<Class> annotatedClasses = classFinder.findAnnotatedClasses(Resources.class);
+        List<Class<?>> annotatedClasses = classFinder.findAnnotatedClasses(Resources.class);
         assertNotNull(annotatedClasses);
         assertEquals(1, annotatedClasses.size());
         assertTrue(annotatedClasses.contains(ResourceAnnotationExample.class));

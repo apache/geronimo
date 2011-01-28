@@ -33,8 +33,8 @@ public class WebServiceContextAnnotationHelper {
     public static final String RELATIVE_JNDI_NAME = "env/WebServiceContext";
     public static final String ABSOLUTE_JNDI_NAME = "java:comp/" + RELATIVE_JNDI_NAME;
     
-    public static void addWebServiceContextInjections(Holder holder, Class clazz) {
-        List<Class> classes = new ArrayList<Class>();
+    public static void addWebServiceContextInjections(Holder holder, Class<?> clazz) {
+        List<Class<?>> classes = new ArrayList<Class<?>>();
         while (clazz != Object.class) {
             classes.add(clazz);
             clazz = clazz.getSuperclass();
