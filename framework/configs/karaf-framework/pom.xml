@@ -409,6 +409,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-shell-diagnose</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-shell</artifactId>
             <version>${version}</version>
         </dependency>
