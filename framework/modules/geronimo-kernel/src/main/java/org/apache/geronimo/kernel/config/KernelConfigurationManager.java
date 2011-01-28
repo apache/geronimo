@@ -32,6 +32,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.annotation.OsgiService;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
@@ -62,6 +63,7 @@ import org.slf4j.LoggerFactory;
  */
 
 @GBean(j2eeType = "ConfigurationManager")
+@OsgiService
 public class KernelConfigurationManager extends SimpleConfigurationManager implements GBeanLifecycle {
 
     protected final Kernel kernel;
