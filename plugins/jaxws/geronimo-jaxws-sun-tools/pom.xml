@@ -42,13 +42,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.gshell</groupId>
-            <artifactId>gshell-command-api</artifactId>
-            <scope>provided</scope>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
         </dependency>
+        
     </dependencies>
 
-    <build>
+    <!--<build>
         <plugins>
             <plugin>
                 <groupId>org.apache.geronimo.gshell</groupId>
@@ -64,4 +64,4 @@
         </plugins>
     </build>
 
-</project>
+--></project>

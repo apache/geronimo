@@ -724,7 +724,7 @@
             <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>scout</artifactId>
-                <version>1.2.2_2-SNAPSHOT</version>
+                <version>1.2.2_1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1377,22 +1377,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.sun.xml.messaging.saaj</groupId>
-                <artifactId>saaj-impl</artifactId>
-                <version>1.3.2</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>activation</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.soap</groupId>
-                        <artifactId>saaj-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>jaxb-impl</artifactId>
                 <version>2.2_1</version>
@@ -1510,66 +1494,6 @@
                         <artifactId>wstx-asl</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sun.xml.ws</groupId>
-                <artifactId>jaxws-tools</artifactId>
-                <version>2.1.4</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sun.xml.ws</groupId>
-                <artifactId>jaxws-rt</artifactId>
-                <version>2.1.4</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.xml.ws</groupId>
-                        <artifactId>jaxws-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.xml.stream</groupId>
-                        <artifactId>sjsxp</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sun.org.apache.xml.internal</groupId>
-                        <artifactId>resolver</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.jvnet</groupId>
-                        <artifactId>mimepull</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sun.xml.stream.buffer</groupId>
-                <artifactId>streambuffer</artifactId>
-                <version>0.8</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>activation</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jvnet.staxex</groupId>
-                <artifactId>stax-ex</artifactId>
-                <version>1.2</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>activation</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-xjc</artifactId>
-                <version>2.2</version>
             </dependency>
 
             <dependency>
@@ -2431,8 +2355,8 @@ only found in cxf
                 </repository>
                 <repository>
                     <id>java.net</id>
-                    <url>http://download.java.net/maven/1/</url>
-                    <layout>legacy</layout>
+                    <url>http://download.java.net/maven/2/</url>
+                    <layout>default</layout>
                     <snapshots>
                         <enabled>false</enabled>
                     </snapshots>
