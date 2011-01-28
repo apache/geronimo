@@ -1386,28 +1386,30 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return configuration.getDependencyNode().getParents();
     }
 
-    public synchronized void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException, LifecycleException {
-        if (!configurationId.isResolved()) {
-            throw new IllegalArgumentException("Artifact " + configurationId + " is not fully resolved");
-        }
-        if (configurations.containsKey(configurationId)) {
-            if (isRunning(configurationId)) {
-                stopConfiguration(configurationId);
+    public void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException, LifecycleException {
+        synchronized (this) {
+            if (!configurationId.isResolved()) {
+                throw new IllegalArgumentException("Artifact " + configurationId + " is not fully resolved");
             }
-            if (isLoaded((configurationId))) {
-                unloadConfiguration(configurationId);
+            if (configurations.containsKey(configurationId)) {
+                if (isRunning(configurationId)) {
+                    stopConfiguration(configurationId);
+                }
+                if (isLoaded((configurationId))) {
+                    unloadConfiguration(configurationId);
+                }
             }
-        }
 
-        uninstall(configurationId);
+            uninstall(configurationId);
 
-        for (ConfigurationStore store : getStoreList()) {
-            if (store.containsConfiguration(configurationId)) {
-                store.uninstall(configurationId);
+            for (ConfigurationStore store : getStoreList()) {
+                if (store.containsConfiguration(configurationId)) {
+                    store.uninstall(configurationId);
+                }
             }
-        }
 
-        removeConfigurationFromModel(configurationId);
+            removeConfigurationFromModel(configurationId);
+        }
         notifyWatchers(configurationId);
     }
 

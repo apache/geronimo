@@ -59,6 +59,8 @@ import org.apache.geronimo.logging.SystemLog;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.BundleReference;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +75,14 @@ public class PortletManager {
     private final static String SERVER_KEY = "org.apache.geronimo.console.J2EEServer";
     private final static String JVM_KEY = "org.apache.geronimo.console.JVM";
     private final static String SYSTEM_LOG_KEY = "org.apache.geronimo.console.SystemLog";
+
+    private static BundleContext bundleContext;
+    static {
+        ClassLoader cl = PortletManager.class.getClassLoader();
+        if (cl instanceof BundleReference) {
+            bundleContext = ((BundleReference)cl).getBundle().getBundleContext();
+        }
+    }
     // The following may change based on the user's selections
     // nothing yet
 
@@ -83,6 +93,7 @@ public class PortletManager {
 
     public static Kernel getKernel() {
         //todo: consider making this configurable; we could easily connect to a remote kernel if we wanted to
+        //TODO see GERONIMO-5782 this jndi lookup can cause deadlocks
         Kernel kernel = null;
         try {
             kernel = (Kernel) new InitialContext().lookup("java:comp/GeronimoKernel");
@@ -97,6 +108,12 @@ public class PortletManager {
     }
 
     public static ConfigurationManager getConfigurationManager() {
+        if (bundleContext != null) {
+            ServiceReference sr = bundleContext.getServiceReference(ConfigurationManager.class.getName());
+            if (sr != null) {
+                return (ConfigurationManager) bundleContext.getService(sr);
+            }
+        }
         try {
             return ConfigurationUtil.getConfigurationManager(getKernel());
         } catch (GBeanNotFoundException e) {
