@@ -2354,7 +2354,7 @@ only found in cxf
                     </snapshots>
                 </repository>
                 <repository>
-                    <id>java.net</id>
+                    <id>java.net2</id>
                     <url>http://download.java.net/maven/2/</url>
                     <layout>default</layout>
                     <snapshots>
