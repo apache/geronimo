@@ -27,6 +27,18 @@
     <gbean name="AppInstaller" class="org.apache.geronimo.aries.builder.ApplicationInstaller">
         <reference name="Store">
         </reference>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-aries-builder</artifactId>
+                        <version>${version}</version>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
     </gbean>
 
 </module>

@@ -57,20 +57,20 @@ import org.slf4j.LoggerFactory;
  */
 @GBean(j2eeType = "ConfigBuilder")
 public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLifecycle {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationConfigBuilder.class);
-    
+
     private BundleContext bundleContext;
     private ApplicationInstaller installer;
 
     public ApplicationConfigBuilder(@ParamReference(name="Installer") ApplicationInstaller installer,
                                     @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
-                                    @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) 
+                                    @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext)
         throws GBeanNotFoundException {
         this.installer = installer;
         this.bundleContext = bundleContext;
     }
-    
+
     public void doStart() throws Exception {
     }
 
@@ -80,9 +80,9 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
     public void doFail() {
         doStop();
     }
-        
+
     private AriesApplicationManager getAriesApplicationManager() {
-        ServiceReference ref = 
+        ServiceReference ref =
             bundleContext.getServiceReference(AriesApplicationManager.class.getName());
         if (ref != null) {
             return (AriesApplicationManager) bundleContext.getService(ref);
@@ -90,9 +90,9 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
             return null;
         }
     }
-           
+
     private ApplicationMetadataFactory getApplicationMetadataFactory() {
-        ServiceReference ref = 
+        ServiceReference ref =
             bundleContext.getServiceReference(ApplicationMetadataFactory.class.getName());
         if (ref != null) {
             return (ApplicationMetadataFactory) bundleContext.getService(ref);
@@ -100,28 +100,28 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
             return null;
         }
     }
-    
-    public Object getDeploymentPlan(File planFile, 
-                                    JarFile jarFile, 
-                                    ModuleIDBuilder idBuilder) 
+
+    public Object getDeploymentPlan(File planFile,
+                                    JarFile jarFile,
+                                    ModuleIDBuilder idBuilder)
         throws DeploymentException {
         if (jarFile == null) {
             return null;
         }
-        
+
         if (jarFile.getName().endsWith(".eba")) {
             return new Object();
         }
-        
+
         return null;
     }
-    
-    public Artifact getConfigurationID(Object plan, 
-                                       JarFile jarFile, 
+
+    public Artifact getConfigurationID(Object plan,
+                                       JarFile jarFile,
                                        ModuleIDBuilder idBuilder)
-        throws IOException, DeploymentException {        
-        ApplicationMetadataFactory factory = getApplicationMetadataFactory();        
-        IDirectory ebaFile = FileSystem.getFSRoot(new File(jarFile.getName()));        
+        throws IOException, DeploymentException {
+        ApplicationMetadataFactory factory = getApplicationMetadataFactory();
+        IDirectory ebaFile = FileSystem.getFSRoot(new File(jarFile.getName()));
         IFile applicationManifestFile = ebaFile.getFile(AppConstants.APPLICATION_MF);
         Manifest applicationManifest;
         if (applicationManifestFile != null) {
@@ -134,38 +134,38 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
         } else {
             applicationManifest = new Manifest();
         }
-        ManifestDefaultsInjector.updateManifest(applicationManifest, ebaFile.getName(), ebaFile); 
+        ManifestDefaultsInjector.updateManifest(applicationManifest, ebaFile.getName(), ebaFile);
         ApplicationMetadata metadata = factory.createApplicationMetadata(applicationManifest);
-        return ApplicationInstaller.getConfigId(metadata);        
+        return ApplicationInstaller.getConfigId(metadata);
     }
-    
-    public DeploymentContext buildConfiguration(boolean inPlaceDeployment, 
-                                                Artifact configId, 
+
+    public DeploymentContext buildConfiguration(boolean inPlaceDeployment,
+                                                Artifact configId,
                                                 Object plan,
-                                                JarFile jarFile, 
-                                                Collection<ConfigurationStore> configurationStores, 
-                                                ArtifactResolver artifactResolver, 
-                                                ConfigurationStore targetConfigurationStore) 
+                                                JarFile jarFile,
+                                                Collection<ConfigurationStore> configurationStores,
+                                                ArtifactResolver artifactResolver,
+                                                ConfigurationStore targetConfigurationStore)
         throws IOException, DeploymentException {
-                
+
         AriesApplicationManager appManager = getAriesApplicationManager();
-        
+
         AriesApplication app = null;
         try {
             app = appManager.createApplication(FileSystem.getFSRoot(new File(jarFile.getName())));
         } catch (Exception e) {
             throw new DeploymentException("Error creating Aries Application", e);
         }
-        
+
         try {
             app = appManager.resolve(app);
         } catch (Exception e) {
             throw new DeploymentException("Error resolving Aries Application", e);
         }
-                
+
         DeploymentContext context = installer.startInstall(app, targetConfigurationStore);
-        
+
         return context;
     }
-    
+
 }
