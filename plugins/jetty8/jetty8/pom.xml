@@ -57,12 +57,12 @@
             <type>car</type>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.configs</groupId>-->
-            <!--<artifactId>transaction</artifactId>-->
-            <!--<version>${project.version}</version>-->
-            <!--<type>car</type>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>transaction-1_6</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
 
         <!-- This dependency should be retrieved by transitivity -->
         <dependency>
@@ -78,12 +78,12 @@
             <type>car</type>
         </dependency>
 
-        <!--<dependency>-->
-        <!--<groupId>org.apache.geronimo.configs</groupId>-->
-        <!--<artifactId>jasper</artifactId>-->
-        <!--<type>car</type>-->
-        <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>jasper</artifactId>
+            <type>car</type>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
