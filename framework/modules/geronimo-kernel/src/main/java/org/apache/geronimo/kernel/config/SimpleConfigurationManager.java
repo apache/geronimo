@@ -76,6 +76,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
      */
     private Configuration reloadingConfiguration;
 
+    private Object reloadingConfigurationLock = new Object();
 
     public SimpleConfigurationManager(Collection<ConfigurationStore> stores, ArtifactResolver artifactResolver, Collection<? extends Repository> repositories, BundleContext bundleContext) {
         this(stores, artifactResolver, repositories, Collections.<DeploymentWatcher>emptySet(), bundleContext);
@@ -123,14 +124,18 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return false;
     }
 
-    public synchronized boolean isLoaded(Artifact configId) {
+    public boolean isLoaded(Artifact configId) {
         if (!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact " + configId + " is not fully resolved");
         }
-        if (reloadingConfiguration != null && reloadingConfiguration.getId().equals(configId)) {
-            return true;
+        synchronized (reloadingConfigurationLock) {
+            if (reloadingConfiguration != null && reloadingConfiguration.getId().equals(configId)) {
+                return true;
+            }
         }
-        return configurationModel.isLoaded(configId);
+        synchronized (this) {
+            return configurationModel.isLoaded(configId);
+        }
     }
 
     public synchronized boolean isRunning(Artifact configId) {
@@ -244,7 +249,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         if (!artifact.isResolved()) {
             throw new IllegalArgumentException("Artifact " + artifact + " is not fully resolved");
         }
-        synchronized (this) {
+        synchronized (configurations) {
             // if it is loaded, it is definitely a configuration
             if (configurations.containsKey(artifact)) {
                 return true;
@@ -260,14 +265,18 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return false;
     }
 
-    public synchronized Configuration getConfiguration(Artifact configurationId) {
+    public Configuration getConfiguration(Artifact configurationId) {
         if (!configurationId.isResolved()) {
             throw new IllegalArgumentException("Artifact " + configurationId + " is not fully resolved");
         }
-        if (reloadingConfiguration != null && reloadingConfiguration.getId().equals(configurationId)) {
-            return reloadingConfiguration;
+        synchronized (reloadingConfigurationLock) {
+            if (reloadingConfiguration != null && reloadingConfiguration.getId().equals(configurationId)) {
+                return reloadingConfiguration;
+            }
         }
-        return configurations.get(configurationId);
+        synchronized (configurations) {
+            return configurations.get(configurationId);
+        }
     }
 
     public Bundle getBundle(Artifact id) {
@@ -308,17 +317,12 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
 
         // load the configuration
-//        LifecycleResults results = loadConfiguration(configurationData, monitor);
         LifecycleResults results = new LifecycleResults();
-        if (!configurations.containsKey(configurationId)) {
-            configurationModel.addConfiguration(configurationId,
-                    Collections.<Artifact>emptySet(),
-                    Collections.<Artifact>emptySet());
-//            configurations.put(configurationId, configuration);
-
-//            throw new NoSuchConfigException(configurationId, "not loaded");
+        synchronized (configurations) {
+            if (!configurations.containsKey(configurationId)) {
+                configurationModel.addConfiguration(configurationId, Collections.<Artifact> emptySet(), Collections.<Artifact> emptySet());
+            }
         }
-//        addNewConfigurationToModel(configurations.get(configurationId));
         load(configurationId);
         return results;
     }
@@ -1133,7 +1137,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
                     if (configurationId.equals(newConfigurationId)) {
                         newConfiguration = configuration;
-                        reloadingConfiguration = configuration;
+                        synchronized (reloadingConfigurationLock) {
+                            reloadingConfiguration = configuration;
+                        }
                     } else {
                         loadedParents.put(configurationId, configuration);
                     }
@@ -1239,7 +1245,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                             existingUnloadedConfiguration.getResolvedParentIds(),
                             Collections.<Artifact, Configuration>emptyMap()
                     );
-                    reloadingConfiguration = configuration;
+                    synchronized (reloadingConfigurationLock) {
+                        reloadingConfiguration = configuration;
+                    }
                     // if the configuration was started before restart it
                     if (started.contains(existingConfigurationId)) {
                         start(configuration);
@@ -1271,7 +1279,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                     throw new LifecycleException("reload", newConfigurationId, results);
                 }
             } finally {
-                reloadingConfiguration = null;
+                synchronized (reloadingConfigurationLock) {
+                    reloadingConfiguration = null;
+                }
             }
         }
 
@@ -1307,7 +1317,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                             Collections.<Artifact,
                                     Configuration>emptyMap()
                     );
-                    reloadingConfiguration = configuration;
+                    synchronized (reloadingConfigurationLock) {
+                        reloadingConfiguration = configuration;
+                    }
                     monitor.succeeded(configurationId);
 
                     // if the configuration was started before restart it
@@ -1357,7 +1369,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                     skip.add(failedId);
                 }
             } finally {
-                reloadingConfiguration = null;
+                synchronized (reloadingConfigurationLock) {
+                    reloadingConfiguration = null;
+                }
             }
         }
 
