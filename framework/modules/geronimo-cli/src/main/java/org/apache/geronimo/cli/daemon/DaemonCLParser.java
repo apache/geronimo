@@ -59,6 +59,7 @@ public class DaemonCLParser extends BaseCLParser {
     public boolean isSecure() {
         return commandLine.hasOption(ARGUMENT_SECURE_SHORTFORM);
     }
+    
     public boolean isNoProgress() {
         return commandLine.hasOption(ARGUMENT_NO_PROGRESS_SHORTFORM);
     }
@@ -101,15 +102,12 @@ public class DaemonCLParser extends BaseCLParser {
     }
     
     protected void addCleanCache() {
-
         options.addOption(ARGUMENT_CLEAN_CACHE_SHORTFORM,
                 ARGUMENT_CLEAN_CACHE,
                 false,
                 "Delete cache folder. This is typically used when developer wants to pick up artifacts modification in repository");
     }    
     
-
-
     protected void addProgressOptions() {
         OptionGroup optionGroup = new OptionGroup();
 

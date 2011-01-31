@@ -83,6 +83,7 @@ public class FrameworkLauncher {
     private boolean uniqueInstance = false;
     private String log4jFile;
     private String startupFile = STARTUP_PROPERTIES_FILE_NAME;
+    private boolean cleanStorage = false;
     
     private ServerInfo serverInfo;    
     private File geronimoHome;
@@ -103,6 +104,10 @@ public class FrameworkLauncher {
     
     public void setUniqueInstance(boolean uniqueInstance) {
         this.uniqueInstance = uniqueInstance;
+    }
+    
+    public void setCleanStorage(boolean cleanStorage) {
+        this.cleanStorage = cleanStorage;
     }
     
     public void launch() throws Exception {
@@ -132,6 +137,11 @@ public class FrameworkLauncher {
         processSecurityProperties(configProps);
 
         setFrameworkStorage(configProps);
+        
+        if (cleanStorage) {
+            configProps.setProperty(Constants.FRAMEWORK_STORAGE_CLEAN, 
+                                    Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
+        }
                 
         defaultStartLevel = Integer.parseInt(configProps.getProperty(Constants.FRAMEWORK_BEGINNING_STARTLEVEL));
 

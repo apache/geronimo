@@ -293,24 +293,6 @@ if [ "$1" = "jpda" ] ; then
   shift
 fi
 
-processOptions() {
-    while [ "x$1" != "x" ]; do
-        case "$1" in
-            -c|--clean)
-              if [ -z "$OSGI_CACHE_CLEAN_ARGS" ]; then
-                OSGI_CACHE_CLEAN_ARGS="-Dorg.osgi.framework.storage.clean=onFirstInit"
-              fi
-              if [ -z "$CACHES_TO_CLEAN_STRING" ]; then
-                CACHES_TO_CLEAN_STRING="-Ddirectorys.to.remove.on.start=/var/catalina/work,/var/catalina/resources"
-              fi
-                ;;
-        esac
-        shift
-    done
-}
-
-processOptions "$@"
-
 if [ "$1" = "debug" ] ; then
   if $os400; then
     echo "Debug command not available on OS400"
@@ -331,8 +313,6 @@ if [ "$1" = "debug" ] ; then
       -Djava.endorsed.dirs="$ENDORSED_DIRS" \
       -Djava.ext.dirs="$EXT_DIRS" \
       -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
-      $OSGI_CACHE_CLEAN_ARGS \
-      $CACHES_TO_CLEAN_STRING \
       -classpath "$CLASSPATH" \
        org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
   fi
@@ -350,8 +330,6 @@ elif [ "$1" = "run" ]; then
         -Djava.endorsed.dirs="$ENDORSED_DIRS" \
         -Djava.ext.dirs="$EXT_DIRS" \
         -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
-        $OSGI_CACHE_CLEAN_ARGS \
-        $CACHES_TO_CLEAN_STRING \
         -classpath "$CLASSPATH" \
         org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
   else
@@ -364,8 +342,6 @@ elif [ "$1" = "run" ]; then
         -Djava.endorsed.dirs="$ENDORSED_DIRS" \
         -Djava.ext.dirs="$EXT_DIRS" \
         -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
-        $OSGI_CACHE_CLEAN_ARGS \
-        $CACHES_TO_CLEAN_STRING \
         -classpath "$CLASSPATH" \
         org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
   fi
@@ -390,8 +366,6 @@ elif [ "$1" = "start" ] ; then
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
           -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
-          $OSGI_CACHE_CLEAN_ARGS \
-          $CACHES_TO_CLEAN_STRING \
           -classpath "$CLASSPATH" \
           org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
       else
@@ -404,8 +378,6 @@ elif [ "$1" = "start" ] ; then
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
           -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
-          $OSGI_CACHE_CLEAN_ARGS \
-          $CACHES_TO_CLEAN_STRING \
           -classpath "$CLASSPATH" \
           org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@"
       fi    
@@ -422,8 +394,6 @@ elif [ "$1" = "start" ] ; then
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
           -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
-          $OSGI_CACHE_CLEAN_ARGS \
-          $CACHES_TO_CLEAN_STRING \
           -classpath "$CLASSPATH" \
           org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@" \
           >> $GERONIMO_OUT 2>&1 &
@@ -442,8 +412,6 @@ elif [ "$1" = "start" ] ; then
           -Djava.endorsed.dirs="$ENDORSED_DIRS" \
           -Djava.ext.dirs="$EXT_DIRS" \
           -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
-          $OSGI_CACHE_CLEAN_ARGS \
-          $CACHES_TO_CLEAN_STRING \
           -classpath "$CLASSPATH" \
           org.apache.geronimo.cli.daemon.DaemonCLI $LONG_OPT "$@" \
           >> $GERONIMO_OUT 2>&1 &
@@ -475,8 +443,6 @@ elif [ "$1" = "stop" ] ; then
     -Djava.endorsed.dirs="$ENDORSED_DIRS" \
     -Djava.ext.dirs="$EXT_DIRS" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
-    $OSGI_CACHE_CLEAN_ARGS \
-    $CACHES_TO_CLEAN_STRING \
     -classpath "$CLASSPATH" \
     org.apache.geronimo.cli.shutdown.ShutdownCLI "$@"
 
