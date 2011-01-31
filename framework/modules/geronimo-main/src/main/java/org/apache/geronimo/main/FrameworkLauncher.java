@@ -260,7 +260,22 @@ public class FrameworkLauncher {
                                     Utils.substVars(configProps.getProperty(name), name, null, configProps));
         }
 
+        updateObrRepositoryList(configProps);
+
         return configProps;
+    }
+
+    /*
+     * OBR expects the "obr.repository.url" property to be a space-separated 
+     * list while Karaf generates a comma-seprated list. This function is a
+     * temporary work-around that fixes that property.
+     */
+    private static void updateObrRepositoryList(Properties properties) {
+        String value = (String) properties.get("obr.repository.url");
+        if (value != null) {
+            String newValue = value.replaceAll(",", " ");
+            properties.put("obr.repository.url", newValue);
+        }
     }
 
     protected static void copySystemProperties(Properties configProps) {
