@@ -61,11 +61,11 @@ public abstract class AbstractCLI {
         
         initializeLogging(parser);
         
-        Bootstrapper boot = createBootstrapper();
+        Bootstrapper boot = createBootstrapper(parser);
         return boot.execute(parser);
     }
 
-    protected Bootstrapper createBootstrapper() {
+    protected Bootstrapper createBootstrapper(CLParser parser) {
         return new Bootstrapper();
     }
     

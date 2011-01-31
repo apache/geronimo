@@ -43,11 +43,12 @@ public class DaemonCLI extends AbstractCLI {
     }
 
     @Override
-    protected Bootstrapper createBootstrapper() {
-        Bootstrapper boot = super.createBootstrapper();
+    protected Bootstrapper createBootstrapper(CLParser parser) {
+        Bootstrapper boot = super.createBootstrapper(parser);
         boot.setWaitForStop(true);
         boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/j2ee-system//car"));
         boot.setLog4jConfigFile("var/log/server-log4j.properties");
+        boot.setCleanStorage( ((DaemonCLParser) parser).isCleanCache() );
         return boot;
     }
 }

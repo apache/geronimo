@@ -53,8 +53,8 @@ public class DeployerCLI extends AbstractCLI {
     }
     
     @Override
-    protected Bootstrapper createBootstrapper() {
-        Bootstrapper boot = super.createBootstrapper();
+    protected Bootstrapper createBootstrapper(CLParser parser) {
+        Bootstrapper boot = super.createBootstrapper(parser);
         boot.setWaitForStop(false);
         boot.setUniqueInstance(true);
         boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/online-deployer//car"));
