@@ -251,13 +251,13 @@ echo.
 echo args for debug, jpda run, jpda start, run and start commands:
 echo   -q     --quiet           No startup progress
 echo   -l     --long            Long startup progress
-echo   -c     --clean           Clean osgi bundle cache
+echo   -c     --clean           Clean OSGi bundle cache
 echo   -v     --verbose         INFO log level
 echo   -vv    --veryverbose     DEBUG log level
 echo   -vvv   --veryveryverbose Trace log level
 echo   -o     --override        Override configurations. USE WITH CAUTION!
 echo   -h     --help            Detailed help.
-echo   -s     --secure          Enable Geronimo for 2 way secure JMX communication.
+echo   -s     --secure          Enable Geronimo for two way secure JMX communication.
 echo.
 echo args for stop command:
 echo   -u     --user            Admin user
