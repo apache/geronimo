@@ -21,7 +21,7 @@
            default-activation="lazy">
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
-        <command name="osgi/diagnose">
+        <command name="equinox/diagnose">
             <action class="org.apache.geronimo.shell.diagnose.DiagnoseCommand"></action>
         </command>
     </command-bundle>

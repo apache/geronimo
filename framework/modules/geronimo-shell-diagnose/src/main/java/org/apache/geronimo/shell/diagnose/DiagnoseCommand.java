@@ -38,7 +38,7 @@ import org.fusesource.jansi.Ansi.Color;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
-@Command(scope = "osgi", name = "diagnose", description = "Diagnose common OSGi resolver problems")
+@Command(scope = "equinox", name = "diagnose", description = "Diagnose common OSGi resolver problems")
 public class DiagnoseCommand extends OsgiCommandSupport {
 
     @Argument(index = 0, name = "ids", description = "The list of bundle IDs separated by whitespaces", required = true, multiValued = true)
@@ -148,9 +148,9 @@ public class DiagnoseCommand extends OsgiCommandSupport {
             }
         } else if (unsatisfied instanceof BundleSpecification) {
             if (((BundleSpecification) unsatisfied).isOptional()) { 
-                return warning("Missing optionally required bundle" + toString(unsatisfied));
+                return warning("Missing optionally required bundle " + toString(unsatisfied));
             } else {
-                return error("Missing required bundle" + toString(unsatisfied));
+                return error("Missing required bundle " + toString(unsatisfied));
             }
         } else if (unsatisfied instanceof HostSpecification) {
             return error("Missing host bundle " + toString(unsatisfied));
