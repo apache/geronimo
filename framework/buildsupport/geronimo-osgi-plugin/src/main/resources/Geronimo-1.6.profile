@@ -139,9 +139,10 @@ org.osgi.framework.system.packages = \
  org.xml.sax.helpers
 
 org.osgi.framework.system.packages.extra = \
- sun.misc,\
- sun.reflect,\
- org.apache.geronimo.transformer,\
+ sun.misc, \
+ sun.reflect, \
+ org.apache.geronimo.main, \
+ org.apache.geronimo.transformer, \
  org.apache.karaf.jaas.boot;version=2.1.2
 
 org.osgi.framework.bootdelegation = \

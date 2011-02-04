@@ -41,6 +41,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-main</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-cli</artifactId>
             <version>${project.version}</version>
         </dependency>
