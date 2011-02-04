@@ -847,6 +847,7 @@ public abstract class AbstractCarMojo
                         "org.apache.commons.jexl;version=\"1.1\"," +
                         "org.apache.commons.jexl.context;version=\"1.1\"," +
                         "org.apache.commons.jexl.resolver;version=\"1.1\"," +
+                        "org.apache.geronimo.main," +
                         "org.apache.geronimo.cli," +
                         "org.apache.geronimo.cli.client," +
                         "org.apache.geronimo.cli.daemon," +

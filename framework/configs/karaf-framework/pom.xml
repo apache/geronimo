@@ -45,7 +45,6 @@
         <felix.metatype.version>1.0.2</felix.metatype.version>
         <jansi.version>1.2</jansi.version>
         <junit.version>4.7_1</junit.version>
-        <jline.version>0.9.95.20100209</jline.version>
         <log4j.version>1.2.16</log4j.version>
         <maven.version>2.0.9</maven.version>
         <mina.version>2.0.0-RC1</mina.version>
@@ -330,10 +329,6 @@
         <dependency>
             <groupId>org.apache.mina</groupId>
             <artifactId>mina-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.jline</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
