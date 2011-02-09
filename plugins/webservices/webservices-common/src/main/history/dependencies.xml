@@ -51,4 +51,9 @@
         <artifactId>org.apache.servicemix.bundles.xmlbeans</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.jvnet</groupId>
+        <artifactId>mimepull</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>
