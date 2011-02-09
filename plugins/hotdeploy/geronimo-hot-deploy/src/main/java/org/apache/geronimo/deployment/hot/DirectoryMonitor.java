@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment.hot;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -117,7 +118,7 @@ public class DirectoryMonitor implements Runnable {
     private boolean done = false;
     private Listener listener; // a little cheesy, but do we really need multiple listeners?
     private final Map<String, FileInfo> files = new HashMap<String, FileInfo>();
-    private volatile String workingOnConfigId;
+    private final List<Artifact> toRemove = new ArrayList<Artifact>();
 
     public DirectoryMonitor(File directory, Listener listener, int pollIntervalMillis) {
         this.directory = directory;
@@ -167,26 +168,29 @@ public class DirectoryMonitor implements Runnable {
 
     public void removeModuleId(Artifact id) {
         log.info("Hot deployer notified that an artifact was removed: "+id);
-        if(id.toString().equals(workingOnConfigId)) {
-            // since the redeploy process inserts a new thread to handle progress,
-            // this is called by a different thread than the hot deploy thread during
-            // a redeploy, and this check must be executed outside the synchronized
-            // block or else it will cause a deadlock!
-            return; // don't react to events we generated ourselves
+        synchronized (toRemove) {
+            toRemove.add(id);
         }
-        synchronized(files) {
-            for (Iterator<String> it = files.keySet().iterator(); it.hasNext();) {
-                String path = it.next();
-                FileInfo info = files.get(path);
-                Artifact target = Artifact.create(info.getConfigId());
-                if(id.matches(target)) { // need to remove record & delete file
-                    File file = new File(path);
-                    if(file.exists()) { // if not, probably it's deletion kicked off this whole process
-                        log.info("Hot deployer deleting "+id);
-                        if(!FileUtils.recursiveDelete(file)) {
-                            log.error("Hot deployer unable to delete "+path);
+    }
+
+    private void doRemoves() {
+        synchronized (toRemove) {
+            synchronized(files) {
+                for (Artifact id: toRemove) {
+                    for (Iterator<String> it = files.keySet().iterator(); it.hasNext();) {
+                        String path = it.next();
+                        FileInfo info = files.get(path);
+                        Artifact target = Artifact.create(info.getConfigId());
+                        if(id.matches(target)) { // need to remove record & delete file
+                            File file = new File(path);
+                            if(file.exists()) { // if not, probably it's deletion kicked off this whole process
+                                log.info("Hot deployer deleting "+id);
+                                if(!FileUtils.recursiveDelete(file)) {
+                                    log.error("Hot deployer unable to delete "+path);
+                                }
+                                it.remove();
+                            }
                         }
-                        it.remove();
                     }
                 }
             }
@@ -251,6 +255,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
      * Looks for changes to the immediate contents of the directory we're watching.
      */
     private void scanDirectory() {
+        doRemoves();
         File parent = directory;
         File[] children = parent.listFiles();
         if (!directory.exists() || children == null) {
@@ -320,14 +325,12 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                     FileAction action = it.next();
                     try {
                         if (action.action == FileAction.REMOVED_FILE) {
-                            workingOnConfigId = action.info.getConfigId();
                             if (action.info.getConfigId() == null || listener.fileRemoved(action.child, action.info.getConfigId())) {
                                 files.remove(action.child.getPath());
                             }
-                            workingOnConfigId = null;
                         } else if (action.action == FileAction.NEW_FILE) {
                             if (listener.isFileDeployed(action.child, calculateModuleId(action.child))) {
-                                workingOnConfigId = calculateModuleId(action.child);
+                                String workingOnConfigId = calculateModuleId(action.child);
                                 String result = listener.fileUpdated(action.child, workingOnConfigId);
                                 if (result != null) {
                                     if (!result.equals("")) {
@@ -377,7 +380,6 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                             }
                             action.info.setNewFile(false);
                         } else if (action.action == FileAction.UPDATED_FILE) {
-                            workingOnConfigId = action.info.getConfigId();
                             String result = listener.fileUpdated(action.child, action.info.getConfigId());
                             FileInfo update = action.info;
                             if (result != null) {
@@ -387,7 +389,6 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                                     update.setConfigId(calculateModuleId(action.child));
                                 }
                             }
-                            workingOnConfigId = null;
                         }
                     } catch (Exception e) {
                         log.error("Unable to " + action.getActionName() + " file " + action.child.getAbsolutePath(), e);
