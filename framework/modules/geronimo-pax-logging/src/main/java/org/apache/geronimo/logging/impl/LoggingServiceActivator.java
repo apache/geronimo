@@ -39,6 +39,7 @@ public class LoggingServiceActivator implements BundleActivator {
 
     private Activator activator;
     private Log4jService service;
+    private PropertyChangeListener logManagerChangeListener;
     
     public LoggingServiceActivator() {
         activator = new Activator();       
@@ -66,7 +67,7 @@ public class LoggingServiceActivator implements BundleActivator {
             final LogManager manager = LogManager.getLogManager();
             final Handler[] paxHandlers = manager.getLogger("").getHandlers();
 
-            manager.addPropertyChangeListener(new PropertyChangeListener() {
+            logManagerChangeListener = (new PropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent evt) {
                     Logger rootLogger = manager.getLogger("");
                     Handler[] handlers = rootLogger.getHandlers();
@@ -79,6 +80,8 @@ public class LoggingServiceActivator implements BundleActivator {
                     rootLogger.warning("java.util.logging has been reset by application or component");
                 }
             });
+            
+            manager.addPropertyChangeListener(logManagerChangeListener);
         }
     }
 
@@ -91,7 +94,10 @@ public class LoggingServiceActivator implements BundleActivator {
         if (service != null) {
             service.stop();
         }    
-        activator.stop(context);       
+        activator.stop(context);     
+        if (logManagerChangeListener != null) {
+            LogManager.getLogManager().removePropertyChangeListener(logManagerChangeListener);
+        }
     }
    
 }
