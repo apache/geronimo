@@ -105,6 +105,8 @@ public class SharedLib {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SharedLib.class);
+        infoFactory.setPriority(GBeanInfo.PRIORITY_CLASSLOADER);
+
         infoFactory.addAttribute("classLoader", ClassLoader.class, false, false);
         infoFactory.addAttribute("classesDirs", String[].class, true, true);
         infoFactory.addAttribute("libDirs", String[].class, true, true);
