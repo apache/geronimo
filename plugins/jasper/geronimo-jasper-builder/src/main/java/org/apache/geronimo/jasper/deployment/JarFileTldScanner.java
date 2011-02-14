@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JarFileTldScanner {
-    
+
     private static final Logger log = LoggerFactory.getLogger(JarFileTldScanner.class);
 
     /**
@@ -50,7 +50,7 @@ public class JarFileTldScanner {
      */
     public List<URL> scanModule(WebModule webModule) throws DeploymentException {
         log.debug("scanModule( " + webModule.getName() + " ): Entry");
-        
+
         Deployable deployable = webModule.getDeployable();
         if (!(deployable instanceof DeployableJarFile)) {
             throw new IllegalArgumentException("Expected DeployableJarFile");
@@ -61,7 +61,11 @@ public class JarFileTldScanner {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
                 JarEntry jarEntry = entries.nextElement();
-                if (jarEntry.getName().startsWith("WEB-INF/") && jarEntry.getName().endsWith(".tld")) {
+                if(jarEntry.getName().endsWith(".tld")) {
+                    String jarEntryName = jarEntry.getName();
+                    if (jarEntryName.startsWith("WEB-INF/classes") || jarEntryName.startsWith("WEB-INF/lib") || (jarEntryName.startsWith("WEB-INF/tags") && !jarEntryName.endsWith("implicit.tld"))) {
+                        continue;
+                    }
                     File targetFile = webModule.getEarContext().getTargetFile(webModule.resolve(createURI(jarEntry.getName())));
                     if (targetFile != null) {
                         modURLs.add(targetFile.toURI().toURL());
@@ -97,7 +101,7 @@ public class JarFileTldScanner {
      */
     private List<URL> scanJAR(JarFile jarFile, String prefix) throws DeploymentException {
         log.debug("scanJAR( " + jarFile.getName() + " ): Entry");
-        
+
         List<URL> jarURLs = new ArrayList<URL>();
         try {
             Enumeration<JarEntry> entries = jarFile.entries();
@@ -186,7 +190,7 @@ public class JarFileTldScanner {
         log.debug("scanDirectory() Exit: URL[" + dirURLs.size() + "]: " + dirURLs.toString());
         return dirURLs;
     }
-    
+
     private static URI createURI(String path) throws URISyntaxException {
         path = path.replaceAll(" ", "%20");
         return new URI(path);
