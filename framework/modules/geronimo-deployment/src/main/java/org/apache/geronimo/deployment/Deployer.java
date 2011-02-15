@@ -111,6 +111,20 @@ public class Deployer implements GBeanLifecycle {
         File originalModuleFile = moduleFile;
         File tmpDir = null;
         if (moduleFile != null && !moduleFile.isDirectory()) {
+            
+            // GERONIMO-5765 add a warning message if user is deploying a wab
+            // In future, we will support bundle deployment through deployer and remove this, see GERONIMO-5764
+            try {
+                JarFile moduleJar = new JarFile(moduleFile);
+                Manifest mf = moduleJar.getManifest();
+                if (mf!=null && mf.getMainAttributes().getValue("Web-ContextPath")!= null){
+                    log.warn("You are deploying a WAB to Geronimo. The recommended way to install a bundle is using a standard OSGi installation.");
+                } 
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            
+            
             // todo jar url handling with Sun's VM on Windows leaves a lock on the module file preventing rebuilds
             // to address this we use a gross hack and copy the file to a temporary directory
             // the lock on the file will prevent that being deleted properly until the URLJarFile has

@@ -121,6 +121,15 @@ public class DeploymentPortlet extends BasePortlet {
         } catch (FileUploadException e) {
             throw new PortletException(e);
         }
+        
+        // GERONIMO-5765 add a warning message if user is deploying a wab
+        // In future, we will support bundle deployment through deployer and remove this, see GERONIMO-5764
+        String moduleFileName = moduleFile.getName();
+        if (moduleFileName.substring(moduleFileName.lastIndexOf('.')).toLowerCase().equals(".wab")){
+            String wabmsg = "You are deploying a WAB to Geronimo. The recommended way to install a bundle is using a standard OSGi installation.";
+            addInfoMessage(actionRequest, "[INFO] "+wabmsg);
+        }
+        
         DeploymentFactoryManager dfm = DeploymentFactoryManager.getInstance();
         FileInputStream fis = null;
         try {
