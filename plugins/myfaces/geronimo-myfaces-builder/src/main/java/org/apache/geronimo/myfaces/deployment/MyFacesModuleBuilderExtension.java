@@ -383,6 +383,10 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                         if (configfile.startsWith("/")) {
                             configfile = configfile.substring(1);
                         }
+                        //faces-config.xml is a center XML for JSF, we will read it separately.
+                        if (configfile.equals("WEB-INF/faces-config.xml")) {
+                            continue;
+                        }
                         URL url = webModule.getEarContext().getTargetURL(webModule.resolve(configfile));
                         if (url == null) {
                             throw new DeploymentException("Could not locate config file " + configfile + " configured with " + FacesServlet.CONFIG_FILES_ATTR + " in the web.xml");
