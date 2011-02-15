@@ -49,7 +49,7 @@ import javax.servlet.http.HttpServletResponse;
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		PrintWriter out = response.getWriter();
-		out.println("<html><head><title>Sample application with Servlets 2.5</title></head></html>");
+		out.println("<html><head><title>Sample application with Servlets 2.5</title></head>");
 		out.println("<body>");
 		out.println("<font align=Center face=\"Garamond\">Address Test</font>");
 		out.println("<font align=Center face=\"Garamond\">Remote Address:" + request.getRemoteAddr() + "</font>");
