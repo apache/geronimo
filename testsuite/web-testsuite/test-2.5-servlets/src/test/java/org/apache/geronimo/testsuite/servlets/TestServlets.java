@@ -48,6 +48,6 @@ public class TestServlets extends SeleniumTestSupport
         waitForPageLoad();
         assertEquals("Sample application with Servlets 2.5", selenium.getTitle());
         String actual = selenium.getText("xpath=/html/body");
-        assertEquals(actual, "Address Test Remote Address:127.0.0.1", actual);
+        assertEquals(true, (actual.contains("Address Test Remote Address:127.0.0.1")||actual.contains("Address Test Remote Address:0:0:0:0:0:0:0:1")));
     }
 }
