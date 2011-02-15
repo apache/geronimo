@@ -118,14 +118,35 @@ public class OSGiMetaDataBuilder {
                 if (importPackageName.endsWith("*")) {
                     throw new IllegalConfigurationException("wildchar * could not be used in the import-package " + importPackageName + " without ! prefix");
                 }
-                //If the users configured import packages, those will take the highest precedence.
-                List<HeaderElement> elements = HeaderParser.parseHeader(importPackageName);
-                for (HeaderElement headerElement : elements) {
-                    hiddenImportPackageNames.add(headerElement.getName());
+            }
+        }
+        environment.removeImportPackages(removedImportPackages);
+
+        //Use current filter configurations to re-validate existing import packages
+        //This is used to handle the scenario that org.test and !org.test are configured at the same time
+        removedImportPackages.clear();
+        for (String importPackageName : environment.getImportPackages()) {
+            if (hiddenImportPackageNames.contains(importPackageName)) {
+                removedImportPackages.add(importPackageName);
+                continue;
+            }
+            for (String hiddenImportPackageNamePrefix : hiddenImportPackageNamePrefixes) {
+                if (importPackageName.startsWith(hiddenImportPackageNamePrefix)) {
+                    removedImportPackages.add(importPackageName);
+                    break;
                 }
             }
         }
         environment.removeImportPackages(removedImportPackages);
+
+        //If the users configured import packages, those will take the highest precedence.
+        //It has the same effect as !org.test is configured.
+        for (String importPackageName : environment.getImportPackages()) {
+            List<HeaderElement> elements = HeaderParser.parseHeader(importPackageName);
+            for (HeaderElement headerElement : elements) {
+                hiddenImportPackageNames.add(headerElement.getName());
+            }
+        }
 
         Set<String> removedDynamicImportPackages = new HashSet<String>();
         for (String initialDynamicImportPackageName : environment.getDynamicImportPackages()) {
