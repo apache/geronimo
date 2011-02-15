@@ -46,24 +46,29 @@ public class BundleTldScanner {
             throw new IllegalArgumentException("Expected DeployableBundle");
         }
         Bundle bundle = ((DeployableBundle) deployable).getBundle();
-        
+
         List<URL> modURLs = new ArrayList<URL>();
-        Enumeration e = bundle.findEntries("WEB-INF/", "*.tld", true);
+        Enumeration<URL> e = bundle.findEntries("WEB-INF/", "*.tld", true);
         if (e != null) {
             while (e.hasMoreElements()) {
-                modURLs.add((URL) e.nextElement());
+                URL tldURL = e.nextElement();
+                String tldPath = tldURL.getPath();
+                if (tldPath.startsWith("/WEB-INF/classes") || tldPath.startsWith("/WEB-INF/lib") || (tldPath.startsWith("/WEB-INF/tags") && !tldPath.endsWith("implicit.tld"))) {
+                    continue;
+                }
+                modURLs.add(tldURL);
             }
         }
-        
+
         ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
         PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
-        
+
         BundleResourceFinder resourceFinder = new BundleResourceFinder(packageAdmin, bundle, "META-INF/", ".tld");
         modURLs.addAll(resourceFinder.find());
-        
+
         bundle.getBundleContext().ungetService(reference);
 
         return modURLs;
     }
- 
+
 }
