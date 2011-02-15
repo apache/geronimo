@@ -56,7 +56,7 @@ public class BundleTldScanner {
                 if (tldPath.startsWith("/WEB-INF/classes") || tldPath.startsWith("/WEB-INF/lib") || (tldPath.startsWith("/WEB-INF/tags") && !tldPath.endsWith("implicit.tld"))) {
                     continue;
                 }
-                modURLs.add(e.nextElement());
+                modURLs.add(tldURL);
             }
         }
 
