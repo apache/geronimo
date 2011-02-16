@@ -210,6 +210,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         List<ModuleDetails> moduleDetails = new ArrayList<ModuleDetails>();
         ConfigurationManager configManager = PortletManager.getConfigurationManager();
         List<ConfigurationInfo> infos = configManager.listConfigurations();
+    
         for (ConfigurationInfo info : infos) {
             if (ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType)) {
 
@@ -306,8 +307,50 @@ public class ConfigManagerPortlet extends BasePortlet {
                     ice.printStackTrace();
                 }
                 moduleDetails.add(details);
+            }  
+            
+        }            
+            
+            // hack to display WAB because WAB can't be get from configManager.listConfigurations();
+            
+        if (ConfigurationModuleType.WAB.getName().equalsIgnoreCase(moduleType)) {
+            
+            Artifact wabQuery = Artifact.createPartial("///" + ConfigurationModuleType.WAB.getName().toLowerCase());
+
+            Artifact[] runningWABs = configManager.getRunning(wabQuery);
+
+            if (runningWABs != null && runningWABs.length > 0) {
+
+                for (Artifact wab : runningWABs) {
+                    ModuleDetails details = new ModuleDetails(wab, ConfigurationModuleType.WAB, State.RUNNING);
+                    try {
+                        AbstractName configObjName = Configuration.getConfigurationAbstractName(wab);
+                        boolean loaded = loadModule(configManager, configObjName);
+
+                        WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, wab);
+
+                        if (webModule != null) {
+                            details.getContextPaths().add(webModule.getContextPath());
+                            details.setDisplayName(webModule.getDisplayName());
+                        }
+
+                        if (showDependencies) {
+                            addDependencies(details, configObjName);
+                        }
+                        if (loaded) {
+                            unloadModule(configManager, configObjName);
+                        }
+                    } catch (InvalidConfigException ice) {
+                        // Should not occur
+                        ice.printStackTrace();
+                    }
+                    moduleDetails.add(details);
+                }
+
             }
         }
+
+        
         Collections.sort(moduleDetails);
         renderRequest.setAttribute("configurations", moduleDetails);
         renderRequest.setAttribute("showWebInfo", Boolean.valueOf(showWebInfo()));
@@ -414,6 +457,7 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private boolean showWebInfo() {
         return ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType) ||
+               ConfigurationModuleType.WAB.getName().equalsIgnoreCase(moduleType) ||
                ConfigurationModuleType.EAR.getName().equalsIgnoreCase(moduleType);
     }
 
