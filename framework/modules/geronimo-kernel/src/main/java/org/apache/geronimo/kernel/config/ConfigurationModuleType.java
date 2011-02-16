@@ -46,8 +46,10 @@ public class ConfigurationModuleType implements Serializable {
     public static final ConfigurationModuleType SPR = new ConfigurationModuleType("SPR", 6);
     
     public static final ConfigurationModuleType EBA = new ConfigurationModuleType("EBA", 7);
+    
+    public static final ConfigurationModuleType WAB = new ConfigurationModuleType("WAB", 8);
 
-    private static final ConfigurationModuleType[] fromInt = {EAR, EJB, CAR, RAR, WAR, SERVICE, SPR,EBA};
+    private static final ConfigurationModuleType[] fromInt = {EAR, EJB, CAR, RAR, WAR, SERVICE, SPR, EBA, WAB};
 
     private final String name;
 

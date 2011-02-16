@@ -39,6 +39,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -184,7 +185,7 @@ public class WebApplication implements Runnable {
                 BundleDeploymentContext deploymentContext =
                     new BundleDeploymentContext(
                         webModule.getEnvironment(),
-                        webModule.getType(),
+                        ConfigurationModuleType.WAB,
                         naming,
                         configurationManager,
                         bundle.getBundleContext(),

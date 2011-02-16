@@ -505,7 +505,7 @@ public class KernelManagementHelper implements ManagementHelper {
                 result = config.findGBean(new AbstractNameQuery(EJBModule.class.getName()));
             } else if (type.equals(ConfigurationModuleType.RAR)) {
                 result = config.findGBean(new AbstractNameQuery(ResourceAdapterModule.class.getName()));
-            } else if (type.equals(ConfigurationModuleType.WAR)) {
+            } else if (type.equals(ConfigurationModuleType.WAR)||type.equals(ConfigurationModuleType.WAB)) {
                 result = config.findGBean(new AbstractNameQuery(WebModule.class.getName()));
             } else {
                 return null;
