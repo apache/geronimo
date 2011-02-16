@@ -88,6 +88,7 @@
         <pax.logging.version>1.5.3</pax.logging.version>
         <woodstoxVersion>3.2.9_1</woodstoxVersion>
         <sxcVersion>0.7.3_1</sxcVersion>
+        <yokoVersion>1.2-SNAPSHOT</yokoVersion>
 
         <!-- Deployers -->
         <gbeanDeployerBootstrap>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${project.version}/car
@@ -1354,13 +1355,13 @@
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-spec-corba</artifactId>
-                <version>1.1</version>
+                <version>${yokoVersion}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.yoko</groupId>
                 <artifactId>yoko-rmi-spec</artifactId>
-                <version>1.1</version>
+                <version>${yokoVersion}</version>
             </dependency>
 
             <dependency>
@@ -2181,7 +2182,7 @@ only found in cxf
                             </assembly>
                         </assemblies>
 
-                        <defaultAssemblyId>jetty</defaultAssemblyId>
+                        <defaultAssemblyId>tomcat</defaultAssemblyId>
 
                         <optionSets>
                             <optionSet>
