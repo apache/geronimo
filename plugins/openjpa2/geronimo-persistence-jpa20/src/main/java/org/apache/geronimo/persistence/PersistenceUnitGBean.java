@@ -165,7 +165,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
     private static URL getPersistenceUnitRoot(Bundle bundle, String persistenceUnitRoot) throws MalformedURLException {
         if (persistenceUnitRoot == null || persistenceUnitRoot.equals(".")) {
             return bundle.getEntry("/");
-        } else if (persistenceUnitRoot.endsWith("/")) {
+        } else if (persistenceUnitRoot.endsWith("/")|| persistenceUnitRoot.endsWith("WEB-INF/classes")) {
             return bundle.getEntry(persistenceUnitRoot);
         } else {
             return new URL("jar:" + bundle.getEntry(persistenceUnitRoot) + "!/");
