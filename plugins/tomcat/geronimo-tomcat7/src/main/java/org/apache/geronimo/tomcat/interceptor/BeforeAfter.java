@@ -25,8 +25,8 @@ public interface BeforeAfter {
 
     public static final int DISPATCHED = 1;
 
-    void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch);
+    void before(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch);
 
-    void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch);
+    void after(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch);
 
 }

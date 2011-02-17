@@ -20,11 +20,10 @@
 
 package org.apache.geronimo.tomcat.interceptor;
 
-import java.util.Map;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
 import org.apache.geronimo.openwebbeans.GeronimoSingletonService;
 import org.apache.webbeans.config.WebBeansContext;
 
@@ -44,18 +43,31 @@ public class OWBBeforeAfter implements BeforeAfter {
     }
 
     @Override
-    public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
-        context[index] = GeronimoSingletonService.contextEntered(owbContext);
-        if (next != null) {
-            next.before(context, httpRequest, httpResponse, dispatch);
+    public void before(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
+        try {
+            beforeAfterContext.contexts[index] = GeronimoSingletonService.contextEntered(owbContext);
+            beforeAfterContext.clearRequiredFlags[index] = true;
+            if (next != null) {
+                next.before(beforeAfterContext, httpRequest, httpResponse, dispatch);
+            }
+        } catch (RuntimeException e) {
+            GeronimoSingletonService.contextExited((WebBeansContext) beforeAfterContext.contexts[index]);
+            beforeAfterContext.clearRequiredFlags[index] = false;
+            throw e;
         }
     }
 
     @Override
-    public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
-        if (next != null) {
-            next.after(context, httpRequest, httpResponse, dispatch);
+    public void after(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
+        try {
+            if (next != null) {
+                next.after(beforeAfterContext, httpRequest, httpResponse, dispatch);
+            }
+        } finally {
+            if (beforeAfterContext.clearRequiredFlags[index]) {
+                GeronimoSingletonService.contextExited((WebBeansContext) beforeAfterContext.contexts[index]);
+                beforeAfterContext.clearRequiredFlags[index] = false;
+            }
         }
-        GeronimoSingletonService.contextExited((WebBeansContext) context[index]);
     }
 }

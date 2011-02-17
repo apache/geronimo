@@ -18,9 +18,9 @@ package org.apache.geronimo.tomcat.listener;
 
 import java.util.Stack;
 
+import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.security.jacc.PolicyContext;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Globals;
@@ -29,6 +29,7 @@ import org.apache.catalina.InstanceListener;
 import org.apache.catalina.core.StandardWrapper;
 import org.apache.geronimo.tomcat.GeronimoStandardContext;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.BeforeAfterContext;
 import org.apache.geronimo.tomcat.security.jacc.JACCRealm;
 import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.http.mapper.Mapper;
@@ -40,9 +41,9 @@ public class DispatchListener implements InstanceListener {
 
     private static final Logger log = LoggerFactory.getLogger(DispatchListener.class);
 
-    private static ThreadLocal<Stack<Object[]>> currentContext = new ThreadLocal<Stack<Object[]>>() {
-        protected Stack<Object[]> initialValue() {
-            return new Stack<Object[]>();
+    private static ThreadLocal<Stack<BeforeAfterContext>> currentContext = new ThreadLocal<Stack<BeforeAfterContext>>() {
+        protected Stack<BeforeAfterContext> initialValue() {
+            return new Stack<BeforeAfterContext>();
         }
     };
 
@@ -50,13 +51,16 @@ public class DispatchListener implements InstanceListener {
 
         if (event.getType().equals(InstanceEvent.BEFORE_SERVICE_EVENT)) {
             String oldWrapperName = JACCRealm.setRequestWrapperName(event.getWrapper().getName());
-            currentContext.get().push(new Object[] {oldWrapperName });
+
+            BeforeAfterContext beforeAfterContext = new BeforeAfterContext(1);
+            beforeAfterContext.contexts[0] = oldWrapperName;
+
+            currentContext.get().push(beforeAfterContext);
         }
 
         if (event.getType().equals(InstanceEvent.AFTER_SERVICE_EVENT)) {
-            JACCRealm.setRequestWrapperName((String) currentContext.get().pop()[0]);
+            JACCRealm.setRequestWrapperName((String) currentContext.get().pop().contexts[0]);
         }
-
 
         if (event.getType().equals(InstanceEvent.BEFORE_DISPATCH_EVENT)) {
             Container parent = event.getWrapper().getParent();
@@ -77,17 +81,19 @@ public class DispatchListener implements InstanceListener {
 
         BeforeAfter beforeAfter = webContext.getBeforeAfter();
         if (beforeAfter != null) {
-            Stack<Object[]> stack = currentContext.get();
-            Object context[] = new Object[webContext.getContextCount() + 2];
-            String wrapperName = getWrapperName(request, webContext);
-            context[webContext.getContextCount()] = JACCRealm.setRequestWrapperName(wrapperName);
+            Stack<BeforeAfterContext> stack = currentContext.get();
 
-            context[webContext.getContextCount() + 1] = PolicyContext.getContextID();
+            BeforeAfterContext beforeAfterContext = new BeforeAfterContext(webContext.getContextCount() + 2);
+
+            String wrapperName = getWrapperName(request, webContext);
+            beforeAfterContext.contexts[webContext.getContextCount()] = JACCRealm.setRequestWrapperName(wrapperName);
+
+            beforeAfterContext.contexts[webContext.getContextCount() + 1] = PolicyContext.getContextID();
             PolicyContext.setContextID(webContext.getPolicyContextId());
 
-            beforeAfter.before(context, request, response, BeforeAfter.DISPATCHED);
+            beforeAfter.before(beforeAfterContext, request, response, BeforeAfter.DISPATCHED);
 
-            stack.push(context);
+            stack.push(beforeAfterContext);
         }
     }
 
@@ -95,13 +101,13 @@ public class DispatchListener implements InstanceListener {
 
         BeforeAfter beforeAfter = webContext.getBeforeAfter();
         if (beforeAfter != null) {
-            Stack<Object[]> stack = currentContext.get();
-            Object context[] = stack.pop();
+            Stack<BeforeAfterContext> stack = currentContext.get();
+            BeforeAfterContext beforeAfterContext = stack.pop();
 
-            beforeAfter.after(context, request, response, BeforeAfter.DISPATCHED);
+            beforeAfter.after(beforeAfterContext, request, response, BeforeAfter.DISPATCHED);
 
-            JACCRealm.setRequestWrapperName((String) context[webContext.getContextCount()]);
-            PolicyContext.setContextID((String) context[webContext.getContextCount() + 1]);
+            JACCRealm.setRequestWrapperName((String) beforeAfterContext.contexts[webContext.getContextCount()]);
+            PolicyContext.setContextID((String) beforeAfterContext.contexts[webContext.getContextCount() + 1]);
         }
     }
 

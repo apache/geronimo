@@ -75,6 +75,7 @@ import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.RunAsSource;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.BeforeAfterContext;
 import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
 import org.apache.geronimo.tomcat.interceptor.OWBBeforeAfter;
@@ -129,11 +130,11 @@ public class GeronimoStandardContext extends StandardContext {
     private Bundle bundle;
     private ServiceRegistration serviceRegistration;
 
-    private ThreadLocal<Stack<Object[]>> beforeAfterContexts = new ThreadLocal<Stack<Object[]>>() {
+    private ThreadLocal<Stack<BeforeAfterContext>> beforeAfterContexts = new ThreadLocal<Stack<BeforeAfterContext>>() {
 
         @Override
-        protected Stack<Object[]> initialValue() {
-            return new Stack<Object[]>();
+        protected Stack<BeforeAfterContext> initialValue() {
+            return new Stack<BeforeAfterContext>();
         }
 
     };
@@ -410,18 +411,18 @@ public class GeronimoStandardContext extends StandardContext {
      */
     @Override
     public void backgroundProcess() {
-        Object context[] = null;
+        BeforeAfterContext beforeAfterContext = null;
 
         if (beforeAfter != null){
-            context = new Object[contextCount];
-            beforeAfter.before(context, null, null, BeforeAfter.EDGE_SERVLET);
+            beforeAfterContext = new BeforeAfterContext(contextCount);
+            beforeAfter.before(beforeAfterContext, null, null, BeforeAfter.EDGE_SERVLET);
         }
 
         try {
             super.backgroundProcess();
         } finally {
             if (beforeAfter != null){
-                beforeAfter.after(context, null, null, 0);
+                beforeAfter.after(beforeAfterContext, null, null, BeforeAfter.EDGE_SERVLET);
             }
         }
     }
@@ -431,11 +432,11 @@ public class GeronimoStandardContext extends StandardContext {
             serviceRegistration.unregister();
         }
 
-        Object context[] = null;
+        BeforeAfterContext beforeAfterContext = null;
 
         if (beforeAfter != null){
-            context = new Object[contextCount];
-            beforeAfter.before(context, null, null, BeforeAfter.EDGE_SERVLET);
+            beforeAfterContext = new BeforeAfterContext(contextCount);
+            beforeAfter.before(beforeAfterContext, null, null, BeforeAfter.EDGE_SERVLET);
         }
 
         try {
@@ -443,7 +444,7 @@ public class GeronimoStandardContext extends StandardContext {
             destroy();
         } finally {
             if (beforeAfter != null){
-                beforeAfter.after(context, null, null, 0);
+                beforeAfter.after(beforeAfterContext, null, null, BeforeAfter.EDGE_SERVLET);
             }
         }
     }
@@ -830,21 +831,25 @@ public class GeronimoStandardContext extends StandardContext {
     @Override
     protected ClassLoader bindThread() {
         ClassLoader oldClassLoader =  super.bindThread();
-        Object context[] = null;
+        BeforeAfterContext beforeAfterContext = null;
 
         if (beforeAfter != null){
-            context = new Object[contextCount];
-            beforeAfterContexts.get().push(context);
-            beforeAfter.before(context, null, null, BeforeAfter.EDGE_SERVLET);
+            beforeAfterContext = new BeforeAfterContext(contextCount);
+            beforeAfter.before(beforeAfterContext, null, null, BeforeAfter.EDGE_SERVLET);
+            //beforeAfterContext is pushed the stack only if every BeforeAfter element works fine
+            beforeAfterContexts.get().push(beforeAfterContext);
         }
         return oldClassLoader;
     }
 
     @Override
     protected void unbindThread(ClassLoader oldContextClassLoader) {
-        super.unbindThread(oldContextClassLoader);
-        if (beforeAfter != null){
-            beforeAfter.after(beforeAfterContexts.get().pop(), null, null, 0);
+        try {
+            super.unbindThread(oldContextClassLoader);
+        } finally {
+            if (beforeAfter != null) {
+                beforeAfter.after(beforeAfterContexts.get().pop(), null, null, 0);
+            }
         }
     }
 }
