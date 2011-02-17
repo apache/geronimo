@@ -43,6 +43,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.util.BundleUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -60,8 +61,7 @@ import org.slf4j.LoggerFactory;
  */
 @GBean
 public class WebContainerExtender implements GBeanLifecycle {
-    // the header that identifies a bundle as being a WAB
-    public final static String WEB_CONTEXT_PATH_HEADER = "Web-ContextPath";
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebContainerExtender.class);
 
@@ -243,7 +243,7 @@ public class WebContainerExtender implements GBeanLifecycle {
      */
     private WebApplication deploy(Bundle bundle) {
         LOGGER.debug("Scanning bundle {} for WAB application", bundle.getSymbolicName());
-        String contextPath = (String) bundle.getHeaders().get(WEB_CONTEXT_PATH_HEADER);
+        String contextPath = (String) bundle.getHeaders().get(BundleUtil.WEB_CONTEXT_PATH_HEADER);
         // a WAB MUST have the Web-ContextPath header or it must be ignored by the extender.
         if (contextPath == null) {
             LOGGER.debug("No web container application found in bundle {}", bundle.getSymbolicName());

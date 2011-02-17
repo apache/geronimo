@@ -42,6 +42,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -173,20 +174,8 @@ public class ApplicationInstaller implements GBeanLifecycle {
     }
             
     public static Artifact getConfigId(ApplicationMetadata metadata) {
-        return createArtifact("application", metadata.getApplicationSymbolicName(), metadata.getApplicationVersion());
+        return BundleUtil.createArtifact("application", metadata.getApplicationSymbolicName(), metadata.getApplicationVersion());
     }
     
-    private static Artifact createArtifact(String group, String symbolicName, Version version) {
-        return new Artifact(group, symbolicName, getVersion(version), "eba");
-    }
-    
-    private static String getVersion(Version version) {
-        String str = version.getMajor() + "." + version.getMinor() + "." + version.getMicro();
-        String qualifier = version.getQualifier();
-        if (qualifier != null && qualifier.trim().length() > 0) {
-            str += "-" + version.getQualifier().trim();
-        }
-        return str;
-    }
     
 }

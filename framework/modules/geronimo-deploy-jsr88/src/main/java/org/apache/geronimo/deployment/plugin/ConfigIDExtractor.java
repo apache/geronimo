@@ -37,6 +37,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.slf4j.Logger;
@@ -268,18 +269,10 @@ public class ConfigIDExtractor {
         
         org.osgi.framework.Version version=new org.osgi.framework.Version(artifactVersion.trim());
 
-        return new Artifact("application", artifactID.trim(), getVersion(version), "eba").toString();
+        return new Artifact("application", artifactID.trim(), BundleUtil.getVersion(version), "eba").toString();
     } 
     
-    //copied from org.apache.geronimo.aries.builder.ApplicationInstaller.getVersion(Version)
-    private static String getVersion(org.osgi.framework.Version version) {
-        String str = version.getMajor() + "." + version.getMinor() + "." + version.getMicro();
-        String qualifier = version.getQualifier();
-        if (qualifier != null && qualifier.trim().length() > 0) {
-            str += "-" + version.getQualifier().trim();
-        }
-        return str;
-    }
+    
     
     private static String extractModuleIdFromPlan(Reader plan) throws IOException {
         SAXParserFactory factory = XmlUtil.newSAXParserFactory();
