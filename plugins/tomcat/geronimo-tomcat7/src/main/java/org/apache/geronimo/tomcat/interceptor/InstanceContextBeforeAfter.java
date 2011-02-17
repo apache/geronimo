@@ -44,36 +44,58 @@ public class InstanceContextBeforeAfter implements BeforeAfter{
         this.trackedConnectionAssociator = trackedConnectionAssociator;
     }
 
-    public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
+    public void before(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
         try {
             SharedConnectorInstanceContext newConnectorInstanceContext = new SharedConnectorInstanceContext(unshareableResources, applicationManagedSecurityResources, false);
             ConnectorInstanceContext oldContext = trackedConnectionAssociator.enter(newConnectorInstanceContext);
             if (oldContext != null) {
                 newConnectorInstanceContext.share(oldContext);
             }
-            context[oldIndex] = oldContext;
-            context[newIndex] = newConnectorInstanceContext;
+            beforeAfterContext.contexts[oldIndex] = oldContext;
+            beforeAfterContext.clearRequiredFlags[oldIndex] = true;
+
+            beforeAfterContext.contexts[newIndex] = newConnectorInstanceContext;
+            beforeAfterContext.clearRequiredFlags[newIndex] = true;
         } catch (ResourceException e) {
             throw new RuntimeException(e);
         }
-        if (next != null) {
-            next.before(context, httpRequest, httpResponse, dispatch);
+        try {
+            if (next != null) {
+                next.before(beforeAfterContext, httpRequest, httpResponse, dispatch);
+            }
+        } catch (RuntimeException e) {
+            cleanUp(beforeAfterContext);
+            throw e;
         }
     }
 
-    public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
-        if (next != null) {
-            next.after(context, httpRequest, httpResponse, dispatch);
-        }
+    public void after(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
         try {
-            ConnectorInstanceContext oldConnectorInstanceContext = (ConnectorInstanceContext) context[oldIndex];
-            SharedConnectorInstanceContext newConnectorInstanceContext = (SharedConnectorInstanceContext) context[newIndex];
-            if (oldConnectorInstanceContext != null) {
-                newConnectorInstanceContext.hide();
+            if (next != null) {
+                next.after(beforeAfterContext, httpRequest, httpResponse, dispatch);
             }
-            trackedConnectionAssociator.exit(oldConnectorInstanceContext);
-        } catch (ResourceException e) {
-            throw new RuntimeException(e);
+        } finally {
+            cleanUp(beforeAfterContext);
         }
     }
+
+    private void cleanUp(BeforeAfterContext beforeAfterContext) {
+        if (beforeAfterContext.clearRequiredFlags[oldIndex]) {
+            try {
+                ConnectorInstanceContext oldConnectorInstanceContext = (ConnectorInstanceContext) beforeAfterContext.contexts[oldIndex];
+                if (beforeAfterContext.clearRequiredFlags[newIndex]) {
+                    SharedConnectorInstanceContext newConnectorInstanceContext = (SharedConnectorInstanceContext) beforeAfterContext.contexts[newIndex];
+                    if (oldConnectorInstanceContext != null) {
+                        newConnectorInstanceContext.hide();
+                    }
+                    beforeAfterContext.clearRequiredFlags[newIndex] = false;
+                }
+                trackedConnectionAssociator.exit(oldConnectorInstanceContext);
+                beforeAfterContext.clearRequiredFlags[oldIndex] = false;
+            } catch (ResourceException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
 }

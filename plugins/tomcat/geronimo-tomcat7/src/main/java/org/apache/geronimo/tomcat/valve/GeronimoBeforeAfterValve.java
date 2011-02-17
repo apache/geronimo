@@ -24,6 +24,7 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.BeforeAfterContext;
 
 public class GeronimoBeforeAfterValve extends ValveBase{
 
@@ -37,19 +38,19 @@ public class GeronimoBeforeAfterValve extends ValveBase{
     }
 
     public void invoke(Request request, Response response) throws IOException, ServletException {
-        Object context[] = new Object[contextIndexCount];
+        BeforeAfterContext beforeAfterContext = new BeforeAfterContext(contextIndexCount);
 
         if (beforeAfter != null){
-            beforeAfter.before(context, request, response, BeforeAfter.EDGE_SERVLET);
+            beforeAfter.before(beforeAfterContext, request, response, BeforeAfter.EDGE_SERVLET);
         }
-
-        // Pass this request on to the next valve in our pipeline
-        getNext().invoke(request, response);
-
-        if (beforeAfter != null){
-            beforeAfter.after(context, request, response, 0);
+        try {
+            // Pass this request on to the next valve in our pipeline
+            getNext().invoke(request, response);
+        } finally {
+            if (beforeAfter != null) {
+                beforeAfter.after(beforeAfterContext, request, response, BeforeAfter.EDGE_SERVLET);
+            }
         }
-
     }
 
 }

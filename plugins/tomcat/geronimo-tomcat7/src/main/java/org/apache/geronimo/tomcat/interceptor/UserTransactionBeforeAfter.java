@@ -42,25 +42,32 @@ public class UserTransactionBeforeAfter implements BeforeAfter {
         this.userTransaction = userTransaction;
     }
 
-    public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
-        if (next != null) {
-            next.after(context, httpRequest, httpResponse, dispatch);
-        }
-        
-        boolean active = (Boolean)context[index];
-        if ((!active && isMarkedRollback()) || (dispatch == EDGE_SERVLET && isActive())) {
-            try {
-                userTransaction.rollback();
-            } catch (SystemException e) {
-                throw new RuntimeException("Error rolling back transaction left open by user program", e);
+    public void after(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
+        try {
+            if (next != null) {
+                next.after(beforeAfterContext, httpRequest, httpResponse, dispatch);
+            }
+        } finally {
+            if (beforeAfterContext.clearRequiredFlags[index]) {
+                boolean active = (Boolean) beforeAfterContext.contexts[index];
+                beforeAfterContext.clearRequiredFlags[index] = false;
+                if ((!active && isMarkedRollback()) || (dispatch == EDGE_SERVLET && isActive())) {
+                    try {
+                        userTransaction.rollback();
+                    } catch (SystemException e) {
+                        throw new RuntimeException("Error rolling back transaction left open by user program", e);
+                    }
+                }
             }
         }
-
     }
 
-    public void before(Object[] context, ServletRequest request, ServletResponse response, int dispatch) {
-        context[index] = isActive();
-        next.before(context, request, response, dispatch);
+    public void before(BeforeAfterContext beforeAfterContext, ServletRequest request, ServletResponse response, int dispatch) {
+        beforeAfterContext.contexts[index] = isActive();
+        beforeAfterContext.clearRequiredFlags[index] = true;
+        if (next != null) {
+            next.before(beforeAfterContext, request, response, dispatch);
+        }
     }
 
     private boolean isActive() {

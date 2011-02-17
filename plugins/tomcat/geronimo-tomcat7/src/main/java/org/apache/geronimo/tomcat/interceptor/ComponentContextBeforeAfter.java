@@ -33,19 +33,36 @@ public class ComponentContextBeforeAfter implements BeforeAfter{
         this.componentContext = componentContext;
     }
 
-    public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
-        context[index] = RootContext.getComponentContext();
-        RootContext.setComponentContext(componentContext);
-        if (next != null) {
-            next.before(context, httpRequest, httpResponse, dispatch);
+    public void before(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
+
+        try {
+            beforeAfterContext.contexts[index] = RootContext.getComponentContext();
+            RootContext.setComponentContext(componentContext);
+            beforeAfterContext.clearRequiredFlags[index] = true;
+
+            if (next != null) {
+                next.before(beforeAfterContext, httpRequest, httpResponse, dispatch);
+            }
+        } catch (RuntimeException e) {
+            if (beforeAfterContext.clearRequiredFlags[index]) {
+                RootContext.setComponentContext((Context) beforeAfterContext.contexts[index]);
+                beforeAfterContext.clearRequiredFlags[index] = false;
+                throw e;
+            }
         }
     }
 
-    public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
-        if (next != null) {
-            next.after(context, httpRequest, httpResponse, dispatch);
+    public void after(BeforeAfterContext beforeAfterContext, ServletRequest httpRequest, ServletResponse httpResponse, int dispatch) {
+        try {
+            if (next != null) {
+                next.after(beforeAfterContext, httpRequest, httpResponse, dispatch);
+            }
+        } finally {
+            if (beforeAfterContext.clearRequiredFlags[index]) {
+                RootContext.setComponentContext((Context) beforeAfterContext.contexts[index]);
+                beforeAfterContext.clearRequiredFlags[index] = false;
+            }
         }
-        RootContext.setComponentContext((Context) context[index]);
     }
 
 }
