@@ -18,6 +18,12 @@ limitations under the License.
 -->
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.2">
     
+    <environment>
+        <import-package>
+            !org.apache.geronimo.console.databasemanager.wizard
+        </import-package>
+    </environment>
+    
     <!-- This is where the files are accessed from. (aka - portletContext) -->
     <context-root>/system-database</context-root>
 
