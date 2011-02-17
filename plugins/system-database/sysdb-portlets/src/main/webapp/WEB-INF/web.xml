@@ -44,6 +44,7 @@ limitations under the License.
             <param-name>portlet-name</param-name>
             <param-value>InternalDB</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet>
@@ -54,6 +55,7 @@ limitations under the License.
             <param-name>portlet-name</param-name>
             <param-value>DBViewer</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet>
@@ -64,6 +66,7 @@ limitations under the License.
             <param-name>portlet-name</param-name>
             <param-value>RunSQL</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet>
@@ -74,6 +77,7 @@ limitations under the License.
             <param-name>portlet-name</param-name>
             <param-value>RunSQLDS</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
    <servlet>
@@ -84,6 +88,7 @@ limitations under the License.
             <param-name>portlet-name</param-name>
             <param-value>DerbyLogViewer</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet>
@@ -94,6 +99,7 @@ limitations under the License.
             <param-name>portlet-name</param-name>
             <param-value>DBWizard</param-value>
         </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>

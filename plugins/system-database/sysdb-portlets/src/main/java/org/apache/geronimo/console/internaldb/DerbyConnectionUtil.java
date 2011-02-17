@@ -34,7 +34,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.management.JCAManagedConnectionFactory;
+import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 
 /**
@@ -73,7 +73,7 @@ public class DerbyConnectionUtil {
             log.debug("Looking up system datasource name...");
 
             // cache the name for the system data source
-            AbstractNameQuery query = new AbstractNameQuery(JCAManagedConnectionFactory.class.getName());
+            AbstractNameQuery query = new AbstractNameQuery(ResourceSource.class.getName());
             Set<AbstractName> names = KernelRegistry.getSingleKernel().listGBeans(query);
             for (AbstractName name : names) {
                 String nameProperty = name.getNameProperty("name");

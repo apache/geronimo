@@ -781,7 +781,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             for (JCAManagedConnectionFactory db : databases) {
                 AbstractName dbName = PortletManager.getManagementHelper(renderRequest).getNameFor(db);
                 list.add(new ConnectionPool(moduleName, dbName, (String) dbName.getName().get(NameFactory.J2EE_NAME),
-                        ((GeronimoManagedBean) db).getState()));
+                        PortletManager.getManagedBean(renderRequest, dbName).getState()));
             }
         }
         Collections.sort(list);
