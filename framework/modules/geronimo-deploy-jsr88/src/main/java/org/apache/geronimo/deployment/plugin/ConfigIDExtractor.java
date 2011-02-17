@@ -269,7 +269,7 @@ public class ConfigIDExtractor {
         
         org.osgi.framework.Version version=new org.osgi.framework.Version(artifactVersion.trim());
 
-        return new Artifact("application", artifactID.trim(), BundleUtil.getVersion(version), "eba").toString();
+        return new Artifact(BundleUtil.EBA_GROUP_ID, artifactID.trim(), BundleUtil.getVersion(version), "eba").toString();
     } 
     
     

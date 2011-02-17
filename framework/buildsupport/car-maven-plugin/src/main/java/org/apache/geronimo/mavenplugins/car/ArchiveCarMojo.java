@@ -210,7 +210,7 @@ public class ArchiveCarMojo
         String type="car";
         
         if (module != null && module.getType() != null && module.getType().equals("eba")) {
-            groupId = "application";
+            groupId = org.apache.geronimo.kernel.util.BundleUtil.EBA_GROUP_ID;
             artifactId = module.getArtifactId();
             version = module.getVersion();
             type = "eba";

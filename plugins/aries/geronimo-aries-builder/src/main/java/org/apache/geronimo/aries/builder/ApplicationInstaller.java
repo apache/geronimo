@@ -182,7 +182,7 @@ public class ApplicationInstaller implements GBeanLifecycle {
     }
 
     public static Artifact getConfigId(ApplicationMetadata metadata) {
-        return BundleUtil.createArtifact("application", metadata.getApplicationSymbolicName(), metadata.getApplicationVersion());
+        return BundleUtil.createArtifact(BundleUtil.EBA_GROUP_ID, metadata.getApplicationSymbolicName(), metadata.getApplicationVersion());
     }
 
 

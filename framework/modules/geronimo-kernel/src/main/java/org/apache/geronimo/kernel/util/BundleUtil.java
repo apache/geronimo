@@ -27,6 +27,8 @@ public class BundleUtil {
     
     // the header that identifies a bundle as being a WAB
     public final static String WEB_CONTEXT_PATH_HEADER = "Web-ContextPath";
+    
+    public final static String EBA_GROUP_ID = "application";
 
     public static String getVersion(org.osgi.framework.Version version) {
         String str = version.getMajor() + "." + version.getMinor() + "." + version.getMicro();
