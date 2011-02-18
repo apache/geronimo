@@ -48,28 +48,31 @@ public class ThreadSingletonServiceAdapter implements ThreadSingletonService {
     public void initialize(StartupObject startupObject) {
         //share owb singletons
         WebBeansContext webBeansContext = startupObject.getAppContext().get(WebBeansContext.class);
-        if (webBeansContext == null) {
-            webBeansContext = new WebBeansContext();
-            Object old = contextEntered(webBeansContext);
-            try {
-                if (old == null) {
+        if (webBeansContext != null) {
+            return;
+        }
+        Object old = contextEntered(null);
+        try {
+            if (old == null) {
+                webBeansContext = new WebBeansContext();
+                contextEntered(webBeansContext);
+                try {
                     //not embedded. Are we the first ejb module to try this?
                     startupObject.getAppContext().set(WebBeansContext.class, webBeansContext);
                     setConfiguration(webBeansContext.getOpenWebBeansConfiguration());
-                    try {
-                        webBeansContext.getService(ContainerLifecycle.class).startApplication(startupObject);
-                    } catch (Exception e) {
-                        throw new RuntimeException("couldn't start owb context", e);
-                    }
-                    // an existing OWBConfiguration will have already been initialized
-                } else {
-                    startupObject.getAppContext().set(WebBeansContext.class, (WebBeansContext) old);
+                    webBeansContext.getService(ContainerLifecycle.class).startApplication(startupObject);
+                } catch (Exception e) {
+                    throw new RuntimeException("couldn't start owb context", e);
+                } finally {
+                    contextExited(null);
                 }
-            } finally {
-                contextExited(old);
+                // an existing OWBConfiguration will have already been initialized
+            } else {
+                startupObject.getAppContext().set(WebBeansContext.class, (WebBeansContext) old);
             }
+        } finally {
+            contextExited(old);
         }
-
     }
 
     private void setConfiguration(OpenWebBeansConfiguration configuration) {
