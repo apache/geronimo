@@ -57,7 +57,6 @@ import org.omg.CORBA.portable.InputStream;
 import org.omg.CORBA.portable.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.yoko.osgi.ProviderLocator;
 
 /**
  * @version $Revision: 451417 $ $Date: 2006-09-29 13:13:22 -0700 (Fri, 29 Sep 2006) $
@@ -70,8 +69,6 @@ public final class UtilDelegateImpl implements UtilDelegate {
     private static ClassLoader classLoader;
 
     private final static String DELEGATE_NAME = "org.apache.geronimo.corba.UtilDelegateClass";
-    
-    private final static String PROVIDERKEY = "javax.rmi.CORBA.UtilClass";
 
     public UtilDelegateImpl() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 //        String value = System.getProperty(DELEGATE_NAME);
@@ -82,8 +79,6 @@ public final class UtilDelegateImpl implements UtilDelegate {
 //
 //        if (log.isDebugEnabled()) log.debug("Set delegate " + value);
 //        delegate = (UtilDelegate) Class.forName(value).newInstance();
-    	Class clz = ProviderLocator.locate(PROVIDERKEY);
-    	UtilDelegateImpl.setDelegateClass(clz);
         delegate = delegateClass.newInstance();
     }
 
