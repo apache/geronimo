@@ -2494,7 +2494,15 @@ only found in cxf
                 <module>testsuite</module>
             </modules>
         </profile>
-
+        
+        <profile>
+            <id>notar</id>
+            
+            <properties>
+                <tarAssemblies>false</tarAssemblies>
+            </properties>
+        </profile>        
+        
         <!--
         NOTE: This profile is used to enable plugin prefixes for easy command-line usage, as in:
 
