@@ -71,6 +71,12 @@ public class ArchiveMojo extends AbstractCarMojo {
      * @parameter
      */
     private String[] excludes;
+    
+    /**
+     * whether to create tar.gz archive
+     * @parameter expression="${tarAssemblies}" default-value="true"
+     */
+    private boolean tarAssemblies;        
 
     /**
      * The target file to set as the project's artifact.
@@ -94,7 +100,9 @@ public class ArchiveMojo extends AbstractCarMojo {
                     archiver.addExclude(exclude);
                 }
             }
-            archive("tar.gz", archiver);
+            if(tarAssemblies){
+                archive("tar.gz", archiver);
+            }
             archive("zip", archiver);
         } catch (Exception e) {
             throw new MojoExecutionException("Could not archive plugin", e);
