@@ -35,8 +35,6 @@ import java.util.TreeSet;
 import java.util.jar.JarFile;
 
 import javax.ejb.EntityContext;
-import javax.ejb.MessageDrivenContext;
-import javax.ejb.SessionContext;
 import javax.ejb.TimerService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceContext;
@@ -481,11 +479,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             }
             for (Iterator<ResourceEnvRef> iterator = enterpriseBean.getResourceEnvRef().iterator(); iterator.hasNext();) {
                 ResourceEnvRef ref = iterator.next();
-                if (ref.getType().equals(SessionContext.class.getName())) {
-                    iterator.remove();
-                } else if (ref.getType().equals(EntityContext.class.getName())) {
-                    iterator.remove();
-                } else if (ref.getType().equals(MessageDrivenContext.class.getName())) {
+                if (ref.getType().equals(EntityContext.class.getName())) {
                     iterator.remove();
                 } else if (ref.getType().equals(TimerService.class.getName())) {
                     iterator.remove();
@@ -644,7 +638,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
         // convert the plan to xmlbeans since geronimo naming is coupled on xmlbeans objects
             OpenejbGeronimoEjbJarType geronimoOpenejb = XmlUtil.convertToXmlbeans(geronimoEjbJarType);
-            
+
            ejbModule.getVendorDD().set(geronimoOpenejb);
 
         // todo move namingBuilders.buildEnvironment() here when geronimo naming supports it
