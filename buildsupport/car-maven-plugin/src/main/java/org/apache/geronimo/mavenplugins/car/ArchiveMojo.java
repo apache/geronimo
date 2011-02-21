@@ -79,6 +79,12 @@ public class ArchiveMojo extends MojoSupport {
      * @parameter
      */
     private String[] excludes;
+    
+    /**
+     * whether to create tar.gz archive
+     * @parameter expression="${tarAssemblies}" default-value="true"
+     */
+    private boolean tarAssemblies;      
 
     /**
      * The target file to set as the project's artifact.
@@ -102,7 +108,9 @@ public class ArchiveMojo extends MojoSupport {
                 archiver.addExclude(exclude);
             }
         }
-        archive("tar.gz", archiver);
+            if(tarAssemblies){
+                archive("tar.gz", archiver);
+            }
         archive("zip", archiver);
     }
 
