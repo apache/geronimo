@@ -31,22 +31,22 @@ import org.json.JSONObject;
 import org.apache.aries.application.utils.manifest.ManifestHeaderProcessor;
 
 
-public class HeadersJSONObject extends JSONObject{
+public class ManifestGridJSONObject extends JSONObject{
     
-    public HeadersJSONObject(Dictionary<String,String> headers) throws JSONException{
+    public ManifestGridJSONObject(Dictionary<String,String> headers) throws JSONException{
         this.put("identifier", "hkey");
         this.put("label", "description");
         
-        List<BundleHeaderJSONObject> items=new LinkedList<BundleHeaderJSONObject>();
+        List<ManifestHeaderJSONObject> items=new LinkedList<ManifestHeaderJSONObject>();
         
         Enumeration<String> keys = headers.keys();
         while(keys.hasMoreElements()){
             String key = (String)keys.nextElement();
             
             if (key.equals("Import-Package")||key.equals("Export-Package")||key.equals("Ignore-Package")||key.equals("Private-Package")){
-                items.add(new BundleHeaderJSONObject(key, formatPackageHeader((String)headers.get(key))));
+                items.add(new ManifestHeaderJSONObject(key, formatPackageHeader((String)headers.get(key))));
             } else {
-                items.add(new BundleHeaderJSONObject(key, (String)headers.get(key)));
+                items.add(new ManifestHeaderJSONObject(key, (String)headers.get(key)));
             }
         }
         
@@ -84,12 +84,17 @@ public class HeadersJSONObject extends JSONObject{
         }
         
         String uses = "";
-        for (int i=1; i<parts.length; i++){
+        for (int i=1; i<parts.length;i++){
             String aPart = parts[i];
-            if (aPart.indexOf("uses")!=-1){  //deal with the "uses:=.." specially, because it always very long..
+            if (aPart.indexOf("uses:=")!=-1){  //deal with the "uses:=.." specially, because it always very long..
                 uses+=";<BR/>&nbsp;&nbsp;&nbsp;&nbsp;"+"uses:="+"\"";
                 
-                String usesValue=aPart.substring(aPart.indexOf("\"")+1, aPart.lastIndexOf("\""));
+                String usesValue = "";
+                if (aPart.indexOf("\"")!=-1){
+                    usesValue = aPart.substring(aPart.indexOf("\"")+1, aPart.lastIndexOf("\""));
+                } else {  // for such using uses:=javassist;
+                    usesValue = aPart.substring(aPart.indexOf(":=")+2);
+                }
                 
                 List<String> usesValueList = ManifestHeaderProcessor.split(usesValue,",");
                 Collections.sort(usesValueList);
@@ -104,11 +109,11 @@ public class HeadersJSONObject extends JSONObject{
                 uses+="\"";
                 
             } else {  //maybe "version=..", maybe "resolution=.."
-                result+=";"+aPart;
+                result += ";"+aPart;
             }
         }
         
-        if (uses!="") result+=uses;
+        if (uses!="") result += uses;
         
         return result+",";
     }

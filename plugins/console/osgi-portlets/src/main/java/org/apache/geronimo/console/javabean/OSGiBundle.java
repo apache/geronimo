@@ -38,7 +38,7 @@ public class OSGiBundle {
     
     public OSGiBundle(Bundle bundle) {
 		this(bundle.getBundleId(),
-		        bundle.getSymbolicName(),
+		        bundle.getSymbolicName()==null?bundle.getLocation():bundle.getSymbolicName(),
 		        bundle.getVersion().toString(),
 		        bundle.getState()
 		        

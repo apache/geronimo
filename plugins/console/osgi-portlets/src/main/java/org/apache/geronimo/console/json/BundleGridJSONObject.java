@@ -22,9 +22,9 @@ import java.util.List;
 import org.apache.geronimo.console.javabean.OSGiBundle;
 import org.json.JSONException;
 import org.json.JSONObject;
-public class GridJSONObject extends JSONObject{
+public class BundleGridJSONObject extends JSONObject{
     
-	public GridJSONObject(List<OSGiBundle> bundles) throws JSONException{
+	public BundleGridJSONObject(List<OSGiBundle> bundles) throws JSONException{
 		this.put("identifier", "id");
 		this.put("label", "description");
 		
