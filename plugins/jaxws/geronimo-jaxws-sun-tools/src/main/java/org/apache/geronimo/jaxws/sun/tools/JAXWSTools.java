@@ -43,8 +43,8 @@ public class JAXWSTools {
     {
         { "org.apache.geronimo.specs", "geronimo-jaxws_2.2_spec" },
         { "org.apache.geronimo.specs", "geronimo-saaj_1.3_spec" },
-        { "org.apache.geronimo.specs", "geronimo-jaxb_2.1_spec" },
-        { "com.sun.xml.bind", "jaxb-impl" },
+        { "org.apache.geronimo.specs", "geronimo-jaxb_2.2_spec" },
+        { "org.apache.geronimo.bundles", "jaxb-impl" },
         { "com.sun.xml.bind", "jaxb-xjc" },
         { "com.sun.xml.ws",   "jaxws-tools" },
         { "com.sun.xml.ws",   "jaxws-rt" },
@@ -52,22 +52,22 @@ public class JAXWSTools {
         { "org.jvnet.staxex",             "stax-ex" },
         { "org.apache.geronimo.javamail", "geronimo-javamail_1.4_mail"},
         { "org.apache.geronimo.specs",    "geronimo-activation_1.1_spec"},
-        { "org.apache.geronimo.specs",    "geronimo-annotation_1.0_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-annotation_1.1_spec"},
         { "org.apache.geronimo.specs",    "geronimo-ws-metadata_2.0_spec"},
         { "org.apache.geronimo.specs",    "geronimo-ejb_3.1_spec"},
-        { "org.apache.geronimo.specs",    "geronimo-interceptor_3.0_spec"},
-        { "org.apache.geronimo.specs",    "geronimo-stax-api_1.0_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-interceptor_1.1_spec"},
+        { "org.apache.geronimo.specs",    "geronimo-stax-api_1.2_spec"},
         { "org.apache.geronimo.specs",    "geronimo-jpa_2.0_spec"},
         { "org.apache.geronimo.specs",    "geronimo-j2ee-connector_1.6_spec"},
         { "org.apache.geronimo.specs",    "geronimo-jms_1.1_spec"},
         { "org.apache.geronimo.specs",    "geronimo-jta_1.1_spec"},
         { "org.apache.geronimo.specs",    "geronimo-j2ee-management_1.1_spec"},
-        { "org.codehaus.woodstox",        "wstx-asl" },
+        { "org.apache.geronimo.bundles",        "woodstox" },
         { "org.apache.geronimo.modules",  "geronimo-webservices" },
     };
 
     private final static Artifact SUN_SAAJ_IMPL_ARTIFACT = new Artifact("com.sun.xml.messaging.saaj","saaj-impl", (Version)null, "jar");
-    private final static Artifact AXIS2_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.axis2","axis2-saaj", (Version)null, "jar");
+    private final static Artifact AXIS2_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.geronimo.bundles","axis2", (Version)null, "jar");
     private final static String TOOLS = "tools.jar";
 
     private Artifact saajImpl;
@@ -144,13 +144,13 @@ public class JAXWSTools {
         for (Repository arepository : repositories) {
             if (arepository instanceof ListableRepository) {
                 ListableRepository repository = (ListableRepository) arepository;
-                SortedSet artifactSet = repository.list(artifactQuery);
+                SortedSet<Artifact> artifactSet = repository.list(artifactQuery);
                 // if we have exactly one artifact found
                 if (artifactSet.size() == 1) {
-                    file = repository.getLocation((Artifact) artifactSet.first());
+                    file = repository.getLocation(artifactSet.first());
                     return file.getAbsoluteFile();
                 } else if (artifactSet.size() > 1) {// if we have more than 1 artifacts found use the latest one.
-                    file = repository.getLocation((Artifact) artifactSet.last());
+                    file = repository.getLocation(artifactSet.last());
                     return file.getAbsoluteFile();
                 }
             }
@@ -194,7 +194,7 @@ public class JAXWSTools {
 
     private boolean invoke(String toolName, URL[] jars, OutputStream os, String[] arguments) throws Exception {
         TemporaryClassLoader loader = new TemporaryClassLoader(jars, ClassLoader.getSystemClassLoader());
-        if (this.overrideContextClassLoader) {
+        if (overrideContextClassLoader) {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(loader);
             try {
@@ -209,7 +209,7 @@ public class JAXWSTools {
 
     private boolean invoke(String toolName, ClassLoader loader, OutputStream os, String[] arguments) throws Exception {
         LOG.debug("Invoking " + toolName);
-        Class clazz = loader.loadClass("com.sun.tools.ws.spi.WSToolsObjectFactory");
+        Class<?> clazz = loader.loadClass("com.sun.tools.ws.spi.WSToolsObjectFactory");
         Method method = clazz.getMethod("newInstance");
         Object factory = method.invoke(null);
         Method method2 = clazz.getMethod(toolName, OutputStream.class, String[].class);
