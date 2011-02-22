@@ -54,6 +54,7 @@ import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
 import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transformer.TransformerAgent;
+import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.xbean.osgi.bundle.util.BundleResourceClassLoader;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -318,7 +319,7 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
 
             // This classloader can only be used during PersistenceProvider.createContainerEntityManagerFactory() calls
             // Possible that it could be cleaned up sooner, but for now it's destroyed when the PUGBean is stopped
-            this.tempClassLoader = new TemporaryClassLoader(classLoader);
+            this.tempClassLoader = new TemporaryClassLoader(new BundleClassLoader(bundle,true,false));
             this.bundle = bundle;
         }
 
