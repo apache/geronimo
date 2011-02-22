@@ -112,16 +112,25 @@ public class Deployer implements GBeanLifecycle {
         File tmpDir = null;
         if (moduleFile != null && !moduleFile.isDirectory()) {
             
-            // GERONIMO-5765 add a warning message if user is deploying a wab
+            // GERONIMO-5765 add a warning message if user is deploying a bundle(wab)
             // In future, we will support bundle deployment through deployer and remove this, see GERONIMO-5764
+            JarFile moduleJar = null;
             try {
-                JarFile moduleJar = new JarFile(moduleFile);
+                moduleJar = new JarFile(moduleFile);
                 Manifest mf = moduleJar.getManifest();
-                if (mf!=null && mf.getMainAttributes().getValue("Web-ContextPath")!= null){
-                    log.warn("You are deploying a WAB to Geronimo. The recommended way to install a bundle is using a standard OSGi installation.");
+                if (mf!=null && mf.getMainAttributes().getValue("Bundle-SymbolicName")!= null){
+                    log.warn("Deploying module as a regular Java EE application. Its existing OSGi manifest will be ignored.");
                 } 
-            } catch (IOException e1) {
-                e1.printStackTrace();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            } finally {
+                if (moduleJar!=null){
+                    try {
+                        moduleJar.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
             
             
