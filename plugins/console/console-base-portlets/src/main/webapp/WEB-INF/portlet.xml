@@ -365,7 +365,7 @@ limitations under the License.
         <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
-            <title>Installed Web Applications</title>
+            <title>Installed Web Applications (WAR)</title>
             <short-title>WAR Modules</short-title>
             <keywords>Web Application WAR Module</keywords>
         </portlet-info>
@@ -390,8 +390,8 @@ limitations under the License.
         <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
-            <title>Installed EBA Applications</title>
-            <short-title>EBA Modules</short-title>
+            <title>Installed Enterprise Business Applications (EBA)</title>
+            <short-title>EBAModules</short-title>
             <keywords>EBA Application EBA Module</keywords>
         </portlet-info>
         <init-param>
@@ -414,7 +414,7 @@ limitations under the License.
         <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
-            <title>Installed WAB Applications</title>
+            <title>Installed Web Application Bundles (WAB)</title>
             <short-title>WAB Modules</short-title>
             <keywords>WAB Application WAB Module</keywords>
         </portlet-info>
@@ -531,7 +531,7 @@ limitations under the License.
         <supported-locale>ja</supported-locale>
         <resource-bundle>portletinfo</resource-bundle>
         <portlet-info>
-            <title>Installed Application EARs</title>
+            <title>Installed Enterprise Applications (EAR)</title>
             <short-title>EARModules</short-title>
             <keywords></keywords>
         </portlet-info>

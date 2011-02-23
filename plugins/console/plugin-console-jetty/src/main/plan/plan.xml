@@ -41,7 +41,7 @@
 
     <!-- Start off a ACEGBean, this is the lifecycle for the portlet -->
     <gbean name="Deployment" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">2-3/Applications/Deployer</attribute>
+        <attribute name="pageTitle">2-1/Applications/Deployer</attribute>
         <attribute name="portletContext">/plugin</attribute>
         <attribute name="portletList">[Deployment]</attribute>
         <attribute name="icon">/images/ico_deploy_16x16.gif</attribute>
