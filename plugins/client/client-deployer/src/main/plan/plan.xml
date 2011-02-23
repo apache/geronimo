@@ -36,6 +36,9 @@
             <pattern>
                 <name>PersistenceUnitBuilder</name>
             </pattern>
+            <pattern>
+                <name>BValModuleBuilderExtension</name>
+            </pattern>
         </references>
         <references name="NamingBuilders">
             <pattern>
