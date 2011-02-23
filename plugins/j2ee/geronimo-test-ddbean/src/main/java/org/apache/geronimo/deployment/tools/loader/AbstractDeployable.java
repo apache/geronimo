@@ -54,10 +54,9 @@ public abstract class AbstractDeployable implements DeployableObject {
         entries = new ArrayList<String>();
         Enumeration<String> paths = bundle.getEntryPaths("/");
         //TODO WTF?? if statement seems to be required????
-        if (paths.hasMoreElements()) {
-            for (String entry = paths.nextElement(); paths.hasMoreElements();) {
-                entries.add(entry);
-            }
+        while (paths.hasMoreElements()) {
+            String entry = paths.nextElement();
+            entries.add(entry);
         }
     }
 
