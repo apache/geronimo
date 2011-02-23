@@ -153,16 +153,6 @@
                     <name>PlutoPortalServices</name>
                 </reference>
             </gbean>
-            <gbean name="WARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">2-2-1/Applications/User Assets/Web App WARs</attribute>
-                <attribute name="portletContext">/console-base</attribute>
-                <attribute name="portletList">[WARModules]</attribute>
-                <attribute name="icon">/images/ico_webapp_16x16.gif</attribute>
-                <attribute name="mode">basic</attribute>
-                <reference name="PortalContainerServices">
-                    <name>PlutoPortalServices</name>
-                </reference>
-            </gbean>
             <gbean name="SystemModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">3-7/Resources/System Modules</attribute>
                 <attribute name="portletContext">/console-base</attribute>
@@ -172,8 +162,18 @@
                     <name>PlutoPortalServices</name>
                 </reference>
             </gbean>
+            <gbean name="WARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
+                <attribute name="pageTitle">2-2-1/Applications/User Assets/Web Apps (WAR)</attribute>
+                <attribute name="portletContext">/console-base</attribute>
+                <attribute name="portletList">[WARModules]</attribute>
+                <attribute name="icon">/images/ico_webapp_16x16.gif</attribute>
+                <attribute name="mode">basic</attribute>
+                <reference name="PortalContainerServices">
+                    <name>PlutoPortalServices</name>
+                </reference>
+            </gbean>
              <gbean name="EARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                 <attribute name="pageTitle">2-2-2/Applications/User Assets/Application EARs</attribute>
+                 <attribute name="pageTitle">2-2-2/Applications/User Assets/Applications (EAR)</attribute>
                  <attribute name="portletContext">/console-base</attribute>
                  <attribute name="portletList">[EARModules]</attribute>
                  <attribute name="icon">/images/ico_ear_16x16.gif</attribute>
@@ -191,15 +191,6 @@
                     <name>PlutoPortalServices</name>
                 </reference>
             </gbean>
-            <gbean name="RARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">3-3/Resources/J2EE Connectors</attribute>
-                <attribute name="portletContext">/console-base</attribute>
-                <attribute name="portletList">[RARModules]</attribute>
-                <attribute name="icon">/images/ico_connect_16x16.gif</attribute>
-                <reference name="PortalContainerServices">
-                    <name>PlutoPortalServices</name>
-                </reference>
-            </gbean>
             <gbean name="ClientModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
                 <attribute name="pageTitle">2-2-4/Applications/User Assets/App Clients</attribute>
                 <attribute name="portletContext">/console-base</attribute>
@@ -210,21 +201,30 @@
                 </reference>
             </gbean>
             <gbean name="EBAModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">2-2-5/Applications/User Assets/Application EBAs</attribute>
+                <attribute name="pageTitle">2-2-6/Applications/User Assets/OSGi Applications (EBA)</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[EBAModules]</attribute>
-                <attribute name="icon">/images/ico_jar_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_ear_16x16.gif</attribute>
                 <attribute name="mode">basic</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
             </gbean>            
              <gbean name="WABModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">2-2-6/Applications/User Assets/Application WABs</attribute>
+                <attribute name="pageTitle">2-2-5/Applications/User Assets/OSGi Web Apps (WAB)</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[WABModules]</attribute>
-                <attribute name="icon">/images/ico_jar_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_webapp_16x16.gif</attribute>
                 <attribute name="mode">basic</attribute>
+                <reference name="PortalContainerServices">
+                    <name>PlutoPortalServices</name>
+                </reference>
+            </gbean>
+            <gbean name="RARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
+                <attribute name="pageTitle">3-3/Resources/J2EE Connectors</attribute>
+                <attribute name="portletContext">/console-base</attribute>
+                <attribute name="portletList">[RARModules]</attribute>
+                <attribute name="icon">/images/ico_connect_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>

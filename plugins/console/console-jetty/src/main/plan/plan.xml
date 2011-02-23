@@ -22,24 +22,20 @@
 
     <module>
         <web>portal-driver.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2"
-                 xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
             <context-root>/console</context-root>
             <security-realm-name>geronimo-admin</security-realm-name>
-            <gbean name="CARExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean"
-                   xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+            <gbean name="CARExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <attribute name="portalPathPrefix">/car-export</attribute>
                 <attribute name="portletContextPath">/plugin</attribute>
                 <attribute name="portletServletPath">/car-export</attribute>
             </gbean>
-            <gbean name="SVGForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean"
-                   xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+            <gbean name="SVGForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <attribute name="portalPathPrefix">/graphs</attribute>
                 <attribute name="portletContextPath">/console-base</attribute>
                 <attribute name="portletServletPath">/graphs</attribute>
             </gbean>
-            <gbean name="PlanExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean"
-                   xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+            <gbean name="PlanExportForward" class="org.apache.geronimo.console.gbean.ContextForwardGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <attribute name="portalPathPrefix">/plan-export</attribute>
                 <attribute name="portletContextPath">/plugin</attribute>
                 <attribute name="portletServletPath">/plan-export</attribute>
@@ -49,12 +45,10 @@
 
     <module>
         <web>base-portlets.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2"
-                 xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.2" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.2">
             <context-root>/console-base</context-root>
             <security-realm-name>geronimo-admin</security-realm-name>
-            <gbean name="PropertiesLoginManager"
-                   class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
+            <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
                 <reference name="ServerInfo">
                     <name>ServerInfo</name>
                 </reference>
@@ -63,8 +57,7 @@
                 </reference>
             </gbean>
             <!-- i18n support -->
-            <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean"
-                   xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
+            <gbean name="ConsoleResourceGBean" class="org.apache.geronimo.console.i18n.ConsoleResourceGBean" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
                 <reference name="ConsoleResourceRegistry">
                     <name>ConsoleResourceRegistry</name>
                 </reference>
@@ -150,20 +143,10 @@
                 </reference>
             </gbean>
             <gbean name="RepositoryViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">23-5/Resources/Repository</attribute>
+                <attribute name="pageTitle">3-5/Resources/Repository</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[RepositoryViewer]</attribute>
                 <attribute name="icon">/images/ico_repo_16x16.gif</attribute>
-                <reference name="PortalContainerServices">
-                    <name>PlutoPortalServices</name>
-                </reference>
-            </gbean>
-            <gbean name="WARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">2-2-1/Applications/User Assets/Web App WARs</attribute>
-                <attribute name="portletContext">/console-base</attribute>
-                <attribute name="portletList">[WARModules]</attribute>
-                <attribute name="icon">/images/ico_webapp_16x16.gif</attribute>
-                <attribute name="mode">basic</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -177,12 +160,22 @@
                     <name>PlutoPortalServices</name>
                 </reference>
             </gbean>
+            <gbean name="WARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
+                <attribute name="pageTitle">2-2-1/Applications/User Assets/Web Apps (WAR)</attribute>
+                <attribute name="portletContext">/console-base</attribute>
+                <attribute name="portletList">[WARModules]</attribute>
+                <attribute name="icon">/images/ico_webapp_16x16.gif</attribute>
+                <attribute name="mode">basic</attribute>
+                <reference name="PortalContainerServices">
+                    <name>PlutoPortalServices</name>
+                </reference>
+            </gbean>
              <gbean name="EARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                 <attribute name="pageTitle">2-2-2/Applications/User Assets/Application EARs</attribute>
+                 <attribute name="pageTitle">2-2-2/Applications/User Assets/Applications (EAR)</attribute>
                  <attribute name="portletContext">/console-base</attribute>
                  <attribute name="portletList">[EARModules]</attribute>
                  <attribute name="icon">/images/ico_ear_16x16.gif</attribute>
-                <attribute name="mode">basic</attribute>
+                 <attribute name="mode">basic</attribute>
                  <reference name="PortalContainerServices">
                      <name>PlutoPortalServices</name>
                  </reference>
@@ -192,15 +185,6 @@
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[EJBModules]</attribute>
                 <attribute name="icon">/images/ico_beanjar_16x16.gif</attribute>
-                <reference name="PortalContainerServices">
-                    <name>PlutoPortalServices</name>
-                </reference>
-            </gbean>
-            <gbean name="RARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">3-3/Resources/J2EE Connectors</attribute>
-                <attribute name="portletContext">/console-base</attribute>
-                <attribute name="portletList">[RARModules]</attribute>
-                <attribute name="icon">/images/ico_connect_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -215,11 +199,30 @@
                 </reference>
             </gbean>
             <gbean name="EBAModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">2-2-5/Applications/User Assets/Application EBAs</attribute>
+                <attribute name="pageTitle">2-2-6/Applications/User Assets/OSGi Applications (EBA)</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[EBAModules]</attribute>
-                <attribute name="icon">/images/ico_jar_16x16.gif</attribute>
+                <attribute name="icon">/images/ico_ear_16x16.gif</attribute>
                 <attribute name="mode">basic</attribute>
+                <reference name="PortalContainerServices">
+                    <name>PlutoPortalServices</name>
+                </reference>
+            </gbean>            
+             <gbean name="WABModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
+                <attribute name="pageTitle">2-2-5/Applications/User Assets/OSGi Web Apps (WAB)</attribute>
+                <attribute name="portletContext">/console-base</attribute>
+                <attribute name="portletList">[WABModules]</attribute>
+                <attribute name="icon">/images/ico_webapp_16x16.gif</attribute>
+                <attribute name="mode">basic</attribute>
+                <reference name="PortalContainerServices">
+                    <name>PlutoPortalServices</name>
+                </reference>
+            </gbean>
+            <gbean name="RARModules" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
+                <attribute name="pageTitle">3-3/Resources/J2EE Connectors</attribute>
+                <attribute name="portletContext">/console-base</attribute>
+                <attribute name="portletList">[RARModules]</attribute>
+                <attribute name="icon">/images/ico_connect_16x16.gif</attribute>
                 <reference name="PortalContainerServices">
                     <name>PlutoPortalServices</name>
                 </reference>
@@ -257,16 +260,15 @@
     <security xmlns="http://geronimo.apache.org/xml/ns/security-1.2">
         <role-mappings>
             <role role-name="admin">
-                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin" />
             </role>
             <role role-name="monitor">
-                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="monitor"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="monitor" />
             </role>
         </role-mappings>
     </security>
 
     <!-- i18n support -->
-    <gbean name="ConsoleResourceRegistry" class="org.apache.geronimo.console.i18n.ConsoleResourceRegistry"
-           xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2"/>
+    <gbean name="ConsoleResourceRegistry" class="org.apache.geronimo.console.i18n.ConsoleResourceRegistry" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2"/>
 
 </application>
