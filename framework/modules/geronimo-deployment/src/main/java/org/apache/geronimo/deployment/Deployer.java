@@ -111,29 +111,6 @@ public class Deployer implements GBeanLifecycle {
         File originalModuleFile = moduleFile;
         File tmpDir = null;
         if (moduleFile != null && !moduleFile.isDirectory()) {
-            
-            // GERONIMO-5765 add a warning message if user is deploying a bundle(wab)
-            // In future, we will support bundle deployment through deployer and remove this, see GERONIMO-5764
-            JarFile moduleJar = null;
-            try {
-                moduleJar = new JarFile(moduleFile);
-                Manifest mf = moduleJar.getManifest();
-                if (mf!=null && mf.getMainAttributes().getValue("Bundle-SymbolicName")!= null){
-                    log.warn("Deploying module as a regular Java EE application. Its existing OSGi manifest will be ignored.");
-                } 
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            } finally {
-                if (moduleJar!=null){
-                    try {
-                        moduleJar.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            
-            
             // todo jar url handling with Sun's VM on Windows leaves a lock on the module file preventing rebuilds
             // to address this we use a gross hack and copy the file to a temporary directory
             // the lock on the file will prevent that being deleted properly until the URLJarFile has
@@ -263,6 +240,14 @@ public class Deployer implements GBeanLifecycle {
                         " EJB module on a minimal Geronimo server that does not have EJB support installed.  (" +
                         (planFile == null ? "" : "planFile=" + planFile.getAbsolutePath()) +
                         (moduleFile == null ? "" : (planFile == null ? "" : ", ") + "moduleFile=" + moduleFile.getAbsolutePath()) + ")");
+            }
+
+
+            if (module != null) {
+                Manifest mf = module.getManifest();
+                if (mf != null && mf.getMainAttributes().getValue("Bundle-SymbolicName") != null) {
+                    log.warn("Application module contains OSGi manifest. The OSGi manifest will be ignored and the application will be deployed as a regular Java EE application.");
+                }
             }
 
             Artifact configID = getConfigID(module, idBuilder, plan, builder);
