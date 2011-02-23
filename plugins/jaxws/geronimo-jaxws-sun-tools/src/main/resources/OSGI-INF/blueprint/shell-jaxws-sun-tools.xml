@@ -21,7 +21,7 @@
            default-activation="lazy">
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
-        <command name=jaxws-sun-tools/wsgen>
+        <command name="jaxws-sun-tools/wsgen">
             <action class="org.apache.geronimo.jaxws.sun.tools.WsgenCommand"></action>
         </command>
         <command name="jaxws-sun-tools/wsimport">
