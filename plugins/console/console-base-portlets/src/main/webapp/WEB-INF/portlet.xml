@@ -403,7 +403,7 @@ limitations under the License.
         <description>Portlet for displaying WAB modules</description>
         <portlet-name>WABModules</portlet-name>
         <display-name>WAB Modules Portlet</display-name>
-        <portlet-class>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</portlet-class>
+        <portlet-class>org.apache.geronimo.console.bundlemanager.BundleManagerPortlet</portlet-class>
         <expiration-cache>-1</expiration-cache>
         <supports>
             <mime-type>text/html</mime-type>
@@ -421,7 +421,7 @@ limitations under the License.
         <init-param>
             <name>config-type</name>
             <value>WAB</value>
-        </init-param>
+        </init-param> 
     </portlet>    
     <portlet>
         <description>Portlet for displaying System modules</description>
