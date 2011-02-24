@@ -96,7 +96,7 @@
 
         <!-- default SAAJ 1.3 implementation -->
         <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>saaj-impl</artifactId>
         </dependency>
     </dependencies>

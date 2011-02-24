@@ -65,8 +65,8 @@ public class WebServiceContainerInvoker implements Servlet {
         // This is the guy the WebServiceContainer should invoke
         req.setAttribute(WebServiceContainer.POJO_INSTANCE, pojo);
 
-        req.setAttribute(WebServiceContainer.SERVLET_REQUEST, (HttpServletRequest) req);
-        req.setAttribute(WebServiceContainer.SERVLET_RESPONSE, (HttpServletResponse) res);
+        req.setAttribute(WebServiceContainer.SERVLET_REQUEST, req);
+        req.setAttribute(WebServiceContainer.SERVLET_RESPONSE, res);
         req.setAttribute(WebServiceContainer.SERVLET_CONTEXT, config.getServletContext());
 
         if (req.getParameter("wsdl") != null || req.getParameter("WSDL") != null) {
@@ -136,7 +136,7 @@ public class WebServiceContainerInvoker implements Servlet {
         }
 
         public int getMethod() {
-            Integer method = (Integer) methods.get(request.getMethod());
+            Integer method = methods.get(request.getMethod());
             return method == null ? UNSUPPORTED : method.intValue();
         }
 
@@ -144,21 +144,21 @@ public class WebServiceContainerInvoker implements Servlet {
             return request.getParameter(name);
         }
 
-        public Map getParameters() {
+        public Map<String, String[]> getParameters() {
             return request.getParameterMap();
         }
 
-        private static final Map methods = new HashMap();
+        private static final Map<String, Integer> methods = new HashMap<String, Integer>();
 
         static {
-            methods.put("OPTIONS", new Integer(OPTIONS));
-            methods.put("GET", new Integer(GET));
-            methods.put("HEAD", new Integer(HEAD));
-            methods.put("POST", new Integer(POST));
-            methods.put("PUT", new Integer(PUT));
-            methods.put("DELETE", new Integer(DELETE));
-            methods.put("TRACE", new Integer(TRACE));
-            methods.put("CONNECT", new Integer(CONNECT));
+            methods.put("OPTIONS", OPTIONS);
+            methods.put("GET", GET);
+            methods.put("HEAD", HEAD);
+            methods.put("POST", POST);
+            methods.put("PUT", PUT);
+            methods.put("DELETE", DELETE);
+            methods.put("TRACE", TRACE);
+            methods.put("CONNECT", CONNECT);
         }
 
         public Object getAttribute(String s) {
@@ -181,7 +181,7 @@ public class WebServiceContainerInvoker implements Servlet {
         public ResponseAdapter(HttpServletResponse response) {
             this.response = response;
         }
-        
+
         public void setHeader(String name, String value) {
             response.setHeader(name, value);
         }
@@ -217,7 +217,7 @@ public class WebServiceContainerInvoker implements Servlet {
         public void setStatusMessage(String responseString) {
             response.setStatus(getStatusCode(), responseString);
         }
-        
+
         public void flushBuffer() throws java.io.IOException{
             response.flushBuffer();
         }

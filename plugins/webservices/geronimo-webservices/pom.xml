@@ -98,7 +98,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>saaj-impl</artifactId>
             <scope>test</scope>
         </dependency>

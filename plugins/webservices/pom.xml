@@ -45,19 +45,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.sun.xml.messaging.saaj</groupId>
+                <groupId>org.apache.geronimo.bundles</groupId>
                 <artifactId>saaj-impl</artifactId>
-                <version>1.3.6</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>activation</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.soap</groupId>
-                        <artifactId>saaj-api</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>1.3.8_1-SNAPSHOT</version>
             </dependency>        
         </dependencies>
     </dependencyManagement>

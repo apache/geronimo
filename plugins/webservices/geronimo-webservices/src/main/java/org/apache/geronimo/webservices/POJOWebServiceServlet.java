@@ -53,7 +53,7 @@ public class POJOWebServiceServlet implements Servlet {
         ServletContext context = config.getServletContext();
 
         String pojoClassID = config.getInitParameter(POJO_CLASS);
-        Class pojoClass = (Class) context.getAttribute(pojoClassID);
+        Class<?> pojoClass = (Class<?>) context.getAttribute(pojoClassID);
 
         Object pojo;
         try {
