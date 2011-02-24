@@ -561,8 +561,8 @@ public class DatabasePoolPortlet extends BasePortlet {
     private ResourceAdapterParams loadConfigPropertiesByPath(PortletRequest request, String rarPath) {
         DeploymentManager mgr = ManagementHelper.getManagementHelper(request).getDeploymentManager();
         try {
-            URI uri = getRAR(request, rarPath).toURI();
-            ConnectorDeployable deployable = new ConnectorDeployable(PortletManager.getRepositoryEntryBundle(request, uri.toString()));
+            //URI uri = getRAR(request, rarPath).toURI();
+            ConnectorDeployable deployable = new ConnectorDeployable(PortletManager.getRepositoryEntryBundle(request, rarPath));
             final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
             String adapterName = null, adapterDesc = null;
             String[] test = ddBeanRoot.getText("connector/display-name");
@@ -984,9 +984,10 @@ public class DatabasePoolPortlet extends BasePortlet {
             data.name = data.name.replaceAll("\\s", "");
             DeploymentManager mgr = ManagementHelper.getManagementHelper(request).getDeploymentManager();
             try {
-                File rarFile = getRAR(request, data.getRarPath());
-                URI uri = getRAR(request, data.getRarPath()).toURI();
-                ConnectorDeployable deployable = new ConnectorDeployable(PortletManager.getRepositoryEntryBundle(request, uri.toString()));
+                String rarPath = data.getRarPath();
+                File rarFile = getRAR(request, rarPath);
+                //URI uri = getRAR(request, data.getRarPath()).toURI();
+                ConnectorDeployable deployable = new ConnectorDeployable(PortletManager.getRepositoryEntryBundle(request, rarPath));
                 DeploymentConfiguration config = mgr.createConfiguration(deployable);
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
