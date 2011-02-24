@@ -26,14 +26,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.SortedSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.geronimo.kernel.classloader.TemporaryClassLoader;
 import org.apache.geronimo.kernel.config.Os;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.xbean.classloader.JarFileClassLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JAXWSTools {
 
@@ -48,6 +48,7 @@ public class JAXWSTools {
         { "com.sun.xml.bind", "jaxb-xjc" },
         { "com.sun.xml.ws",   "jaxws-tools" },
         { "com.sun.xml.ws",   "jaxws-rt" },
+        { "com.sun.xml.ws",   "policy" },
         { "com.sun.xml.stream.buffer",    "streambuffer" },
         { "org.jvnet.staxex",             "stax-ex" },
         { "org.apache.geronimo.javamail", "geronimo-javamail_1.4_mail"},
@@ -66,7 +67,13 @@ public class JAXWSTools {
         { "org.apache.geronimo.modules",  "geronimo-webservices" },
     };
 
-    private final static Artifact SUN_SAAJ_IMPL_ARTIFACT = new Artifact("com.sun.xml.messaging.saaj","saaj-impl", (Version)null, "jar");
+    private final static String[] HIDDEN_CLASSES =
+    {
+        "javax.xml.bind",
+        "javax.xml.ws"
+    };
+
+    private final static Artifact SUN_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.geronimo.bundles","saaj-impl", (Version)null, "jar");
     private final static Artifact AXIS2_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.geronimo.bundles","axis2", (Version)null, "jar");
     private final static String TOOLS = "tools.jar";
 
@@ -193,17 +200,22 @@ public class JAXWSTools {
     }
 
     private boolean invoke(String toolName, URL[] jars, OutputStream os, String[] arguments) throws Exception {
-        TemporaryClassLoader loader = new TemporaryClassLoader(jars, ClassLoader.getSystemClassLoader());
+        ClassLoader oldClassLoader = null;
+        JarFileClassLoader loader = new JarFileClassLoader(null, jars, ClassLoader.getSystemClassLoader(), false, HIDDEN_CLASSES, new String[0]);
         if (overrideContextClassLoader) {
-            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+            oldClassLoader = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(loader);
-            try {
-                return invoke(toolName, loader, os, arguments);
-            } finally {
+        }
+        try {
+            return invoke(toolName, loader, os, arguments);
+        } finally {
+            if (overrideContextClassLoader) {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
-        } else {
-             return invoke(toolName, loader, os, arguments);
+            try {
+                loader.destroy();
+            } catch (Exception e) {
+            }
         }
     }
 
