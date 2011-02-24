@@ -31,7 +31,6 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
-import javax.portlet.PortletRequest;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -58,10 +57,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.kernel.util.BundleUtil;
 import org.apache.geronimo.management.geronimo.WebModule;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,65 +150,35 @@ public class ConfigManagerPortlet extends BasePortlet {
             String config = getConfigID(actionRequest);
             Artifact configId = Artifact.create(config);
             
-            boolean isWAB = configId.getType().equalsIgnoreCase(ConfigurationModuleType.WAB.getName());
-            
-            Bundle wabBundle=null;
-            
-            if (isWAB){
-                
-                wabBundle= this.getWABbundle(actionRequest,configId);
-            }
-
             if (START_ACTION.equals(action)) {
 
-                if (isWAB && wabBundle!=null) {
-                    wabBundle.start();
-                } else {
-                    
-                    if (!configurationManager.isLoaded(configId)) {
-                        configurationManager.loadConfiguration(configId);
-                    }
-                    if (!configurationManager.isRunning(configId)) {
-                        org.apache.geronimo.kernel.config.LifecycleResults lcresult = configurationManager
-                                .startConfiguration(configId);
-                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg01")
-                                + printResults(lcresult.getStarted()));
-                    }
+                if (!configurationManager.isLoaded(configId)) {
+                    configurationManager.loadConfiguration(configId);
+                }
+                if (!configurationManager.isRunning(configId)) {
+                    org.apache.geronimo.kernel.config.LifecycleResults lcresult = configurationManager
+                    .startConfiguration(configId);
+                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg01")
+                            + printResults(lcresult.getStarted()));
                 }
 
             } else if (STOP_ACTION.equals(action)) {
                 
-                if (isWAB && wabBundle!=null) {
-                    wabBundle.stop();
-                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg02"));
-                } else {
-                
-                    if(configurationManager.isLoaded(configId)) {
-                        LifecycleResults lcresult = configurationManager.unloadConfiguration(configId);
-                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg02") + printResults(lcresult.getStopped()));
-                    }
+                if(configurationManager.isLoaded(configId)) {
+                    LifecycleResults lcresult = configurationManager.unloadConfiguration(configId);
+                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg02") + printResults(lcresult.getStopped()));
                 }
-                
+
             } else if (UNINSTALL_ACTION.equals(action)) {
                 
-                if (isWAB && wabBundle!=null) {
-                    wabBundle.uninstall();
-                } else {
-                    configurationManager.uninstallConfiguration(configId);
-                }
+                configurationManager.uninstallConfiguration(configId);
                 
                 addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg04") + "<br />" + configId);
                 
             } else if (RESTART_ACTION.equals(action)) {
                 
-                if (isWAB && wabBundle!=null) {
-                    wabBundle.stop();
-                    wabBundle.start();
-                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg03"));
-                } else {
-                    LifecycleResults lcresult = configurationManager.restartConfiguration(configId);
-                    addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg03") + printResults(lcresult.getStarted()));
-                }
+                LifecycleResults lcresult = configurationManager.restartConfiguration(configId);
+                addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg03") + printResults(lcresult.getStarted()));
                 
             } else {
                 addWarningMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.warnMsg01") + action + "<br />");
@@ -233,36 +199,6 @@ public class ConfigManagerPortlet extends BasePortlet {
         }
     }
     
-    
-    private BundleContext getBundleContext(PortletRequest request) {
-        return (BundleContext) request.getPortletSession().getPortletContext().getAttribute("osgi-bundlecontext");
-    }
-    
-    private Bundle getWABbundle(PortletRequest request, Artifact configId) {
-
-        Bundle[] bundles = getBundleContext(request).getBundles();
-
-        String symboleName = configId.getArtifactId();
-
-        String version = configId.getVersion().toString();
-
-        for (Bundle bundle : bundles) {
-            String contextPath = (String) bundle.getHeaders().get(BundleUtil.WEB_CONTEXT_PATH_HEADER);
-            // a WAB MUST have the Web-ContextPath header
-            if (contextPath != null && bundle.getSymbolicName().equals(symboleName)
-                    && BundleUtil.getVersion(bundle.getVersion()).equals(version)) {
-
-                return bundle;
-            }
-
-        }
-
-        return null;
-
-    }
-    
-
-
     /**
      * Check if a configuration should be listed here. This method depends on the "config-type" portlet parameter
      * which is set in portle.xml.
@@ -387,28 +323,6 @@ public class ConfigManagerPortlet extends BasePortlet {
             }  
             
         }            
-            
-            // hack to display WAB because WAB can't be get from configManager.listConfigurations();
-            
-        if (ConfigurationModuleType.WAB.getName().equalsIgnoreCase(moduleType)) {
-
-            Bundle[] bundles = getBundleContext(renderRequest).getBundles();
-
-            for (Bundle bundle : bundles) {
-                String contextPath = (String) bundle.getHeaders().get(BundleUtil.WEB_CONTEXT_PATH_HEADER);
-                // a WAB MUST have the Web-ContextPath header
-                if (contextPath != null) {
-                    Artifact wabArtifact=new Artifact("",bundle.getSymbolicName(),BundleUtil.getVersion(bundle.getVersion()),ConfigurationModuleType.WAB.getName().toLowerCase());
-                    ModuleDetails details = new ModuleDetails(wabArtifact, ConfigurationModuleType.WAB, getWABStateFromBundleState(bundle));
-                    details.getContextPaths().add(contextPath);
-                    details.setDisplayName(bundle.getSymbolicName());
-                    moduleDetails.add(details);
-                }
-        
-            }
-            
-        }
-
         
         Collections.sort(moduleDetails);
         renderRequest.setAttribute("configurations", moduleDetails);
@@ -449,27 +363,6 @@ public class ConfigManagerPortlet extends BasePortlet {
         return configurationState;
     }
     
-    private State getWABStateFromBundleState(Bundle bundle) {
-
-        int state = bundle.getState();
-
-        switch (state) {
-
-        case Bundle.ACTIVE:
-            return State.RUNNING;
-
-        case Bundle.STARTING:
-            return State.STARTING;
-
-        case Bundle.STOPPING:
-            return State.STOPPING;
-
-        default:
-            return State.STOPPED;
-        }
-
-    }
-
     private WebModule getWebModule(Configuration config, Configuration child) {
         try {
             Map<String, String> query1 = new HashMap<String, String>();
@@ -537,7 +430,6 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private boolean showWebInfo() {
         return ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType) ||
-               ConfigurationModuleType.WAB.getName().equalsIgnoreCase(moduleType) ||
                ConfigurationModuleType.EAR.getName().equalsIgnoreCase(moduleType);
     }
 
