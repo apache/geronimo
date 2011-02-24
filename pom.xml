@@ -82,7 +82,7 @@
         <txmanagerVersion>3.1</txmanagerVersion>
         <tranqlVersion>1.6</tranqlVersion>
         <tranqlDerbyVersion>1.6</tranqlDerbyVersion>
-        <jaxbImplVersion>2.2_2_1-SNAPSHOT</jaxbImplVersion>
+        <jaxbImplVersion>2.2.2_1-SNAPSHOT</jaxbImplVersion>
 
         <monitoringConsoleVersion>${project.version}</monitoringConsoleVersion>
         <pax.logging.version>1.5.3</pax.logging.version>
