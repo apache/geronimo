@@ -30,7 +30,7 @@ import org.osgi.framework.Bundle;
 public interface WebServiceBuilder {
 
    /**
-    * Introspects on the module file to locate web service for deployment.
+    * Introspect on the module file to locate web service for deployment.
     *
     * @param moduleFile J2EE module
     * @param isEJB is this an EJB archive?
@@ -41,7 +41,7 @@ public interface WebServiceBuilder {
     * to all except the WebServiceBuilder itself.
     * @throws DeploymentException if error encountered while introspecting the module.
     */
-   void findWebServices(Module module, boolean isEJB, Map correctedPortLocations, Environment environment, Map sharedContext) throws DeploymentException;
+    void findWebServices(Module module, boolean isEJB, Map<String, String> correctedPortLocations, Environment environment, Map sharedContext) throws DeploymentException;
 
     //obviously these need the deployment descriptors, but I'm not sure in what form yet.
     /**

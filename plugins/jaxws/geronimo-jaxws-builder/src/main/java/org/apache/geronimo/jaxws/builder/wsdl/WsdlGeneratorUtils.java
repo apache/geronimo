@@ -22,7 +22,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -34,9 +33,6 @@ import java.util.Set;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationResolver;
-// import org.apache.geronimo.kernel.config.MultiParentClassLoader;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +40,10 @@ public class WsdlGeneratorUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(WsdlGeneratorUtils.class);
 
-    public static void getModuleClasspath(Module module, DeploymentContext context, StringBuilder classpath) throws Exception {
+    public static void getModuleClasspath(Module module, DeploymentContext context, StringBuilder classPathBuilder) throws Exception {
         LinkedHashSet<URL> jars = new LinkedHashSet<URL>();
         getModuleClasspath(module, context, jars);
-        buildClasspath(jars, classpath);
+        buildClasspath(jars, classPathBuilder);
     }
 
     public static void getModuleClasspath(Module module, DeploymentContext context, LinkedHashSet<URL> classpath) throws Exception {
@@ -58,8 +54,10 @@ public class WsdlGeneratorUtils {
     }
 
     public static void getModuleClasspath(DeploymentContext deploymentContext, LinkedHashSet<URL> classpath) throws Exception {
-        Configuration configuration = deploymentContext.getConfiguration();
-        getModuleClasspath(configuration, classpath);
+        File configurationBaseDir = deploymentContext.getBaseDir();
+        for (String bundleClassPath : deploymentContext.getBundleClassPath()) {
+            classpath.add(new File(configurationBaseDir, bundleClassPath).toURI().toURL());
+        }
     }
 
     public static void getModuleClasspath(Configuration configuration, LinkedHashSet<URL> classpath) throws Exception {

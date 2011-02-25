@@ -43,6 +43,7 @@ import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,23 +66,26 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         return getClass().getName();
     }
 
+    @Override
     public void findWebServices(Module module,
                                 boolean isEJB,
-                                Map servletLocations,
+                                Map<String, String> servletLocations,
                                 Environment environment,
                                 Map sharedContext) throws DeploymentException {
-        Map portMap = null;
+        Map<String, PortInfo> portMap = null;
         String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
         Deployable deployable = module.getDeployable();
         URL wsDDUrl = deployable.getResource(path);
         if (wsDDUrl != null) {
-            InputStream in;
+            InputStream in = null;
             try {
                 in = wsDDUrl.openStream();
+                portMap = parseWebServiceDescriptor(in, wsDDUrl, deployable, isEJB, servletLocations);
             } catch (IOException e) {
                 throw new DeploymentException("Failed to parse " + path, e);
+            } finally {
+                IOUtils.close(in);
             }
-            portMap = parseWebServiceDescriptor(in, wsDDUrl, deployable, isEJB, servletLocations);
         } else {
             // webservices.xml does not exist
             portMap = discoverWebServices(module, isEJB, servletLocations);
@@ -96,21 +100,22 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
     private Map<String, PortInfo> discoverWebServices(Module module,
                                                       boolean isEJB,
-                                                      Map correctedPortLocations)
+                                                      Map<String, String> correctedPortLocations)
             throws DeploymentException {
-        if (this.webServiceFinder == null) {
+        if (webServiceFinder == null) {
             throw new DeploymentException("WebServiceFinder not configured");
         }
-        return this.webServiceFinder.discoverWebServices(module, isEJB, correctedPortLocations);
+        return webServiceFinder.discoverWebServices(module, isEJB, correctedPortLocations);
     }
 
     protected abstract Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,
                                                                        URL wsDDUrl,
                                                                        Deployable deployable,
                                                                        boolean isEJB,
-                                                                       Map correctedPortLocations)
+                                                                       Map<String, String> correctedPortLocations)
             throws DeploymentException;
 
+    @Override
     public boolean configurePOJO(GBeanData targetGBean,
                                  String servletName,
                                  Module module,
@@ -118,12 +123,12 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                  DeploymentContext context)
             throws DeploymentException {
         Map sharedContext = ((WebModule) module).getSharedContext();
-        Map portInfoMap = (Map) sharedContext.get(getKey());
+        Map<String, PortInfo> portInfoMap = (Map<String, PortInfo>) sharedContext.get(getKey());
         if (portInfoMap == null) {
             // not ours
             return false;
         }
-        PortInfo portInfo = (PortInfo) portInfoMap.get(servletName);
+        PortInfo portInfo = portInfoMap.get(servletName);
         if (portInfo == null) {
             // not ours
             return false;
@@ -186,6 +191,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
     protected abstract GBeanInfo getContainerFactoryGBeanInfo();
 
+    @Override
     public boolean configureEJB(GBeanData targetGBean,
                                 String ejbName,
                                 Module module,

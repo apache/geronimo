@@ -33,17 +33,17 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SimpleWARWebServiceFinder implements WebServiceFinder {
+public class SimpleWARWebServiceFinder extends AbstractWebServiceFinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleWARWebServiceFinder.class);
 
     public Map<String, PortInfo> discoverWebServices(Module module,
                                                      boolean isEJB,
-                                                     Map correctedPortLocations)
+                                                     Map<String, String> correctedPortLocations)
             throws DeploymentException {
-        
-        Map<String, PortInfo> map = new HashMap<String, PortInfo>();
-        
+
+        Map<String, PortInfo> servletNamePortInfoMap = new HashMap<String, PortInfo>();
+
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         WebApp webApp = (WebApp) module.getSpecDD();
 
@@ -53,16 +53,17 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
         if (webApp.getServlet().size() == 0) {
             // web.xml not present (empty really), discover annotated
             // classes and update DD
-            List<Class<?>> services = WARWebServiceFinder.discoverWebServices(module.getModuleFile(), false, this.getClass().getClassLoader());
+            List<Class<?>> services = discoverWebServices(module, false);
             String contextRoot = ((WebModule) module).getContextRoot();
-            for (Class service : services) {
+            for (Class<?> service : services) {
                 // skip interfaces and such
                 if (!JAXWSUtils.isWebService(service)) {
                     continue;
                 }
 
-                LOG.debug("Discovered POJO Web Service: " + service.getName());
-
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Discovered POJO Web Service: " + service.getName());
+                }
                 // add new <servlet/> element
                 Servlet servlet = new Servlet();
                 servlet.setServletName(service.getName());
@@ -77,7 +78,7 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
                 // map service
                 PortInfo portInfo = new PortInfo();
                 portInfo.setLocation(contextRoot + location);
-                map.put(service.getName(), portInfo);
+                servletNamePortInfoMap.put(service.getName(), portInfo);
             }
         } else {
             // web.xml present, examine servlet classes and check for web
@@ -87,11 +88,13 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
                 if (servletType.getServletClass() != null) {
                     String servletClassName = servletType.getServletClass().trim();
                     try {
-                        Class servletClass = bundle.loadClass(servletClassName);
+                        Class<?> servletClass = bundle.loadClass(servletClassName);
                         if (JAXWSUtils.isWebService(servletClass)) {
-                            LOG.debug("Found POJO Web Service: " + servletName);
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Found POJO Web Service: " + servletName);
+                            }
                             PortInfo portInfo = new PortInfo();
-                            map.put(servletName, portInfo);
+                            servletNamePortInfoMap.put(servletName, portInfo);
                         }
                     } catch (Exception e) {
                         throw new DeploymentException("Failed to load servlet class "
@@ -101,20 +104,17 @@ public class SimpleWARWebServiceFinder implements WebServiceFinder {
             }
 
             // update web service locations
-            for (Map.Entry entry : map.entrySet()) {
-                String servletName = (String) entry.getKey();
-                PortInfo portInfo = (PortInfo) entry.getValue();
+            for (Map.Entry<String, PortInfo> entry : servletNamePortInfoMap.entrySet()) {
+                String servletName = entry.getKey();
+                PortInfo portInfo = entry.getValue();
 
-                String location = (String) correctedPortLocations.get(servletName);
+                String location = correctedPortLocations.get(servletName);
                 if (location != null) {
                     portInfo.setLocation(location);
                 }
             }
         }
-        
-        return map;
+
+        return servletNamePortInfoMap;
     }
-
-
-
 }

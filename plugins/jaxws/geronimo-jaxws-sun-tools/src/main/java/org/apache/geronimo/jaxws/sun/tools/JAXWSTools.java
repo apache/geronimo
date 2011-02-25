@@ -73,6 +73,11 @@ public class JAXWSTools {
         "javax.xml.ws"
     };
 
+    private final static String[][] ENDORSED_ARTIFACTS = {
+        { "org.apache.geronimo.specs", "geronimo-jaxws_2.2_spec" },
+        { "org.apache.geronimo.specs", "geronimo-jaxb_2.2_spec" }
+    };
+
     private final static Artifact SUN_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.geronimo.bundles","saaj-impl", (Version)null, "jar");
     private final static Artifact AXIS2_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.geronimo.bundles","axis2", (Version)null, "jar");
     private final static String TOOLS = "tools.jar";
@@ -191,10 +196,25 @@ public class JAXWSTools {
         }
     }
 
+    public String getEndorsedDirectory(Collection<? extends Repository> repositories) throws Exception {
+        StringBuilder endorsedDirectories = new StringBuilder();
+        for (String[] lib : ENDORSED_ARTIFACTS) {
+            Artifact artifact = new Artifact(lib[0], lib[1], (Version) null, "jar");
+            if (endorsedDirectories.length() > 0) {
+                endorsedDirectories.append(File.pathSeparator);
+            }
+            endorsedDirectories.append(getLocation(repositories, artifact).getParent());
+        }
+        String defaultEndorsedDirectory = System.getProperty("java.home") + File.separator + "lib" + File.separator + "endorsed";
+        endorsedDirectories.append(File.pathSeparator).append(defaultEndorsedDirectory);
+        return endorsedDirectories.toString();
+    }
+
     public boolean invokeWsgen(URL[] jars, OutputStream os, String[] arguments) throws Exception {
         return invoke("wsgen", jars, os, arguments);
 
     }
+
     public boolean invokeWsimport(URL[] jars, OutputStream os, String[] arguments) throws Exception {
         return invoke("wsimport", jars, os, arguments);
     }

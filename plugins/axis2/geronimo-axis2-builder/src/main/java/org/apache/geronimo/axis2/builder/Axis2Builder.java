@@ -84,15 +84,17 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         return defaultContainerFactoryGBeanInfo;
     }
 
+    @Override
     protected Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,
                                                               URL wsDDUrl,
                                                               Deployable deployable,
                                                               boolean isEJB,
-                                                              Map correctedPortLocations)
+                                                              Map<String, String> correctedPortLocations)
             throws DeploymentException {
 
-        log.debug("Parsing descriptor " + wsDDUrl);
-
+        if (log.isDebugEnabled()) {
+            log.debug("Parsing descriptor " + wsDDUrl);
+        }
         Map<String, PortInfo> map = null;
 
         try {
@@ -147,7 +149,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                             portInfo.setWsdlService(port.getWsdlService());
                         }
 
-                        String location = (String) correctedPortLocations.get(serviceLink);
+                        String location = correctedPortLocations.get(serviceLink);
                         portInfo.setLocation(location);
 
                         if (map == null) {
@@ -162,7 +164,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 //            }
 
             return map;
-            
+
         } catch (JAXBException e) {
             //we hope it's jax-rpc
             log.debug("Descriptor ignored (not a Java EE 5 descriptor)");

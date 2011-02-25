@@ -29,12 +29,12 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.DeploymentConfigurationManager;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorOptions;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorUtils;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,15 +59,20 @@ public class WsdlGenerator {
     }
 
     private URL[] getWsgenClasspath(DeploymentContext context) throws Exception {
-        DeploymentConfigurationManager cm = (DeploymentConfigurationManager)context.getConfigurationManager();
+        ConfigurationManager cm = context.getConfigurationManager();
         Collection<? extends Repository> repositories = cm.getRepositories();
         File[] jars = this.jaxwsTools.getClasspath(repositories);
         return JAXWSTools.toURL(jars);
     }
 
-    private String[] buildArguments(String sei, String classPath, File moduleBaseDir, PortInfo portInfo) {
-        List<String> arguments = new ArrayList<String>();
+    private String getEndorsedPath(DeploymentContext context) throws Exception {
+        ConfigurationManager cm = context.getConfigurationManager();
+        Collection<? extends Repository> repositories = cm.getRepositories();
+        return jaxwsTools.getEndorsedDirectory(repositories);
+    }
 
+    private String[] buildArguments(String sei, String classPath, File moduleBaseDir, PortInfo portInfo) throws Exception{
+        List<String> arguments = new ArrayList<String>(11);
         arguments.add("-cp");
         arguments.add(classPath);
         arguments.add("-keep");
@@ -118,33 +123,36 @@ public class WsdlGenerator {
         }
 
         URL[] urls;
-        StringBuilder classPath = new StringBuilder();
+        StringBuilder classPathBuilder = new StringBuilder();
         //let's figure out the classpath for wsgen tools
         try {
              urls = getWsgenClasspath(context);
         } catch (Exception e) {
             throw new DeploymentException("Failed to generate the wsdl file using wsgen: unable to get the location of the required artifact(s).", e);
         }
+
         //let's figure out the classpath string for the module and wsgen tools.
         if (urls != null && urls.length > 0) {
             for (URL url : urls) {
-                classPath.append(WsdlGeneratorUtils.toFile(url).getAbsolutePath()).append(File.pathSeparator);
+                classPathBuilder.append(WsdlGeneratorUtils.toFile(url).getAbsolutePath()).append(File.pathSeparator);
             }
         }
+        String wsgenToolClassPath = classPathBuilder.toString();
+
         try {
-            WsdlGeneratorUtils.getModuleClasspath(module, context, classPath);
+            WsdlGeneratorUtils.getModuleClasspath(module, context, classPathBuilder);
         } catch (Exception e) {
             throw new DeploymentException("WSDL generation failed: unable to determine module classpath", e);
         }
 
-        //create arguments;
-        String[] arguments = buildArguments(serviceClass, classPath.toString(), baseDir, portInfo);
-
         try {
-            boolean result = false;
+            //create arguments;
+            String[] arguments = buildArguments(serviceClass, classPathBuilder.toString(), baseDir, portInfo);
 
+            boolean result = false;
             if (this.options.getFork()) {
-                result = forkWsgen(classPath, arguments);
+                String endorsedPath = getEndorsedPath(context);
+                result = forkWsgen(wsgenToolClassPath, endorsedPath, arguments);
             } else {
                 result = invokeWsgen(urls, arguments);
             }
@@ -190,10 +198,11 @@ public class WsdlGenerator {
         return new String(arr, 0, arr.length);
     }
 
-    private boolean forkWsgen(StringBuilder classPath, String[] arguments) throws Exception {
-        List<String> cmd = new ArrayList<String>();
+    private boolean forkWsgen(String classPath, String endorsedPath, String[] arguments) throws Exception {
+        List<String> cmd = new ArrayList<String>(4 + arguments.length);
+        cmd.add("-Djava.endorsed.dirs=\"" + endorsedPath + "\"");
         cmd.add("-classpath");
-        cmd.add(classPath.toString());
+        cmd.add(classPath);
         cmd.add("com.sun.tools.ws.WsGen");
         cmd.addAll(Arrays.asList(arguments));
 

@@ -27,7 +27,7 @@ public interface WebServiceFinder {
 
     Map<String, PortInfo> discoverWebServices(Module module,
                                               boolean isEJB,
-                                              Map correctedPortLocations)
+                                              Map<String, String> correctedPortLocations)
          throws DeploymentException;
 
 }

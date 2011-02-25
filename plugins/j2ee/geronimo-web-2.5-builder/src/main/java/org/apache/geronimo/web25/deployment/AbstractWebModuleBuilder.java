@@ -382,7 +382,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             // any classes exist.  This must be searched BEFORE the WEB-INF/lib jar files,
             // per the servlet specifications.
             moduleContext.addToClassPath(module.resolve("WEB-INF/classes").getPath());
-            manifestcp.add("WEB-INF/classes");      // NOTE:  Spec requires there be no trailing "/" on this. 
+            manifestcp.add("WEB-INF/classes");      // NOTE:  Spec requires there be no trailing "/" on this.
             // install the libs
             for (ZipEntry entry : libs) {
                 URI targetPath = module.resolve(entry.getName());
@@ -470,7 +470,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
         //web.xml should now list all the classes we need to create instances of.
         //Process Web Service
-        Map servletNameToPathMap = buildServletNameToPathMap(webModule.getSpecDD(), webModule.getContextRoot());
+        Map<String, String> servletNameToPathMap = buildServletNameToPathMap(webModule.getSpecDD(), webModule.getContextRoot());
         Map sharedContext = webModule.getSharedContext();
         for (WebServiceBuilder serviceBuilder : webServiceBuilder) {
             serviceBuilder.findWebServices(webModule, false, servletNameToPathMap, webModule.getEnvironment(), sharedContext);
