@@ -28,20 +28,25 @@
 
 <!-- loading div -->
 <script>
-var to;
+var loadingdiv_timeout;
+var threshold_time = 60; //seconds
 function showLoadingDIV(){
 	document.getElementById("loadingdiv").style.display='block';
-	to = setTimeout ("showLoadingTimeOut()",10000);
+	loadingdiv_timeout = setTimeout ("showLoadingTimeOut()", threshold_time * 1000);
 }
 function showLoadingTimeOut(){
 	if (document.getElementById("loadingdiv").style.display=='block'){	
-		alert("timeout when process action");
-		hideLoadingDIV();
+		if (confirm("The action you are processing has cost " + threshold_time + " seconds. Will you continue waiting?")) {
+			clearTimeout(loadingdiv_timeout);
+			loadingdiv_timeout = setTimeout ("showLoadingTimeOut()",threshold_time * 1000);
+		} else {
+			hideLoadingDIV();
+		}
 	}
 }
 function hideLoadingDIV(){
 	document.getElementById("loadingdiv").style.display='none';
-	clearTimeout(to);
+	clearTimeout(loadingdiv_timeout);
 }
 </script>
 <div id="loadingdiv" style="position:absolute;width:100%;height:90%;display:none;z-index:1000;text-align:center; background-color:#ffffff;filter:alpha(opacity=70);opacity:0.7;">
@@ -134,7 +139,7 @@ function hideLoadingDIV(){
     		url:"<%=ajaxResourceURL%>formId="+formID,
     		handleAs:"json",
     		content:{bundlesActionParam:actionJsonStr},
-    		sync:true,
+    		//sync:true,
     		load:function(response, ioArgs){
     			//update the items which done an action
     			var updatedItem = response;		
@@ -142,8 +147,13 @@ function hideLoadingDIV(){
     			if(updatedItem != null){
     				if (updatedItem.state == "err") {
     					// need better way to show err msg
-    					alert(updatedItem.id + "err");
-    							
+    					alert("Update bundle" + updatedItem.id + "'s state fail. Please refresh it manually.");
+    					dijit.byId("usrBundlesGrid").store.fetchItemByIdentity({
+    						identity:updatedItem.id,
+    						onItem:function(item){
+    							dijit.byId("usrBundlesGrid").store.setValue(item,"state","Unknown");
+    						}
+    					});
     				}else if(updatedItem.state == "Uninstalled") {
     					dijit.byId("usrBundlesGrid").store.fetchItemByIdentity({
     						identity:updatedItem.id,
@@ -152,6 +162,7 @@ function hideLoadingDIV(){
     						}
     					});
     				}else { // start/stop/refresh action results
+        				//todo: refresh when the status is Unknown but bundle is uninstalled.
     					dijit.byId("usrBundlesGrid").store.fetchItemByIdentity({
     						identity:updatedItem.id,
     						onItem:function(item){
@@ -160,13 +171,15 @@ function hideLoadingDIV(){
     					});
     				}
     			}
+
+    			hideLoadingDIV();
     		}
     	};
 
     	dojo.xhrPost(postArgs);			
 
 
-    	hideLoadingDIV();
+    	
     }
 
 
@@ -180,19 +193,21 @@ function hideLoadingDIV(){
 			url:"<%=ajaxResourceURL3%>formId="+formID,
 			handleAs:"text",
 			content:{id:id},
-			sync:true,
+			//sync:true,
 			load:function(response, ioArgs){
 				var headers=dojo.fromJson(response);
 				var newStore = new dojo.data.ItemFileWriteStore({data:headers}); 
 				dijit.byId("manifestGrid").setStore(newStore);
 
 				dijit.byId("bundlesTab").selectChild(dijit.byId("manifestPane"));
-								
+
+
+				hideLoadingDIV();
 			}
 		};
 		dojo.xhrPost(postArgs);	
 
-		hideLoadingDIV();	
+			
 	}
 
 	function showWiredBundles(id,symbolicName){
@@ -205,7 +220,7 @@ function hideLoadingDIV(){
 			url:"<%=ajaxResourceURL5%>formId="+formID,
 			handleAs:"json",
 			content:{id:id},
-			sync:true,
+			//sync:true,
 			load:function(response, ioArgs){
 				var importingBundles = response.importingBundles;
 				var newImportingStore = new dojo.data.ItemFileWriteStore({data:importingBundles}); 
@@ -216,12 +231,13 @@ function hideLoadingDIV(){
 				dijit.byId("wiredBundlesExportingGrid").setStore(newExportingStore);
 				
 				dijit.byId("bundlesTab").selectChild(dijit.byId("wiredBundlesPane"));
-								
+
+				hideLoadingDIV();	
 			}
 		};
 		dojo.xhrPost(postArgs);	
 
-		hideLoadingDIV();	
+		
 	}
 
 	function showSysBundles(){
@@ -305,17 +321,19 @@ function hideLoadingDIV(){
 		    var postArgs={
 				url:"<%=ajaxResourceURL4%>",
 				handleAs:"text",
-				sync:true,
+				//sync:true,
 				load:function(response, ioArgs){
 					var sysbundles = dojo.fromJson(response);
 					var newStore = new dojo.data.ItemFileWriteStore({data:sysbundles}); 
 					sysBndGrid.setStore(newStore);
+
+					hideLoadingDIV();
 				}
 			};
 			dojo.xhrPost(postArgs);	
 		}
 		
-		hideLoadingDIV();
+		
 	}
 
 	
@@ -331,10 +349,12 @@ function hideLoadingDIV(){
 				var bundle=dojo.fromJson(response);
 				var item=dijit.byId("usrBundlesGrid").store.newItem(bundle);
 				dijit.byId("usrBundlesGrid").sort();
+
+				hideLoadingDIV();
 			}
 		});
 		
-		hideLoadingDIV();
+		
 	}
 </script> 
 
@@ -413,9 +433,9 @@ This portlet shows the general user bundles installed in geronimo. To see all th
 			if (item.state == "Active"){
 				innerhtml += "<a href='#' onclick=actionPerform('stop',"+item.id+")>stop</a>&nbsp;";
 			}
-			
-			innerhtml += "<a href='#' onclick=actionPerform('uninstall',"+item.id+")>uninstall</a>&nbsp;";
-			
+			if (item.state != "Unknown"){
+				innerhtml += "<a href='#' onclick=actionPerform('uninstall',"+item.id+")>uninstall</a>&nbsp;";
+			}
 			innerhtml += "<a href='#' onclick=actionPerform('refresh',"+item.id+")>refresh</a>&nbsp;";
 			
 			return innerhtml;
