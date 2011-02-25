@@ -64,7 +64,7 @@ public class OsgiMetaDataScannerService implements ScannerService
     private final Set<Class<?>> beanClasses = new HashSet<Class<?>>();
 
     /** the URLs of all META-INF/beans.xml files */
-    private final Set<URL> beanXMLs = new HashSet<URL>();
+    private final Set<String> beanXMLs = new HashSet<String>();
 
     /**contains all the JARs we found with valid beans.xml in it */
     private final Set<String> beanArchiveJarNames = new HashSet<String>();
@@ -179,7 +179,7 @@ public class OsgiMetaDataScannerService implements ScannerService
             public boolean foundInDirectory(Bundle bundle, String basePath, URL url) throws Exception
             {
                 logger.info("adding the following beans.xml URL: " + url);
-                beanXMLs.add(url);
+                beanXMLs.add(url.toString());
                 return true;
             }
 
@@ -190,7 +190,7 @@ public class OsgiMetaDataScannerService implements ScannerService
 
                 logger.info("adding the following beans.xml URL: " + beansUrl);
 
-                beanXMLs.add(beansUrl);
+                beanXMLs.add(beansUrl.toString());
                 beanArchiveJarNames.add(jarName);
                 return true;
             }
@@ -216,7 +216,7 @@ public class OsgiMetaDataScannerService implements ScannerService
             }
 
             logger.info("adding the following WEB-INF/beans.xml URL: " + webBeansXml);
-            beanXMLs.add(webBeansXml);
+            beanXMLs.add(webBeansXml.toString());
             webBeansXmlFound = true;
 
         }
@@ -224,7 +224,7 @@ public class OsgiMetaDataScannerService implements ScannerService
     }
 
     @Override
-    public Set<URL> getBeanXmls()
+    public Set<String> getBeanXmls()
     {
         return beanXMLs;
     }
