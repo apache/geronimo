@@ -54,7 +54,7 @@
                  </artifactItem>
                </artifactItems>
                <includes>**/*</includes>
-               <excludes>**/persistence.xml,**/uddi-ws*.jar,**/juddi-client*.jar,**/juddi-core-openjpa*.jar,**/commons-beanutils*.jar,**/commons-collections*.jar,**/commons-digester*.jar,**/commons-lang*.jar,**/commons-logging-api*.jar</excludes>
+               <excludes>**/persistence.xml,**/juddi-client*.jar,**/juddi-core-openjpa*.jar,**/commons-beanutils*.jar,**/commons-collections*.jar,**/commons-digester*.jar,**/commons-lang*.jar,**/commons-logging-api*.jar</excludes>
                <outputDirectory>${project.build.directory}/classes</outputDirectory>
                <overWriteReleases>false</overWriteReleases>
                <overWriteSnapshots>true</overWriteSnapshots>
