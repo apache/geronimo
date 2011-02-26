@@ -27,6 +27,16 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>com.sun.xml.ws</groupId>
+        <artifactId>policy</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>javax.xml.stream</groupId>
+        <artifactId>stax-api</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>jaxws-deployer</artifactId>
         <type>car</type>
@@ -34,6 +44,11 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-jaxws-sun-tools</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.karaf.shell</groupId>
+        <artifactId>org.apache.karaf.shell.console</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
