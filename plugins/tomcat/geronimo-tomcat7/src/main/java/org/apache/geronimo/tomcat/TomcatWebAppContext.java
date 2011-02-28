@@ -112,7 +112,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final TrackedConnectionAssociator trackedConnectionAssociator;
     private final SecurityHolder securityHolder;
     private final J2EEServer server;
-    private final Map<String, WebServiceContainer> webServices;
+    private Map<String, WebServiceContainer> webServices = null;
     private final String objectName;
     private final String originalSpecDD;
     private final String modulePath;
@@ -134,6 +134,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     private final Valve clusteredValve;
     private final WebAppInfo webAppInfo;
+
+    private Map<String, AbstractName> webServiceAbNames;
 
     public TomcatWebAppContext(
             @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader,
@@ -186,14 +188,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.objectName = objectName;
         this.deploymentAttributes = deploymentAttributes;
         this.webAppInfo = webAppInfo;
-//        URI root;
-////        TODO is there a simpler way to do this?
-//        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
-//            root = new URI("file", configurationBaseUrl.getPath(), null);
-//        } else {
-//            root = URI.create(configurationBaseUrl.toString());
-//        }
-//        this.setDocBase(root.getPath());
         this.container = container;
         this.bundle = bundle;
         this.modulePath = modulePath;
@@ -272,7 +266,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             this.manager = null;
         }
 
-        this.webServices = createWebServices(webServices, kernel);
+        this.webServiceAbNames = webServices;
 
         this.classLoader = classLoader;
 
@@ -448,6 +442,13 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public Map<String, WebServiceContainer> getWebServices() {
+        if(webServices == null) {
+            try {
+                webServices = createWebServices(webServiceAbNames, kernel);
+            } catch (Exception e) {
+                throw new RuntimeException("Fail to initialize web service", e);
+            }
+        }
         return webServices;
     }
 

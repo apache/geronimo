@@ -320,7 +320,13 @@ public class GeronimoStandardContext extends StandardContext {
             this.setManager(manager);
 
         pipelineInitialized = true;
-        this.webServiceMap = ctx.getWebServices();
+
+        ClassLoader oldClassLoader = bindThread();
+        try {
+            webServiceMap = ctx.getWebServices();
+        } finally {
+            unbindThread(oldClassLoader);
+        }
 
         Map<String, String> contextAttributes = ctx.getContextAttributes();
 
@@ -510,53 +516,6 @@ public class GeronimoStandardContext extends StandardContext {
         } else {
             super.startInternal();
         }
-    }
-
-    @Override
-    public void addChild(Container child) {
-        Wrapper wrapper = (Wrapper) child;
-
-        String servletClassName = wrapper.getServletClass();
-        if (servletClassName == null) {
-            super.addChild(child);
-            return;
-        }
-
-        ClassLoader cl = this.getParentClassLoader();
-
-        Class<?> baseServletClass;
-        Class<?> servletClass;
-        try {
-            baseServletClass = cl.loadClass(Servlet.class.getName());
-            servletClass = cl.loadClass(servletClassName);
-            //Check if the servlet is of type Servlet class
-            if (!baseServletClass.isAssignableFrom(servletClass)) {
-                //Nope - its probably a webservice, so lets see...
-                if (webServiceMap != null) {
-                    WebServiceContainer webServiceContainer = webServiceMap.get(wrapper.getName());
-
-                    if (webServiceContainer != null) {
-                        //Yep its a web service
-                        //So swap it out with a POJOWebServiceServlet
-                        wrapper.setServletClass("org.apache.geronimo.webservices.POJOWebServiceServlet");
-
-                        //Set the WebServiceContainer stuff
-                        String webServicecontainerID = wrapper.getName() + WebServiceContainerInvoker.WEBSERVICE_CONTAINER + webServiceContainer.hashCode();
-                        getServletContext().setAttribute(webServicecontainerID, webServiceContainer);
-                        wrapper.addInitParameter(WebServiceContainerInvoker.WEBSERVICE_CONTAINER, webServicecontainerID);
-
-                        //Set the SEI Class in the attribute
-                        String pojoClassID = wrapper.getName() + POJOWebServiceServlet.POJO_CLASS + servletClass.hashCode();
-                        getServletContext().setAttribute(pojoClassID, servletClass);
-                        wrapper.addInitParameter(POJOWebServiceServlet.POJO_CLASS, pojoClassID);
-                    }
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-
-        super.addChild(child);
     }
 
     @Override
@@ -809,6 +768,41 @@ public class GeronimoStandardContext extends StandardContext {
         if (wrapper.getServlet() == null || webSecurityConstraintStore.isContainerCreatedDynamicServlet(wrapper.getServlet())) {
             webSecurityConstraintStore.addContainerCreatedDynamicServletEntry(registration, wrapper.getServletClass());
         }
+
+        //Special  handle for web service
+        ClassLoader cl = this.getParentClassLoader();
+        Class<?> baseServletClass;
+        Class<?> servletClass;
+        try {
+            baseServletClass = cl.loadClass(Servlet.class.getName());
+            servletClass = cl.loadClass(wrapper.getServletClass());
+            //Check if the servlet is of type Servlet class
+            if (!baseServletClass.isAssignableFrom(servletClass)) {
+                //Nope - its probably a webservice, so lets see...
+                if (webServiceMap != null) {
+                    WebServiceContainer webServiceContainer = webServiceMap.get(wrapper.getName());
+
+                    if (webServiceContainer != null) {
+                        //Yep its a web service
+                        //So swap it out with a POJOWebServiceServlet
+                        wrapper.setServletClass("org.apache.geronimo.webservices.POJOWebServiceServlet");
+
+                        //Set the WebServiceContainer stuff
+                        String webServicecontainerID = wrapper.getName() + WebServiceContainerInvoker.WEBSERVICE_CONTAINER + webServiceContainer.hashCode();
+                        getServletContext().setAttribute(webServicecontainerID, webServiceContainer);
+                        wrapper.addInitParameter(WebServiceContainerInvoker.WEBSERVICE_CONTAINER, webServicecontainerID);
+
+                        //Set the SEI Class in the attribute
+                        String pojoClassID = wrapper.getName() + POJOWebServiceServlet.POJO_CLASS + servletClass.hashCode();
+                        getServletContext().setAttribute(pojoClassID, servletClass);
+                        wrapper.addInitParameter(POJOWebServiceServlet.POJO_CLASS, pojoClassID);
+                    }
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+
         return registration;
     }
 

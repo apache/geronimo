@@ -68,7 +68,7 @@ public class WsdlGenerator {
     private String getEndorsedPath(DeploymentContext context) throws Exception {
         ConfigurationManager cm = context.getConfigurationManager();
         Collection<? extends Repository> repositories = cm.getRepositories();
-        return jaxwsTools.getEndorsedDirectory(repositories);
+        return jaxwsTools.getEndorsedPath(repositories);
     }
 
     private String[] buildArguments(String sei, String classPath, File moduleBaseDir, PortInfo portInfo) throws Exception{
@@ -164,8 +164,7 @@ public class WsdlGenerator {
                     throw new DeploymentException("Unable to find the service wsdl file");
                 }
                 if (this.options.getAddToClassPath()) {
-// TODO:  This isn't available on configuraitons any more...need to figure out if/how this gets replaced.
-//                    context.getConfiguration().addToClassPath(baseDir.getName());
+                    context.addToClassPath(baseDir.getName());
                 }
                 return WsdlGeneratorUtils.getRelativeNameOrURL(moduleBase, wsdlFile);
             } else {

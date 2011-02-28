@@ -147,7 +147,7 @@
                         <deploymentConfig>${gbeanDeployer}</deploymentConfig>
                         <deploymentConfig>${j2eeDeployer}</deploymentConfig>
                         <deploymentConfig>${jettyDeployer}</deploymentConfig>
-                        <deploymentConfig>${cxfDeployer}</deploymentConfig>
+                        <!--deploymentConfig>${cxfDeployer}</deploymentConfig-->
                         <deploymentConfig>${jasperDeployer}</deploymentConfig>
                     </deploymentConfigs>
                     <category>Web Services</category>

@@ -196,7 +196,7 @@ public class JAXWSTools {
         }
     }
 
-    public String getEndorsedDirectory(Collection<? extends Repository> repositories) throws Exception {
+    public String getEndorsedPath(Collection<? extends Repository> repositories) throws Exception {
         StringBuilder endorsedDirectories = new StringBuilder();
         for (String[] lib : ENDORSED_ARTIFACTS) {
             Artifact artifact = new Artifact(lib[0], lib[1], (Version) null, "jar");

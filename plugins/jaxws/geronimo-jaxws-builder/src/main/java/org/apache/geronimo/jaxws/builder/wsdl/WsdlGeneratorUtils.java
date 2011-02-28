@@ -201,11 +201,7 @@ public class WsdlGeneratorUtils {
         String path = file.getAbsolutePath();
 
         if (path.startsWith(basePath)) {
-            if (File.separatorChar == path.charAt(basePath.length())) {
-                return path.substring(basePath.length() + 1);
-            } else {
-                return path.substring(basePath.length());
-            }
+            return baseDir.toURI().relativize(file.toURI()).toString();
         } else {
             return file.toURI().toString();
         }
