@@ -71,7 +71,7 @@ public class CertificateDetailsHandler extends BaseKeystoreHandler {
         request.setAttribute("id", id);
         request.setAttribute("alias", alias);
         request.setAttribute("type", type);
-        request.setAttribute("keyLocked", new Boolean(keyLocked));
+        request.setAttribute("keyLocked", Boolean.valueOf(keyLocked));
         // TODO: Handle certificate chain
         request.setAttribute("certs", new Certificate[] {cert});
     }

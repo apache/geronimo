@@ -137,7 +137,7 @@ public class WebManagerPortlet extends BasePortlet {
                             renderRequest.setAttribute("activeRequestCountCurrent", new Long(webStats.getActiveRequestCount().getCurrent()));
                             renderRequest.setAttribute("activeRequestCountLow", new Long(webStats.getActiveRequestCount().getLowWaterMark()));
                             renderRequest.setAttribute("activeRequestCountHigh", new Long(webStats.getActiveRequestCount().getHighWaterMark()));
-                            
+
                             Long count = new Long(webStats.getRequestDuration().getCount());
                             Long totalTime = new Long(webStats.getRequestDuration().getTotalTime());
                             renderRequest.setAttribute("totalRequestCount", count);
@@ -145,7 +145,7 @@ public class WebManagerPortlet extends BasePortlet {
                             renderRequest.setAttribute("requestDurationMaxTime", new Long(webStats.getRequestDuration().getMaxTime()));
                             renderRequest.setAttribute("requestDurationTotalTime", totalTime);
                             // renderRequest.setAttribute("requestDurationAvg", new Long(webStats.getRequestDurationAvg().getCount()));
-                            Long avg = count == 0 ? 0: new Long(totalTime/count);
+                            long avg = count == 0 ? 0 : totalTime / count;
                             renderRequest.setAttribute("requestDurationAvg", avg);
                             renderRequest.setAttribute("response1xx", new Long(webStats.getResponses1xx().getCount()));
                             renderRequest.setAttribute("response2xx", new Long(webStats.getResponses2xx().getCount()));

@@ -58,7 +58,7 @@ public class ArtifactViewPortlet extends BasePortlet {
     private PortletRequestDispatcher listView;
     private PortletRequestDispatcher editView;
     private ExplicitDefaultArtifactResolver instance;
-    
+
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
         kernel = KernelRegistry.getSingleKernel();
@@ -74,30 +74,30 @@ public class ArtifactViewPortlet extends BasePortlet {
         listView = portletConfig.getPortletContext().getRequestDispatcher(LIST_VIEW);
         editView = portletConfig.getPortletContext().getRequestDispatcher(EDIT_VIEW);
     }
-    
+
     public void destroy() {
         listView = null;
         editView = null;
         super.destroy();
     }
-    
+
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         String mode = actionRequest.getParameter(MODE_KEY);
         if (mode == null) {
             mode = "";
         }
-        actionResponse.setRenderParameter(MODE_KEY, mode);  
+        actionResponse.setRenderParameter(MODE_KEY, mode);
         String name = actionRequest.getParameter("name");
         if (name != null) {
-            actionResponse.setRenderParameter("name", name); 
+            actionResponse.setRenderParameter("name", name);
         }
         String aliases = actionRequest.getParameter("aliases");
         if (aliases != null) {
             actionResponse.setRenderParameter("aliases", aliases);
         }
     }
-    
+
     protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
@@ -127,7 +127,7 @@ public class ArtifactViewPortlet extends BasePortlet {
             log.error("Unable to render portlet", e);
         }
     }
-    
+
     private void renderList(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
         populateList(renderRequest);
         listView.include(renderRequest, renderResponse);
@@ -144,13 +144,13 @@ public class ArtifactViewPortlet extends BasePortlet {
         Collections.sort(list);
         renderRequest.setAttribute("AliasesDatas", list);
     }
-    
-    private void renderEdit(RenderRequest renderRequest, RenderResponse renderResponse, AliasesData data) throws IOException, PortletException {      
+
+    private void renderEdit(RenderRequest renderRequest, RenderResponse renderResponse, AliasesData data) throws IOException, PortletException {
         renderRequest.setAttribute("AliasesData", data);
         editView.include(renderRequest, renderResponse);
     }
-    
-    private void renderRemove(RenderRequest renderRequest, RenderResponse renderResponse, AliasesData data) throws IOException, PortletException {      
+
+    private void renderRemove(RenderRequest renderRequest, RenderResponse renderResponse, AliasesData data) throws IOException, PortletException {
         Properties set = new Properties();
         if (data.name != null && data.aliases != null) {
             set.put(data.name, data.aliases);
@@ -159,7 +159,7 @@ public class ArtifactViewPortlet extends BasePortlet {
         populateList(renderRequest);
         listView.include(renderRequest, renderResponse);
     }
-    
+
     private void renderEditing(RenderRequest renderRequest, RenderResponse renderResponse, AliasesData data) throws IOException, PortletException {
         Properties set = new Properties();
         if (data.name != null && data.aliases != null) {
@@ -176,23 +176,23 @@ public class ArtifactViewPortlet extends BasePortlet {
         private String aliases;
 
         public AliasesData() {
-            
+
         }
-        
+
         public void load(String name, String aliases) {
             this.name = name;
             this.aliases = aliases;
         }
-        
+
         public AliasesData(String name, String aliases) {
             this.name = name;
             this.aliases = aliases;
         }
-        
+
         public String getName() {
             return name;
         }
-        
+
         public String getAliases() {
             return aliases;
         }

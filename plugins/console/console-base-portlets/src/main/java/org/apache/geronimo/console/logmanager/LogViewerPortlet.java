@@ -52,12 +52,12 @@ public class LogViewerPortlet extends BasePortlet {
 
     @Override
     public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException, IOException {
-        
+
         //Add all the parameters to the actionResponse Attributes so we can get the back
         actionResponse.setRenderParameters(actionRequest.getParameterMap());
-     
+
     }
-    
+
     protected void doView(RenderRequest renderRequest,
             RenderResponse renderRespose) throws PortletException, IOException {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
@@ -72,12 +72,12 @@ public class LogViewerPortlet extends BasePortlet {
             files[i] = new LogFile(logFiles[i]);
         }
         Criteria criteria = (Criteria) renderRequest.getPortletSession(true).getAttribute(CRITERIA_KEY, PortletSession.PORTLET_SCOPE);
-        
+
         if(criteria != null) {
             // Check if criteria.logFile is in the logFileNames of current logging configuration
             boolean found = false;
             for(String logFile: logFiles) {
-                if(criteria.logFile.equals(new File(logFile))) {
+                if(criteria.logFile.equals(logFile)) {
                     found = true;
                     break;
                 }
@@ -103,7 +103,7 @@ public class LogViewerPortlet extends BasePortlet {
             if(logFile == null || logFile.equals("")) {
                 logFile = logFiles[0];
             }
-            
+
             criteria.level = logLevel == null || logLevel.equals("") ? criteria.level : logLevel;
             try{
                 criteria.max = maxRows == null || maxRows.equals("") ? criteria.max : Integer.parseInt(maxRows);
@@ -122,7 +122,7 @@ public class LogViewerPortlet extends BasePortlet {
                 }
             criteria.logFile = logFile;
             criteria.stackTraces = stackTraces != null && !stackTraces.equals("");
-            
+
             criteria.text = searchString == null || searchString.equals("") ? null : searchString;
             renderRequest.getPortletSession(true).setAttribute(CRITERIA_KEY, criteria, PortletSession.PORTLET_SCOPE);
         }

@@ -71,14 +71,14 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
         }
 
         WebManager[] managers = PortletManager.getCurrentServer(renderRequest).getWebManagers();
-        
+
         Criteria criteria = (Criteria) renderRequest.getPortletSession(true).getAttribute(CRITERIA_KEY, PortletSession.PORTLET_SCOPE);
-        
-        
+
+
         //todo: new
         Map products = new LinkedHashMap();
         String chosenContainer = null;;
-//      Temporarily disable container selection.  
+//      Temporarily disable container selection.
 //      We don't current enable this in the portlet anyway and at the moment it is just unnecessary data traveling back and forth.
 //      chosenContainer = renderRequest.getParameter("selectedContainer");
 //      if(chosenContainer != null) { // Carry on to render the results with the right selection
@@ -113,7 +113,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
         } else {
             log.error("No web managers found!");
         }
-//      Temporarily disable container and log parameters.  
+//      Temporarily disable container and log parameters.
 //      We don't current enable this in the portlet anyway and at the moment it is just unnecessary data traveling back and forth.
 //      renderRequest.setAttribute("webContainers", products);
         String[] logNames = chosenLog.getLogNames();
@@ -144,7 +144,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
         if (criteria == null || (action != null && !"refresh".equals(action))) {
             if(criteria == null)
                 criteria = new Criteria();
-            
+
             String fromDate = renderRequest.getParameter("fromDate");
             String toDate = renderRequest.getParameter("toDate");
             String requestHost = renderRequest.getParameter("requestHost");
@@ -159,7 +159,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
             //ignore
             }
             String ignoreDates = renderRequest.getParameter("ignoreDates");
-            
+
             criteria.fromDate = fromDate == null || fromDate.equals("") ? null : fromDate;
             criteria.toDate = toDate == null || toDate.equals("") ? null : toDate;
             criteria.requestHost = requestHost == null || requestHost.equals("") ? null : requestHost;
@@ -168,7 +168,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
             criteria.requestedURI = uri == null || uri.equals("") ? null : uri;
             criteria.startResult = result == null || result.equals("") ? null : result;
             criteria.maxResult = max;
-            criteria.ignoreDates = ignoreDates != null && !ignoreDates.equals("");  
+            criteria.ignoreDates = ignoreDates != null && !ignoreDates.equals("");
         }
         String fromDateStr = criteria.fromDate;
         String toDateStr = criteria.toDate;
@@ -195,7 +195,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
             renderRequest.setAttribute("logLength", new Integer(matchingItems.getLineCount()));
             renderRequest.setAttribute("maxResult", criteria.maxResult);
             renderRequest.setAttribute("ignoreDates", Boolean.valueOf(criteria.ignoreDates));
-            
+
         } else {
             // Get other search criteria
             String requestHost = criteria.requestHost;
@@ -210,7 +210,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
             }catch(NumberFormatException e){
                 //ignore
             }
-            
+
             boolean ignoreDates = criteria.ignoreDates;
             if (ignoreDates) {
                 WebAccessLog.SearchResults matchingItems = chosenLog.getMatchingItems(logToSearch,
@@ -265,7 +265,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
                 renderRequest.setAttribute("logs", matchingItems.getResults());
                 renderRequest.setAttribute("logLength", new Integer(matchingItems.getLineCount()));
             }
-            renderRequest.setAttribute("ignoreDates", new Boolean(ignoreDates));
+            renderRequest.setAttribute("ignoreDates", Boolean.valueOf(ignoreDates));
             renderRequest.setAttribute("requestHost", requestHost);
             renderRequest.setAttribute("authUser", authUser);
             renderRequest.setAttribute("requestMethod", requestMethod);
@@ -289,20 +289,20 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         String[] paramNames = {"action",
-                               "fromDate", 
-                               "toDate", 
-                               "ignoreDates", 
-                               "requestHost", 
-                               "authUser", 
-                               "requestMethod", 
-                               "requestedURI", 
-                               "startResult", 
+                               "fromDate",
+                               "toDate",
+                               "ignoreDates",
+                               "requestHost",
+                               "authUser",
+                               "requestMethod",
+                               "requestedURI",
+                               "startResult",
                                "maxResult"};
         // copy all action parameters to render parameters
         for(int i = 0; i < paramNames.length; i++) {
             if(actionRequest.getParameter(paramNames[i]) != null) {
                 actionResponse.setRenderParameter(
-                        paramNames[i], 
+                        paramNames[i],
                         actionRequest.getParameter(paramNames[i]));
             }
         }
