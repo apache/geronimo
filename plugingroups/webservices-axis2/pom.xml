@@ -59,7 +59,7 @@
             <!--<type>car</type>-->
         <!--</dependency>-->
 
-        <<dependency>
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>jaxws-tools</artifactId>
             <version>${project.version}</version>
