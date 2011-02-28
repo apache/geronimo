@@ -46,4 +46,14 @@
         <artifactId>uddi-ws</artifactId>
         <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>org.apache.openejb</groupId>
+        <artifactId>openejb-axis</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.ws.commons.schema</groupId>
+        <artifactId>XmlSchema</artifactId>
+        <type>jar</type>
+    </dependency>
 </plugin-artifact>

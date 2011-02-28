@@ -65,18 +65,27 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>axis</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-axis</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-<!-- openejb-axis may be needed, but does not seem to be ready yet -->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.openejb</groupId>-->
-            <!--<artifactId>openejb-axis</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.openejb</groupId>
+            <artifactId>openejb-axis</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.ws.commons.schema</groupId>
+            <artifactId>XmlSchema</artifactId>
+        </dependency>        
 
         <dependency>
             <groupId>org.apache.geronimo.bundles</groupId>

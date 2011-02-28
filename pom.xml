@@ -1207,6 +1207,10 @@
                         <groupId>cglib</groupId>
                         <artifactId>cglib-nodep</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>axis</groupId>
+                        <artifactId>axis</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
