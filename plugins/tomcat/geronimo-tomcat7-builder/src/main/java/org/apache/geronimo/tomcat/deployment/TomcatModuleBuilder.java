@@ -592,33 +592,35 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 throw new DeploymentException("Could not load javax.servlet.Servlet in bundle " + bundle, e);
             }
 
-            for (ServletInfo servletInfo : webAppInfo.servlets) {
+            for (org.apache.openejb.jee.Servlet servlet : webApp.getServlet()) {
+                String servletName = servlet.getServletName();
+                String servletClassName = servlet.getServletClass();
                 Class<?> servletClass;
                 try {
-                    servletClass = webBundle.loadClass(servletInfo.servletClass);
+                    servletClass = webBundle.loadClass(servletClassName);
                 } catch (ClassNotFoundException e) {
-                    throw new DeploymentException("Could not load servlet class " + servletInfo.servletClass + " from bundle " + bundle, e);
+                    throw new DeploymentException("Could not load servlet class " + servletClassName, e);
                 }
                 if (!baseServletClass.isAssignableFrom(servletClass)) {
                     //fake servletData
-                    AbstractName servletAbstractName = moduleContext.getNaming().createChildName(moduleName, servletInfo.servletName, NameFactory.SERVLET);
+                    AbstractName servletAbstractName = moduleContext.getNaming().createChildName(moduleName, servletName, NameFactory.SERVLET);
                     GBeanData servletData = new GBeanData();
                     servletData.setAbstractName(servletAbstractName);
                     //let the web service builder deal with configuring the gbean with the web service stack
                     //Here we just extract the factory reference
                     boolean configured = false;
                     for (WebServiceBuilder serviceBuilder : webServiceBuilder) {
-                        if (serviceBuilder.configurePOJO(servletData, servletInfo.servletName, module, servletInfo.servletClass, moduleContext)) {
+                        if (serviceBuilder.configurePOJO(servletData, servletName, module, servletClassName, moduleContext)) {
                             configured = true;
                             break;
                         }
                     }
                     if (!configured) {
-                        throw new DeploymentException("POJO web service: " + servletInfo.servletName + " not configured by any web service builder");
+                        throw new DeploymentException("POJO web service: " + servletName + " not configured by any web service builder");
                     }
                     ReferencePatterns patterns = servletData.getReferencePatterns("WebServiceContainerFactory");
                     AbstractName wsContainerFactoryName = patterns.getAbstractName();
-                    webServices.put(servletInfo.servletName, wsContainerFactoryName);
+                    webServices.put(servletName, wsContainerFactoryName);
                     //force all the factories to start before the web app that needs them.
                     webModuleData.addDependency(wsContainerFactoryName);
                 }
