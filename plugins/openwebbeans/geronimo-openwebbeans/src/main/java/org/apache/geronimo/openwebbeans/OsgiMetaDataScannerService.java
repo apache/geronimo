@@ -61,13 +61,13 @@ public class OsgiMetaDataScannerService implements ScannerService
     protected BDABeansXmlScanner bdaBeansXmlScanner;
 
     /** All classes which have to be scanned for Bean information */
-    private final Set<Class<?>> beanClasses = new HashSet<Class<?>>();
+    private Set<Class<?>> beanClasses = new HashSet<Class<?>>();
 
     /** the URLs of all META-INF/beans.xml files */
-    private final Set<String> beanXMLs = new HashSet<String>();
+    private Set<String> beanXMLs = new HashSet<String>();
 
     /**contains all the JARs we found with valid beans.xml in it */
-    private final Set<String> beanArchiveJarNames = new HashSet<String>();
+    private Set<String> beanArchiveJarNames = new HashSet<String>();
 
     public OsgiMetaDataScannerService(WebBeansContext webBeansContext) {
         this.webBeansContext = webBeansContext;
@@ -87,6 +87,14 @@ public class OsgiMetaDataScannerService implements ScannerService
         }
     }
 
+    @Override
+    public void release()
+    {
+        beanClasses = new HashSet<Class<?>>();
+        beanXMLs = new HashSet<String>();
+        beanArchiveJarNames = new HashSet<String>();
+    }    
+    
     @Override
     public void scan() throws WebBeansDeploymentException
     {
