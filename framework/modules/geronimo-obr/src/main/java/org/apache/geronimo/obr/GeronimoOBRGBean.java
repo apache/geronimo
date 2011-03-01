@@ -57,21 +57,21 @@ import org.slf4j.LoggerFactory;
 @GBean
 @OsgiService
 public class GeronimoOBRGBean implements GBeanLifecycle {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(GeronimoOBRGBean.class);
-    
+
     private BundleContext bundleContext;
     private ListableRepository repository;
     private File obrFile;
     private List<URL> repositories;
     private Set<Artifact> exclusions;
-    
+
     public GeronimoOBRGBean(@ParamReference(name = "Repository", namingType = "Repository") ListableRepository repository,
                             @ParamReference(name = "ServerInfo") ServerInfo serverInfo,
                             @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
                             @ParamAttribute(name = "repositoryList") String repositoryList,
                             @ParamAttribute(name = "exclusions") String exclusions) throws Exception {
-        this.repository = repository;         
+        this.repository = repository;
         this.bundleContext = bundleContext;
         this.obrFile = serverInfo.resolveServer("var/obr.xml");
         this.repositories = parseRepositories(repositoryList);
@@ -89,7 +89,7 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
         }
         return list;
     }
-    
+
     private static Set<Artifact> parseExclusions(String exclusions) throws MalformedURLException {
         Set<Artifact> set = new HashSet<Artifact>();
         if (exclusions != null) {
@@ -101,27 +101,27 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
         }
         return set;
     }
-    
+
     public void refresh() throws Exception {
         generateRepository();
-                
+
         ServiceReference ref = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
-        RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(ref);        
+        RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(ref);
         try {
             repositoryAdmin.removeRepository(obrFile.toURI().toURL().toExternalForm());
             repositoryAdmin.addRepository(obrFile.toURI().toURL());
-        } finally {        
+        } finally {
             bundleContext.ungetService(ref);
-        }        
+        }
     }
-    
+
     private void generateRepository() throws Exception {
-        
+
         String obrName = "Geronimo OBR Repository";
 
         org.apache.geronimo.kernel.repository.Repository geronimoRepository = repository;
         Set<Artifact> artifacts = repository.list();
-        
+
         // prune excluded artifacts
         for (Artifact excluded : exclusions) {
             Iterator<Artifact> iterator = artifacts.iterator();
@@ -129,11 +129,11 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
                 Artifact artifact = iterator.next();
                 if (excluded.matches(artifact)) {
                     LOG.debug("Exluded {} artifact from OBR", artifact);
-                    iterator.remove();                    
+                    iterator.remove();
                 }
             }
         }
-        
+
         generateOBR(obrName, artifacts, geronimoRepository, obrFile);
     }
 
@@ -141,7 +141,7 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
         Repository repo = generateOBRModel(obrName, geronimoRepository, artifacts);
         marshallOBRModel(repo, obrFile);
     }
-    
+
     public static void marshallOBRModel(Repository repo, File obrFile) throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(Repository.class);
         Marshaller marshaller = context.createMarshaller();
@@ -154,6 +154,9 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
         repo.setName(obrName);
         for (Artifact artifact : artifacts) {
             File location = geronimoRepository.getLocation(artifact);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Generating OBR Metadata for " + location.getAbsolutePath());
+            }
             Manifest mf = null;
             if (location.isFile()) {
                 JarFile file = new JarFile(location);
@@ -181,7 +184,7 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
 
             BundleDescription desc = new BundleDescription(mf);
             ResourceBuilder builder = new ResourceBuilder(desc);
-            
+
             Resource resource = null;
             try {
                 resource = builder.createResource();
@@ -189,7 +192,7 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
                 LOG.debug("Failed to generate OBR information for " + artifact + " artifact", e);
                 continue;
             }
-            
+
             if (resource != null) {
                 resource.setUri(getURL(artifact));
                 if (location.isFile()) {
@@ -209,39 +212,39 @@ public class GeronimoOBRGBean implements GBeanLifecycle {
 
     private void registerRepositories() throws Exception {
         ServiceReference ref = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
-        RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(ref);        
+        RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(ref);
         try {
-            repositoryAdmin.addRepository(obrFile.toURI().toURL());        
+            repositoryAdmin.addRepository(obrFile.toURI().toURL());
             for (URL repository : repositories) {
                 repositoryAdmin.addRepository(repository);
             }
-        } finally {        
+        } finally {
             bundleContext.ungetService(ref);
         }
     }
-    
+
     private void unregisterRepositories() throws Exception {
         ServiceReference ref = bundleContext.getServiceReference(RepositoryAdmin.class.getName());
-        RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(ref);        
+        RepositoryAdmin repositoryAdmin = (RepositoryAdmin) bundleContext.getService(ref);
         try {
-            repositoryAdmin.removeRepository(obrFile.toURI().toURL().toExternalForm());       
+            repositoryAdmin.removeRepository(obrFile.toURI().toURL().toExternalForm());
             for (URL repository : repositories) {
                 repositoryAdmin.removeRepository(repository.toExternalForm());
             }
-        } finally {        
+        } finally {
             bundleContext.ungetService(ref);
         }
     }
-    
+
     public void doStart() throws Exception {
         generateRepository();
         registerRepositories();
     }
-    
+
     public void doStop() throws Exception {
         unregisterRepositories();
     }
-   
+
     public void doFail() {
     }
 }
