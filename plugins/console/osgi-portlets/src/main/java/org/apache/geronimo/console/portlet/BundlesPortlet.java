@@ -74,10 +74,7 @@ public class BundlesPortlet extends GenericPortlet {
     private PortletRequestDispatcher maximizedView;
     private PortletRequestDispatcher helpView;
 
-    
-    BundleContext bundleContext = null;
-    StartLevel startLevelService = null;
-    
+   
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
         normalView = portletConfig.getPortletContext().getRequestDispatcher(NORMALVIEW_JSP);
@@ -97,13 +94,6 @@ public class BundlesPortlet extends GenericPortlet {
     
     protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException,
             PortletException {
-
-        //get bundleContext
-        bundleContext = (BundleContext) renderRequest.getPortletSession().getPortletContext().getAttribute("osgi-bundlecontext");
-        
-        //get the StartLeval object
-        ServiceReference startLevelRef = bundleContext.getServiceReference(StartLevel.class.getCanonicalName());
-        startLevelService = (StartLevel) bundleContext.getService(startLevelRef);
         
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
@@ -124,6 +114,14 @@ public class BundlesPortlet extends GenericPortlet {
 
     private void doBundlesView(RenderRequest request, RenderResponse response) {
 
+        //get bundleContext
+        BundleContext bundleContext = (BundleContext) request.getPortletSession().getPortletContext().getAttribute("osgi-bundlecontext");
+        
+        //get the StartLeval object
+        ServiceReference startLevelRef = bundleContext.getServiceReference(StartLevel.class.getCanonicalName());
+        StartLevel startLevelService = (StartLevel) bundleContext.getService(startLevelRef);
+        
+        //get all bundles
         Bundle[] bundles = bundleContext.getBundles();
 
         // list contains bundles converted from Bundle objects
@@ -132,7 +130,7 @@ public class BundlesPortlet extends GenericPortlet {
         
         // convert Bundle to OSGiBundle
         for (Bundle bundle : bundles) {
-            if (!checkSysBundle(bundle)){
+            if (!checkSysBundle(bundle, startLevelService)){
                 OSGiBundle osgiBundle = new OSGiBundle(bundle);
                 OSGiBundleList.add(osgiBundle);
             }
@@ -143,11 +141,13 @@ public class BundlesPortlet extends GenericPortlet {
             request.setAttribute("GridJSONObject", grid);
         } catch (JSONException e) {
             e.printStackTrace();
+        } finally {
+            bundleContext.ungetService(startLevelRef);
         }
 
     }
     
-    private boolean checkSysBundle(Bundle bundle){
+    private boolean checkSysBundle(Bundle bundle, StartLevel startLevelService){
         
         // check start level
         if (startLevelService!=null && startLevelService.getBundleStartLevel(bundle) <= 50){ //config.properties set karaf.systemBundlesStartLevel=50
@@ -219,7 +219,7 @@ public class BundlesPortlet extends GenericPortlet {
 
     public void serveResource(ResourceRequest request, ResourceResponse response) throws PortletException, IOException {
         
-        bundleContext = (BundleContext) request.getPortletSession().getPortletContext().getAttribute("osgi-bundlecontext");
+        BundleContext bundleContext = (BundleContext) request.getPortletSession().getPortletContext().getAttribute("osgi-bundlecontext");
         
         String resourceId = request.getResourceID();
   
@@ -277,7 +277,11 @@ public class BundlesPortlet extends GenericPortlet {
                 } else if (action.equals("refresh")){
                     // prepare response
                     resultItem.put("id", id);
-                    resultItem.put("state", OSGiBundle.getStateName(bundleContext.getBundle(id).getState()));
+                    if (bundleContext.getBundle(id)!=null){
+                        resultItem.put("state", OSGiBundle.getStateName(bundleContext.getBundle(id).getState()));
+                    } else {
+                        resultItem.put("state", OSGiBundle.getStateName(Bundle.UNINSTALLED));
+                    }
                 }   
                 
                 PrintWriter writer = response.getWriter();
@@ -287,7 +291,7 @@ public class BundlesPortlet extends GenericPortlet {
                 e.printStackTrace();
             } catch (BundleException e) {
                 e.printStackTrace();
-            }catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             
@@ -311,11 +315,7 @@ public class BundlesPortlet extends GenericPortlet {
             ServiceReference reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
             try {
                 
-               
                 PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
-                
-
-                
                 
                 //importing
                 Set<PackageBundlePair> importingPairs =  getImportingPairs(packageAdmin, bundle);
@@ -376,6 +376,10 @@ public class BundlesPortlet extends GenericPortlet {
             
         } else if (resourceId.equals("showSysBundles")) {
             
+            //get the StartLeval object
+            ServiceReference startLevelRef = bundleContext.getServiceReference(StartLevel.class.getCanonicalName());
+            StartLevel startLevelService = (StartLevel) bundleContext.getService(startLevelRef);
+            
             Bundle[] bundles = bundleContext.getBundles();
 
             // list contains bundles converted from Bundle objects
@@ -384,7 +388,7 @@ public class BundlesPortlet extends GenericPortlet {
             
             // convert Bundle to OSGiBundle
             for (Bundle bundle : bundles) {
-                if (checkSysBundle(bundle)){
+                if (checkSysBundle(bundle, startLevelService)){
                     OSGiBundle osgiBundle = new OSGiBundle(bundle);
                     OSGiBundleList.add(osgiBundle);
                 }
@@ -396,6 +400,8 @@ public class BundlesPortlet extends GenericPortlet {
                 writer.print(grid);
             } catch (JSONException e) {
                 e.printStackTrace();
+            } finally{
+                bundleContext.ungetService(startLevelRef);
             }
             
             
