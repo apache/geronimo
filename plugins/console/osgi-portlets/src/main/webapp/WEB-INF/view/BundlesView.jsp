@@ -154,15 +154,16 @@ function hideLoadingDIV(){
     							dijit.byId("usrBundlesGrid").store.setValue(item,"state","Unknown");
     						}
     					});
-    				}else if(updatedItem.state == "Uninstalled") {
+    				}else if(updatedItem.state == "Uninstalled") { // uninstall action results; refresh action may also go here
+        				// should show a msg
     					dijit.byId("usrBundlesGrid").store.fetchItemByIdentity({
     						identity:updatedItem.id,
     						onItem:function(item){
     							dijit.byId("usrBundlesGrid").store.deleteItem(item);
     						}
     					});
-    				}else { // start/stop/refresh action results
-        				//todo: refresh when the status is Unknown but bundle is uninstalled.
+    				}else { // start or stop action results; refresh action may also go here
+        				// should show a msg
     					dijit.byId("usrBundlesGrid").store.fetchItemByIdentity({
     						identity:updatedItem.id,
     						onItem:function(item){
@@ -412,9 +413,7 @@ This portlet shows the general user bundles installed in geronimo. To see all th
 				</div>
 			</td>
 			
-	        
-	    
-			
+
 		</tr> 
 	</table>
 	
