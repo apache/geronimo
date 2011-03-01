@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
-import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
 
 /**
@@ -71,7 +70,7 @@ public class AJPHandler extends BaseApacheHandler {
             break;
         }
 
-        ((ApacheModel)model).setAddAjpPort(new Integer(port));
+        ((ApacheModel)model).setAddAjpPort(Integer.valueOf(port));
 
         return getMode();
     }

@@ -84,7 +84,7 @@ public class ServerInfoPortlet extends BasePortlet {
         jvmProps.put("Java Version", jvm.getJavaVersion());
         jvmProps.put("Java Vendor", jvm.getJavaVendor());
         jvmProps.put("Node", jvm.getNode());
-        jvmProps.put("Available Processors", new Integer(jvm.getAvailableProcessors()));
+        jvmProps.put("Available Processors", Integer.valueOf(jvm.getAvailableProcessors()));
         renderRequest.setAttribute("jvmProps", jvmProps);
 
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {

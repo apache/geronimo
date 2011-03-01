@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConnectorPortlet extends BasePortlet {
     private static final Logger log = LoggerFactory.getLogger(ConnectorPortlet.class);
-    
+
     public static final String PARM_CONTAINER_URI = "containerURI";
     public static final String PARM_CONNECTOR_URI = "connectorURI";
     public static final String PARM_MANAGER_URI = "managerURI";
@@ -88,7 +88,7 @@ public class ConnectorPortlet extends BasePortlet {
             actionResponse.setRenderParameter(PARM_MODE, "list");
             return;
         }
-        
+
         String mode = actionRequest.getParameter(PARM_MODE);
         String managerURI = actionRequest.getParameter(PARM_MANAGER_URI);
         String containerURI = actionRequest.getParameter(PARM_CONTAINER_URI);
@@ -112,7 +112,7 @@ public class ConnectorPortlet extends BasePortlet {
             // Create and configure the connector
             WebManager manager = PortletManager.getWebManager(actionRequest, new AbstractName(URI.create(managerURI)));
             ConnectorType connectorType = new ConnectorType(actionRequest.getParameter(PARM_CONNECTOR_TYPE));
-            
+
             String uniqueName = actionRequest.getParameter(PARM_DISPLAY_NAME);
             actionResponse.setRenderParameter(PARM_DISPLAY_NAME, uniqueName);
             // set the connector attributes from the form post
@@ -120,7 +120,7 @@ public class ConnectorPortlet extends BasePortlet {
             for (ConnectorAttribute attribute : connectorAttributes) {
                 String name = attribute.getAttributeName();
                 String value = actionRequest.getParameter(name);
-                
+
                 // handle booelan type special
                 if (attribute.getAttributeClass().equals(Boolean.class)) {
                     // browser sends value of checked checkbox as "on" or "checked"
@@ -142,10 +142,10 @@ public class ConnectorPortlet extends BasePortlet {
             }
             // create the connector gbean based on the configuration data
             AbstractName newConnectorName = manager.getConnectorConfiguration(connectorType, connectorAttributes, webContainer, uniqueName);
-            
+
             // set the keystore properties if its a secure connector
             setKeystoreProperties(actionRequest, newConnectorName);
-            
+
             // Start the connector
             try {
                 GeronimoManagedBean managedBean = PortletManager.getManagedBean(actionRequest, newConnectorName);
@@ -153,7 +153,7 @@ public class ConnectorPortlet extends BasePortlet {
             } catch (Exception e) {
                 log.error("Unable to start connector", e); //TODO: get into rendered page
             }
-            
+
             try {
                 manager.updateConnectorConfig(newConnectorName);
             } catch (Exception e) {
@@ -171,18 +171,18 @@ public class ConnectorPortlet extends BasePortlet {
                 connectorGBeanData=PortletManager.getKernel().getGBeanData(connectorName);
             } catch (Exception e) {
                 log.error("Unable to get connectorGBeanData by abstractName:"+connectorName.toURI(), e);
-            } 
-            
+            }
+
             NetworkConnector connector = PortletManager.getNetworkConnector(actionRequest, connectorName);
             if(connector != null) {
                 WebManager manager = PortletManager.getWebManager(actionRequest, new AbstractName(URI.create(managerURI)));
                 ConnectorType connectorType = manager.getConnectorType(connectorName);
-                
+
                 // set the connector attributes from the form post
                 for (ConnectorAttribute attribute : manager.getConnectorAttributes(connectorType)) {
                     String name = attribute.getAttributeName();
                     String value = actionRequest.getParameter(name);
-                    
+
                     // handle booelan type special
                     if (attribute.getAttributeClass().equals(Boolean.class)) {
                         // browser sends value of checked checkbox as "on" or "checked"
@@ -196,11 +196,11 @@ public class ConnectorPortlet extends BasePortlet {
                     if (value == null || value.trim().length()<1) {
                         // special case for KeystoreManager gbean
                         if ("trustStore".equals(attribute.getAttributeName())) {
-                            
+
                             connectorGBeanData.setAttribute(name, null);
                         }
                     } else {
-                        // set the string value on the ConnectorAttribute so 
+                        // set the string value on the ConnectorAttribute so
                         // it can handle type conversion via getValue()
                         try {
                             attribute.setStringValue(value);
@@ -210,10 +210,10 @@ public class ConnectorPortlet extends BasePortlet {
                         }
                     }
                 }
-                
+
                 // set the keystore properties if its a secure connector
                 setKeystoreProperties(actionRequest, connectorName);
-                
+
                 try {
                     Kernel kernel = PortletManager.getKernel();
                     BundleContext bundleContext = kernel.getBundleFor(connectorName).getBundleContext();
@@ -224,8 +224,8 @@ public class ConnectorPortlet extends BasePortlet {
                 } catch (Exception e) {
                     log.error("Unable to reload updated connector:" + connectorName.toURI(), e);
                 }
-                
-                
+
+
                 try {
                     manager.updateConnectorConfig(connectorName);
                 } catch (Exception e) {
@@ -339,7 +339,7 @@ public class ConnectorPortlet extends BasePortlet {
                     ConnectorType connectorType = webManager.getConnectorType(connectorName);
                     List<ConnectorAttribute> connectorAttributes = webManager.getConnectorAttributes(connectorType);
                     sortConnectorAttributes(connectorAttributes);
-                    
+
                     // populate the connector attributes from the connector
                     for (ConnectorAttribute attribute : connectorAttributes) {
                         try {
@@ -349,13 +349,13 @@ public class ConnectorPortlet extends BasePortlet {
                             log.error("Unable to retrieve value of property " + attribute.getAttributeName(), e);
                         }
                     }
-                    
+
                     renderRequest.setAttribute(PARM_CONNECTOR_ATTRIBUTES, connectorAttributes);
                     renderRequest.setAttribute(PARM_CONNECTOR_URI, connectorURI);
                     // populate any enum type values.  the browser will render them in a
                     // <SELECT> input for the attribute
                     populateEnumAttributes(renderRequest);
-                    
+
                     renderRequest.setAttribute(PARM_MODE, "save");
                     editConnectorView.include(renderRequest, renderResponse);
                 }
@@ -388,7 +388,7 @@ public class ConnectorPortlet extends BasePortlet {
         for (int i = 0; i < managers.length; i++) {
             WebManager manager = managers[i];
             AbstractName webManagerName = PortletManager.getNameFor(renderRequest, manager);
-            
+
             WebContainer[] containers = (WebContainer[]) manager.getContainers();
             for (int j = 0; j < containers.length; j++) {
                 List<ConnectorInfo> beans = new ArrayList<ConnectorInfo>();
@@ -426,7 +426,7 @@ public class ConnectorPortlet extends BasePortlet {
             addWarningMessage(renderRequest, "warnMsg08");
         }
         renderRequest.setAttribute("containers", all);
-        renderRequest.setAttribute("serverPort", new Integer(renderRequest.getServerPort()));
+        renderRequest.setAttribute("serverPort", Integer.valueOf(renderRequest.getServerPort()));
 
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);
@@ -502,23 +502,23 @@ public class ConnectorPortlet extends BasePortlet {
     public static boolean isValid(String s) {
         return s != null && !s.equals("");
     }
-    
+
     // stash any 'enum' type values for attributes.  right now this is
     // hardcoded, need to promote these to the ConnectorAttribute apis
     private void populateEnumAttributes(PortletRequest request) {
         HashMap<String,String[]> enumValues = new HashMap<String,String[]>();
-        
+
         // provide the two possible values for secure protocol - TLS and SSL
         enumValues.put("secureProtocol", new String[] { "TLS", "SSL" }); //jetty
         enumValues.put("sslProtocol", new String[] { "TLS", "SSL" }); //tomcat
-        
+
         // keystore and truststore types for tomcat
         enumValues.put("keystoreType", KeystoreUtil.keystoreTypes.toArray(new String[0]));
         enumValues.put("truststoreType", KeystoreUtil.keystoreTypes.toArray(new String[0]));
 
-        // provide the three possible values for secure algorithm - Default, SunX509, and IbmX509 
+        // provide the three possible values for secure algorithm - Default, SunX509, and IbmX509
         enumValues.put("algorithm", new String[] { "Default", "SunX509", "IbmX509" });
-        
+
         // provide the possible values for the keystore name
         KeystoreManager mgr = PortletManager.getCurrentServer(request).getKeystoreManager();
         KeystoreInstance[] stores = mgr.getUnlockedKeyStores();
@@ -527,7 +527,7 @@ public class ConnectorPortlet extends BasePortlet {
             storeNames[i] = stores[i].getKeystoreName();
         }
         enumValues.put("keyStore", storeNames);
-        
+
         // provide the possible values for the trust store name
         KeystoreInstance[] trusts = mgr.getUnlockedTrustStores();
         String[] trustNames = new String[trusts.length];
@@ -535,10 +535,10 @@ public class ConnectorPortlet extends BasePortlet {
             trustNames[i] = trusts[i].getKeystoreName();
         }
         enumValues.put("trustStore", trustNames);
-        
+
         request.setAttribute("geronimoConsoleEnumValues", enumValues);
     }
-    
+
     // get the special keystore properties from the request and set them on the connector
     // TODO: need a more generic way to handle this
     private void setKeystoreProperties(PortletRequest request, AbstractName connectorName) throws PortletException {
@@ -551,13 +551,13 @@ public class ConnectorPortlet extends BasePortlet {
         if (!(connector instanceof SecureConnector)) {
             return;
         }
-        
+
         // right now only jetty supports the KeystoreManager
         if (server.equals(WEB_SERVER_JETTY)) {
             String keyStore = request.getParameter("keyStore");
-            
+
             // get the unlocked keystore object from the keystore managaer
-            // gbean and set its keyalias directly on the connector 
+            // gbean and set its keyalias directly on the connector
             try {
                 KeystoreInstance[] keystores = PortletManager.getCurrentServer(request)
                         .getKeystoreManager().getKeystores();

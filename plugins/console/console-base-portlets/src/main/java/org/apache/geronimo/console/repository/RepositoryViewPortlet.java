@@ -96,8 +96,6 @@ public class RepositoryViewPortlet extends BasePortlet {
 
         try {
 
-
-            List list = new ArrayList();
             WriteableRepository repo = PortletManager.getCurrentServer(actionRequest).getWritableRepositories()[0];
 
             File uploadFile = null;
@@ -218,7 +216,7 @@ public class RepositoryViewPortlet extends BasePortlet {
             request.setAttribute("groupId", parts[0]);
             request.setAttribute("artifactId", parts[1]);
             request.setAttribute("version", parts[2]);
-            request.setAttribute("type", parts[3]);        
+            request.setAttribute("type", parts[3]);
             usageView.include(request, response);
             return;
         }

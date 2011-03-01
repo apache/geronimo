@@ -147,11 +147,11 @@ public class WebManagerPortlet extends BasePortlet {
                             // renderRequest.setAttribute("requestDurationAvg", new Long(webStats.getRequestDurationAvg().getCount()));
                             long avg = count == 0 ? 0 : totalTime / count;
                             renderRequest.setAttribute("requestDurationAvg", avg);
-                            renderRequest.setAttribute("response1xx", new Long(webStats.getResponses1xx().getCount()));
-                            renderRequest.setAttribute("response2xx", new Long(webStats.getResponses2xx().getCount()));
-                            renderRequest.setAttribute("response3xx", new Long(webStats.getResponses3xx().getCount()));
-                            renderRequest.setAttribute("response4xx", new Long(webStats.getResponses4xx().getCount()));
-                            renderRequest.setAttribute("response5xx", new Long(webStats.getResponses5xx().getCount()));
+                            renderRequest.setAttribute("response1xx", Long.valueOf(webStats.getResponses1xx().getCount()));
+                            renderRequest.setAttribute("response2xx", Long.valueOf(webStats.getResponses2xx().getCount()));
+                            renderRequest.setAttribute("response3xx", Long.valueOf(webStats.getResponses3xx().getCount()));
+                            renderRequest.setAttribute("response4xx", Long.valueOf(webStats.getResponses4xx().getCount()));
+                            renderRequest.setAttribute("response5xx", Long.valueOf(webStats.getResponses5xx().getCount()));
                             renderRequest.setAttribute("elapsedTime", TimeUtils.formatDuration(webStats.getStatsOnMs().getCount()));
                         }
                     } else {

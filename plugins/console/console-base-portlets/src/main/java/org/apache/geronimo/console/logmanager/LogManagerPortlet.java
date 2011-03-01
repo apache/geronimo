@@ -54,7 +54,7 @@ public class LogManagerPortlet extends BasePortlet {
 //        renderRequest.setAttribute("configuration", LogHelper.getConfiguration());
         renderRequest.setAttribute("logLevel", log.getRootLoggerLevel());
         try{
-            renderRequest.setAttribute("refreshPeriod", new Integer(log.getRefreshPeriodSeconds()));
+            renderRequest.setAttribute("refreshPeriod", Integer.valueOf(log.getRefreshPeriodSeconds()));
         }catch(NumberFormatException e){
             //ignore
         }
@@ -76,7 +76,7 @@ public class LogManagerPortlet extends BasePortlet {
         String action = actionRequest.getParameter("action");
         String logLevel = actionRequest.getParameter("logLevel");
         String configFile = actionRequest.getParameter("configFile");
-        String configuration = actionRequest.getParameter("append");
+        //String configuration = actionRequest.getParameter("append");
         String refreshPeriod = actionRequest.getParameter("refreshPeriod");
         String currentLevel = log.getRootLoggerLevel();
 

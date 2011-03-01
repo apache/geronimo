@@ -263,7 +263,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
                 WebAccessLog.SearchResults matchingItems = chosenLog.getMatchingItems(logToSearch,
                                                 requestHost, authUser, requestMethod, requestedURI, fromDate, toDate, iStartResult, Integer.valueOf(iMaxResult.intValue()-1));
                 renderRequest.setAttribute("logs", matchingItems.getResults());
-                renderRequest.setAttribute("logLength", new Integer(matchingItems.getLineCount()));
+                renderRequest.setAttribute("logLength", Integer.valueOf(matchingItems.getLineCount()));
             }
             renderRequest.setAttribute("ignoreDates", Boolean.valueOf(ignoreDates));
             renderRequest.setAttribute("requestHost", requestHost);
@@ -308,7 +308,7 @@ public class WebAccessLogViewerPortlet extends BasePortlet {
         }
     }
     private static class Criteria implements Serializable {
-        Integer maxResult = new Integer(DEFAULT_MAX_RESULTS);
+        Integer maxResult = Integer.valueOf(DEFAULT_MAX_RESULTS);
         String fromDate = null;
         String toDate = null;
         boolean ignoreDates = false;

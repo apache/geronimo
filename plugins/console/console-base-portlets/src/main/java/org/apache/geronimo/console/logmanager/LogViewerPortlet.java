@@ -130,7 +130,7 @@ public class LogViewerPortlet extends BasePortlet {
         SystemLog.SearchResults results = log.getMatchingItems(criteria.logFile, criteria.start, criteria.stop,
                         criteria.level, criteria.text, criteria.max, criteria.stackTraces);
         renderRequest.setAttribute("searchResults", results.getResults());
-        renderRequest.setAttribute("lineCount", new Integer(results.getLineCount()));
+        renderRequest.setAttribute("lineCount", Integer.valueOf(results.getLineCount()));
         renderRequest.setAttribute("startPos", criteria.start);
         renderRequest.setAttribute("endPos", criteria.stop);
         renderRequest.setAttribute("logLevel", criteria.level);
