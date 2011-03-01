@@ -303,7 +303,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         Set<Class<? extends DeploymentModule>> loadingRequiredModuleTypes = new HashSet<Class<? extends DeploymentModule>>();
         loadingRequiredModuleTypes.add(org.apache.openejb.config.EjbModule.class);
         loadingRequiredModuleTypes.add(org.apache.openejb.config.WsModule.class);
-        DeploymentLoader loader = new GeronimoDeploymentLoader(ddDir, loadingRequiredModuleTypes);
+        DeploymentLoader loader = new DeploymentLoader(ddDir, loadingRequiredModuleTypes);
         AppModule appModule;
         try {
             appModule = loader.load(new File(moduleFile.getName()));
