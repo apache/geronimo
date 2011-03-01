@@ -227,6 +227,12 @@ public class EjbModuleImpl implements EJBModule, GBeanLifecycle, SharedOwbContex
         if (!keyPropertyList.containsKey("J2EEApplication")) {
             throw new InvalidObjectNameException("EJBModule object name must contain a J2EEApplication property", objectName);
         }
+        
+        // EJB in WAR, The war itself is one big EjbModule
+        if (keyPropertyList.size() == 5 && keyPropertyList.containsKey("WebModule")) {
+            return;
+        }
+        
         if (keyPropertyList.size() != 4) {
             throw new InvalidObjectNameException("EJBModule object name can only have j2eeType, name, J2EEApplication, and J2EEServer properties", objectName);
         }
