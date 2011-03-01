@@ -42,7 +42,7 @@ import org.osgi.service.log.LogService;
 
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public class ConfigRegistryImpl implements ConfigRegistry {
     private final Activator activator;
@@ -101,7 +101,7 @@ public class ConfigRegistryImpl implements ConfigRegistry {
                 return Collections.<FacesConfig> emptyList();
             }
             DependencyManager dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
-            List<Bundle> dependentBundles = dependencyManager.getDependentBundles(bundle);
+            List<Bundle> dependentBundles = dependencyManager.getFullDependentBundles(bundle);
             List<FacesConfig> dependentFacesConfigs = new ArrayList<FacesConfig>();
             for (Bundle dependentBundle : dependentBundles) {
                 FacesConfig facesConfig = bundleIdFacesConfigMap.get(dependentBundle.getBundleId());
