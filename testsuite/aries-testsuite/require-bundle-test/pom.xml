@@ -18,42 +18,31 @@
     under the License.
 -->
 
-<!-- $Rev$ $Date$ -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.geronimo.testsuite</groupId>
-        <artifactId>testsuite</artifactId>
+        <artifactId>aries-testsuite</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>aries-testsuite</artifactId>
-    <name>Geronimo TestSuite :: Aries Testsuite</name>
+    <artifactId>require-bundle-test</artifactId>
+    <name>Geronimo TestSuite :: Aries Testsuite :: Require-Bundle Test</name>
     <packaging>pom</packaging>
-
-    <description>
-        Geronimo Aries testsuite.
-    </description>
+    
+    <properties>
+        <!-- Fix the version info to avoid unexpected impact of tools change -->
+        <packageVersion>1.0</packageVersion>
+        <bundleVersion>1.0.0</bundleVersion>
+    </properties>
 
     <modules>
-        <module>simple</module>
-        <module>jpa</module>
-		<module>require-bundle-test</module>
+        <module>CalculatorBeanBundle_C</module>
+        <module>CalculatorBeanBundle_B</module>
+        <module>CalculatorServletBundle_A</module>
+		<module>RequireBundle-eba</module>
     </modules>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.aries</groupId>
-                    <artifactId>eba-maven-plugin</artifactId>
-                    <version>0.2-incubating</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
-
+	
 </project>
