@@ -242,12 +242,13 @@ function hideLoadingDIV(){
 	}
 
 	function showSysBundles(){
-		showLoadingDIV();
-
+		
 		if (dijit.byId("sysBundlesPane")!=null){
 			var sysBndCP = dijit.byId("sysBundlesPane");
 			dijit.byId("bundlesTab").selectChild(sysBndCP);
 		} else {
+			showLoadingDIV();
+			
 			// add new ContentPane to TabContainer
 		    var bndTC = dijit.byId("bundlesTab");
 			var sysBndCP = new dijit.layout.ContentPane({
@@ -376,12 +377,12 @@ This portlet shows the general user bundles installed in geronimo. To see all th
 	        <td>
 	        	<form id="installForm" enctype="multipart/form-data" method="POST">
 	            Install New:
-	            <input type="file" style="width:200px" name="bundleFile" />
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	            <input type="file" name="bundleFile" />
+				&nbsp;
 		        
 		        <fmt:message key="osgi.bundle.install.startAfterInstalled" />:
-		        <input type="checkbox" dojoType="dijit.form.CheckBox" name="startAfterInstalled" value="yes" align="middle" />
-		        
+		        <input type="checkbox" dojoType="dijit.form.CheckBox" name="startAfterInstalled" value="yes" />
+		        &nbsp;
 		        
 		        <!-- Don't allow user set start level for now
 		        <fmt:message key="osgi.bundle.startLevel" />:
@@ -409,6 +410,7 @@ This portlet shows the general user bundles installed in geronimo. To see all th
         			dijit.byId("usrBundlesGrid").filter({
             			symbolicName: "*" + fitlerStr + "*"     
         			});
+					dojo.stopEvent(evt);
 				</script>
 				</div>
 			</td>
