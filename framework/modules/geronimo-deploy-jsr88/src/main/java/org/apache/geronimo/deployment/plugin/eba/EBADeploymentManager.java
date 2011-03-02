@@ -14,23 +14,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.deployment.plugin;
 
-import java.net.URL;
+package org.apache.geronimo.deployment.plugin.eba;
 
-import javax.enterprise.deploy.spi.DeploymentManager;
 
-import org.apache.geronimo.deployment.plugin.eba.EBADeploymentManager;
-import org.apache.geronimo.system.plugin.PluginInstaller;
-import org.apache.geronimo.system.plugin.ServerArchiver;
-
-/**
- * Enhanced features for Geronimo deployment manager
- *
- * @version $Rev$ $Date$
- */
-public interface GeronimoDeploymentManager extends DeploymentManager, PluginInstaller, ServerArchiver, EBADeploymentManager {
-
-    public <T> T getImplementation(Class<T> clazz);
-    public URL[] getRepositories();
+public interface EBADeploymentManager {
+    public String[] getAvailableEBAModuleIds();
 }
