@@ -39,6 +39,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
+import javax.portlet.ResourceURL;
 import javax.portlet.WindowState;
 
 import org.apache.commons.fileupload.FileItem;
@@ -82,6 +83,12 @@ public class BundlesPortlet extends GenericPortlet {
     private PortletRequestDispatcher maximizedView;
     private PortletRequestDispatcher helpView;
 
+    private static final String BUNDLES_ACTION = "bundlesAction";
+    private static final String INSTALL_ACTION = "installAction";
+    private static final String SHOW_MANIFEST = "showManifest";
+    private static final String SHOW_SYS_BUNDLES = "showSysBundles";
+    private static final String SHOW_WIRED_BUNDLES = "showWiredBundles";
+    
    
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
@@ -102,6 +109,32 @@ public class BundlesPortlet extends GenericPortlet {
     
     protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException,
             PortletException {
+        
+        //start/stop/uninstall/refresh action ajax url
+        ResourceURL ajaxURL_BundlesAction = renderResponse.createResourceURL();
+        ajaxURL_BundlesAction.setResourceID(BUNDLES_ACTION);
+        renderRequest.setAttribute("ajaxURL_BundlesAction", ajaxURL_BundlesAction);
+        
+        //install action ajax url
+        ResourceURL ajaxURL_InstallAction = renderResponse.createResourceURL();
+        ajaxURL_InstallAction.setResourceID(INSTALL_ACTION);
+        renderRequest.setAttribute("ajaxURL_InstallAction", ajaxURL_InstallAction);
+
+        //show manifest
+        ResourceURL ajaxURL_ShowManifest = renderResponse.createResourceURL();
+        ajaxURL_ShowManifest.setResourceID(SHOW_MANIFEST);
+        renderRequest.setAttribute("ajaxURL_ShowManifest", ajaxURL_ShowManifest);
+
+        //show sys bundles
+        ResourceURL ajaxURL_ShowSysBundles = renderResponse.createResourceURL();
+        ajaxURL_ShowSysBundles.setResourceID(SHOW_SYS_BUNDLES);
+        renderRequest.setAttribute("ajaxURL_ShowSysBundles", ajaxURL_ShowSysBundles);
+
+        //show wired bundle
+        ResourceURL ajaxURL_ShowWiredBundles = renderResponse.createResourceURL();
+        ajaxURL_ShowWiredBundles.setResourceID(SHOW_WIRED_BUNDLES);
+        renderRequest.setAttribute("ajaxURL_ShowWiredBundles", ajaxURL_ShowWiredBundles);
+
         
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
@@ -147,12 +180,16 @@ public class BundlesPortlet extends GenericPortlet {
         
         try {
             JSONObject grid = new BundleGridJSONObject(OSGiBundleList);
-            request.setAttribute("GridJSONObject", grid);
+            request.setAttribute("bundleGridJSONObject", grid);
+            request.setAttribute("initStartLevel", startLevelService.getInitialBundleStartLevel());
         } catch (JSONException e) {
             e.printStackTrace();
         } finally {
             bundleContext.ungetService(startLevelRef);
         }
+        
+        
+        
 
     }
     
@@ -219,7 +256,8 @@ public class BundlesPortlet extends GenericPortlet {
                 || symbolicName.indexOf("org.apache.aries") != -1
                 || symbolicName.indexOf("org.tranql") != -1
                 || symbolicName.indexOf("org.apache.commons") != -1
-
+                || symbolicName.indexOf("org.apache.juddy") != -1
+                || symbolicName.indexOf("org.apache.activemq") != -1
                 ){
                 return true;
             }
@@ -258,7 +296,7 @@ public class BundlesPortlet extends GenericPortlet {
         
         String resourceId = request.getResourceID();
   
-        if (resourceId.equals("bundlesAction")) {
+        if (resourceId.equals(BUNDLES_ACTION)) {
             
             String jsonData = request.getParameter("bundlesActionParam");
             try {
@@ -331,7 +369,7 @@ public class BundlesPortlet extends GenericPortlet {
             }
             
             
-        } else if (resourceId.equals("showManifest")) {
+        } else if (resourceId.equals(SHOW_MANIFEST)) {
             String str_id = request.getParameter("id");
             long id = Long.parseLong(str_id);
 
@@ -342,7 +380,7 @@ public class BundlesPortlet extends GenericPortlet {
                 e.printStackTrace();
             }
             
-        } else if (resourceId.equals("showWiredBundles")) {
+        } else if (resourceId.equals(SHOW_WIRED_BUNDLES)) {
             String str_id = request.getParameter("id");
             long id = Long.parseLong(str_id);
             Bundle bundle = bundleContext.getBundle(id);
@@ -402,14 +440,14 @@ public class BundlesPortlet extends GenericPortlet {
             }
                 
                 
-        } else if (resourceId.equals("installAction")) {
+        } else if (resourceId.equals(INSTALL_ACTION)) {
             String result = processInstallAction(new ActionResourceRequest(request), bundleContext);
             PrintWriter writer = response.getWriter();
             writer.print(result);
             
             
             
-        } else if (resourceId.equals("showSysBundles")) {
+        } else if (resourceId.equals(SHOW_SYS_BUNDLES)) {
             
             //get the StartLeval object
             ServiceReference startLevelRef = bundleContext.getServiceReference(StartLevel.class.getCanonicalName());
