@@ -61,7 +61,7 @@ import org.apache.geronimo.kernel.management.State;
 public abstract class JMXDeploymentManager implements DeploymentManager {
 
     protected Kernel kernel;
-    private ConfigurationManager configurationManager;
+    protected ConfigurationManager configurationManager;
     protected CommandContext commandContext;
     private final Collection<ModuleConfigurer> moduleConfigurers;
 

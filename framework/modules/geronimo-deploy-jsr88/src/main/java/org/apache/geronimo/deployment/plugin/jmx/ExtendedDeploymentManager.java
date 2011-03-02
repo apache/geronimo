@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.geronimo.deployment.plugin.GeronimoDeploymentManager;
@@ -33,6 +34,8 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -251,5 +254,41 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
             kernel.getProxyManager().destroyProxy(archiver);
         }
     }
-  
+
+    public String[] getAvailableEBAModuleIds(){
+        
+        List<AbstractName> stores = configurationManager.listStores();
+        
+        if (stores.isEmpty()) {
+            return null;
+        }
+        
+        ArrayList<String> result = new ArrayList<String>();
+        
+        for (AbstractName store : stores) {
+            
+            List infos;
+            try {
+                infos = configurationManager.listConfigurations(store);
+                for (Object info : infos) {
+                    ConfigurationInfo configInfo = (ConfigurationInfo) info;
+                    
+                    if (ConfigurationModuleType.EBA.equals(configInfo.getType())) {
+                        String name = configInfo.getConfigID().toString();
+                        
+                        result.add(name);
+                    }
+                }
+                
+            } catch (NoSuchStoreException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        return result.size() == 0 ? null : result.toArray(new String[result.size()]);
+        
+
+    }
+    
 }
