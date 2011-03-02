@@ -19,7 +19,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="portlet" uri="http://java.sun.com/portlet"%>
-<%@ page import="javax.portlet.*" %>
 
 <!-- set i18n properties file name -->
 <fmt:setBundle basename="osgiportlets"/>
@@ -80,31 +79,7 @@ function hideLoadingDIV(){
 </style>
 
 
-<%
-	//start/stop/uninstall action ajax url
-    ResourceURL ajaxResourceURL = renderResponse.createResourceURL();
-    ajaxResourceURL.setResourceID("bundlesAction");
-%>
-<%
-	//install action ajax url
-    ResourceURL ajaxResourceURL2 = renderResponse.createResourceURL();
-    ajaxResourceURL2.setResourceID("installAction");
-%>
-<%
-	//show single bundle
-    ResourceURL ajaxResourceURL3 = renderResponse.createResourceURL();
-    ajaxResourceURL3.setResourceID("showManifest");
-%>
-<%
-	//show sys bundle
-    ResourceURL ajaxResourceURL4 = renderResponse.createResourceURL();
-    ajaxResourceURL4.setResourceID("showSysBundles");
-%>
-<%
-	//show wired bundle
-    ResourceURL ajaxResourceURL5 = renderResponse.createResourceURL();
-    ajaxResourceURL5.setResourceID("showWiredBundles");
-%>
+
 
 
 <script type="text/javascript">
@@ -136,7 +111,7 @@ function hideLoadingDIV(){
     	
     	//ajax call to portlet's serveResource()
     	var postArgs={
-    		url:"<%=ajaxResourceURL%>formId="+formID,
+    		url:"${ajaxURL_BundlesAction}formId="+formID,
     		handleAs:"json",
     		content:{bundlesActionParam:actionJsonStr},
     		//sync:true,
@@ -191,7 +166,7 @@ function hideLoadingDIV(){
         
 		//ajax call to portlet's serveResource()
 		var postArgs={
-			url:"<%=ajaxResourceURL3%>formId="+formID,
+			url:"${ajaxURL_ShowManifest}formId="+formID,
 			handleAs:"text",
 			content:{id:id},
 			//sync:true,
@@ -218,7 +193,7 @@ function hideLoadingDIV(){
         
 		//ajax call to portlet's serveResource()
 		var postArgs={
-			url:"<%=ajaxResourceURL5%>formId="+formID,
+			url:"${ajaxURL_ShowWiredBundles}formId="+formID,
 			handleAs:"json",
 			content:{id:id},
 			//sync:true,
@@ -321,7 +296,7 @@ function hideLoadingDIV(){
 	
 		    //ajax call to portlet's serveResource()
 		    var postArgs={
-				url:"<%=ajaxResourceURL4%>",
+				url:"${ajaxURL_ShowSysBundles}",
 				handleAs:"text",
 				//sync:true,
 				load:function(response, ioArgs){
@@ -340,10 +315,17 @@ function hideLoadingDIV(){
 
 	
 	function installBundle(){
+
+		if (dijit.byId("startLevel").get("value") < ${initStartLevel}) {
+			if (!confirm("The start-level you are setting is less than the framework initial start-level(" + ${initStartLevel} + "). Will you continue?")) {
+				return;
+			}
+		}	
+		
 		showLoadingDIV();
 		
 		dojo.io.iframe.send({
-			url: "<%=ajaxResourceURL2%>formId="+formID,
+			url: "${ajaxURL_InstallAction}formId="+formID,
 			method: "post",
 			handleAs: "text",
 			form: dojo.byId("installForm"),
@@ -384,11 +366,11 @@ This portlet shows the general user bundles installed in geronimo. To see all th
 		        <input type="checkbox" dojoType="dijit.form.CheckBox" name="startAfterInstalled" value="yes" />
 		        &nbsp;
 		        
-		        <!-- Don't allow user set start level for now
+
 		        <fmt:message key="osgi.bundle.startLevel" />:
-		        <input type="text" dojoType="dijit.form.TextBox" style="width: 3em;" name="startLevel" size="4" />
+		        <input type="text" id="startLevel" name="startLevel" dojoType="dijit.form.TextBox" displayedValue="${initStartLevel}" style="width: 3em;" size="4" />
 		        &nbsp;
-		        -->
+
 		        <!--  can not align in IE
 		        <button dojoType="dijit.form.Button">
 			    	<script type="dojo/method" event="onClick" args="evt">
@@ -423,7 +405,7 @@ This portlet shows the general user bundles installed in geronimo. To see all th
 	
 	<!-- bundles grid -->
 	<script>
-		jsonData=${GridJSONObject};
+		jsonData=${bundleGridJSONObject};
 		usrBundlesStroe=new dojo.data.ItemFileWriteStore({data:jsonData});
 		
 	    function fmtActionsCell(item, idx){
