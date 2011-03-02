@@ -51,6 +51,10 @@ import org.apache.geronimo.console.json.ManifestGridJSONObject;
 import org.apache.geronimo.console.json.PackageBundlePairGridJSONObject;
 import org.apache.geronimo.console.json.PackageBundlePairJSONObject;
 import org.apache.geronimo.console.json.WiredBundlesJSONObject;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.xbean.osgi.bundle.util.BundleDescription;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.xbean.osgi.bundle.util.BundleDescription.ExportPackage;
@@ -64,9 +68,13 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BundlesPortlet extends GenericPortlet {
 
+    private static final Logger logger = LoggerFactory.getLogger(BundlesPortlet.class);
+    
     private static final String NORMALVIEW_JSP = "/WEB-INF/view/BundlesView.jsp";
     private static final String MAXIMIZEDVIEW_JSP = "/WEB-INF/view/BundlesView.jsp";
     private static final String HELPVIEW_JSP = "/WEB-INF/view/BundlesView.jsp";
@@ -127,14 +135,15 @@ public class BundlesPortlet extends GenericPortlet {
         // list contains bundles converted from Bundle objects
         ArrayList<OSGiBundle> OSGiBundleList = new ArrayList<OSGiBundle>();
 
+        Set<Long> configedBundleIds = getConfigedBundleIds();
         
         // convert Bundle to OSGiBundle
         for (Bundle bundle : bundles) {
-            if (!checkSysBundle(bundle, startLevelService)){
+            if (!checkSysBundle(bundle, startLevelService, configedBundleIds)){
                 OSGiBundle osgiBundle = new OSGiBundle(bundle);
                 OSGiBundleList.add(osgiBundle);
             }
-        }
+        }        
         
         try {
             JSONObject grid = new BundleGridJSONObject(OSGiBundleList);
@@ -147,10 +156,33 @@ public class BundlesPortlet extends GenericPortlet {
 
     }
     
-    private boolean checkSysBundle(Bundle bundle, StartLevel startLevelService){
+    private Set<Long> getConfigedBundleIds(){
+        Set<Long> configedBundleIds = new HashSet<Long> ();
+        
+        ConfigurationManager configManager = PortletManager.getConfigurationManager();
+        List<ConfigurationInfo> infos = configManager.listConfigurations();
+        
+        for (ConfigurationInfo info : infos) {
+            Bundle configedBundle = configManager.getBundle(info.getConfigID());
+            if (configedBundle!=null){
+                configedBundleIds.add(configedBundle.getBundleId());
+            }else{
+                logger.info("Can not find the bundle for configuration: " +info.getConfigID()+ " in configuration manager");
+            }
+        }
+        
+        return configedBundleIds;
+    }
+    
+    private boolean checkSysBundle(Bundle bundle, StartLevel startLevelService, Set<Long> configedBundleIds){
         
         // check start level
         if (startLevelService!=null && startLevelService.getBundleStartLevel(bundle) <= 50){ //config.properties set karaf.systemBundlesStartLevel=50
+            return true;
+        }
+        
+        // check configuration bundle
+        if (configedBundleIds.contains(bundle.getBundleId())){
             return true;
         }
         
@@ -181,10 +213,13 @@ public class BundlesPortlet extends GenericPortlet {
                 || symbolicName.indexOf("org.apache.openjpa") != -1
                 || symbolicName.indexOf("org.apache.bval") != -1
                 || symbolicName.indexOf("org.apache.myfaces") != -1
+                || symbolicName.indexOf("org.apache.wink") != -1
+                || symbolicName.indexOf("org.apache.ws") != -1
                 || symbolicName.indexOf("openwebbeans") != -1
                 || symbolicName.indexOf("org.apache.aries") != -1
                 || symbolicName.indexOf("org.tranql") != -1
                 || symbolicName.indexOf("org.apache.commons") != -1
+
                 ){
                 return true;
             }
@@ -385,10 +420,11 @@ public class BundlesPortlet extends GenericPortlet {
             // list contains bundles converted from Bundle objects
             ArrayList<OSGiBundle> OSGiBundleList = new ArrayList<OSGiBundle>();
 
+            Set<Long> configedBundleIds = getConfigedBundleIds();
             
             // convert Bundle to OSGiBundle
             for (Bundle bundle : bundles) {
-                if (checkSysBundle(bundle, startLevelService)){
+                if (checkSysBundle(bundle, startLevelService, configedBundleIds)){
                     OSGiBundle osgiBundle = new OSGiBundle(bundle);
                     OSGiBundleList.add(osgiBundle);
                 }
