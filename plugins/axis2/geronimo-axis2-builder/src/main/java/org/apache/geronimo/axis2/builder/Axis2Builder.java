@@ -201,13 +201,25 @@ public class Axis2Builder extends JAXWSServiceBuilder {
     @Override
     protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module, Bundle bundle) throws DeploymentException {
         String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
-        if (isWsdlSet(portInfo, serviceClass, bundle)) {
-            log.debug("Service " + serviceName + " has WSDL.");
+        if(portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals("")) {
+            if (log.isDebugEnabled()) {
+                log.debug("Service " + serviceName + " has WSDL. " + portInfo.getWsdlFile());
+            }
+            return;
+        } else if(JAXWSUtils.containsWsdlLocation(serviceClass, bundle)){
+            String wsdlFile = JAXWSUtils.getServiceWsdlLocation(serviceClass, bundle);
+            //TODO Workaround codes for web modules in the EAR package, need to add web module name prefix
+            portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
+            if(log.isDebugEnabled()) {
+                log.debug("Service "  + serviceName + " has WSDL configured in annotation " + wsdlFile + " and is resolved as " + portInfo.getWsdlFile());
+            }
             return;
         }
 
         if (isHTTPBinding(portInfo, serviceClass)) {
-            log.debug("Service " + serviceName + " has HTTPBinding.");
+            if (log.isDebugEnabled()) {
+                log.debug("Service " + serviceName + " has HTTPBinding.");
+            }
             return;
         }
 
@@ -215,7 +227,9 @@ public class Axis2Builder extends JAXWSServiceBuilder {
             throw new DeploymentException("WSDL must be specified for @WebServiceProvider service " + serviceName);
         }
 
-        log.debug("Service " + serviceName + " does not have WSDL. Generating WSDL...");
+        if (log.isDebugEnabled()) {
+            log.debug("Service " + serviceName + " does not have WSDL. Generating WSDL...");
+        }
 
         WsdlGenerator wsdlGenerator = getWsdlGenerator();
 
@@ -237,7 +251,9 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         String wsdlFile = wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
         portInfo.setWsdlFile(wsdlFile);
 
-        log.debug("Generated " + wsdlFile + " for service " + serviceName);
+        if (log.isDebugEnabled()) {
+            log.debug("Generated " + wsdlFile + " for service " + serviceName);
+        }
     }
 
 }

@@ -136,7 +136,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
         // verify that the class is loadable and is a JAX-WS web service
         Bundle bundle = context.getDeploymentBundle();
-        Class servletClass = loadClass(servletClassName, bundle);
+        Class<?> servletClass = loadClass(servletClassName, bundle);
         if (!JAXWSUtils.isWebService(servletClass)) {
             return false;
         }
@@ -144,9 +144,11 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         Map componentContext = null;
         Holder moduleHolder = null;
         try {
-            GBeanData moduleGBean = context.getGBeanInstance(context.getModuleName());
+            //TODO Now we share the same DeploymentContext in the ear package, which means all the gbeans are saved in the one EARContext
+            //Might need to update while we have real EAR support
+            GBeanData moduleGBean = context.getGBeanInstance(module.getModuleName());
             moduleHolder = (Holder) moduleGBean.getAttribute("holder");
-            GBeanData contextSourceGBean = context.getGBeanInstance(context.getNaming().createChildName(context.getModuleName(), "ContextSource", "ContextSource"));
+            GBeanData contextSourceGBean = context.getGBeanInstance(context.getNaming().createChildName(module.getModuleName(), "ContextSource", "ContextSource"));
             componentContext = (Map) contextSourceGBean.getAttribute("componentContext");
         } catch (GBeanNotFoundException e) {
             LOG.warn("ModuleGBean not found. JNDI resource injection will not work.");

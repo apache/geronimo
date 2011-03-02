@@ -22,7 +22,6 @@ import static java.lang.Boolean.TRUE;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
@@ -483,18 +482,15 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             }
 
             if (tomcatWebApp.isSetCrossContext()) {
-                //webModuleData.setAttribute("crossContext", Boolean.TRUE);
                 contextAttributes.put("crossContext", "true");
             }
 
             if (tomcatWebApp.isSetWorkDir()) {
                 String workDir = tomcatWebApp.getWorkDir();
-                //webModuleData.setAttribute("workDir", workDir);
                 contextAttributes.put("workDir", workDir);
             }
 
             if (tomcatWebApp.isSetDisableCookies()) {
-                //webModuleData.setAttribute("disableCookies", Boolean.TRUE);
                 contextAttributes.put("cookies", "false");
             }
 
@@ -691,7 +687,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
                 webApp.setMetadataComplete(true);
                 String specDeploymentPlan = getSpecDDAsString(webModule);
                 module.setOriginalSpecDD(specDeploymentPlan);
-                earContext.addFile(new URI("./WEB-INF/web.xml"), specDeploymentPlan);
+                earContext.addFile(module.getTargetPathURI().resolve("WEB-INF/web.xml"), specDeploymentPlan);
             }
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
             module.addAsChildConfiguration();

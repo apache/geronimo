@@ -306,16 +306,14 @@ public class AxisServiceGenerator
         if (wsdlFile == null) {
             return null;
         }
-        URL wsdlURL = null;
-        try {
-            wsdlURL = new URL(wsdlFile);
-        } catch (MalformedURLException e) {
-            // Not a URL, try as a resource
+        URL wsdlURL = BundleUtils.getEntry(bundle, wsdlFile);
+        if (wsdlURL == null) {
             wsdlURL = bundle.getResource(wsdlFile);
             if (wsdlURL == null) {
-                // Cannot get it as a resource, try with
-                // configurationBaseUrl
-                wsdlURL = BundleUtils.getEntry(bundle, wsdlFile);
+                try {
+                    wsdlURL = new URL(wsdlFile);
+                } catch (MalformedURLException e) {
+                }
             }
         }
         return wsdlURL;
