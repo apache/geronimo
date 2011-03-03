@@ -198,6 +198,7 @@
                         <argLine>-enableassertions</argLine>
                         <failIfNoTests>false</failIfNoTests>
                         <workingDirectory>${project.build.directory}</workingDirectory>
+                        <testFailureIgnore>true</testFailureIgnore>
                         <includes>
                             <include>**/Test*.java</include>
                             <include>**/*Test.java</include>
