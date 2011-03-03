@@ -589,8 +589,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             }
 
             for (org.apache.openejb.jee.Servlet servlet : webApp.getServlet()) {
-                String servletName = servlet.getServletName();
                 String servletClassName = servlet.getServletClass();
+                if(servletClassName == null || servletClassName.length() == 0) {
+                    continue;
+                }
+                String servletName = servlet.getServletName();
                 Class<?> servletClass;
                 try {
                     servletClass = webBundle.loadClass(servletClassName);
