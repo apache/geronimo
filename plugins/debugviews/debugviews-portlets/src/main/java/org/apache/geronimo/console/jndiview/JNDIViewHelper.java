@@ -35,6 +35,9 @@ import javax.naming.NamingException;
 import org.apache.geronimo.console.util.Tree;
 import org.apache.geronimo.console.util.TreeEntry;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gjndi.KernelContextGBean;
+import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.java.RootContext;
 import org.directwebremoting.annotations.RemoteMethod;
@@ -145,7 +148,6 @@ public class JNDIViewHelper {
                 treeEnt.addChild(webModule);
             }
 
-            Map map = (Map) kernel.getAttribute(gb, "componentContext");
             String[] servlets = (String[]) kernel.getAttribute(gb, "servlets");
 
             TreeEntry servletsNode = null;
@@ -174,9 +176,16 @@ public class JNDIViewHelper {
                     servletsNode.addChild(new TreeEntry(servlet, NORMAL_TYPE));
                 }
             }
-            Iterator contexts = map.keySet().iterator();
-            while (contexts.hasNext())
-                webModule.addChild(new TreeEntry("java:comp/" + contexts.next(), NORMAL_TYPE));
+            
+            Map map = new HashMap();
+            map.put("name", "ContextSource");
+            map.put("j2eeType", "ContextSource");
+            map.put("J2EEApplication", gb.getNameProperty("J2EEApplication"));
+            map.put("WebModule", gb.getNameProperty("name"));
+            ContextSource contextSource = (ContextSource) kernel.getGBean(new AbstractName(gb.getArtifact(), map));
+            Context context = contextSource.getContext();
+            Context componentContext = (Context) context.lookup("comp/env");
+            buildContextSub(webModule, componentContext, "java:comp/env");
         }
     }
 
@@ -286,7 +295,6 @@ public class JNDIViewHelper {
 
         TreeEntry treeGlobal = new TreeEntry("Global Context", NOT_LEAF_TYPE);
         jndiTree.addItem(treeGlobal);
-        buildGlobal(treeGlobal, org.apache.xbean.naming.global.GlobalContextManager.getGlobalContext(), "");
 
         TreeEntry tree = new TreeEntry("Enterprise Applications", NOT_LEAF_TYPE);
         jndiTree.addItem(tree);
@@ -330,7 +338,17 @@ public class JNDIViewHelper {
             temp = new TreeEntry("AppClientModule", NOT_LEAF_TYPE);
             curr.addChild(temp);
         }
-
+        
+        Context globalContext = null;
+        Set<AbstractName> names = kernel.listGBeans(new AbstractNameQuery(KernelContextGBean.class.getName()));
+        for (AbstractName name : names) {
+            String nameProperty = name.getNameProperty("name");
+            if ("ResourceBindings".equals(nameProperty)) {
+                globalContext = (Context) kernel.getGBean(name);
+            }
+        }
+        
+        buildGlobal(treeGlobal, globalContext, "");
         buildEJBModule(kernel, jndiTree.getItems(), entApp);
         buildWebModule(kernel, jndiTree.getItems(), entApp);
         buildResourceModule(kernel, jndiTree.getItems(), entApp);

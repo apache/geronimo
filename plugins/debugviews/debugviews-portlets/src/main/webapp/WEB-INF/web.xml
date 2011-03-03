@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5" metadata-complete="true">
-    <display-name>Geronimo Plan Creator Portlet</display-name>
+    <display-name>Geronimo Debug Views Portlet</display-name>
 
     <servlet>
       <servlet-name>dwr-invoker</servlet-name>
@@ -30,7 +30,6 @@ limitations under the License.
             org.apache.geronimo.console.ldapmanager.LDAPManagerHelper,
 			org.apache.geronimo.console.dependencyview.DependencyViewHelper,
 			org.apache.geronimo.console.jndiview.JNDIViewHelper,
-			org.apache.geronimo.console.classloaderview.ClassLoaderViewHelper,
 			org.apache.geronimo.console.util.Tree,
 			org.apache.geronimo.console.util.TreeEntry
         </param-value>
@@ -46,18 +45,8 @@ limitations under the License.
     </servlet>
 
     <servlet>
-        <servlet-name>ClassLoaderViewer</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
-        <init-param>
-            <param-name>portlet-name</param-name>
-            <param-value>ClassLoaderViewer</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet>
         <servlet-name>DependencyViewer</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>DependencyViewer</param-value>
@@ -67,7 +56,7 @@ limitations under the License.
 
     <servlet>
         <servlet-name>JMXViewer</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>JMXViewer</param-value>
@@ -77,7 +66,7 @@ limitations under the License.
 
     <servlet>
         <servlet-name>JNDIViewer</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>JNDIViewer</param-value>
@@ -87,7 +76,7 @@ limitations under the License.
 
     <servlet>
         <servlet-name>LDAPViewer</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>LDAPViewer</param-value>
@@ -99,12 +88,7 @@ limitations under the License.
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/dwr2/*</url-pattern>
     </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>ClassLoaderViewer</servlet-name>
-        <url-pattern>/PlutoInvoker/ClassLoaderViewer</url-pattern>
-    </servlet-mapping>
-
+    
     <servlet-mapping>
         <servlet-name>DependencyViewer</servlet-name>
         <url-pattern>/PlutoInvoker/DependencyViewer</url-pattern>

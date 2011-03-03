@@ -31,12 +31,14 @@ import org.apache.geronimo.console.util.Tree;
 import org.apache.geronimo.console.util.TreeEntry;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.directwebremoting.annotations.RemoteMethod;
@@ -60,12 +62,12 @@ public class DependencyViewHelper {
             return;
         TreeEntry dep = new TreeEntry("dependencies", NOT_LEAF_TYPE);
         curr.addChild(dep);
-        for (Iterator iterator = conf.getDependencies().iterator(); iterator.hasNext();) {
-            dep.addChild(new TreeEntry(iterator.next().toString(), NORMAL_TYPE));
+        for (Iterator<Dependency> iterator = conf.getEnvironment().getDependencies().iterator(); iterator.hasNext();) {
+            dep.addChild(new TreeEntry(iterator.next().getArtifact().toString(), NORMAL_TYPE));
         }
-        for (Iterator iterator = conf.getServiceParents().iterator(); iterator.hasNext();) {
-            Configuration config = (Configuration) iterator.next();
-            dep.addChild(new TreeEntry(config.getId().toString(), NORMAL_TYPE));
+        for (Iterator<Artifact> iterator = conf.getDependencyNode().getServiceParents().iterator(); iterator.hasNext();) {
+            Artifact artifact = iterator.next();
+            dep.addChild(new TreeEntry(artifact.toString(), NORMAL_TYPE));
         }
     }
 
@@ -93,7 +95,12 @@ public class DependencyViewHelper {
 
         org.apache.geronimo.kernel.Kernel kernel = org.apache.geronimo.kernel.KernelRegistry.getSingleKernel();
 
-        ConfigurationManager configManager = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationManager configManager = null;
+        try {
+        	configManager = ConfigurationUtil.getConfigurationManager(kernel);
+        } catch	(GBeanNotFoundException e) {
+        	// Ignore
+        }
 
         List infos = configManager.listConfigurations();
         for (Iterator infoIterator = infos.iterator(); infoIterator.hasNext();) {

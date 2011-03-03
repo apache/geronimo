@@ -23,27 +23,6 @@ limitations under the License.
 <portlet-app version="1.0">
 
     <portlet>
-        <description>ClassLoader Viewer Portlet</description>
-        <portlet-name>ClassLoaderViewer</portlet-name>
-        <display-name>ClassLoader Viewer</display-name>
-        <portlet-class>org.apache.geronimo.console.classloaderview.ClassLoaderViewPortlet</portlet-class>
-        <expiration-cache>-1</expiration-cache>
-        <supports>
-            <mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-        </supports>
-        <supported-locale>en</supported-locale>
-        <supported-locale>zh</supported-locale>
-        <supported-locale>ja</supported-locale>
-        <resource-bundle>portletinfo</resource-bundle>
-        <portlet-info>
-            <title>ClassLoader Viewer</title>
-            <short-title>classloaderviewer</short-title>
-        </portlet-info>
-    </portlet>
-
-    <portlet>
         <description>Dependency Viewer Portlet</description>
         <portlet-name>DependencyViewer</portlet-name>
         <display-name>Dependency Viewer</display-name>

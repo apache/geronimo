@@ -57,18 +57,8 @@ limitations under the License.
         </reference>
     </gbean>
 
-    <gbean name="ClassLoaderViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">5-3/Debug Views/ClassLoader Viewer</attribute>
-        <attribute name="portletContext">/debug-views</attribute>
-        <attribute name="portletList">[ClassLoaderViewer]</attribute>
-        <attribute name="icon">/images/ico_viewer_16x16.gif</attribute>
-        <reference name="PortalContainerServices">
-            <name>PlutoPortalServices</name>
-        </reference>
-    </gbean>
-
     <gbean name="JNDIViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">5-4/Debug Views/JNDI Viewer</attribute>
+        <attribute name="pageTitle">5-3/Debug Views/JNDI Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[JNDIViewer]</attribute>
         <attribute name="icon">/images/ico_viewer_16x16.gif</attribute>
@@ -78,7 +68,7 @@ limitations under the License.
     </gbean>
 
     <gbean name="DependencyViewer" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-        <attribute name="pageTitle">5-5/Debug Views/Dependency Viewer</attribute>
+        <attribute name="pageTitle">5-4/Debug Views/Dependency Viewer</attribute>
         <attribute name="portletContext">/debug-views</attribute>
         <attribute name="portletList">[DependencyViewer]</attribute>
         <attribute name="icon">/images/ico_viewer_16x16.gif</attribute>
