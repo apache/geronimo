@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.geronimo.connector.outbound.GenericConnectionManager;
 import org.apache.geronimo.console.util.KernelManagementHelper;
 import org.apache.geronimo.console.util.ManagementHelper;
 import org.apache.geronimo.derby.DerbySystemGBean;
@@ -34,7 +35,6 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.naming.ResourceSource;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 
 /**
@@ -73,7 +73,7 @@ public class DerbyConnectionUtil {
             log.debug("Looking up system datasource name...");
 
             // cache the name for the system data source
-            AbstractNameQuery query = new AbstractNameQuery(ResourceSource.class.getName());
+            AbstractNameQuery query = new AbstractNameQuery(GenericConnectionManager.class.getName());
             Set<AbstractName> names = KernelRegistry.getSingleKernel().listGBeans(query);
             for (AbstractName name : names) {
                 String nameProperty = name.getNameProperty("name");
@@ -204,6 +204,8 @@ public class DerbyConnectionUtil {
         	log.error("Problem getting datasource " + dbName, e);
         }
         
+        // Removed since it is not necessary.
+        /*
         Kernel kernel = KernelRegistry.getSingleKernel();
         ManagementHelper helper = new KernelManagementHelper(kernel);
         ResourceAdapterModule[] modules = helper.getOutboundRAModules(helper.getDomains()[0].getServerInstances()[0], "javax.sql.DataSource");
@@ -221,7 +223,7 @@ public class DerbyConnectionUtil {
                 }
             }
         }
-        
+        */
         return null;
     }
 
@@ -232,32 +234,26 @@ public class DerbyConnectionUtil {
      * @return datasource
      */
     public static DataSource getDataSource(String dsName) {
-        try {
-            if (SYSTEM_DATASOURCE_NAME!=null && ((String)SYSTEM_DATASOURCE_NAME.getName().get(NameFactory.J2EE_NAME)).equalsIgnoreCase(dsName)) {
-            	return (DataSource) KernelRegistry.getSingleKernel().invoke(
-            			SYSTEM_DATASOURCE_NAME, "$getResource");
-            }
-        } catch (Exception e) {
-        	log.error("Problem getting datasource " + dsName, e);
-        }
         
         Kernel kernel = KernelRegistry.getSingleKernel();
-        ManagementHelper helper = new KernelManagementHelper(kernel);
-        ResourceAdapterModule[] modules = helper.getOutboundRAModules(helper.getDomains()[0].getServerInstances()[0], "javax.sql.DataSource");
-        for (ResourceAdapterModule module : modules) {
-            org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory[] databases = helper.getOutboundFactories(module, "javax.sql.DataSource");
-            for (org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory db : databases) {
-                try {
-                    AbstractName dbName = kernel.getAbstractNameFor(db);
-                    String datasourceName = (String)dbName.getName().get(NameFactory.J2EE_NAME);
-                    if(dsName.equalsIgnoreCase(datasourceName)) {
-                        AbstractName tempDbName = helper.getNameFor(db);
-                        return (DataSource) KernelRegistry.getSingleKernel().invoke(
-                                tempDbName, "$getResource");
-                    }
-                } catch (Exception ignored) {
+        
+        try {
+            if (SYSTEM_DATASOURCE_NAME!=null && ((String)SYSTEM_DATASOURCE_NAME.getName().get(NameFactory.J2EE_NAME)).equalsIgnoreCase(dsName)) {
+            	return (DataSource) kernel.invoke(
+            			SYSTEM_DATASOURCE_NAME, "$getResource");
+            }
+            
+            AbstractNameQuery query = new AbstractNameQuery(GenericConnectionManager.class.getName());
+            Set<AbstractName> names = KernelRegistry.getSingleKernel().listGBeans(query);
+            for (AbstractName name : names) {
+                String nameProperty = name.getNameProperty("name");
+                if (dsName.equals(nameProperty)) {
+                    return (DataSource) kernel.invoke(name, "$getResource");
                 }
             }
+            
+        } catch (Exception e) {
+        	log.error("Problem getting datasource " + dsName, e);
         }
         
         return null;
