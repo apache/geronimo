@@ -190,11 +190,11 @@ limitations under the License.
         <load-on-startup>1</load-on-startup>
     </servlet>
      <servlet>
-        <servlet-name>WABModules</servlet-name>
+        <servlet-name>BundleManagerPortletServlet</servlet-name>
         <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
-            <param-value>WABModules</param-value>
+            <param-value>BundleManagerPortlet</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>    
@@ -353,8 +353,8 @@ limitations under the License.
         <url-pattern>/PlutoInvoker/EBAModules</url-pattern>
     </servlet-mapping>
      <servlet-mapping>
-        <servlet-name>WABModules</servlet-name>
-        <url-pattern>/PlutoInvoker/WABModules</url-pattern>
+        <servlet-name>BundleManagerPortletServlet</servlet-name>
+        <url-pattern>/PlutoInvoker/BundleManagerPortlet</url-pattern>
     </servlet-mapping>    
     <servlet-mapping>
         <servlet-name>SystemModules</servlet-name>
