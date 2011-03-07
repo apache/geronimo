@@ -536,18 +536,22 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
 //            clientEnvironment.setConfigId(configId);
 //        }
 
-        File appClientDir;
+
         try {
-            appClientDir = targetConfigurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
+            targetConfigurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
         } catch (ConfigurationAlreadyExistsException e) {
             throw new DeploymentException("Unable to create configuration directory for " + clientEnvironment.getConfigId(), e);
         }
 
         // construct the app client deployment context... this is the same class used by the ear context
         EARContext appClientDeploymentContext;
+        
+        
         try {
+          //Use a temporary folder to hold the extracted files for analysis use
+            File tempDirectory = FileUtils.createTempDir();
 
-            appClientDeploymentContext = new EARContext(appClientDir,
+            appClientDeploymentContext = new EARContext(tempDirectory,
                     null,
                     clientEnvironment,
                     ConfigurationModuleType.CAR,
@@ -577,8 +581,9 @@ public class AppClientModuleBuilder implements ModuleBuilder, CorbaGBeanNameSour
                 module.getClassPath().addAll(libClasspath);
             }
         } catch (DeploymentException e) {
-            cleanupAppClientDir(appClientDir);
             throw e;
+        } catch (IOException e) {
+           throw new DeploymentException(e);
         }
         for (Module connectorModule : appClientModule.getModules()) {
             if (connectorModule instanceof ConnectorModule) {
