@@ -58,6 +58,10 @@
                         <groupId>com.sun.xml.bind</groupId>
                         <artifactId>jaxb-impl</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.ws</groupId>
+                        <artifactId>jaxws-rt</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -103,9 +107,9 @@
                         <artifactId>ha-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>com.sun.xml.stream</groupId>
-                        <artifactId>sjsxp</artifactId>
-                    </exclusion>
+                        <groupId>com.sun.xml.ws</groupId>
+                        <artifactId>policy</artifactId>
+                    </exclusion>    
                 </exclusions>
             </dependency>
             

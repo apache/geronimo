@@ -38,6 +38,7 @@ import org.apache.axis2.transport.http.util.RESTUtil;
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
 import org.apache.geronimo.axis2.AxisServiceGenerator;
 import org.apache.geronimo.axis2.GeronimoFactoryRegistry;
+import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
@@ -61,9 +62,10 @@ public class POJOWebServiceContainer extends Axis2WebServiceContainer
                                    String endpointClassName,
                                    Bundle bundle,
                                    Context context,
+                                   Axis2ModuleRegistry axis2ModuleRegistry,
                                    AnnotationHolder holder,
                                    String contextRoot) {
-        super(portInfo, endpointClassName, bundle, context);
+        super(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry);
         this.holder = holder;
         this.contextRoot = contextRoot;
     }

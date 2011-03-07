@@ -26,9 +26,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
+
+import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainerFactoryGBean;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.Deployable;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -68,7 +71,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
     private GBeanInfo defaultContainerFactoryGBeanInfo;
 
     public Axis2Builder(@ParamAttribute(name = "defaultEnvironment")Environment defaultEnviroment,
-                        @ParamReference(name="WsdlGenerator", namingType = GBeanInfoBuilder.DEFAULT_J2EE_TYPE)Collection<WsdlGenerator> wsdlGenerators) {
+                                        @ParamReference(name="WsdlGenerator", namingType = GBeanInfoBuilder.DEFAULT_J2EE_TYPE)Collection<WsdlGenerator> wsdlGenerators) {
         super(defaultEnviroment);
         this.wsdlGenerators = wsdlGenerators;
         this.webServiceFinder = new WARWebServiceFinder();
@@ -200,6 +203,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 
     @Override
     protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module, Bundle bundle) throws DeploymentException {
+        targetGBean.setReferencePattern("axis2ModuleRegistry", new AbstractNameQuery(Axis2ModuleRegistry.class.getName()));
         String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
         if(portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals("")) {
             if (log.isDebugEnabled()) {

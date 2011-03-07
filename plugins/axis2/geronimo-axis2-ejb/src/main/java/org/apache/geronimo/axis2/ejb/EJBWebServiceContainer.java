@@ -27,6 +27,7 @@ import org.apache.axis2.jaxws.server.endpoint.lifecycle.EndpointLifecycleManager
 import org.apache.geronimo.axis2.Axis2WebServiceContainer;
 import org.apache.geronimo.axis2.AxisServiceGenerator;
 import org.apache.geronimo.axis2.GeronimoFactoryRegistry;
+import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
@@ -45,8 +46,9 @@ public class EJBWebServiceContainer extends Axis2WebServiceContainer {
                                   String endpointClassName,
                                   Bundle bundle,
                                   Context context,
+                                  Axis2ModuleRegistry axis2ModuleRegistry,
                                   BeanContext deploymnetInfo) {
-        super(portInfo, endpointClassName, bundle, context);
+        super(portInfo, endpointClassName, bundle, context, axis2ModuleRegistry);
         this.deploymnetInfo = deploymnetInfo;
     }
 

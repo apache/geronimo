@@ -26,12 +26,14 @@ import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 
+import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
 import org.apache.geronimo.axis2.pojo.POJOWebServiceContainer;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.annotations.AnnotationHolder;
 import org.apache.geronimo.kernel.osgi.MockBundle;
 import org.apache.geronimo.kernel.util.XmlUtil;
 import org.apache.geronimo.webservices.WebServiceContainer.Request;
+import org.osgi.framework.Bundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -74,7 +76,8 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
         Axis2Response res = new Axis2Response("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
 
         String endpointClassName = "org.apache.geronimo.axis2.testdata.simple.HelloWorld";
-        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, new MockBundle(cl, null,11L), null, AnnotationHolder.EMPTY, "/axis2");
+        Bundle mockBundle = new MockBundle(cl, null, 11L);
+        POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endpointClassName, mockBundle, null, new Axis2ModuleRegistry(mockBundle.getBundleContext()), AnnotationHolder.EMPTY, "/axis2");
         container.init();
         container.invoke(req, res);
         out.flush();
@@ -147,8 +150,9 @@ public class Axis2WebServiceContainerTest extends Axis2AbstractTestCase {
 
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 Axis2Response res = new Axis2Response("text/xml; charset=utf-8", "127.0.0.1", null, null, 8080, out);
-
-                POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endPointClassName, new MockBundle(cl, null, 11L), null, AnnotationHolder.EMPTY, "/axis2");
+                Bundle mockBundle = new MockBundle(cl, null, 11L);
+                POJOWebServiceContainer container = new POJOWebServiceContainer(portInfo, endPointClassName, mockBundle, null, new Axis2ModuleRegistry(mockBundle.getBundleContext()),
+                        AnnotationHolder.EMPTY, "/axis2");
                 container.init();
                 container.invoke(req, res);
                 System.out.println("Response "+out);

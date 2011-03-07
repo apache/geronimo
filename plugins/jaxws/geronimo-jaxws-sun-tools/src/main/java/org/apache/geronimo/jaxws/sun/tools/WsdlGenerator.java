@@ -117,7 +117,8 @@ public class WsdlGenerator {
         File baseDir;
 
         try {
-            baseDir = WsdlGeneratorUtils.createTempDirectory(moduleBaseDir);
+            //Create the WSDL file in the directory of the target web application, not in the root directory if it is in a EAR package
+            baseDir = WsdlGeneratorUtils.createTempDirectory(new File(moduleBaseDir.toURI().resolve(module.getTargetPathURI())));
         } catch (IOException e) {
             throw new DeploymentException(e);
         }
@@ -164,7 +165,11 @@ public class WsdlGenerator {
                     throw new DeploymentException("Unable to find the service wsdl file");
                 }
                 if (this.options.getAddToClassPath()) {
-                    context.addToClassPath(baseDir.getName());
+                    String wsdlPath = WsdlGeneratorUtils.getRelativeNameOrURL(moduleBase, wsdlFile.getParentFile());
+                    if(wsdlPath.endsWith("/")) {
+                        wsdlPath = wsdlPath.substring(0, wsdlPath.length() - 1);
+                    }
+                    context.addToClassPath(wsdlPath);
                 }
                 return WsdlGeneratorUtils.getRelativeNameOrURL(moduleBase, wsdlFile);
             } else {

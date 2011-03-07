@@ -18,11 +18,14 @@
 package org.apache.geronimo.axis2;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.servlet.ServletContext;
@@ -42,10 +45,15 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
+import org.apache.axis2.deployment.DeploymentEngine;
+import org.apache.axis2.deployment.ModuleBuilder;
+import org.apache.axis2.description.AxisModule;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.description.TransportOutDescription;
+import org.apache.axis2.description.Version;
+import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.engine.AxisEngine;
 import org.apache.axis2.engine.Handler.InvocationResponse;
 import org.apache.axis2.jaxws.addressing.util.EndpointContextMap;
@@ -61,6 +69,8 @@ import org.apache.axis2.jaxws.handler.lifecycle.factory.HandlerLifecycleManagerF
 import org.apache.axis2.jaxws.registry.FactoryRegistry;
 import org.apache.axis2.jaxws.server.JAXWSMessageReceiver;
 import org.apache.axis2.jaxws.server.endpoint.lifecycle.factory.EndpointLifecycleManagerFactory;
+import org.apache.axis2.modules.Module;
+import org.apache.axis2.osgi.deployment.Registry;
 import org.apache.axis2.transport.OutTransportInfo;
 import org.apache.axis2.transport.RequestResponseTransport;
 import org.apache.axis2.transport.http.HTTPConstants;
@@ -69,7 +79,9 @@ import org.apache.axis2.transport.http.HTTPTransportUtils;
 import org.apache.axis2.transport.http.TransportHeaders;
 import org.apache.axis2.transport.http.util.RESTUtil;
 import org.apache.axis2.util.MessageContextBuilder;
+import org.apache.axis2.util.Utils;
 import org.apache.geronimo.axis2.client.Axis2ConfigGBean;
+import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
 import org.apache.geronimo.jaxws.JAXWSAnnotationProcessor;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.JNDIResolver;
@@ -107,16 +119,19 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
     protected Context context;
     protected String address;
     protected GeronimoFactoryRegistry factoryRegistry;
+    protected Axis2ModuleRegistry axis2ModuleRegistry;
 
     public Axis2WebServiceContainer(PortInfo portInfo,
                                     String endpointClassName,
                                     Bundle bundle,
-                                    Context context) {
+                                    Context context,
+                                    Axis2ModuleRegistry axis2ModuleRegistry) {
         this.endpointClassName = endpointClassName;
         this.portInfo = portInfo;
         this.bundle = bundle;
         this.context = context;
         this.jndiResolver = new ServerJNDIResolver(context);
+        this.axis2ModuleRegistry = axis2ModuleRegistry;
     }
 
     public void init() throws Exception {
@@ -127,6 +142,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
         GeronimoConfigurator configurator = new GeronimoConfigurator("META-INF/geronimo-axis2.xml");
         configurationContext = ConfigurationContextFactory.createConfigurationContext(configurator);
 
+        configureModules(configurationContext);
         // check to see if the wsdlLocation property is set in portInfo,
         // if not checking if wsdlLocation exists in annotation
         // if already set, annotation should not overwrite it.
@@ -504,6 +520,59 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
         this.binding = BindingUtils.createBinding(desc);
 
         DescriptionUtils.registerHandlerHeaders(desc.getAxisService(), this.binding.getHandlerChain());
+    }
+
+    protected void configureModules(ConfigurationContext configurationContext) {
+        for (Map.Entry<Bundle, List<URL>> entry : axis2ModuleRegistry.getBundleModuleXmlURLsMap().entrySet()) {
+            Bundle bundle = entry.getKey();
+            for (URL url : entry.getValue()) {
+                try {
+                    AxisModule axismodule = new AxisModule();
+                    ClassLoader loader = new org.apache.axis2.osgi.deployment.BundleClassLoader(bundle, Registry.class.getClassLoader());
+                    axismodule.setModuleClassLoader(loader);
+                    AxisConfiguration axisConfig = configurationContext.getAxisConfiguration();
+                    ModuleBuilder builder = new ModuleBuilder(url.openStream(), axismodule, axisConfig);
+                    Dictionary headers = bundle.getHeaders();
+                    String bundleSymbolicName = (String) headers.get("Bundle-SymbolicName");
+                    if (bundleSymbolicName != null && bundleSymbolicName.length() != 0) {
+                        axismodule.setName(bundleSymbolicName);
+                    }
+                    String bundleVersion = (String) headers.get("Bundle-Version");
+                    if (bundleVersion != null && bundleVersion.length() != 0) {
+                        /*
+                            Bundle version is defined as
+                            version ::=
+                                major( '.' minor ( '.' micro ( '.' qualifier )? )? )?
+                                major ::= number
+                                minor ::= number
+                                micro ::= number
+                                qualifier ::= ( alphanum | ’_’ | '-' )+
+                         */
+                        String[] versionSplit = bundleVersion.split("\\.");
+                        int[] components = new int[Math.min(versionSplit.length, 3)];
+                        for (int i = 0; i < components.length; i++) {
+                            components[i] = Integer.parseInt(versionSplit[i]);
+                        }
+                        axismodule.setVersion(new Version(components, versionSplit.length > 3 ? versionSplit[3] : null));
+                    }
+                    builder.populateModule();
+                    axismodule.setParent(axisConfig);
+                    AxisModule module = axisConfig.getModule(axismodule.getName());
+                    if (module == null) {
+                        DeploymentEngine.addNewModule(axismodule, axisConfig);
+                        //initialze the module if the module contains Module interface.
+                        Module moduleObj = axismodule.getModule();
+                        if (moduleObj != null) {
+                            moduleObj.init(configurationContext, axismodule);
+                        }
+                    }
+                    // set in default map if necessary
+                    Utils.calculateDefaultModuleVersion(axisConfig.getModules(), axisConfig);
+                } catch (IOException e) {
+                    LOG.error("Error while reading module.xml", e);
+                }
+            }
+        }
     }
 
     private void logHandlers(HandlerChainsType handlerChains) {

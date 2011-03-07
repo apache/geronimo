@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import javax.naming.Context;
 
+import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
@@ -49,6 +50,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
     private EJBWebServiceContainer container;
 
     public EJBWebServiceGBean(@ParamReference(name="EjbDeployment")EjbDeployment ejbDeploymentContext,
+                              @ParamReference(name="Axis2ModuleRegistry")Axis2ModuleRegistry axis2ModuleRegistry,
                               @ParamAttribute(name="portInfo")PortInfo portInfo,
                               @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
                               @ParamSpecial(type = SpecialAttributeType.bundle)Bundle bundle,
@@ -74,7 +76,7 @@ public class EJBWebServiceGBean implements GBeanLifecycle {
         BeanContext deploymnetInfo = ejbDeploymentContext.getDeploymentInfo();
         Context context = deploymnetInfo.getJndiEnc();
 
-        this.container = new EJBWebServiceContainer(portInfo, beanClassName, bundle, context, deploymnetInfo);
+        this.container = new EJBWebServiceContainer(portInfo, beanClassName, bundle, context, axis2ModuleRegistry, deploymnetInfo);
         this.container.init();
 
         soapHandler.addWebService(this.location,

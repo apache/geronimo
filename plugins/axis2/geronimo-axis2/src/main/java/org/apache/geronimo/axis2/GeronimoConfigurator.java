@@ -20,7 +20,6 @@
 package org.apache.geronimo.axis2;
 
 import java.io.InputStream;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.deployment.DeploymentEngine;
 import org.apache.axis2.engine.AxisConfiguration;
@@ -41,9 +40,9 @@ public class GeronimoConfigurator extends DeploymentEngine implements AxisConfig
             throw new AxisFault("Unable to find configuration: " + this.resourceName);
         }
         this.axisConfig = populateAxisConfiguration(configStream);
-      
+
         loadFromClassPath();
-        
+
         this.axisConfig.setConfigurator(this);
         return this.axisConfig;
     }
