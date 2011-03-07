@@ -43,6 +43,8 @@
         <module>CalculatorBeanBundle_B</module>
         <module>CalculatorServletBundle_A</module>
 		<module>RequireBundle-eba</module>
+		<module>Resolution-Optional-WAB</module>
+		<module>Resolution-Optional-eba</module>
     </modules>
 	
 </project>
