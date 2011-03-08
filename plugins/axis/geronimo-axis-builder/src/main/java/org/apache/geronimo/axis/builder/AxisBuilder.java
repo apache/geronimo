@@ -51,8 +51,6 @@ import org.apache.axis.handlers.HandlerInfoChainFactory;
 import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.axis.soap.SOAPConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.geronimo.axis.client.AxisServiceReference;
 import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.axis.client.SEIFactory;
@@ -61,36 +59,37 @@ import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.POJOProvider;
 import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfoBuilder; 
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamAttribute;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.HandlerInfoInfo;
-import org.apache.geronimo.j2ee.deployment.WebModule;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPortCompletionType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceCompletionType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.j2ee.deployment.HandlerInfoInfo;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.webservices.SerializableWebServiceContainerFactoryGBean;
 import org.apache.geronimo.webservices.builder.DescriptorVersion;
 import org.apache.geronimo.webservices.builder.PortInfo;
 import org.apache.geronimo.webservices.builder.SchemaInfoBuilder;
 import org.apache.geronimo.webservices.builder.WSDescriptorParser;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.openejb.jee.JavaXmlTypeMapping;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPortCompletionType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceCompletionType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.openejb.jee.JavaWsdlMapping;
+import org.apache.openejb.jee.JavaXmlTypeMapping;
 import org.apache.openejb.jee.ServiceEndpointInterfaceMapping;
 import org.apache.openejb.jee.ServiceEndpointMethodMapping;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.util.JarUtils;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -109,15 +108,14 @@ public class AxisBuilder implements WebServiceBuilder {
         this.defaultEnvironment = defaultEnvironment;
     }
 
+    @Override
     public void findWebServices(Module module, boolean isEJB, Map servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
-        findWebServices(module.getModuleFile(), isEJB, servletLocations, environment, sharedContext);       
-    }
-    
-    public void findWebServices(JarFile moduleFile, boolean isEJB, Map servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
         final String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
-        try {
-            URL wsDDUrl = JarUtils.createJarURL(moduleFile, path);
-            Map portMap = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, isEJB, servletLocations);
+            
+        URL wsDDUrl = module.getDeployable().getResource(path);
+        if (wsDDUrl != null) {
+            // "JarFile moduleFile" is useless in parseWebServiceDescriptor, so we pass "null" to it.
+            Map portMap = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, null, isEJB, servletLocations);
             if (portMap != null) {
                 if (defaultEnvironment != null) {
                     EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
@@ -126,11 +124,10 @@ public class AxisBuilder implements WebServiceBuilder {
             } else {
                 sharedContext.put(KEY, Collections.EMPTY_MAP);
             }
-        } catch (MalformedURLException e) {
-            // The webservices.xml file doesn't exist.
         }
     }
-
+    
+    @Override
     public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String servletClassName, DeploymentContext context) throws DeploymentException {
         Map sharedContext = ((WebModule) module).getSharedContext();
         Map portInfoMap = (Map) sharedContext.get(KEY);
