@@ -20,6 +20,7 @@ package org.apache.geronimo.openwebbeans;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -73,6 +74,11 @@ public class OsgiMetaDataScannerService implements ScannerService
         this.webBeansContext = webBeansContext;
     }
 
+    @Override
+    public Set<String> getAllAnnotations(String className) {
+        return Collections.EMPTY_SET;
+    }
+    
     @Override
     public void init(Object object)
     {
