@@ -16,14 +16,19 @@
  */
 package org.apache.geronimo.openejb.deployment;
 
+import javax.ejb.EntityContext;
+import javax.ejb.TimerService;
+import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceContext;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -32,12 +37,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
-
-import javax.ejb.EntityContext;
-import javax.ejb.TimerService;
-import javax.xml.namespace.QName;
-import javax.xml.ws.WebServiceContext;
+import java.util.jar.Manifest;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
@@ -82,6 +84,8 @@ import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.geronimo.openwebbeans.SharedOwbContext;
 import org.apache.geronimo.persistence.PersistenceUnitGBean;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.openejb.ClassLoaderUtil;
+import org.apache.openejb.OpenEJB;
 import org.apache.openejb.OpenEJBException;
 import org.apache.openejb.Vendor;
 import org.apache.openejb.assembler.classic.AppInfo;
@@ -102,8 +106,6 @@ import org.apache.openejb.config.AutoConfig;
 import org.apache.openejb.config.ClearEmptyMappedName;
 import org.apache.openejb.config.CmpJpaConversion;
 import org.apache.openejb.config.ConfigurationFactory;
-import org.apache.openejb.config.DeploymentLoader;
-import org.apache.openejb.config.DeploymentModule;
 import org.apache.openejb.config.DynamicDeployer;
 import org.apache.openejb.config.FinderFactory;
 import org.apache.openejb.config.GeneratedClientModules;
@@ -115,8 +117,6 @@ import org.apache.openejb.config.OpenEjb2Conversion;
 import org.apache.openejb.config.OutputGeneratedDescriptors;
 import org.apache.openejb.config.ReadDescriptors;
 import org.apache.openejb.config.SunConversion;
-import org.apache.openejb.config.UnknownModuleTypeException;
-import org.apache.openejb.config.UnsupportedModuleTypeException;
 import org.apache.openejb.config.ValidateModules;
 import org.apache.openejb.config.ValidationError;
 import org.apache.openejb.config.ValidationFailedException;
@@ -144,8 +144,10 @@ import org.apache.openejb.jee.oejb2.ResourceLocatorType;
 import org.apache.openejb.loader.Options;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.osgi.core.BundleFinderFactory;
+import org.apache.openejb.util.AnnotationFinder;
 import org.apache.openejb.util.LinkResolver;
 import org.apache.openejb.util.UniqueDefaultLinkResolver;
+import org.apache.xbean.finder.ResourceFinder;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
@@ -264,6 +266,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
     }
 
     //ModuleBuilderExtension entry points
+
     @Override
     public void createModule(Module module, Bundle bundle, Naming naming, ModuleIDBuilder moduleIDBuilder) throws DeploymentException {
         //May be implemented for EBA support ?
@@ -299,37 +302,35 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         if (targetPath == null) throw new NullPointerException("targetPath is null");
         if (targetPath.endsWith("/")) throw new IllegalArgumentException("targetPath must not end with a '/'");
 
-        // Load the module file, except for ejb module, ejb web service seems also used the parsed data by DeploymentLoader
-        Set<Class<? extends DeploymentModule>> loadingRequiredModuleTypes = new HashSet<Class<? extends DeploymentModule>>();
-        loadingRequiredModuleTypes.add(org.apache.openejb.config.EjbModule.class);
-        loadingRequiredModuleTypes.add(org.apache.openejb.config.WsModule.class);
-        DeploymentLoader loader = new DeploymentLoader(ddDir, loadingRequiredModuleTypes);
-        AppModule appModule;
+        // verify we have a valid file
+        String jarPath = moduleFile.getName();
+
+        URL baseUrl = null;
+        ClassLoader classLoader = null;
+        Map<String, URL> descriptors = null;
         try {
-            appModule = loader.load(new File(moduleFile.getName()));
-        } catch (UnknownModuleTypeException e) {
-            return null;
-        } catch (UnsupportedModuleTypeException e) {
-            return null;
-        } catch (OpenEJBException e) {
-            Throwable t = e.getCause();
-            if (t instanceof UnknownModuleTypeException || t instanceof UnsupportedModuleTypeException) {
-                return null;
-            }
+            File jarFile = new File(moduleFile.getName());
+
+            baseUrl = jarFile.toURI().toURL();
+
+            classLoader = (ClassLoader) ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, new URL[]{baseUrl}, OpenEJB.class.getClassLoader()));
+
+            ResourceFinder finder = new ResourceFinder("", classLoader, baseUrl);
+
+            descriptors = finder.getResourcesMap(ddDir);
+        } catch (IOException e) {
             throw new DeploymentException(e);
         }
 
-        // did we find a ejb jar?
-        if (appModule.getEjbModules().size() == 0) {
+        if (!isEjbModule(baseUrl, classLoader, descriptors)) {
             return null;
         }
 
-        // get the module
-        org.apache.openejb.config.EjbModule ejbModule = appModule.getEjbModules().get(0);
+        // create the EJB Module
+        org.apache.openejb.config.EjbModule ejbModule = new org.apache.openejb.config.EjbModule(classLoader, null, jarPath, null, null);
+        ejbModule.getAltDDs().putAll(descriptors);
 
-        // add the ejb-jar.xml altDD plan
         if (specDDUrl != null) {
-            ejbModule.setEjbJar(null);
             ejbModule.getAltDDs().put("ejb-jar.xml", specDDUrl);
         }
 
@@ -363,7 +364,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         // Read in the deploument desiptor files
         ReadDescriptors readDescriptors = new ReadDescriptors();
         try {
-            readDescriptors.deploy(appModule);
+            readDescriptors.deploy(new AppModule(ejbModule));
         } catch (OpenEJBException e) {
             throw new DeploymentException("Failed parsing descriptors for module: " + moduleFile.getName(), e);
         }
@@ -802,7 +803,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         if (!options.get(VALIDATION_SKIP_PROPERTY, false)) {
             chain.add(new ValidateModules());
         } else {
-            DeploymentLoader.logger.info("validationDisabled", VALIDATION_SKIP_PROPERTY);
+            log.info("validationDisabled", VALIDATION_SKIP_PROPERTY);
         }
 
         chain.add(new InitEjbDeployments());
@@ -1150,6 +1151,64 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             nameMap.put(NameFactory.RESOURCE_ADAPTER_MODULE, pattern.getModule());
         }
         return new AbstractNameQuery(artifact, nameMap, (Set) null);
+    }
+
+    private boolean isEjbModule(URL baseUrl, ClassLoader classLoader, Map<String, URL> descriptors) {
+        try {
+
+            String path = baseUrl.getPath();
+
+            if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
+
+            if (descriptors.containsKey("application.xml") || path.endsWith(".ear")) {
+                return false;
+            }
+
+            if (descriptors.containsKey("application-client.xml")) {
+                return false;
+            }
+
+            if (descriptors.containsKey("ra.xml") || path.endsWith(".rar")) {
+                return false;
+            }
+
+            if (descriptors.containsKey("ejb-jar.xml")) {
+                return true;
+            }
+
+            URL manifestUrl = descriptors.get("MANIFEST.MF");
+            if (manifestUrl != null) {
+                // In this case scanPotentialClientModules really means "require application-client.xml"
+                InputStream is = manifestUrl.openStream();
+                Manifest manifest = new Manifest(is);
+                String mainClass = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
+                if (mainClass != null) {
+                    return false;
+                }
+            }
+
+            AnnotationFinder classFinder = new AnnotationFinder(classLoader, Arrays.asList(baseUrl));
+
+            AnnotationFinder.Filter filter = new AnnotationFinder.Filter() {
+                public boolean accept(String annotationName) {
+                    if (annotationName.startsWith("javax.ejb.")) {
+                        if ("javax.ejb.Stateful".equals(annotationName)) return true;
+                        if ("javax.ejb.Stateless".equals(annotationName)) return true;
+                        if ("javax.ejb.Singleton".equals(annotationName)) return true;
+                        if ("javax.ejb.MessageDriven".equals(annotationName)) return true;
+                    } else if ("javax.annotation.ManagedBean".equals(annotationName)) {
+                        return true;
+                    }
+                    return false;
+                }
+            };
+
+            return classFinder.find(filter);
+
+        } catch (Exception e) {
+            log.warn("Unable to determine module type for jar: " + baseUrl.toExternalForm(), e);
+            return false;
+        }
     }
 
     public static class EarData {
