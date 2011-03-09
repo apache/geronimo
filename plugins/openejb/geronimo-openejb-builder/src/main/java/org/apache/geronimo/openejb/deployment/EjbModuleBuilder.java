@@ -404,18 +404,30 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         // Create XMLBeans version of EjbJarType for the AnnotatedApp interface
         EjbJar ejbJar = ejbModule.getEjbJar();
 
+
+        File file = new File(moduleFile.getName());
+        String packageName = file.getName();
+        
         String name;
+        
         if (subModule) {
             name = parentModule.getName();
         } else if (ejbJar.getModuleName() != null) {
             name = ejbJar.getModuleName().trim();
         } else if (standAlone) {
-            name = FileUtils.removeExtension(new File(moduleFile.getName()).getName(), ".jar");
+            name = FileUtils.removeExtension(packageName, ".jar");
         } else {
             name = FileUtils.removeExtension(targetPath, ".jar");
         }
 
         ejbModule.setModuleId(name);
+        
+        if (standAlone) {
+            ejbModule.setModulePackageName(packageName);
+        } else {
+            ejbModule.setModulePackageName(targetPath);
+        }
+
 
         Map<JndiKey, Map<String, Object>> context = null;
         if (subModule) {
