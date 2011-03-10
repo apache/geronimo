@@ -88,9 +88,11 @@ public class BundleManagerPortlet extends BasePortlet {
     private PortletRequestDispatcher showManifestView;
     
     private PortletRequestDispatcher showWiredBundlesView;
-
-    //private String moduleType;
-
+    
+    private static final String VIEW_MANIFEST_PAGE = "view_manifest";
+    
+    private static final String VIEW_WIRED_BUNDLES_PAGE = "view_wired_bundles";
+    
     protected void doHelp(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
@@ -115,15 +117,15 @@ public class BundleManagerPortlet extends BasePortlet {
         
         String page = actionRequest.getParameter("page");
         
-        if ("view_manifest".equals(page)){
+        if (VIEW_MANIFEST_PAGE.equals(page)){
             // no actions in this page
-            actionResponse.setRenderParameter("page", "view_manifest");
+            actionResponse.setRenderParameter("page", VIEW_MANIFEST_PAGE);
             
-        }else if ("view_wired_bundles".equals(page)){
+        }else if (VIEW_WIRED_BUNDLES_PAGE.equals(page)){
             String id = actionRequest.getParameter("bundleId");;
             String perspectiveType = actionRequest.getParameter("perspectiveType");
             //set render params
-            actionResponse.setRenderParameter("page", "view_wired_bundles");
+            actionResponse.setRenderParameter("page", VIEW_WIRED_BUNDLES_PAGE);
             actionResponse.setRenderParameter("bundleId", id);
             actionResponse.setRenderParameter("perspectiveTypeValue", perspectiveType);
             
@@ -222,7 +224,7 @@ public class BundleManagerPortlet extends BasePortlet {
             
             String page = renderRequest.getParameter("page");
             
-            if ("view_manifest".equals(page)){
+            if (VIEW_MANIFEST_PAGE.equals(page)){
                 BundleContext bundleContext = getBundleContext(renderRequest);
                 
                 long id = Long.valueOf(renderRequest.getParameter("bundleId"));
@@ -247,7 +249,7 @@ public class BundleManagerPortlet extends BasePortlet {
                 renderRequest.setAttribute("bundleInfo", bundleInfo);
                 showManifestView.include(renderRequest, renderResponse);
                 
-            }else if("view_wired_bundles".equals(page)) {
+            }else if(VIEW_WIRED_BUNDLES_PAGE.equals(page)) {
                 
                 BundleContext bundleContext = getBundleContext(renderRequest);
                 
@@ -392,7 +394,8 @@ public class BundleManagerPortlet extends BasePortlet {
     }
     
     private static boolean matchBundle(Bundle bundle, String searchString){
-        if (bundle.getSymbolicName() == null || (bundle.getSymbolicName() != null && bundle.getSymbolicName().indexOf(searchString) == -1)){
+        if (bundle.getSymbolicName() == null 
+            || (bundle.getSymbolicName() != null && bundle.getSymbolicName().toLowerCase().indexOf(searchString.trim().toLowerCase()) == -1)){ // match ignore case
             return false;
         }
         return true;
