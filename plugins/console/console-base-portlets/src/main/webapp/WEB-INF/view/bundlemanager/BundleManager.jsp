@@ -63,78 +63,78 @@ function uninstallPrompt(target, bundleId, bundleName) {
 
 <br/>
 <table width="100%" class="TableLine" summary="OSGi install">
-	<tr>
-		<td>
-			<form id="installForm" enctype="multipart/form-data" method="POST" action="<portlet:actionURL><portlet:param name='action' value='install'/></portlet:actionURL>">
-				Install New:
-				<input type="file" name="bundleFile" />
-					        
-				Start:
-				<input type="checkbox" name="startAfterInstalled" value="yes"/>
-					        
-			    Start Level:
-				<input type="text" id="startLevel" name="startLevel" value="${initStartLevel}" style="width:30" size="4" />
-			
-			    <input type="submit" style="width:80px" onClick="return checkStartLevel()" value="install" />
-			</form>
-			<script language="javascript">
-				function checkStartLevel(){
-					if (document.getElementById("startLevel").value < ${initStartLevel}) {
-						if (!confirm("The start-level you are setting is less than the framework initial start-level(" + ${initStartLevel} + "). Will you continue?")) {
-							return false;
-						}
-					}
-				}
-			</script>
-		</td>
-	</tr>
+    <tr>
+        <td>
+            <form id="installForm" enctype="multipart/form-data" method="POST" action="<portlet:actionURL><portlet:param name='action' value='install'/></portlet:actionURL>">
+                Install New:
+                <input type="file" name="bundleFile" />
+                            
+                Start:
+                <input type="checkbox" name="startAfterInstalled" value="yes"/>
+                            
+                Start Level:
+                <input type="text" id="startLevel" name="startLevel" value="${initStartLevel}" style="width:30" size="4" />
+            
+                <input type="submit" style="width:80px" onClick="return checkStartLevel()" value="install" />
+            </form>
+            <script language="javascript">
+                function checkStartLevel(){
+                    if (document.getElementById("startLevel").value < ${initStartLevel}) {
+                        if (!confirm("The start-level you are setting is less than the framework initial start-level(" + ${initStartLevel} + "). Will you continue?")) {
+                            return false;
+                        }
+                    }
+                }
+            </script>
+        </td>
+    </tr>
 </table>
 
 <br/>
 
 
 <table width="100%" class="TableLine" summary="OSGi filter">
-	<tr>
-		<td>
-			<form id="listForm" method="POST" action="<portlet:actionURL><portlet:param name='action' value='list'/></portlet:actionURL>">
-				Show Bundles:
-				<input type="radio" name="listType" value="all" onclick="submitListForm(this)"  />All&nbsp;
-				<input type="radio" name="listType" value="wab" onclick="submitListForm(this)"  />WAB&nbsp;
-				<input type="radio" name="listType" value="blueprint" onclick="submitListForm(this)"  />Blueprint&nbsp;
-				<input type="radio" name="listType" value="system" onclick="submitListForm(this)"  />System&nbsp;
-				<input type="radio" name="listType" value="configuration" onclick="submitListForm(this)"  />Geronimo Configuration&nbsp;
-			</form>
-			<script language="javascript">    
- 				var radiogroup = document.getElementsByName("listType");  
- 				for(var i=0;i<radiogroup.length;i++){    
- 					if(radiogroup[i].value == "${listTypeValue}"){    
-   						radiogroup[i].checked = true;  
- 					}    
- 				}
- 			</script>
-			<script language="javascript">
-				function submitListForm(radiobutton){
-					if (radiobutton.value != "${listTypeValue}"){
-						document.getElementById("listForm").submit();
-					}
-				}
-			</script>
-		</td>
-		<td align="right">
-			<form id="searchForm" method="POST" action="<portlet:actionURL><portlet:param name='action' value='search'/></portlet:actionURL>">
-			    Search by Symbolic Name:
-				<input type="text" id="searchString" name="searchString" value="${searchStringValue}"/>&nbsp;
-    			<input type="submit" value="Go" />
-    			<input type="button" value="Reset" onclick="resetSearchForm()" />
-			</form>
-			<script language="javascript">
-				function resetSearchForm(){
-					document.getElementById("searchString").value = "";
-					document.getElementById("searchForm").submit();
-				}
-			</script>
-		</td>
-	</tr>
+    <tr>
+        <td>
+            <form id="listForm" method="POST" action="<portlet:actionURL><portlet:param name='action' value='list'/></portlet:actionURL>">
+                Show Bundles:
+                <input type="radio" name="listType" value="all" onclick="submitListForm(this)"  />All&nbsp;
+                <input type="radio" name="listType" value="wab" onclick="submitListForm(this)"  />WAB&nbsp;
+                <input type="radio" name="listType" value="blueprint" onclick="submitListForm(this)"  />Blueprint&nbsp;
+                <input type="radio" name="listType" value="system" onclick="submitListForm(this)"  />System&nbsp;
+                <input type="radio" name="listType" value="configuration" onclick="submitListForm(this)"  />Geronimo Configuration&nbsp;
+            </form>
+            <script language="javascript">    
+                 var radiogroup = document.getElementsByName("listType");  
+                 for(var i=0;i<radiogroup.length;i++){    
+                     if(radiogroup[i].value == "${listTypeValue}"){    
+                           radiogroup[i].checked = true;  
+                     }    
+                 }
+             </script>
+            <script language="javascript">
+                function submitListForm(radiobutton){
+                    if (radiobutton.value != "${listTypeValue}"){
+                        document.getElementById("listForm").submit();
+                    }
+                }
+            </script>
+        </td>
+        <td align="right">
+            <form id="searchForm" method="POST" action="<portlet:actionURL><portlet:param name='action' value='search'/></portlet:actionURL>">
+                Search by Symbolic Name:
+                <input type="text" id="searchString" name="searchString" value="${searchStringValue}"/>&nbsp;
+                <input type="submit" value="Go" />
+                <input type="button" value="Reset" onclick="resetSearchForm()" />
+            </form>
+            <script language="javascript">
+                function resetSearchForm(){
+                    document.getElementById("searchString").value = "";
+                    document.getElementById("searchForm").submit();
+                }
+            </script>
+        </td>
+    </tr>
 </table>
 
 <br/>
@@ -144,31 +144,31 @@ function uninstallPrompt(target, bundleId, bundleName) {
         <th scope="col" width="40">Id</th>   
         <th scope="col">Symbolic Name</th> 
         <c:if test="${listTypeValue == 'wab'}" >          
-        	<th scope="col">URL</th>
+            <th scope="col">URL</th>
         </c:if>
         <th scope="col" width="150">Version</th>
         <th scope="col" width="150">Type</th>
         <th scope="col" width="100">State</th>
         <c:if test="${listTypeValue == 'blueprint'}" >
-        	<th scope="col">blueprint</th>
+            <th scope="col">blueprint</th>
         </c:if>
         <c:if test="${listTypeValue != 'system' && listTypeValue != 'configuration'}" >
-        	<th scope="col" width="80">Actions</th>
+            <th scope="col" width="80">Actions</th>
         </c:if>
         <th scope="col" width="80">Utilities</th>
     </tr>
-	<script language="javascript"> 
-	    var oldcolor;
-	    function highlightTr(theTr){
-	        oldcolor = theTr.style.backgroundColor;
-	        theTr.style.backgroundColor = '#e2ebfe';
-	    }
-	    function recoverTr(theTr){
-	        theTr.style.backgroundColor = oldcolor;
-	    }
-	</script> 
-  	<c:set var="backgroundClass" value='MediumBackground'/>
-  	<c:forEach var="bundleInfo" items="${extendedBundleInfos}">
+    <script language="javascript"> 
+        var oldcolor;
+        function highlightTr(theTr){
+            oldcolor = theTr.style.backgroundColor;
+            theTr.style.backgroundColor = '#e2ebfe';
+        }
+        function recoverTr(theTr){
+            theTr.style.backgroundColor = oldcolor;
+        }
+    </script> 
+      <c:set var="backgroundClass" value='MediumBackground'/>
+      <c:forEach var="bundleInfo" items="${extendedBundleInfos}">
       <c:choose>
           <c:when test="${backgroundClass == 'MediumBackground'}" >
               <c:set var="backgroundClass" value='LightBackground'/>
@@ -186,22 +186,22 @@ function uninstallPrompt(target, bundleId, bundleName) {
                 
         <!-- WAB context path -->
         <c:if test="${listTypeValue == 'wab'}" >  
-		        <td>
-		            <c:if test="${bundleInfo.state.running}">
-		            	<c:forEach var="contextPath" items="${bundleInfo.contextPaths}">
-		            		&nbsp;<a href="${contextPath}">${contextPath}</a>&nbsp;<br/>
-		            	</c:forEach>
-		            </c:if>
-		        </td>
+                <td>
+                    <c:if test="${bundleInfo.state.running}">
+                        <c:forEach var="contextPath" items="${bundleInfo.contextPaths}">
+                            &nbsp;<a href="${contextPath}">${contextPath}</a>&nbsp;<br/>
+                        </c:forEach>
+                    </c:if>
+                </td>
         </c:if>
         
-		<!-- version -->
+        <!-- version -->
         <td>&nbsp;${bundleInfo.bundleVersion}&nbsp;</td>
 
-		<!--  bundle type -->
+        <!--  bundle type -->
         <td>
-        	<c:forEach var="type" items="${bundleInfo.types}">
-            	${type}&nbsp;
+            <c:forEach var="type" items="${bundleInfo.types}">
+                ${type}&nbsp;
             </c:forEach>
         </td>
 
@@ -210,52 +210,52 @@ function uninstallPrompt(target, bundleId, bundleName) {
         
         <!-- Blueprint info -->
         <c:if test="${listTypeValue == 'blueprint'}" >
-	        <td class="${backgroundClass}">
-				&nbsp;
-	        </td>
+            <td class="${backgroundClass}">
+                &nbsp;
+            </td>
         </c:if>
         
         <!-- actions -->
-		<c:if test="${listTypeValue != 'system' && listTypeValue != 'configuration'}" >
-	        <td>
-	        	&nbsp;
-	        	<c:if test="${bundleInfo.operable}">
-		        	<!-- Start/Stop -->
-					<c:if test="${bundleInfo.state.running}">
-						<span> 
-		                    <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='stop'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_stop.png" title="stop"/></a>&nbsp;
-		                </span>
-		            </c:if>
-		            <c:if test="${bundleInfo.state.stopped}">
-		                <span>
-		                    <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='start'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_start.png" title="start"/></a>&nbsp;
-		                </span>
-		            </c:if>
-		
-		        	<!-- Update action -->
-		            <span> 
-		                <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='update'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_update.png" title="update"/></a>&nbsp;
-		            </span>
-		        
-		        	<!-- Uninstall action -->
-		            <span> 
-		                <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt(this, '${bundleInfo.bundleId}','${bundleInfo.symbolicName}');"><img border="0" src="<%=request.getContextPath()%>/images/bundle_delete.png" title="uninstall"/></a>&nbsp;
-		            </span>
-	            </c:if>
-	        </td>
+        <c:if test="${listTypeValue != 'system' && listTypeValue != 'configuration'}" >
+            <td>
+                &nbsp;
+                <c:if test="${bundleInfo.operable}">
+                    <!-- Start/Stop -->
+                    <c:if test="${bundleInfo.state.running}">
+                        <span> 
+                            <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='stop'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_stop.png" title="stop"/></a>&nbsp;
+                        </span>
+                    </c:if>
+                    <c:if test="${bundleInfo.state.stopped}">
+                        <span>
+                            <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='start'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_start.png" title="start"/></a>&nbsp;
+                        </span>
+                    </c:if>
+        
+                    <!-- Update action -->
+                    <span> 
+                        <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='update'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_update.png" title="update"/></a>&nbsp;
+                    </span>
+                
+                    <!-- Uninstall action -->
+                    <span> 
+                        <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt(this, '${bundleInfo.bundleId}','${bundleInfo.symbolicName}');"><img border="0" src="<%=request.getContextPath()%>/images/bundle_delete.png" title="uninstall"/></a>&nbsp;
+                    </span>
+                </c:if>
+            </td>
         </c:if>
 
-		<!-- Util -->
+        <!-- Util -->
         <td>
-        	&nbsp;
-			<a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest"/></a>&nbsp;
-			<c:if test="${bundleInfo.state.running}" >
-				<a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles"/></a>
-			</c:if>
-		</td>
+            &nbsp;
+            <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest"/></a>&nbsp;
+            <c:if test="${bundleInfo.state.running}" >
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles"/></a>
+            </c:if>
+        </td>
 
       </tr>
-  	</c:forEach>
+      </c:forEach>
 </table>
 
 
