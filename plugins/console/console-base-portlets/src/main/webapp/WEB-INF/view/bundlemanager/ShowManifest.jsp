@@ -8,24 +8,24 @@
 <a href="<portlet:actionURL/>" >OSGi Manager</a> > Show Bundle Manifest
 <br/><br/>
 <table width="100%" class="TableLine" summary="OSGi install">
-	<tr>
-		<td>
-			The Manifest of Bundle:
-			&nbsp;
-			<b>
-			${bundleInfo.symbolicName}
-			</b>
-			(id=${bundleInfo.bundleId})
-			(version=${bundleInfo.bundleVersion})
-			[${bundleInfo.state}]
-		</td>
-		</td>
-		<td align="right">
-			<c:if test="${bundleInfo.state.running}" >          
-				<a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>">View Wired Bundles</a>
-			</c:if>
-		</td>
-	</tr>
+    <tr>
+        <td>
+            The Manifest of Bundle:
+            &nbsp;
+            <b>
+            ${bundleInfo.symbolicName}
+            </b>
+            (id=${bundleInfo.bundleId})
+            (version=${bundleInfo.bundleVersion})
+            [${bundleInfo.state}]
+        </td>
+        </td>
+        <td align="right">
+            <c:if test="${bundleInfo.state.running}" >          
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>">View Wired Bundles</a>
+            </c:if>
+        </td>
+    </tr>
 </table>
 <br/>
 <table width="100%" class="TableLine" summary="OSGi Manifest">
@@ -46,7 +46,7 @@
       <tr>
         <!-- bundle id -->
         <td class="${backgroundClass}">${manifestHeader.key}</td>
-		<td class="${backgroundClass}">${manifestHeader.value}</td>
+        <td class="${backgroundClass}">${manifestHeader.value}</td>
       </tr>
     </c:forEach>
 </table>

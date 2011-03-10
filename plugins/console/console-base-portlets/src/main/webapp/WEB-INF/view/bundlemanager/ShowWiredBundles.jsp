@@ -6,168 +6,168 @@
 <portlet:defineObjects/>
 
 <form id="perspectiveForm" method="POST" action="<portlet:actionURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:actionURL>">
-	<a href="<portlet:actionURL/>" >OSGi Manager</a> > Show Wired Bundles &nbsp;
-	(
-	<input type="radio" name="perspectiveType" value="package" onclick="submitPerspectiveForm(this)"  />Package Perspective
-	/
-	<input type="radio" name="perspectiveType" value="bundle" onclick="submitPerspectiveForm(this)"  />Bundle Perspective
-	)
+    <a href="<portlet:actionURL/>" >OSGi Manager</a> > Show Wired Bundles &nbsp;
+    (
+    <input type="radio" name="perspectiveType" value="package" onclick="submitPerspectiveForm(this)"  />Package Perspective
+    /
+    <input type="radio" name="perspectiveType" value="bundle" onclick="submitPerspectiveForm(this)"  />Bundle Perspective
+    )
 </form>
 <script language="javascript">    
- 	var radiogroup = document.getElementsByName("perspectiveType");  
- 	for(var i=0;i<radiogroup.length;i++){    
- 		if(radiogroup[i].value == "${perspectiveTypeValue}"){    
-   			radiogroup[i].checked = true;  
- 		}    
- 	}
+     var radiogroup = document.getElementsByName("perspectiveType");  
+     for(var i=0;i<radiogroup.length;i++){    
+         if(radiogroup[i].value == "${perspectiveTypeValue}"){    
+               radiogroup[i].checked = true;  
+         }    
+     }
 </script>
 <script language="javascript">
-	function submitPerspectiveForm(radiobutton){
-		if (radiobutton.value != "${perspectiveTypeValue}"){
-			document.getElementById("perspectiveForm").submit();
-		}
-	}
+    function submitPerspectiveForm(radiobutton){
+        if (radiobutton.value != "${perspectiveTypeValue}"){
+            document.getElementById("perspectiveForm").submit();
+        }
+    }
 </script>
 <table width="100%" class="TableLine" summary="OSGi install">
-	<tr>
-		<td>
-			The Wired Bundles of Bundle:
-			&nbsp;
-			<b>
-			${bundleInfo.symbolicName}
-			</b>
-			(id=${bundleInfo.bundleId})
-			(version=${bundleInfo.bundleVersion})
-			[${bundleInfo.state}]
-		</td>
-		<td align="right">
-			<a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>">View Manifest</a>&nbsp;
-		</td>
-	</tr>
+    <tr>
+        <td>
+            The Wired Bundles of Bundle:
+            &nbsp;
+            <b>
+            ${bundleInfo.symbolicName}
+            </b>
+            (id=${bundleInfo.bundleId})
+            (version=${bundleInfo.bundleVersion})
+            [${bundleInfo.state}]
+        </td>
+        <td align="right">
+            <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>">View Manifest</a>&nbsp;
+        </td>
+    </tr>
 </table>
 <br/>
 <c:if test="${perspectiveTypeValue == 'package'}" > 
-	<table width="100%" class="TableLine" summary="Wired Bundles">
-	    <tr class="DarkBackground">
-	        <th scope="col" width="40%">Importing Packages</th>   
-	        <th scope="col" width="60%">From Bundles</th> 
-	    </tr>
-	    <c:set var="backgroundClass" value='MediumBackground'/>
-	    <c:forEach var="ipp" items="${importingPackagePerspectives}">
-	      <c:choose>
-	          <c:when test="${backgroundClass == 'MediumBackground'}" >
-	              <c:set var="backgroundClass" value='LightBackground'/>
-	          </c:when>
-	          <c:otherwise>
-	              <c:set var="backgroundClass" value='MediumBackground'/>
-	          </c:otherwise>
-	      </c:choose>
-	      <tr>
-	        <td class="${backgroundClass}">
-	        	${ipp.packageInfo.packageName} (version=${ipp.packageInfo.packageVersion})
-	        </td>
-			<td class="${backgroundClass}">
-			    <c:forEach var="info" items="${ipp.bundleInfos}">
-	            	${info.symbolicName} (id=${info.bundleId}) (version=${info.bundleVersion})
-	            	<a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
-					<a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
-	            	<br/>
-	            </c:forEach>
-			</td>
-	      </tr>
-	    </c:forEach>
-	</table>
-	<br/>
-	<table width="100%" class="TableLine" summary="Wired Bundles">
-	    <tr class="DarkBackground">
-	        <th scope="col" width="40%">Exporting Packages</th>   
-	        <th scope="col" width="60%">To Bundles</th> 
-	    </tr>
-	    <c:set var="backgroundClass" value='MediumBackground'/>
-	    <c:forEach var="epp" items="${exportingPackagePerspectives}">
-	      <c:choose>
-	          <c:when test="${backgroundClass == 'MediumBackground'}" >
-	              <c:set var="backgroundClass" value='LightBackground'/>
-	          </c:when>
-	          <c:otherwise>
-	              <c:set var="backgroundClass" value='MediumBackground'/>
-	          </c:otherwise>
-	      </c:choose>
-	      <tr>
-	        <td class="${backgroundClass}">
-	        	${epp.packageInfo.packageName} (version=${epp.packageInfo.packageVersion})
-	        </td>
-			<td class="${backgroundClass}">
-			    <c:forEach var="info" items="${epp.bundleInfos}">
-	            	${info.symbolicName} (id=${info.bundleId}) (version=${info.bundleVersion})
-	            	<a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
-					<a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
-	            	<br/>
-	            </c:forEach>
-			</td>
-	      </tr>
-	    </c:forEach>
-	</table>
+    <table width="100%" class="TableLine" summary="Wired Bundles">
+        <tr class="DarkBackground">
+            <th scope="col" width="40%">Importing Packages</th>   
+            <th scope="col" width="60%">From Bundles</th> 
+        </tr>
+        <c:set var="backgroundClass" value='MediumBackground'/>
+        <c:forEach var="ipp" items="${importingPackagePerspectives}">
+          <c:choose>
+              <c:when test="${backgroundClass == 'MediumBackground'}" >
+                  <c:set var="backgroundClass" value='LightBackground'/>
+              </c:when>
+              <c:otherwise>
+                  <c:set var="backgroundClass" value='MediumBackground'/>
+              </c:otherwise>
+          </c:choose>
+          <tr>
+            <td class="${backgroundClass}">
+                ${ipp.packageInfo.packageName} (version=${ipp.packageInfo.packageVersion})
+            </td>
+            <td class="${backgroundClass}">
+                <c:forEach var="info" items="${ipp.bundleInfos}">
+                    ${info.symbolicName} (id=${info.bundleId}) (version=${info.bundleVersion})
+                    <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
+                    <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
+                    <br/>
+                </c:forEach>
+            </td>
+          </tr>
+        </c:forEach>
+    </table>
+    <br/>
+    <table width="100%" class="TableLine" summary="Wired Bundles">
+        <tr class="DarkBackground">
+            <th scope="col" width="40%">Exporting Packages</th>   
+            <th scope="col" width="60%">To Bundles</th> 
+        </tr>
+        <c:set var="backgroundClass" value='MediumBackground'/>
+        <c:forEach var="epp" items="${exportingPackagePerspectives}">
+          <c:choose>
+              <c:when test="${backgroundClass == 'MediumBackground'}" >
+                  <c:set var="backgroundClass" value='LightBackground'/>
+              </c:when>
+              <c:otherwise>
+                  <c:set var="backgroundClass" value='MediumBackground'/>
+              </c:otherwise>
+          </c:choose>
+          <tr>
+            <td class="${backgroundClass}">
+                ${epp.packageInfo.packageName} (version=${epp.packageInfo.packageVersion})
+            </td>
+            <td class="${backgroundClass}">
+                <c:forEach var="info" items="${epp.bundleInfos}">
+                    ${info.symbolicName} (id=${info.bundleId}) (version=${info.bundleVersion})
+                    <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
+                    <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${info.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
+                    <br/>
+                </c:forEach>
+            </td>
+          </tr>
+        </c:forEach>
+    </table>
 </c:if>
 
 <c:if test="${perspectiveTypeValue == 'bundle'}" > 
-	<table width="100%" class="TableLine" summary="Wired Bundles">
-	    <tr class="DarkBackground">
-	        <th scope="col" width="40%">Importing Packages</th>   
-	        <th scope="col" width="60%">From Bundles</th> 
-	    </tr>
-	    <c:set var="backgroundClass" value='MediumBackground'/>
-	    <c:forEach var="ibp" items="${importingBundlePerspectives}">
-	      <c:choose>
-	          <c:when test="${backgroundClass == 'MediumBackground'}" >
-	              <c:set var="backgroundClass" value='LightBackground'/>
-	          </c:when>
-	          <c:otherwise>
-	              <c:set var="backgroundClass" value='MediumBackground'/>
-	          </c:otherwise>
-	      </c:choose>
-	      <tr>
-	        <td class="${backgroundClass}">
-	        	<c:forEach var="info" items="${ibp.packageInfos}">
-	            	${info.packageName} (version=${info.packageVersion}) <br/>
-	            </c:forEach>
-	        </td>
-			<td class="${backgroundClass}">
-				${ibp.bundleInfo.symbolicName} (id=${ibp.bundleInfo.bundleId}) (version=${ibp.bundleInfo.bundleVersion})
-				<a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${ibp.bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
-				<a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${ibp.bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
-			</td>
-	      </tr>
-	    </c:forEach>
-	</table>
-	<br/>
-	<table width="100%" class="TableLine" summary="Wired Bundles">
-	    <tr class="DarkBackground">
-	        <th scope="col" width="40%">Exporting Packages</th>   
-	        <th scope="col" width="60%">To Bundles</th> 
-	    </tr>
-	    <c:set var="backgroundClass" value='MediumBackground'/>
-	    <c:forEach var="ebp" items="${exportingBundlePerspectives}">
-	      <c:choose>
-	          <c:when test="${backgroundClass == 'MediumBackground'}" >
-	              <c:set var="backgroundClass" value='LightBackground'/>
-	          </c:when>
-	          <c:otherwise>
-	              <c:set var="backgroundClass" value='MediumBackground'/>
-	          </c:otherwise>
-	      </c:choose>
-	      <tr>
-	        <td class="${backgroundClass}">
-	        	<c:forEach var="info" items="${ebp.packageInfos}">
-	            	${info.packageName} (version=${info.packageVersion}) <br/>
-	            </c:forEach>
-	        </td>
-			<td class="${backgroundClass}">
-				${ebp.bundleInfo.symbolicName} (id=${ebp.bundleInfo.bundleId}) (version=${ebp.bundleInfo.bundleVersion})
-				<a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${ebp.bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
-				<a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${ebp.bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
-			</td>
-	      </tr>
-	    </c:forEach>
-	</table>
+    <table width="100%" class="TableLine" summary="Wired Bundles">
+        <tr class="DarkBackground">
+            <th scope="col" width="40%">Importing Packages</th>   
+            <th scope="col" width="60%">From Bundles</th> 
+        </tr>
+        <c:set var="backgroundClass" value='MediumBackground'/>
+        <c:forEach var="ibp" items="${importingBundlePerspectives}">
+          <c:choose>
+              <c:when test="${backgroundClass == 'MediumBackground'}" >
+                  <c:set var="backgroundClass" value='LightBackground'/>
+              </c:when>
+              <c:otherwise>
+                  <c:set var="backgroundClass" value='MediumBackground'/>
+              </c:otherwise>
+          </c:choose>
+          <tr>
+            <td class="${backgroundClass}">
+                <c:forEach var="info" items="${ibp.packageInfos}">
+                    ${info.packageName} (version=${info.packageVersion}) <br/>
+                </c:forEach>
+            </td>
+            <td class="${backgroundClass}">
+                ${ibp.bundleInfo.symbolicName} (id=${ibp.bundleInfo.bundleId}) (version=${ibp.bundleInfo.bundleVersion})
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${ibp.bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${ibp.bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
+            </td>
+          </tr>
+        </c:forEach>
+    </table>
+    <br/>
+    <table width="100%" class="TableLine" summary="Wired Bundles">
+        <tr class="DarkBackground">
+            <th scope="col" width="40%">Exporting Packages</th>   
+            <th scope="col" width="60%">To Bundles</th> 
+        </tr>
+        <c:set var="backgroundClass" value='MediumBackground'/>
+        <c:forEach var="ebp" items="${exportingBundlePerspectives}">
+          <c:choose>
+              <c:when test="${backgroundClass == 'MediumBackground'}" >
+                  <c:set var="backgroundClass" value='LightBackground'/>
+              </c:when>
+              <c:otherwise>
+                  <c:set var="backgroundClass" value='MediumBackground'/>
+              </c:otherwise>
+          </c:choose>
+          <tr>
+            <td class="${backgroundClass}">
+                <c:forEach var="info" items="${ebp.packageInfos}">
+                    ${info.packageName} (version=${info.packageVersion}) <br/>
+                </c:forEach>
+            </td>
+            <td class="${backgroundClass}">
+                ${ebp.bundleInfo.symbolicName} (id=${ebp.bundleInfo.bundleId}) (version=${ebp.bundleInfo.bundleVersion})
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${ebp.bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest" style="vertical-align:middle"/></a>
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${ebp.bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles" style="vertical-align:middle"/></a>
+            </td>
+          </tr>
+        </c:forEach>
+    </table>
 </c:if>
