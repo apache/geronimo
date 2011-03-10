@@ -423,9 +423,9 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         ejbModule.setModuleId(name);
         
         if (standAlone) {
-            ejbModule.setModulePackageName(packageName);
+            ejbModule.setModuleUri(URI.create(packageName));
         } else {
-            ejbModule.setModulePackageName(targetPath);
+            ejbModule.setModuleUri(URI.create(targetPath));
         }
 
 
@@ -1024,7 +1024,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
                 StatefulBeanInfo statefulBeanInfo = (StatefulBeanInfo) beanInfo;
                 for (PersistenceContextReferenceInfo refInfo : statefulBeanInfo.jndiEnc.persistenceContextRefs) {
                     if (refInfo.extended) {
-                        refInfo.unitId = linkResolver.resolveLink(refInfo.persistenceUnitName, ejbJarInfo.moduleId);
+                        refInfo.unitId = linkResolver.resolveLink(refInfo.persistenceUnitName, ejbJarInfo.moduleUri);
                     }
                 }
             }
