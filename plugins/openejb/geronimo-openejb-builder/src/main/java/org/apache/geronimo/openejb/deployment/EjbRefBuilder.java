@@ -250,10 +250,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
                 // handle external refs
                 if (ejbRefType != null) {
-                    if (ejbRefType.getNsCorbaloc() != null) {
-                        // corba refs are simple delegated back to Geronimo
-                        spec_ejbRef.setMappedName("jndi:java:comp/geronimo/env/" + spec_ejbRef.getEjbRefName());
-                    } else if (ejbRefType.getPattern() != null) {
+                    if (ejbRefType.getPattern() != null) {
                         // external ear ref
                         // set mapped name to the deploymentId of the external ref
                         GerPatternType pattern = ejbRefType.getPattern();
