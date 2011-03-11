@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>osgi-service-custom</artifactId>
+    <groupId>org.apache.geronimo.testsuite</groupId>
+    <version>3.0-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>custom-wab</artifactId>
+  
+  <name>Geronimo TestSuite :: Aries Testsuite :: custom-wab</name>
+  
+  <packaging>bundle</packaging>
+  
+  <dependencies>
+     <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>custom-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>custom-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+  <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                       <Web-ContextPath>/custom</Web-ContextPath>                    
+                        <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+        <Private-Package>org.apache.geronimo.testsuite.aries.custom.web</Private-Package>
+         <Export-Package>!org.apache.geronimo.testsuite.aries.custom.web</Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

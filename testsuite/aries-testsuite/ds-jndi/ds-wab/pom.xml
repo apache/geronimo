@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>ds-jndi</artifactId>
+    <groupId>org.apache.geronimo.testsuite</groupId>
+    <version>3.0-SNAPSHOT</version>
+  </parent>
+  
+  
+  <artifactId>ds-wab</artifactId>
+  
+  <name>Geronimo TestSuite :: Aries Testsuite :: DS-WAB</name>
+  
+  <packaging>bundle</packaging>
+  
+  <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>ds-db</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>      
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Web-ContextPath>/ds</Web-ContextPath>
+                        <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+                        <Private-Package>org.apache.geronimo.testsuite.ds.web</Private-Package>
+                        <Export-Package>!org.apache.geronimo.testsuite.ds.web</Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+  
+</project>

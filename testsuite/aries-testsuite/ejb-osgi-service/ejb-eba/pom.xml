@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>ejb-osgi-service</artifactId>
+    <groupId>org.apache.geronimo.testsuite</groupId>
+    <version>3.0-SNAPSHOT</version>
+  </parent>  
+ 
+  <artifactId>ejb-eba</artifactId>
+  
+  <name>Geronimo TestSuite :: Aries Testsuite :: ejb-eba</name>
+  
+  <packaging>eba</packaging>
+  
+  <dependencies>     
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>ejb-api</artifactId>
+            <version>${project.version}</version>            
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>ejb-impl</artifactId>
+            <version>${project.version}</version>           
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.testsuite</groupId>
+            <artifactId>ejb-wab</artifactId>
+            <version>${project.version}</version>           
+        </dependency>
+       
+    </dependencies>
+
+  
+   <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.aries</groupId>
+                <artifactId>eba-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <generateManifest>true</generateManifest>
+                    <instructions>
+                        <Application-Version>1.0.0</Application-Version>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
+     <profiles>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>it</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>                          
+                            <systemPropertyVariables>         
+                                <webAppName>ejb</webAppName>                           
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.geronimo.buildsupport</groupId>
+                        <artifactId>geronimo-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>deploy-eba</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>deploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleArchive>${project.build.directory}/${project.artifactId}-${project.version}.eba</moduleArchive>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>undeploy-eba-as-moduleId</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>undeploy-module</goal>
+                                </goals>
+                                <configuration>
+                                    <moduleId>${project.groupId}/${project.artifactId}/1.0.0/eba</moduleId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
