@@ -29,10 +29,9 @@ import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.xbean.finder.ClassFinder;
 
 public class WebServiceContextAnnotationHelper {
-      
-    public static final String RELATIVE_JNDI_NAME = "env/WebServiceContext";
-    public static final String ABSOLUTE_JNDI_NAME = "java:comp/" + RELATIVE_JNDI_NAME;
-    
+
+    public static final String BINDING_WEBSERVICE_CONTEXR_JNDI_NAME = "comp/env/WebServiceContext";
+
     public static void addWebServiceContextInjections(Holder holder, Class<?> clazz) {
         List<Class<?>> classes = new ArrayList<Class<?>>();
         while (clazz != Object.class) {
@@ -41,28 +40,28 @@ public class WebServiceContextAnnotationHelper {
         }
         addWebServiceContextInjections(holder, new ClassFinder(classes));
     }
-    
-    public static void addWebServiceContextInjections(Holder holder, ClassFinder finder) {        
+
+    public static void addWebServiceContextInjections(Holder holder, ClassFinder finder) {
         List<Field> fields = finder.findAnnotatedFields(Resource.class);
         for (Field field : fields) {
-            Resource resource = (Resource) field.getAnnotation(Resource.class);
+            Resource resource = field.getAnnotation(Resource.class);
             Class type = getInjectionType(resource.type(), null, field);
             if (WebServiceContext.class == type) {
-                holder.addInjection(field.getDeclaringClass().getName(), 
-                                    new Injection(field.getDeclaringClass().getName(), getInjectionName(null, field), ABSOLUTE_JNDI_NAME));
+                holder.addInjection(field.getDeclaringClass().getName(),
+                                    new Injection(field.getDeclaringClass().getName(), getInjectionName(null, field), BINDING_WEBSERVICE_CONTEXR_JNDI_NAME));
             }
         }
         List<Method> methods = finder.findAnnotatedMethods(Resource.class);
         for (Method method : methods) {
-            Resource resource = (Resource) method.getAnnotation(Resource.class);
+            Resource resource = method.getAnnotation(Resource.class);
             Class type = getInjectionType(resource.type(), method, null);
             if (WebServiceContext.class == type) {
-                holder.addInjection(method.getDeclaringClass().getName(), 
-                                    new Injection(method.getDeclaringClass().getName(), getInjectionName(method, null), ABSOLUTE_JNDI_NAME));
-            }            
+                holder.addInjection(method.getDeclaringClass().getName(),
+                                    new Injection(method.getDeclaringClass().getName(), getInjectionName(method, null), BINDING_WEBSERVICE_CONTEXR_JNDI_NAME));
+            }
         }
     }
-    
+
     private static Class<?> getInjectionType(Class<?> type, Method method, Field field) {
         if (type == null || Object.class == type) {
             if (field != null) {
@@ -76,7 +75,7 @@ public class WebServiceContextAnnotationHelper {
             return type;
         }
     }
-    
+
     private static String getInjectionName(Method method, Field field) {
         if (method != null) {
             String injectionJavaType = method.getName().substring(3);
