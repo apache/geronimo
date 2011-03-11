@@ -29,7 +29,6 @@ import java.lang.reflect.Modifier;
 
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.Bean;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -57,7 +56,7 @@ public class GeronimoResourceInjectionService implements ResourceInjectionServic
 
     //from StandaloneResourceInjectionService
     @Override
-    public void injectJavaEEResources(Object managedBeanInstance) throws Exception {
+    public void injectJavaEEResources(Object managedBeanInstance) {
         Class<?> currentClass = managedBeanInstance.getClass();
 
         while (currentClass != null && Object.class != currentClass)
@@ -130,6 +129,6 @@ public class GeronimoResourceInjectionService implements ResourceInjectionServic
             ClassNotFoundException {
         return (T) ((ResourceBean)bean).getActualInstance();
     }
-        
+
 
 }
