@@ -150,7 +150,7 @@ function uninstallPrompt(target, bundleId, bundleName) {
         <th scope="col" width="150">Type</th>
         <th scope="col" width="100">State</th>
         <c:if test="${listTypeValue == 'blueprint'}" >
-            <th scope="col">blueprint</th>
+            <th scope="col" width="100">Blueprint State</th>
         </c:if>
         <c:if test="${listTypeValue != 'system' && listTypeValue != 'configuration'}" >
             <th scope="col" width="80">Actions</th>
