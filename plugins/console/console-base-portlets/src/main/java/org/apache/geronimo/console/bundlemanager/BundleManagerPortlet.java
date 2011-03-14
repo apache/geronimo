@@ -51,6 +51,8 @@ import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.xbean.osgi.bundle.util.BundleDescription;
+import org.apache.xbean.osgi.bundle.util.VersionRange;
+import org.apache.xbean.osgi.bundle.util.BundleDescription.RequireBundle;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -257,32 +259,48 @@ public class BundleManagerPortlet extends BasePortlet {
                 Bundle bundle = bundleContext.getBundle(id);
                 
                 String perspectiveType = renderRequest.getParameter("perspectiveTypeValue");
-                if (perspectiveType == null || perspectiveType == "") perspectiveType = "package"; //when we access this page with a renderURL, we need the default value
+                if (perspectiveType == null || perspectiveType == "") perspectiveType = "bundle"; //when we access this page with a renderURL, we need the default value
                 
                 ServiceReference reference = bundleContext.getServiceReference(PackageAdmin.class.getName());
                 PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
                 
 
                 Set<PackageBundlePair> importingPairs = getImportingPairs(packageAdmin, bundle);
+                Set<PackageBundlePair> dynamicImportingPairs = getDynamicImportingPairs(packageAdmin, bundle, importingPairs);
+                Set<PackageBundlePair> requireBundlesImportingPairs = getRequireBundlesImportingPairs(packageAdmin, bundle);
                 Set<PackageBundlePair> exportingPairs = getExportingPairs(packageAdmin, bundle);
+                
                 
                 if ("package".equals(perspectiveType)){
                     List<PackagePerspective> importingPackagePerspectives = getPackagePerspectives(importingPairs);
+                    List<PackagePerspective> dynamicImportingPackagePerspectives = getPackagePerspectives(dynamicImportingPairs);
+                    List<PackagePerspective> requireBundlesImportingPackagePerspectives = getPackagePerspectives(requireBundlesImportingPairs);
                     List<PackagePerspective> exportingPackagePerspectives = getPackagePerspectives(exportingPairs);
                     
                     Collections.sort(importingPackagePerspectives);
+                    Collections.sort(dynamicImportingPackagePerspectives);
+                    Collections.sort(requireBundlesImportingPackagePerspectives);
                     Collections.sort(exportingPackagePerspectives);
                     
                     renderRequest.setAttribute("importingPackagePerspectives", importingPackagePerspectives);
+                    renderRequest.setAttribute("dynamicImportingPackagePerspectives", dynamicImportingPackagePerspectives);
+                    renderRequest.setAttribute("requireBundlesImportingPackagePerspectives", requireBundlesImportingPackagePerspectives);
                     renderRequest.setAttribute("exportingPackagePerspectives", exportingPackagePerspectives);
+                    
                 }else{  //"bundle".equals(perspectiveType)){
                     List<BundlePerspective> importingBundlePerspectives = getBundlePerspectives(importingPairs);
+                    List<BundlePerspective> dynamicImportingBundlePerspectives = getBundlePerspectives(dynamicImportingPairs);
+                    List<BundlePerspective> requireBundlesImportingBundlePerspectives = getBundlePerspectives(requireBundlesImportingPairs);
                     List<BundlePerspective> exportingBundlePerspectives = getBundlePerspectives(exportingPairs);
                     
                     Collections.sort(importingBundlePerspectives);
+                    Collections.sort(dynamicImportingBundlePerspectives);
+                    Collections.sort(requireBundlesImportingBundlePerspectives);
                     Collections.sort(exportingBundlePerspectives);
                     
                     renderRequest.setAttribute("importingBundlePerspectives", importingBundlePerspectives);
+                    renderRequest.setAttribute("dynamicImportingBundlePerspectives", dynamicImportingBundlePerspectives);
+                    renderRequest.setAttribute("requireBundlesImportingBundlePerspectives", requireBundlesImportingBundlePerspectives);
                     renderRequest.setAttribute("exportingBundlePerspectives", exportingBundlePerspectives);
                 }
                                 
@@ -593,6 +611,7 @@ public class BundleManagerPortlet extends BasePortlet {
         // handle static wire via Import-Package
         List<BundleDescription.ImportPackage> imports = description.getExternalImports();
         for (BundleDescription.ImportPackage packageImport : imports) {
+            //find the packages that we are importing
             ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(packageImport.getName());
             if (exportedPackages!=null){
                 for (ExportedPackage exportedPackage : exportedPackages) {
@@ -606,33 +625,89 @@ public class BundleManagerPortlet extends BasePortlet {
                     }
                 }
             }
+            
+        }
+                
+        //TODO  the result set may contains 2 items which have the same package name but different versions.
+        return importingPairs;
+    }
+
+    private Set<PackageBundlePair> getRequireBundlesImportingPairs(PackageAdmin packageAdmin, Bundle bundle) {
+        
+        Set<PackageBundlePair> requireBundlesImportingPairs = new HashSet<PackageBundlePair>();
+        
+        BundleDescription description = new BundleDescription(bundle.getHeaders());
+        
+        List<BundleDescription.RequireBundle> requireBundles = description.getRequireBundle();
+        if (!requireBundles.isEmpty()) {
+
+            Map<String, VersionRange> requireBundlesMap = new HashMap<String, VersionRange>();
+
+            for (BundleDescription.RequireBundle requireBundle : requireBundles) {
+                requireBundlesMap.put(requireBundle.getName(), requireBundle.getVersionRange());
+            }
+
+            Set<String> requireBundleNames = requireBundlesMap.keySet();
+            for (Bundle b : bundle.getBundleContext().getBundles()) {
+                if (requireBundleNames.contains(b.getSymbolicName())
+                        && requireBundlesMap.get(b.getSymbolicName()).isInRange(b.getVersion())) {
+
+                    // find the packages that importing from the require bundle
+                    ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(b);
+                    if (exportedPackages != null) {
+                        for (ExportedPackage exportedPackage : exportedPackages) {
+                            Bundle[] importingBundles = exportedPackage.getImportingBundles();
+                            if (importingBundles != null) {
+                                for (Bundle importingBundle : importingBundles) {
+                                    if (importingBundle == bundle) {
+                                        requireBundlesImportingPairs.add(new PackageBundlePair(exportedPackage, b));
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+            }
         }
         
-        //TODO 1. sometimes, there might be same pairs in the result set.
-        //TODO 2. the result set may contains 2 items which have the same package name but different versions.
+        return requireBundlesImportingPairs;
+    
+    }
+    
+    
+    private Set<PackageBundlePair> getDynamicImportingPairs(PackageAdmin packageAdmin, Bundle bundle, Set<PackageBundlePair> explicitImportingPairs) {
+        BundleDescription description = new BundleDescription(bundle.getHeaders());
+        
+        Set<PackageBundlePair> dynamicImportingPairs = new HashSet<PackageBundlePair>();
         
         // handle dynamic wire via DynamicImport-Package
-//        if (!description.getDynamicImportPackage().isEmpty()) {
-//            for (Bundle b : bundle.getBundleContext().getBundles()) {
-//                ExportedPackage[] exports = packageAdmin.getExportedPackages(b);
-//                Bundle wiredBundle = getWiredBundle(bundle, exports);
-//                if (exports != null) {
-//                    for (ExportedPackage exportedPackage : exports) {
-//                        Bundle[] importingBundles = exportedPackage.getImportingBundles();
-//                        if (importingBundles != null) {
-//                            for (Bundle importingBundle : importingBundles) {
-//                                if (importingBundle == bundle) {
-//                                    pbPairs.put(exportedPackage, wiredBundle);
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//              
-//            }
-//        }
+        if (!description.getDynamicImportPackage().isEmpty()) {
+            for (Bundle b : bundle.getBundleContext().getBundles()) {
+                
+                // find the packages that importing from the bundle
+                ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(b);
+                if (exportedPackages != null) {
+                    for (ExportedPackage exportedPackage : exportedPackages) {
+                        Bundle[] importingBundles = exportedPackage.getImportingBundles();
+                        if (importingBundles != null) {
+                            for (Bundle importingBundle : importingBundles) {
+                                if (importingBundle == bundle) {
+                                    PackageBundlePair pair = new PackageBundlePair(exportedPackage, b);
+                                    if (!explicitImportingPairs.contains(pair)){
+                                        dynamicImportingPairs.add(pair);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+            }
+        }
         
-        return importingPairs;
+        return dynamicImportingPairs;
     }
     
     
@@ -678,13 +753,28 @@ public class BundleManagerPortlet extends BasePortlet {
             }
 
             final PackageBundlePair other = (PackageBundlePair) obj;
-            if (this.exportedPackage != other.exportedPackage && (this.exportedPackage == null || !this.exportedPackage.equals(other.exportedPackage))) {
-                return false;
+// when using the following, there still be same pairs in the set. Maybe the equal method is not re-written.
+//            if (this.exportedPackage != other.exportedPackage && (this.exportedPackage == null || !this.exportedPackage.equals(other.exportedPackage))) {
+//                return false;
+//            }
+//            if (this.bundle != other.bundle && (this.bundle == null || !this.bundle.equals(other.bundle))) {
+//                return false;
+//            }
+            
+            if (this.exportedPackage != null && other.exportedPackage == null) return false;
+            if (this.exportedPackage == null && other.exportedPackage != null) return false;
+            if (this.exportedPackage != null && other.exportedPackage != null) {
+                if (this.exportedPackage.getName()!= other.exportedPackage.getName() || this.exportedPackage.getVersion() != other.exportedPackage.getVersion())
+                    return false;
             }
-            if (this.bundle != other.bundle && (this.bundle == null || !this.bundle.equals(other.bundle))) {
-                return false;
+            
+            if (this.bundle != null && other.bundle == null) return false;
+            if (this.bundle == null && other.bundle != null) return false;
+            if (this.bundle != null && other.bundle != null) {
+                if (this.bundle.getSymbolicName()!= other.bundle.getSymbolicName() || this.bundle.getVersion() != other.bundle.getVersion())
+                    return false;
             }
-
+            
             return true;
             
         }
@@ -692,8 +782,14 @@ public class BundleManagerPortlet extends BasePortlet {
         @Override
         public int hashCode() {
             int hash = 11;
-            hash = 17* hash + (exportedPackage != null ? exportedPackage.hashCode():0);
-            hash = 17 * hash + (bundle != null ? bundle.hashCode():0);
+// because we used exportedPackage.getName(); exportedPackage.getVersion();  bundle.getSymbolicName();bundle.getVersion()
+// to calculate equals(), we must use them to calculate hashCode()
+//            hash = 17 * hash + (exportedPackage != null ? exportedPackage.hashCode():0);
+//            hash = 17 * hash + (bundle != null ? bundle.hashCode():0);
+            hash = 17 * hash + (exportedPackage != null ? exportedPackage.getName().hashCode():0);
+            hash = 17 * hash + (exportedPackage != null ? exportedPackage.getVersion().hashCode():0);
+            hash = 17 * hash + (bundle != null ? bundle.getSymbolicName().hashCode():0);
+            hash = 17 * hash + (bundle != null ? bundle.getVersion().hashCode():0);
 
             return hash;
         }
