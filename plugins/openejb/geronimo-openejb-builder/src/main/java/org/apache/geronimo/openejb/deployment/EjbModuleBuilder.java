@@ -214,7 +214,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         System.setProperty("openejb.logger.external", "true");
         System.setProperty("openejb.log.factory", "org.apache.openejb.util.PaxLogStreamFactory");
 
-        setDefaultProperty("openejb.deploymentId.format", "{moduleId}/{ejbName}");
+        setDefaultProperty("openejb.deploymentId.format", "{moduleUri}/{ejbName}");
         setDefaultProperty("openejb.jndiname.strategy.class", "org.apache.openejb.assembler.classic.JndiBuilder$TemplatedStrategy");
         setDefaultProperty("openejb.jndiname.format", "{ejbName}{interfaceType.annotationName}");
         setDefaultProperty("openejb.jndiname.failoncollision", "false");
