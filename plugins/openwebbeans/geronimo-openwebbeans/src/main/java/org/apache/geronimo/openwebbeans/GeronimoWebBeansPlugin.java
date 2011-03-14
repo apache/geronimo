@@ -41,10 +41,10 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
+import org.apache.webbeans.exception.WebBeansConfigurationException;
 import org.apache.webbeans.spi.SecurityService;
 import org.apache.webbeans.spi.TransactionService;
 import org.apache.webbeans.spi.plugins.AbstractOwbPlugin;
-import org.apache.webbeans.spi.plugins.OpenWebBeansEjbPlugin;
 import org.apache.webbeans.spi.plugins.OpenWebBeansJavaEEPlugin;
 
 public class GeronimoWebBeansPlugin 
@@ -85,7 +85,7 @@ public class GeronimoWebBeansPlugin
     }
 
     @Override
-    public void isManagedBean(Class<?> clazz) throws Exception {
+    public void isManagedBean(Class<?> clazz) {
         if(Servlet.class.isAssignableFrom(clazz) ||
                 Filter.class.isAssignableFrom(clazz) ||
                 ServletContextListener.class.isAssignableFrom(clazz) ||
@@ -98,7 +98,7 @@ public class GeronimoWebBeansPlugin
                 ServletRequestAttributeListener.class.isAssignableFrom(clazz) ||
                 AsyncListener.class.isAssignableFrom(clazz) )
         {
-            throw new Exception("Given class  : " + clazz.getName() + " is not managed bean");
+            throw new WebBeansConfigurationException("Given class  : " + clazz.getName() + " is not managed bean");
         }
     }
 
