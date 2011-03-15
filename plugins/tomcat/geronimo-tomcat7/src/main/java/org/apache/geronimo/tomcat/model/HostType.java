@@ -559,14 +559,14 @@ public class HostType {
         for (String alias : getAlias()) {
             host.addAlias(alias);
         }
+
         //valve
-        if (host instanceof Pipeline) {
-            Pipeline pipeline = (Pipeline) host;
-            for (ValveType valveType : getValve()) {
-                Valve valve = valveType.getValve(cl);
-                pipeline.addValve(valve);
-            }
+        Pipeline pipeline = host.getPipeline();
+        for (ValveType valveType : getValve()) {
+            Valve valve = valveType.getValve(cl);
+            pipeline.addValve(valve);
         }
+
         //context
         //TODO contexts
         return host;
