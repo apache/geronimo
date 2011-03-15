@@ -32,7 +32,7 @@
 
     <cm:property-placeholder id="property-placeholder" persistent-id="blueprint-activemq-placeholder" placeholder-prefix="${" placeholder-suffix="}" ignore-missing-locations="true">
         <cm:default-properties>
-            <cm:property name="activemq.brokerName" value="activemq"/>
+            <cm:property name="activemq.brokerName" value="DefaultActiveMQBroker"/>
             <cm:property name="activemq.data" value="var/activemq"/>
             <cm:property name="serverHostname" value="localhost"/>
             <cm:property name="activemq.port" value="61616"/>
