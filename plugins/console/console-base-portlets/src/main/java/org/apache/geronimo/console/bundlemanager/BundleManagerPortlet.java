@@ -91,9 +91,13 @@ public class BundleManagerPortlet extends BasePortlet {
     
     private PortletRequestDispatcher showWiredBundlesView;
     
+    private PortletRequestDispatcher showServicesView;
+    
     private static final String VIEW_MANIFEST_PAGE = "view_manifest";
     
     private static final String VIEW_WIRED_BUNDLES_PAGE = "view_wired_bundles";
+    
+    private static final String VIEW_SERVICES_PAGE = "view_services";
     
     protected void doHelp(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
@@ -105,6 +109,7 @@ public class BundleManagerPortlet extends BasePortlet {
         bundleManagerView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/bundlemanager/BundleManager.jsp");
         showManifestView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/bundlemanager/ShowManifest.jsp");
         showWiredBundlesView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/bundlemanager/ShowWiredBundles.jsp");
+        showServicesView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/bundlemanager/ShowServices.jsp");
 
     }
 
@@ -250,6 +255,30 @@ public class BundleManagerPortlet extends BasePortlet {
                 renderRequest.setAttribute("manifestHeaders", manifestHeaders);
                 renderRequest.setAttribute("bundleInfo", bundleInfo);
                 showManifestView.include(renderRequest, renderResponse);
+                
+            }else if(VIEW_SERVICES_PAGE.equals(page)) {
+                
+                BundleContext bundleContext = getBundleContext(renderRequest);
+                
+                long id = Long.valueOf(renderRequest.getParameter("bundleId"));
+                Bundle bundle = bundleContext.getBundle(id);
+                
+                // because this page should not be very complex ,so we only have a Service Perspective
+                // if user wants 2 perspective like wired bundle page, we can extend this page to add a new Bundle Perspective.
+                List<ServicePerspective> usingServicePerspectives = getUsingServicePerspectives(bundle);
+                List<ServicePerspective> registeredServicePerspectives = getRegisteredServicePerspectives(bundle);
+                
+                Collections.sort(usingServicePerspectives);
+                Collections.sort(registeredServicePerspectives);
+                
+                renderRequest.setAttribute("usingServicePerspectives", usingServicePerspectives);
+                renderRequest.setAttribute("registeredServicePerspectives", registeredServicePerspectives);
+                
+                SimpleBundleInfo bundleInfo = new SimpleBundleInfo(bundle);
+                
+                renderRequest.setAttribute("bundleInfo", bundleInfo);
+                
+                showServicesView.include(renderRequest, renderResponse);
                 
             }else if(VIEW_WIRED_BUNDLES_PAGE.equals(page)) {
                 
@@ -508,7 +537,24 @@ public class BundleManagerPortlet extends BasePortlet {
         }
     }
     
-    
+    private static class ServiceObjectClassComparator implements Comparator<ServiceInfo>{
+        @Override
+        public int compare(ServiceInfo infoA, ServiceInfo infoB) {
+            if (infoA == null && infoB ==null) return 0;
+            if (infoA == null) return -1;
+            if (infoB == null) return 1;
+            
+            String objectClassA = "";
+            for ( String str : infoA.getObjectClass()){
+                objectClassA += str+",";
+            }
+            String objectClassB = "";
+            for ( String str : infoB.getObjectClass()){
+                objectClassB += str+",";
+            }
+            return objectClassA.compareTo(objectClassB);
+        }
+    }
     
     
     /*************************************************************
@@ -959,4 +1005,94 @@ public class BundleManagerPortlet extends BasePortlet {
             
         }
     }
+    
+    
+    /************************************************
+     * Show services definitions
+     ************************************************/
+    public static class ServicePerspective implements Comparable<ServicePerspective>{
+
+        private ServiceInfo serviceInfo;
+        private List<BundleInfo> bundleInfos = new ArrayList<BundleInfo>();
+        private final Comparator<ServiceInfo> comparator = new ServiceObjectClassComparator();
+        
+        
+        public ServicePerspective(ServiceInfo serviceInfo) {
+            this.serviceInfo = serviceInfo;
+        }
+        
+        public ServicePerspective(ServiceInfo serviceInfo, List<BundleInfo> bundleInfos) {
+            this.serviceInfo = serviceInfo;
+            this.bundleInfos = bundleInfos;
+        }
+        
+        @Override
+        public int compareTo(ServicePerspective another) {
+            if (another != null) {
+                return comparator.compare(serviceInfo,another.serviceInfo);
+            } else {
+                return -1;
+            } 
+        }
+        
+        public ServiceInfo getServiceInfo() {
+            return serviceInfo;
+        }
+
+        public List<BundleInfo> getBundleInfos() {
+            return bundleInfos;
+        }
+        
+        public void addBundleInfo(BundleInfo info){
+            this.bundleInfos.add(info);
+        }
+        
+        public void sortBundleInfos(Comparator<BundleInfo> comparator){
+            Collections.sort(bundleInfos, comparator);
+        }
+    }
+    
+    private List<ServicePerspective> getUsingServicePerspectives(Bundle bundle){
+        ServiceReference[] serviceRefs = bundle.getServicesInUse();
+        
+        List<ServicePerspective> usingServicePerspectives = new ArrayList<ServicePerspective>();
+        
+        if (serviceRefs != null && serviceRefs.length!=0){
+            for (ServiceReference ref : serviceRefs){
+                ServiceInfo info = new ServiceInfo(ref);
+                ServicePerspective perspective = new ServicePerspective(info);
+                perspective.addBundleInfo(new SimpleBundleInfo(ref.getBundle()));
+                usingServicePerspectives.add(perspective);
+            }
+        }
+        
+        
+        return usingServicePerspectives;
+    }
+    
+    private List<ServicePerspective> getRegisteredServicePerspectives(Bundle bundle){
+        ServiceReference[] serviceRefs = bundle.getRegisteredServices();
+        
+        List<ServicePerspective> registeredServicePerspectives = new ArrayList<ServicePerspective>();
+        
+        if (serviceRefs != null && serviceRefs.length!=0){
+            for (ServiceReference ref : serviceRefs){
+                ServiceInfo info = new ServiceInfo(ref);
+                ServicePerspective perspective = new ServicePerspective(info);
+                
+                Bundle[] usingBundles = ref.getUsingBundles();
+                if (usingBundles!=null && usingBundles.length!=0){
+                    for (Bundle usingBundle : usingBundles){
+                        perspective.addBundleInfo(new SimpleBundleInfo(usingBundle));
+                    }
+                }
+                                
+                registeredServicePerspectives.add(perspective);
+            }
+        }
+        
+        
+        return registeredServicePerspectives;
+    }
+    
 }

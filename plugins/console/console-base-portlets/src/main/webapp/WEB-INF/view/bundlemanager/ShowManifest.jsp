@@ -22,7 +22,10 @@
         </td>
         <td align="right">
             <c:if test="${bundleInfo.state.running}" >          
-                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>">View Wired Bundles</a>
+                View:&nbsp;
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>">Wired Bundles</a>
+                &nbsp;|&nbsp;
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_services'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>">Services</a>
             </c:if>
         </td>
     </tr>

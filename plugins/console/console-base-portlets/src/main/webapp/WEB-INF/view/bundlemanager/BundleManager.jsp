@@ -155,7 +155,7 @@ function uninstallPrompt(target, bundleId, bundleName) {
         <c:if test="${listTypeValue != 'system' && listTypeValue != 'configuration'}" >
             <th scope="col" width="80">Actions</th>
         </c:if>
-        <th scope="col" width="80">Utilities</th>
+        <th scope="col" width="100">Utilities</th>
     </tr>
     <script language="javascript"> 
         var oldcolor;
@@ -250,7 +250,8 @@ function uninstallPrompt(target, bundleId, bundleName) {
             &nbsp;
             <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest"/></a>&nbsp;
             <c:if test="${bundleInfo.state.running}" >
-                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles"/></a>
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles"/></a>&nbsp;
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_services'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_serv.png" title="View Services"/></a>&nbsp;
             </c:if>
         </td>
 
