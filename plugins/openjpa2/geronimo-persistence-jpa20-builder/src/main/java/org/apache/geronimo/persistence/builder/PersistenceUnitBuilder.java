@@ -266,7 +266,7 @@ public class PersistenceUnitBuilder implements ModuleBuilderExtension {
             gbeanData.setAttribute("persistenceProviderClassName", persistenceUnit.getProvider().trim());
         }
         if (persistenceUnit.getTransactionType() != null) {
-            gbeanData.setAttribute("persistenceUnitTransactionType", persistenceUnit.getTransactionType().toString());
+            gbeanData.setAttribute("persistenceUnitTransactionType", persistenceUnit.getTransactionType());
         }
         if (persistenceUnit.getJtaDataSource() != null) {
             String jtaDataSourceString = persistenceUnit.getJtaDataSource().trim();
