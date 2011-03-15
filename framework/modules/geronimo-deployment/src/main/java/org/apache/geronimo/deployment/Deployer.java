@@ -223,6 +223,8 @@ public class Deployer implements GBeanLifecycle {
         JarFile module = getModule(inPlace, moduleFile);
 
         ModuleIDBuilder idBuilder = new ModuleIDBuilder();
+
+        DeploymentContext context = null;
         try {
             Object plan = null;
             ConfigurationBuilder builder = null;
@@ -247,7 +249,7 @@ public class Deployer implements GBeanLifecycle {
             ConfigurationStore store = getConfigurationStore(targetConfigurationStore);
 
             // It's our responsibility to close this context, once we're done with it...
-            DeploymentContext context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
+            context = builder.buildConfiguration(inPlace, configID, plan, module, stores, artifactResolver, store);
             // Copy the external plan to the META-INF folder with the uniform name plan.xml if there is nothing there already
             if (planFile != null && !context.getTargetFile(PLAN_LOCATION).exists()) {
                 context.addFile(PLAN_LOCATION, planFile);
@@ -273,6 +275,14 @@ public class Deployer implements GBeanLifecycle {
 //            if (targetFile != null) {
 //                targetFile.delete();
 //            }
+
+            //Clean Up the created deploymentContext, as some initial work might be done in the buildConfiguration invocation
+            if (context != null) {
+                try {
+                    context.close();
+                } catch (Exception ingore) {
+                }
+            }
 
             if (e instanceof Error) {
                 log.error("Deployment failed due to ", e);
