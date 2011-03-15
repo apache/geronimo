@@ -414,7 +414,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             name = parentModule.getName();
         } else if (ejbJar.getModuleName() != null) {
             name = ejbJar.getModuleName().trim();
-        } else if (standAlone) {
+        } else if (standAlone || ".".equals(targetPath)) {
             name = FileUtils.removeExtension(packageName, ".jar");
         } else {
             name = FileUtils.removeExtension(targetPath, ".jar");
@@ -422,7 +422,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
         ejbModule.setModuleId(name);
         
-        if (standAlone) {
+        if (standAlone || ".".equals(targetPath)) {
             ejbModule.setModuleUri(URI.create(packageName));
         } else {
             ejbModule.setModuleUri(URI.create(targetPath));
