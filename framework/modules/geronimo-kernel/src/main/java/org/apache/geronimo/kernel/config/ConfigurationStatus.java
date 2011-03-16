@@ -80,7 +80,7 @@ public class ConfigurationStatus {
     public Artifact getConfigurationId() {
         return configurationId;
     }
-    
+
     public LinkedHashSet<Artifact> getStartedChildren() {
         LinkedHashSet<ConfigurationStatus> childrenStatuses = new LinkedHashSet<ConfigurationStatus>();
         getStartedChildrenInternal(childrenStatuses);
@@ -383,9 +383,9 @@ public class ConfigurationStatus {
             load = "not-loaded";
         }
         String start;
-        if (userLoaded) {
+        if (userStarted) {
             start = "user-started";
-        } else if (loaded) {
+        } else if (started) {
             start = "started";
         } else {
             start = "not-started";
