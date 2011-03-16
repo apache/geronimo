@@ -37,9 +37,8 @@
     <modules>
         <module>simple</module>
         <module>jpa</module>
-        <module>require-bundle-test</module>
-    <!--Datasource JNDI Lookup fail, so comment it
-    <module>ds-jndi</module>-->
+        <module>require-bundle-test</module>    
+    <module>ds-jndi</module>
     <module>ejb-osgi-service</module>
     <module>osgi-service-custom</module>    
     <!--mail/MailSession is not bound to MailGBean, so comment it

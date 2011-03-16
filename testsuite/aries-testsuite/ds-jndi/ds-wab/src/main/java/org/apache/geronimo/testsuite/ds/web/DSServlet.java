@@ -66,7 +66,7 @@ public class DSServlet extends HttpServlet {
         try {
             PrintWriter pw = response.getWriter();
             
-            ds = (DataSource) getOSGIService(DataSource.class.getName() , "(osgi.jndi.service.name=jdbc/jndidbDataSource)");           
+            ds = (DataSource) getOSGIService(DataSource.class.getName() , "(osgi.jndi.service.name=jdbc/NoTxjndidbDataSource)");           
             if(ds != null){
                 pw.println("Datasource OSGI Service JNDI Lookup Pass");
             } else{
