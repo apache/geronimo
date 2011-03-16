@@ -153,7 +153,7 @@ function uninstallPrompt(target, bundleId, bundleName) {
             <th scope="col" width="100">Blueprint State</th>
         </c:if>
         <c:if test="${listTypeValue != 'system' && listTypeValue != 'configuration'}" >
-            <th scope="col" width="80">Actions</th>
+            <th scope="col" width="100">Actions</th>
         </c:if>
         <th scope="col" width="100">Utilities</th>
     </tr>
@@ -235,6 +235,11 @@ function uninstallPrompt(target, bundleId, bundleName) {
                     <!-- Update action -->
                     <span> 
                         <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='update'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_update.png" title="update"/></a>&nbsp;
+                    </span>
+                	
+                	<!-- Refresh action -->
+                    <span> 
+                        <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='refresh'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_refresh.png" title="refresh"/></a>&nbsp;
                     </span>
                 
                     <!-- Uninstall action -->

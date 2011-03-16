@@ -81,6 +81,8 @@ public class BundleManagerPortlet extends BasePortlet {
 
     private static final String UPDATE_OPERATION = "update";
     
+    private static final String REFRESH_OPERATION = "refresh";
+    
     private static final String UNINSTALL_OPERATION = "uninstall";
 
     private PortletRequestDispatcher helpView;
@@ -198,6 +200,11 @@ public class BundleManagerPortlet extends BasePortlet {
                     } else if (UPDATE_OPERATION.equals(operation)) {
                         bundle.update();
                         addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg19"));
+                    } else if (REFRESH_OPERATION.equals(operation)) {
+                        ServiceReference reference = bundleContext.getServiceReference(PackageAdmin.class.getName());
+                        PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
+                        packageAdmin.refreshPackages(new Bundle[]{bundle});
+                        addInfoMessage(actionRequest, "bundle refreshed");
                     } else {
                         addWarningMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.warnMsg01") + action + "<br />");
                         throw new PortletException("Invalid value for changeState: " + action);
@@ -654,17 +661,20 @@ public class BundleManagerPortlet extends BasePortlet {
         
         Set<PackageBundlePair> importingPairs = new HashSet<PackageBundlePair>();
 
-        // handle static wire via Import-Package
-        List<BundleDescription.ImportPackage> imports = description.getExternalImports();
+
+        // description.getExternalImports() only shows the packages from other bundles. This will exclude the packages
+        // which are exported by itself, but may actually import from others during resolve.
+        List<BundleDescription.ImportPackage> imports = description.getImportPackage();
         for (BundleDescription.ImportPackage packageImport : imports) {
             //find the packages that we are importing
             ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(packageImport.getName());
             if (exportedPackages!=null){
                 for (ExportedPackage exportedPackage : exportedPackages) {
+                    Bundle exportingBundle = exportedPackage.getExportingBundle();
                     Bundle[] importingBundles = exportedPackage.getImportingBundles();
                     if (importingBundles != null) {
                         for (Bundle importingBundle : importingBundles) {
-                            if (importingBundle == bundle) {
+                            if (exportingBundle != bundle && importingBundle == bundle) {
                                 importingPairs.add(new PackageBundlePair(exportedPackage, exportedPackage.getExportingBundle()));
                             }
                         }
@@ -728,7 +738,6 @@ public class BundleManagerPortlet extends BasePortlet {
         
         Set<PackageBundlePair> dynamicImportingPairs = new HashSet<PackageBundlePair>();
         
-        // handle dynamic wire via DynamicImport-Package
         if (!description.getDynamicImportPackage().isEmpty()) {
             for (Bundle b : bundle.getBundleContext().getBundles()) {
                 
