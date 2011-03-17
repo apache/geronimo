@@ -52,7 +52,6 @@ import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.xbean.osgi.bundle.util.BundleDescription;
 import org.apache.xbean.osgi.bundle.util.VersionRange;
-import org.apache.xbean.osgi.bundle.util.BundleDescription.RequireBundle;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -187,30 +186,31 @@ public class BundleManagerPortlet extends BasePortlet {
                 
                 try {
                     Bundle bundle = bundleContext.getBundle(Long.parseLong(id));
-
+                    String symbolicName = bundle.getSymbolicName();
+                                        
                     if (START_OPERATION.equals(operation)) {
                         bundle.start();
-                        addInfoMessage(actionRequest, "bundle started");
+                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.bundlemanager.info.start", symbolicName, id));
                     } else if (STOP_OPERATION.equals(operation)) {
                         bundle.stop();
-                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg02"));
+                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.bundlemanager.info.stop", symbolicName, id));
                     } else if (UNINSTALL_OPERATION.equals(operation)) {
                         bundle.uninstall();
-                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg04") + "<br />" + BundleUtil.getSymbolicName(bundle));
+                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.bundlemanager.info.uninstall", symbolicName, id));
                     } else if (UPDATE_OPERATION.equals(operation)) {
                         bundle.update();
-                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg19"));
+                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.bundlemanager.info.update", symbolicName, id));
                     } else if (REFRESH_OPERATION.equals(operation)) {
                         ServiceReference reference = bundleContext.getServiceReference(PackageAdmin.class.getName());
                         PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
                         packageAdmin.refreshPackages(new Bundle[]{bundle});
-                        addInfoMessage(actionRequest, "bundle refreshed");
+                        addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.bundlemanager.info.refresh", symbolicName, id));
                     } else {
-                        addWarningMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.warnMsg01") + action + "<br />");
-                        throw new PortletException("Invalid value for changeState: " + action);
-                    }            
+                        // should never happen
+                        addWarningMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.bundlemanager.warn.invalidAction") + action);
+                    }
                 } catch (Throwable e) {
-                    addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg03"), e.getMessage());
+                    addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.bundlemanager.err.actionError") + action, e.getMessage());
                     logger.error("Exception", e);
                 }
             }
@@ -410,7 +410,7 @@ public class BundleManagerPortlet extends BasePortlet {
                 renderRequest.setAttribute("initStartLevel", startLevelService.getInitialBundleStartLevel());
                 
                 if (bundleInfos.size() == 0) {
-                    addWarningMessage(renderRequest, getLocalizedString(renderRequest, "consolebase.warnMsg02"));
+                    addWarningMessage(renderRequest, getLocalizedString(renderRequest, "consolebase.bundlemanager.warn.nobundlesfound"));
                 }
                 
                 bundleManagerView.include(renderRequest, renderResponse);
@@ -933,8 +933,8 @@ public class BundleManagerPortlet extends BasePortlet {
         try {
             items = uploader.parseRequest(request);
         } catch (FileUploadException e) {
-            addErrorMessage(request, "file upload failed!");
-            logger.error("file upload failed!",e);
+            addErrorMessage(request, getLocalizedString(request, "consolebase.bundlemanager.err.file.uploadError"));
+            logger.error("FileUploadException", e);
             return;
         }
 
@@ -957,13 +957,14 @@ public class BundleManagerPortlet extends BasePortlet {
                     try {
                         item.write(bundleFile);
                     } catch (Exception e) {
-                        addErrorMessage(request, "write file failed!");
-                        logger.error("write file failed!", e);
+                        addErrorMessage(request, getLocalizedString(request,"consolebase.bundlemanager.err.file.writeError"));
+                        logger.error("Exception", e);
                         return;
                     }
                 } else {
-                    addErrorMessage(request, "the file is null!");
-                    logger.error("the file is null!");
+                    //should never happen
+                    addErrorMessage(request, getLocalizedString(request, "consolebase.bundlemanager.err.file.nullError"));
+                    logger.error("The uploaded file is null!");
                     return;
                 }
             } else {
@@ -981,10 +982,10 @@ public class BundleManagerPortlet extends BasePortlet {
         Bundle installedBundle;
         try {
             installedBundle = bundleContext.installBundle(url);
-            addInfoMessage(request, "bundle installed");
+            addInfoMessage(request, getLocalizedString(request, "consolebase.bundlemanager.info.install", installedBundle.getSymbolicName(), installedBundle.getBundleId()));
         } catch (BundleException e) {
-            addErrorMessage(request, "install bundle failed!");
-            logger.error("install bundle failed!", e);
+            addErrorMessage(request, getLocalizedString(request, "consolebase.bundlemanager.err.actionError") + "install", e.getMessage());
+            logger.error("BundleException", e);
             return;
         }
         
@@ -1005,10 +1006,10 @@ public class BundleManagerPortlet extends BasePortlet {
         if ("yes".equals(startAfterInstalled)) {
             try {
                 installedBundle.start();
-                addInfoMessage(request, "bundle started");
+                addInfoMessage(request, getLocalizedString(request, "consolebase.bundlemanager.info.start", installedBundle.getSymbolicName(), installedBundle.getBundleId()));
             } catch (BundleException e) {
-                addErrorMessage(request, "start bundle failed!");
-                logger.error("start bundle failed!", e);
+                addErrorMessage(request, getLocalizedString(request, "consolebase.bundlemanager.err.actionError") + "start", e.getMessage());
+                logger.error("BundleException", e);
                 return;
             }
             
