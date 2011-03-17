@@ -249,20 +249,25 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 spec_ejbRef.setMappedName(getStringValue(spec_ejbRef.getMappedName()));
 
                 // handle external refs
-                if (ejbRefType != null) {
-                    if (ejbRefType.getPattern() != null) {
-                        // external ear ref
-                        // set mapped name to the deploymentId of the external ref
-                        GerPatternType pattern = ejbRefType.getPattern();
-                        String module = pattern.getModule();
-                        if (module == null) {
-                            module = pattern.getArtifactId();
-                        }
-                        String ejbName = pattern.getName();
-                        String deploymentId = module.trim() + "/" + ejbName;
-                        spec_ejbRef.setMappedName(deploymentId.trim());
+
+                if (ejbRefType.getPattern() != null) {
+                    // external ear ref
+                    // set mapped name to the deploymentId of the external ref
+                    GerPatternType pattern = ejbRefType.getPattern();
+                    String module = pattern.getModule();
+                    if (module == null) {
+                        module = pattern.getArtifactId();
                     }
+                    String ejbName = pattern.getName();
+                    String deploymentId = module.trim() + "/" + ejbName;
+                    spec_ejbRef.setMappedName(deploymentId.trim());
                 }
+
+                if (ejbRefType.getEjbLink() != null) {
+                    spec_ejbRef.setEjbLink(getStringValue(ejbRefType.getEjbLink()));
+                }
+                    
+
 
                 // openejb handling of injection-targets
                 if (spec_ejbRef.getInjectionTarget() != null) {
