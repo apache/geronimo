@@ -198,12 +198,19 @@ public class AxisBuilder implements WebServiceBuilder {
 
     @Override
     public boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map sharedContext, Bundle bundle) throws DeploymentException {
+        
+        if (sharedContext.get(KEY) == null){
+            return false;
+        }
+        
         Map portInfoMap = (Map) sharedContext.get(KEY);
-        PortInfo portInfo = (PortInfo) portInfoMap.get(ejbName);
-        if (portInfo == null) {
+        
+        if (portInfoMap.get(ejbName) == null) {
             //not ours
             return false;
         }
+        
+        PortInfo portInfo = (PortInfo) portInfoMap.get(ejbName);
         
         String beanClassName = (String)targetGBean.getAttribute("ejbClass");
         Class serviceClass = loadClass(beanClassName, bundle);
