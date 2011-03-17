@@ -47,6 +47,7 @@ import javax.xml.ws.WebServiceProvider;
 
 import org.apache.axis.constants.Style;
 import org.apache.axis.description.JavaServiceDesc;
+import org.apache.axis.description.OperationDesc;
 import org.apache.axis.handlers.HandlerInfoChainFactory;
 import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
@@ -98,7 +99,7 @@ import org.slf4j.LoggerFactory;
 public class AxisBuilder implements WebServiceBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(AxisBuilder.class);
-    
+
     private static final SOAPConstants SOAP_VERSION = SOAPConstants.SOAP11_CONSTANTS;
 
     private final Environment defaultEnvironment;
@@ -111,11 +112,11 @@ public class AxisBuilder implements WebServiceBuilder {
     @Override
     public void findWebServices(Module module, boolean isEJB, Map servletLocations, Environment environment, Map sharedContext) throws DeploymentException {
         final String path = isEJB ? "META-INF/webservices.xml" : "WEB-INF/webservices.xml";
-            
+
         URL wsDDUrl = module.getDeployable().getResource(path);
         if (wsDDUrl != null) {
             // "JarFile moduleFile" is useless in parseWebServiceDescriptor, so we pass "null" to it.
-            Map portMap = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, null, isEJB, servletLocations);
+            Map<String, PortInfo> portMap = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, null, isEJB, servletLocations);
             if (portMap != null) {
                 if (defaultEnvironment != null) {
                     EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
@@ -126,36 +127,39 @@ public class AxisBuilder implements WebServiceBuilder {
             }
         }
     }
-    
+
     @Override
     public boolean configurePOJO(GBeanData targetGBean, String servletName, Module module, String servletClassName, DeploymentContext context) throws DeploymentException {
         Map sharedContext = ((WebModule) module).getSharedContext();
-        Map portInfoMap = (Map) sharedContext.get(KEY);
-        PortInfo portInfo = (PortInfo) portInfoMap.get(servletName);
+        Map<String, PortInfo> portInfoMap = (Map<String, PortInfo>) sharedContext.get(KEY);
+
+        if(portInfoMap == null) {
+            return false;
+        }
+        PortInfo portInfo = portInfoMap.get(servletName);
         if (portInfo == null) {
             //not ours
             return false;
         }
-        
+
         Bundle bundle = context.getDeploymentBundle();
-        Class serviceClass = loadClass(servletClassName, bundle);
+        Class<?> serviceClass = loadClass(servletClassName, bundle);
         if (isJAXWSWebService(serviceClass)) {
             if (DescriptorVersion.J2EE.equals(portInfo.getDescriptorVersion())) {
                 // This is a JAX-WS web service in J2EE descriptor so throw an exception
-                throw new DeploymentException("JAX-WS web service '" + portInfo.getPortComponentName() 
+                throw new DeploymentException("JAX-WS web service '" + portInfo.getPortComponentName()
                                               + "' cannot be specified in J2EE webservices.xml descriptor.");
             } else {
                 // This is a JAX-WS web service in JAVAEE descriptor so ignore
                 return false;
             }
         }
-        
-        portInfo.initialize(module.getModuleFile());
-        
-        LOG.debug("Publishing JAX-RPC '" + portInfo.getPortComponentName() 
-                  + "' service at " + portInfo.getContextURI());
 
-        BundleClassLoader loader = new BundleClassLoader(bundle);
+        portInfo.initialize(module.getModuleFile());
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Publishing JAX-RPC '" + portInfo.getPortComponentName() + "' service at " + portInfo.getContextURI());
+        }
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, bundle);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
 
@@ -198,38 +202,38 @@ public class AxisBuilder implements WebServiceBuilder {
 
     @Override
     public boolean configureEJB(GBeanData targetGBean, String ejbName, Module module, Map sharedContext, Bundle bundle) throws DeploymentException {
-        
+
         if (sharedContext.get(KEY) == null){
             return false;
         }
-        
-        Map portInfoMap = (Map) sharedContext.get(KEY);
-        
+
+        Map<String, PortInfo> portInfoMap = (Map<String, PortInfo>) sharedContext.get(KEY);
+
         if (portInfoMap.get(ejbName) == null) {
             //not ours
             return false;
         }
-        
-        PortInfo portInfo = (PortInfo) portInfoMap.get(ejbName);
-        
+
+        PortInfo portInfo = portInfoMap.get(ejbName);
+
         String beanClassName = (String)targetGBean.getAttribute("ejbClass");
-        Class serviceClass = loadClass(beanClassName, bundle);
+        Class<?> serviceClass = loadClass(beanClassName, bundle);
         if (isJAXWSWebService(serviceClass)) {
             if (DescriptorVersion.J2EE.equals(portInfo.getDescriptorVersion())) {
                 // This is a JAX-WS web service in J2EE descriptor so throw an exception
-                throw new DeploymentException("JAX-WS web service '" + portInfo.getPortComponentName() 
+                throw new DeploymentException("JAX-WS web service '" + portInfo.getPortComponentName()
                                               + "' cannot be specified in J2EE webservices.xml descriptor.");
             } else {
                 // This is a JAX-WS web service in JAVAEE descriptor so ignore
                 return false;
             }
         }
-        
+
         portInfo.initialize(module.getModuleFile());
-        
-        LOG.debug("Publishing EJB JAX-RPC '" + portInfo.getPortComponentName() 
-                  + "' service at " + portInfo.getContextURI());
-        
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Publishing EJB JAX-RPC '" + portInfo.getPortComponentName() + "' service at " + portInfo.getContextURI());
+        }
         ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, bundle);
         targetGBean.setAttribute("serviceInfo", serviceInfo);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
@@ -438,7 +442,7 @@ public class AxisBuilder implements WebServiceBuilder {
         }
 //        Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classLoader);
 
-        Collection operationDescs = new ArrayList();
+        Collection<OperationDesc> operationDescs = new ArrayList<OperationDesc>();
         List<ServiceEndpointMethodMapping> methodMappings = endpointMapping.getServiceEndpointMethodMapping();
         int i = 0;
         Set wrapperElementQNames = new HashSet();
@@ -547,9 +551,9 @@ public class AxisBuilder implements WebServiceBuilder {
             throw new DeploymentException("Unable to load Web Service class: " + className);
         }
     }
-    
+
     static boolean isJAXWSWebService(Class clazz) {
-        return (clazz.isAnnotationPresent(WebService.class) || 
+        return (clazz.isAnnotationPresent(WebService.class) ||
                 clazz.isAnnotationPresent(WebServiceProvider.class));
     }
 }
