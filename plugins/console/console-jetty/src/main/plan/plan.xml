@@ -89,7 +89,7 @@
                 </reference>
             </gbean>
             <gbean name="Logs" class="org.apache.geronimo.pluto.AdminConsoleExtensionGBean">
-                <attribute name="pageTitle">5-2-2/Monitoring and Troubleshooting/Logs/Server Logs</attribute>
+                <attribute name="pageTitle">5-2-1/Monitoring and Troubleshooting/Logs/Server Logs</attribute>
                 <attribute name="portletContext">/console-base</attribute>
                 <attribute name="portletList">[LogManager, LogViewer, WebAccessLogViewer]</attribute>
                 <attribute name="icon">/images/ico_look_16x16.gif</attribute>
