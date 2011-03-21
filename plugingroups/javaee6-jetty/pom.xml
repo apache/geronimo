@@ -108,6 +108,18 @@
             <!--<version>${project.version}</version>-->
             <!--<type>car</type>-->
         <!--</dependency>-->
+        
+        
+        
+        <!-- adding this for now,  will remove it after enable monitoring agent cars above-->
+        <dependency>
+            <groupId>org.apache.geronimo.configs</groupId>
+            <artifactId>mejb</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>
+        
+        
         <dependency>
           <groupId>org.apache.geronimo.configs</groupId>
           <artifactId>wink</artifactId>
