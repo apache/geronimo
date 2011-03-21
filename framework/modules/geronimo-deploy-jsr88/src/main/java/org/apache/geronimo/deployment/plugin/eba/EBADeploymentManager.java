@@ -17,7 +17,24 @@
 
 package org.apache.geronimo.deployment.plugin.eba;
 
+import java.io.File;
+
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.apache.geronimo.kernel.repository.Artifact;
+
 
 public interface EBADeploymentManager {
-    public String[] getAvailableEBAModuleIds();
+    
+    public Artifact[] getEBAConfigurationIds();
+    
+    public long[] getEBAContentBundleIds(AbstractName applicationGBeanName) throws GBeanNotFoundException, NoSuchOperationException, Exception;
+    
+    public String getEBAContentBundleSymbolicName(AbstractName applicationGBeanName, long bundleId) throws GBeanNotFoundException, NoSuchOperationException, Exception;
+    
+    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File newfile) throws GBeanNotFoundException, NoSuchOperationException, Exception;
+    
+    public AbstractName getApplicationGBeanName(Artifact configurationId);
+    
 }

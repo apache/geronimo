@@ -42,6 +42,8 @@ import org.apache.geronimo.deployment.spi.ModuleConfigurer;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.jmx.KernelDelegate;
 import org.slf4j.Logger;
@@ -201,6 +203,15 @@ public class RemoteDeploymentManager extends ExtendedDeploymentManager {
         return super.installLibrary(args[0], groupId);
     }
 
+    @Override
+    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File newfile) throws GBeanNotFoundException, NoSuchOperationException, Exception{
+        if(!isSameMachine) {
+            throw new UnsupportedOperationException("Update EBA content operation is not supportted from a remote JMX connection");
+        }
+        
+        super.updateEBAContent(applicationGBeanName, bundleId, newfile);
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
     public static final String GBEAN_REF_MODULE_CONFIGURERS = "ModuleConfigurers";
 

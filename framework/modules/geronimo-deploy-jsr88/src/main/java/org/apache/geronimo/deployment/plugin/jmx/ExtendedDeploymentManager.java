@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +34,10 @@ import org.apache.geronimo.deployment.spi.ModuleConfigurer;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
@@ -254,19 +258,15 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
             kernel.getProxyManager().destroyProxy(archiver);
         }
     }
-
-    public String[] getAvailableEBAModuleIds(){
-        
+    
+    public Artifact[] getEBAConfigurationIds(){
         List<AbstractName> stores = configurationManager.listStores();
-        
         if (stores.isEmpty()) {
             return null;
         }
         
-        ArrayList<String> result = new ArrayList<String>();
-        
+        ArrayList<Artifact> result = new ArrayList<Artifact>();
         for (AbstractName store : stores) {
-            
             List infos;
             try {
                 infos = configurationManager.listConfigurations(store);
@@ -274,21 +274,43 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
                     ConfigurationInfo configInfo = (ConfigurationInfo) info;
                     
                     if (ConfigurationModuleType.EBA.equals(configInfo.getType())) {
-                        String name = configInfo.getConfigID().toString();
-                        
-                        result.add(name);
+                        result.add(configInfo.getConfigID());
                     }
                 }
-                
             } catch (NoSuchStoreException e) {
                 e.printStackTrace();
             }
-
         }
 
-        return result.size() == 0 ? null : result.toArray(new String[result.size()]);
+        return result.size() == 0 ? null : result.toArray(new Artifact[result.size()]);
+    }
+    
+    public long[] getEBAContentBundleIds(AbstractName applicationGBeanName) throws GBeanNotFoundException, NoSuchOperationException, Exception{
+        long[] ids = (long[])kernel.getAttribute(applicationGBeanName, "applicationContentBundleIds");
         
-
+        return ids;
+    }
+    
+    public String getEBAContentBundleSymbolicName(AbstractName applicationGBeanName, long bundleId) throws GBeanNotFoundException, NoSuchOperationException, Exception{
+        Object name = kernel.invoke(applicationGBeanName, "getApplicationContentBundleSymbolicName", new Object[]{bundleId}, new String[]{long.class.getName()});
+        if (name!=null) return (String)name;
+        
+        return null;
+    }
+    
+    /**
+     * Only support local bundle update
+     */
+    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File newfile) throws GBeanNotFoundException, NoSuchOperationException, Exception{
+        kernel.invoke(applicationGBeanName, "updateApplicationContent", new Object[]{bundleId, newfile.toURI()}, new String[]{long.class.getName(), newfile.toURI().getClass().getName()});
+    }
+    
+    public AbstractName getApplicationGBeanName(Artifact configurationId) {
+        Set<AbstractName> applicationGBeanNames = kernel.listGBeans(new AbstractNameQuery(configurationId, Collections.EMPTY_MAP, "org.apache.geronimo.aries.builder.ApplicationGBean"));
+        if (applicationGBeanNames.size()!=1){
+            throw new IllegalStateException("An EBA should have one and only one ApplicationGean object");
+        }
+        return applicationGBeanNames.iterator().next();
     }
     
 }

@@ -70,7 +70,7 @@ public class StartCommand extends CommandSupport {
                     //TODO might be a hack
                     List kids = loadChildren(kernel, moduleID.toString());
 
-                    // Build a response obect containg the started configuration and a list of it's contained modules
+                    // Build a response object containing the started configuration and a list of it's contained modules
                     TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), module.getModuleID(),
                             (String[]) kids.toArray(new String[kids.size()]));
                     if (isWebApp(kernel, moduleID.toString())) {
@@ -92,7 +92,7 @@ public class StartCommand extends CommandSupport {
                             //TODO might be a hack
                             List kidsChild = loadChildren(kernel, config.toString());
 
-                            // Build a response obect containg the started configuration and a list of it's contained modules
+                            // Build a response object containing the started configuration and a list of it's contained modules
                             TargetModuleIDImpl idChild = new TargetModuleIDImpl(null, config.toString(),
                                     (String[]) kidsChild.toArray(new String[kidsChild.size()]));
                             if (isWebApp(kernel, config.toString())) {

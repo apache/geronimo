@@ -16,6 +16,11 @@
  */
 package org.apache.geronimo.aries.builder;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -111,6 +116,55 @@ public class ApplicationGBean implements GBeanLifecycle {
             bundleContext.ungetService(applicationManagerReference);
         }
     }
+
+    public long[] getApplicationContentBundleIds(){
+        long[] ids = new long[applicationBundles.size()];
+        int i =0;
+        for (Bundle content : applicationBundles){
+            ids[i++] = content.getBundleId();
+        }
+        return ids;
+    }
+
+    protected ApplicationState getApplicationState() {
+        return applicationState;
+    }
+    
+    public String getApplicationContentBundleSymbolicName(long bundleId){
+        for (Bundle content : applicationBundles){
+            if (content.getBundleId()==bundleId){
+                return content.getSymbolicName();
+            }
+        }
+        return null;
+    }
+    
+    public void updateApplicationContent(long bundleId, URI uri) throws FileNotFoundException, BundleException{
+        Bundle targetBundle = null;
+        for (Bundle content : applicationBundles){
+            if (content.getBundleId()==bundleId){
+                targetBundle = content;
+                break;
+            }
+        }
+        
+        if (targetBundle!=null){
+            BundleContext context = targetBundle.getBundleContext();
+            ServiceReference reference = context.getServiceReference(PackageAdmin.class.getName());
+            FileInputStream fi;
+            try {
+                // create file object from local uri
+                fi = new FileInputStream(new File(uri));
+                // update bundle
+                targetBundle.update(fi);
+                // refresh bundle
+                PackageAdmin packageAdmin = (PackageAdmin) context.getService(reference);
+                packageAdmin.refreshPackages(new Bundle[]{targetBundle});
+            } finally{
+                context.ungetService(reference);
+            }
+        }
+    }
     
     protected Bundle getBundle() {
         return bundle;
@@ -123,11 +177,7 @@ public class ApplicationGBean implements GBeanLifecycle {
     protected Set<Bundle> getApplicationContent() {
         return new HashSet<Bundle>(applicationBundles);
     }
-
-    protected ApplicationState getApplicationState() {
-        return applicationState;
-    }
-            
+    
     private void install() throws Exception {
 
         BundleContext bundleContext = bundle.getBundleContext();
