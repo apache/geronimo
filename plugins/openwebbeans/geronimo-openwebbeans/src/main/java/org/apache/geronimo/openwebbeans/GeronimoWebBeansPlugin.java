@@ -18,7 +18,13 @@
  */
 package org.apache.geronimo.openwebbeans;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.security.Principal;
+import java.security.PrivilegedActionException;
+import java.util.Properties;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.TransactionPhase;
@@ -148,5 +154,81 @@ public class GeronimoWebBeansPlugin
         // TODO Auto-generated method stub
         return null;
     }
+    
+    
+
+    @Override
+    public <T> Constructor<T> doPrivilegedGetDeclaredConstructor(Class<T> clazz, Class<?>... parameterTypes) {
+        try {
+            return clazz.getDeclaredConstructor(parameterTypes);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public <T> Constructor<?>[] doPrivilegedGetDeclaredConstructors(Class<T> clazz) {
+        return clazz.getDeclaredConstructors();
+    }
+
+    @Override
+    public <T> Method doPrivilegedGetDeclaredMethod(Class<T> clazz, String name, Class<?>... parameterTypes) {
+        try {
+            return clazz.getDeclaredMethod(name, parameterTypes);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public <T> Method[] doPrivilegedGetDeclaredMethods(Class<T> clazz) {
+        return clazz.getDeclaredMethods();
+    }
+
+    @Override
+    public <T> Field doPrivilegedGetDeclaredField(Class<T> clazz, String name) {
+        try {
+            return clazz.getDeclaredField(name);
+        } catch (NoSuchFieldException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public <T> Field[] doPrivilegedGetDeclaredFields(Class<T> clazz) {
+        return clazz.getDeclaredFields();
+    }
+
+    @Override
+    public void doPrivilegedSetAccessible(AccessibleObject obj, boolean flag) {
+        obj.setAccessible(flag);
+    }
+
+    @Override
+    public boolean doPrivilegedIsAccessible(AccessibleObject obj) {
+        return obj.isAccessible();
+    }
+
+    @Override
+    public <T> T doPrivilegedObjectCreate(Class<T> clazz) throws PrivilegedActionException, IllegalAccessException,
+            InstantiationException {
+        return clazz.newInstance();
+    }
+
+    @Override
+    public void doPrivilegedSetSystemProperty(String propertyName, String value) {
+        System.setProperty(propertyName, value);
+    }
+
+    @Override
+    public String doPrivilegedGetSystemProperty(String propertyName, String defaultValue) {
+        return System.getProperty(propertyName, defaultValue);
+    }
+
+    @Override
+    public Properties doPrivilegedGetSystemProperties() {
+        return System.getProperties();
+    }
+    
 
 }
