@@ -409,11 +409,11 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
         String jndiName = getJndiName();
         if (jndiName != null && jndiName.length() > 0) {
             try {
-            	//Get ger service, and bind ger:MailSession to context
+            //Get ger service, and bind ger:MailSession to context
                 ServiceReference[] sr = bundleContext.getServiceReferences(ObjectFactory.class.getName(), "(osgi.jndi.url.scheme=ger)");
                 if (sr != null){
                  ObjectFactory objectFactory =  (ObjectFactory) bundleContext.getService(sr[0]);                 
-                 Context context = (Context)objectFactory.getObjectInstance(null, null, null, null);				
+                 Context context = (Context)objectFactory.getObjectInstance(null, null, null, null);
                  context.unbind(jndiName);
                 }                
                 log.info("JavaMail session unbound from " + jndiName);
