@@ -18,24 +18,14 @@ package org.apache.geronimo.testsuite.aries.mail.web;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
 import java.io.PrintWriter;
 import java.io.IOException;
-import java.util.Properties;
-
 import javax.servlet.annotation.WebServlet;
 
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-
 import javax.mail.Session;
-import org.apache.geronimo.resource.mail.MailGBean;
-
 /**
  * Call Java Mail Session via osgi:service
  *
@@ -43,17 +33,7 @@ import org.apache.geronimo.resource.mail.MailGBean;
 @WebServlet("/mailservlet")
 public class MailServlet extends HttpServlet
 {
-    private ServletContext sc;
-    private BundleContext bundleContext;
-    private static final String OSGI_SERVICE_PREFIX = "osgi:service/";
-    
-    /**
-     * @see Servlet#init(ServletConfig)
-     */
-    public void init(ServletConfig config) throws ServletException {
-       sc = config.getServletContext();       
-    }
-    
+           
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
@@ -72,54 +52,21 @@ public class MailServlet extends HttpServlet
         PrintWriter pw = null;
         try {
            pw = response.getWriter();
-            /*bundleContext = (BundleContext) sc.getAttribute("osgi-bundlecontext");
-            ServiceReference sr = bundleContext.getServiceReference(MailGBean.class.getName());
-            if (sr != null) {
-                MailGBean sm = (MailGBean) bundleContext.getService(sr);
-                if (sm != null){
-                    pw.println("Java Mail JNDI Lookup via osgi:service Pass"); 
-                }else {
-                    pw.println("Java Mail JNDI Lookup via osgi:service Fail"); 
-                }                
-                bundleContext.ungetService(sr);
-            }*/
-            
-            //JNDI Lookup via osgi:service  , MailGBean jndi name is on to-do list         
-            Session mailSession = (Session) getOSGIService("mail/MailSession",null);
+           InitialContext ic = new InitialContext();
+           
+           Session mailSession = (Session) ic.lookup("ger:MailSession");
             if (mailSession != null){               
-                pw.println("Java Mail JNDI Lookup via osgi:service Pass" ); 
+                pw.println("Java Mail JNDI Lookup via ger:MailSession Pass" ); 
             } else {
-                pw.println("Java Mail JNDI Lookup via osgi:service Fail"); 
+                pw.println("Java Mail JNDI Lookup via ger:MailSession Fail"); 
             }
-            
-          
            
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            pw.println(e.toString());
-            e.printStackTrace();
-        } 
-        
-    }   
-    /**
-     * Lookup and return an osgi service
-     * 
-     * @return Object
-     * 
-     */
-    public static final Object getOSGIService(String serviceName, String filter) {
-        
-        String name = OSGI_SERVICE_PREFIX + serviceName;
-        if (filter != null) {
-            name = name + "/" + filter;
+            pw.println(e.toString());            
+        } catch (NamingException e){
+          pw.println(e.toString());
         }
-
-        try {
-            InitialContext ic = new InitialContext();
-            return ic.lookup(name);
-        } catch (NamingException e) {            
-            e.printStackTrace();
-            return null;
-        }
+        
     }
 }

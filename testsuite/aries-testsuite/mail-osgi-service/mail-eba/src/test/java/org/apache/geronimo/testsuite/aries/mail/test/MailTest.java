@@ -42,8 +42,8 @@ public class MailTest extends TestSupport{
         URL url = new URL(baseURL + warName + address);
        
         String reply = doGET(url, 6, 10 * 1000);
-        assertTrue("Lookup Mail via osgi:service", 
-                   reply.contains("Java Mail JNDI Lookup via osgi:service Pass"));
+        assertTrue("Lookup Mail via ger:service", 
+                   reply.contains("Java Mail JNDI Lookup via ger:MailSession Pass"));
         
         
         
