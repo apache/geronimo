@@ -125,10 +125,6 @@ public class ApplicationGBean implements GBeanLifecycle {
         }
         return ids;
     }
-
-    protected ApplicationState getApplicationState() {
-        return applicationState;
-    }
     
     public String getApplicationContentBundleSymbolicName(long bundleId){
         for (Bundle content : applicationBundles){
@@ -163,6 +159,8 @@ public class ApplicationGBean implements GBeanLifecycle {
             } finally{
                 context.ungetService(reference);
             }
+        } else {
+            throw new IllegalArgumentException("Could not find the bundle with id: " + bundleId + "in the Application content");
         }
     }
     
@@ -176,6 +174,10 @@ public class ApplicationGBean implements GBeanLifecycle {
     
     protected Set<Bundle> getApplicationContent() {
         return new HashSet<Bundle>(applicationBundles);
+    }
+
+    protected ApplicationState getApplicationState() {
+        return applicationState;
     }
     
     private void install() throws Exception {
