@@ -63,6 +63,14 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.1_spec</artifactId>
         </dependency>
+        
+         <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-kernel</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -25,6 +25,9 @@ import javax.mail.Transport;
 
 import junit.framework.TestCase;
 
+import org.osgi.framework.BundleContext;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
+
 
 /**
  * @version $Rev$ $Date$
@@ -37,7 +40,8 @@ public class MailGBeanTest extends TestCase {
         properties.put("mail.store.protocol", "testStore");
         properties.put("mail.transport.protocol", "testTransport");
 
-        MailGBean mail = new MailGBean("test:name=mail", null, Boolean.TRUE, properties, null, null, null, null, null, null, null);
+        BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
+        MailGBean mail = new MailGBean("test:name=mail", null, Boolean.TRUE, properties, null, null, null, null, null, null, null, bundleContext);
         mail.doStart();
         Object proxy = mail.$getResource();
 
@@ -59,7 +63,8 @@ public class MailGBeanTest extends TestCase {
         properties.put("mail.store.protocol", "POOKIE");
         properties.put("mail.transport.protocol", "BEAR");
 
-        MailGBean mail = new MailGBean("test:name=mail", null, Boolean.TRUE, properties, null, "test", "test", null, null, null, null);
+        BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
+        MailGBean mail = new MailGBean("test:name=mail", null, Boolean.TRUE, properties, null, "test", "test", null, null, null, null, bundleContext);
         mail.doStart();
         Object proxy = mail.$getResource();
 
@@ -91,7 +96,8 @@ public class MailGBeanTest extends TestCase {
         SMTPTransportGBean protocol = new SMTPTransportGBean("test:name=smtp", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         protocol.doStart();
 
-        MailGBean mail = new MailGBean("test:name=mail", Collections.<ProtocolGBean>singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null);
+        BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
+        MailGBean mail = new MailGBean("test:name=mail", Collections.<ProtocolGBean>singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null, bundleContext);
         mail.doStart();
         Object proxy = mail.$getResource();
 
@@ -120,7 +126,8 @@ public class MailGBeanTest extends TestCase {
         POP3StoreGBean protocol = new POP3StoreGBean("test:name=pop3", null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         protocol.doStart();
 
-        MailGBean mail = new MailGBean("test:name=mail", Collections.<ProtocolGBean>singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null);
+        BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
+        MailGBean mail = new MailGBean("test:name=mail", Collections.<ProtocolGBean>singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null, bundleContext);
         mail.doStart();
         Object proxy = mail.$getResource();
 
@@ -146,7 +153,8 @@ public class MailGBeanTest extends TestCase {
         IMAPStoreGBean protocol = new IMAPStoreGBean("test:name=imap", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         protocol.doStart();
 
-        MailGBean mail = new MailGBean("test:name=mail", Collections.<ProtocolGBean>singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null);
+        BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
+        MailGBean mail = new MailGBean("test:name=mail", Collections.<ProtocolGBean>singleton(protocol), Boolean.TRUE, properties, null, "test", "test", null, null, null, null, bundleContext);
         mail.doStart();
         Object proxy = mail.$getResource();
 

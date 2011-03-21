@@ -39,6 +39,11 @@ import org.apache.geronimo.management.JavaMailResource;
 import org.apache.geronimo.naming.ResourceSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.ServiceReference;
+
+import javax.naming.spi.ObjectFactory;
 
 
 /**
@@ -72,6 +77,7 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
     private String user;
     private Boolean debug;
     private String jndiName;
+    private BundleContext bundleContext;
 
 
     /**
@@ -101,7 +107,8 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
                      @ParamAttribute(name="host") String host,
                      @ParamAttribute(name="user") String user,
                      @ParamAttribute(name="debug") Boolean debug,
-                     @ParamAttribute(name="jndiName") String jndiName) {
+                     @ParamAttribute(name="jndiName") String jndiName,
+                     @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext){
         this.objectName = objectName;
         this.protocols = protocols;
         setUseDefault(useDefault);
@@ -113,6 +120,7 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
         setUser(user);
         setDebug(debug);
         setJndiName(jndiName);
+        this.bundleContext = bundleContext;
     }
 
     /**
@@ -374,21 +382,15 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
         if (jndiName != null && jndiName.length() > 0) {
             // first get the resource incase there are exceptions
             Object value = $getResource();
-
-            // get the initial context
-            Context context = new InitialContext();
-            Name parsedName = context.getNameParser("").parse(jndiName);
-
-            // create intermediate contexts
-            for (int i = 1; i < parsedName.size(); i++) {
-                Name contextName = parsedName.getPrefix(i);
-                if (!bindingExists(context, contextName)) {
-                    context.createSubcontext(contextName);
-                }
-            }
-
-            // bind
-            context.bind(jndiName, value);
+                    
+            //Get ger service, and bind ger:MailSession to context
+            ServiceReference[] sr = bundleContext.getServiceReferences(ObjectFactory.class.getName(), "(osgi.jndi.url.scheme=ger)");
+            if (sr != null){
+             ObjectFactory objectFactory =  (ObjectFactory) bundleContext.getService(sr[0]);             
+             Context context = (Context)objectFactory.getObjectInstance(null, null, null, null);
+             context.bind(jndiName, value);
+            }           
+            
             log.info("JavaMail session bound to " + jndiName);
         }
     }
@@ -407,10 +409,15 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
         String jndiName = getJndiName();
         if (jndiName != null && jndiName.length() > 0) {
             try {
-                Context context = new InitialContext();
-                context.unbind(jndiName);
+            	//Get ger service, and bind ger:MailSession to context
+                ServiceReference[] sr = bundleContext.getServiceReferences(ObjectFactory.class.getName(), "(osgi.jndi.url.scheme=ger)");
+                if (sr != null){
+                 ObjectFactory objectFactory =  (ObjectFactory) bundleContext.getService(sr[0]);                 
+                 Context context = (Context)objectFactory.getObjectInstance(null, null, null, null);				
+                 context.unbind(jndiName);
+                }                
                 log.info("JavaMail session unbound from " + jndiName);
-            } catch (NamingException e) {
+            } catch (Exception e) {
                 // we tried... this is a common error which occurs during shutdown due to ordering
             }
         }
@@ -442,5 +449,13 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
     public boolean isEventProvider() {
         return false;
     }
+
+	public void setBundleContext(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
+	}
+
+	public BundleContext getBundleContext() {
+		return bundleContext;
+	}
 
 }
