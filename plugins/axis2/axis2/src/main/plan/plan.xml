@@ -20,4 +20,7 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
     <gbean name="Axis2ModuleRegistry" class="org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry"/>
+
+    <gbean name="Axis2SystemInitializer" class="org.apache.geronimo.axis2.Axis2SystemInitializer"/>
+
 </module>

@@ -18,6 +18,7 @@
 package org.apache.geronimo.axis2.builder;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
@@ -25,8 +26,10 @@ import javax.xml.namespace.QName;
 
 import org.apache.geronimo.axis2.client.Axis2ConfigGBean;
 import org.apache.geronimo.axis2.client.Axis2ServiceReference;
+import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -39,6 +42,7 @@ import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.openejb.jee.PortComponentRef;
@@ -88,15 +92,15 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
     private void registerConfigGBean(Module module) throws DeploymentException {
         EARContext context = module.getEarContext();
         AbstractName containerFactoryName = context.getNaming().createChildName(
-                module.getModuleName(), Axis2ConfigGBean.GBEAN_INFO.getName(),
+                module.getModuleName(), "Axis2ConfigGBean",
                 GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
 
         try {
             context.getGBeanInstance(containerFactoryName);
         } catch (GBeanNotFoundException e1) {
-            GBeanData configGBeanData = new GBeanData(containerFactoryName, Axis2ConfigGBean.GBEAN_INFO);
+            GBeanData configGBeanData = new GBeanData(containerFactoryName, Axis2ConfigGBean.class);
             configGBeanData.setAttribute("moduleName", module.getModuleName());
-
+            configGBeanData.setReferencePattern("axis2ModuleRegistry", new AbstractNameQuery(Artifact.create("org.apache.geronimo.configs/axis2//car"), Collections.emptyMap(), Axis2ModuleRegistry.class.getName()));
             try {
                 context.addGBean(configGBeanData);
             } catch (GBeanAlreadyExistsException e) {

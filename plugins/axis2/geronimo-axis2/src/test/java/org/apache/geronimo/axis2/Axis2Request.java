@@ -44,7 +44,7 @@ class Axis2Request implements WebServiceContainer.Request {
     private String remoteAddress;
 
     /**
-     * 
+     *
      */
     public Axis2Request(int contentLength, String contentType, InputStream in,
             int method, Map parameters, URI uri, Map headers,

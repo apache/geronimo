@@ -24,6 +24,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.jaxws.ClientConfigurationFactory;
 import org.apache.geronimo.axis2.GeronimoConfigurator;
+import org.apache.geronimo.axis2.osgi.Axis2ModuleRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +36,11 @@ public class Axis2ClientConfigurationFactory extends ClientConfigurationFactory
         new Hashtable<ClassLoader, ConfigurationContext>();
 
     private boolean reuseConfigurationContext;
+    private Axis2ModuleRegistry axis2ModuleRegistry;
 
-    public Axis2ClientConfigurationFactory(boolean reuse) {
+    public Axis2ClientConfigurationFactory(Axis2ModuleRegistry axis2ModuleRegistry, boolean reuse) {
         this.reuseConfigurationContext = reuse;
+        this.axis2ModuleRegistry = axis2ModuleRegistry;
     }
 
     public ConfigurationContext getClientConfigurationContext() {
@@ -59,6 +62,7 @@ public class Axis2ClientConfigurationFactory extends ClientConfigurationFactory
         ConfigurationContext context = this.contextCache.get(cl);
         if (context == null) {
             context = createConfigurationContext();
+            axis2ModuleRegistry.configureModules(context);
             this.contextCache.put(cl, context);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Created new configuration context " + context + "  for " + cl);

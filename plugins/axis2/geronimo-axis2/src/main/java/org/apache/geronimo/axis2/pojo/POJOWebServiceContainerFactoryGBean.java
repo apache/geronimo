@@ -72,8 +72,6 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                      throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 
         if (componentContext != null) {
-
-            // The name should match WebServiceContextAnnotationHelper.RELATIVE_JNDI_NAME
             componentContext.put("comp/env/WebServiceContext", new WebServiceContextReference());
 
             GeronimoUserTransaction userTransaction = new GeronimoUserTransaction(transactionManager);
