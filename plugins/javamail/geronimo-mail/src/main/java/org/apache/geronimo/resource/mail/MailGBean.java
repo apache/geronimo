@@ -17,13 +17,12 @@
 package org.apache.geronimo.resource.mail;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
 import javax.mail.Session;
 import javax.naming.Context;
-import javax.naming.InitialContext;
+
 import javax.naming.Name;
 import javax.naming.NamingException;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -36,11 +35,12 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.JavaMailResource;
+import org.apache.geronimo.naming.AbstractURLContextFactory;
 import org.apache.geronimo.naming.ResourceSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
+
 import org.osgi.framework.ServiceReference;
 
 import javax.naming.spi.ObjectFactory;
@@ -78,6 +78,7 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
     private Boolean debug;
     private String jndiName;
     private BundleContext bundleContext;
+    private Context context = null;
 
 
     /**
@@ -383,15 +384,36 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
             // first get the resource incase there are exceptions
             Object value = $getResource();
                     
-            //Get ger service, and bind ger:MailSession to context
-            ServiceReference[] sr = bundleContext.getServiceReferences(ObjectFactory.class.getName(), "(osgi.jndi.url.scheme=ger)");
-            if (sr != null){
-             ObjectFactory objectFactory =  (ObjectFactory) bundleContext.getService(sr[0]);             
-             Context context = (Context)objectFactory.getObjectInstance(null, null, null, null);
-             context.bind(jndiName, value);
+            //Get all context provider, and bind mail/MailSession jndi name to context
+            int index = jndiName.indexOf(":");
+            if ( index > 0){                 
+                 String scheme = jndiName.substring(0, index);
+                 ServiceReference[] sr = bundleContext.getServiceReferences(ObjectFactory.class.getName(), "(osgi.jndi.url.scheme=" + scheme +")");
+                if (sr != null) {
+                    ObjectFactory objectFactory = (ObjectFactory) bundleContext.getService(sr[0]);
+                    // Get context
+                    this.context = (Context) objectFactory.getObjectInstance(null, null, null, null);
+                    Name parsedName = context.getNameParser("").parse(jndiName);
+
+                    // create intermediate contexts
+                    for (int i = 1; i < parsedName.size(); i++) {
+                        Name contextName = parsedName.getPrefix(i);
+                        if (!bindingExists(context, contextName)) {
+                            context.createSubcontext(contextName);
+                        }
+                    }
+                    // bind
+                    context.bind(jndiName, value);
+                    log.info("JavaMail session bound to " + jndiName);                                           
+                     
+                 }else {
+                     log.error("mail/MailSession JNDI namespace doesn't exist.");
+                     throw new NamingException("mail/MailSession JNDI namespace doesn't exist.");                 
+                 }                 
+            }else {
+                log.error("Wrong " + jndiName);
+                throw new NamingException("Wrong " + jndiName + "for mail/MailSession");
             }           
-            
-            log.info("JavaMail session bound to " + jndiName);
         }
     }
 
@@ -409,14 +431,11 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
         String jndiName = getJndiName();
         if (jndiName != null && jndiName.length() > 0) {
             try {
-            //Get ger service, and bind ger:MailSession to context
-                ServiceReference[] sr = bundleContext.getServiceReferences(ObjectFactory.class.getName(), "(osgi.jndi.url.scheme=ger)");
-                if (sr != null){
-                 ObjectFactory objectFactory =  (ObjectFactory) bundleContext.getService(sr[0]);                 
-                 Context context = (Context)objectFactory.getObjectInstance(null, null, null, null);
-                 context.unbind(jndiName);
-                }                
-                log.info("JavaMail session unbound from " + jndiName);
+                //Unbind mail/MailSession jndi name     
+                 if (context != null){
+                     context.unbind(jndiName);
+                     log.info("JavaMail session unbound from " + jndiName);
+                 }               
             } catch (Exception e) {
                 // we tried... this is a common error which occurs during shutdown due to ordering
             }
@@ -450,12 +469,12 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource, ResourceSour
         return false;
     }
 
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-	}
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
 
-	public BundleContext getBundleContext() {
-		return bundleContext;
-	}
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
 
 }
