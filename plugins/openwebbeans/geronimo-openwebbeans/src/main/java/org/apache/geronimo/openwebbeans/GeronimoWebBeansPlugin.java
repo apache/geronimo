@@ -18,14 +18,30 @@
  */
 package org.apache.geronimo.openwebbeans;
 
+import org.apache.webbeans.exception.WebBeansConfigurationException;
+import org.apache.webbeans.spi.SecurityService;
+import org.apache.webbeans.spi.TransactionService;
+import org.apache.webbeans.spi.plugins.AbstractOwbPlugin;
+import org.apache.webbeans.spi.plugins.OpenWebBeansJavaEEPlugin;
+
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import java.security.Principal;
+import java.security.PrivilegedActionException;
+
+import java.util.Properties;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.TransactionPhase;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.ObserverMethod;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
+
 import javax.jws.WebService;
+
 import javax.servlet.AsyncListener;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
@@ -37,29 +53,23 @@ import javax.servlet.http.HttpSessionActivationListener;
 import javax.servlet.http.HttpSessionAttributeListener;
 import javax.servlet.http.HttpSessionBindingListener;
 import javax.servlet.http.HttpSessionListener;
+
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
-import org.apache.webbeans.exception.WebBeansConfigurationException;
-import org.apache.webbeans.spi.SecurityService;
-import org.apache.webbeans.spi.TransactionService;
-import org.apache.webbeans.spi.plugins.AbstractOwbPlugin;
-import org.apache.webbeans.spi.plugins.OpenWebBeansJavaEEPlugin;
 
-public class GeronimoWebBeansPlugin 
-    extends AbstractOwbPlugin 
+public class GeronimoWebBeansPlugin extends AbstractOwbPlugin
     implements OpenWebBeansJavaEEPlugin, TransactionService, SecurityService {
- //OpenWebBeansEjbPlugin,
+    //OpenWebBeansEjbPlugin,
     public <T> Bean<T> defineSessionBean(Class<T> clazz,
-                                         ProcessAnnotatedType<T> processAnnotateTypeEvent) {
+        ProcessAnnotatedType<T> processAnnotateTypeEvent) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public Object getSessionBeanProxy(Bean<?> bean,
-                                      Class<?> iface,
-                                      CreationalContext<?> creationalContext) {
+    public Object getSessionBeanProxy(Bean<?> bean, Class<?> iface,
+        CreationalContext<?> creationalContext) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -86,7 +96,7 @@ public class GeronimoWebBeansPlugin
 
     @Override
     public void isManagedBean(Class<?> clazz) {
-        if(Servlet.class.isAssignableFrom(clazz) ||
+        if (Servlet.class.isAssignableFrom(clazz) ||
                 Filter.class.isAssignableFrom(clazz) ||
                 ServletContextListener.class.isAssignableFrom(clazz) ||
                 ServletContextAttributeListener.class.isAssignableFrom(clazz) ||
@@ -96,15 +106,15 @@ public class GeronimoWebBeansPlugin
                 HttpSessionListener.class.isAssignableFrom(clazz) ||
                 ServletRequestListener.class.isAssignableFrom(clazz) ||
                 ServletRequestAttributeListener.class.isAssignableFrom(clazz) ||
-                AsyncListener.class.isAssignableFrom(clazz) )
-        {
-            throw new WebBeansConfigurationException("Given class  : " + clazz.getName() + " is not managed bean");
+                AsyncListener.class.isAssignableFrom(clazz)) {
+            throw new WebBeansConfigurationException("Given class  : " +
+                clazz.getName() + " is not managed bean");
         }
     }
 
     @Override
     public boolean supportsJavaEeComponentInjections(Class<?> clazz) {
-        if(Servlet.class.isAssignableFrom(clazz) ||
+        if (Servlet.class.isAssignableFrom(clazz) ||
                 Filter.class.isAssignableFrom(clazz) ||
                 ServletContextListener.class.isAssignableFrom(clazz) ||
                 ServletContextAttributeListener.class.isAssignableFrom(clazz) ||
@@ -115,8 +125,7 @@ public class GeronimoWebBeansPlugin
                 ServletRequestListener.class.isAssignableFrom(clazz) ||
                 ServletRequestAttributeListener.class.isAssignableFrom(clazz) ||
                 clazz.isAnnotationPresent(WebService.class) ||
-                AsyncListener.class.isAssignableFrom(clazz) )
-        {
+                AsyncListener.class.isAssignableFrom(clazz)) {
             return true;
         }
 
@@ -139,9 +148,9 @@ public class GeronimoWebBeansPlugin
     }
 
     public void registerTransactionSynchronization(TransactionPhase phase,
-                                                   ObserverMethod<? super Object> observer,
-                                                   Object event) throws Exception {
-        // TODO Auto-generated method stub        
+        ObserverMethod<?super Object> observer, Object event)
+        throws Exception {
+        // TODO Auto-generated method stub
     }
 
     public Principal getCurrentPrincipal() {
@@ -149,4 +158,81 @@ public class GeronimoWebBeansPlugin
         return null;
     }
 
+    @Override
+    public <T> Constructor<T> doPrivilegedGetDeclaredConstructor(
+        Class<T> clazz, Class<?>... parameterTypes) {
+        try {
+            return clazz.getDeclaredConstructor(parameterTypes);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public <T> Constructor<?>[] doPrivilegedGetDeclaredConstructors(
+        Class<T> clazz) {
+        return clazz.getDeclaredConstructors();
+    }
+
+    @Override
+    public <T> Method doPrivilegedGetDeclaredMethod(Class<T> clazz,
+        String name, Class<?>... parameterTypes) {
+        try {
+            return clazz.getDeclaredMethod(name, parameterTypes);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public <T> Method[] doPrivilegedGetDeclaredMethods(Class<T> clazz) {
+        return clazz.getDeclaredMethods();
+    }
+
+    @Override
+    public <T> Field doPrivilegedGetDeclaredField(Class<T> clazz, String name) {
+        try {
+            return clazz.getDeclaredField(name);
+        } catch (NoSuchFieldException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public <T> Field[] doPrivilegedGetDeclaredFields(Class<T> clazz) {
+        return clazz.getDeclaredFields();
+    }
+
+    @Override
+    public void doPrivilegedSetAccessible(AccessibleObject obj, boolean flag) {
+        obj.setAccessible(flag);
+    }
+
+    @Override
+    public boolean doPrivilegedIsAccessible(AccessibleObject obj) {
+        return obj.isAccessible();
+    }
+
+    @Override
+    public <T> T doPrivilegedObjectCreate(Class<T> clazz)
+        throws PrivilegedActionException, IllegalAccessException,
+            InstantiationException {
+        return clazz.newInstance();
+    }
+
+    @Override
+    public void doPrivilegedSetSystemProperty(String propertyName, String value) {
+        System.setProperty(propertyName, value);
+    }
+
+    @Override
+    public String doPrivilegedGetSystemProperty(String propertyName,
+        String defaultValue) {
+        return System.getProperty(propertyName, defaultValue);
+    }
+
+    @Override
+    public Properties doPrivilegedGetSystemProperties() {
+        return System.getProperties();
+    }
 }
