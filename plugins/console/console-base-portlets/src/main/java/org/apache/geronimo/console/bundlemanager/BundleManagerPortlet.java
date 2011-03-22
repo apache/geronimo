@@ -19,6 +19,7 @@ package org.apache.geronimo.console.bundlemanager;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,7 +56,9 @@ import org.apache.xbean.osgi.bundle.util.VersionRange;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.blueprint.container.BlueprintContainer;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
@@ -377,11 +380,27 @@ public class BundleManagerPortlet extends BasePortlet {
                     if ("wab".equals(listType)){
                         if (checkWABBundle(bundle)){
                             ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configedBundleIds);
+                            info.addContextPath(getContextPath(bundle));
                             bundleInfos.add(info);
                         }
                     }else if ("blueprint".equals(listType)){
                         if (checkBlueprintBundle(bundle)){
                             ExtendedBundleInfo info = createExtendedBundleInfo(bundle, startLevelService, configedBundleIds);
+                            
+                            // currently, we try get the the blueprintContainer service to determine if a blueprint bundle is created
+                            // TODO A better way is using a BlueprintListener to track all blueprint bundle events
+                            String filter = "(&(osgi.blueprint.container.symbolicname=" + bundle.getSymbolicName()
+                                            + ")(osgi.blueprint.container.version=" + bundle.getVersion() + "))";
+                            ServiceReference[] serviceReferences = null;
+                            try {
+                                serviceReferences = bundleContext.getServiceReferences(BlueprintContainer.class.getName(), filter);
+                            } catch (InvalidSyntaxException e) {
+                                throw new RuntimeException(e);
+                            }
+                            if (serviceReferences != null && serviceReferences.length > 0){
+                                info.setBlueprintState(BlueprintState.CREATED);
+                            }
+                            
                             bundleInfos.add(info);
                         }
                     }else if ("system".equals(listType)){
@@ -419,12 +438,10 @@ public class BundleManagerPortlet extends BasePortlet {
         }
     }
     
-    private ExtendedBundleInfo createExtendedBundleInfo(Bundle bundle, StartLevel startLevelService,Set<Long> configedBundleIds){
+    private ExtendedBundleInfo createExtendedBundleInfo(Bundle bundle, StartLevel startLevelService, Set<Long> configedBundleIds){
         ExtendedBundleInfo info = new ExtendedBundleInfo(bundle);
-        
-        String contextPath = getContextPath(bundle);
-        if (contextPath != null && contextPath!="") {
-            info.addContextPath(contextPath);
+      
+        if (checkWABBundle(bundle)){
             info.addType(BundleType.WAB);
         }
         
@@ -472,7 +489,15 @@ public class BundleManagerPortlet extends BasePortlet {
     }
     
     private static boolean checkBlueprintBundle(Bundle bundle){
-        // TODO do nothing currently
+        // OSGi enterprise spec(r4.2) 121.3.4 (Page 206)
+        // check blueprint header
+        Object bpHeader = bundle.getHeaders().get(BundleUtil.BLUEPRINT_HEADER);
+        if (bpHeader!=null && (String)bpHeader!="") return true;
+        
+        // check blueprint definitions
+        Enumeration<URL> enu = bundle.findEntries("OSGI-INF/blueprint/", "*.xml", false);
+        if (enu!=null && enu.hasMoreElements()) return true;
+
         return false;
     }
     
@@ -683,7 +708,6 @@ public class BundleManagerPortlet extends BasePortlet {
             }
             
         }
-                
         //TODO  the result set may contains 2 items which have the same package name but different versions.
         return importingPairs;
     }

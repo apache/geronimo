@@ -54,7 +54,10 @@ function uninstallPrompt(target, bundleId, bundleName) {
     return showConfirmMessage(target, '<fmt:message key="configmanager.normal.confirmMsg10"/> ' + bundleName + '?', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
 }
 
-
+function refreshPrompt(target, bundleId, bundleName) {
+    // if the component is none of the above provide a standard warning
+    return showConfirmMessage(target, '<fmt:message key="configmanager.normal.confirmMsg11"/> ' + bundleName + '?', '<fmt:message key="configmanager.normal.ok"/>', '<fmt:message key="configmanager.normal.cancel"/>');
+}
 
 
 </script>
@@ -143,12 +146,12 @@ function uninstallPrompt(target, bundleId, bundleName) {
     <tr class="DarkBackground">
         <th scope="col" width="40">Id</th>   
         <th scope="col">Symbolic Name</th> 
-        <c:if test="${listTypeValue == 'wab'}" >          
-            <th scope="col">URL</th>
-        </c:if>
         <th scope="col" width="150">Version</th>
         <th scope="col" width="150">Type</th>
         <th scope="col" width="100">State</th>
+        <c:if test="${listTypeValue == 'wab'}" >          
+            <th scope="col" width="100">URL</th>
+        </c:if>
         <c:if test="${listTypeValue == 'blueprint'}" >
             <th scope="col" width="100">Blueprint State</th>
         </c:if>
@@ -183,22 +186,11 @@ function uninstallPrompt(target, bundleId, bundleName) {
         
         <!-- bundle name -->
         <td>&nbsp;${bundleInfo.symbolicName}&nbsp;</td>
-                
-        <!-- WAB context path -->
-        <c:if test="${listTypeValue == 'wab'}" >  
-                <td>
-                    <c:if test="${bundleInfo.state.running}">
-                        <c:forEach var="contextPath" items="${bundleInfo.contextPaths}">
-                            &nbsp;<a href="${contextPath}">${contextPath}</a>&nbsp;<br/>
-                        </c:forEach>
-                    </c:if>
-                </td>
-        </c:if>
-        
+
         <!-- version -->
         <td>&nbsp;${bundleInfo.bundleVersion}&nbsp;</td>
 
-        <!--  bundle type -->
+        <!-- bundle type -->
         <td>
             <c:forEach var="type" items="${bundleInfo.types}">
                 ${type}&nbsp;
@@ -208,10 +200,23 @@ function uninstallPrompt(target, bundleId, bundleName) {
         <!-- state -->
         <td>&nbsp;${bundleInfo.state}&nbsp;</td>
         
-        <!-- Blueprint info -->
+        <!-- WAB context path -->
+        <c:if test="${listTypeValue == 'wab'}" >  
+            <td>
+                <c:if test="${bundleInfo.state.running}">
+                    <c:forEach var="contextPath" items="${bundleInfo.contextPaths}">
+                        &nbsp;<a href="${contextPath}">${contextPath}</a>&nbsp;<br/>
+                    </c:forEach>
+                </c:if>
+            </td>
+        </c:if>
+        
+        <!-- Blueprint State -->
         <c:if test="${listTypeValue == 'blueprint'}" >
-            <td class="${backgroundClass}">
-                &nbsp;
+            <td>
+                <c:if test="${! empty bundleInfo.blueprintState}">
+                    ${bundleInfo.blueprintState}
+                </c:if>
             </td>
         </c:if>
         
@@ -239,7 +244,7 @@ function uninstallPrompt(target, bundleId, bundleName) {
                 	
                 	<!-- Refresh action -->
                     <span> 
-                        <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='refresh'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_refresh.png" title="refresh"/></a>&nbsp;
+                        <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='refresh'/></portlet:actionURL>" onClick="return refreshPrompt(this, '${bundleInfo.bundleId}','${bundleInfo.symbolicName}');"><img border="0" src="<%=request.getContextPath()%>/images/bundle_refresh.png" title="refresh"/></a>&nbsp;
                     </span>
                 
                     <!-- Uninstall action -->

@@ -23,6 +23,8 @@ public class BundleUtil {
     
     public static final String WEB_CONTEXT_PATH_HEADER = "Web-ContextPath";
     
+    public static final String BLUEPRINT_HEADER = "Bundle-Blueprint";
+    
     public static String getBundleName(Bundle bundle) {
         String name = (String) bundle.getHeaders().get(Constants.BUNDLE_NAME);
         name = (name == null) ? bundle.getSymbolicName() : name;

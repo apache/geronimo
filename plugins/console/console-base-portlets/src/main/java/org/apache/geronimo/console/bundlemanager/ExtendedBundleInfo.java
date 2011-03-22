@@ -25,6 +25,7 @@ public class ExtendedBundleInfo extends SimpleBundleInfo {
 
     private List<BundleType> types = new ArrayList<BundleType>();
     private List<String> contextPaths = new ArrayList<String>();
+    private BlueprintState blueprintState = null;
 
     public ExtendedBundleInfo(Bundle bundle) {
         super(bundle);
@@ -36,6 +37,14 @@ public class ExtendedBundleInfo extends SimpleBundleInfo {
     
     public void addType(BundleType type) {
         types.add(type);
+    }
+
+    public BlueprintState getBlueprintState(){
+        return blueprintState;
+    }
+    
+    public void setBlueprintState(BlueprintState state){
+        blueprintState = state;
     }
     
     public boolean isOperable(){
