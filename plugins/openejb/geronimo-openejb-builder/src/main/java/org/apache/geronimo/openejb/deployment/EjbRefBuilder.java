@@ -222,6 +222,10 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
             // merge info in alt-DD to spec DD.
             if (ejbRefType != null) {
+                
+                if (ejbRefType.getNsCorbaloc() != null) {
+                   continue;
+                }
 
                 // ejb-ref-name
                 spec_ejbRef.setEjbRefName(refName);
@@ -249,7 +253,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 spec_ejbRef.setMappedName(getStringValue(spec_ejbRef.getMappedName()));
 
                 // handle external refs
-
+                
                 if (ejbRefType.getPattern() != null) {
                     // external ear ref
                     // set mapped name to the deploymentId of the external ref

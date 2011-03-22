@@ -173,5 +173,10 @@ public class OpenEjbCorbaRefBuilder extends EjbRefBuilder {
         }
         return refMap;
     }
+    
+    @Override
+    public int getPriority() {
+        return 55;
+    }    
 
 }
