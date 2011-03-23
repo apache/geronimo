@@ -306,7 +306,7 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
     }
     
     public AbstractName getApplicationGBeanName(Artifact configurationId) {
-        Set<AbstractName> applicationGBeanNames = kernel.listGBeans(new AbstractNameQuery(configurationId, Collections.EMPTY_MAP, "org.apache.geronimo.aries.builder.ApplicationGBean"));
+        Set<AbstractName> applicationGBeanNames = kernel.listGBeans(new AbstractNameQuery(configurationId, Collections.EMPTY_MAP, "org.apache.geronimo.aries.ApplicationGBean"));
         if (applicationGBeanNames.size()!=1){
             throw new IllegalStateException("An EBA should have one and only one ApplicationGean object");
         }
