@@ -37,7 +37,6 @@
     </description>
     
     <properties>
-        <axis2Version>1.6.0</axis2Version>
         <wodenVersion>1.0M9</wodenVersion>
     </properties>
     
