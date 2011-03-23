@@ -28,27 +28,7 @@
     </dependency>
     <dependency>
         <groupId>org.apache.aries.application</groupId>
-        <artifactId>org.apache.aries.application.api</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.aries.application</groupId>
-        <artifactId>org.apache.aries.application.management</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.aries.application</groupId>
-        <artifactId>org.apache.aries.application.resolver.obr</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.aries.application</groupId>
         <artifactId>org.apache.aries.application.utils</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.aries.blueprint</groupId>
-        <artifactId>org.apache.aries.blueprint</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -95,6 +75,11 @@
         <groupId>org.apache.geronimo.components</groupId>
         <artifactId>geronimo-transaction</artifactId>
         <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>aries</artifactId>
+        <type>car</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.framework</groupId>

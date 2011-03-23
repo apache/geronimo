@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.geronimo.aries.builder;
+package org.apache.geronimo.aries;
 
 import java.util.HashSet;
 import java.util.Set;

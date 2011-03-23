@@ -51,7 +51,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.apache.geronimo.aries.ApplicationInstaller;
 /**
  * @version $Rev:385232 $ $Date$
  */

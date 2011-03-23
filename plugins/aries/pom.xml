@@ -37,6 +37,8 @@
     </description>
     
     <modules>
+        <module>geronimo-aries</module>
+        <module>aries</module>
         <module>geronimo-aries-builder</module>
         <module>aries-deployer</module>
     </modules>

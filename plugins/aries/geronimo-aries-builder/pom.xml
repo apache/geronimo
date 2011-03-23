@@ -35,14 +35,22 @@
 
     <dependencies>
         <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>geronimo-aries</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security-builder</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.aries.application</groupId>
             <artifactId>org.apache.aries.application.utils</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -55,9 +63,6 @@
                         <Export-Package>
                           org.apache.geronimo.aries.builder
                         </Export-Package>
-                        <Import-Package>
-                          *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
