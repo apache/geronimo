@@ -1451,44 +1451,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.woden</groupId>
-                <artifactId>woden-api</artifactId>
-                <version>1.0M8</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xmlParserAPIs</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>wsdl4j</groupId>
-                        <artifactId>wsdl4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.codehaus.woodstox</groupId>
-                        <artifactId>wstx-asl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.ws.commons.axiom</groupId>
-                        <artifactId>axiom-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.geronimo.bundles</groupId>
-                <artifactId>woden-impl-dom</artifactId>
-                <version>1.0M8_1</version>
-            </dependency>
-
-            <dependency>
                 <groupId>jline</groupId>
                 <artifactId>jline</artifactId>
                 <version>0.9.94</version>

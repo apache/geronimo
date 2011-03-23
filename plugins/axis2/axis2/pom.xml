@@ -132,8 +132,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
+            <groupId>org.apache.woden</groupId>
             <artifactId>woden-impl-dom</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.woden</groupId>
+            <artifactId>woden-impl-commons</artifactId>
         </dependency>
 
         <dependency>

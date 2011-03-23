@@ -37,7 +37,8 @@
     </description>
     
     <properties>
-        <axis2Version>1.5.4</axis2Version>
+        <axis2Version>1.6.0</axis2Version>
+        <wodenVersion>1.0M9</wodenVersion>
     </properties>
     
     <modules>
@@ -87,7 +88,36 @@
                 <version>4.0.1_1</version>
             </dependency>
 
-        </dependencies>
+            <dependency>
+                <groupId>org.apache.woden</groupId>
+                <artifactId>woden-api</artifactId>
+                <version>${wodenVersion}</version>
+                <exclusions>
+                    <exclusion>
+            			<groupId>org.apache.ws.commons.schema</groupId>
+            			<artifactId>XmlSchema</artifactId>
+		            </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.woden</groupId>
+                <artifactId>woden-impl-dom</artifactId>
+                <version>${wodenVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.woden</groupId>
+                <artifactId>woden-impl-commons</artifactId>
+                <version>${wodenVersion}</version>
+                <exclusions>
+                    <exclusion>
+            			<groupId>commons-logging</groupId>
+		                <artifactId>commons-logging</artifactId>
+		            </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>        
     </dependencyManagement>
 
 </project>
