@@ -23,4 +23,9 @@
 
     <gbean name="Axis2SystemInitializer" class="org.apache.geronimo.axis2.Axis2SystemInitializer"/>
 
+    <gbean name="Axis2SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties">
+            usePostWebMethodRules=true
+        </attribute>
+    </gbean>
 </module>
