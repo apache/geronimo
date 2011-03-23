@@ -257,7 +257,10 @@ public class AdminObjectRefBuilder extends AbstractNamingBuilder {
                 String refAddrType = getStringValue(gerResourceEnvRef.getStringAddrType());
                 String refAddr = getStringValue(gerResourceEnvRef.getStringAddr());
                 addr = new StringRefAddr(refAddrType, refAddr);
+            } else {
+                addr = new StringRefAddr("","");
             }
+            
             String objectFactory = getStringValue(gerResourceEnvRef.getObjectFactory());
             String objectFactoryLocation = getStringValue(gerResourceEnvRef.getObjectFactoryLocation());
             return new Reference(clazz, addr, objectFactory, objectFactoryLocation);
