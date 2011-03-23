@@ -231,7 +231,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
                 spec_ejbRef.setEjbRefName(refName);
 
                 // ejb-ref-type
-                String refType = getStringValue(spec_ejbRef.getType());
+                String refType = getStringValue(spec_ejbRef.getEjbRefType()==null?null:spec_ejbRef.getEjbRefType().name());
                 if ("SESSION".equalsIgnoreCase(refType)) {
                     spec_ejbRef.setEjbRefType(org.apache.openejb.jee.EjbRefType.SESSION);
                 } else if ("ENTITY".equalsIgnoreCase(refType)) {
@@ -275,14 +275,17 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
                 // openejb handling of injection-targets
                 if (spec_ejbRef.getInjectionTarget() != null) {
+                    
+                    List<InjectionTarget> injectionTargetsToAdd=new ArrayList<InjectionTarget>();
                     for (InjectionTarget injectionTargetType : spec_ejbRef.getInjectionTarget()) {
                         InjectionTarget newInjectionTarget = new InjectionTarget();
                         newInjectionTarget.setInjectionTargetClass(getStringValue(injectionTargetType
                                 .getInjectionTargetClass()));
                         newInjectionTarget.setInjectionTargetName(getStringValue(injectionTargetType
                                 .getInjectionTargetName()));
-                        spec_ejbRef.getInjectionTarget().add(newInjectionTarget);
+                        injectionTargetsToAdd.add(newInjectionTarget);
                     }
+                    spec_ejbRef.getInjectionTarget().addAll(injectionTargetsToAdd);
                 }
 
                 // TODO: geronimo's handling of injection-target
@@ -341,14 +344,18 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
 
                 // openejb handling of injection-targets
                 if (localRefFromSpecDD.getInjectionTarget() != null) {
+                    List<InjectionTarget> injectionTargetsToAdd=new ArrayList<InjectionTarget>();
+                    
                     for (InjectionTarget injectionTargetType : localRefFromSpecDD.getInjectionTarget()) {
                         InjectionTarget injectionTarget = new InjectionTarget();
                         injectionTarget.setInjectionTargetClass(getStringValue(injectionTargetType
                                 .getInjectionTargetClass()));
                         injectionTarget.setInjectionTargetName(getStringValue(injectionTargetType
                                 .getInjectionTargetName()));
-                        localRefFromSpecDD.getInjectionTarget().add(injectionTarget);
+                        injectionTargetsToAdd.add(injectionTarget);
                     }
+                    
+                    localRefFromSpecDD.getInjectionTarget().addAll(injectionTargetsToAdd);
                 }
                 // TODO: geronimo's handling of injection-target
                 // addInjections(refName, localRefFromSpecDD.getInjectionTarget(), NamingBuilder.INJECTION_KEY.get(sharedContext));
