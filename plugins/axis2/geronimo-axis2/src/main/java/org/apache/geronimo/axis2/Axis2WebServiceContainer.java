@@ -32,7 +32,7 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
-import org.apache.axiom.om.util.UUIDGenerator;
+import org.apache.axiom.util.UIDGenerator;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.addressing.AddressingHelper;
@@ -99,7 +99,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
     protected org.apache.geronimo.jaxws.PortInfo portInfo;
     protected ConfigurationContext configurationContext;
     protected JNDIResolver jndiResolver;
-    protected Class endpointClass;
+    protected Class<?> endpointClass;
     protected AxisService service;
     protected WSDLQueryHandler wsdlQueryHandler;
     protected Binding binding;
@@ -239,7 +239,7 @@ public abstract class Axis2WebServiceContainer implements WebServiceContainer
 //            }
             msgContext.setTransportIn(transportIn);
             msgContext.setTransportOut(transportOut);
-            msgContext.setServiceGroupContextId(UUIDGenerator.getUUID());
+            msgContext.setServiceGroupContextId(UIDGenerator.generateURNString());
             msgContext.setServerSide(true);
             msgContext.setAxisService(this.service);
 
