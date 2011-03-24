@@ -80,7 +80,7 @@ public class JAXWSTools {
     };
 
     private final static Artifact SUN_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.geronimo.bundles","saaj-impl", (Version)null, "jar");
-    private final static Artifact AXIS2_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.geronimo.bundles","axis2", (Version)null, "jar");
+    private final static Artifact AXIS2_SAAJ_IMPL_ARTIFACT = new Artifact("org.apache.geronimo.bundles","axis2-saaj", (Version)null, "jar");
     private final static String TOOLS = "tools.jar";
 
     private Artifact saajImpl;
