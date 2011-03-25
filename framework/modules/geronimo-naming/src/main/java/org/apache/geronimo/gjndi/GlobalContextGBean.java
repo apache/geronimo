@@ -26,6 +26,7 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.xbean.naming.global.GlobalContextManager;
+import org.osgi.framework.BundleContext;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -34,17 +35,18 @@ import java.util.Collections;
 
 /**
  * @version $Rev$ $Date$
- */
+*/ 
 @GBean(j2eeType = "GlobalContext")
 public class GlobalContextGBean extends KernelContextGBean implements GBeanLifecycle {
-    public GlobalContextGBean(@ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) throws NamingException {
-        super("", new AbstractNameQuery(null, Collections.<String, Object>emptyMap(), Context.class.getName()), kernel);
+    public GlobalContextGBean(@ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
+            @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws NamingException {
+        super("", new AbstractNameQuery(null, Collections.<String, Object>emptyMap(), Context.class.getName()), kernel, bundleContext);
     }
 
     @Override
     public void doStart() {
         super.doStart();
-        GlobalContextManager.setGlobalContext(this);
+        GlobalContextManager.setGlobalContext(getContext());
     }
 
     @Override
@@ -67,7 +69,7 @@ public class GlobalContextGBean extends KernelContextGBean implements GBeanLifec
 
             Context context = (Context) value;
             String nameInNamespace = context.getNameInNamespace();
-            return getNameParser().parse(nameInNamespace);
+            return getContext().getNameParser("").parse(nameInNamespace);
         }
         throw new NamingException("value is not a context: abstractName=" + abstractName + " valueType=" + value.getClass().getName());
     }

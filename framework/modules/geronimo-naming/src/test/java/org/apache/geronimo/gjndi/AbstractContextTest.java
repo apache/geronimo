@@ -23,27 +23,86 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import javax.naming.Binding;
+import javax.naming.CompositeName;
+import javax.naming.CompoundName;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameClassPair;
+import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.spi.InitialContextFactory;
+import javax.naming.spi.InitialContextFactoryBuilder;
+import javax.naming.spi.NamingManager;
+import javax.naming.spi.ObjectFactory;
 
 import junit.framework.TestCase;
+
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.naming.WritableURLContextFactory;
+import org.apache.geronimo.naming.java.RootContext;
+import org.apache.geronimo.naming.java.javaURLContextFactory;
 import org.apache.xbean.naming.context.ContextUtil;
-import org.apache.xbean.naming.global.GlobalContextManager;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractContextTest extends TestCase {
-    protected Hashtable contextEnv;
+    protected static MockBundleContext bundleContext = new MockBundleContext(AbstractContextTest.class.getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
 
+    protected static Context jcaContext;
+    
+    protected static Context javaContext;
+    static {
+        try {
+            WritableURLContextFactory jcaContextFactory = new WritableURLContextFactory("jca");
+            jcaContext = (Context) jcaContextFactory.getObjectInstance(null, null, null, null);
+            Hashtable jcaProperties = new Hashtable();
+            jcaProperties.put("osgi.jndi.url.scheme", "jca");
+            bundleContext.registerService(ObjectFactory.class.getName(), jcaContextFactory, jcaProperties);
+
+            javaURLContextFactory javaContextFactory = new javaURLContextFactory();
+            javaContext = (Context) javaContextFactory.getObjectInstance(null, null, null, null);
+            Hashtable javaProperties = new Hashtable();
+            jcaProperties.put("osgi.jndi.url.scheme", "java");
+            bundleContext.registerService(ObjectFactory.class.getName(), javaContextFactory, javaProperties);
+
+        } catch (Exception e) {
+        }
+    }
+    
+    private static MockInitialContextFactoryBuilder initialContextFactoryBuilder = new MockInitialContextFactoryBuilder(bundleContext);
+
+    static {
+        try {
+            NamingManager.setInitialContextFactoryBuilder(initialContextFactoryBuilder);
+        } catch (NamingException e) {
+        }
+    }
+    
     @Override
     protected void setUp() throws Exception {
-        contextEnv = new Hashtable();
-        contextEnv.put(Context.INITIAL_CONTEXT_FACTORY, GlobalContextManager.class.getName());
-        contextEnv.put(Context.URL_PKG_PREFIXES, "org.apache.geronimo.naming");
+        /* Create a jca context
+        try {
+            WritableURLContextFactory jcaContextFactory = new WritableURLContextFactory("jca");
+            jcaContext = (Context) jcaContextFactory.getObjectInstance(null, null, null, null);
+            Hashtable jcaProperties = new Hashtable();
+            jcaProperties.put("osgi.jndi.url.scheme", "jca");
+            bundleContext.registerService(ObjectFactory.class.getName(), jcaContextFactory, jcaProperties);
+
+            javaURLContextFactory javaContextFactory = new javaURLContextFactory();
+            javaContext = (Context) javaContextFactory.getObjectInstance(null, null, null, null);
+            Hashtable javaProperties = new Hashtable();
+            jcaProperties.put("osgi.jndi.url.scheme", "java");
+            bundleContext.registerService(ObjectFactory.class.getName(), javaContextFactory, javaProperties);
+
+        } catch (Exception e) {
+        }*/
     }
 
     public static void assertEq(Map expected, Context actual) throws NamingException {
@@ -183,5 +242,309 @@ public abstract class AbstractContextTest extends TestCase {
             result.put(name, binding.getObject());
         }
         return result;
+    }
+    
+    private static class MockInitialContextFactoryBuilder implements InitialContextFactoryBuilder, InitialContextFactory {
+
+        private MockContext mockContext;
+
+        public MockInitialContextFactoryBuilder(BundleContext bundleContext) {
+            mockContext = new MockContext(bundleContext);
+        }
+
+        @Override
+        public Context getInitialContext(Hashtable<?, ?> environment)
+                throws NamingException {
+            return mockContext;
+        }
+
+        @Override
+        public InitialContextFactory createInitialContextFactory(Hashtable<?, ?> environment) throws NamingException {
+            return this;
+        }
+    }
+
+    private static class MockContext implements Context {
+
+       private BundleContext bundleContext;
+       private String scheme;
+       private Context context;
+
+        public MockContext(BundleContext bundleContext) {
+           this.bundleContext = bundleContext;
+       }
+
+        @Override
+        public Object addToEnvironment(String propName, Object propVal) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void bind(Name name, Object obj) throws NamingException {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void bind(String name, Object obj) throws NamingException {            
+            // TODO Auto-generated method stub            
+            int colonIndex = name.indexOf(":");
+            if(colonIndex == -1) {
+                throw new NamingException(name + " not found");
+            }
+            String scheme = name.substring(0, colonIndex);
+            setScheme(scheme);
+            if (scheme.equals("java")){
+                javaContext.bind(name, obj);
+            }else if (scheme.equals("jca")){
+                jcaContext.bind(name, obj);
+            }
+
+        }
+
+        @Override
+        public void close() throws NamingException {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public Name composeName(Name name, Name prefix) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String composeName(String name, String prefix) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Context createSubcontext(Name name) throws NamingException {
+            // TODO Auto-generated method stub
+            this.context.createSubcontext(name);
+            return null;
+        }
+
+        @Override
+        public Context createSubcontext(String name) throws NamingException {
+            // TODO Auto-generated method stub
+            int colonIndex = name.indexOf(":");
+            if(colonIndex == -1) {
+                throw new NamingException(name + " not found");
+            }
+            String scheme = name.substring(0, colonIndex);
+            setScheme(scheme);
+            //TODO get from osgi service
+            /*ServiceReference[] sr;
+            try {
+                sr = bundleContext.getServiceReferences(ObjectFactory.class.getName(), "(osgi.jndi.url.scheme=" + scheme +")");
+                if (sr != null) {
+                        ObjectFactory objectFactory = (ObjectFactory) bundleContext.getService(sr[0]);
+                        // Get context
+                        context = (Context) objectFactory.getObjectInstance(null, null, null, null);
+                        return context.createSubcontext(name);
+                    }
+            } catch (InvalidSyntaxException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (Exception e){
+                e.printStackTrace();
+            }*/
+            if (scheme.equals("java")){
+                return javaContext.createSubcontext(name);
+            }else if (scheme.equals("jca")){
+                return jcaContext.createSubcontext(name);
+            }
+            return null;
+        }
+
+        @Override
+        public void destroySubcontext(Name name) throws NamingException {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void destroySubcontext(String name) throws NamingException {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public Hashtable<?, ?> getEnvironment() throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String getNameInNamespace() throws NamingException {
+            // TODO Auto-generated method stub
+            
+            return null;
+        }
+
+        @Override
+        public NameParser getNameParser(Name name) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public NameParser getNameParser(String name) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public NamingEnumeration<NameClassPair> list(Name name) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public NamingEnumeration<NameClassPair> list(String name) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public NamingEnumeration<Binding> listBindings(Name name) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public NamingEnumeration<Binding> listBindings(String name) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Object lookup(Name name) throws NamingException {
+            // TODO Auto-generated method stub
+            if (name instanceof CompositeName){
+                CompositeName cn = (CompositeName) name;
+                String scheme = cn.get(0).substring(0, cn.get(0).indexOf(":"));
+                setScheme(scheme);
+                if (scheme.equals("java")){
+                    return javaContext.lookup(name);
+                }else if (scheme.equals("jca")){
+                    return jcaContext.lookup(name);
+                }
+            }else if (name instanceof CompoundName){
+                
+            }
+            return null;
+        }
+
+        @Override
+        public Object lookup(String name) throws NamingException {
+            int colonIndex = name.indexOf(":");
+            if(colonIndex == -1) {                
+                    throw new NamingException(name + " not found");
+            }else {
+            String scheme = name.substring(0, colonIndex);
+            setScheme(scheme);
+            //TODO get from osgi service, MockServiceReference, MockService need to update
+           /* ServiceReference[] sr;
+            try {
+                sr = bundleContext.getServiceReferences(ObjectFactory.class.getName(), "(osgi.jndi.url.scheme=" + scheme +")");
+                if (sr != null) {
+                        ObjectFactory objectFactory = (ObjectFactory) bundleContext.getService(sr[0]);
+                        // Get context
+                        this.context = (Context) objectFactory.getObjectInstance(null, null, null, null);
+                        return context.lookup(name);
+                    }
+            } catch (InvalidSyntaxException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (Exception e){
+                e.printStackTrace();
+            }*/
+             if (scheme.equals("java")){
+                return javaContext.lookup(name);
+            }else if (scheme.equals("jca")){
+                return jcaContext.lookup(name);
+            }
+            }
+            
+            return null;
+        }
+
+        @Override
+        public Object lookupLink(Name name) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Object lookupLink(String name) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void rebind(Name name, Object obj) throws NamingException {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void rebind(String name, Object obj) throws NamingException {
+            // TODO Auto-generated method stub                  
+            int colonIndex = name.indexOf(":");
+            if(colonIndex == -1) {
+                throw new NamingException(name + " not found");
+            }
+            String scheme = name.substring(0, colonIndex);
+            setScheme(scheme);
+            if (scheme.equals("java")){
+                javaContext.rebind(name, obj);
+            }else if (scheme.equals("jca")){
+                jcaContext.rebind(name, obj);
+            }
+
+        }
+
+        @Override
+        public Object removeFromEnvironment(String propName) throws NamingException {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void rename(Name oldName, Name newName) throws NamingException {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void rename(String oldName, String newName) throws NamingException {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void unbind(Name name) throws NamingException {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void unbind(String name) throws NamingException {
+            // TODO Auto-generated method stub
+
+        }
+
+        public void setScheme(String scheme) {
+            this.scheme = scheme;
+        }
+
+        public String getScheme() {
+            return scheme;
+        }
     }
 }

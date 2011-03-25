@@ -25,8 +25,11 @@ import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.ResourceSource;
 
+import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
+
+import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$
@@ -38,8 +41,10 @@ public class ResourceBinding extends GBeanFormatBinding {
                               @ParamAttribute(name="namePattern")String namePattern,
                               @ParamAttribute(name="nameInNamespace")String nameInNamespace,
                               @ParamAttribute(name="abstractNameQuery")AbstractNameQuery abstractNameQuery,
-                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) throws NamingException {
-        super(format, namePattern, nameInNamespace, abstractNameQuery, kernel);
+                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
+                              @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws NamingException {
+        super(format, namePattern, nameInNamespace, abstractNameQuery, kernel, bundleContext);
+        
     }
 
     /**
@@ -62,6 +67,6 @@ public class ResourceBinding extends GBeanFormatBinding {
             log.info("Could not get resource from gbean at " + abstractName,throwable);
             return null;
         }
-    }
+    }   
 
 }

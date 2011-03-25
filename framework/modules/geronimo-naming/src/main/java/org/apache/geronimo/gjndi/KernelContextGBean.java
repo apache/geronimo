@@ -23,9 +23,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.Context;
 import javax.naming.ContextNotEmptyException;
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.spi.ObjectFactory;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
@@ -43,39 +45,65 @@ import org.apache.xbean.naming.context.WritableContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 /**
  * @version $Rev$ $Date$
  */
 @GBean(j2eeType = "Context")
-public class KernelContextGBean extends WritableContext implements GBeanLifecycle {
+public class KernelContextGBean implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(KernelContextGBean.class);
 
     private final Kernel kernel;
     private final AbstractNameQuery abstractNameQuery;
     private final LifecycleListener listener = new ContextLifecycleListener();
     private final Map<AbstractName, Set<Name>> bindingsByAbstractName = new HashMap<AbstractName, Set<Name>>();
+    private BundleContext bundleContext;
+    private String nameInNamespace;
+    private Context context;
+    
 
     public KernelContextGBean(@ParamAttribute(name="nameInNamespace")String nameInNamespace, 
                               @ParamAttribute(name="abstractNameQuery")AbstractNameQuery abstractNameQuery,
-                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) throws NamingException {
-        super(nameInNamespace, Collections.<String, Object>emptyMap(), ContextAccess.MODIFIABLE, false);
+                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
+                              @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws NamingException {
+        //super(nameInNamespace, Collections.<String, Object>emptyMap(), ContextAccess.MODIFIABLE, false);
         this.abstractNameQuery = abstractNameQuery;
         this.kernel = kernel;
+        this.bundleContext = bundleContext;
+        this.nameInNamespace = nameInNamespace;
     }
 
-    public synchronized void doStart() {
+    public synchronized void doStart() {        
         kernel.getLifecycleMonitor().addLifecycleListener(listener, abstractNameQuery);
         Set<AbstractName> set = kernel.listGBeans(abstractNameQuery);
-        for (AbstractName abstractName : set) {
-            try {
-                if (kernel.isRunning(abstractName)) {
-                    addBinding(abstractName);
-                }
-            } catch (NamingException e) {
-                log.error("Error adding binding for " + abstractName, e);
+        
+        //Get service, and bind to context
+        ServiceReference[] sr;
+        try {
+            sr = bundleContext.getServiceReferences(ObjectFactory.class.getName(), "(osgi.jndi.url.scheme="+ nameInNamespace.substring(0, nameInNamespace.indexOf(":")) + ")");
+        
+            if (sr != null) {
+                ObjectFactory objectFactory = (ObjectFactory) bundleContext.getService(sr[0]);
+                context = (Context) objectFactory.getObjectInstance(null, null,    null, null);
+                for (AbstractName abstractName : set) {
+                      try {
+                        if (kernel.isRunning(abstractName)) {
+                            addBinding(abstractName);                            
+                          }
+                         } catch (NamingException e) {
+                        log.error("Error adding binding for " + abstractName, e);
+                    }
             }
+            
         }
-
+        } catch (InvalidSyntaxException is) {
+            log.error(is.toString());
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            log.error(e.toString());
+        }  
     }
 
     public void doStop() {
@@ -163,7 +191,12 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
     private synchronized void addBinding(AbstractName abstractName, Name name, Object value) throws NamingException {
         LinkedHashMap<AbstractName, Object> bindings = bindingsByName.get(name);
         if (bindings == null) {
-            addDeepBinding(name, value, true, true);
+            //addDeepBinding(name, value, true, true);
+            if (bindingExists(context, name)){
+                context.rebind(name, value);
+            }else {
+                context.bind(name, value);
+            }
 
             bindings = new LinkedHashMap<AbstractName, Object>();
             bindings.put(abstractName, value);
@@ -194,11 +227,18 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
                 if (newEntry != null) {
                     Object newValue = newEntry.getValue();
                     try {
-                        addDeepBinding(name, newValue, true, true);
+                        //addDeepBinding(name, newValue, true, true);
+                        if (bindingExists(context, name)){
+                            context.rebind(name, newValue);
+                        }else {
+                            context.bind(name, newValue);
+                        }
+                        
                     } catch (NamingException e) {
                         boolean logged = false;
                         try {
-                            removeDeepBinding(name, true);
+                            //removeDeepBinding(name, true);
+                            context.unbind(name);
                         } catch (NamingException e1) {
                             logged = true;
                             log.error("Unable to remove binding " + name + " to " + abstractName, e);
@@ -208,7 +248,8 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
                 } else {
                     bindingsByName.remove(name);
                     try {
-                        removeDeepBinding(name, true, true);
+                        //removeDeepBinding(name, true, true);
+                        context.unbind(name);
                     } catch (ContextNotEmptyException e) {
                         //ignore
                     } catch (NamingException e) {
@@ -250,7 +291,16 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
      */
     protected Name createBindingName(AbstractName abstractName, Object value) throws NamingException {
         String shortName = (String) abstractName.getName().get("name");
-        return getNameParser().parse(shortName);
+        Name parsedName = context.getNameParser("").parse(nameInNamespace + "/" + shortName);
+     
+        // create intermediate contexts
+        for (int i = 1; i < parsedName.size(); i++) {
+            Name contextName = parsedName.getPrefix(i);
+            if (!bindingExists(context, contextName)) {
+                context.createSubcontext(contextName);
+            }
+        }
+        return parsedName;
     }
 
     /**
@@ -265,6 +315,30 @@ public class KernelContextGBean extends WritableContext implements GBeanLifecycl
      */
     protected Object preprocessVaue(AbstractName abstractName, Name name, Object value) throws NamingException {
         return value;
+    }
+
+    protected static boolean bindingExists(Context context, Name contextName) {
+        try {
+            return context.lookup(contextName) != null;
+        } catch (NamingException e) {
+        }
+        return false;
+    }
+    
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+    
+    public void setNameInNamespace(String nameinsapce) {
+        this.nameInNamespace = nameinsapce;
+    }
+
+    public String getNameInNamespace() {
+        return nameInNamespace;
     }
 
 }

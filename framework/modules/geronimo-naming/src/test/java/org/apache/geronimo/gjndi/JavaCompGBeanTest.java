@@ -43,7 +43,7 @@ import java.util.Map;
  * @version $Rev$ $Date$
  */
 public class JavaCompGBeanTest extends AbstractContextTest {
-    private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
+    //private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
     private Kernel kernel;
 
     public void testLookupEnv() throws Exception {
@@ -54,7 +54,7 @@ public class JavaCompGBeanTest extends AbstractContextTest {
         Thread.currentThread().setContextClassLoader(javaURLContextFactory.class.getClassLoader());
         RootContext.setComponentContext(new ImmutableContext(javaCompBindings));
         try {
-            new InitialContext(contextEnv).lookup("java:comp/env");
+            new InitialContext().lookup("java:comp/env");
             fail("Expected NameNotFoundException");
         } catch (NotContextException expected) {
             // expected
@@ -65,7 +65,7 @@ public class JavaCompGBeanTest extends AbstractContextTest {
         // ENC adds env if not present
         javaCompBindings.put("comp/env/foo", "bar");
         RootContext.setComponentContext(new ImmutableContext(javaCompBindings));
-        new InitialContext(contextEnv).lookup("java:comp/env");
+        new InitialContext().lookup("java:comp/env");
     }
 
     protected Map getNestedBindings(Map globalBindings, String nestedPath) {

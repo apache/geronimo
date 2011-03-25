@@ -32,12 +32,19 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.spi.ObjectFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 
 /**
  * @version $Rev$ $Date$
@@ -54,8 +61,9 @@ public class GBeanFormatBinding extends KernelContextGBean {
                               @ParamAttribute(name="namePattern")String namePattern,
                               @ParamAttribute(name="nameInNamespace")String nameInNamespace,
                               @ParamAttribute(name="abstractNameQuery")AbstractNameQuery abstractNameQuery,
-                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel) throws NamingException {
-        super(nameInNamespace, abstractNameQuery, kernel);
+                              @ParamSpecial(type = SpecialAttributeType.kernel)Kernel kernel,
+                              @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws NamingException {
+        super(nameInNamespace, abstractNameQuery, kernel, bundleContext);
         this.format = format;
         if (namePattern != null && namePattern.length() > 0) {
             this.namePattern = Pattern.compile(namePattern);
@@ -80,7 +88,17 @@ public class GBeanFormatBinding extends KernelContextGBean {
         map.put("version", artifact.getVersion().toString());
         map.put("type", artifact.getType());
         String fullName = format(format, map);
-        return getNameParser().parse(fullName);
+        
+        Name parsedName = getContext().getNameParser("").parse(getNameInNamespace()+"/" + fullName);
+    
+        // create intermediate contexts
+        for (int i = 1; i < parsedName.size(); i++) {
+            Name contextName = parsedName.getPrefix(i);
+            if (!bindingExists(getContext(), contextName)) {
+                getContext().createSubcontext(contextName);
+            }
+        }
+        return parsedName;
     }
 
     static String format(String input, Map<String, String> map) {
