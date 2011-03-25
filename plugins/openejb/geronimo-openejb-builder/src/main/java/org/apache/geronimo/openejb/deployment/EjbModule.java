@@ -139,7 +139,7 @@ public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
 
         @Override
         public ConfigurationModuleType getType() {
-            return null;
+            return ConfigurationModuleType.EJB;
         }
     }
 }
