@@ -24,7 +24,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.gjndi.GlobalContextGBean;
+import org.apache.xbean.naming.context.WritableContext;
 import org.apache.xbean.naming.global.GlobalContextManager;
 
 /**
@@ -34,7 +34,7 @@ public class DeepBindableContextTest extends TestCase {
     
     public void testBindUnbind() throws Exception {
         System.setProperty("java.naming.factory.initial", "org.apache.xbean.naming.global.GlobalContextManager");
-        GlobalContextGBean globalContext = new GlobalContextGBean(null);
+        WritableContext globalContext = new WritableContext("");
         GlobalContextManager.setGlobalContext(globalContext);
         DeepBindableContext context = new DeepBindableContext("openejb", false, true, false, false);
         globalContext.bind("openejb", context);
