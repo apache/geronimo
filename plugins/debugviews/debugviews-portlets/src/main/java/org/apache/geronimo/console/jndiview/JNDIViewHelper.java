@@ -37,6 +37,7 @@ import org.apache.geronimo.console.util.TreeEntry;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gjndi.KernelContextGBean;
+import org.apache.geronimo.gjndi.binding.ResourceBinding;
 import org.apache.geronimo.j2ee.jndi.ContextSource;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.java.RootContext;
@@ -344,7 +345,7 @@ public class JNDIViewHelper {
         for (AbstractName name : names) {
             String nameProperty = name.getNameProperty("name");
             if ("ResourceBindings".equals(nameProperty)) {
-                globalContext = (Context) kernel.getGBean(name);
+                globalContext = ((ResourceBinding) kernel.getGBean(name)).getContext();
             }
         }
         
