@@ -42,6 +42,7 @@ import org.apache.geronimo.jaxws.builder.JAXWSServiceRefBuilder;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
@@ -73,6 +74,10 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
         builder.build();
 
         wsdlURI = builder.getWsdlURI();
+        //TODO For non standalone web application, it is embbed of directory style in the EAR package
+        if (module.getType().equals(ConfigurationModuleType.WAR) && wsdlURI != null && !isURL(wsdlURI)) {
+            wsdlURI = module.getTargetPathURI().resolve(wsdlURI);
+        }
         serviceQName = builder.getServiceQName();
         Map<Object, EndpointInfo> seiInfoMap = builder.getEndpointInfo();
 
@@ -109,4 +114,12 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
         }
     }
 
+    private boolean isURL(URI name) {
+        try {
+            name.toURL();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
