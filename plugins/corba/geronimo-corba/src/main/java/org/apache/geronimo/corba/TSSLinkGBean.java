@@ -39,6 +39,7 @@ public final class TSSLinkGBean {
         //this may not work properly due to variable j2eeType in ejbs.
         infoBuilder.addReference("EJB", EjbDeployment.class);
         infoBuilder.setConstructor(new String[]{"jndiNames", "TSSBean", "EJB"});
+        infoBuilder.setPriority(50);
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
