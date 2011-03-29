@@ -171,6 +171,26 @@ set BASEDIR=%GERONIMO_HOME%
 call "%GERONIMO_HOME%\bin\setJavaEnv.bat"
 if not %errorlevel% == 0 goto end
 
+@REM Handle spaces in provided paths.  Also strips off quotes.
+if defined var GERONIMO_HOME(
+set GERONIMO_HOME=###%GERONIMO_HOME%###
+set GERONIMO_HOME=%GERONIMO_HOME:"###=%
+set GERONIMO_HOME=%GERONIMO_HOME:###"=%
+set GERONIMO_HOME=%GERONIMO_HOME:###=%
+@)
+if defined var JRE_HOME(
+set JRE_HOME=###%JRE_HOME%###
+set JRE_HOME=%JRE_HOME:"###=%
+set JRE_HOME=%JRE_HOME:###"=%
+set JRE_HOME=%JRE_HOME:###=%
+@)
+if defined var _RUNJAVA(
+set _RUNJAVA=###%_RUNJAVA%###
+set _RUNJAVA=%_RUNJAVA:"###=%
+set _RUNJAVA=%_RUNJAVA:###"=%
+set _RUNJAVA=%_RUNJAVA:###=%
+@)
+
 @REM Using default JAVA_OPTS if it's not set
 if not "%JAVA_OPTS%" == "" goto skipDefaultJavaOpts
 set JAVA_OPTS=-Xmx256m -XX:MaxPermSize=128m
