@@ -64,7 +64,10 @@ import org.slf4j.LoggerFactory;
 
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class Axis2Builder extends JAXWSServiceBuilder {
+
     private static final Logger log = LoggerFactory.getLogger(Axis2Builder.class);
+
+    private static final boolean ignoreEmptyWebServiceProviderWSDL = Boolean.getBoolean("org.apache.geronimo.webservice.provider.wsdl.ignore");
 
     protected Collection<WsdlGenerator> wsdlGenerators;
 
@@ -228,7 +231,13 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         }
 
         if (JAXWSUtils.isWebServiceProvider(serviceClass)) {
-            throw new DeploymentException("WSDL must be specified for @WebServiceProvider service " + serviceName);
+            if (ignoreEmptyWebServiceProviderWSDL) {
+                log.warn("WSDL is not specified for @WebServiceProvider service " + serviceName);
+                //TODO Generate a dummy WSDL for it ?
+                return;
+            } else {
+                throw new DeploymentException("WSDL must be specified for @WebServiceProvider service " + serviceName);
+            }
         }
 
         if (log.isDebugEnabled()) {
