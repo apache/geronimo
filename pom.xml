@@ -69,7 +69,7 @@
         <tomcatVersion>7.0.6.0-SNAPSHOT</tomcatVersion>
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
-        <openejbVersion>3.2-SNAPSHOT</openejbVersion>
+        <openejbVersion>4.0.0-SNAPSHOT</openejbVersion>
         <openjpaVersion>2.0.1</openjpaVersion>
         <openwebbeansVersion>1.1.0</openwebbeansVersion>
         <derbyVersion>10.6.1.0</derbyVersion>
