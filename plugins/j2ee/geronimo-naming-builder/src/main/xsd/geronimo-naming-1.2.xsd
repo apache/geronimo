@@ -1060,6 +1060,18 @@
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
+            <xsd:element name="wsdl-file"
+                    type="xsd:anyURI"
+                    minOccurs="0"
+                    maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The element wsdl-file is used to provide updated wsdl file URI, 
+                        it overrides the configuration from WebServiceClient and 
+                        specification deployment descriptor.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
             <xsd:choice>
                 <xsd:element name="service-completion"
                     type="gernaming:service-completionType">

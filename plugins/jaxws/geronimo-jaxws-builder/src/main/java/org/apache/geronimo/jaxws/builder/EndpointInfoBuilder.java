@@ -106,6 +106,17 @@ public class EndpointInfoBuilder {
     }
 
     public void build() throws DeploymentException {
+        if (serviceRefType != null) {
+            String wsdlFile = serviceRefType.getWsdlFile();
+            if (wsdlFile != null && !wsdlFile.isEmpty()) {
+                try {
+                    this.wsdlURI = new URI(serviceRefType.getWsdlFile());
+                } catch (URISyntaxException e) {
+                    throw new DeploymentException("Illegal WSDL location is specified in deployment plan " + wsdlFile, e);
+                }
+            }
+        }
+        
         if (this.wsdlURI == null) {
             // wsdl was not explicitly specified
             if (javax.xml.ws.Service.class.equals(this.serviceClass)) {
