@@ -53,8 +53,6 @@ public class OpenWebBeansWebInitializer {
                     //             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
                     WebBeansUtil.throwRuntimeExceptions(e);
                 }
-                boolean isWBApplication = !webBeansContext.getScannerService().getBeanXmls().isEmpty();
-                servletContext.setAttribute(OpenWebBeansConfiguration.PROPERTY_OWB_APPLICATION, Boolean.toString(isWBApplication));
             }
 
         } finally {
@@ -69,8 +67,8 @@ public class OpenWebBeansWebInitializer {
         configuration.setProperty(OpenWebBeansConfiguration.JNDI_SERVICE, NoopJndiService.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.SCANNER_SERVICE, OsgiMetaDataScannerService.class.getName());
         configuration.setProperty(OpenWebBeansConfiguration.CONTEXTS_SERVICE, WebContextsService.class.getName());
-        configuration.setProperty(ResourceInjectionService.class.getName(), GeronimoResourceInjectionService.class.getName());
-        configuration.setProperty(ELAdaptor.class.getName(), EL22Adaptor.class.getName());
+        configuration.setProperty(OpenWebBeansConfiguration.RESOURCE_INJECTION_SERVICE, GeronimoResourceInjectionService.class.getName());
+        configuration.setProperty(OpenWebBeansConfiguration.EL_ADAPTOR_CLASS, EL22Adaptor.class.getName());
     }
 
     public static class NoopJndiService implements JNDIService {

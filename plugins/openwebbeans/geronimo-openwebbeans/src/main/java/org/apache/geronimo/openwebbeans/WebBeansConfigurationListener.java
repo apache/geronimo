@@ -76,17 +76,7 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
     public void contextInitialized(ServletContextEvent event)
     {
         this.webBeansContext = WebBeansContext.getInstance();
-        this.failoverService = webBeansContext.getService(FailOverService.class);
-        try
-        {
-//                this.lifeCycle.startApplication(event);
-                event.getServletContext().setAttribute(OpenWebBeansConfiguration.PROPERTY_OWB_APPLICATION, "true");
-        }
-        catch (Exception e)
-        {
-             logger.error(OWBLogConst.ERROR_0018, event.getServletContext().getContextPath());
-             WebBeansUtil.throwRuntimeExceptions(e);
-        }
+        this.failoverService = webBeansContext.getService(FailOverService.class);     
     }
 
 
@@ -97,7 +87,6 @@ public class WebBeansConfigurationListener implements ServletContextListener, Se
     {
         this.webBeansContext.getService(ContainerLifecycle.class).stopApplication(event);
         this.webBeansContext = null;
-        event.getServletContext().setAttribute(OpenWebBeansConfiguration.PROPERTY_OWB_APPLICATION, "false");
     }
 
     /**
