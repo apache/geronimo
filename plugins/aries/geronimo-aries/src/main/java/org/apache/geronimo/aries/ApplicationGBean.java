@@ -145,7 +145,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         }
         
         if (targetBundle!=null){
-            BundleContext context = targetBundle.getBundleContext();
+            BundleContext context = bundle.getBundleContext();
             ServiceReference reference = context.getServiceReference(PackageAdmin.class.getName());
             FileInputStream fi;
             try {
