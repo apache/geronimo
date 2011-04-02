@@ -1012,6 +1012,7 @@ public abstract class AbstractCarMojo
             systemProperties.put("openejb.log.factory", "org.apache.openejb.util.PaxLogStreamFactory");
         }
         systemProperties.put("karaf.startLocalConsole", "false");
+        systemProperties.put("openejb.geronimo", "true");
         setSystemProperties();
         return framework;
     }
