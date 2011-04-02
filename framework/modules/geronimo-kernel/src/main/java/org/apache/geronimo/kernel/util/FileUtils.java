@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -37,6 +38,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -81,6 +83,7 @@ public class FileUtils {
         File tempDir = File.createTempFile("geronimo-fileutils", ".tmpdir");
         tempDir.delete();
         tempDir.mkdirs();
+        deleteOnExit(tempDir);
         return tempDir;
     }
 
@@ -409,4 +412,37 @@ public class FileUtils {
 
     private FileUtils() {
     }
+
+    // Shutdown hook for recurssive delete on tmp directories
+    static final List<String> delete = new ArrayList<String>();
+
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(){
+            @Override
+            public void run() {
+                delete();
+            }
+        });
+    }
+
+    private static void deleteOnExit(File file) {
+        delete.add(file.getAbsolutePath());
+    }
+
+    private static void delete() {
+        for (String path : delete) {
+            delete(new File(path));
+        }
+    }
+
+    private static void delete(File file) {
+        if (file.isDirectory()) {
+            for (File f : file.listFiles()) {
+                delete(f);
+            }
+        }
+
+        file.delete();
+    }
+
 }
