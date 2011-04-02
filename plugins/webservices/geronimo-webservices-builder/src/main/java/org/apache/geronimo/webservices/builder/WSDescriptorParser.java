@@ -301,7 +301,7 @@ public class WSDescriptorParser {
         SharedPortInfo sharedPortInfo;
         for (WebserviceDescription webserviceDescription : webserviceDescriptions) {
             String wsdlLocation = webserviceDescription.getWsdlFile().trim();
-            String jaxrpcMappingFile = webserviceDescription.getJaxrpcMappingFile().trim();
+            String jaxrpcMappingFile = webserviceDescription.getJaxrpcMappingFile() == null ? "" : webserviceDescription.getJaxrpcMappingFile().trim();
 
             sharedPortInfo = new SharedPortInfo(wsdlLocation,
                                                 jaxrpcMappingFile,
