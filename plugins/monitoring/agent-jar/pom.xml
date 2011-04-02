@@ -30,6 +30,7 @@
 
     <artifactId>agent-jar</artifactId>
     <name>Geronimo Plugins, Monitoring :: Agent JAR</name>
+    <packaging>bundle</packaging>
     <description>Geronimo Monitoring Agent Utility Library</description>
 
     <dependencies>

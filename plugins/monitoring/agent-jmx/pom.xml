@@ -29,6 +29,7 @@
 
     <artifactId>agent-jmx</artifactId>
     <name>Geronimo Plugins, Monitoring :: Agent JMX</name>
+    <packaging>bundle</packaging>
     <description>Geronimo Monitoring Agent JMX</description>
 
     <dependencies>
