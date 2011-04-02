@@ -34,9 +34,7 @@ import java.util.zip.ZipEntry;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Operation;
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.rpc.handler.HandlerInfo;
 import javax.xml.rpc.holders.BigDecimalHolder;
 import javax.xml.rpc.holders.BigIntegerHolder;
@@ -59,10 +57,9 @@ import javax.xml.rpc.holders.QNameHolder;
 import javax.xml.rpc.holders.ShortHolder;
 import javax.xml.rpc.holders.ShortWrapperHolder;
 import javax.xml.rpc.holders.StringHolder;
+
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.openejb.jee.ExceptionMapping;
 import org.apache.openejb.jee.Handler;
 import org.apache.openejb.jee.JavaWsdlMapping;
@@ -75,17 +72,16 @@ import org.apache.openejb.jee.ServiceEndpointMethodMapping;
 import org.apache.openejb.jee.ServiceImplBean;
 import org.apache.openejb.jee.WebserviceDescription;
 import org.apache.openejb.jee.Webservices;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
-import org.xml.sax.SAXException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class WSDescriptorParser {
 
+    private static final Logger logger = LoggerFactory.getLogger(WSDescriptorParser.class);
 
     public static JavaWsdlMapping readJaxrpcMapping(JarFile moduleFile, URI jaxrpcMappingURI) throws DeploymentException {
         String jaxrpcMappingPath = jaxrpcMappingURI.toString();
@@ -300,8 +296,14 @@ public class WSDescriptorParser {
         Collection<WebserviceDescription> webserviceDescriptions = webservices.getWebserviceDescription();
         SharedPortInfo sharedPortInfo;
         for (WebserviceDescription webserviceDescription : webserviceDescriptions) {
+            if (webserviceDescription.getWsdlFile() == null || webserviceDescription.getJaxrpcMappingFile() == null) {
+                if(logger.isDebugEnabled()) {
+                    logger.debug("This entry " + webserviceDescription.getDescription() + "should be a JAX-WS configuration, it will be ignored by JAX-RPC builder");
+                }
+                continue;
+            }
             String wsdlLocation = webserviceDescription.getWsdlFile().trim();
-            String jaxrpcMappingFile = webserviceDescription.getJaxrpcMappingFile() == null ? "" : webserviceDescription.getJaxrpcMappingFile().trim();
+            String jaxrpcMappingFile = webserviceDescription.getJaxrpcMappingFile().trim();
 
             sharedPortInfo = new SharedPortInfo(wsdlLocation,
                                                 jaxrpcMappingFile,
