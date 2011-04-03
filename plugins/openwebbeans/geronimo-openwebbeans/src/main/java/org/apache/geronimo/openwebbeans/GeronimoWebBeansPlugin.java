@@ -229,6 +229,12 @@ public class GeronimoWebBeansPlugin
     public Properties doPrivilegedGetSystemProperties() {
         return System.getProperties();
     }
-    
 
+    @Override
+    public <T> T getSupportedService(Class<T> serviceClass) {
+        if (serviceClass == SecurityService.class || serviceClass == TransactionService.class) {
+            return serviceClass.cast(this);
+        }
+        return super.getSupportedService(serviceClass);
+    }
 }
