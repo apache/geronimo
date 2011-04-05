@@ -31,7 +31,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.openejb.EjbDeployment;
 import org.apache.geronimo.security.jaas.ConfigurationFactory;
 import org.apache.geronimo.webservices.SoapHandler;
-import org.apache.openejb.server.axis.EjbContainerProvider;
+import org.apache.openejb.server.axis.EjbRpcProvider;
 
 @GBean(j2eeType = NameFactory.WEB_SERVICE_LINK)
 public class EjbWebServiceGBean implements GBeanLifecycle {
@@ -58,7 +58,7 @@ public class EjbWebServiceGBean implements GBeanLifecycle {
         }
         this.soapHandler = webContainers.iterator().next();
 
-        RPCProvider provider = new EjbContainerProvider(ejbDeploymentContext.getDeploymentInfo(), serviceInfo.getHandlerInfos());
+        RPCProvider provider = new EjbRpcProvider(ejbDeploymentContext.getDeploymentInfo(), serviceInfo.getHandlerInfos());
         SOAPService service = new SOAPService(null, provider, null);
 
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
