@@ -549,7 +549,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         if (earFile != null) {
             Manifest mf = earFile.getManifest();
             if (mf != null && mf.getMainAttributes().getValue("Bundle-SymbolicName") != null) {
-                log.warn("Deploying module as a regular Java EE application. Its existing OSGi manifest will be ignored.");
+                log.warn("Application module contains OSGi manifest. The OSGi manifest will be ignored and the application will be deployed as a regular Java EE application.");
             }
         }
         
