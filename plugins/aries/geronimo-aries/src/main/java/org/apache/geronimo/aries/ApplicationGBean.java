@@ -42,6 +42,7 @@ import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -115,56 +116,55 @@ public class ApplicationGBean implements GBeanLifecycle {
         }
     }
 
-    public long[] getApplicationContentBundleIds(){
+    public long[] getApplicationContentBundleIds() {
         long[] ids = new long[applicationBundles.size()];
-        int i =0;
-        for (Bundle content : applicationBundles){
+        int i = 0;
+        for (Bundle content : applicationBundles) {
             ids[i++] = content.getBundleId();
         }
         return ids;
     }
-    
-    public String getApplicationContentBundleSymbolicName(long bundleId){
-        for (Bundle content : applicationBundles){
-            if (content.getBundleId()==bundleId){
+
+    public String getApplicationContentBundleSymbolicName(long bundleId) {
+        for (Bundle content : applicationBundles) {
+            if (content.getBundleId() == bundleId) {
                 return content.getSymbolicName();
             }
         }
         return null;
     }
-    
-    public void updateApplicationContent(long bundleId, File bundleFile) throws IOException, BundleException{
+
+    public void updateApplicationContent(long bundleId, File bundleFile) throws IOException, BundleException {
         Bundle targetBundle = null;
-        for (Bundle content : applicationBundles){
-            if (content.getBundleId()==bundleId){
+        for (Bundle content : applicationBundles) {
+            if (content.getBundleId() == bundleId) {
                 targetBundle = content;
                 break;
             }
         }
         
-        if (targetBundle!=null){
-            BundleContext context = bundle.getBundleContext();
-            ServiceReference reference = null;
+        if (targetBundle != null) {
             FileInputStream fi = null;
             try {
                 fi = new FileInputStream(bundleFile);
                 // update bundle
                 targetBundle.update(fi);
-                // refresh bundle
-                reference = context.getServiceReference(PackageAdmin.class.getName());
-                PackageAdmin packageAdmin = (PackageAdmin) context.getService(reference);
-                packageAdmin.refreshPackages(new Bundle[]{targetBundle});
-            } finally{
-                if (reference!=null){
-                    context.ungetService(reference);
-                }
-                if (fi!=null){
-                    fi.close();
-                }
+            } finally {
+                IOUtils.close(fi);
             }
+            
+            // refresh bundle
+            refreshPackages(bundle.getBundleContext(), new Bundle[] { targetBundle });
         } else {
-            throw new IllegalArgumentException("Could not find the bundle with id: " + bundleId + "in the Application content");
+            throw new IllegalArgumentException("Could not find bundle with id " + bundleId + " in the application");
         }
+    }
+    
+    private void refreshPackages(BundleContext context, Bundle[] bundles) {
+        ServiceReference reference = context.getServiceReference(PackageAdmin.class.getName());
+        PackageAdmin packageAdmin = (PackageAdmin) context.getService(reference);
+        packageAdmin.refreshPackages(bundles);
+        context.ungetService(reference);
     }
     
     protected Bundle getBundle() {
