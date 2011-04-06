@@ -18,9 +18,7 @@ package org.apache.geronimo.aries;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.URI;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -43,8 +41,8 @@ import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -135,7 +133,7 @@ public class ApplicationGBean implements GBeanLifecycle {
         return null;
     }
     
-    public void updateApplicationContent(long bundleId, URI uri) throws FileNotFoundException, BundleException{
+    public void updateApplicationContent(long bundleId, File bundleFile) throws IOException, BundleException{
         Bundle targetBundle = null;
         for (Bundle content : applicationBundles){
             if (content.getBundleId()==bundleId){
@@ -146,18 +144,23 @@ public class ApplicationGBean implements GBeanLifecycle {
         
         if (targetBundle!=null){
             BundleContext context = bundle.getBundleContext();
-            ServiceReference reference = context.getServiceReference(PackageAdmin.class.getName());
-            FileInputStream fi;
+            ServiceReference reference = null;
+            FileInputStream fi = null;
             try {
-                // create file object from local uri
-                fi = new FileInputStream(new File(uri));
+                fi = new FileInputStream(bundleFile);
                 // update bundle
                 targetBundle.update(fi);
                 // refresh bundle
+                reference = context.getServiceReference(PackageAdmin.class.getName());
                 PackageAdmin packageAdmin = (PackageAdmin) context.getService(reference);
                 packageAdmin.refreshPackages(new Bundle[]{targetBundle});
             } finally{
-                context.ungetService(reference);
+                if (reference!=null){
+                    context.ungetService(reference);
+                }
+                if (fi!=null){
+                    fi.close();
+                }
             }
         } else {
             throw new IllegalArgumentException("Could not find the bundle with id: " + bundleId + "in the Application content");

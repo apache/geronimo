@@ -301,8 +301,8 @@ public abstract class ExtendedDeploymentManager extends JMXDeploymentManager imp
     /**
      * Only support local bundle update
      */
-    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File newfile) throws GBeanNotFoundException, NoSuchOperationException, Exception{
-        kernel.invoke(applicationGBeanName, "updateApplicationContent", new Object[]{bundleId, newfile.toURI()}, new String[]{long.class.getName(), newfile.toURI().getClass().getName()});
+    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File bundleFile) throws GBeanNotFoundException, NoSuchOperationException, Exception{
+        kernel.invoke(applicationGBeanName, "updateApplicationContent", new Object[]{bundleId, bundleFile}, new String[]{long.class.getName(), bundleFile.getClass().getName()});
     }
     
     public AbstractName getApplicationGBeanName(Artifact configurationId) {
