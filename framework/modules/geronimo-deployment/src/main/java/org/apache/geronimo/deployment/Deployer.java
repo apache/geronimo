@@ -242,14 +242,6 @@ public class Deployer implements GBeanLifecycle {
                         (moduleFile == null ? "" : (planFile == null ? "" : ", ") + "moduleFile=" + moduleFile.getAbsolutePath()) + ")");
             }
 
-
-            if (module != null) {
-                Manifest mf = module.getManifest();
-                if (mf != null && mf.getMainAttributes().getValue("Bundle-SymbolicName") != null) {
-                    log.warn("Application module contains OSGi manifest. The OSGi manifest will be ignored and the application will be deployed as a regular Java EE application.");
-                }
-            }
-
             Artifact configID = getConfigID(module, idBuilder, plan, builder);
 
             ConfigurationStore store = getConfigurationStore(targetConfigurationStore);
