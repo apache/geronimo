@@ -25,7 +25,7 @@
 
     <gbean name="Axis2SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
-            usePostWebMethodRules=true
+            jaxws.runtime.usePostWebMethodRules=true
         </attribute>
     </gbean>
 </module>
