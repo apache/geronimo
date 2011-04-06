@@ -545,6 +545,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
     public DeploymentContext buildConfiguration(boolean inPlaceDeployment, Artifact configId, Object plan, JarFile earFile, Collection configurationStores, ArtifactResolver artifactResolver, ConfigurationStore targetConfigurationStore) throws IOException, DeploymentException {
         assert plan != null;
+        
+        if (earFile != null) {
+            Manifest mf = earFile.getManifest();
+            if (mf != null && mf.getMainAttributes().getValue("Bundle-SymbolicName") != null) {
+                log.warn("Deploying module as a regular Java EE application. Its existing OSGi manifest will be ignored.");
+            }
+        }
+        
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
 
         EARContext earContext = null;
