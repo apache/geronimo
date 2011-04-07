@@ -23,7 +23,12 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.IOUtil;
 
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.IOException;
 import java.util.Map;
@@ -117,13 +122,30 @@ public class DirectoryMonitor implements Runnable {
     private File directory;
     private boolean done = false;
     private Listener listener; // a little cheesy, but do we really need multiple listeners?
-    private final Map files = new HashMap();
+    private Map<String,FileInfo> files;
     private volatile String workingOnConfigId;
+    private File monitorFile;
 
     public DirectoryMonitor(File directory, Listener listener, int pollIntervalMillis) {
+        this(directory, null, listener, pollIntervalMillis);
+    }
+
+    public DirectoryMonitor(File directory, File monitorFile, Listener listener, int pollIntervalMillis) {
         this.directory = directory;
         this.listener = listener;
         this.pollIntervalMillis = pollIntervalMillis;
+        this.monitorFile = monitorFile;
+        this.files = new HashMap<String,FileInfo>();
+
+        if (monitorFile != null) {
+            if (monitorFile.canRead()) {
+                log.info("Found monitorFile. Reading initial directory monitor state from " + monitorFile.getName());
+                readState();
+            } else {
+                log.info("Did not find monitorFile. Saving initial state to " + monitorFile.getName());
+                persistState();
+            }
+        }
     }
 
     public int getPollIntervalMillis() {
@@ -194,6 +216,57 @@ public class DirectoryMonitor implements Runnable {
         }
     }
 
+    private void persistState() {
+        if (monitorFile == null) {
+            return;
+        }
+    
+        log.info("Persisting directory monitor state to " + monitorFile.getName());
+        ObjectOutputStream outputStream = null;
+        try {
+            outputStream = new ObjectOutputStream(new FileOutputStream(monitorFile));
+            outputStream.writeObject(files);
+        } catch (IOException ioe) {
+            log.warn("Error persisting directory monitor state to " + monitorFile.getName(), ioe);
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException ioe) {
+
+                }
+            }
+        }    
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void readState() {
+    if (monitorFile == null) {
+    return;
+    }
+    ObjectInputStream inputStream = null;
+    try {
+        inputStream = new ObjectInputStream(new FileInputStream(monitorFile));
+        files = (Map<String,FileInfo>) inputStream.readObject();
+        if (files == null) {
+            this.files = new HashMap<String,FileInfo>();
+        }
+    } catch (IOException ex) {
+        log.info("IOException reading directory monitor state from " + monitorFile.getName(), ex);
+    } catch (ClassNotFoundException cnfe) {
+        log.warn("ClassNotFoundException reading directory monitor state from " + monitorFile.getName(), cnfe);
+    } finally {
+        try {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        } catch (IOException ioe) {
+            // ignore
+        }
+    }
+        
+    }
+    
     public void run() {
         boolean serverStarted = false, initialized = false;
         while (!done) {
@@ -231,6 +304,9 @@ public class DirectoryMonitor implements Runnable {
             if (!child.canRead()) {
                 continue;
             }
+            if (child.equals(monitorFile)) {
+                continue;
+            }
             FileInfo now = child.isDirectory() ? getDirectoryInfo(child) : getFileInfo(child);
             now.setChanging(false);
             try {
@@ -246,6 +322,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                 log.error("Unable to scan file " + child.getAbsolutePath() + " during initialization", e);
             }
         }
+        persistState();
     }
 
     /**
@@ -262,9 +339,13 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
         synchronized (files) {
             Set oldList = new HashSet(files.keySet());
             List actions = new LinkedList();
+            boolean changeMade = false;
             for (int i = 0; i < children.length; i++) {
                 File child = children[i];
                 if (!child.canRead()) {
+                    continue;
+                }
+                if (child.equals(monitorFile)) {
                     continue;
                 }
                 FileInfo now = child.isDirectory() ? getDirectoryInfo(child) : getFileInfo(child);
@@ -272,6 +353,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                 if (then == null) { // Brand new, wait a bit to make sure it's not still changing
                     now.setNewFile(true);
                     files.put(now.getPath(), now);
+                    changeMade = true;
                     log.debug("New File: " + now.getPath());
                 } else {
                     oldList.remove(then.getPath());
@@ -292,6 +374,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                         now.setConfigId(then.getConfigId());
                         now.setNewFile(then.isNewFile());
                         files.put(now.getPath(), now);
+                        changeMade = true;
                         log.debug("File Changed: " + now.getPath());
                     }
                 }
@@ -303,6 +386,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                 log.debug("File removed: " + name);
                 if (info.isNewFile()) { // Was never added, just whack it
                     files.remove(name);
+                    changeMade = true;
                 } else {
                     actions.add(new FileAction(FileAction.REMOVED_FILE, new File(name), info));
                 }
@@ -324,6 +408,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                             workingOnConfigId = action.info.getConfigId();
                             if (action.info.getConfigId() == null || listener.fileRemoved(action.child, action.info.getConfigId())) {
                                 files.remove(action.child.getPath());
+                                changeMade = true;
                             }
                             workingOnConfigId = null;
                         } else if (action.action == FileAction.NEW_FILE) {
@@ -361,6 +446,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                                                 log.error("Couldn't delete the hot deployed file="+path); 
                                         }
                                         files.remove(path);
+                                        changeMade = true;
                                     }
                                 }
                                 workingOnConfigId = null;
@@ -377,6 +463,7 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                                 }
                             }
                             action.info.setNewFile(false);
+                            changeMade = true;
                         } else if (action.action == FileAction.UPDATED_FILE) {
                             workingOnConfigId = action.info.getConfigId();
                             String result = listener.fileUpdated(action.child, action.info.getConfigId());
@@ -396,6 +483,9 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                         resolveFile(action);
                     }
                 }
+            }
+            if (changeMade) {
+                persistState();
             }
         }
     }

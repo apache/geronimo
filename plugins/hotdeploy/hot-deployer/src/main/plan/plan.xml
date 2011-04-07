@@ -28,6 +28,7 @@
             <name>ConfigurationManager</name>
         </reference>
         <attribute name="path">deploy/</attribute>
+        <attribute name="monitorFileName">.DirectoryMonitor</attribute>
         <attribute name="pollIntervalMillis">2000</attribute>
         <dependency>
             <name>EARBuilder</name>
