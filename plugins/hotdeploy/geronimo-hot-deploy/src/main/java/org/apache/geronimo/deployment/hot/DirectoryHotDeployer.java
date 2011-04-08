@@ -65,6 +65,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             "is 'deploy/' and your file is 'webapp.war' then you could unpack it into a directory 'deploy/webapp.war/'";
     private DirectoryMonitor monitor;
     private String path;
+    private String monitorFileName;
     private ServerInfo serverInfo;
     private ConfigurationManager configManager;
     private int pollIntervalMillis;
@@ -76,8 +77,10 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
     private transient TargetModuleID[] startupModules = null;
     private transient boolean serverRunning = false;
 
-    public DirectoryHotDeployer(String path, int pollIntervalMillis, ServerInfo serverInfo, ConfigurationManager configManager, Kernel kernel) {
+    public DirectoryHotDeployer(String path, String monitorFileName, int pollIntervalMillis, 
+                                ServerInfo serverInfo, ConfigurationManager configManager, Kernel kernel) {
         this.path = path;
+        this.monitorFileName = monitorFileName;
         this.serverInfo = serverInfo;
         this.pollIntervalMillis = pollIntervalMillis;
         this.kernel = kernel;
@@ -147,6 +150,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
         if (factory == null) {
             factory = new DeploymentFactoryWithKernel(kernel);
         }
+        
         File dir = serverInfo.resolveServer(path);
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
@@ -155,6 +159,17 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
         } else if (!dir.canRead() || !dir.isDirectory()) {
             throw new IllegalStateException("Hot deploy directory " + dir.getAbsolutePath() + " is not a readable directory!");
         }
+        
+        File monitorFile = null;
+        if (monitorFileName != null && !monitorFileName.isEmpty()) {
+            monitorFile = serverInfo.resolveServer(dir + File.separator + monitorFileName);
+            if (!monitorFile.createNewFile()) {
+                if (!monitorFile.canWrite()) {
+                    throw new IllegalStateException("Hot deploy persist state file " + monitorFile.getAbsolutePath() + " could not be created or is not writable");
+                }
+            }
+        }
+        
         DeploymentManager mgr = null;
         try {
             mgr = getDeploymentManager();
@@ -162,7 +177,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
             startupModules = mgr.getAvailableModules(null, targets);
             mgr.release();
             mgr = null;
-            monitor = new DirectoryMonitor(dir, this, pollIntervalMillis);
+            monitor = new DirectoryMonitor(dir, monitorFile, this, pollIntervalMillis);
             log.debug("Hot deploy scanner intialized; starting main loop.");
             Thread t = new Thread(monitor, "Geronimo hot deploy scanner");
             t.setDaemon(true);
@@ -466,6 +481,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DirectoryHotDeployer.class);
 
         infoFactory.addAttribute("path", String.class, true, true);
+        infoFactory.addAttribute("monitorFileName", String.class, true, true);
         infoFactory.addAttribute("pollIntervalMillis", int.class, true, true);
 
         // The next 3 args can be used to configure the hot deployer for a remote (out of VM) server
@@ -478,7 +494,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
         infoFactory.addAttribute("kernel", Kernel.class, false, false);
         infoFactory.addInterface(HotDeployer.class);
 
-        infoFactory.setConstructor(new String[]{"path", "pollIntervalMillis", "ServerInfo", "ConfigManager", "kernel"});
+        infoFactory.setConstructor(new String[]{"path", "monitorFileName", "pollIntervalMillis", "ServerInfo", "ConfigManager", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
