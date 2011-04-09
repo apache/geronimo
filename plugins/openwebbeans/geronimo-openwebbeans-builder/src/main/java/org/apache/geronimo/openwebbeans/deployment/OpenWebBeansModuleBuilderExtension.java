@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.Set;
 import java.util.jar.JarFile;
 
 import javax.enterprise.inject.Produces;
-
+import javax.enterprise.inject.spi.Producer;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
@@ -73,7 +74,6 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
     private static final Logger log = LoggerFactory.getLogger(OpenWebBeansModuleBuilderExtension.class);
 
     private final Environment defaultEnvironment;
-    private final Environment jsfPluginEnvironment;
     //only plausible naming builder is ours that adds BeanManager entry
     private final NamingBuilder namingBuilders;
 
@@ -82,10 +82,8 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
 
     public OpenWebBeansModuleBuilderExtension(
             @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
-            @ParamAttribute(name = "jsfPluginEnvironment") Environment jsfPluginEnvironment,
             @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders) {
         this.defaultEnvironment = defaultEnvironment;
-        this.jsfPluginEnvironment = jsfPluginEnvironment;
         this.namingBuilders = namingBuilders;
     }
 
@@ -97,9 +95,6 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         }
 
         EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
-        if(hasBeanXml(module)){
-            EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), jsfPluginEnvironment);
-        }
     }
 
     public void createModule(Module module, Object plan, JarFile moduleFile, String targetPath, URL specDDUrl,
@@ -108,12 +103,9 @@ public class OpenWebBeansModuleBuilderExtension implements ModuleBuilderExtensio
         if (!(module instanceof WebModule) /*|| !hasBeanXml(module)*/) {
             // not a web module, nothing to do
             return;
-        }       
-        
-        EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
-        if(hasBeanXml(module)){
-            EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), jsfPluginEnvironment);
         }
+
+        EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, Collection configurationStores,

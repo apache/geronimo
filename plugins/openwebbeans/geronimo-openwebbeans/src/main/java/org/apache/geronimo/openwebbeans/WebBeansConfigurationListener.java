@@ -31,14 +31,15 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionActivationListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
-
 import org.apache.webbeans.component.InjectionPointBean;
 import org.apache.webbeans.config.OWBLogConst;
+import org.apache.webbeans.config.OpenWebBeansConfiguration;
 import org.apache.webbeans.config.WebBeansContext;
 import org.apache.webbeans.conversation.ConversationManager;
 import org.apache.webbeans.el.ELContextStore;
 import org.apache.webbeans.logger.WebBeansLogger;
 import org.apache.webbeans.spi.ContainerLifecycle;
+import org.apache.webbeans.spi.ContextsService;
 import org.apache.webbeans.spi.FailOverService;
 import org.apache.webbeans.util.WebBeansUtil;
 import org.apache.webbeans.web.context.WebContextsService;

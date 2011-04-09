@@ -54,16 +54,6 @@
                 <import-package>javassist.util.proxy</import-package>
             </environment>
         </xml-attribute>
-        <xml-attribute name="jsfPluginEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.openwebbeans</groupId>
-                        <artifactId>openwebbeans-jsf</artifactId>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
     </gbean>
 
     <gbean name="OWBNamingBuilder" class="org.apache.geronimo.openwebbeans.deployment.OpenWebBeansNamingBuilder"/>
