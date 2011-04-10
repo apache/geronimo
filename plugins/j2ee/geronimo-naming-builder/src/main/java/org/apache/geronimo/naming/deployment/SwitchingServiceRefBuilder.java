@@ -20,6 +20,7 @@ package org.apache.geronimo.naming.deployment;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,44 +96,37 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
             processAnnotations(specDD, module);
         }
 
-        Bundle bundle = module.getEarContext().getDeploymentBundle();
-        Class jaxrpcClass = null;
-        Class jaxwsClass = null;
-
         Collection<ServiceRef> serviceRefs = specDD.getServiceRef();
 
         XmlObject[] gerServiceRefsUntyped = plan == null ? NO_REFS : plan
                 .selectChildren(GER_SERVICE_REF_QNAME_SET);
-        Map serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
+        Map<String, GerServiceRefType> serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
 
-        for (ServiceRef serviceRef : serviceRefs) {
-            if (jaxrpcClass == null) {
-                jaxrpcClass = loadClass("javax.xml.rpc.Service", bundle);
-            }
-            if (jaxwsClass == null) {
-                jaxwsClass = loadClass("javax.xml.ws.Service", bundle);
-            }
+        if (serviceRefs.size() > 0) {
+            Bundle bundle = module.getEarContext().getDeploymentBundle();
+            Class<?> jaxrpcClass = loadClass("javax.xml.rpc.Service", bundle);
+            Class<?> jaxwsClass = loadClass("javax.xml.ws.Service", bundle);
 
-            String name = getStringValue(serviceRef.getServiceRefName());
-            GerServiceRefType gerServiceRefType = (GerServiceRefType) serviceRefMap.get(name);
-            serviceRefMap.remove(name);
+            for (ServiceRef serviceRef : serviceRefs) {
 
-            String serviceInterfaceName = serviceRef.getServiceInterface();
-            Class serviceInterfaceClass = loadClass(serviceInterfaceName, bundle);
+                String name = getStringValue(serviceRef.getServiceRefName());
+                GerServiceRefType gerServiceRefType = serviceRefMap.get(name);
+                serviceRefMap.remove(name);
 
-            if (jaxrpcClass.isAssignableFrom(serviceInterfaceClass)) {
-                // class jaxrpc handler
-                ServiceRefBuilder jaxrpcBuilder = getJAXRCPBuilder();
-                jaxrpcBuilder.buildNaming(serviceRef, gerServiceRefType, module, sharedContext);
-            } else if (jaxwsClass.isAssignableFrom(serviceInterfaceClass)) {
-                // call jaxws handler
-                ServiceRefBuilder jaxwsBuilder = getJAXWSBuilder();
-                jaxwsBuilder.buildNaming(serviceRef, gerServiceRefType, module, sharedContext);
-            } else {
-                throw new DeploymentException(serviceInterfaceName
-                        + " does not extend "
-                        + jaxrpcClass.getName() + " or "
-                        + jaxwsClass.getName());
+                String serviceInterfaceName = serviceRef.getServiceInterface();
+                Class<?> serviceInterfaceClass = loadClass(serviceInterfaceName, bundle);
+
+                if (jaxrpcClass.isAssignableFrom(serviceInterfaceClass)) {
+                    // class jaxrpc handler
+                    ServiceRefBuilder jaxrpcBuilder = getJAXRCPBuilder();
+                    jaxrpcBuilder.buildNaming(serviceRef, gerServiceRefType, module, sharedContext);
+                } else if (jaxwsClass.isAssignableFrom(serviceInterfaceClass)) {
+                    // call jaxws handler
+                    ServiceRefBuilder jaxwsBuilder = getJAXWSBuilder();
+                    jaxwsBuilder.buildNaming(serviceRef, gerServiceRefType, module, sharedContext);
+                } else {
+                    throw new DeploymentException(serviceInterfaceName + " does not extend " + jaxrpcClass.getName() + " or " + jaxwsClass.getName());
+                }
             }
         }
 
@@ -182,17 +176,17 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         }
     }
 
-    private static Map mapServiceRefs(XmlObject[] refs) {
-        Map refMap = new HashMap();
-        if (refs != null) {
+    private Map<String, GerServiceRefType> mapServiceRefs(XmlObject[] refs) {
+        if (refs != null && refs.length > 0) {
+            Map<String, GerServiceRefType> refMap = new HashMap<String, GerServiceRefType>();
             for (int i = 0; i < refs.length; i++) {
-                GerServiceRefType ref = (GerServiceRefType) refs[i].copy()
-                        .changeType(GerServiceRefType.type);
+                GerServiceRefType ref = (GerServiceRefType) refs[i].copy().changeType(GerServiceRefType.type);
                 String serviceRefName = ref.getServiceRefName().trim();
                 refMap.put(serviceRefName, ref);
             }
+            return refMap;
         }
-        return refMap;
+        return Collections.<String, GerServiceRefType> emptyMap();
     }
 
     private void processAnnotations(JndiConsumer specDD, Module module) throws DeploymentException {
@@ -293,7 +287,7 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
                         if (method != null || field != null) {
                             serviceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
                         }
-                        
+
                         // mappedName
                         if (serviceRef.getMappedName() == null && annotation.mappedName().trim().length() > 0) {
                             serviceRef.setMappedName(annotation.mappedName().trim());
