@@ -47,6 +47,7 @@ import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorOptions;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.jee.HandlerChains;
 import org.apache.openejb.jee.JaxbJavaee;
@@ -208,15 +209,22 @@ public class Axis2Builder extends JAXWSServiceBuilder {
     protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module, Bundle bundle) throws DeploymentException {
         targetGBean.setReferencePattern("axis2ModuleRegistry", new AbstractNameQuery(Axis2ModuleRegistry.class.getName()));
         String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
-        if(portInfo.getWsdlFile() != null && !portInfo.getWsdlFile().trim().equals("")) {
+        String wsdlFile = portInfo.getWsdlFile();
+        if(wsdlFile != null && wsdlFile.trim().length() > 0) {
             if (log.isDebugEnabled()) {
                 log.debug("Service " + serviceName + " has WSDL. " + portInfo.getWsdlFile());
             }
+            //TODO Workaround codes for web modules in the EAR package, need to add web module name prefix
+            if (module.getType().equals(ConfigurationModuleType.WAR) && !isURL(wsdlFile)) {
+                portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
+            }
             return;
         } else if(JAXWSUtils.containsWsdlLocation(serviceClass, bundle)){
-            String wsdlFile = JAXWSUtils.getServiceWsdlLocation(serviceClass, bundle);
+            wsdlFile = JAXWSUtils.getServiceWsdlLocation(serviceClass, bundle);
             //TODO Workaround codes for web modules in the EAR package, need to add web module name prefix
-            portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
+            if (module.getType().equals(ConfigurationModuleType.WAR) && !isURL(wsdlFile)) {
+                portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
+            }
             if(log.isDebugEnabled()) {
                 log.debug("Service "  + serviceName + " has WSDL configured in annotation " + wsdlFile + " and is resolved as " + portInfo.getWsdlFile());
             }
@@ -261,7 +269,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
             options.setWsdlPort(portInfo.getWsdlPort());
         }
 
-        String wsdlFile = wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
+        wsdlFile = wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
         portInfo.setWsdlFile(wsdlFile);
 
         if (log.isDebugEnabled()) {
@@ -269,4 +277,12 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         }
     }
 
+    private boolean isURL(String name) {
+        try {
+            new URL(name);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
