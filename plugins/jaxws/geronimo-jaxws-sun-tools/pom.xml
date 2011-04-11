@@ -61,7 +61,7 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            org.osgi.service.command;version="0.4.0",                            
+                            org.apache.felix.service.command;version="0.4.0",                            
                             *
                         </Import-Package>
                     </instructions>

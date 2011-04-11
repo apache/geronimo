@@ -85,7 +85,7 @@
         <jaxbImplVersion>2.2.3_1-SNAPSHOT</jaxbImplVersion>
 
         <monitoringConsoleVersion>${project.version}</monitoringConsoleVersion>
-        <pax.logging.version>1.5.3</pax.logging.version>
+        <pax.logging.version>1.6.1</pax.logging.version>
         <woodstoxVersion>3.2.9_1</woodstoxVersion>
         <sxcVersion>0.7.3_1</sxcVersion>
         <yokoVersion>1.2-SNAPSHOT</yokoVersion>
@@ -139,12 +139,13 @@
         
         <!-- OSGI properties -->
         <felix.bundlerepository.version>1.6.4</felix.bundlerepository.version>
-        <karaf.version>2.1.2</karaf.version>
-        <karaf.osgi.version>2.1.2</karaf.osgi.version>
-        <aries.blueprint.version>0.2-incubating</aries.blueprint.version>
-        <aries.jmx.version>0.2-incubating</aries.jmx.version>
-        <aries.util.version>0.2-incubating</aries.util.version>
-        <aries.jndi.version>0.2-incubating</aries.jndi.version>
+        <karaf.version>2.2.1-SNAPSHOT</karaf.version>
+        <karaf.osgi.version>2.2.1.SNAPSHOT</karaf.osgi.version>
+        <aries.blueprint.version>0.3</aries.blueprint.version>
+        <aries.jmx.version>0.3</aries.jmx.version>
+        <aries.util.version>0.3</aries.util.version>
+        <aries.jndi.version>0.3</aries.jndi.version>
+        <aries.proxy.version>0.3</aries.proxy.version>
     </properties>
 
     <dependencyManagement>
@@ -648,7 +649,8 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.5.5</version>
+                <!--<version>1.5.5</version>-->
+                <version>1.6.0</version>
             </dependency>
 
             <dependency>
@@ -1732,7 +1734,7 @@ only found in cxf
                         <artifactId>org.apache.felix.gogo.runtime</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>jline</groupId>
+                        <groupId>org.sonatype.jline</groupId>
                         <artifactId>jline</artifactId>
                     </exclusion>
                     <exclusion>
@@ -1748,14 +1750,38 @@ only found in cxf
 
             <dependency>
                 <groupId>org.apache.karaf.jaas</groupId>
+                <artifactId>org.apache.karaf.jaas.modules</artifactId>
+                <version>${karaf.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.apache.karaf.jaas</groupId>
                 <artifactId>org.apache.karaf.jaas.boot</artifactId>
                 <version>${karaf.version}</version>
+            </dependency>
+            
+             <dependency>
+                <groupId>org.apache.aries.application</groupId>
+                <artifactId>org.apache.aries.application.utils</artifactId>
+                <version>${aries.util.version}</version>
+                <exclusions>
+                    <exclusion>
+                       <groupId>org.apache.aries.testsupport</groupId>
+        <artifactId>org.apache.aries.testsupport.unit</artifactId>
+                    </exclusion>
+                </exclusions>                
             </dependency>
 
             <dependency>
                 <groupId>org.apache.aries</groupId>
                 <artifactId>org.apache.aries.util</artifactId>
                 <version>${aries.util.version}</version>
+                 <exclusions>
+                    <exclusion>
+                       <groupId>org.apache.aries.testsupport</groupId>
+        <artifactId>org.apache.aries.testsupport.unit</artifactId>
+                    </exclusion>
+                </exclusions> 
             </dependency>
 
             <dependency>
@@ -1783,6 +1809,18 @@ only found in cxf
             </dependency>
 
             <dependency>
+                <groupId>org.apache.aries.proxy</groupId>
+                <artifactId>org.apache.aries.proxy</artifactId>
+                <version>${aries.proxy.version}</version>
+                <exclusions>
+                    <exclusion>
+                       <groupId>org.apache.aries.testsupport</groupId>
+        <artifactId>org.apache.aries.testsupport.unit</artifactId>
+                    </exclusion>
+                </exclusions> 
+            </dependency>
+            
+            <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint</artifactId>
                 <version>${aries.blueprint.version}</version>
@@ -1791,8 +1829,14 @@ only found in cxf
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                       <groupId>org.apache.aries.testsupport</groupId>
+        <artifactId>org.apache.aries.testsupport.unit</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
+            
+            
 
         </dependencies>
     </dependencyManagement>

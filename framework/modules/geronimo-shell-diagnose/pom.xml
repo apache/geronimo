@@ -37,6 +37,18 @@
         </dependency>
 
         <dependency>
+                <groupId>org.apache.aries.proxy</groupId>
+                <artifactId>org.apache.aries.proxy</artifactId>
+                <version>${aries.proxy.version}</version>
+                <exclusions>
+                    <exclusion>
+                       <groupId>org.apache.aries.testsupport</groupId>
+        <artifactId>org.apache.aries.testsupport.unit</artifactId>
+                    </exclusion>
+                </exclusions> 
+            </dependency>
+
+        <dependency>
             <groupId>org.apache.aries.blueprint</groupId>
             <artifactId>org.apache.aries.blueprint</artifactId>
         </dependency>
@@ -55,7 +67,7 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            org.osgi.service.command;version="0.4.0",
+                            org.apache.felix.service.command;version="0.4.0",
                             org.eclipse.*;resolution:=optional,
                             *
                         </Import-Package>

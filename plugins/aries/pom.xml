@@ -45,6 +45,11 @@
 
     <dependencyManagement>
         <dependencies>
+        <dependency>
+                <groupId>org.apache.aries</groupId>
+                <artifactId>org.apache.aries.util</artifactId>
+                <version>0.2-incubating</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.aries.application</groupId>
                 <artifactId>org.apache.aries.application.utils</artifactId>

@@ -8,6 +8,11 @@
     </module-id>
     <dependency>
         <groupId>org.apache.geronimo.configs</groupId>
+        <artifactId>aries</artifactId>
+        <type>car</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.configs</groupId>
         <artifactId>aries-deployer</artifactId>
         <type>car</type>
     </dependency>

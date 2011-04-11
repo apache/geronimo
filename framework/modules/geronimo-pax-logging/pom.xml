@@ -100,7 +100,7 @@
                         </Import-Package>
                         <Export-Package>
                             org.apache.geronimo.logging,
-                            org.ops4j.pax.logging.spi;provider=paxlogging;version="1.5.3"
+                            org.ops4j.pax.logging.spi;provider=paxlogging;version=${pax.logging.version}
                         </Export-Package>
                         <Bundle-Activator>org.apache.geronimo.logging.impl.LoggingServiceActivator</Bundle-Activator>
                         <Include-Resource>

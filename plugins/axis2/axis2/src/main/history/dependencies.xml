@@ -13,12 +13,17 @@
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>axiom-api</artifactId>
+        <artifactId>axiom-all</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>axis2</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.bundles</groupId>
+        <artifactId>axis2-saaj</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -29,11 +34,6 @@
     <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>scannotation</artifactId>
-        <type>jar</type>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.geronimo.bundles</groupId>
-        <artifactId>woden-impl-dom</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -122,6 +122,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.karaf.jaas</groupId>
+        <artifactId>org.apache.karaf.jaas.boot</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.neethi</groupId>
         <artifactId>neethi</artifactId>
         <type>jar</type>
@@ -177,13 +182,13 @@
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.ws.commons.axiom</groupId>
-        <artifactId>axiom-dom</artifactId>
+        <groupId>org.apache.woden</groupId>
+        <artifactId>woden-impl-commons</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
-        <groupId>org.apache.ws.commons.axiom</groupId>
-        <artifactId>axiom-impl</artifactId>
+        <groupId>org.apache.woden</groupId>
+        <artifactId>woden-impl-dom</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -204,6 +209,11 @@
     <dependency>
         <groupId>org.apache.xbean</groupId>
         <artifactId>xbean-reflect</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.compendium</artifactId>
         <type>jar</type>
     </dependency>
 </plugin-artifact>

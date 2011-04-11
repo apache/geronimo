@@ -39,7 +39,7 @@ public class StreamConsoleReader implements ConsoleReader {
 
     protected PrintWriter console;
 
-    private jline.ConsoleReader jlineConsoleReader;
+    private jline.console.ConsoleReader jlineConsoleReader;
 
     private boolean jlineConsoleEnabled = true;
 
@@ -49,7 +49,7 @@ public class StreamConsoleReader implements ConsoleReader {
 
     public StreamConsoleReader(InputStream in, PrintWriter out) {
         try {
-            jlineConsoleReader = new jline.ConsoleReader(in, out);
+            jlineConsoleReader = new jline.console.ConsoleReader(in, out);
         } catch (IOException e) {
             logger.warn("Fail to create jline console, some features like password mask will be disabled", e);
             jlineConsoleEnabled = false;
@@ -66,7 +66,7 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void printNewline() throws IOException {
         if (jlineConsoleEnabled) {
-            jlineConsoleReader.printNewline();
+            ((ConsoleReader) jlineConsoleReader).printNewline();
         } else {
             console.println();
         }
@@ -82,7 +82,7 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void printString(String s) throws IOException {
         if (jlineConsoleEnabled) {
-            jlineConsoleReader.printString(s);
+            ((ConsoleReader) jlineConsoleReader).printString(s);
         } else {
             console.print(s);
         }
@@ -98,8 +98,8 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void println(String s) throws IOException {
         if (jlineConsoleEnabled) {
-            jlineConsoleReader.printString(s);
-            jlineConsoleReader.printNewline();
+            ((ConsoleReader) jlineConsoleReader).printString(s);
+            ((ConsoleReader) jlineConsoleReader).printNewline();
         } else {
             console.println(s);
             console.println();
@@ -148,7 +148,7 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void flushConsole() throws IOException {
         if (jlineConsoleEnabled) {
-            jlineConsoleReader.flushConsole();
+            ((ConsoleReader) jlineConsoleReader).flushConsole();
         } else {
             console.flush();
         }

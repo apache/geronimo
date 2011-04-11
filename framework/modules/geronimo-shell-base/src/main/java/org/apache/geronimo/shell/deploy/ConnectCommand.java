@@ -31,7 +31,7 @@ import org.apache.geronimo.deployment.cli.ServerConnection.UsernamePasswordHandl
 import org.apache.geronimo.deployment.plugin.factories.BaseDeploymentFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.shell.BaseCommandSupport;
-import org.osgi.service.command.CommandSession;
+import org.apache.felix.service.command.CommandSession;
 
 /**
  * @version $Rev$ $Date$
