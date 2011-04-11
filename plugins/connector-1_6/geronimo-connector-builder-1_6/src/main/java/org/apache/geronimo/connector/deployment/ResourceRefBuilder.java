@@ -362,6 +362,7 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
             if (resourceType.equals("javax.sql.DataSource") ||
                     resourceType.equals("javax.mail.Session") ||
                     resourceType.equals("java.net.URL") ||
+                    resourceType.equals("java.lang.String") ||
                     resourceType.equals("org.omg.CORBA.ORB") ||
                     resourceType.equals("org.omg.CORBA_2_3.ORB") ||
                     resourceType.equals("org.omg.CORBA_2_4.ORB") ||
