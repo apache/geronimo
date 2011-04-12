@@ -103,9 +103,10 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
         List<URL> jarFileUrls = NO_URLS;
         if (!excludeUnlistedClassesValue) {
             jarFileUrls = new ArrayList<URL>();
-            //Per the EJB3.0 Persistence Specification section 6.2, the jar-file should be related to the Persistence Unit Root, which is the jar or directory where the persistence.xml is found             
+            // Per the EJB3.0 Persistence Specification section 6.2.1.6, 
+            // the jar-file should be related to the Persistence Unit Root, which is the jar or directory where the persistence.xml is found             
             for (String urlString : jarFileUrlsUntyped) {
-                URL url = rootUri.resolve(urlString).toURL();
+                URL url = new URL ("jar:"+ rootUri.resolve(urlString)+"!/");
                 if (url != null) {
                     jarFileUrls.add(url);
                 } else {
@@ -166,11 +167,13 @@ public class PersistenceUnitGBean implements GBeanLifecycle {
     private static URL getPersistenceUnitRoot(Bundle bundle, String persistenceUnitRoot) throws MalformedURLException {
         if (persistenceUnitRoot == null || persistenceUnitRoot.equals(".")) {
             return bundle.getEntry("/");
-        } else if (persistenceUnitRoot.endsWith("/")|| persistenceUnitRoot.endsWith("WEB-INF/classes")) {
-            return bundle.getEntry(persistenceUnitRoot);
         } else {
-            return new URL("jar:" + bundle.getEntry(persistenceUnitRoot) + "!/");
-        }        
+            // according to EJB3.0 Persistence Specification section 6.2
+            // 1. the root of a persistence unit could be the WEB-INF/classes directory of a WAR file
+            // 2. the root of a persistence unit could be EJB-JAR, APPCLIENT-JAR
+            // 3. the persistence unit can be a jar in the following 3 places: WEB-INF/lib directory of a war; root of a EAR; lib directory of a EAR
+            return bundle.getEntry(persistenceUnitRoot);
+        }       
     }
     
     public EntityManagerFactory getEntityManagerFactory() {
