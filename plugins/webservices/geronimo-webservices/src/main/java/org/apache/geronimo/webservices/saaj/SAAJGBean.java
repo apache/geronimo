@@ -19,7 +19,6 @@ package org.apache.geronimo.webservices.saaj;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 public class SAAJGBean implements GBeanLifecycle {
 
@@ -27,14 +26,14 @@ public class SAAJGBean implements GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        setProperty("javax.xml.soap.MessageFactory", 
+        setProperty("javax.xml.soap.MessageFactory",
                     "org.apache.geronimo.webservices.saaj.GeronimoMessageFactory");
-        setProperty("javax.xml.soap.SOAPFactory", 
+        setProperty("javax.xml.soap.SOAPFactory",
                     "org.apache.geronimo.webservices.saaj.GeronimoSOAPFactory");
-        setProperty("javax.xml.soap.SOAPConnectionFactory", 
+        setProperty("javax.xml.soap.SOAPConnectionFactory",
                     "org.apache.geronimo.webservices.saaj.GeronimoSOAPConnectionFactory");
-        setProperty("javax.xml.soap.MetaFactory", 
-                    "org.apache.geronimo.webservices.saaj.GeronimoMetaFactory");                
+        setProperty("javax.xml.soap.MetaFactory",
+                    "org.apache.geronimo.webservices.saaj.GeronimoMetaFactory");
     }
 
     private void setProperty(String propertyName, String value) {
@@ -42,10 +41,10 @@ public class SAAJGBean implements GBeanLifecycle {
         // set only if the property is not set
         if (propValue == null) {
             System.setProperty(propertyName, value);
-        }        
+        }
     }
-    
-    public void doStop() throws Exception {             
+
+    public void doStop() throws Exception {
     }
 
     public void doFail() {
@@ -55,7 +54,7 @@ public class SAAJGBean implements GBeanLifecycle {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SAAJGBean.class, SAAJGBean.class, GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
-                
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

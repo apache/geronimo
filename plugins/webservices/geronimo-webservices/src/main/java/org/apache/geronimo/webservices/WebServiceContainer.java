@@ -43,23 +43,23 @@ public interface WebServiceContainer extends Serializable {
     public static final String MESSAGE_CONTEXT = WebServiceContainer.class.getName()+"@MessageContext";
 
     /**
-     * Used for JAX-WS MessageContext. MessageContext must expose HttpServletRequest. 
+     * Used for JAX-WS MessageContext. MessageContext must expose HttpServletRequest.
      */
-    public static final String SERVLET_REQUEST = 
+    public static final String SERVLET_REQUEST =
         WebServiceContainer.class.getName()+"@ServletRequest";
-    
+
     /**
      * Used for JAX-WS MessageContext. MessageContext must expose HttpServletResponse.
      */
-    public static final String SERVLET_RESPONSE = 
+    public static final String SERVLET_RESPONSE =
         WebServiceContainer.class.getName()+"@ServletResponse";
-    
+
     /**
      * Used for JAX-WS MessageContext. MessageContext must expose ServletContext.
      */
-    public static final String SERVLET_CONTEXT = 
+    public static final String SERVLET_CONTEXT =
         WebServiceContainer.class.getName()+"@ServletContext";
-    
+
     /**
      * Token inserted into wsdl where location should be replaced with the real location
      */
@@ -154,7 +154,7 @@ public interface WebServiceContainer extends Serializable {
         String getContentType();
 
         void setStatusMessage(String responseString);
-        
+
         void flushBuffer() throws java.io.IOException;
     }
 

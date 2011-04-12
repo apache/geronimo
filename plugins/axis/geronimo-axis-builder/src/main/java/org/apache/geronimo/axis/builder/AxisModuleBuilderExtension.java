@@ -69,7 +69,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
     private WebServiceBuilder axisBuilder;
     private Environment defaultEnvironment;
-    private AbstractNameQuery listener;   
+    private AbstractNameQuery listener;
 
     public AxisModuleBuilderExtension() {
         this(null, null, null);
@@ -93,9 +93,9 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         }
 
         EjbModule ejbModule = (EjbModule) module;
-        
+
         //overridden web service locations
-        Map<String, String> correctedPortLocations = new HashMap<String, String>();     
+        Map<String, String> correctedPortLocations = new HashMap<String, String>();
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
         for (Map.Entry<String, WebServiceBinding> entry : wsBindingMap.entrySet()) {
             String location = entry.getValue().getWebServiceAddress();
@@ -106,13 +106,13 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                 }
                 correctedPortLocations.put(entry.getKey(), location);
             }
-        }        
+        }
 
         axisBuilder.findWebServices(module, true, correctedPortLocations, environment, ejbModule.getSharedContext());
-        
+
         if (this.defaultEnvironment != null) {
             EnvironmentBuilder.mergeEnvironments(environment, this.defaultEnvironment);
-        } 
+        }
     }
 
     @Override
@@ -130,15 +130,21 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
 
         for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
-            if (bean.type != EnterpriseBeanInfo.STATELESS) {
+
+            String j2eeType = null;
+            if (bean.type == EnterpriseBeanInfo.STATELESS) {
+                j2eeType = NameFactory.STATELESS_SESSION_BEAN;
+            } else if (bean.type == EnterpriseBeanInfo.SINGLETON) {
+                j2eeType = NameFactory.SINGLETON_BEAN;
+            } else {
                 continue;
             }
 
             String ejbName = bean.ejbName;
 
-            AbstractName sessionName = earContext.getNaming().createChildName(module.getModuleName(), ejbName, NameFactory.STATELESS_SESSION_BEAN);
+            AbstractName sessionName = earContext.getNaming().createChildName(module.getModuleName(), ejbName, j2eeType);
 
-            assert sessionName != null: "StatelesSessionBean object name is null";
+            assert sessionName != null: "StatelesSessionBean/Singletion object name is null";
 
             WebServiceBinding wsBinding = wsBindingMap.get(ejbName);
             if (wsBinding != null) {
@@ -183,19 +189,25 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
         }
 
         EjbModule ejbModule = (EjbModule) module;
-        
+
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
 
-        AbstractNameQuery ejbModuleName = NameFactory.newTypeNameQuery(module.getEarContext().getConfigID(), NameFactory.EJB_MODULE, module.getName());
         for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
-            if (bean.type != EnterpriseBeanInfo.STATELESS) {
+
+            String j2eeType = null;
+            if (bean.type == EnterpriseBeanInfo.STATELESS) {
+                j2eeType = NameFactory.STATELESS_SESSION_BEAN;
+            } else if (bean.type == EnterpriseBeanInfo.SINGLETON) {
+                j2eeType = NameFactory.SINGLETON_BEAN;
+            } else {
                 continue;
             }
+
             String ejbName = bean.ejbName;
 
-            AbstractName sessionName = earContext.getNaming().createChildName(module.getModuleName(), ejbName, NameFactory.STATELESS_SESSION_BEAN);
+            AbstractName sessionName = earContext.getNaming().createChildName(module.getModuleName(), ejbName, j2eeType);
 
-            assert sessionName != null: "StatelesSessionBean object name is null";
+            assert sessionName != null: "StatelesSessionBean/SingletionBean object name is null";
 
             AbstractName ejbWebServiceName = earContext.getNaming().createChildName(sessionName, ejbName, NameFactory.WEB_SERVICE_LINK);
 
@@ -203,18 +215,18 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
             ejbWebServiceGBean.setAttribute("ejbName", ejbName);
             ejbWebServiceGBean.setAttribute("ejbClass", bean.ejbClass);
-            
+
             WebServiceBinding wsBinding = wsBindingMap.get(ejbName);
             if (wsBinding != null) {
                 List<String> ddVirtualHosts = wsBinding.getWebServiceVirtualHost();
-                if (ddVirtualHosts != null) {                    
+                if (ddVirtualHosts != null) {
                     String[] virtualHosts = new String[ddVirtualHosts.size()];
-                    for (int i=0; i<ddVirtualHosts.size(); i++) {                    
+                    for (int i=0; i<ddVirtualHosts.size(); i++) {
                         virtualHosts[i] = ddVirtualHosts.get(i).trim();
                     }
                     ejbWebServiceGBean.setAttribute("virtualHosts", virtualHosts);
                 }
-                
+
                 WebServiceSecurityType wsSecurity = wsBinding.getWebServiceSecurity();
                 if (wsSecurity != null) {
                     ejbWebServiceGBean.setReferencePattern("ConfigurationFactory",
@@ -222,7 +234,7 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                             ConfigurationFactory.class.getName()));
                     ejbWebServiceGBean.setAttribute("authMethod", wsSecurity.getAuthMethod().value());
                     if (wsSecurity.getRealmName() != null) {
-                        ejbWebServiceGBean.setAttribute("realmName", wsSecurity.getRealmName().trim());                    
+                        ejbWebServiceGBean.setAttribute("realmName", wsSecurity.getRealmName().trim());
                     }
                     Properties properties = wsSecurity.getProperties();
                     ejbWebServiceGBean.setAttribute("properties", properties);
@@ -230,34 +242,34 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                     ejbWebServiceGBean.setAttribute("policyContextID", policyContextID);
                 }
             }
-            
-            ejbWebServiceGBean.addDependency(ejbModuleName);
+
+            ejbWebServiceGBean.addDependency(module.getModuleName());
             if (axisBuilder.configureEJB(ejbWebServiceGBean, ejbName, ejbModule,
                                          ejbModule.getSharedContext(), bundle)) {
-                
+
                 try {
                     earContext.addGBean(ejbWebServiceGBean);
                 } catch (GBeanAlreadyExistsException e) {
                     throw new DeploymentException(
                             "Could not add axis ejb web service gbean to context", e);
                 }
-                
+
                 if (this.listener != null) {
                     ejbWebServiceGBean.setReferencePattern("WebServiceContainer", this.listener);
                 }
-                
+
                 ejbWebServiceGBean.setReferencePattern("EjbDeployment", sessionName);
             }
 
             ejbWebServiceGBean.clearAttribute("ejbName");
             ejbWebServiceGBean.clearAttribute("ejbClass");
-            
+
         }
     }
 
-    private Map<String, WebServiceBinding> createWebServiceBindingMap(EjbModule ejbModule) {   
+    private Map<String, WebServiceBinding> createWebServiceBindingMap(EjbModule ejbModule) {
         Map<String, WebServiceBinding> wsBindingMap = new HashMap<String, WebServiceBinding>();
-        
+
         Object openejbDD = ejbModule.getEjbModule().getAltDDs().get("openejb-jar.xml");
         if (openejbDD instanceof OpenejbJarType) {
             OpenejbJarType openejb = (OpenejbJarType) openejbDD;
@@ -265,10 +277,10 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                 if (bean instanceof SessionBeanType) {
                     SessionBeanType sessioBean = (SessionBeanType) bean;
                     wsBindingMap.put(bean.getEjbName(), new WebServiceBinding(sessioBean));
-                }                
+                }
             }
-        } else {        
-            GeronimoEjbJarType geronimoEjbJarType = 
+        } else {
+            GeronimoEjbJarType geronimoEjbJarType =
                 (GeronimoEjbJarType) ejbModule.getEjbModule().getAltDDs().get("geronimo-openejb.xml");
             if (geronimoEjbJarType != null) {
                 for (WebServiceBindingType bt : geronimoEjbJarType.getWebServiceBinding()) {
@@ -279,19 +291,19 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
 
         return wsBindingMap;
     }
-    
+
     private static class WebServiceBinding {
-        
+
         private String address;
         private List<String> virtualHosts;
         private WebServiceSecurityType security;
-        
+
         private WebServiceBinding(SessionBeanType bean) {
             address = bean.getWebServiceAddress();
             virtualHosts = bean.getWebServiceVirtualHost();
             security = bean.getWebServiceSecurity();
         }
-        
+
         private WebServiceBinding(WebServiceBindingType bt) {
             address = bt.getWebServiceAddress();
             virtualHosts = bt.getWebServiceVirtualHost();
@@ -303,20 +315,20 @@ public class AxisModuleBuilderExtension implements ModuleBuilderExtension {
                 security.setTransportGuarantee(bt.getWebServiceSecurity().getTransportGuarantee());
             }
         }
-        
+
         public String getWebServiceAddress() {
             return address;
         }
-        
+
         public List<String> getWebServiceVirtualHost() {
             return virtualHosts;
         }
-        
+
         public WebServiceSecurityType getWebServiceSecurity() {
             return security;
         }
     }
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

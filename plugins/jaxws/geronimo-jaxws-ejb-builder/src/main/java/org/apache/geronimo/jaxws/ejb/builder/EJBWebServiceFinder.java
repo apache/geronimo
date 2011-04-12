@@ -37,7 +37,7 @@ public class EJBWebServiceFinder implements WebServiceFinder {
 
     public Map<String, PortInfo> discoverWebServices(Module module,
                                                      boolean isEJB,
-                                                     Map correctedPortLocations)
+                                                     Map<String, String> correctedPortLocations)
             throws DeploymentException {
         Map<String, PortInfo> map = new HashMap<String, PortInfo>();
         discoverEJBWebServices(module, correctedPortLocations, map);
@@ -45,21 +45,23 @@ public class EJBWebServiceFinder implements WebServiceFinder {
     }
 
     private void discoverEJBWebServices(Module module,
-                                        Map correctedPortLocations,
+                                        Map<String, String> correctedPortLocations,
                                         Map<String, PortInfo> map)
         throws DeploymentException {
         Bundle bundle = module.getEarContext().getDeploymentBundle();
         EjbModule ejbModule = (EjbModule) module;
         for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
-            if (bean.type != EnterpriseBeanInfo.STATELESS) {
+            if (bean.type != EnterpriseBeanInfo.STATELESS && bean.type != EnterpriseBeanInfo.SINGLETON) {
                 continue;
             }
             try {
-                Class ejbClass = bundle.loadClass(bean.ejbClass);
+                Class<?> ejbClass = bundle.loadClass(bean.ejbClass);
                 if (JAXWSUtils.isWebService(ejbClass)) {
-                    LOG.debug("Found EJB Web Service: " + bean.ejbName);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Found EJB Web Service: " + bean.ejbName);
+                    }
                     PortInfo portInfo = new PortInfo();
-                    String location = (String) correctedPortLocations.get(bean.ejbName);
+                    String location = correctedPortLocations.get(bean.ejbName);
                     if (location == null) {
                         // set default location, i.e. /@WebService.serviceName/@WebService.name
                         location = "/" + JAXWSUtils.getServiceName(ejbClass) + "/" + JAXWSUtils.getName(ejbClass);

@@ -129,13 +129,19 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
         jaxwsBuilder.findWebServices(module, true, correctedPortLocations, environment, ejbModule.getSharedContext());
 
         for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
-            if (bean.type != EnterpriseBeanInfo.STATELESS) {
+
+            String j2eeType = null;
+            if (bean.type == EnterpriseBeanInfo.STATELESS) {
+                j2eeType = NameFactory.STATELESS_SESSION_BEAN;
+            } else if (bean.type == EnterpriseBeanInfo.SINGLETON) {
+                j2eeType = NameFactory.SINGLETON_BEAN;
+            } else {
                 continue;
             }
 
             String ejbName = bean.ejbName;
 
-            AbstractName sessionName = earContext.getNaming().createChildName(module.getModuleName(), ejbName, NameFactory.STATELESS_SESSION_BEAN);
+            AbstractName sessionName = earContext.getNaming().createChildName(module.getModuleName(), ejbName, j2eeType);
 
             assert sessionName != null: "StatelesSessionBean object name is null";
 
@@ -187,17 +193,21 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
 
         Map<String, WebServiceBinding> wsBindingMap = createWebServiceBindingMap(ejbModule);
 
-        AbstractNameQuery ejbModuleName = NameFactory.newTypeNameQuery(module.getEarContext().getConfigID(), NameFactory.EJB_MODULE, module.getName());
         for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
-            if (bean.type != EnterpriseBeanInfo.STATELESS) {
+            String j2eeType = null;
+            if (bean.type == EnterpriseBeanInfo.STATELESS) {
+                j2eeType = NameFactory.STATELESS_SESSION_BEAN;
+            } else if (bean.type == EnterpriseBeanInfo.SINGLETON) {
+                j2eeType = NameFactory.SINGLETON_BEAN;
+            } else {
                 continue;
             }
 
             String ejbName = bean.ejbName;
 
-            AbstractName sessionName = earContext.getNaming().createChildName(module.getModuleName(), ejbName, NameFactory.STATELESS_SESSION_BEAN);
+            AbstractName sessionName = earContext.getNaming().createChildName(module.getModuleName(), ejbName, j2eeType);
 
-            assert sessionName != null: "StatelesSessionBean object name is null";
+            assert sessionName != null: "StatelesSessionBean/SingletonBean object name is null";
 
             AbstractName ejbWebServiceName = earContext.getNaming().createChildName(sessionName, ejbName, NameFactory.WEB_SERVICE_LINK);
 
@@ -235,7 +245,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
                 }
             }
 
-            ejbWebServiceGBean.addDependency(ejbModuleName);
+            ejbWebServiceGBean.addDependency(module.getModuleName());
 
             if (jaxwsBuilder.configureEJB(ejbWebServiceGBean, bean.ejbName, ejbModule,
                                           ejbModule.getSharedContext(), bundle)) {
