@@ -23,8 +23,10 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.openejb.assembler.classic.StatelessSessionContainerInfo;
+import org.apache.openejb.util.Duration;
 
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @version $Rev$ $Date$
@@ -33,10 +35,10 @@ import java.util.Properties;
 public class StatelessContainerGBean extends EjbContainer {
 
     /**
-     * Specifies the time to wait between invocations. This
-     * value is measured in milliseconds. A value of 5 would
-     * result in a time-out of 5 milliseconds between invocations.
-     * A value of zero would mean no timeout.
+     * Specifies the time an invokation should wait for an instance of the pool to become available.
+     * 
+     * After the timeout is reached, if an instance in the pool cannot be obtained, the method invocation will fail.
+     * 
      */
     private final int accessTimeout;
     
@@ -100,9 +102,12 @@ public class StatelessContainerGBean extends EjbContainer {
         set("MaxSize", Integer.toString(maxSize));
         set("MinSize", Integer.toString(minSize));        
         set("StrictPooling", Boolean.toString(strictPooling));
-        set("AccessTimeout", Integer.toString(accessTimeout));
-        set("CloseTimeout", Integer.toString(closeTimeout));
-        set("IdleTimeout", Integer.toString(idleTimeout));
+        Duration accessTimeoutDuration = new Duration(accessTimeout, TimeUnit.SECONDS);
+        set("AccessTimeout", accessTimeoutDuration.toString());
+        Duration closeTimeoutDuration = new Duration(closeTimeout, TimeUnit.MINUTES);
+        set("CloseTimeout", closeTimeoutDuration.toString());
+        Duration idleTimeoutDuration = new Duration(idleTimeout, TimeUnit.MINUTES);
+        set("IdleTimeout", idleTimeoutDuration.toString());
         this.maxSize = maxSize;
         this.minSize= minSize;
         this.strictPooling = strictPooling;

@@ -42,8 +42,8 @@
     </gbean>
 
     <gbean name="DefaultStatelessContainer" class="org.apache.geronimo.openejb.StatelessContainerGBean">
-        <attribute name="accessTimeout">0</attribute>
-        <attribute name="closeTimeout">300000</attribute>          
+        <attribute name="accessTimeout">-1</attribute>
+        <attribute name="closeTimeout">5</attribute>          
         <attribute name="maxSize">10</attribute>
         <attribute name="minSize">0</attribute>
         <attribute name="strictPooling">true</attribute>
@@ -53,6 +53,7 @@
         </reference>
     </gbean>
     <gbean name="DefaultStatefulContainer" class="org.apache.geronimo.openejb.StatefulContainerGBean">
+        <attribute name="accessTimeout">-1</attribute>
         <attribute name="timeout">20</attribute>
         <attribute name="capacity">1000</attribute>
         <attribute name="bulkPassivate">100</attribute>
@@ -61,7 +62,7 @@
         </reference>
     </gbean>
     <gbean name="DefaultSingletonContainer" class="org.apache.geronimo.openejb.SingletonContainerGBean">
-        <attribute name="accessTimeout">30</attribute>
+        <attribute name="accessTimeout">-1</attribute>
         <reference name="OpenEjbSystem">
             <name>OpenEjbSystem</name>
         </reference>

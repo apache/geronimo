@@ -23,8 +23,10 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.openejb.assembler.classic.StatefulSessionContainerInfo;
+import org.apache.openejb.util.Duration;
 
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @version $Rev$ $Date$
@@ -32,6 +34,15 @@ import java.util.Properties;
 @GBean
 public class StatefulContainerGBean extends EjbContainer {
 
+    /**
+     * Specifies the maximum time an invocation could wait for the stateful bean instance to become available before
+     * giving up.
+     * 
+     * After the timeout is reached a javax.ejb.ConcurrentAccessTimeoutException will be thrown.
+     */
+    private final int accessTimeout;   
+    
+    
     /**
      * Maximum number of values that should be in the LRU
      */
@@ -55,14 +66,18 @@ public class StatefulContainerGBean extends EjbContainer {
             @ParamReference(name = "OpenEjbSystem") OpenEjbSystem openEjbSystem,
             @ParamAttribute(name = "provider") String provider,
             @ParamAttribute(name = "bulkPassivate") int bulkPassivate,
+            @ParamAttribute(name = "accessTimeout") int accessTimeout,
             @ParamAttribute(name = "capacity") int capacity,
             @ParamAttribute(name = "timeout") long timeout,
             @ParamAttribute(name = "properties") Properties properties) {
         super(abstractName, StatefulSessionContainerInfo.class, openEjbSystem, provider, "STATEFUL", properties);
         set("BulkPassivate", Integer.toString(bulkPassivate));
+        Duration accessTimeoutDuration = new Duration(accessTimeout, TimeUnit.SECONDS);
+        set("AccessTimeout", accessTimeoutDuration.toString());
         set("Capacity", Integer.toString(capacity));
         set("TimeOut", Long.toString(timeout));
         this.bulkPassivate = bulkPassivate;
+        this.accessTimeout = accessTimeout;
         this.capacity = capacity;
         this.timeout = timeout;
     }

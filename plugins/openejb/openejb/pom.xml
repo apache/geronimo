@@ -169,6 +169,7 @@
                                     <attribute name="clusterName">${ClusterName}</attribute>
                                 </gbean>
                                 <gbean name="DefaultStatefulContainer">
+                                    <attribute name="accessTimeout">${StatefulAccessTimeout}</attribute>
                                     <attribute name="timeout">${StatefulTimeout}</attribute>
                                     <attribute name="capacity">${StatefulCapacity}</attribute>
                                     <attribute name="bulkPassivate">${StatefulBulkPassivate}</attribute>
@@ -189,13 +190,14 @@
                                 </gbean>
                             </config-xml-content>
                             <config-substitution key="OpenEJBPort">4201</config-substitution>
+                            <config-substitution key="StatefulAccessTimeout">-1</config-substitution>
                             <config-substitution key="StatefulTimeout">20</config-substitution>
                             <config-substitution key="StatefulCapacity">1000</config-substitution>
                             <config-substitution key="StatefulBulkPassivate">100</config-substitution>
                             <config-substitution key="SingletonAccessTimeout">30</config-substitution>
                             <config-substitution key="BMPPoolSize">10</config-substitution>
-                            <config-substitution key="StatelessAccessTimeout">0</config-substitution>
-                            <config-substitution key="StatelessCloseTimeout">300000</config-substitution>                            
+                            <config-substitution key="StatelessAccessTimeout">-1</config-substitution>
+                            <config-substitution key="StatelessCloseTimeout">5</config-substitution>                            
                             <config-substitution key="StatelessPoolSize">10</config-substitution> 
                             <config-substitution key="StatelessMinPoolSize">0</config-substitution>                             
                             <config-substitution key="StatelessStrictPooling">true</config-substitution>
