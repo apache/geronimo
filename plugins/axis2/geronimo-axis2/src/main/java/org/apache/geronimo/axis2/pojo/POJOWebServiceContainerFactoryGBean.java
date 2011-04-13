@@ -65,7 +65,7 @@ public class POJOWebServiceContainerFactoryGBean implements WebServiceContainerF
                         @ParamReference(name="TransactionManager", namingType=NameFactory.JTA_RESOURCE) TransactionManager transactionManager,
                         @ParamAttribute(name="holder") AnnotationHolder holder,
                         @ParamAttribute(name="contextRoot") String contextRoot,
-                        @ParamReference(name="axis2ModuleRegistry") Axis2ModuleRegistry axis2ModuleRegistry,
+                        @ParamReference(name="Axis2ModuleRegistry") Axis2ModuleRegistry axis2ModuleRegistry,
                         @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                         @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
                         @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader)

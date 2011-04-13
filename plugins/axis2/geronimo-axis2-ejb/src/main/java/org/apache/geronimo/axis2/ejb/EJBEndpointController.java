@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *      
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,18 +26,18 @@ import org.apache.axis2.jaxws.server.EndpointController;
 import org.apache.axis2.jaxws.server.dispatcher.EndpointDispatcher;
 
 public class EJBEndpointController extends EndpointController {
- 
+
     private InvocationContext invContext;
 
     public EJBEndpointController(InvocationContext invContext) {
         this.invContext = invContext;
     }
-    
+
     @Override
-    protected EndpointDispatcher getEndpointDispatcher(MessageContext mc, 
-                                                       Class serviceImplClass, 
-                                                       Object serviceInstance) 
-        throws Exception {    
+    protected EndpointDispatcher getEndpointDispatcher(MessageContext mc,
+                                                       Class serviceImplClass,
+                                                       Object serviceInstance)
+        throws Exception {
         if (Provider.class.isAssignableFrom(serviceImplClass)) {
             return new EJBProviderDispatcher(serviceImplClass, this.invContext);
         } else {

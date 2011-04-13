@@ -207,7 +207,7 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 
     @Override
     protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module, Bundle bundle) throws DeploymentException {
-        targetGBean.setReferencePattern("axis2ModuleRegistry", new AbstractNameQuery(Axis2ModuleRegistry.class.getName()));
+        targetGBean.setReferencePattern("Axis2ModuleRegistry", new AbstractNameQuery(Axis2ModuleRegistry.class.getName()));
         String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
         String wsdlFile = portInfo.getWsdlFile();
         if(wsdlFile != null && wsdlFile.trim().length() > 0) {

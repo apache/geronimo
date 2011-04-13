@@ -105,7 +105,7 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
         } catch (GBeanNotFoundException e1) {
             GBeanData configGBeanData = new GBeanData(containerFactoryName, Axis2ConfigGBean.class);
             configGBeanData.setAttribute("moduleName", module.getModuleName());
-            configGBeanData.setReferencePattern("axis2ModuleRegistry", new AbstractNameQuery(Artifact.create("org.apache.geronimo.configs/axis2//car"), Collections.emptyMap(), Axis2ModuleRegistry.class.getName()));
+            configGBeanData.setReferencePattern("Axis2ModuleRegistry", new AbstractNameQuery(Artifact.create("org.apache.geronimo.configs/axis2//car"), Collections.emptyMap(), Axis2ModuleRegistry.class.getName()));
             try {
                 context.addGBean(configGBeanData);
             } catch (GBeanAlreadyExistsException e) {

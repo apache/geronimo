@@ -41,7 +41,7 @@ public class Axis2ConfigGBean implements GBeanLifecycle {
     private Axis2ModuleRegistry axis2ModuleRegistry;
 
     public Axis2ConfigGBean(@ParamAttribute(name = "moduleName") AbstractName moduleName,
-                                                   @ParamReference(name = "axis2ModuleRegistry") Axis2ModuleRegistry axis2ModuleRegistry,
+                                                   @ParamReference(name = "Axis2ModuleRegistry") Axis2ModuleRegistry axis2ModuleRegistry,
                                                    @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) {
         this.moduleName = moduleName;
         this.classLoder = classLoader;
