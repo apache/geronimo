@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.reference.ClassReference;
@@ -107,6 +108,14 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         for (Map.Entry<String, EnvEntry> entry : specDD.getEnvEntryMap().entrySet()) {
             String name = entry.getKey();
             EnvEntry envEntry = entry.getValue();
+            
+            if (lookupJndiContextMap(module, name) != null) {
+                // some other builder handled this entry already
+                addInjections(normalize(name), envEntry.getInjectionTarget(), NamingBuilder.INJECTION_KEY.get(sharedContext));
+                
+                continue;
+            }         
+            
             String type = getStringValue(envEntry.getEnvEntryType());
 
             Object value = null;
