@@ -55,6 +55,11 @@
             <artifactId>geronimo-annotation_1.1_spec</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

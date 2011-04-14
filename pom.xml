@@ -70,7 +70,7 @@
         <tomcatGroupId>org.apache.geronimo.ext.tomcat</tomcatGroupId>
 
         <openejbVersion>4.0.0-SNAPSHOT</openejbVersion>
-        <openjpaVersion>2.0.1</openjpaVersion>
+        <openjpaVersion>2.1.0</openjpaVersion>
         <openwebbeansVersion>1.1.1-SNAPSHOT</openwebbeansVersion>
         <derbyVersion>10.6.1.0</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
@@ -921,6 +921,12 @@
                 <version>3.2.1</version>
             </dependency>
 
+            <dependency>
+                <groupId>commons-dbcp</groupId>
+                <artifactId>commons-dbcp</artifactId>
+                <version>1.4</version>
+            </dependency>
+            
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
