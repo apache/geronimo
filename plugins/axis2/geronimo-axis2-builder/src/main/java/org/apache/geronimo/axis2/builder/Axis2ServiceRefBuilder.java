@@ -75,7 +75,7 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
 
         wsdlURI = builder.getWsdlURI();
         //TODO For non standalone web application, it is embbed of directory style in the EAR package
-        if (module.getType().equals(ConfigurationModuleType.WAR) && wsdlURI != null && !isURL(wsdlURI)) {
+        if (isWSDLNormalizedRequired(module, wsdlURI)) {
             wsdlURI = module.getTargetPathURI().resolve(wsdlURI);
         }
         serviceQName = builder.getServiceQName();
@@ -121,5 +121,11 @@ public class Axis2ServiceRefBuilder extends JAXWSServiceRefBuilder {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private boolean isWSDLNormalizedRequired(Module module, URI wsdlLocation) {
+        return (module.getType().equals(ConfigurationModuleType.WAR) || (module.getType().equals(ConfigurationModuleType.EJB) && module.getParentModule() != null && module.getParentModule().getType()
+                .equals(ConfigurationModuleType.WAR)))
+                && !isURL(wsdlLocation);
     }
 }

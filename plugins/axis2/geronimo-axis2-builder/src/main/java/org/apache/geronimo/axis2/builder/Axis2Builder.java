@@ -215,14 +215,14 @@ public class Axis2Builder extends JAXWSServiceBuilder {
                 log.debug("Service " + serviceName + " has WSDL. " + portInfo.getWsdlFile());
             }
             //TODO Workaround codes for web modules in the EAR package, need to add web module name prefix
-            if (module.getType().equals(ConfigurationModuleType.WAR) && !isURL(wsdlFile)) {
+            if (isWSDLNormalizedRequired(module, wsdlFile)) {
                 portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
             }
             return;
         } else if(JAXWSUtils.containsWsdlLocation(serviceClass, bundle)){
             wsdlFile = JAXWSUtils.getServiceWsdlLocation(serviceClass, bundle);
             //TODO Workaround codes for web modules in the EAR package, need to add web module name prefix
-            if (module.getType().equals(ConfigurationModuleType.WAR) && !isURL(wsdlFile)) {
+            if (isWSDLNormalizedRequired(module, wsdlFile)) {
                 portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
             }
             if(log.isDebugEnabled()) {
@@ -284,5 +284,11 @@ public class Axis2Builder extends JAXWSServiceBuilder {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private boolean isWSDLNormalizedRequired(Module module, String wsdlLocation) {
+        return (module.getType().equals(ConfigurationModuleType.WAR) || (module.getType().equals(ConfigurationModuleType.EJB) && module.getParentModule() != null && module.getParentModule().getType()
+                .equals(ConfigurationModuleType.WAR)))
+                && !isURL(wsdlLocation);
     }
 }
