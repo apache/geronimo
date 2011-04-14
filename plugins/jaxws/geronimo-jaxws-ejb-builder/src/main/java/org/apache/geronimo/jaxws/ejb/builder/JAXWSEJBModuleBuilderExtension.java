@@ -61,7 +61,6 @@ import org.apache.openejb.jee.oejb2.OpenejbJarType;
 import org.apache.openejb.jee.oejb2.SessionBeanType;
 import org.apache.openejb.jee.oejb2.WebServiceBindingType;
 import org.apache.openejb.jee.oejb2.WebServiceSecurityType;
-
 import org.osgi.framework.Bundle;
 
 /**

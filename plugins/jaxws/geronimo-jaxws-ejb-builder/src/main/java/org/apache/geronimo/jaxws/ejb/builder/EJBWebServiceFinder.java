@@ -18,10 +18,11 @@
 package org.apache.geronimo.jaxws.ejb.builder;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
 import org.apache.geronimo.jaxws.builder.WebServiceFinder;
@@ -31,22 +32,22 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EJBWebServiceFinder implements WebServiceFinder {
+public class EJBWebServiceFinder implements WebServiceFinder<EjbModule> {
 
     private static final Logger LOG = LoggerFactory.getLogger(EJBWebServiceFinder.class);
 
-    public Map<String, PortInfo> discoverWebServices(Module module, Map<String, String> correctedPortLocations) throws DeploymentException {
+    public Map<String, PortInfo> discoverWebServices(EjbModule module, Map<String, String> correctedPortLocations) throws DeploymentException {
         Map<String, PortInfo> map = new HashMap<String, PortInfo>();
         discoverEJBWebServices(module, correctedPortLocations, map);
         return map;
     }
 
-    private void discoverEJBWebServices(Module module,
+    private void discoverEJBWebServices(EjbModule ejbModule,
                                         Map<String, String> correctedPortLocations,
                                         Map<String, PortInfo> map)
         throws DeploymentException {
-        Bundle bundle = module.getEarContext().getDeploymentBundle();
-        EjbModule ejbModule = (EjbModule) module;
+        Bundle bundle = ejbModule.getEarContext().getDeploymentBundle();
+        Set<String> ejbWebServiceClassNames = new HashSet<String>();
         for (EnterpriseBeanInfo bean : ejbModule.getEjbInfo().getEjbJarInfo().enterpriseBeans) {
             if (bean.type != EnterpriseBeanInfo.STATELESS && bean.type != EnterpriseBeanInfo.SINGLETON) {
                 continue;
@@ -65,11 +66,13 @@ public class EJBWebServiceFinder implements WebServiceFinder {
                     }
                     portInfo.setLocation(location);
                     map.put(bean.ejbName, portInfo);
+                    ejbWebServiceClassNames.add(bean.ejbClass);
                 }
             } catch (Exception e) {
                 throw new DeploymentException("Failed to load ejb class "
                                               + bean.ejbName, e);
             }
         }
+        ejbModule.getSharedContext().put(EJB_WEB_SERVICE_CLASS_NAMES, ejbWebServiceClassNames);
     }
 }

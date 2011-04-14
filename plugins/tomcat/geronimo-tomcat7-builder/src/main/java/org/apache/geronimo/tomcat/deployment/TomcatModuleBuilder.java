@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -430,17 +429,22 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
     }
 
     @Override
-    protected void postInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+    protected void postInitContext(EARContext earContext, WebModule webModule, Bundle bundle) throws DeploymentException {
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
-            mbe.initContext(earContext, module, bundle);
+            mbe.initContext(earContext, webModule, bundle);
+        }
+        //Process Web Service
+        Map<String, String> servletNameToPathMap = buildServletNameToPathMap(webModule.getSpecDD(), webModule.getContextRoot());
+        for (WebServiceBuilder serviceBuilder : webServiceBuilder) {
+            serviceBuilder.findWebServices(webModule, false, servletNameToPathMap, webModule.getEnvironment(), webModule.getSharedContext());
         }
     }
 
     @Override
-    protected void preInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
-        TomcatWebAppType gerWebApp = (TomcatWebAppType) module.getVendorDD();
+    protected void preInitContext(EARContext earContext, WebModule webModule, Bundle bundle) throws DeploymentException {
+        TomcatWebAppType gerWebApp = (TomcatWebAppType) webModule.getVendorDD();
         boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
-        module.getEarContext().getGeneralData().put(WEB_MODULE_HAS_SECURITY_REALM, hasSecurityRealmName);
+        webModule.getEarContext().getGeneralData().put(WEB_MODULE_HAS_SECURITY_REALM, hasSecurityRealmName);
     }
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
@@ -579,7 +583,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder implements GBe
             webModuleData.setAttribute("contextAttributes", contextAttributes);
 
             //Handle the role permissions and webservices on the servlets.
-            List<org.apache.openejb.jee.Servlet> servletTypes = webApp.getServlet();
             Map<String, AbstractName> webServices = new HashMap<String, AbstractName>();
             Class<?> baseServletClass;
             try {

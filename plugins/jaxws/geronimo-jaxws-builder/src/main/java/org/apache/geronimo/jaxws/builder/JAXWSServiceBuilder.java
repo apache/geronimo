@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
-
 import javax.xml.ws.http.HTTPBinding;
 
 import org.apache.geronimo.common.DeploymentException;

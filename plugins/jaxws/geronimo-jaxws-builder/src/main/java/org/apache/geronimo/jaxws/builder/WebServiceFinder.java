@@ -23,8 +23,10 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.PortInfo;
 
-public interface WebServiceFinder {
+public interface WebServiceFinder<T extends Module> {
 
-    Map<String, PortInfo> discoverWebServices(Module module, Map<String, String> correctedPortLocations) throws DeploymentException;
+    public static final String EJB_WEB_SERVICE_CLASS_NAMES = "EJB_WEB_SERVICE_CLASS_NAMES";
+
+    Map<String, PortInfo> discoverWebServices(T module, Map<String, String> correctedPortLocations) throws DeploymentException;
 
 }

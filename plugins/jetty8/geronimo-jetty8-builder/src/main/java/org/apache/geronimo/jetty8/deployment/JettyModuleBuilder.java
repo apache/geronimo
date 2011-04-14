@@ -105,8 +105,6 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,8 +142,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
     private final AbstractNameQuery jettyContainerObjectName;
     private final WebAppInfoFactory webAppInfoFactory;
 
-    private final GBeanData pojoWebServiceTemplate;
-
     protected final NamespaceDrivenBuilderCollection clusteringBuilders;
 
     private final Integer defaultSessionTimeoutMinutes;
@@ -178,10 +174,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
         }
         this.webAppInfoFactory = new StandardWebAppInfoFactory(defaultWebApp, jspServletInfo);
 
-        this.pojoWebServiceTemplate = getGBeanData(kernel, pojoWebServiceTemplate);
         this.clusteringBuilders = new NamespaceDrivenBuilderCollection(clusteringBuilders);//, GerClusteringDocument.type.getDocumentElementName());
-
-        ServiceReference sr = bundleContext.getServiceReference(PackageAdmin.class.getName());
     }
 
     public void doStart() throws Exception {
@@ -197,14 +190,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
 
     public void doFail() {
         doStop();
-    }
-
-    private static GBeanData getGBeanData(Kernel kernel, Object template) throws GBeanNotFoundException {
-        if (template == null) {
-            return null;
-        }
-        AbstractName templateName = kernel.getAbstractNameFor(template);
-        return new GBeanData(kernel.getGBeanData(templateName));
     }
 
     public Module createModule(Bundle bundle, Naming naming, ModuleIDBuilder idBuilder) throws DeploymentException {
@@ -425,19 +410,25 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder implements GBea
     }
 
     @Override
-    protected void postInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+    protected void postInitContext(EARContext earContext, WebModule webModule, Bundle bundle) throws DeploymentException {
         for (ModuleBuilderExtension mbe : moduleBuilderExtensions) {
-            mbe.initContext(earContext, module, bundle);
+            mbe.initContext(earContext, webModule, bundle);
+        }
+        //Process Web Service
+        Map<String, String> servletNameToPathMap = buildServletNameToPathMap(webModule.getSpecDD(), webModule.getContextRoot());
+        for (WebServiceBuilder serviceBuilder : webServiceBuilder) {
+            serviceBuilder.findWebServices(webModule, false, servletNameToPathMap, webModule.getEnvironment(), webModule.getSharedContext());
         }
     }
 
     @Override
-    protected void preInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
-        JettyWebAppType gerWebApp = (JettyWebAppType) module.getVendorDD();
+    protected void preInitContext(EARContext earContext, WebModule webModule, Bundle bundle) throws DeploymentException {
+        JettyWebAppType gerWebApp = (JettyWebAppType) webModule.getVendorDD();
         boolean hasSecurityRealmName = gerWebApp.isSetSecurityRealmName();
-        module.getEarContext().getGeneralData().put(WEB_MODULE_HAS_SECURITY_REALM, hasSecurityRealmName);
+        webModule.getEarContext().getGeneralData().put(WEB_MODULE_HAS_SECURITY_REALM, hasSecurityRealmName);
     }
 
+    @Override
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
         AbstractName moduleName = module.getModuleName();

@@ -410,29 +410,29 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     }
 
-    protected abstract void preInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException;
+    protected abstract void preInitContext(EARContext earContext, WebModule module, Bundle bundle) throws DeploymentException;
 
-    protected abstract void postInitContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException;
+    protected abstract void postInitContext(EARContext earContext, WebModule module, Bundle bundle) throws DeploymentException;
 
     @Override
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
-        preInitContext(earContext, module, bundle);
-        basicInitContext(earContext, module, bundle, (XmlObject) module.getVendorDD());
-        postInitContext(earContext, module, bundle);
+        WebModule webModule = (WebModule)module;
+        preInitContext(earContext, webModule, bundle);
+        basicInitContext(earContext, webModule, bundle, (XmlObject) module.getVendorDD());
+        postInitContext(earContext, webModule, bundle);
     }
 
-    protected void basicInitContext(EARContext earContext, Module module, Bundle bundle, XmlObject gerWebApp) throws DeploymentException {
-        WebModule webModule = (WebModule) module;
+    protected void basicInitContext(EARContext earContext, WebModule webModule, Bundle bundle, XmlObject gerWebApp) throws DeploymentException {
         //complete manifest classpath
         EARContext moduleContext = webModule.getEarContext();
-        Collection<String> manifestcp = module.getClassPath();
+        Collection<String> manifestcp = webModule.getClassPath();
         Collection<String> moduleLocations = EARContext.MODULE_LIST_KEY.get(webModule.getRootEarContext().getGeneralData());
         URI baseUri = URI.create(webModule.getTargetPath());
         URI resolutionUri = invertURI(baseUri);
         earContext.getCompleteManifestClassPath(webModule.getDeployable(), baseUri, resolutionUri, manifestcp, moduleLocations);
         //Security Configuration Validation
         WebApp webApp = webModule.getSpecDD();
-        boolean hasSecurityRealmName = (Boolean) module.getEarContext().getGeneralData().get(WEB_MODULE_HAS_SECURITY_REALM);
+        boolean hasSecurityRealmName = (Boolean) webModule.getEarContext().getGeneralData().get(WEB_MODULE_HAS_SECURITY_REALM);
         if ((!webApp.getSecurityConstraint().isEmpty() || !webApp.getSecurityRole().isEmpty())) {
             if (!hasSecurityRealmName) {
                 throw new DeploymentException("web.xml for web app " + webModule.getName()
@@ -453,7 +453,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         getNamingBuilders().initContext(webApp, gerWebApp, webModule);
 
         float originalSpecDDVersion;
-        String originalSpecDD = module.getOriginalSpecDD();
+        String originalSpecDD = webModule.getOriginalSpecDD();
         if (originalSpecDD == null) {
             originalSpecDDVersion = 3.0f;
         } else {
@@ -464,17 +464,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         if (INITIAL_WEB_XML_SCHEMA_VERSION.get(earContext.getGeneralData()) >= 2.5f && !webApp.isMetadataComplete()) {
             MergeHelper.processWebFragmentsAndAnnotations(earContext, webModule, bundle, webApp);
         }
-        //TODO From my understanding, whether we scan ServletContainerInitializer has nothing to do with meta-complete/web.xml schema version
-        //Might need double-check !
         MergeHelper.processServletContainerInitializer(earContext, webModule, bundle);
-
-        //web.xml should now list all the classes we need to create instances of.
-        //Process Web Service
-        Map<String, String> servletNameToPathMap = buildServletNameToPathMap(webModule.getSpecDD(), webModule.getContextRoot());
-        Map sharedContext = webModule.getSharedContext();
-        for (WebServiceBuilder serviceBuilder : webServiceBuilder) {
-            serviceBuilder.findWebServices(webModule, false, servletNameToPathMap, webModule.getEnvironment(), sharedContext);
-        }
         serviceBuilders.build(gerWebApp, earContext, webModule.getEarContext());
     }
 

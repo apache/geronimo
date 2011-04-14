@@ -20,9 +20,9 @@ package org.apache.geronimo.jaxws.builder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.PortInfo;
@@ -33,29 +33,37 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SimpleWARWebServiceFinder extends AbstractWebServiceFinder {
+public class SimpleWARWebServiceFinder extends AbstractWARWebServiceFinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleWARWebServiceFinder.class);
 
     @Override
-    public Map<String, PortInfo> discoverWebServices(Module module, Map<String, String> correctedPortLocations) throws DeploymentException {
+    public Map<String, PortInfo> discoverWebServices(WebModule module, Map<String, String> correctedPortLocations) throws DeploymentException {
 
         Map<String, PortInfo> servletNamePortInfoMap = new HashMap<String, PortInfo>();
 
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        WebApp webApp = (WebApp) module.getSpecDD();
+        WebApp webApp = module.getSpecDD();
 
         // find web services
         List<Servlet> servletTypes = webApp.getServlet();
+        Set<String> ignoredEJBWebServiceClassNames = getEJBWebServiceClassNames(module);
 
         if (webApp.getServlet().size() == 0) {
             // web.xml not present (empty really), discover annotated
             // classes and update DD
-            List<Class<?>> services = discoverWebServices(module, false);
-            String contextRoot = ((WebModule) module).getContextRoot();
+            List<Class<?>> services = discoverWebServices(module);
+            String contextRoot = (module).getContextRoot();
             for (Class<?> service : services) {
                 // skip interfaces and such
                 if (!JAXWSUtils.isWebService(service)) {
+                    continue;
+                }
+
+                if (ignoredEJBWebServiceClassNames.contains(service.getName())) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Web service " + service.getClass().getName() + "  is ignored as it is also an EJB, it will exposed as an EJB Web Service ");
+                    }
                     continue;
                 }
 
@@ -95,8 +103,7 @@ public class SimpleWARWebServiceFinder extends AbstractWebServiceFinder {
                             servletNamePortInfoMap.put(servletName, portInfo);
                         }
                     } catch (Exception e) {
-                        throw new DeploymentException("Failed to load servlet class "
-                                                      + servletClassName + " from bundle " +  bundle, e);
+                        throw new DeploymentException("Failed to load servlet class " + servletClassName + " from bundle " + bundle, e);
                     }
                 }
             }
