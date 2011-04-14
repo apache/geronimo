@@ -35,10 +35,7 @@ public class EJBWebServiceFinder implements WebServiceFinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(EJBWebServiceFinder.class);
 
-    public Map<String, PortInfo> discoverWebServices(Module module,
-                                                     boolean isEJB,
-                                                     Map<String, String> correctedPortLocations)
-            throws DeploymentException {
+    public Map<String, PortInfo> discoverWebServices(Module module, Map<String, String> correctedPortLocations) throws DeploymentException {
         Map<String, PortInfo> map = new HashMap<String, PortInfo>();
         discoverEJBWebServices(module, correctedPortLocations, map);
         return map;

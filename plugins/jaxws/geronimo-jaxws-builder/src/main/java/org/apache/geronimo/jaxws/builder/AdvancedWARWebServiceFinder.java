@@ -39,9 +39,7 @@ public class AdvancedWARWebServiceFinder extends AbstractWebServiceFinder {
     private static final Logger LOG = LoggerFactory.getLogger(AdvancedWARWebServiceFinder.class);
 
     @Override
-    public Map<String, PortInfo> discoverWebServices(Module module,
-                                                     boolean isEJB,
-                                                     Map<String, String> correctedPortLocations)
+    public Map<String, PortInfo> discoverWebServices(Module module, Map<String, String> correctedPortLocations)
             throws DeploymentException {
         Map<String, PortInfo> servletNamePortInfoMap = new HashMap<String, PortInfo>();
         discoverPOJOWebServices(module, correctedPortLocations, servletNamePortInfoMap);

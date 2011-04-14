@@ -105,7 +105,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
         if (webServiceFinder == null) {
             throw new DeploymentException("WebServiceFinder not configured");
         }
-        return webServiceFinder.discoverWebServices(module, isEJB, correctedPortLocations);
+        return webServiceFinder.discoverWebServices(module, correctedPortLocations);
     }
 
     protected abstract Map<String, PortInfo> parseWebServiceDescriptor(InputStream in,
@@ -200,12 +200,12 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
                                 Map sharedContext,
                                 Bundle bundle)
             throws DeploymentException {
-        Map portInfoMap = (Map) sharedContext.get(getKey());
+        Map<String, PortInfo> portInfoMap = (Map<String, PortInfo>) sharedContext.get(getKey());
         if (portInfoMap == null) {
             // not ours
             return false;
         }
-        PortInfo portInfo = (PortInfo) portInfoMap.get(ejbName);
+        PortInfo portInfo = portInfoMap.get(ejbName);
         if (portInfo == null) {
             // not ours
             return false;
@@ -213,7 +213,7 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
 
         String beanClassName = (String)targetGBean.getAttribute("ejbClass");
         // verify that the class is loadable and is a JAX-WS web service
-        Class beanClass = loadClass(beanClassName, bundle);
+        Class<?> beanClass = loadClass(beanClassName, bundle);
         if (!JAXWSUtils.isWebService(beanClass)) {
             return false;
         }
@@ -223,7 +223,9 @@ public abstract class JAXWSServiceBuilder implements WebServiceBuilder {
             throw new DeploymentException("Endpoint URI for EJB WebService is missing");
         }
 
-        LOG.info("Configuring EJB JAX-WS Web Service: " + ejbName + " at " + location);
+        if (LOG.isDebugEnabled()) {
+            LOG.info("Configuring EJB JAX-WS Web Service: " + ejbName + " at " + location);
+        }
 
         targetGBean.setAttribute("portInfo", portInfo);
 

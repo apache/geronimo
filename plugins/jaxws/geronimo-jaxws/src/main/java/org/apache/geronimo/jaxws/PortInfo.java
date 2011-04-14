@@ -41,11 +41,11 @@ public class PortInfo implements Serializable {
     private Boolean mtomEnabled;
 
     private String binding;
-    
+
     private QName wsdlPort;
-    
+
     private QName wsdlService;
-    
+
     private String location;
 
     public String getPortName() {
@@ -105,10 +105,10 @@ public class PortInfo implements Serializable {
     }
 
     /*
-     * This is a bit tricky here since JAXB generated classes are not serializable, 
-     * so serialize the handler chain to XML and pass it as a String. 
+     * This is a bit tricky here since JAXB generated classes are not serializable,
+     * so serialize the handler chain to XML and pass it as a String.
      */
-    
+
     public void setHandlers(Class type, Object handlerChain) throws Exception {
         if (handlerChain == null) {
             return;
@@ -120,7 +120,7 @@ public class PortInfo implements Serializable {
         /*
          * Since HandlerChainsType is a type, have to wrap it into some element
          */
-        JAXBElement element = 
+        JAXBElement element =
             new JAXBElement(HandlerChainsUtils.HANDLER_CHAINS_QNAME, type, handlerChain);
         m.marshal(element, writer);
 
@@ -146,7 +146,7 @@ public class PortInfo implements Serializable {
     public void setWsdlService(QName wsdlService) {
         this.wsdlService = wsdlService;
     }
-    
+
     public String getLocation() {
         return location;
     }
@@ -154,14 +154,12 @@ public class PortInfo implements Serializable {
     public void setLocation(String location) {
         this.location = location;
     }
-    
-    /*
-     * private String serviceName; private String portName; private String
-     * seiInterfaceName; private String wsdlFile; private String servletLink;
-     */
+
+    @Override
     public String toString() {
-        return "[" + serviceName + ":" + portName + ":" + seiInterfaceName
-                + ":" + wsdlFile + "]";
+        return "PortInfo [serviceName=" + serviceName + ", portName=" + portName + ", seiInterfaceName=" + seiInterfaceName + ", wsdlFile=" + wsdlFile + ", servletLink=" + servletLink
+                + ", handlersAsXML=" + handlersAsXML + ", mtomEnabled=" + mtomEnabled + ", binding=" + binding + ", wsdlPort=" + wsdlPort + ", wsdlService=" + wsdlService + ", location=" + location
+                + "]";
     }
 
     public String getHandlersAsXML() {

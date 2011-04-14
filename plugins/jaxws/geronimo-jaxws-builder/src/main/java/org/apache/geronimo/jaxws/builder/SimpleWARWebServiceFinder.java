@@ -37,10 +37,8 @@ public class SimpleWARWebServiceFinder extends AbstractWebServiceFinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleWARWebServiceFinder.class);
 
-    public Map<String, PortInfo> discoverWebServices(Module module,
-                                                     boolean isEJB,
-                                                     Map<String, String> correctedPortLocations)
-            throws DeploymentException {
+    @Override
+    public Map<String, PortInfo> discoverWebServices(Module module, Map<String, String> correctedPortLocations) throws DeploymentException {
 
         Map<String, PortInfo> servletNamePortInfoMap = new HashMap<String, PortInfo>();
 

@@ -143,7 +143,7 @@ public class JAXWSEJBModuleBuilderExtension implements ModuleBuilderExtension {
 
             AbstractName sessionName = earContext.getNaming().createChildName(module.getModuleName(), ejbName, j2eeType);
 
-            assert sessionName != null: "StatelesSessionBean object name is null";
+            assert sessionName != null: "StatelesSessionBean/Singleton object name is null";
 
             WebServiceBinding wsBinding = wsBindingMap.get(ejbName);
             if (wsBinding != null) {

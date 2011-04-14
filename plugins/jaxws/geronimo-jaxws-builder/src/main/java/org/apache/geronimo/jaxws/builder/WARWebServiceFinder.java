@@ -46,10 +46,7 @@ public class WARWebServiceFinder implements WebServiceFinder {
     }
 
     @Override
-    public Map<String, PortInfo> discoverWebServices(Module module,
-                                                     boolean isEJB,
-                                                     Map<String, String> correctedPortLocations)
-            throws DeploymentException {
-        return webServiceFinder.discoverWebServices(module, isEJB, correctedPortLocations);
+    public Map<String, PortInfo> discoverWebServices(Module module, Map<String, String> correctedPortLocations) throws DeploymentException {
+        return webServiceFinder.discoverWebServices(module, correctedPortLocations);
     }
 }

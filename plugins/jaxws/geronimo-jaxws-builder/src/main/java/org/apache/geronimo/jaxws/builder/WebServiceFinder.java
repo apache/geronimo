@@ -25,9 +25,6 @@ import org.apache.geronimo.jaxws.PortInfo;
 
 public interface WebServiceFinder {
 
-    Map<String, PortInfo> discoverWebServices(Module module,
-                                              boolean isEJB,
-                                              Map<String, String> correctedPortLocations)
-         throws DeploymentException;
+    Map<String, PortInfo> discoverWebServices(Module module, Map<String, String> correctedPortLocations) throws DeploymentException;
 
 }
