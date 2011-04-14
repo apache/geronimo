@@ -64,7 +64,7 @@ public class PersistenceUnitGBeanTest extends TestCase {
         assertNotNull(gbean.getManagedClassNames());
         assertNotNull(gbean.getProperties());
         assertNotNull(gbean.getJarFileUrls());
-        assertEquals(Arrays.asList(new URL(base + "foo.jar")), gbean.getJarFileUrls());
+        assertEquals(Arrays.asList(new URL("jar:" + base + "foo.jar"+"!/")), gbean.getJarFileUrls());
         assertEquals(new URL(base), gbean.getPersistenceUnitRootUrl());
         assertNotNull(gbean.getPersistenceProviderClassName());
     }
