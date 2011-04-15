@@ -48,6 +48,7 @@ import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorOptions;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.jee.HandlerChains;
 import org.apache.openejb.jee.JaxbJavaee;
@@ -207,7 +208,8 @@ public class Axis2Builder extends JAXWSServiceBuilder {
 
     @Override
     protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module, Bundle bundle) throws DeploymentException {
-        targetGBean.setReferencePattern("Axis2ModuleRegistry", new AbstractNameQuery(Axis2ModuleRegistry.class.getName()));
+        targetGBean.setReferencePattern("Axis2ModuleRegistry",
+                new AbstractNameQuery(Artifact.create("org.apache.geronimo.configs/axis2//car"), Collections.emptyMap(), Axis2ModuleRegistry.class.getName()));
         String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
         String wsdlFile = portInfo.getWsdlFile();
         if(wsdlFile != null && wsdlFile.trim().length() > 0) {
