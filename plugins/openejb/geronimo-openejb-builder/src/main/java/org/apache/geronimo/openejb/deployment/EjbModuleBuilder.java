@@ -162,7 +162,7 @@ import org.slf4j.LoggerFactory;
  * Acts as either a ModuleBuilder (for standalone ejb jars or ejb jars in an ear) or as a ModuleBuilderExtension
  * for ejbs embedded in a web app.
  *
- * @version $Revision: 479481 $ $Date: 2006-11-26 16:52:20 -0800 (Sun, 26 Nov 2006) $
+ * @version $Revision$ $Date$
  */
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBuilderExtension {
@@ -297,10 +297,14 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, Module parentModule, Naming naming, ModuleIDBuilder idBuilder, String ddDir, boolean subModule) throws DeploymentException {
-        if (moduleFile == null) throw new NullPointerException("moduleFile is null");
-        if (targetPath == null) throw new NullPointerException("targetPath is null");
-        if (targetPath.endsWith("/")) throw new IllegalArgumentException("targetPath must not end with a '/'");
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment earEnvironment, Module parentModule, Naming naming, ModuleIDBuilder idBuilder,
+            String ddDir, boolean subModule) throws DeploymentException {
+        if (moduleFile == null)
+            throw new NullPointerException("moduleFile is null");
+        if (targetPath == null)
+            throw new NullPointerException("targetPath is null");
+        if (targetPath.endsWith("/"))
+            throw new IllegalArgumentException("targetPath must not end with a '/'");
 
         // verify we have a valid file
         String jarPath = moduleFile.getName();
@@ -313,7 +317,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
             baseUrl = jarFile.toURI().toURL();
 
-            classLoader = (ClassLoader) ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, new URL[]{baseUrl}, OpenEJB.class.getClassLoader()));
+            classLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, new URL[] { baseUrl }, OpenEJB.class.getClassLoader()));
 
             ResourceFinder finder = new ResourceFinder("", classLoader, baseUrl);
 
@@ -392,7 +396,6 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "car");
         }
 
-
         AbstractName moduleName;
         if (parentModule == null || ".".equals(targetPath)) {
             AbstractName earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
@@ -404,12 +407,11 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         // Create XMLBeans version of EjbJarType for the AnnotatedApp interface
         EjbJar ejbJar = ejbModule.getEjbJar();
 
-
         File file = new File(moduleFile.getName());
         String packageName = file.getName();
-        
+
         String name;
-        
+
         if (subModule) {
             name = parentModule.getName();
         } else if (ejbJar.getModuleName() != null) {
@@ -421,13 +423,12 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         }
 
         ejbModule.setModuleId(name);
-        
+
         if (standAlone || ".".equals(targetPath)) {
             ejbModule.setModuleUri(URI.create(packageName));
         } else {
             ejbModule.setModuleUri(URI.create(targetPath));
         }
-
 
         Map<JndiKey, Map<String, Object>> context = null;
         if (subModule) {
@@ -439,7 +440,7 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
         for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
             try {
-                builder.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, null, parentModule == null? null: parentModule.getModuleName(), naming, idBuilder);
+                builder.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, null, parentModule == null ? null : parentModule.getModuleName(), naming, idBuilder);
 
             } catch (Throwable t) {
                 String builderName = builder.getClass().getSimpleName();
