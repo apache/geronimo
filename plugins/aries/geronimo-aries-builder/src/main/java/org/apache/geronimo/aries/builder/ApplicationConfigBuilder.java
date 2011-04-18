@@ -157,10 +157,12 @@ public class ApplicationConfigBuilder implements ConfigurationBuilder, GBeanLife
             throw new DeploymentException("Error creating Aries Application", e);
         }
 
-        try {
-            app = appManager.resolve(app);
-        } catch (Exception e) {
-            throw new DeploymentException("Error resolving Aries Application", e);
+        if (!app.isResolved()) {
+            try {
+                app = appManager.resolve(app);
+            } catch (Exception e) {
+                throw new DeploymentException("Error resolving Aries Application", e);
+            }
         }
 
         DeploymentContext context = installer.startInstall(app, targetConfigurationStore);
