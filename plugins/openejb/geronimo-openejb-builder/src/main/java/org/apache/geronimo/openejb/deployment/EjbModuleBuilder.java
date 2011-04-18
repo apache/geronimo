@@ -314,19 +314,16 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             URL baseUrl = null;
 
             Map<String, URL> descriptors = null;
-            try {
-                File jarFile = new File(moduleFile.getName());
 
-                baseUrl = jarFile.toURI().toURL();
+            File jarFile = new File(moduleFile.getName());
 
-                classLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, new URL[] { baseUrl }, OpenEJB.class.getClassLoader()));
+            baseUrl = jarFile.toURI().toURL();
 
-                ResourceFinder finder = new ResourceFinder("", classLoader, baseUrl);
+            classLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, new URL[] { baseUrl }, OpenEJB.class.getClassLoader()));
 
-                descriptors = finder.getResourcesMap(ddDir);
-            } catch (IOException e) {
-                throw new DeploymentException(e);
-            }
+            ResourceFinder finder = new ResourceFinder("", classLoader, baseUrl);
+
+            descriptors = finder.getResourcesMap(ddDir);
 
             if (!isEjbModule(baseUrl, classLoader, descriptors)) {
                 releaseTempClassLoader(classLoader);
