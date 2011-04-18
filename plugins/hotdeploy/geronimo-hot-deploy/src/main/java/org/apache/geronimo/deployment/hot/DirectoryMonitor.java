@@ -241,7 +241,7 @@ public class DirectoryMonitor implements Runnable {
     			inputStream = new ObjectInputStream(new FileInputStream(monitorFile));
     			newFiles = (Map<String,FileInfo>) inputStream.readObject();
     		} catch (IOException ex) {
-    			log.info("IOException reading directory monitor state from " + monitorFile.getName(), ex);
+    			log.info("No directory monitor state to be read. This is to be expected on initial start of a new server");
     		} catch (ClassNotFoundException cnfe) {
     			log.warn("ClassNotFoundException reading directory monitor state from " + monitorFile.getName(), cnfe);
     		} finally {
