@@ -306,149 +306,159 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
         if (targetPath.endsWith("/"))
             throw new IllegalArgumentException("targetPath must not end with a '/'");
 
-        // verify we have a valid file
-        String jarPath = moduleFile.getName();
-
-        URL baseUrl = null;
         ClassLoader classLoader = null;
-        Map<String, URL> descriptors = null;
         try {
-            File jarFile = new File(moduleFile.getName());
+            // verify we have a valid file
+            String jarPath = moduleFile.getName();
 
-            baseUrl = jarFile.toURI().toURL();
+            URL baseUrl = null;
 
-            classLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, new URL[] { baseUrl }, OpenEJB.class.getClassLoader()));
-
-            ResourceFinder finder = new ResourceFinder("", classLoader, baseUrl);
-
-            descriptors = finder.getResourcesMap(ddDir);
-        } catch (IOException e) {
-            throw new DeploymentException(e);
-        }
-
-        if (!isEjbModule(baseUrl, classLoader, descriptors)) {
-            return null;
-        }
-
-        // create the EJB Module
-        org.apache.openejb.config.EjbModule ejbModule = new org.apache.openejb.config.EjbModule(classLoader, null, jarPath, null, null);
-        ejbModule.getAltDDs().putAll(descriptors);
-
-        if (specDDUrl != null) {
-            ejbModule.getAltDDs().put("ejb-jar.xml", specDDUrl);
-        }
-
-        // convert the vendor plan object to the ejbModule altDD map
-        XmlObject unknownXmlObject = null;
-        if (plan instanceof XmlObject) {
-            unknownXmlObject = (XmlObject) plan;
-        } else if (plan != null) {
+            Map<String, URL> descriptors = null;
             try {
-                unknownXmlObject = XmlBeansUtil.parse(((File) plan).toURI().toURL(), XmlUtil.class.getClassLoader());
-            } catch (Exception e) {
+                File jarFile = new File(moduleFile.getName());
+
+                baseUrl = jarFile.toURI().toURL();
+
+                classLoader = ClassLoaderUtil.createTempClassLoader(ClassLoaderUtil.createClassLoader(jarPath, new URL[] { baseUrl }, OpenEJB.class.getClassLoader()));
+
+                ResourceFinder finder = new ResourceFinder("", classLoader, baseUrl);
+
+                descriptors = finder.getResourcesMap(ddDir);
+            } catch (IOException e) {
                 throw new DeploymentException(e);
             }
-        }
 
-        if (unknownXmlObject != null) {
-            XmlCursor xmlCursor = unknownXmlObject.newCursor();
-            //
-            QName qname = xmlCursor.getName();
-            if (qname == null) {
-                xmlCursor.toFirstChild();
-                qname = xmlCursor.getName();
+            if (!isEjbModule(baseUrl, classLoader, descriptors)) {
+                releaseTempClassLoader(classLoader);
+                return null;
             }
-            if (qname.getLocalPart().equals("openejb-jar")) {
-                ejbModule.getAltDDs().put("openejb-jar.xml", xmlCursor.xmlText());
-            } else if (qname.getLocalPart().equals("ejb-jar") && qname.getNamespaceURI().equals("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0")) {
-                ejbModule.getAltDDs().put("geronimo-openejb.xml", xmlCursor.xmlText());
+
+            // create the EJB Module
+            org.apache.openejb.config.EjbModule ejbModule = new org.apache.openejb.config.EjbModule(classLoader, null, jarPath, null, null);
+            ejbModule.getAltDDs().putAll(descriptors);
+
+            if (specDDUrl != null) {
+                ejbModule.getAltDDs().put("ejb-jar.xml", specDDUrl);
             }
-        }
 
-        // Read in the deploument desiptor files
-        ReadDescriptors readDescriptors = new ReadDescriptors();
-        try {
-            readDescriptors.deploy(new AppModule(ejbModule));
-        } catch (OpenEJBException e) {
-            throw new DeploymentException("Failed parsing descriptors for module: " + moduleFile.getName(), e);
-        }
-
-        // Get the geronimo-openejb.xml tree
-        boolean standAlone = earEnvironment == null;
-        GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getAltDDs().get("geronimo-openejb.xml");
-        if (geronimoEjbJarType == null) {
-            // create default plan
-            String path = (standAlone) ? new File(moduleFile.getName()).getName() : targetPath;
-            geronimoEjbJarType = XmlUtil.createDefaultPlan(path, ejbModule.getEjbJar());
-            ejbModule.getAltDDs().put("geronimo-openejb.xml", geronimoEjbJarType);
-        }
-        OpenejbGeronimoEjbJarType geronimoOpenejb = XmlUtil.convertToXmlbeans(geronimoEjbJarType);
-
-        // create the geronimo environment object
-        Environment environment = XmlUtil.buildEnvironment(geronimoEjbJarType.getEnvironment(), defaultEnvironment);
-        if (earEnvironment != null) {
-            EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
-            environment = earEnvironment;
-            if (!environment.getConfigId().isResolved()) {
-                throw new IllegalStateException("EJB module ID should be fully resolved (not " + environment.getConfigId() + ")");
+            // convert the vendor plan object to the ejbModule altDD map
+            XmlObject unknownXmlObject = null;
+            if (plan instanceof XmlObject) {
+                unknownXmlObject = (XmlObject) plan;
+            } else if (plan != null) {
+                try {
+                    unknownXmlObject = XmlBeansUtil.parse(((File) plan).toURI().toURL(), XmlUtil.class.getClassLoader());
+                } catch (Exception e) {
+                    throw new DeploymentException(e);
+                }
             }
-        } else {
-            idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "car");
-        }
 
-        AbstractName moduleName;
-        if (parentModule == null || ".".equals(targetPath)) {
-            AbstractName earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
-            moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.EJB_MODULE);
-        } else {
-            moduleName = naming.createChildName(parentModule.getModuleName(), targetPath, NameFactory.EJB_MODULE);
-        }
+            if (unknownXmlObject != null) {
+                XmlCursor xmlCursor = unknownXmlObject.newCursor();
+                //
+                QName qname = xmlCursor.getName();
+                if (qname == null) {
+                    xmlCursor.toFirstChild();
+                    qname = xmlCursor.getName();
+                }
+                if (qname.getLocalPart().equals("openejb-jar")) {
+                    ejbModule.getAltDDs().put("openejb-jar.xml", xmlCursor.xmlText());
+                } else if (qname.getLocalPart().equals("ejb-jar") && qname.getNamespaceURI().equals("http://geronimo.apache.org/xml/ns/j2ee/ejb/openejb-2.0")) {
+                    ejbModule.getAltDDs().put("geronimo-openejb.xml", xmlCursor.xmlText());
+                }
+            }
 
-        // Create XMLBeans version of EjbJarType for the AnnotatedApp interface
-        EjbJar ejbJar = ejbModule.getEjbJar();
-
-        File file = new File(moduleFile.getName());
-        String packageName = file.getName();
-
-        String name;
-
-        if (subModule) {
-            name = parentModule.getName();
-        } else if (ejbJar.getModuleName() != null) {
-            name = ejbJar.getModuleName().trim();
-        } else if (standAlone || ".".equals(targetPath)) {
-            name = FileUtils.removeExtension(packageName, ".jar");
-        } else {
-            name = FileUtils.removeExtension(targetPath, ".jar");
-        }
-
-        ejbModule.setModuleId(name);
-
-        if (standAlone || ".".equals(targetPath)) {
-            ejbModule.setModuleUri(URI.create(packageName));
-        } else {
-            ejbModule.setModuleUri(URI.create(targetPath));
-        }
-
-        Map<JndiKey, Map<String, Object>> context = null;
-        if (subModule) {
-            context = parentModule.getJndiContext();
-        } else if (parentModule != null) {
-            context = Module.share(Module.APP, parentModule.getJndiContext());
-        }
-        EjbModule module = new EjbModule(ejbModule, standAlone, moduleName, name, environment, moduleFile, targetPath, "", ejbJar, geronimoOpenejb, context, parentModule, subModule);
-
-        for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
+            // Read in the deploument desiptor files
+            ReadDescriptors readDescriptors = new ReadDescriptors();
             try {
-                builder.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, null, parentModule == null ? null : parentModule.getModuleName(), naming, idBuilder);
-
-            } catch (Throwable t) {
-                String builderName = builder.getClass().getSimpleName();
-                log.error(builderName + ".createModule() failed: " + t.getMessage(), t);
-
+                readDescriptors.deploy(new AppModule(ejbModule));
+            } catch (OpenEJBException e) {
+                throw new DeploymentException("Failed parsing descriptors for module: " + moduleFile.getName(), e);
             }
+
+            // Get the geronimo-openejb.xml tree
+            boolean standAlone = earEnvironment == null;
+            GeronimoEjbJarType geronimoEjbJarType = (GeronimoEjbJarType) ejbModule.getAltDDs().get("geronimo-openejb.xml");
+            if (geronimoEjbJarType == null) {
+                // create default plan
+                String path = (standAlone) ? new File(moduleFile.getName()).getName() : targetPath;
+                geronimoEjbJarType = XmlUtil.createDefaultPlan(path, ejbModule.getEjbJar());
+                ejbModule.getAltDDs().put("geronimo-openejb.xml", geronimoEjbJarType);
+            }
+            OpenejbGeronimoEjbJarType geronimoOpenejb = XmlUtil.convertToXmlbeans(geronimoEjbJarType);
+
+            // create the geronimo environment object
+            Environment environment = XmlUtil.buildEnvironment(geronimoEjbJarType.getEnvironment(), defaultEnvironment);
+            if (earEnvironment != null) {
+                EnvironmentBuilder.mergeEnvironments(earEnvironment, environment);
+                environment = earEnvironment;
+                if (!environment.getConfigId().isResolved()) {
+                    throw new IllegalStateException("EJB module ID should be fully resolved (not " + environment.getConfigId() + ")");
+                }
+            } else {
+                idBuilder.resolve(environment, new File(moduleFile.getName()).getName(), "car");
+            }
+
+            AbstractName moduleName;
+            if (parentModule == null || ".".equals(targetPath)) {
+                AbstractName earName = naming.createRootName(environment.getConfigId(), NameFactory.NULL, NameFactory.J2EE_APPLICATION);
+                moduleName = naming.createChildName(earName, environment.getConfigId().toString(), NameFactory.EJB_MODULE);
+            } else {
+                moduleName = naming.createChildName(parentModule.getModuleName(), targetPath, NameFactory.EJB_MODULE);
+            }
+
+            // Create XMLBeans version of EjbJarType for the AnnotatedApp interface
+            EjbJar ejbJar = ejbModule.getEjbJar();
+
+            File file = new File(moduleFile.getName());
+            String packageName = file.getName();
+
+            String name;
+
+            if (subModule) {
+                name = parentModule.getName();
+            } else if (ejbJar.getModuleName() != null) {
+                name = ejbJar.getModuleName().trim();
+            } else if (standAlone || ".".equals(targetPath)) {
+                name = FileUtils.removeExtension(packageName, ".jar");
+            } else {
+                name = FileUtils.removeExtension(targetPath, ".jar");
+            }
+
+            ejbModule.setModuleId(name);
+
+            if (standAlone || ".".equals(targetPath)) {
+                ejbModule.setModuleUri(URI.create(packageName));
+            } else {
+                ejbModule.setModuleUri(URI.create(targetPath));
+            }
+
+            Map<JndiKey, Map<String, Object>> context = null;
+            if (subModule) {
+                context = parentModule.getJndiContext();
+            } else if (parentModule != null) {
+                context = Module.share(Module.APP, parentModule.getJndiContext());
+            }
+            EjbModule module = new EjbModule(ejbModule, standAlone, moduleName, name, environment, moduleFile, targetPath, "", ejbJar, geronimoOpenejb, context, parentModule, subModule);
+
+            for (ModuleBuilderExtension builder : moduleBuilderExtensions) {
+                try {
+                    builder.createModule(module, plan, moduleFile, targetPath, specDDUrl, environment, null, parentModule == null ? null : parentModule.getModuleName(), naming, idBuilder);
+
+                } catch (Throwable t) {
+                    String builderName = builder.getClass().getSimpleName();
+                    log.error(builderName + ".createModule() failed: " + t.getMessage(), t);
+
+                }
+            }
+            return module;
+        } catch (DeploymentException e) {
+            releaseTempClassLoader(classLoader);
+            throw e;
+        } catch (Exception e) {
+            releaseTempClassLoader(classLoader);
+            throw new DeploymentException(e);
         }
-        return module;
     }
 
     protected static void unmapReferences(EjbJar ejbJar, GeronimoEjbJarType geronimoEjbJarType) {
@@ -1222,6 +1232,14 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
             log.warn("Unable to determine module type for jar: " + baseUrl.toExternalForm(), e);
             return false;
         }
+    }
+
+    private void releaseTempClassLoader(ClassLoader classLoader) {
+        if (classLoader != null)
+            try {
+                ClassLoaderUtil.destroyClassLoader(classLoader);
+            } catch (Exception e) {
+            }
     }
 
     public static class EarData {

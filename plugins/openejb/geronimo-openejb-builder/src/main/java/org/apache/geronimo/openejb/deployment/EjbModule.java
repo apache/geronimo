@@ -28,6 +28,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.openejb.GeronimoEjbInfo;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
+import org.apache.openejb.ClassLoaderUtil;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
@@ -120,6 +121,12 @@ public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
         } else {
             return Module.share(Module.MODULE, getJndiContext());
         }
+    }
+
+    @Override
+    public void close() {
+        ClassLoaderUtil.destroyClassLoader(ejbModule.getClassLoader());
+        super.close();
     }
 
     Module newEJb(ClassFinder finder, EnterpriseBean bean) throws DeploymentException {
