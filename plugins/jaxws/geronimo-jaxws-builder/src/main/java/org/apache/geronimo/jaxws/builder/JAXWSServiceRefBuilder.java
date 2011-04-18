@@ -87,7 +87,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         }
     }
 
-    private Class loadClass(String className, Bundle bundle, String classDescription) throws DeploymentException {
+    private Class<?> loadClass(String className, Bundle bundle, String classDescription) throws DeploymentException {
         try {
             return bundle.loadClass(className);
         } catch (ClassNotFoundException e) {
@@ -102,7 +102,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         String name = serviceRef.getKey();
 
         String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
-        Class serviceInterfaceClass = loadClass(serviceInterfaceName, bundle, "service");
+        Class<?> serviceInterfaceClass = loadClass(serviceInterfaceName, bundle, "service");
         if (!Service.class.isAssignableFrom(serviceInterfaceClass)) {
             throw new DeploymentException(serviceInterfaceName + " service class does not extend " + Service.class.getName());
         }
@@ -119,7 +119,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
             }
         }
 
-        Class serviceReferenceType = null;
+        Class<?> serviceReferenceType = null;
         if (serviceRef.getServiceRefType() != null) {
             String referenceClassName = serviceRef.getServiceRefType();
             serviceReferenceType = loadClass(referenceClassName, bundle, "service reference");
@@ -130,7 +130,7 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
             for (HandlerChain handlerChain : handlerChains.getHandlerChain()) {
                 for (org.apache.openejb.jee.Handler handler : handlerChain.getHandler()) {
                     String handlerClassName = getStringValue(handler.getHandlerClass());
-                    Class handlerClass = loadClass(handlerClassName, bundle, "handler");
+                    Class<?> handlerClass = loadClass(handlerClassName, bundle, "handler");
                     if (!Handler.class.isAssignableFrom(handlerClass)) {
                         throw new DeploymentException(handlerClassName + " handler class does not extend " + Handler.class.getName());
                     }
@@ -138,10 +138,10 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
             }
         }
 
-        Map<Class, PortComponentRef> portComponentRefMap = new HashMap<Class, PortComponentRef>();
+        Map<Class<?>, PortComponentRef> portComponentRefMap = new HashMap<Class<?>, PortComponentRef>();
         for (PortComponentRef portComponentRef : serviceRef.getPortComponentRef()) {
             String serviceEndpointInterfaceType = getStringValue(portComponentRef.getServiceEndpointInterface());
-            Class serviceEndpointClass = loadClass(serviceEndpointInterfaceType, bundle, "service endpoint");
+            Class<?> serviceEndpointClass = loadClass(serviceEndpointInterfaceType, bundle, "service endpoint");
 
             // TODO: check if it is annotated?
 
@@ -154,10 +154,10 @@ public abstract class JAXWSServiceRefBuilder extends AbstractNamingBuilder imple
         put(name, ref, module.getJndiContext(), serviceRef.getInjectionTarget(), sharedContext);
     }
 
-    public abstract Object createService(ServiceRef serviceRef, GerServiceRefType gerServiceRef,
+    protected abstract Object createService(ServiceRef serviceRef, GerServiceRefType gerServiceRef,
                                          Module module, Bundle bundle, Class serviceInterfaceClass,
                                          QName serviceQName, URI wsdlURI, Class serviceReferenceType,
-                                         Map<Class, PortComponentRef> portComponentRefMap) throws DeploymentException;
+                                         Map<Class<?>, PortComponentRef> portComponentRefMap) throws DeploymentException;
 
     private static Map<String, GerServiceRefType> mapServiceRefs(XmlObject[] refs) {
         Map<String, GerServiceRefType> refMap = new HashMap<String, GerServiceRefType>();

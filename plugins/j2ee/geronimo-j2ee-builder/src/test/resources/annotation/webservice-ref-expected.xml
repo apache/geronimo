@@ -38,8 +38,8 @@
     </service-ref>
     <service-ref>
         <service-ref-name>WebServiceRef14</service-ref-name>
-        <service-interface>boolean</service-interface>
-        <service-ref-type>boolean</service-ref-type>
+        <service-interface>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationExample$MyService</service-interface>
+        <service-ref-type>org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationExample$MyService</service-ref-type>
         <wsdl-file>WEB-INF/wsdl/WebServiceRef14.wsdl</wsdl-file>
         <mapped-name>mappedName14</mapped-name>
         <injection-target>

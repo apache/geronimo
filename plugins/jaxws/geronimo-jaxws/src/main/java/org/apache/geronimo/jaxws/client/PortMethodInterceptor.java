@@ -32,14 +32,13 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 public class PortMethodInterceptor implements MethodInterceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(PortMethodInterceptor.class);
-    
+
     private Map<Object, EndpointInfo> seiInfoMap;
 
     public PortMethodInterceptor(Map<Object, EndpointInfo> seiInfoMap) {
@@ -47,9 +46,9 @@ public class PortMethodInterceptor implements MethodInterceptor {
     }
 
     public Object intercept(Object target, Method method, Object[] arguments, MethodProxy methodProxy) throws Throwable {
-        Object proxy = methodProxy.invokeSuper(target, arguments);       
-        
-        if (method.getName().equals("getPort")) {  
+        Object proxy = methodProxy.invokeSuper(target, arguments);
+
+        if (method.getName().equals("getPort")) {
             // it's a generic getPort() method
             Class<?> paramType = method.getParameterTypes()[0];
             if (paramType.equals(Class.class)) {
@@ -77,18 +76,18 @@ public class PortMethodInterceptor implements MethodInterceptor {
                 setProperties((BindingProvider)proxy, ((QName)arguments[0]).getLocalPart());
             }
         }
-                
+
         return proxy;
     }
-    
+
     private void setProperties(BindingProvider proxy, QName portType) {
         if (portType == null) {
             return;
         }
         EndpointInfo info = this.seiInfoMap.get(portType);
-        setProperties(proxy, info);        
+        setProperties(proxy, info);
     }
-    
+
     private void setProperties(BindingProvider proxy, String portName) {
         if (portName == null) {
             return;
@@ -96,44 +95,47 @@ public class PortMethodInterceptor implements MethodInterceptor {
         EndpointInfo info = this.seiInfoMap.get(portName);
         setProperties(proxy, info);
     }
-    
+
     protected void setProperties(BindingProvider proxy, EndpointInfo info) {
         if (info == null) {
             return;
-        } 
+        }
         setProperties(proxy, info, info.getProperties());
     }
-    
+
     protected void setProperties(BindingProvider proxy, EndpointInfo info, Map<String, Object> properties) {
         if (info == null) {
             return;
-        }       
-        
+        }
+
         // set mtom
         boolean enableMTOM = info.isMTOMEnabled();
         if (enableMTOM && proxy.getBinding() instanceof SOAPBinding) {
             ((SOAPBinding)proxy.getBinding()).setMTOMEnabled(enableMTOM);
-            LOG.debug("Set mtom property: " + enableMTOM);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Set mtom property: " + enableMTOM);
+            }
         }
-      
+
         // set address
         URL location = info.getLocation();
         if (location != null) {
             proxy.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, location.toString());
-            LOG.debug("Set address property: " + location);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Set address property: " + location);
+            }
         }
-        
+
         // set credentials
         String credentialsName = info.getCredentialsName();
         if (credentialsName != null) {
-            NamedUsernamePasswordCredential namedUsernamePasswordCredential = findCredential(credentialsName);            
-            proxy.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, 
+            NamedUsernamePasswordCredential namedUsernamePasswordCredential = findCredential(credentialsName);
+            proxy.getRequestContext().put(BindingProvider.USERNAME_PROPERTY,
                                           namedUsernamePasswordCredential.getUsername());
-            proxy.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, 
+            proxy.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY,
                                          new String(namedUsernamePasswordCredential.getPassword()));
-            LOG.debug("Set username/password property: " + credentialsName);
         }
-        
+
         // set user-specified properties
         if (properties != null) {
             for (Map.Entry<String, Object> entry : properties.entrySet()) {
@@ -141,15 +143,14 @@ public class PortMethodInterceptor implements MethodInterceptor {
             }
         }
     }
-    
+
     protected NamedUsernamePasswordCredential findCredential(String credentialsName) {
         Subject subject = ContextManager.getNextCaller();
         if (subject == null) {
             throw new IllegalStateException("Subject missing but authentication turned on");
         } else {
-            Set creds = subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
-            for (Iterator iterator = creds.iterator(); iterator.hasNext();) {
-                NamedUsernamePasswordCredential namedUsernamePasswordCredential = (NamedUsernamePasswordCredential) iterator.next();
+            Set<NamedUsernamePasswordCredential> creds = subject.getPrivateCredentials(NamedUsernamePasswordCredential.class);
+            for (NamedUsernamePasswordCredential namedUsernamePasswordCredential : creds) {
                 if (credentialsName.equals(namedUsernamePasswordCredential.getName())) {
                     return namedUsernamePasswordCredential;
                 }

@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.j2ee.deployment.annotation;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -25,11 +26,18 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.jws.HandlerChain;
+import javax.xml.ws.RespectBinding;
 import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.WebServiceRefs;
+import javax.xml.ws.soap.MTOM;
+import javax.xml.ws.spi.WebServiceFeatureAnnotation;
+
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.openejb.jee.Addressing;
+import org.apache.openejb.jee.AddressingResponses;
 import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.PortComponentRef;
 import org.apache.openejb.jee.ServiceRef;
 import org.apache.xbean.finder.AbstractFinder;
 import org.slf4j.Logger;
@@ -348,6 +356,83 @@ public final class WebServiceRefAnnotationHelper extends AnnotationHelper {
             serviceRef.getInjectionTarget().add(configureInjectionTarget(method, field));
         }
 
+        // web service features
+        Annotation[] candidateAnnotations = null;
+        if (cls != null) {
+            candidateAnnotations = cls.getAnnotations();
+        } else if (method != null) {
+            candidateAnnotations = method.getAnnotations();
+        } else if (field != null) {
+            candidateAnnotations = field.getAnnotations();
+        }
+        if (candidateAnnotations != null && candidateAnnotations.length > 0) {
+            List<Annotation> webServiceFeatureAnnotations = new ArrayList<Annotation>();
+            for (Annotation anno : candidateAnnotations) {
+                if (anno.annotationType().isAnnotationPresent(WebServiceFeatureAnnotation.class)) {
+                    webServiceFeatureAnnotations.add(anno);
+                }
+            }
+            if (webServiceFeatureAnnotations.size() > 0) {
+                if (javax.xml.ws.Service.class.isAssignableFrom(webServiceRefType)) {
+                    log.warn("In current JAX-WS spec, no standard web service feature is supported on service creation, " + webServiceFeatureAnnotations + " are ignored");
+                } else {
+                    PortComponentRef portComponentRef = getPortComponentRef(serviceRef, webServiceRefType.getName());
+
+                    for (Annotation webServiceFeatureAnnotation : webServiceFeatureAnnotations) {
+                        Class<? extends Annotation> webServiceFeatureAnnotationType = webServiceFeatureAnnotation.annotationType();
+                        if (webServiceFeatureAnnotationType == MTOM.class) {
+                            MTOM mtom = (MTOM) webServiceFeatureAnnotation;
+                            if (portComponentRef.getMtomThreshold() == null) {
+                                portComponentRef.setMtomThreshold(mtom.threshold());
+                            }
+                            if (portComponentRef.getEnableMtom() == null) {
+                                portComponentRef.setEnableMtom(mtom.enabled());
+                            }
+                        } else if (webServiceFeatureAnnotationType == javax.xml.ws.soap.Addressing.class) {
+                            javax.xml.ws.soap.Addressing addressingAnnotation = (javax.xml.ws.soap.Addressing) webServiceFeatureAnnotation;
+                            Addressing addressing = portComponentRef.getAddressing();
+                            if (addressing == null) {
+                                addressing = new Addressing();
+                                addressing.setEnabled(addressingAnnotation.enabled());
+                                addressing.setRequired(addressingAnnotation.required());
+                                addressing.setResponses(AddressingResponses.valueOf(addressingAnnotation.responses().toString()));
+                                portComponentRef.setAddressing(addressing);
+                            } else {
+                                if (addressing.getEnabled() == null) {
+                                    addressing.setEnabled(addressingAnnotation.enabled());
+                                }
+                                if (addressing.getRequired() == null) {
+                                    addressing.setRequired(addressingAnnotation.required());
+                                }
+                                if (addressing.getResponses() == null) {
+                                    addressing.setResponses(AddressingResponses.valueOf(addressingAnnotation.responses().toString()));
+                                }
+                            }
+                        } else if (webServiceFeatureAnnotationType == RespectBinding.class) {
+                            RespectBinding respectBinding = (RespectBinding) webServiceFeatureAnnotation;
+                            if (portComponentRef.getRespectBinding() == null) {
+                                portComponentRef.setRespectBinding(respectBinding.enabled());
+                            }
+                        } else {
+                            log.warn("Unsupport web service feature annotation " + webServiceFeatureAnnotation + " on " + webServiceRefName);
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
+    private static PortComponentRef getPortComponentRef(ServiceRef serviceRef, String seiInterfaceName) {
+        List<PortComponentRef> portComponentRefs = serviceRef.getPortComponentRef();
+        for (PortComponentRef portComponentRef : portComponentRefs) {
+            if (portComponentRef.getServiceEndpointInterface().equals(seiInterfaceName)) {
+                return portComponentRef;
+            }
+        }
+        PortComponentRef portComponentRef = new PortComponentRef();
+        portComponentRef.setServiceEndpointInterface(seiInterfaceName);
+        portComponentRefs.add(portComponentRef);
+        return portComponentRef;
+    }
 }

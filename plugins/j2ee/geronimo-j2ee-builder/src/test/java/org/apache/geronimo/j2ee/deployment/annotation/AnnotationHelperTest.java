@@ -37,8 +37,11 @@ import javax.persistence.PersistenceContexts;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.PersistenceUnits;
 import javax.xml.bind.JAXBException;
+import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceRef;
 import javax.xml.ws.WebServiceRefs;
+
+import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationExample.MyService;
 import org.apache.geronimo.testsupport.XmlBeansTestSupport;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.WebApp;
@@ -63,14 +66,14 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
     static class TestClassFinder extends ClassFinder {
         public TestClassFinder(Class [] classes) {
             super(classes);
-        }        
+        }
         public List<Field> findAnnotatedFields(Class<? extends Annotation> arg) {
             List<Field> fields = super.findAnnotatedFields(arg);
             Collections.sort(fields, new FieldComparator());
             return fields;
         }
     }
-    
+
     static class FieldComparator implements Comparator {
         public int compare(Object o1, Object o2) {
             return compare((Field)o1, (Field)o2);
@@ -79,7 +82,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
             String field1 = o1.getDeclaringClass().getName() + "/" + o1.getName();
             String field2 = o2.getDeclaringClass().getName() + "/" + o2.getName();
             return field1.compareTo(field2);
-        }        
+        }
     }
 
     public void testEJBAnnotationHelper() throws Exception {
@@ -107,7 +110,7 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         assertTrue(annotatedFields.contains(EJBAnnotationExample.class.getDeclaredField("annotatedField4")));
         assertTrue(annotatedFields.contains(EJBAnnotationExample.class.getDeclaredField("annotatedField5")));
         assertTrue(annotatedFields.contains(EJBAnnotationExample.class.getDeclaredField("annotatedField6")));
-        
+
         //-------------------------------------------------
         // Ensure annotations are processed correctly
         //-------------------------------------------------
@@ -262,8 +265,8 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         List<Method> annotatedMethods = classFinder.findAnnotatedMethods(WebServiceRef.class);
         assertNotNull(annotatedMethods);
         assertEquals(5, annotatedMethods.size());
-        assertTrue(annotatedMethods.contains(WebServiceRefAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{boolean.class})));
-        assertTrue(annotatedMethods.contains(WebServiceRefAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{String.class})));
+        assertTrue(annotatedMethods.contains(WebServiceRefAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{MyService.class})));
+        assertTrue(annotatedMethods.contains(WebServiceRefAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{Service.class})));
         assertTrue(annotatedMethods.contains(HandlerChainAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod1", new Class[]{String.class})));
         assertTrue(annotatedMethods.contains(HandlerChainAnnotationExample.class.getDeclaredMethod("setAnnotatedMethod2", new Class[]{int.class})));
 
@@ -287,8 +290,6 @@ public class AnnotationHelperTest extends XmlBeansTestSupport {
         WebServiceRefAnnotationHelper.processAnnotations(webApp, classFinder);
         URL expectedXML = classLoader.getResource("annotation/webservice-ref-expected.xml");
         XmlObject expected = XmlObject.Factory.parse(expectedXML);
-//        log.debug("[@WebServiceRef Source XML] " + '\n' + webApp.toString() + '\n');
-//        log.debug("[@WebServiceRef Expected XML]" + '\n' + expected.toString() + '\n');
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webApp, expected, problems);
         assertTrue("Differences: " + problems, ok);

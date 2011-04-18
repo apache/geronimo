@@ -21,11 +21,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.handler.HandlerResolver;
 
 import net.sf.cglib.proxy.Callback;
@@ -37,6 +39,7 @@ import net.sf.cglib.reflect.FastConstructor;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.jaxws.JAXWSUtils;
+import org.apache.geronimo.jaxws.feature.WebServiceFeatureInfo;
 import org.apache.geronimo.naming.reference.BundleAwareReference;
 import org.apache.geronimo.naming.reference.SimpleReference;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
@@ -49,8 +52,7 @@ public abstract class JAXWSServiceReference extends SimpleReference implements B
 
     private final static Logger LOG = LoggerFactory.getLogger(JAXWSServiceReference.class);
 
-    private static final Class[] URL_SERVICE_NAME_CONSTRUCTOR =
-        new Class[] { URL.class, QName.class };
+    private static final Class<?>[] URL_SERVICE_NAME_CONSTRUCTOR = new Class[] { URL.class, QName.class };
 
     protected String serviceClassName;
     protected Bundle bundle;
@@ -123,7 +125,7 @@ public abstract class JAXWSServiceReference extends SimpleReference implements B
         return catalogURL;
     }
 
-    private Class getReferenceClass() throws NamingException {
+    private Class<?> getReferenceClass() throws NamingException {
         return (this.referenceClassName != null) ? loadClass(this.referenceClassName) : null;
     }
 
@@ -131,14 +133,14 @@ public abstract class JAXWSServiceReference extends SimpleReference implements B
         Service instance = null;
         URL wsdlURL = getWsdlURL();
 
-        Class serviceClass = loadClass(this.serviceClassName);
-        Class referenceClass = getReferenceClass();
+        Class<?> serviceClass = loadClass(this.serviceClassName);
+        Class<?> referenceClass = getReferenceClass();
 
         if (referenceClass != null && Service.class.isAssignableFrom(referenceClass)) {
             serviceClass = referenceClass;
         }
 
-        if (Service.class.equals(serviceClass)) {
+        if (Service.class == serviceClass) {
             serviceClass = GenericService.class;
         }
 
@@ -151,7 +153,19 @@ public abstract class JAXWSServiceReference extends SimpleReference implements B
 
         if (referenceClass != null && !Service.class.isAssignableFrom(referenceClass)) {
             // do port lookup
-            return instance.getPort(referenceClass);
+            QName portName = JAXWSUtils.getPortType(referenceClass);
+            EndpointInfo endpointInfo = seiInfoMap.get(portName);
+            if (endpointInfo != null && endpointInfo.getWebServiceFeatureInfos().size() > 0) {
+                List<WebServiceFeatureInfo> webServiceFeatureInfos = endpointInfo.getWebServiceFeatureInfos();
+                WebServiceFeature[] webServiceFeatures = new WebServiceFeature[webServiceFeatureInfos.size()];
+                int index = 0;
+                for (WebServiceFeatureInfo webServiceFeatureInfo : webServiceFeatureInfos) {
+                    webServiceFeatures[index++] = webServiceFeatureInfo.getWebServiceFeature();
+                }
+                return instance.getPort(referenceClass, webServiceFeatures);
+            } else {
+                return instance.getPort(referenceClass);
+            }
         } else {
             // return service
             return instance;
@@ -185,12 +199,14 @@ public abstract class JAXWSServiceReference extends SimpleReference implements B
                 FastClass.create(this.enhancedServiceClass).getConstructor(URL_SERVICE_NAME_CONSTRUCTOR);
         }
 
-        LOG.debug("Initializing service with: " + wsdlLocation + " " + serviceName);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Initializing service with: " + wsdlLocation + " " + serviceName);
+        }
 
         // associate the method interceptors with the generated service class on the current thread
         Enhancer.registerCallbacks(this.enhancedServiceClass, this.methodInterceptors);
 
-        Object[] arguments = new Object[] {wsdlLocation, serviceName};
+        Object[] arguments = new Object[] { wsdlLocation, serviceName };
 
         try {
             return (Service)this.serviceConstructor.newInstance(arguments);

@@ -40,10 +40,10 @@ public class WebServiceRefAnnotationExample {
                    type = Service.class,
                    value = Service.class,
                    mappedName = "mappedName12")
-    String annotatedField1;
+    Service annotatedField1;
 
     @WebServiceRef
-    int annotatedField2;
+    Service annotatedField2;
 
     //------------------------------------------------------------------------------------------
     // Method name (for setter-based injection) must follow JavaBeans conventions:
@@ -55,14 +55,14 @@ public class WebServiceRefAnnotationExample {
                    value = MyService.class,
                    wsdlLocation = "WEB-INF/wsdl/WebServiceRef14.wsdl",
                    mappedName = "mappedName14")
-    public void setAnnotatedMethod1(boolean bool) {
+    public void setAnnotatedMethod1(MyService bool) {
     }
 
     @WebServiceRef(name = "WebServiceRef15",
                    value = Service.class,
                    wsdlLocation = "WEB-INF/wsdl/WebServiceRef15.wsdl",
                    mappedName = "mappedName15")
-    public void setAnnotatedMethod2(String string) {
+    public void setAnnotatedMethod2(Service string) {
     }
 
     public static class MyService extends Service {

@@ -14,43 +14,61 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.jaxws.client;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.geronimo.jaxws.feature.MTOMFeatureInfo;
+import org.apache.geronimo.jaxws.feature.WebServiceFeatureInfo;
 
 public class EndpointInfo implements Serializable {
 
     private URL location;
+
     private String credentialsName;
-    private boolean mtomEnabled;
+
     private Map<String, Object> properties;
-    
-    public EndpointInfo(URL location, String credentialsName, boolean mtomEnabled, Map<String, Object> properties) {
+
+    private List<WebServiceFeatureInfo> webServiceFeatureInfos;
+
+    public EndpointInfo(URL location, String credentialsName, Map<String, Object> properties, List<WebServiceFeatureInfo> webServiceFeatureInfos) {
         this.location = location;
-        this.credentialsName = credentialsName;  
-        this.mtomEnabled = mtomEnabled;        
+        this.credentialsName = credentialsName;
         this.properties = properties;
+        this.webServiceFeatureInfos = webServiceFeatureInfos;
     }
 
     public boolean isMTOMEnabled() {
-        return this.mtomEnabled;
+        for (WebServiceFeatureInfo webServiceFeatureInfo : webServiceFeatureInfos) {
+            if (webServiceFeatureInfo instanceof MTOMFeatureInfo) {
+                return ((MTOMFeatureInfo) webServiceFeatureInfo).isEnabled();
+            }
+        }
+        return false;
     }
-    
+
     public URL getLocation() {
         return this.location;
     }
-    
+
     public String getCredentialsName() {
         return this.credentialsName;
     }
-    
+
     public Map<String, Object> getProperties() {
         return properties;
     }
-    
+
+    public List<WebServiceFeatureInfo> getWebServiceFeatureInfos() {
+        return webServiceFeatureInfos;
+    }
+
+    @Override
     public String toString() {
-        return this.location + " " + this.credentialsName + " " + this.mtomEnabled + " " + this.properties;
+        return "EndpointInfo [location=" + location + ", properties=" + properties + ", webServiceFeatureInfos=" + webServiceFeatureInfos + "]";
     }
 }

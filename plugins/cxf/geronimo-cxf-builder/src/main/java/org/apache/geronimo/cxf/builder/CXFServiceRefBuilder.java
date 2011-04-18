@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(CXFServiceRefBuilder.class);
-        
+
     public CXFServiceRefBuilder(Environment defaultEnvironment,
                                 String[] eeNamespaces) {
         super(defaultEnvironment, eeNamespaces);
@@ -51,11 +51,11 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
 
     @Override
     public Object createService(ServiceRef serviceRef, GerServiceRefType gerServiceRef,
-                                Module module, Bundle bundle, Class serviceInterface, 
-                                QName serviceQName, URI wsdlURI, Class serviceReference, 
-                                Map<Class, PortComponentRef> portComponentRefMap) throws DeploymentException {
+                                Module module, Bundle bundle, Class serviceInterface,
+                                QName serviceQName, URI wsdlURI, Class serviceReference,
+                                Map<Class<?>, PortComponentRef> portComponentRefMap) throws DeploymentException {
         EndpointInfoBuilder builder = new EndpointInfoBuilder(serviceInterface,
-                gerServiceRef, portComponentRefMap, module, bundle, 
+                gerServiceRef, portComponentRefMap, module, bundle,
                 wsdlURI, serviceQName);
         builder.build();
 
@@ -72,11 +72,10 @@ public class CXFServiceRefBuilder extends JAXWSServiceRefBuilder {
         }
 
         String serviceReferenceName = (serviceReference == null) ? null : serviceReference.getName();
-        
-        return new CXFServiceReference(serviceInterface.getName(), serviceReferenceName,  wsdlURI,
-                serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
+
+        return new CXFServiceReference(serviceInterface.getName(), serviceReferenceName, wsdlURI, serviceQName, module.getModuleName(), handlerChainsXML, seiInfoMap);
     }
-        
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

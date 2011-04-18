@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,15 +41,22 @@ import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceClient;
+import javax.xml.ws.soap.AddressingFeature;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.jaxws.JAXWSUtils;
 import org.apache.geronimo.jaxws.client.EndpointInfo;
+import org.apache.geronimo.jaxws.feature.AddressingFeatureInfo;
+import org.apache.geronimo.jaxws.feature.MTOMFeatureInfo;
+import org.apache.geronimo.jaxws.feature.RespectBindingFeatureInfo;
+import org.apache.geronimo.jaxws.feature.WebServiceFeatureInfo;
 import org.apache.geronimo.jaxws.wsdl.CatalogJarWSDLLocator;
 import org.apache.geronimo.jaxws.wsdl.CatalogWSDLLocator;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortPropertyType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.openejb.jee.Addressing;
 import org.apache.openejb.jee.PortComponentRef;
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.CatalogManager;
@@ -75,11 +83,11 @@ public class EndpointInfoBuilder {
 
     private Map<Object, EndpointInfo> portInfoMap = new HashMap<Object, EndpointInfo>();
 
-    private Map<Class, PortComponentRef> portComponentRefMap;
+    private Map<Class<?>, PortComponentRef> portComponentRefMap;
 
     public EndpointInfoBuilder(Class serviceClass,
                                GerServiceRefType serviceRefType,
-                               Map<Class, PortComponentRef> portComponentRefMap,
+                               Map<Class<?>, PortComponentRef> portComponentRefMap,
                                Module module,
                                Bundle bundle,
                                URI wsdlURI,
@@ -116,10 +124,10 @@ public class EndpointInfoBuilder {
                 }
             }
         }
-        
+
         if (this.wsdlURI == null) {
             // wsdl was not explicitly specified
-            if (javax.xml.ws.Service.class.equals(this.serviceClass)) {
+            if (javax.xml.ws.Service.class == this.serviceClass) {
                 // Generic Service class specified.
                 // Service API requires a service qname so create a dummy one
                 this.serviceQName = new QName("http://noservice", "noservice");
@@ -129,9 +137,9 @@ public class EndpointInfoBuilder {
                         String portName = gerPort.getPortName().trim();
                         URL location = getLocation(gerPort);
                         String credentialsName = getCredentialsName(gerPort);
-                        boolean mtomEnabled = isMTOMEnabled(portName);
+                        List<WebServiceFeatureInfo> webServiceFeatureInfos = getWebServiceFeatureInfos(portName);
                         Map<String, Object> props = getProperties(gerPort);
-                        EndpointInfo info = new EndpointInfo(location, credentialsName, mtomEnabled, props);
+                        EndpointInfo info = new EndpointInfo(location, credentialsName, props, webServiceFeatureInfos);
                         this.portInfoMap.put(portName, info);
                     }
                 }
@@ -184,7 +192,7 @@ public class EndpointInfoBuilder {
 
         verifyPortComponentList(definition);
 
-        Map services = definition.getServices();
+        Map<QName, Service> services = definition.getServices();
         if (services.size() == 0) {
             // partial wsdl, return as is
 
@@ -207,7 +215,7 @@ public class EndpointInfoBuilder {
                                     + this.serviceQName);
                 }
             } else if (services.size() == 1) {
-                service = (Service) services.values().iterator().next();
+                service = services.values().iterator().next();
                 this.serviceQName = service.getQName();
             } else {
                 throw new DeploymentException(
@@ -226,11 +234,10 @@ public class EndpointInfoBuilder {
                 }
             }
 
-            Map wsdlPortMap = service.getPorts();
-            for (Iterator iterator = wsdlPortMap.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                String portName = (String) entry.getKey();
-                Port port = (Port) entry.getValue();
+            Map<String, Port> wsdlPortMap = service.getPorts();
+            for (Map.Entry<String, Port> entry : wsdlPortMap.entrySet()) {
+                String portName = entry.getKey();
+                Port port = entry.getValue();
 
                 GerPortType gerPort = portMap.get(portName);
 
@@ -251,11 +258,10 @@ public class EndpointInfoBuilder {
                     throw new DeploymentException("No portType for binding: " + binding.getQName());
                 }
 
-                boolean mtomEnabled = isMTOMEnabled(portType.getQName());
-
                 Map<String, Object> props = getProperties(gerPort);
 
-                EndpointInfo info = new EndpointInfo(location, credentialsName, mtomEnabled, props);
+                List<WebServiceFeatureInfo> webServiceFeatureInfo = getWebServiceFeatureInfos(portType.getQName());
+                EndpointInfo info = new EndpointInfo(location, credentialsName, props, webServiceFeatureInfo);
                 this.portInfoMap.put(portName, info);
                 // prefer first binding listed in wsdl
                 if (!this.portInfoMap.containsKey(portType.getQName())) {
@@ -346,6 +352,38 @@ public class EndpointInfoBuilder {
         return null;
     }
 
+    private List<WebServiceFeatureInfo> getWebServiceFeatureInfos(QName portName) {
+        PortComponentRef portComponentRef = getPortComponentRef(portName);
+        if (portComponentRef == null) {
+            return new ArrayList<WebServiceFeatureInfo>(0);
+        }
+        return buildWebServiceFeatureInfos(portComponentRef);
+    }
+
+    private List<WebServiceFeatureInfo> getWebServiceFeatureInfos(String portName) {
+        PortComponentRef portComponentRef = getPortComponentRef(portName);
+        if (portComponentRef == null) {
+            return new ArrayList<WebServiceFeatureInfo>(0);
+        }
+        return buildWebServiceFeatureInfos(portComponentRef);
+    }
+
+    private List<WebServiceFeatureInfo> buildWebServiceFeatureInfos(PortComponentRef portComponentRef) {
+        List<WebServiceFeatureInfo> webServiceFeatureInfos = new ArrayList<WebServiceFeatureInfo>(3);
+        Addressing addressing = portComponentRef.getAddressing();
+        if (addressing != null) {
+            webServiceFeatureInfos.add(new AddressingFeatureInfo(addressing.getEnabled() == null ? true : addressing.getEnabled(), addressing.getRequired() == null ? false : addressing.getRequired(),
+                    addressing.getResponses() != null ? AddressingFeature.Responses.valueOf(addressing.getResponses().toString()) : AddressingFeature.Responses.ALL));
+        }
+        if (portComponentRef.getEnableMtom() != null) {
+            webServiceFeatureInfos.add(new MTOMFeatureInfo(portComponentRef.isEnableMtom(), portComponentRef.getMtomThreshold() == null ? 0 : portComponentRef.getMtomThreshold()));
+        }
+        if (portComponentRef.getRespectBinding() != null) {
+            webServiceFeatureInfos.add(new RespectBindingFeatureInfo(portComponentRef.getRespectBinding()));
+        }
+        return webServiceFeatureInfos;
+    }
+
     private void verifyPortComponentList(Definition wsdl) throws DeploymentException {
         if (this.portComponentRefMap == null) {
             return;
@@ -359,15 +397,6 @@ public class EndpointInfoBuilder {
                 throw new DeploymentException("No portType found in WSDL for SEI: " + sei.getName());
             }
         }
-    }
-
-    private boolean isMTOMEnabled(QName portType) {
-        boolean mtomEnabled = false;
-        PortComponentRef portRef = getPortComponentRef(portType);
-        if (portRef != null) {
-            mtomEnabled = portRef.isEnableMtom();
-        }
-        return mtomEnabled;
     }
 
     private PortComponentRef getPortComponentRef(QName portType) {
@@ -384,15 +413,6 @@ public class EndpointInfoBuilder {
             }
         }
         return null;
-    }
-
-    private boolean isMTOMEnabled(String portName) {
-        boolean mtomEnabled = false;
-        PortComponentRef portRef = getPortComponentRef(portName);
-        if (portRef != null) {
-            mtomEnabled = portRef.isEnableMtom();
-        }
-        return mtomEnabled;
     }
 
     private PortComponentRef getPortComponentRef(String portName) {

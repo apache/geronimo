@@ -25,9 +25,6 @@ import javax.naming.NamingException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.HandlerResolver;
 
-import org.apache.openejb.jee.HandlerChains;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
@@ -41,6 +38,9 @@ import org.apache.geronimo.jaxws.client.EndpointInfo;
 import org.apache.geronimo.jaxws.client.JAXWSServiceReference;
 import org.apache.geronimo.jaxws.client.PortMethodInterceptor;
 import org.apache.geronimo.jaxws.handler.GeronimoHandlerResolver;
+import org.apache.openejb.jee.HandlerChains;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CXFServiceReference extends JAXWSServiceReference {
 
