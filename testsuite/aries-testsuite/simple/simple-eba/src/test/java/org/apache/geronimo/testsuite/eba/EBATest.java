@@ -31,11 +31,19 @@ public class EBATest extends TestSupport {
 
     @Test
     public void testServlet() throws Exception {
-        checkReply("/SampleServlet");
+        String reply = getReply("/SampleServlet");
+        assertTrue("WAB Servlet", 
+                   reply.contains("Hello Web Application Bundle"));
     }
 
+    @Test
+    public void testJSP() throws Exception {
+        String reply = getReply("/test.jsp");
+        assertTrue("WAB JSP", 
+                   reply.contains("page request session application"));
+    }
 
-    private void checkReply(String address)
+    private String getReply(String address)
         throws Exception {
         String warName = System.getProperty("webAppName");
         assertNotNull(warName);
@@ -44,9 +52,7 @@ public class EBATest extends TestSupport {
          * WABs are deployed asynchronously so it might take a
          * bit to actually invoke the servlet.
          */
-        String reply = doGET(url, 6, 10 * 1000);
-        assertTrue("WAB", 
-                   reply.contains("Hello Web Application Bundle"));
+        return doGET(url, 6, 10 * 1000);
     }
   
     private String doGET(URL url, int repeat, long delay) {

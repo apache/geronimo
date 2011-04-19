@@ -60,6 +60,13 @@
                         <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
                         <Private-Package>org.apache.geronimo.test.eba</Private-Package>
                         <Export-Package>!org.apache.geronimo.test.eba</Export-Package>
+                        <Import-Package>
+                            javax.servlet.jsp.el,
+                            javax.servlet.jsp,
+                            javax.servlet.jsp.tagext,
+                            javax.servlet.jsp.resources,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
