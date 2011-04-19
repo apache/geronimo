@@ -30,6 +30,7 @@ import org.apache.geronimo.openejb.GeronimoEjbInfo;
 import org.apache.geronimo.openejb.xbeans.ejbjar.OpenejbGeronimoEjbJarType;
 import org.apache.openejb.ClassLoaderUtil;
 import org.apache.openejb.config.ConfigurationFactory;
+import org.apache.openejb.core.TempClassLoader;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
@@ -125,8 +126,10 @@ public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
 
     @Override
     public void close() {
-        ClassLoaderUtil.destroyClassLoader(ejbModule.getClassLoader().getParent());
-        ClassLoaderUtil.destroyClassLoader(ejbModule.getClassLoader());
+        if (ejbModule.getClassLoader() instanceof TempClassLoader) {
+            ClassLoaderUtil.destroyClassLoader(ejbModule.getClassLoader().getParent());
+            ClassLoaderUtil.destroyClassLoader(ejbModule.getClassLoader());
+        }
         super.close();
     }
 
