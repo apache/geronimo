@@ -125,6 +125,7 @@ public class EjbModule extends EJBModule<OpenejbGeronimoEjbJarType> {
 
     @Override
     public void close() {
+        ClassLoaderUtil.destroyClassLoader(ejbModule.getClassLoader().getParent());
         ClassLoaderUtil.destroyClassLoader(ejbModule.getClassLoader());
         super.close();
     }

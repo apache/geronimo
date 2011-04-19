@@ -16,10 +16,6 @@
  */
 package org.apache.geronimo.openejb.deployment;
 
-import javax.ejb.EntityContext;
-import javax.ejb.TimerService;
-import javax.xml.namespace.QName;
-import javax.xml.ws.WebServiceContext;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +36,11 @@ import java.util.TreeSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+
+import javax.ejb.EntityContext;
+import javax.ejb.TimerService;
+import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceContext;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.wrapper.ResourceAdapterWrapperGBean;
@@ -1234,7 +1235,8 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
     private void releaseTempClassLoader(ClassLoader classLoader) {
         if (classLoader != null)
             try {
-                ClassLoaderUtil.destroyClassLoader(classLoader);
+                    ClassLoaderUtil.destroyClassLoader(classLoader.getParent());
+                    ClassLoaderUtil.destroyClassLoader(classLoader);
             } catch (Exception e) {
             }
     }
