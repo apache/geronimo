@@ -23,7 +23,7 @@ import java.util.HashSet;
 import javax.portlet.PortletRequest;
 
 import org.apache.geronimo.j2ee.deployment.WebModule;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
+import org.apache.openejb.jee.JndiConsumer;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
@@ -53,18 +53,18 @@ public class WARConfigData {
         environmentConfig.parseEnvironment(module.getEnvironment());
         getWebApp().setContextRoot(getWebApp().getEnvironment().getModuleId().getArtifactId());
 
-        parseReferences(module.getAnnotatedApp());
-        parseSecurity(module.getAnnotatedApp());
+        parseReferences(module.getSpecDD());
+        parseSecurity(module.getSpecDD());
     }
 
-    public void parseReferences(AnnotatedApp annotatedApp) {
+    public void parseReferences(JndiConsumer annotatedApp) {
         jndiRefsConfig = new JndiRefsConfigData();
         jndiRefsConfig.parseWebDD(annotatedApp, webApp);
         messageDestinationConfig = new MessageDestinationConfigData();
         messageDestinationConfig.parseWebDD(annotatedApp, webApp);
     }
 
-    public void parseSecurity(AnnotatedApp annotatedApp) {
+    public void parseSecurity(JndiConsumer annotatedApp) {
         securityConfig = new SecurityConfigData();
         securityConfig.parseWebDD(annotatedApp);
     }

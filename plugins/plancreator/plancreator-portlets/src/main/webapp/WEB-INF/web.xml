@@ -22,7 +22,7 @@ limitations under the License.
 
     <servlet>
         <servlet-name>PlanCreator</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>PlanCreator</param-value>

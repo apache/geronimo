@@ -20,21 +20,23 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
 
 import javax.portlet.PortletRequest;
 
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.EjbRef;
+import org.apache.openejb.jee.EjbLocalRef;
+import org.apache.openejb.jee.ServiceRef;
+import org.apache.openejb.jee.ResourceRef;
+import org.apache.openejb.jee.ResourceEnvRef;
+
 import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
-import org.apache.geronimo.xbeans.javaee6.EjbLocalRefType;
-import org.apache.geronimo.xbeans.javaee6.EjbRefType;
-import org.apache.geronimo.xbeans.javaee6.ResourceEnvRefType;
-import org.apache.geronimo.xbeans.javaee6.ResourceRefType;
-import org.apache.geronimo.xbeans.javaee6.ServiceRefType;
 
 /**
  * 
@@ -55,29 +57,29 @@ public class JndiRefsConfigData {
 
     public final static String REF_LINK = "refLink";
 
-    public void parseWebDD(AnnotatedApp annotatedWebAppDD, GerWebAppType webApp) {
-        EjbRefType[] ejbRefs = annotatedWebAppDD.getEjbRefArray();
-        for (int i = 0; i < ejbRefs.length; i++) {
-            String refName = ejbRefs[i].getEjbRefName().getStringValue();
+    public void parseWebDD(JndiConsumer annotatedWebAppDD, GerWebAppType webApp) {
+        Collection<EjbRef> ejbRefs = annotatedWebAppDD.getEjbRef();
+        for (EjbRef ejbRef: ejbRefs) {
+            String refName = ejbRef.getEjbRefName();
             webApp.addNewEjbRef().setRefName(refName);
         }
 
-        EjbLocalRefType[] ejbLocalRefs = annotatedWebAppDD.getEjbLocalRefArray();
-        for (int i = 0; i < ejbLocalRefs.length; i++) {
-            String refName = ejbLocalRefs[i].getEjbRefName().getStringValue();
+        Collection<EjbLocalRef> ejbLocalRefs = annotatedWebAppDD.getEjbLocalRef();
+        for (EjbLocalRef ejbLocalRef: ejbLocalRefs) {
+            String refName = ejbLocalRef.getEjbRefName();
             webApp.addNewEjbLocalRef().setRefName(refName);
         }
 
-        ServiceRefType[] serviceRefs = annotatedWebAppDD.getServiceRefArray();
-        for (int i = 0; i < serviceRefs.length; i++) {
-            String refName = serviceRefs[i].getServiceRefName().getStringValue();
+        Collection<ServiceRef> serviceRefs = annotatedWebAppDD.getServiceRef();
+        for (ServiceRef serviceRef: serviceRefs) {
+            String refName = serviceRef.getServiceRefName();
             webApp.addNewServiceRef().setServiceRefName(refName);
         }
 
-        ResourceRefType[] resourceRefs = annotatedWebAppDD.getResourceRefArray();
-        for (int i = 0; i < resourceRefs.length; i++) {
-            String refName = resourceRefs[i].getResRefName().getStringValue();
-            String refType = resourceRefs[i].getResType().getStringValue();
+        Collection<ResourceRef> resourceRefs = annotatedWebAppDD.getResourceRef();
+        for (ResourceRef resourceRef: resourceRefs) {
+            String refName = resourceRef.getResRefName();
+            String refType = resourceRef.getResType();
             if ("javax.sql.DataSource".equalsIgnoreCase(refType)) {
                 jdbcPoolRefs.add(new ReferenceData(refName));
             } else if ("javax.jms.ConnectionFactory".equalsIgnoreCase(refType)
@@ -89,11 +91,11 @@ public class JndiRefsConfigData {
             }
         }
 
-        ResourceEnvRefType[] resourceEnvRefs = annotatedWebAppDD.getResourceEnvRefArray();
-        for (int i = 0; i < resourceEnvRefs.length; i++) {
-            String refName = resourceEnvRefs[i].getResourceEnvRefName().getStringValue();
-            GerResourceEnvRefType resourceEnvRef = webApp.addNewResourceEnvRef();
-            resourceEnvRef.setRefName(refName);
+        Collection<ResourceEnvRef> resourceEnvRefs = annotatedWebAppDD.getResourceEnvRef();
+        for (ResourceEnvRef resourceEnvRef: resourceEnvRefs) {
+            String refName = resourceEnvRef.getResourceEnvRefName();
+            GerResourceEnvRefType gerResourceEnvRef = webApp.addNewResourceEnvRef();
+            gerResourceEnvRef.setRefName(refName);
             // resourceEnvRef.setMessageDestinationLink(refName);
         }
     }

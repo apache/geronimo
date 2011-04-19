@@ -18,12 +18,16 @@ package org.apache.geronimo.console.configcreator.configData;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.List;
 
 import javax.portlet.PortletRequest;
 
 import org.apache.geronimo.deployment.xbeans.PatternType;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
+
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.SecurityRole;
+
 import org.apache.geronimo.xbeans.geronimo.security.GerDistinguishedNameType;
 import org.apache.geronimo.xbeans.geronimo.security.GerLoginDomainPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerPrincipalType;
@@ -32,8 +36,6 @@ import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSubjectInfoType;
-import org.apache.geronimo.xbeans.javaee6.SecurityRoleType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
 
 /**
  * 
@@ -44,15 +46,15 @@ public class SecurityConfigData {
 
     private HashSet<String> dependenciesSet = new HashSet<String>();
 
-    public void parseWebDD(AnnotatedApp annotatedWebAppDD) {
-        if (annotatedWebAppDD instanceof AnnotatedWebApp) {
-            WebAppType webAppDD = ((AnnotatedWebApp) annotatedWebAppDD).getWebApp();
-            SecurityRoleType[] securityRoles = webAppDD.getSecurityRoleArray();
-            if (securityRoles.length > 0) {
+    public void parseWebDD(JndiConsumer annotatedWebAppDD) {
+        if (annotatedWebAppDD instanceof WebApp) {
+            WebApp webAppDD = (WebApp) annotatedWebAppDD;
+            List<SecurityRole> securityRoles = webAppDD.getSecurityRole();
+            if (securityRoles.size() > 0) {
                 security = GerSecurityType.Factory.newInstance();
                 GerRoleMappingsType roleMappings = security.addNewRoleMappings();
-                for (int i = 0; i < securityRoles.length; i++) {
-                    String roleName = securityRoles[i].getRoleName().getStringValue();
+                for (SecurityRole securityRole: securityRoles) {
+                    String roleName = securityRole.getRoleName();
                     roleMappings.addNewRole().setRoleName(roleName);
                 }
             }

@@ -18,15 +18,16 @@ package org.apache.geronimo.console.configcreator.configData;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.List;
 
 import javax.portlet.PortletRequest;
 
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedApp;
-import org.apache.geronimo.j2ee.deployment.annotation.AnnotatedWebApp;
+import org.apache.openejb.jee.JndiConsumer;
+import org.apache.openejb.jee.WebApp;
+import org.apache.openejb.jee.MessageDestination;
+
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
-import org.apache.geronimo.xbeans.javaee6.MessageDestinationType;
-import org.apache.geronimo.xbeans.javaee6.WebAppType;
 
 /**
  * 
@@ -37,13 +38,13 @@ public class MessageDestinationConfigData {
 
     private boolean referenceNotResolved = false;
 
-    public void parseWebDD(AnnotatedApp annotatedWebAppDD, GerWebAppType webApp) {
-        if (annotatedWebAppDD instanceof AnnotatedWebApp) {
-            WebAppType webAppDD = ((AnnotatedWebApp) annotatedWebAppDD).getWebApp();
-            MessageDestinationType[] messageDestinations = webAppDD.getMessageDestinationArray();
-            for (int i = 0; i < messageDestinations.length; i++) {
-                String messageDestinationName = messageDestinations[i].getMessageDestinationName().getStringValue();
-                GerMessageDestinationType messageDestination = webApp.addNewMessageDestination();
+    public void parseWebDD(JndiConsumer annotatedWebAppDD, GerWebAppType webApp) {
+        if (annotatedWebAppDD instanceof WebApp) {
+            WebApp webAppDD = (WebApp) annotatedWebAppDD;
+            List<MessageDestination> messageDestinations = webAppDD.getMessageDestination();
+            for (MessageDestination messageDestination: messageDestinations) {
+                String messageDestinationName = messageDestination.getMessageDestinationName();
+                GerMessageDestinationType gerMessageDestination = webApp.addNewMessageDestination();
                 messageDestination.setMessageDestinationName(messageDestinationName);
                 // messageDestination.setAdminObjectLink(messageDestinationName);
             }

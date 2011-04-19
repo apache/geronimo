@@ -27,6 +27,8 @@ import javax.portlet.PortletRequest;
 
 import org.apache.geronimo.j2ee.deployment.ApplicationInfo;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.WebModule;
+
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
@@ -59,13 +61,13 @@ public class EARConfigData {
         environmentConfig = new EnvironmentConfigData(getEnterpriseApp().addNewEnvironment());
         environmentConfig.parseEnvironment(applicationInfo.getEnvironment());
 
-        LinkedHashSet modules = applicationInfo.getModules();
-        for (Object module1 : modules) {
-            Module module = (Module) module1;
+        LinkedHashSet<Module<?,?>> modules = applicationInfo.getModules();
+        for (Module<?,?> module : modules) {
+            //Module module = (Module) module1;
             if (ConfigurationModuleType.WAR == module.getType()) {
                 WARConfigData warConfig = new WARConfigData();
-                warConfig.parseReferences(module.getAnnotatedApp());
-                warConfig.parseSecurity(module.getAnnotatedApp());
+                warConfig.parseReferences(((WebModule) module).getSpecDD());
+                warConfig.parseSecurity(((WebModule) module).getSpecDD());
                 webModules.put(module.getName(), warConfig);
             } else if (ConfigurationModuleType.EJB == module.getType()) {
                 EjbConfigData ejbConfig = new EjbConfigData();
