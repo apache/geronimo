@@ -124,6 +124,13 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
+		
+        <dependency>
+            <groupId>org.apache.geronimo.plugins</groupId>
+            <artifactId>plancreator-console-tomcat</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+        </dependency>     		
 
     </dependencies>
 

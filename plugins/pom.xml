@@ -173,7 +173,7 @@
         <module>openjpa2</module>
         <module>openwebbeans</module>
         <module>wink</module>
-        <!--<module>plancreator</module>-->
+        <module>plancreator</module>
         <module>webservices</module>
         <!--<module>ca-helper</module>-->
         <module>uddi</module>
