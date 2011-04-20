@@ -32,6 +32,17 @@
                         <artifactId>openwebbeans</artifactId>
                         <type>car</type>
                     </dependency>
+                    <!-- The dependencies below is to help deployer to find configuration resources while the deployed application is of WAB type GERONIMO-5916 -->
+                    <dependency>
+                        <groupId>org.apache.geronimo.modules</groupId>
+                        <artifactId>geronimo-openwebbeans</artifactId>
+                        <type>jar</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.openwebbeans</groupId>
+                        <artifactId>openwebbeans-impl</artifactId>
+                        <type>jar</type>
+                    </dependency>
                 </dependencies>
                 <!-- Import added so that MyFaces can discover 
                      META-INF/faces-config.xml in openwebbeans-jsf bundle -->
