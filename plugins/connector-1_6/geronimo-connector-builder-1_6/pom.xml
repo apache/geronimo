@@ -186,6 +186,7 @@
                             org.apache.geronimo.xbeans.connector,
                             org.apache.geronimo.xbeans.connector.impl
                         </Export-Package>
+                        <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*,
                             org.omg.CORBA</DynamicImport-Package>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
