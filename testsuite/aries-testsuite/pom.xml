@@ -40,9 +40,8 @@
         <module>require-bundle-test</module>    
     <module>ds-jndi</module>
     <module>ejb-osgi-service</module>
-    <module>osgi-service-custom</module>    
-    <!--mail/MailSession is not bound to MailGBean, so comment it
-    <module>mail-osgi-service</module>-->
+    <module>osgi-service-custom</module>
+    <module>mail-osgi-service</module>
   </modules>
 
     <build>

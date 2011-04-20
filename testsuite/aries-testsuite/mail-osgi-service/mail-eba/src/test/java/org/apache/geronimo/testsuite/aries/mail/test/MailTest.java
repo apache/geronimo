@@ -45,7 +45,8 @@ public class MailTest extends TestSupport{
         assertTrue("Lookup Mail via ger:service", 
                    reply.contains("Java Mail JNDI Lookup via ger:MailSession Pass"));
         
-        
+        assertTrue("Lookup Mail", 
+                reply.contains("Java Mail JNDI Lookup via jca:/org.apache.geronimo.configs/javamail/JavaMailResource/mail/MailSession Pass"));
         
     }
   

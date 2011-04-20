@@ -60,6 +60,13 @@ public class MailServlet extends HttpServlet
             } else {
                 pw.println("Java Mail JNDI Lookup via ger:MailSession Fail"); 
             }
+            
+            mailSession = (Session) ic.lookup("jca:/org.apache.geronimo.configs/javamail/JavaMailResource/mail/MailSession");
+            if (mailSession != null){               
+                pw.println("Java Mail JNDI Lookup via jca:/org.apache.geronimo.configs/javamail/JavaMailResource/mail/MailSession Pass" ); 
+            } else {
+                pw.println("Java Mail JNDI Lookup via jca:/org.apache.geronimo.configs/javamail/JavaMailResource/mail/MailSession Fail"); 
+            }
            
         } catch (IOException e) {
             // TODO Auto-generated catch block
