@@ -66,7 +66,7 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void printNewline() throws IOException {
         if (jlineConsoleEnabled) {
-            ((ConsoleReader) jlineConsoleReader).printNewline();
+            jlineConsoleReader.println();
         } else {
             console.println();
         }
@@ -82,7 +82,7 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void printString(String s) throws IOException {
         if (jlineConsoleEnabled) {
-            ((ConsoleReader) jlineConsoleReader).printString(s);
+            jlineConsoleReader.print(s);
         } else {
             console.print(s);
         }
@@ -98,8 +98,8 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void println(String s) throws IOException {
         if (jlineConsoleEnabled) {
-            ((ConsoleReader) jlineConsoleReader).printString(s);
-            ((ConsoleReader) jlineConsoleReader).printNewline();
+            jlineConsoleReader.print(s);
+            jlineConsoleReader.println();
         } else {
             console.println(s);
             console.println();
@@ -148,7 +148,7 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void flushConsole() throws IOException {
         if (jlineConsoleEnabled) {
-            ((ConsoleReader) jlineConsoleReader).flushConsole();
+             jlineConsoleReader.flush();
         } else {
             console.flush();
         }
