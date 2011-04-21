@@ -42,6 +42,11 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.gogo.runtime</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.bundles</groupId>
         <artifactId>jaxb-impl</artifactId>
         <type>jar</type>
@@ -144,6 +149,11 @@
     <dependency>
         <groupId>org.apache.geronimo.modules</groupId>
         <artifactId>geronimo-aries-builder</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.modules</groupId>
+        <artifactId>geronimo-aries-shell</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
@@ -277,8 +287,28 @@
         <type>jar</type>
     </dependency>
     <dependency>
+        <groupId>org.apache.karaf</groupId>
+        <artifactId>org.apache.karaf.util</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
         <groupId>org.apache.karaf.jaas</groupId>
         <artifactId>org.apache.karaf.jaas.boot</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.karaf.jaas</groupId>
+        <artifactId>org.apache.karaf.jaas.config</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.karaf.jaas</groupId>
+        <artifactId>org.apache.karaf.jaas.modules</artifactId>
+        <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.karaf.shell</groupId>
+        <artifactId>org.apache.karaf.shell.console</artifactId>
         <type>jar</type>
     </dependency>
     <dependency>
