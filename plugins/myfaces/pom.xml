@@ -43,24 +43,6 @@
         <module>myfaces</module>
         <module>myfaces-deployer</module>
     </modules>
-    <profiles>
-        <profile>
-            <id>mini-servers</id>
-            <modules>
-                <module>myfaces-jetty-server</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>all-subprojects</id>
-            <modules>
-                <module>geronimo-myfaces</module>
-                <module>geronimo-myfaces-builder</module>
-                <module>myfaces</module>
-                <module>myfaces-deployer</module>
-                <module>myfaces-jetty-server</module>
-            </modules>
-        </profile>
-    </profiles>
 
     <dependencyManagement>
         <dependencies>
