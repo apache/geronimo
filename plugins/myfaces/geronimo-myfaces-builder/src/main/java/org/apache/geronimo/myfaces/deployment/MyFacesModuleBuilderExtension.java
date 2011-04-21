@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -89,6 +90,8 @@ import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.BundleAnnotationFinder;
 import org.apache.xbean.finder.ClassFinder;
 import org.apache.xbean.osgi.bundle.util.BundleClassLoader;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
+import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
 import org.apache.xmlbeans.XmlObject;
@@ -174,11 +177,11 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         if (!(module instanceof WebModule)) {
             return;
         }
-        module.getEarContext().getGeneralData().put(JSF_META_INF_CONFIGURATION_RESOURCES, findMetaInfConfigurationResources(earContext, module));
-        module.getEarContext().getGeneralData().put(JSF_FACELET_CONFIG_RESOURCES, findFaceletConfigResources(earContext, module));
     }
 
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+        module.getEarContext().getGeneralData().put(JSF_META_INF_CONFIGURATION_RESOURCES, findMetaInfConfigurationResources(earContext, module, bundle));
+        module.getEarContext().getGeneralData().put(JSF_FACELET_CONFIG_RESOURCES, findFaceletConfigResources(earContext, module, bundle));
     }
 
     public void addGBeans(EARContext earContext, Module module, Bundle bundle, Collection repository) throws DeploymentException {
@@ -224,18 +227,22 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         Set<ConfigurationResource> metaInfConfigurationResources = JSF_META_INF_CONFIGURATION_RESOURCES.get(earContext.getGeneralData());
         List<FacesConfig> metaInfFacesConfigs = new ArrayList<FacesConfig>(metaInfConfigurationResources.size());
         for (ConfigurationResource configurationResource : metaInfConfigurationResources) {
-            URL url;
-            try {
-                url = configurationResource.getConfigurationResourceURL(bundle);
-            } catch (MalformedURLException e) {
-                throw new DeploymentException("Fail to read the faces Configuration file " + configurationResource.getConfigurationResourcePath()
-                        + (configurationResource.getJarFilePath() == null ? "" : " from jar file " + configurationResource.getJarFilePath()), e);
+            FacesConfig facesConfig = configurationResource.getFacesConfig();
+            if (facesConfig == null) {
+                URL url;
+                try {
+                    url = configurationResource.getConfigurationResourceURL(bundle);
+                } catch (MalformedURLException e) {
+                    throw new DeploymentException("Fail to read the faces Configuration file " + configurationResource.getConfigurationResourcePath()
+                            + (configurationResource.getJarFilePath() == null ? "" : " from jar file " + configurationResource.getJarFilePath()), e);
+                }
+                if (url == null) {
+                    throw new DeploymentException("Fail to read the faces Configuration file " + configurationResource.getConfigurationResourcePath()
+                            + (configurationResource.getJarFilePath() == null ? "" : " from jar file " + configurationResource.getJarFilePath()));
+                }
+                facesConfig = parseConfigFile(url, url.toExternalForm());
             }
-            if (url == null) {
-                throw new DeploymentException("Fail to read the faces Configuration file " + configurationResource.getConfigurationResourcePath()
-                        + (configurationResource.getJarFilePath() == null ? "" : " from jar file " + configurationResource.getJarFilePath()));
-            }
-            metaInfFacesConfigs.add(parseConfigFile(url, url.toExternalForm()));
+            metaInfFacesConfigs.add(facesConfig);
         }
 
         //Parse all faces-config.xml files found in classloader hierarchy
@@ -431,71 +438,75 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         return new ClassFinder(managedBeanClasses);
     }
 
-    protected Set<ConfigurationResource> findMetaInfConfigurationResources(EARContext earContext, Module module) throws DeploymentException {
-        Set<ConfigurationResource> metaInfConfigurationResources = new HashSet<ConfigurationResource>();
+    protected Set<ConfigurationResource> findMetaInfConfigurationResources(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+        final Set<ConfigurationResource> metaInfConfigurationResources = new HashSet<ConfigurationResource>();
+        String moduleNamePrefix = module.isStandAlone() ? "" : module.getTargetPath() + "/";
         //1. jar files in the WEB-INF/lib folder
-        File libDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "lib");
-        if (libDirectory.exists()) {
-            for (File file : libDirectory.listFiles()) {
-                if (!file.getName().endsWith(".jar")) {
-                    continue;
-                }
-                try {
-                    if (!JarUtils.isJarFile(file)) {
-                        continue;
-                    }
-                } catch (IOException e) {
-                    continue;
-                }
-                ZipInputStream in = null;
-                JarFile jarFile = null;
-                try {
-                    jarFile = new JarFile(file);
-                    in = new ZipInputStream(new FileInputStream(file));
-                    ZipEntry zipEntry;
+        ServiceReference reference = null;
+        try {
+            reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
+            PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
+            final String libDirectory = moduleNamePrefix + "WEB-INF/lib";
+            BundleResourceFinder resourceFinder = new BundleResourceFinder(packageAdmin, bundle, "META-INF/", "faces-config.xml", new ResourceDiscoveryFilter() {
 
-                    while ((zipEntry = in.getNextEntry()) != null) {
-                        String name = zipEntry.getName();
-                        // Scan config files named as faces-config.xml or *.faces-config.xml under META-INF
-                        if (name.equals("META-INF/faces-config.xml") || (name.startsWith("META-INF/") && name.endsWith(".faces-config.xml"))) {
-                            //TODO Double check the relative jar file path once EAR is really supported
-                            metaInfConfigurationResources.add(new ConfigurationResource("WEB-INF/lib/" + file.getName(), name));
-                        }
-                    }
-                } catch (Exception e) {
-                    throw new DeploymentException("Can not preprocess myfaces application configuration resources", e);
-                } finally {
-                    IOUtils.close(in);
-                    JarUtils.close(jarFile);
+                @Override
+                public boolean directoryDiscoveryRequired(String directoryName) {
+                    return false;
                 }
+
+                @Override
+                public boolean rangeDiscoveryRequired(DiscoveryRange discoveryRange) {
+                    return discoveryRange == DiscoveryRange.BUNDLE_CLASSPATH;
+                }
+
+                @Override
+                public boolean zipFileDiscoveryRequired(String zipFileName) {
+                    return zipFileName.startsWith(libDirectory) && zipFileName.endsWith(".jar");
+                }
+
+            });
+            resourceFinder.find(new ResourceFinderCallback() {
+
+                @Override
+                public boolean foundInDirectory(Bundle arg0, String arg1, URL arg2) throws Exception {
+                    return false;
+                }
+
+                @Override
+                public boolean foundInJar(Bundle bundle, String zipFileName, ZipEntry zipEntry, InputStream in) throws Exception {
+                    String zipEntryName = zipEntry.getName();
+                    if ((zipEntryName.endsWith(".faces-config.xml") && zipEntryName.indexOf('/', "META-INF/".length()) == -1) || zipEntryName.equals("META-INF/faces-config.xml")) {
+                        ConfigurationResource configurationResource = new ConfigurationResource(zipFileName, zipEntryName);
+                        FacesConfig facesConfig = defaultFacesConfigUnmarshaller.getFacesConfig(in, configurationResource.getConfigurationResourceURL(bundle).toExternalForm());
+                        configurationResource.setFacesConfig(facesConfig);
+                        metaInfConfigurationResources.add(configurationResource);
+                    }
+                    return true;
+                }
+            });
+        } catch (Exception e) {
+            throw new DeploymentException("Fail to scan faces-config.xml configuration files", e);
+        } finally {
+            if (reference != null) {
+                bundle.getBundleContext().ungetService(reference);
             }
         }
-        //2. WEB-INF/classes/META-INF folder
-        File webInfClassesDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + "META-INF");
-        if (webInfClassesDirectory.exists() && webInfClassesDirectory.isDirectory()) {
-            for (File file : webInfClassesDirectory.listFiles()) {
-                if (file.isDirectory()) {
-                    continue;
-                }
-                String fileName = file.getName();
-                if (fileName.equals("faces-config.xml") || fileName.endsWith(".faces-config.xml")) {
-                    //TODO Double check the relative jar file path once EAR is really supported
-                    String filePath = "WEB-INF/classes/META-INF/" + fileName;
+        //2 WEB-INF/classes/META-INF folder        
+        Enumeration<URL> classesEn = bundle.findEntries(moduleNamePrefix + "WEB-INF/classes/META-INF/", "*faces-config.xml", false);
+        if (classesEn != null) {
+            while (classesEn.hasMoreElements()) {
+                String filePath = classesEn.nextElement().getPath();
+                if (filePath.endsWith("/faces-config.xml") || filePath.endsWith(".faces-config.xml")) {
                     metaInfConfigurationResources.add(new ConfigurationResource(null, filePath));
                 }
             }
         }
-        //3. META-INF folder
-        File baseDirectory = new File(earContext.getBaseDir() + File.separator + "META-INF");
-        if (baseDirectory.exists() && baseDirectory.isDirectory()) {
-            for (File file : baseDirectory.listFiles()) {
-                if (file.isDirectory()) {
-                    continue;
-                }
-                String fileName = file.getName();
-                if (fileName.equals("faces-config.xml") || fileName.endsWith(".faces-config.xml")) {
-                    //TODO Double check the relative jar file path once EAR is really supported
-                    String filePath = "META-INF/" + fileName;
+        //3  META-INF folder
+        Enumeration<URL> metaInfEn = bundle.findEntries(moduleNamePrefix + "META-INF/", "*faces-config.xml", false);
+        if (metaInfEn != null) {
+            while (metaInfEn.hasMoreElements()) {
+                String filePath = metaInfEn.nextElement().getPath();
+                if (filePath.endsWith("/faces-config.xml") || filePath.endsWith(".faces-config.xml")) {
                     metaInfConfigurationResources.add(new ConfigurationResource(null, filePath));
                 }
             }
@@ -503,77 +514,75 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         return metaInfConfigurationResources;
     }
 
-    protected Set<ConfigurationResource> findFaceletConfigResources(EARContext earContext, Module module) throws DeploymentException {
-        Set<ConfigurationResource> faceletConfigResources = new HashSet<ConfigurationResource>();
+    protected Set<ConfigurationResource> findFaceletConfigResources(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
+        final Set<ConfigurationResource> metaInfConfigurationResources = new HashSet<ConfigurationResource>();
+        String moduleNamePrefix = module.isStandAlone() ? "" : module.getTargetPath() + "/";
         //1. jar files in the WEB-INF/lib folder
-        File libDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "lib");
-        if (libDirectory.exists()) {
-            for (File file : libDirectory.listFiles()) {
-                if (!file.getName().endsWith(".jar")) {
-                    continue;
-                }
-                try {
-                    if (!JarUtils.isJarFile(file)) {
-                        continue;
-                    }
-                } catch (IOException e) {
-                    continue;
-                }
-                ZipInputStream in = null;
-                JarFile jarFile = null;
-                try {
-                    jarFile = new JarFile(file);
-                    in = new ZipInputStream(new FileInputStream(file));
-                    ZipEntry zipEntry;
+        ServiceReference reference = null;
+        try {
+            reference = bundle.getBundleContext().getServiceReference(PackageAdmin.class.getName());
+            PackageAdmin packageAdmin = (PackageAdmin) bundle.getBundleContext().getService(reference);
+            final String libDirectory = moduleNamePrefix + "WEB-INF/lib";
+            BundleResourceFinder resourceFinder = new BundleResourceFinder(packageAdmin, bundle, "META-INF/", ".taglib.xml", new ResourceDiscoveryFilter() {
 
-                    while ((zipEntry = in.getNextEntry()) != null) {
-                        String name = zipEntry.getName();
-                        // Scan config files named as faces-config.xml or *.faces-config.xml under META-INF
-                        if (name.startsWith("META-INF/") && name.endsWith(".taglib.xml")) {
-                            //TODO Double check the relative jar file path once EAR is really supported
-                            faceletConfigResources.add(new ConfigurationResource("WEB-INF/lib/" + file.getName(), name));
-                        }
+                @Override
+                public boolean directoryDiscoveryRequired(String directoryName) {
+                    return false;
+                }
+
+                @Override
+                public boolean rangeDiscoveryRequired(DiscoveryRange discoveryRange) {
+                    return discoveryRange == DiscoveryRange.BUNDLE_CLASSPATH;
+                }
+
+                @Override
+                public boolean zipFileDiscoveryRequired(String zipFileName) {
+                    return zipFileName.startsWith(libDirectory) && zipFileName.endsWith(".jar");
+                }
+
+            });
+            resourceFinder.find(new ResourceFinderCallback() {
+
+                @Override
+                public boolean foundInDirectory(Bundle arg0, String arg1, URL arg2) throws Exception {
+                    return false;
+                }
+
+                @Override
+                public boolean foundInJar(Bundle bundle, String zipFileName, ZipEntry zipEntry, InputStream in) throws Exception {
+                    String zipEntryName = zipEntry.getName();
+                    if (zipEntryName.endsWith(".tag-lib.xml") && zipEntryName.indexOf('/', "META-INF/".length()) == -1) {
+                        ConfigurationResource configurationResource = new ConfigurationResource(zipFileName, zipEntry.getName());
+                        metaInfConfigurationResources.add(configurationResource);
                     }
-                } catch (Exception e) {
-                    throw new DeploymentException("Can not preprocess myfaces application configuration resources", e);
-                } finally {
-                    IOUtils.close(in);
-                    JarUtils.close(jarFile);
+                    return true;
                 }
+            });
+        } catch (Exception e) {
+            throw new DeploymentException("Fail to scan tag-lib.xml configuration files", e);
+        } finally {
+            if (reference != null) {
+                bundle.getBundleContext().ungetService(reference);
             }
         }
-        //2. WEB-INF/classes/META-INF folder
-        File webInfClassesDirectory = new File(earContext.getBaseDir() + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + "META-INF");
-        if (webInfClassesDirectory.exists() && webInfClassesDirectory.isDirectory()) {
-            for (File file : webInfClassesDirectory.listFiles()) {
-                if (file.isDirectory()) {
-                    continue;
-                }
-                String fileName = file.getName();
-                if (fileName.equals("faces-config.xml") || fileName.endsWith(".taglib.xml")) {
-                    //TODO Double check the relative jar file path once EAR is really supported
-                    String filePath = "WEB-INF/classes/META-INF/" + fileName;
-                    faceletConfigResources.add(new ConfigurationResource(null, filePath));
-                }
+        //2 WEB-INF/classes/META-INF folder        
+        Enumeration<URL> classesEn = bundle.findEntries(moduleNamePrefix + "WEB-INF/classes/META-INF/", "*.tag-lib.xml", false);
+        if (classesEn != null) {
+            while (classesEn.hasMoreElements()) {
+                String filePath = classesEn.nextElement().getPath();
+                metaInfConfigurationResources.add(new ConfigurationResource(null, filePath));
             }
         }
-        //3. META-INF folder
-        File baseDirectory = new File(earContext.getBaseDir() + File.separator + "META-INF");
-        if (baseDirectory.exists() && baseDirectory.isDirectory()) {
-            for (File file : baseDirectory.listFiles()) {
-                if (file.isDirectory()) {
-                    continue;
-                }
-                String fileName = file.getName();
-                if (fileName.endsWith(".taglib.xml")) {
-                    //TODO Double check the relative jar file path once EAR is really supported
-                    String filePath = "META-INF/" + fileName;
-                    faceletConfigResources.add(new ConfigurationResource(null, filePath));
-                }
+        //3  META-INF folder
+        Enumeration<URL> metaInfEn = bundle.findEntries(moduleNamePrefix + "META-INF/", "*.tag-lib.xml", false);
+        if (metaInfEn != null) {
+            while (metaInfEn.hasMoreElements()) {
+                String filePath = metaInfEn.nextElement().getPath();
+                metaInfConfigurationResources.add(new ConfigurationResource(null, filePath));
             }
         }
-        return faceletConfigResources;
-    }
+        return metaInfConfigurationResources;
+    }    
 
     private boolean hasFacesServlet(WebApp webApp) {
         for (Servlet servlet : webApp.getServlet()) {

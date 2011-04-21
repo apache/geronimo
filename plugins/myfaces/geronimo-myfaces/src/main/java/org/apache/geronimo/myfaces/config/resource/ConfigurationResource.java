@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.myfaces.config.element.FacesConfig;
 import org.osgi.framework.Bundle;
 
 /**
@@ -31,6 +32,8 @@ public class ConfigurationResource implements Serializable {
     private String configurationResourcePath;
 
     private String jarFilePath;
+
+    private transient FacesConfig facesConfig;
 
     public ConfigurationResource(String jarFilePath, String configurationResourcePath) {
         this.jarFilePath = jarFilePath;
@@ -58,6 +61,14 @@ public class ConfigurationResource implements Serializable {
             return bundle.getEntry(configurationResourcePath);
         }
         return new URL("jar:" + bundle.getEntry(jarFilePath) + "!" + configurationResourcePath);
+    }
+
+    public void setFacesConfig(FacesConfig facesConfig) {
+        this.facesConfig = facesConfig;
+    }
+
+    public FacesConfig getFacesConfig() {
+        return facesConfig;
     }
 
     @Override
