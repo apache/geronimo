@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.geronimo.deployment.cli.DeployUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -122,7 +123,7 @@ public class DirectoryMonitor implements Runnable {
     private boolean done = false;
     private Listener listener; // a little cheesy, but do we really need multiple listeners?
     private final Map<String, FileInfo> files;
-    private final List<Artifact> toRemove = new ArrayList<Artifact>();
+    private final CopyOnWriteArrayList <Artifact> toRemove = new CopyOnWriteArrayList <Artifact>();
     private File monitorFile;
 
     public DirectoryMonitor(File directory, Listener listener, int pollIntervalMillis) {
@@ -180,28 +181,25 @@ public class DirectoryMonitor implements Runnable {
 
     public void removeModuleId(Artifact id) {
         log.info("Hot deployer notified that an artifact was removed: "+id);
-        synchronized (toRemove) {
-            toRemove.add(id);
-        }
+        toRemove.add(id);
     }
 
     private void doRemoves() {
-        synchronized (toRemove) {
-            synchronized(files) {
-                for (Artifact id: toRemove) {
-                    for (Iterator<String> it = files.keySet().iterator(); it.hasNext();) {
-                        String path = it.next();
-                        FileInfo info = files.get(path);
-                        Artifact target = Artifact.create(info.getConfigId());
-                        if(id.matches(target)) { // need to remove record & delete file
-                            File file = new File(path);
-                            if(file.exists()) { // if not, probably it's deletion kicked off this whole process
-                                log.info("Hot deployer deleting "+id);
-                                if(!FileUtils.recursiveDelete(file)) {
-                                    log.error("Hot deployer unable to delete "+path);
-                                }
-                                it.remove();
+        synchronized (files) {
+            for (Artifact id : toRemove) {
+                for (Iterator<String> filesItr = files.keySet().iterator(); filesItr.hasNext();) {
+                    String path = filesItr.next();
+                    FileInfo info = files.get(path);
+                    Artifact target = Artifact.create(info.getConfigId());
+                    if (id.matches(target)) { // need to remove record & delete file
+                        File file = new File(path);
+                        if (file.exists()) { // if not, probably it's deletion kicked off this whole process
+                            log.info("Hot deployer deleting " + id);
+                            if (!FileUtils.recursiveDelete(file)) {
+                                log.error("Hot deployer unable to delete " + path);
                             }
+                            filesItr.remove();
+                            toRemove.remove(id);
                         }
                     }
                 }
