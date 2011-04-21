@@ -97,6 +97,8 @@
                             <source-repository>${pluginSrcRepoCentral}</source-repository>
                             <source-repository>${pluginSrcRepoApacheSnapshots}</source-repository>
                             <artifact-alias key="${project.groupId}/${project.artifactId}//car">${project.groupId}/${project.artifactId}/${project.version}/car</artifact-alias>
+                            <artifact-alias key="${project.groupId}/openjpa//car">${project.groupId}/openjpa2/${project.version}/car</artifact-alias>
+                            <artifact-alias key="${project.groupId}/persistence-jpa10-deployer//car">${project.groupId}/persistence-jpa20-deployer/${project.version}/car</artifact-alias>  
                         </plugin-artifact>
                     </commonInstance>
                 </configuration>
