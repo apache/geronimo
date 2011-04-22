@@ -211,17 +211,17 @@ public class GeronimoStandardContext extends StandardContext {
                                 try {
                                     classSet.add(bundle.loadClass(cls));
                                 } catch (ClassNotFoundException e) {
-                                    logger.warn("Fail to load class " + cls + " interested by ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                                    getLogger().warn("Fail to load class " + cls + " interested by ServletContainerInitializer " + servletContainerInitializerClassName, e);
                                 }
                             }
                             addServletContainerInitializer(servletContainerInitializer, classSet);
                         }
                     } catch (IllegalAccessException e) {
-                        logger.error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                        getLogger().error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
                     } catch (InstantiationException e) {
-                        logger.error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                        getLogger().error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
                     } catch (ClassNotFoundException e) {
-                        logger.error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
+                        getLogger().error("Fail to initialize ServletContainerInitializer " + servletContainerInitializerClassName, e);
                     }
                 }
             }
@@ -337,8 +337,8 @@ public class GeronimoStandardContext extends StandardContext {
         //Set context attributes via reflection
         for (Map.Entry<String, String> entry : contextAttributes.entrySet()) {
             if (!IntrospectionUtils.setProperty(this, entry.getKey(), entry.getValue())) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Fail to configure attribute " + entry.getKey() + " with value " + entry.getValue() + ", please check whether the attribute exists or is typo correctly");
+                if (getLogger().isWarnEnabled()) {
+                    getLogger().warn("Fail to configure attribute " + entry.getKey() + " with value " + entry.getValue() + ", please check whether the attribute exists or is typo correctly");
                 }
             }
         }
@@ -495,13 +495,13 @@ public class GeronimoStandardContext extends StandardContext {
                 try {
                     applicationPolicyConfigurationManager.updateApplicationPolicyConfiguration(contextIdPermissionsMap);
                 } catch (LoginException e) {
-                    logger.error("Fail to set application policy configurations", e);
+                    getLogger().error("Fail to set application policy configurations", e);
                     throw new RuntimeException("Fail to set application policy configurations", e);
                 } catch (PolicyContextException e) {
-                    logger.error("Fail to set application policy configurations", e);
+                    getLogger().error("Fail to set application policy configurations", e);
                     throw new RuntimeException("Fail to set application policy configurations", e);
                 } catch (ClassNotFoundException e) {
-                    logger.error("Fail to set application policy configurations", e);
+                    getLogger().error("Fail to set application policy configurations", e);
                     throw new RuntimeException("Fail to set application policy configurations", e);
                 } finally {
                     //Clear SpecSecurityBuilder
@@ -612,7 +612,7 @@ public class GeronimoStandardContext extends StandardContext {
                         extractionRequired = false;
                     }
                 } catch (Exception e) {
-                    logger.warn("Unable to compare the timestamp in the file " + completeFlagFile.getAbsolutePath() + ", resources will be re-extracted", e);
+                    getLogger().warn("Unable to compare the timestamp in the file " + completeFlagFile.getAbsolutePath() + ", resources will be re-extracted", e);
                     //ignore
                 }
             }
