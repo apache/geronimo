@@ -135,6 +135,26 @@ if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
 set GERONIMO_TMPDIR=var\temp
 :gotTmpdir
 
+@REM Handle spaces in provided paths.  Also strips off quotes.
+if defined var GERONIMO_HOME(
+set GERONIMO_HOME=###%GERONIMO_HOME%###
+set GERONIMO_HOME=%GERONIMO_HOME:"###=%
+set GERONIMO_HOME=%GERONIMO_HOME:###"=%
+set GERONIMO_HOME=%GERONIMO_HOME:###=%
+@)
+if defined var JRE_HOME(
+set JRE_HOME=###%JRE_HOME%###
+set JRE_HOME=%JRE_HOME:"###=%
+set JRE_HOME=%JRE_HOME:###"=%
+set JRE_HOME=%JRE_HOME:###=%
+@)
+if defined var _RUNJAVA(
+set _RUNJAVA=###%_RUNJAVA%###
+set _RUNJAVA=%_RUNJAVA:"###=%
+set _RUNJAVA=%_RUNJAVA:###"=%
+set _RUNJAVA=%_RUNJAVA:###=%
+@)
+
 set EXECUTABLE=%GERONIMO_HOME%\bin\geronimosrv.exe
 set JAVA_EXE=%_RUNJAVA%.exe
 
