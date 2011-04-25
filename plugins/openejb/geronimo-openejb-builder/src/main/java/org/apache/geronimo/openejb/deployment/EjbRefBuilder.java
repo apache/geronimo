@@ -147,7 +147,7 @@ public class EjbRefBuilder extends AbstractNamingBuilder {
             JndiEncInfo compJndi = new JndiEncInfo();
 
             String moduleId = module.getName();
-            jndiEncInfoBuilder.build(specDD, "GeronimoEnc", moduleId, moduleJndi, compJndi);
+            jndiEncInfoBuilder.build(specDD, "GeronimoEnc", moduleId, module.getModuleURI(), moduleJndi, compJndi);
 
             JndiEncInfo ejbEncInfo = new JndiEncInfo();
             ejbEncInfo.ejbReferences.addAll(appInfo.globalJndiEnc.ejbReferences);
