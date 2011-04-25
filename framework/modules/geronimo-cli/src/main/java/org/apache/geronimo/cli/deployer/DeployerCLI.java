@@ -17,6 +17,7 @@
 package org.apache.geronimo.cli.deployer;
 
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.apache.geronimo.cli.AbstractCLI;
 import org.apache.geronimo.cli.CLParser;
@@ -57,6 +58,7 @@ public class DeployerCLI extends AbstractCLI {
         Bootstrapper boot = super.createBootstrapper(parser);
         boot.setWaitForStop(false);
         boot.setUniqueInstance(true);
+        boot.setConfigFile("deployer-config.properties");
         boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/online-deployer//car"));
         boot.setLog4jConfigFile("var/log/deployer-log4j.properties");
         return boot;

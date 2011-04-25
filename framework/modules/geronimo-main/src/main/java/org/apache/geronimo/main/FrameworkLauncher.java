@@ -83,6 +83,7 @@ public class FrameworkLauncher {
     private boolean uniqueInstance = false;
     private String log4jFile;
     private String startupFile = STARTUP_PROPERTIES_FILE_NAME;
+    private String configFile = CONFIG_PROPERTIES_FILE_NAME;
     private boolean cleanStorage = false;
     
     private ServerInfo serverInfo;    
@@ -91,11 +92,16 @@ public class FrameworkLauncher {
     private File cacheDirectory;
     
     private Properties configProps = null;
+        
     private Framework framework = null;
     private int defaultStartLevel = 100;
     
     public void setLog4jConfigFile(String log4jFile) {
         this.log4jFile = log4jFile;
+    }
+    
+    public void setConfigFile(String configFile) {
+        this.configFile = configFile;
     }
     
     public void setStartupFile(String startupFile) {
@@ -109,7 +115,7 @@ public class FrameworkLauncher {
     public void setCleanStorage(boolean cleanStorage) {
         this.cleanStorage = cleanStorage;
     }
-    
+        
     public void launch() throws Exception {
         geronimoHome = Utils.getGeronimoHome();
         geronimoBase = Utils.getGeronimoBase(geronimoHome);
@@ -122,7 +128,7 @@ public class FrameworkLauncher {
                 
         System.setProperty(PROP_KARAF_HOME, geronimoHome.getPath());
         System.setProperty(PROP_KARAF_BASE, geronimoBase.getPath());
-
+        
         // Load system properties.
         loadSystemProperties(geronimoBase);
 
@@ -259,15 +265,14 @@ public class FrameworkLauncher {
         }
     }
 
-    private static Properties loadConfigProperties(File baseDir) throws Exception {        
-        File configFile = new File(new File(baseDir, "etc"), CONFIG_PROPERTIES_FILE_NAME);
-        Properties configProps = Utils.loadPropertiesFile(configFile, false);
-                
+    private Properties loadConfigProperties(File baseDir) throws Exception {        
+        File config = new File(new File(baseDir, "etc"), configFile);
+        Properties configProps = Utils.loadPropertiesFile(config, false);
+        
         // Perform variable substitution for system properties.
         for (Enumeration e = configProps.propertyNames(); e.hasMoreElements();) {
             String name = (String) e.nextElement();
-            configProps.setProperty(name,
-                                    Utils.substVars(configProps.getProperty(name), name, null, configProps));
+            configProps.setProperty(name, Utils.substVars(configProps.getProperty(name), name, null, configProps));
         }
 
         return configProps;
@@ -287,11 +292,11 @@ public class FrameworkLauncher {
     private void updateClassLoader(Properties configProps) throws Exception {
     	String framework = configProps.getProperty(KARAF_FRAMEWORK);
         if (framework == null) {
-            throw new IllegalArgumentException("Property " + KARAF_FRAMEWORK + " must be set in the etc/" + CONFIG_PROPERTIES_FILE_NAME + " configuration file");
+            throw new IllegalArgumentException("Property " + KARAF_FRAMEWORK + " must be set in the etc/" + configFile + " configuration file");
         }
         String bundle = configProps.getProperty(KARAF_FRAMEWORK + "." + framework);
         if (bundle == null) {
-            throw new IllegalArgumentException("Property " + KARAF_FRAMEWORK + "." + framework + " must be set in the etc/" + CONFIG_PROPERTIES_FILE_NAME + " configuration file");
+            throw new IllegalArgumentException("Property " + KARAF_FRAMEWORK + "." + framework + " must be set in the etc/" + configFile + " configuration file");
         }
         File bundleFile = new File(geronimoBase, bundle);
         if (!bundleFile.exists()) {
