@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.ServiceLoader;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import org.osgi.framework.Bundle;
@@ -84,6 +85,7 @@ public class FrameworkLauncher {
     private String log4jFile;
     private String startupFile = STARTUP_PROPERTIES_FILE_NAME;
     private String configFile = CONFIG_PROPERTIES_FILE_NAME;
+    private String additionalConfigFile = null;
     private boolean cleanStorage = false;
     
     private ServerInfo serverInfo;    
@@ -102,6 +104,10 @@ public class FrameworkLauncher {
     
     public void setConfigFile(String configFile) {
         this.configFile = configFile;
+    }
+    
+    public void setAdditionalConfigFile(String additionalConfigFile) {
+        this.additionalConfigFile = additionalConfigFile;
     }
     
     public void setStartupFile(String startupFile) {
@@ -268,6 +274,15 @@ public class FrameworkLauncher {
     private Properties loadConfigProperties(File baseDir) throws Exception {        
         File config = new File(new File(baseDir, "etc"), configFile);
         Properties configProps = Utils.loadPropertiesFile(config, false);
+        
+        // Perform config props override
+        if (additionalConfigFile != null){
+            File additionalConfig = new File(new File(baseDir, "etc"), additionalConfigFile);
+            Properties additionalProps = Utils.loadPropertiesFile(additionalConfig, false);
+            for (Entry entry : additionalProps.entrySet()) {
+                configProps.setProperty((String)entry.getKey(), (String)entry.getValue());
+            }
+        }
         
         // Perform variable substitution for system properties.
         for (Enumeration e = configProps.propertyNames(); e.hasMoreElements();) {

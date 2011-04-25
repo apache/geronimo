@@ -47,8 +47,8 @@ public class ShutdownCLI extends AbstractCLI {
         Bootstrapper boot = super.createBootstrapper(parser);
         boot.setWaitForStop(false);
         boot.setUniqueInstance(true);
-        boot.setStartBundles(Arrays.asList(
-                "org.apache.geronimo.framework/shutdown//car"));
+        boot.setAdditionalConfigFile("command-config.properties");
+        boot.setStartBundles(Arrays.asList("org.apache.geronimo.framework/shutdown//car"));
         boot.setLog4jConfigFile("var/log/server-log4j.properties");
         return boot;
     }
