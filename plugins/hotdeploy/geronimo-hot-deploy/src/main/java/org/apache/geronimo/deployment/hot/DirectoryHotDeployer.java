@@ -161,7 +161,7 @@ public class DirectoryHotDeployer implements HotDeployer, DeploymentWatcher, GBe
         }
         
         File monitorFile = null;
-        if (monitorFileName != null && !monitorFileName.isEmpty()) {
+        if (monitorFileName != null && monitorFileName.length() != 0) {
             monitorFile = serverInfo.resolveServer(dir + File.separator + monitorFileName);
             if (!monitorFile.createNewFile()) {
                 if (!monitorFile.canWrite()) {
