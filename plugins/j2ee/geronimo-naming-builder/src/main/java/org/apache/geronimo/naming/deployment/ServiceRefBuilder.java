@@ -24,15 +24,14 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 
+import org.apache.geronimo.j2ee.deployment.model.naming.ServiceRefType;
 import org.apache.geronimo.kernel.repository.Environment;
-
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 
 import org.apache.openejb.jee.ServiceRef;
 
 public interface ServiceRefBuilder {
     void buildNaming(ServiceRef serviceRef,
-                     GerServiceRefType serviceRefType,
+                     ServiceRefType serviceRefType,
                      Module module,
                      Map<EARContext.Key, Object> componentContext) throws DeploymentException;
 

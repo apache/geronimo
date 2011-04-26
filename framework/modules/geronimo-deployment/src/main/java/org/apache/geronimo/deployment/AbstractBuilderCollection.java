@@ -19,19 +19,17 @@ package org.apache.geronimo.deployment;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.xmlbeans.QNameSet;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class AbstractBuilderCollection<T extends AbstractNamespaceBuilder> {
     protected final Collection<T> builders;
-    protected QNameSet specQNames = QNameSet.EMPTY;
-    protected QNameSet planQNames = QNameSet.EMPTY;
+//    protected QNameSet specQNames = QNameSet.EMPTY;
+//    protected QNameSet planQNames = QNameSet.EMPTY;
 
     protected AbstractBuilderCollection(Collection<T> builders) {
         this.builders = builders == null ? Collections.<T>emptySet() : builders;
@@ -44,11 +42,11 @@ public abstract class AbstractBuilderCollection<T extends AbstractNamespaceBuild
 
                 public void memberRemoved(ReferenceCollectionEvent event) {
                     T builder = (T) event.getMember();
-                    QNameSet builderSpecQNames = builder.getSpecQNameSet();
-                    specQNames = specQNames.intersect(builderSpecQNames.inverse());
-                    QNameSet builderPlanQNames = builder.getPlanQNameSet();
-                    planQNames = planQNames.intersect(builderPlanQNames.inverse());
-                    XmlBeansUtil.unregisterSubstitutionGroupElements(builder.getBaseQName(), builderPlanQNames);
+//                    QNameSet builderSpecQNames = builder.getSpecQNameSet();
+//                    specQNames = specQNames.intersect(builderSpecQNames.inverse());
+//                    QNameSet builderPlanQNames = builder.getPlanQNameSet();
+//                    planQNames = planQNames.intersect(builderPlanQNames.inverse());
+//                    XmlBeansUtil.unregisterSubstitutionGroupElements(builder.getBaseQName(), builderPlanQNames);
                 }
             });
         }
@@ -59,36 +57,36 @@ public abstract class AbstractBuilderCollection<T extends AbstractNamespaceBuild
 
 
     protected void addBuilder(T builder) {
-        QNameSet builderSpecQNames = builder.getSpecQNameSet();
-        QNameSet builderPlanQNames = builder.getPlanQNameSet();
-        if (builderSpecQNames == null) {
-            throw new IllegalStateException("Builder " + builder + " is missing spec qnames");
-        }
-        if (builderPlanQNames == null) {
-            throw new IllegalStateException("Builder " + builder + " is missing plan qnames");
-        }
-        if (!specQNames.isDisjoint(builderSpecQNames) && !planQNames.isDisjoint(builderPlanQNames)) {
-            throw new IllegalArgumentException("Duplicate builderSpecQNames in builder set: " + builderSpecQNames + " and duplicate builderPlanQNames in builder set: " + builderPlanQNames);
-        }
-        try {
-            specQNames = specQNames.union(builderSpecQNames);
-            planQNames = planQNames.union(builderPlanQNames);
-        } catch (NullPointerException e) {
-            throw (IllegalArgumentException) new IllegalArgumentException("could not merge qnamesets for builder " + builder).initCause(e);
-
-        }
+//        QNameSet builderSpecQNames = builder.getSpecQNameSet();
+//        QNameSet builderPlanQNames = builder.getPlanQNameSet();
+//        if (builderSpecQNames == null) {
+//            throw new IllegalStateException("Builder " + builder + " is missing spec qnames");
+//        }
+//        if (builderPlanQNames == null) {
+//            throw new IllegalStateException("Builder " + builder + " is missing plan qnames");
+//        }
+//        if (!specQNames.isDisjoint(builderSpecQNames) && !planQNames.isDisjoint(builderPlanQNames)) {
+//            throw new IllegalArgumentException("Duplicate builderSpecQNames in builder set: " + builderSpecQNames + " and duplicate builderPlanQNames in builder set: " + builderPlanQNames);
+//        }
+//        try {
+//            specQNames = specQNames.union(builderSpecQNames);
+//            planQNames = planQNames.union(builderPlanQNames);
+//        } catch (NullPointerException e) {
+//            throw (IllegalArgumentException) new IllegalArgumentException("could not merge qnamesets for builder " + builder).initCause(e);
+//
+//        }
         //really?
-        XmlBeansUtil.registerSubstitutionGroupElements(builder.getBaseQName(), builderPlanQNames);
+//        XmlBeansUtil.registerSubstitutionGroupElements(builder.getBaseQName(), builderPlanQNames);
     }
 
-    public QNameSet getSpecQNameSet() {
-        return specQNames;
-    }
-
-    public QNameSet getPlanQNameSet() {
-        return null;
-    }
-    
+//    public QNameSet getSpecQNameSet() {
+//        return specQNames;
+//    }
+//
+//    public QNameSet getPlanQNameSet() {
+//        return null;
+//    }
+//
     public String toString(){
         
         return builders.toString();

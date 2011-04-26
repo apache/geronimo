@@ -20,6 +20,7 @@ package org.apache.geronimo.naming.deployment;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,28 +28,25 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
-import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.JndiPlan;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
+import org.apache.geronimo.j2ee.deployment.model.naming.EnvEntryType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.naming.reference.ClassReference;
 import org.apache.geronimo.naming.reference.JndiReference;
 import org.apache.geronimo.naming.reference.KernelReference;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEnvEntryDocument;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEnvEntryType;
 import org.apache.openejb.jee.EnvEntry;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.Text;
 import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
-public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GBeanLifecycle {
+public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(EnvironmentEntryBuilder.class);
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
@@ -68,27 +66,27 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/naming-1.1", "http://geronimo.apache.org/xml/ns/naming-1.2");
     }
 
-    private static final QName GER_ENV_ENTRY_QNAME = GerEnvEntryDocument.type.getDocumentElementName();
-    private static final QNameSet GER_ENV_ENTRY_QNAME_SET = QNameSet.singleton(GER_ENV_ENTRY_QNAME);
-    private final QNameSet envEntryQNameSet;
+//    private static final QName GER_ENV_ENTRY_QNAME = GerEnvEntryDocument.type.getDocumentElementName();
+//    private static final QNameSet GER_ENV_ENTRY_QNAME_SET = QNameSet.singleton(GER_ENV_ENTRY_QNAME);
+//    private final QNameSet envEntryQNameSet;
 
     public EnvironmentEntryBuilder(@ParamAttribute(name = "eeNamespaces")String[] eeNamespaces) {
-        envEntryQNameSet = buildQNameSet(eeNamespaces, "env-entry");
+//        envEntryQNameSet = buildQNameSet(eeNamespaces, "env-entry");
     }
 
-    public void doStart() throws Exception {
-        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
-    }
+//    public void doStart() throws Exception {
+//        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+//    }
+//
+//    public void doStop() {
+//        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+//    }
 
-    public void doStop() {
-        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
-    }
+//    public void doFail() {
+//        doStop();
+//    }
 
-    public void doFail() {
-        doStop();
-    }
-
-    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, JndiPlan plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
 
         // Discover and process any @Resource annotations (if !metadata-complete)
         if ((module != null) && (module.getClassFinder() != null)) {
@@ -103,8 +101,8 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
         }
 
         Bundle bundle = module.getEarContext().getDeploymentBundle();
-        XmlObject[] gerEnvEntryUntyped = plan == null ? NO_REFS : plan.selectChildren(GER_ENV_ENTRY_QNAME_SET);
-        Map<String, String> envEntryMap = mapEnvEntries(gerEnvEntryUntyped);
+        List<EnvEntryType> envEntries = plan == null ? Collections.<EnvEntryType>emptyList() : plan.getEnvEntry();
+        Map<String, String> envEntryMap = mapEnvEntries(envEntries);
         for (Map.Entry<String, EnvEntry> entry : specDD.getEnvEntryMap().entrySet()) {
             String name = entry.getKey();
             EnvEntry envEntry = entry.getValue();
@@ -116,7 +114,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
                 continue;
             }         
             
-            String type = getStringValue(envEntry.getEnvEntryType());
+            String type = envEntry.getEnvEntryType();
 
             Object value = null;
 
@@ -124,7 +122,7 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
             String strValue = null;
             if (strValueOverride == null) {
                 strValue = envEntry.getEnvEntryValue();
-                String lookupName = getStringValue(envEntry.getLookupName());
+                String lookupName = envEntry.getLookupName();
                 if (strValue != null && lookupName != null) {
                     throw new DeploymentException("You must specify an environment entry value or lookup name but not both. Component: " + module.toString() + ", name: " + name + ", env-entry-value: " + strValue + ", lookup-name: " + lookupName + "");
                 }
@@ -204,20 +202,17 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder implements GB
 
     }
 
-    private Map<String, String> mapEnvEntries(XmlObject[] refs) {
+    private Map<String, String> mapEnvEntries(List<EnvEntryType> refs) {
         Map<String, String> envEntryMap = new HashMap<String, String>();
-        if (refs != null) {
-            for (XmlObject ref1 : refs) {
-                GerEnvEntryType ref = (GerEnvEntryType) ref1.copy().changeType(GerEnvEntryType.type);
-                envEntryMap.put(getJndiName(ref.getEnvEntryName().trim()), ref.getEnvEntryValue());
-            }
+        for (EnvEntryType ref : refs) {
+            envEntryMap.put(getJndiName(ref.getEnvEntryName()), ref.getEnvEntryValue());
         }
         return envEntryMap;
     }
 
-    public QNameSet getSpecQNameSet() {
-        return envEntryQNameSet;
-    }
+//    public QNameSet getSpecQNameSet() {
+//        return envEntryQNameSet;
+//    }
 
     public QNameSet getPlanQNameSet() {
         return QNameSet.EMPTY;

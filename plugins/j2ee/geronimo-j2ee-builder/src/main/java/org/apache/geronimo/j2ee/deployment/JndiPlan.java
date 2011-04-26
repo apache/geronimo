@@ -20,8 +20,31 @@
 
 package org.apache.geronimo.j2ee.deployment;
 
+import java.util.List;
+
+import org.apache.geronimo.j2ee.deployment.model.naming.EjbLocalRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.EjbRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.EnvEntryType;
+import org.apache.geronimo.j2ee.deployment.model.naming.GbeanRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.PersistenceContextRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.PersistenceUnitRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.ResourceEnvRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.ResourceRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.ServiceRefType;
+
 /**
  * @version $Rev:$ $Date:$
  */
 public interface JndiPlan {
+
+    List<EnvEntryType> getEnvEntry();
+    List<EjbRefType> getEjbRef();
+    List<EjbLocalRefType> getEjbLocalRef();
+    List<ResourceRefType> getResourceRef();
+    List<ResourceEnvRefType> getResourceEnvRef();
+    List<PersistenceContextRefType> getPersistenceContextRef();
+    List<PersistenceUnitRefType> getPersistenceUnitRef();
+    List<GbeanRefType> getGBeanRef();
+
+    List<ServiceRefType> getServiceRef();
 }

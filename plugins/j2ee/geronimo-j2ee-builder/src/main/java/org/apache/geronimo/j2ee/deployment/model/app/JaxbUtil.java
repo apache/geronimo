@@ -52,7 +52,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 public class JaxbUtil {
 
     public static final XMLInputFactory XMLINPUT_FACTORY = XMLInputFactory.newInstance();
-    private static final JAXBContext APPLICATION_CONTEXT;
+    private static  JAXBContext APPLICATION_CONTEXT;
     static {
         try {
             APPLICATION_CONTEXT = JAXBContext.newInstance(ApplicationType.class);

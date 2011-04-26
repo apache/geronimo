@@ -9,13 +9,24 @@
 package org.apache.geronimo.j2ee.deployment.model.app;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.geronimo.j2ee.deployment.JndiPlan;
+import org.apache.geronimo.j2ee.deployment.model.naming.EjbLocalRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.EjbRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.EnvEntryType;
+import org.apache.geronimo.j2ee.deployment.model.naming.GbeanRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.PersistenceContextRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.PersistenceUnitRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.ResourceEnvRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.ResourceRefType;
+import org.apache.geronimo.j2ee.deployment.model.naming.ServiceRefType;
 
 
 /**
@@ -48,12 +59,22 @@ import org.apache.geronimo.j2ee.deployment.JndiPlan;
  * 
  * 
  */
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "applicationType", propOrder = {
     "environment",
     "module",
     "extModule",
-    "security"
+    "security",
+        "envEntry",
+        "ejbRef",
+        "ejbLocalRef",
+        "gbeanRef",
+        "persistenceContextRef",
+         "persistenceUnitRef",
+         "resourceEnvRef",
+          "resourceRef",
+        "serviceRef"
 })
 public class ApplicationType implements JndiPlan {
 
@@ -65,6 +86,33 @@ public class ApplicationType implements JndiPlan {
     protected AbstractSecurityType security;
     @XmlAttribute(name = "application-name")
     protected String applicationName;
+
+    @XmlElement(name = "env-entry", namespace = "http://geronimo.apache.org/xml/ns/naming-1.2")
+    protected List<EnvEntryType> envEntry;
+
+    @XmlElement(name = "ejb-ref", namespace = "http://geronimo.apache.org/xml/ns/naming-1.2")
+    protected List<EjbRefType> ejbRef;
+
+    @XmlElement(name = "ejb-local-ref", namespace = "http://geronimo.apache.org/xml/ns/naming-1.2")
+    protected List<EjbLocalRefType> ejbLocalRef;
+
+    @XmlElement(name = "gbean-ref", namespace = "http://geronimo.apache.org/xml/ns/naming-1.2")
+    protected List<GbeanRefType> gbeanRef;
+
+    @XmlElement(name = "persistence-context-ref", namespace = "http://geronimo.apache.org/xml/ns/naming-1.2")
+    protected List<PersistenceContextRefType> persistenceContextRef;
+
+    @XmlElement(name = "persistence-unit-ref", namespace = "http://geronimo.apache.org/xml/ns/naming-1.2")
+    protected List<PersistenceUnitRefType> persistenceUnitRef;
+
+    @XmlElement(name = "resource-env-ref", namespace = "http://geronimo.apache.org/xml/ns/naming-1.2")
+    protected List<ResourceEnvRefType> resourceEnvRef;
+
+    @XmlElement(name = "resource-ref", namespace = "http://geronimo.apache.org/xml/ns/naming-1.2")
+    protected List<ResourceRefType> resourceRef;
+
+    @XmlElement(name = "service-ref", namespace = "http://geronimo.apache.org/xml/ns/naming-1.2")
+    protected List<ServiceRefType> serviceRef;
 
     /**
      * 
@@ -205,4 +253,69 @@ public class ApplicationType implements JndiPlan {
         this.applicationName = value;
     }
 
+
+    //JndiPlan methods
+
+    public List<EnvEntryType> getEnvEntry() {
+        if (envEntry == null) {
+            envEntry = new ArrayList<EnvEntryType>();
+        }
+        return envEntry;
+    }
+
+    public List<EjbRefType> getEjbRef() {
+        if (ejbRef == null) {
+            ejbRef = new ArrayList<EjbRefType>();
+        }
+        return ejbRef;
+    }
+
+    public List<EjbLocalRefType> getEjbLocalRef() {
+        if (ejbLocalRef == null) {
+            ejbLocalRef = new ArrayList<EjbLocalRefType>();
+        }
+        return ejbLocalRef;
+    }
+
+    public List<ResourceRefType> getResourceRef() {
+        if (resourceRef == null) {
+            resourceRef = new ArrayList<ResourceRefType>();
+        }
+        return resourceRef;
+    }
+
+    public List<ResourceEnvRefType> getResourceEnvRef() {
+        if (resourceEnvRef == null) {
+            resourceEnvRef = new ArrayList<ResourceEnvRefType>();
+        }
+        return resourceEnvRef;
+    }
+
+    public List<PersistenceContextRefType> getPersistenceContextRef() {
+        if (persistenceContextRef == null) {
+            persistenceContextRef = new ArrayList<PersistenceContextRefType>();
+        }
+        return persistenceContextRef;
+    }
+
+    public List<PersistenceUnitRefType> getPersistenceUnitRef() {
+        if (persistenceUnitRef == null) {
+            persistenceUnitRef = new ArrayList<PersistenceUnitRefType>();
+        }
+        return persistenceUnitRef;
+    }
+
+    public List<GbeanRefType> getGBeanRef() {
+        if (gbeanRef == null) {
+            gbeanRef = new ArrayList<GbeanRefType>();
+        }
+        return gbeanRef;
+    }
+
+    public List<ServiceRefType> getServiceRef() {
+        if (serviceRef == null) {
+            serviceRef = new ArrayList<ServiceRefType>();
+        }
+        return serviceRef;
+    }
 }

@@ -17,26 +17,23 @@
 
 package org.apache.geronimo.j2ee.deployment;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.AbstractNamespaceBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.annotation.Holder;
-import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.jee.JndiConsumer;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
-public interface NamingBuilder extends AbstractNamespaceBuilder {
+public interface NamingBuilder {
 
     int NORMAL_PRIORITY = 50;
     
-    XmlObject[] NO_REFS = new XmlObject[] {};
+//    XmlObject[] NO_REFS = new XmlObject[] {};
 
     EARContext.Key<Holder> INJECTION_KEY = new EARContext.Key<Holder>() {
 

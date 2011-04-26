@@ -21,7 +21,6 @@ import java.util.Collection;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -32,13 +31,13 @@ public class NamespaceDrivenBuilderCollection extends AbstractBuilderCollection<
         super(builders);
     }
 
-    public void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException {
+    public void buildEnvironment(Object container, Environment environment) throws DeploymentException {
         for (NamespaceDrivenBuilder builder : builders) {
             builder.buildEnvironment(container, environment);
         }
     }
 
-    public void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException {
+    public void build(Object container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException {
         for (NamespaceDrivenBuilder builder : builders) {
             builder.build(container, applicationContext, moduleContext);
         }

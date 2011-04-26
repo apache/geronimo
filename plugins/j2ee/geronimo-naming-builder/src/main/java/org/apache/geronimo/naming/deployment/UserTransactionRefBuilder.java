@@ -20,46 +20,25 @@ package org.apache.geronimo.naming.deployment;
 import java.util.Map;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.JndiPlan;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.openejb.jee.JndiConsumer;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
+@GBean
 public class UserTransactionRefBuilder extends AbstractNamingBuilder {
 
-    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, JndiPlan plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
 //        EARContext rootContext = module.getRootEarContext();
 //        UserTransaction userTransaction = rootContext.getUserTransaction();
 //        if (userTransaction != null) {
 //            componentContext.put("UserTransaction", userTransaction);
 //            rootContext.setUserTransaction(null);
 //        }
-    }
-
-    public QNameSet getSpecQNameSet() {
-        return QNameSet.EMPTY;
-    }
-
-    public QNameSet getPlanQNameSet() {
-        return QNameSet.EMPTY;
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(UserTransactionRefBuilder.class, NameFactory.MODULE_BUILDER);
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

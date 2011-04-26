@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,24 +25,24 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.j2ee.deployment.model.naming.GbeanLocatorType;
+import org.apache.geronimo.j2ee.deployment.model.naming.PatternType;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 
 /**
  * @version $Rev:385232 $ $Date$
  */
 public class ENCConfigBuilder {
 
-    public static AbstractNameQuery getGBeanQuery(String j2eeType, GerGbeanLocatorType gerGbeanLocator) {
+    public static AbstractNameQuery getGBeanQuery(String j2eeType, GbeanLocatorType gerGbeanLocator) {
         AbstractNameQuery abstractNameQuery;
-        if (gerGbeanLocator.isSetGbeanLink()) {
+        if (gerGbeanLocator.getGbeanLink() != null) {
             //exact match
             String linkName = gerGbeanLocator.getGbeanLink().trim();
             abstractNameQuery = buildAbstractNameQuery(null, null, linkName, j2eeType, null);
 
         } else {
-            GerPatternType patternType = gerGbeanLocator.getPattern();
+            PatternType patternType = gerGbeanLocator.getPattern();
             //construct name from components
             abstractNameQuery = buildAbstractNameQuery(patternType, j2eeType, null, null);
         }
@@ -49,35 +50,34 @@ public class ENCConfigBuilder {
         return abstractNameQuery;
     }
 
-    public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType, Set interfaceTypes) {
+    public static AbstractNameQuery buildAbstractNameQuery(PatternType pattern, String type, String moduleType, Collection<String> interfaceTypes) {
         return buildAbstractNameQueryFromPattern(pattern, "car", type, moduleType, interfaceTypes);
     }
-    
-    public static AbstractNameQuery buildAbstractNameQueryFromPattern(GerPatternType pattern, String artifactType, String type, String moduleType, Set interfaceTypes)  {
-        String groupId = pattern.isSetGroupId() ? pattern.getGroupId().trim() : null;
-        String artifactid = pattern.isSetArtifactId() ? pattern.getArtifactId().trim() : null;
-        String version = pattern.isSetVersion() ? pattern.getVersion().trim() : null;
-        String module = pattern.isSetModule() ? pattern.getModule().trim() : null;
+
+    public static AbstractNameQuery buildAbstractNameQueryFromPattern(PatternType pattern, String artifactType, String type, String moduleType, Collection<String> interfaceTypes)  {
+        String filter = pattern.getFilter();
+        String module = pattern.getModule();
         String name = pattern.getName().trim();
 
-        Artifact artifact = artifactid != null ? new Artifact(groupId, artifactid, version, artifactType) : null;
-        Map nameMap = new HashMap();
-        nameMap.put("name", name);
-        if (type != null) {
-            nameMap.put("j2eeType", type);
-        }
-        if (module != null && moduleType != null) {
-            nameMap.put(moduleType, module);
-        }
-        if (interfaceTypes != null) {
-            Set trimmed = new HashSet();
-            for (Iterator it = interfaceTypes.iterator(); it.hasNext();) {
-                String intf = (String) it.next();
-                trimmed.add(intf == null ? null : intf.trim());
-            }
-            interfaceTypes = trimmed;
-        }
-        return new AbstractNameQuery(artifact, nameMap, interfaceTypes);
+        throw new IllegalArgumentException("OSGI not yet supported");
+//        Artifact artifact = artifactid != null ? new Artifact(groupId, artifactid, version, artifactType) : null;
+//        Map nameMap = new HashMap();
+//        nameMap.put("name", name);
+//        if (type != null) {
+//            nameMap.put("j2eeType", type);
+//        }
+//        if (module != null && moduleType != null) {
+//            nameMap.put(moduleType, module);
+//        }
+//        if (interfaceTypes != null) {
+//            Set trimmed = new HashSet();
+//            for (Iterator it = interfaceTypes.iterator(); it.hasNext();) {
+//                String intf = (String) it.next();
+//                trimmed.add(intf == null ? null : intf.trim());
+//            }
+//            interfaceTypes = trimmed;
+//        }
+//        return new AbstractNameQuery(artifact, nameMap, interfaceTypes);
     }
 
     public static AbstractNameQuery buildAbstractNameQuery(Artifact configId, String module, String name, String type, String moduleType) {

@@ -34,6 +34,7 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.LifecycleMethod;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.JndiPlan;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -44,8 +45,6 @@ import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.Lifecycle;
 import org.apache.openejb.jee.LifecycleCallback;
 import org.apache.xbean.finder.AbstractFinder;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -54,7 +53,7 @@ import org.apache.xmlbeans.XmlObject;
 public class LifecycleMethodBuilder extends AbstractNamingBuilder {
 
     @Override
-    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, JndiPlan plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         // skip ejb modules... they have already been processed
         //skip ears, they have no standalone components
 //        if (module.getType() == ConfigurationModuleType.EJB || module.getType() == ConfigurationModuleType.EAR) {
@@ -138,16 +137,6 @@ public class LifecycleMethodBuilder extends AbstractNamingBuilder {
             map.put(className, callback);
         }
         return map;
-    }
-
-    @Override
-    public QNameSet getSpecQNameSet() {
-        return QNameSet.EMPTY;
-    }
-
-    @Override
-    public QNameSet getPlanQNameSet() {
-        return QNameSet.EMPTY;
     }
 
 }
