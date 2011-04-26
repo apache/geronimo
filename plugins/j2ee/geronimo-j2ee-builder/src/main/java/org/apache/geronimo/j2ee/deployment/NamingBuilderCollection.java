@@ -46,19 +46,19 @@ public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBui
         super(builders);
     }
 
-    public void buildEnvironment(JndiConsumer specDD, XmlObject plan, Environment environment) throws DeploymentException {
+    public void buildEnvironment(JndiConsumer specDD, JndiPlan plan, Environment environment) throws DeploymentException {
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             namingBuilder.buildEnvironment(specDD, plan, environment);
         }
     }
 
-    public void initContext(JndiConsumer specDD, XmlObject plan, Module module) throws DeploymentException {
+    public void initContext(JndiConsumer specDD, JndiPlan plan, Module module) throws DeploymentException {
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             namingBuilder.initContext(specDD, plan, module);
         }
     }
 
-    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, JndiPlan plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             if (EARConfigBuilder.createPlanMode.get().booleanValue()) {
                 try {

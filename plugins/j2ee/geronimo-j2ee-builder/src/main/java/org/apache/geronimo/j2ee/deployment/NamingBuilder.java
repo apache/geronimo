@@ -56,11 +56,11 @@ public interface NamingBuilder extends AbstractNamespaceBuilder {
         }
     };
 
-    void buildEnvironment(JndiConsumer specDD, XmlObject plan, Environment environment) throws DeploymentException;
+    void buildEnvironment(JndiConsumer specDD, JndiPlan plan, Environment environment) throws DeploymentException;
 
-    void initContext(JndiConsumer specDD, XmlObject plan, Module module) throws DeploymentException;
+    void initContext(JndiConsumer specDD, JndiPlan plan, Module module) throws DeploymentException;
     
-    void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException;
+    void buildNaming(JndiConsumer specDD, JndiPlan plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException;
 
     /**
      * Returns sort order priority.  Lower numbers indicate higher priority.

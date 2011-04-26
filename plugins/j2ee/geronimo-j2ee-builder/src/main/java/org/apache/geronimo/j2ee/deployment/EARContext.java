@@ -56,7 +56,6 @@ public class EARContext extends DeploymentContext {
                       Environment environment,
                       ConfigurationModuleType moduleType,
                       Naming naming,
-                      ConfigurationManager configurationManager,
                       BundleContext bundleContext,
                       AbstractNameQuery serverName,
                       AbstractName baseName,
@@ -69,8 +68,7 @@ public class EARContext extends DeploymentContext {
              environment,
              moduleType,
              naming,
-             configurationManager,
-             bundleContext,
+                bundleContext,
              serverName,
              baseName,
              transactionManagerObjectName,
@@ -84,7 +82,6 @@ public class EARContext extends DeploymentContext {
                       Environment environment,
                       ConfigurationModuleType moduleType,
                       Naming naming,
-                      ConfigurationManager configurationManager,
                       BundleContext bundleContext,
                       AbstractNameQuery serverName,
                       AbstractName baseName,
@@ -92,7 +89,7 @@ public class EARContext extends DeploymentContext {
                       AbstractNameQuery connectionTrackerObjectName,
                       AbstractNameQuery corbaGBeanObjectName,
                       Map messageDestinations) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, configurationManager, bundleContext);
+        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming, bundleContext);
 
         this.serverName = serverName;
         this.transactionManagerObjectName = transactionManagerObjectName;
@@ -119,7 +116,7 @@ public class EARContext extends DeploymentContext {
                       AbstractNameQuery connectionTrackerName,
                       AbstractNameQuery corbaGBeanName,
                       EARContext parent) throws DeploymentException {
-        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, parent.getNaming(), parent.getConfigurationManager(), parent.getBundleContext());
+        super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, parent.getNaming(), parent.getBundleContext());
         this.serverName = parent.getServerName();
 
         this.transactionManagerObjectName = transactionManagerName;
@@ -134,7 +131,6 @@ public class EARContext extends DeploymentContext {
                          Environment environment,
                          ConfigurationModuleType moduleType,
                          Naming naming,
-                         ConfigurationManager configurationManager,
                          ResourceContext resourceContext,
                          BundleContext bundleContext,
                          AbstractNameQuery serverName,
@@ -144,7 +140,7 @@ public class EARContext extends DeploymentContext {
                          AbstractNameQuery corbaGBeanObjectName,
                          Map messageDestinations) throws DeploymentException {
         super(baseDir, inPlaceConfigurationDir, environment, baseName, moduleType, naming,
-              configurationManager, resourceContext, bundleContext);
+               resourceContext, bundleContext);
 
         this.serverName = serverName;
         this.transactionManagerObjectName = transactionManagerObjectName;

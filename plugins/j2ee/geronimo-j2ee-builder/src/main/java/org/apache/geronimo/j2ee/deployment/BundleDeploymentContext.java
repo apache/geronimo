@@ -34,6 +34,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /**
+ *  //TODO still needed?
  * @version $Rev:386276 $ $Date$
  */
 public class BundleDeploymentContext extends EARContext {
@@ -43,7 +44,6 @@ public class BundleDeploymentContext extends EARContext {
     public BundleDeploymentContext(Environment environment,
                                    ConfigurationModuleType moduleType,
                                    Naming naming,
-                                   ConfigurationManager configurationManager,
                                    BundleContext bundleContext,
                                    AbstractNameQuery serverName,
                                    AbstractName baseName,
@@ -53,23 +53,24 @@ public class BundleDeploymentContext extends EARContext {
                                    Map messageDestinations,
                                    Bundle bundle) throws DeploymentException {
         super(null, null,
-              environment, moduleType, naming, configurationManager, new BundleResourceContext(bundle), bundleContext,
+              environment, moduleType, naming, new BundleResourceContext(bundle), bundleContext,
               serverName, baseName, transactionManagerObjectName, connectionTrackerObjectName,
               corbaGBeanObjectName, messageDestinations);
         this.bundle = bundle;
     }
 
-    @Override
-    public void initializeConfiguration() throws DeploymentException {
-        try {
-            ConfigurationData configurationData = new ConfigurationData(moduleType, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
-            configurationData.setBundle(bundle);
-            configurationManager.loadConfiguration(configurationData);
-            this.configuration = configurationManager.getConfiguration(environment.getConfigId());
-        } catch (Exception e) {
-            throw new DeploymentException("Unable to create configuration for deployment", e);
-        }
-    }
+
+//    @Override
+//    public void initializeConfiguration() throws DeploymentException {
+//        try {
+//            ConfigurationData configurationData = new ConfigurationData(moduleType, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
+//            configurationData.setBundle(bundle);
+//            configurationManager.loadConfiguration(configurationData);
+//            this.configuration = configurationManager.getConfiguration(environment.getConfigId());
+//        } catch (Exception e) {
+//            throw new DeploymentException("Unable to create configuration for deployment", e);
+//        }
+//    }
 
     @Override
     public void getCompleteManifestClassPath(Deployable deployable,

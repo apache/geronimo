@@ -32,6 +32,9 @@ import javax.management.j2ee.statistics.Stats;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectNameUtil;
@@ -40,13 +43,15 @@ import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.stats.BoundedRangeStatisticImpl;
 import org.apache.geronimo.management.stats.CountStatisticImpl;
 import org.apache.geronimo.management.stats.JVMStatsImpl;
-import org.apache.geronimo.logging.SystemLog;
+//import org.apache.geronimo.logging.SystemLog;
 
 /**
  *
  *
  * @version $Rev$ $Date$
  */
+
+@GBean
 public class JVMImpl implements JVM, StatisticsProvider {
     public static final String JAVA_VERSION = System.getProperty("java.version");
     public static final String JAVA_VENDOR = System.getProperty("java.vendor");
@@ -65,13 +70,16 @@ public class JVMImpl implements JVM, StatisticsProvider {
 
     private final String objectName;
     private final Kernel kernel;
-    private final SystemLog systemLog;
+//    private final SystemLog systemLog;
     private JVMStatsImpl stats;
 
-    public JVMImpl(String objectName, Kernel kernel, SystemLog systemLog) {
+    public JVMImpl(@ParamSpecial(type = SpecialAttributeType.objectName)String objectName,
+                   @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel
+                   /*, SystemLog systemLog*/
+    ) {
         this.objectName = objectName;
         this.kernel = kernel;
-        this.systemLog = systemLog;
+//        this.systemLog = systemLog;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
         verifyObjectName(myObjectName);
     }
@@ -199,20 +207,8 @@ public class JVMImpl implements JVM, StatisticsProvider {
         return System.getProperties();
     }
 
-    public SystemLog getSystemLog() {
-        return systemLog;
-    }
+//    public SystemLog getSystemLog() {
+//        return systemLog;
+//    }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JVMImpl.class, NameFactory.JVM);
-        infoFactory.addReference("SystemLog", SystemLog.class);
-        infoFactory.setConstructor(new String[] {"objectName", "kernel", "SystemLog"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

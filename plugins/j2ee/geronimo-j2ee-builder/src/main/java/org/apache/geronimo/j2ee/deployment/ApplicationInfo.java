@@ -20,16 +20,16 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.deployment.model.app.ApplicationType;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.jee.Application;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Revision$ $Date$
  */
-public class ApplicationInfo extends Module<Application, XmlObject> {
+public class ApplicationInfo extends Module<Application, ApplicationType> {
     
     private ConfigurationModuleType type;
 
@@ -39,7 +39,7 @@ public class ApplicationInfo extends Module<Application, XmlObject> {
                            String name,
                            JarFile earFile,
                            Application specDD,
-                           XmlObject vendorDD,
+                           ApplicationType vendorDD,
                            String originalSpecDD) {
         this(type, environment, baseName, name, earFile, specDD, vendorDD, originalSpecDD, null);        
     }
@@ -50,7 +50,7 @@ public class ApplicationInfo extends Module<Application, XmlObject> {
                            String name,
                            JarFile earFile,
                            Application specDD,
-                           XmlObject vendorDD,
+                           ApplicationType vendorDD,
                            String originalSpecDD,
                            Map<JndiKey, Map<String, Object>> jndiContext) {
         super(true, baseName, name, environment, earFile, "", specDD, vendorDD, originalSpecDD, null, jndiContext, null);

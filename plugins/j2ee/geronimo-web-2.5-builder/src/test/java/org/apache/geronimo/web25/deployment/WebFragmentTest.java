@@ -442,7 +442,7 @@ public class WebFragmentTest extends XmlBeansTestSupport {
          * }
          */
         public DummyEARContext() throws Exception {
-            super(FileUtils.createTempDir(), null, new Environment(), ConfigurationModuleType.WAR, null, new DummyConfigurationManager(), new MockBundleContext(new MockBundle(WebFragmentTest.class
+            super(FileUtils.createTempDir(), null, new Environment(), ConfigurationModuleType.WAR, null, new MockBundleContext(new MockBundle(WebFragmentTest.class
                     .getClassLoader(), "", 1L)), null, null, null, null, null, null);
         }
     }
