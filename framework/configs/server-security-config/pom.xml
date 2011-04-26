@@ -86,9 +86,9 @@
                 <configuration>
                     <category>Security</category>
                     <instance>
-                        <plugin-artifact>
-                            <copy-file relative-to="server" dest-dir="var/security">security/</copy-file>
-                        </plugin-artifact>
+                        <!--<plugin-artifact>-->
+                            <!--<copy-file relative-to="server" dest-dir="var/security">security/</copy-file>-->
+                        <!--</plugin-artifact>-->
                     </instance>
                 </configuration>
             </plugin>

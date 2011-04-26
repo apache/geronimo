@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
@@ -44,15 +45,16 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.osgi.MockBundle;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * @version $Rev$ $Date$
  */
 public class LocalAttributeManagerTest extends TestCase {
-    private static final String basedir = System.getProperties().getProperty("basedir", ".");
+//    private static final String basedir = System.getProperties().getProperty("basedir", ".");
 
     private LocalAttributeManager localAttributeManager;
     private Artifact configurationName;
@@ -248,7 +250,10 @@ public class LocalAttributeManagerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         localAttributeManager = new LocalAttributeManager();
-        Configuration  configuration = new Configuration() {
+        final Map<String, Object> props = new HashMap<String, Object>();
+        props.put(LocalAttributeManager.READ_ONLY_KEY, false);
+        props.put(LocalAttributeManager.PREFIX_KEY, "org.apache.geronimo.config.substitution.");
+        final Configuration  configuration = new Configuration() {
 
             private Hashtable<String, Object> dictionary = new Hashtable<String, Object>();
 
@@ -260,9 +265,7 @@ public class LocalAttributeManagerTest extends TestCase {
             @Override
             public Dictionary getProperties() {
                 Hashtable<String, Object> d = new Hashtable<String, Object>();
-                d.putAll(dictionary);
-                d.put(LocalAttributeManager.READ_ONLY_KEY, false);
-                d.put(LocalAttributeManager.PREFIX_KEY, "org.apache.geronimo.config.substitution.");
+                d.putAll(props);
                 return d;
             }
 
@@ -294,7 +297,35 @@ public class LocalAttributeManagerTest extends TestCase {
                 return null;
             }
         };
-        localAttributeManager.activate(configuration);
+        ConfigurationAdmin ca = new ConfigurationAdmin() {
+
+            @Override
+            public Configuration createFactoryConfiguration(String s) throws IOException {
+                return null;
+            }
+
+            @Override
+            public Configuration createFactoryConfiguration(String s, String s1) throws IOException {
+                return null;
+            }
+
+            @Override
+            public Configuration getConfiguration(String s, String s1) throws IOException {
+                return null;
+            }
+
+            @Override
+            public Configuration getConfiguration(String s) throws IOException {
+                return configuration;
+            }
+
+            @Override
+            public Configuration[] listConfigurations(String s) throws IOException, InvalidSyntaxException {
+                return new Configuration[0];
+            }
+        };
+        localAttributeManager.setConfigurationAdmin(ca);
+        localAttributeManager.activate(props);
 
         configurationName = Artifact.create("configuration/name/1/car");
         ObjectName objectName = ObjectName.getInstance(":name=gbean,parent="+configurationName+",foo=bar");

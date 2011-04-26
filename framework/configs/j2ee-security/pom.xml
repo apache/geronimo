@@ -115,17 +115,17 @@
                 <configuration>
                     <category>Security</category>
                     <instance>
-                        <plugin-artifact>
-                            <config-xml-content>
-                                <gbean name="JMXService">
-                                    <attribute name="protocol">rmi</attribute>
-                                    <attribute name="host">#{ServerHostname}</attribute>
-                                    <attribute name="port">#{JMXPort + PortOffset}</attribute>
-                                    <attribute name="urlPath">/jndi/rmi://#{ServerHostname}:#{NamingPort + PortOffset}/JMXConnector</attribute>
-                                </gbean>
-                             </config-xml-content>
-                            <config-substitution key="JMXPort">9999</config-substitution>
-                        </plugin-artifact>
+                        <!--<plugin-artifact>-->
+                            <!--<config-xml-content>-->
+                                <!--<gbean name="JMXService">-->
+                                    <!--<attribute name="protocol">rmi</attribute>-->
+                                    <!--<attribute name="host">#{ServerHostname}</attribute>-->
+                                    <!--<attribute name="port">#{JMXPort + PortOffset}</attribute>-->
+                                    <!--<attribute name="urlPath">/jndi/rmi://#{ServerHostname}:#{NamingPort + PortOffset}/JMXConnector</attribute>-->
+                                <!--</gbean>-->
+                             <!--</config-xml-content>-->
+                            <!--<config-substitution key="JMXPort">9999</config-substitution>-->
+                        <!--</plugin-artifact>-->
                     </instance>
                 </configuration>
             </plugin>

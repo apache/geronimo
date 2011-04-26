@@ -74,6 +74,11 @@ public class WrapperAttributeManager extends AbstractServiceWrapper<PluginAttrib
         return get().substitute(in);
     }
 
+    @Override
+    public String getServerName() {
+        return get().getServerName();
+    }
+
     public void addGBean(Artifact configurationName, GBeanData gbeanData, Bundle bundle) {
         get().addGBean(configurationName, gbeanData, bundle);
     }

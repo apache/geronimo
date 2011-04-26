@@ -16,13 +16,6 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -30,22 +23,24 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -65,8 +60,9 @@ import org.apache.geronimo.system.configuration.condition.ParserUtils;
 import org.apache.geronimo.system.plugin.model.AttributesType;
 import org.apache.geronimo.system.plugin.model.GbeanType;
 import org.apache.geronimo.system.plugin.model.ModuleType;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -82,82 +78,95 @@ import org.xml.sax.SAXException;
 public class LocalAttributeManager implements PluginAttributeStore, PersistentConfigurationList {
     private static final Logger log = LoggerFactory.getLogger(LocalAttributeManager.class);
 
-    private static final String CONFIG_FILE_PROPERTY = "org.apache.geronimo.config.file";
-    private final static String SUBSTITUTIONS_FILE_PROPERTY = "org.apache.geronimo.config.substitutions.file";
     private final static String SUBSTITUTION_PREFIX_PREFIX = "org.apache.geronimo.config.substitution.prefix";
 
-    private static final String BACKUP_EXTENSION = ".bak";
-    private static final String TEMP_EXTENSION = ".working";
-    private static final int SAVE_BUFFER_MS = 5000;
+    private final JexlExpressionParser expressionParser = new JexlExpressionParser(Collections.emptyMap());
 
-//    private final ServerInfo serverInfo;
-//    private final String configFile;
-    private boolean readOnly;
-    private JexlExpressionParser expressionParser;
-
-//    private File attributeFile;
-//    private File backupFile;
-//    private File tempFile;
     private ServerOverride serverOverride;
-
-//    private Timer timer;
-//    private TimerTask currentTask;
 
     private boolean kernelFullyStarted;
 
     private String prefix;
-//    private File configSubstitutionsFile;
     private Map<String, String> localConfigSubstitutions;
-//    private String resolvedPropertiesFile;
     private final GBeanInfoFactory infoFactory = new MultiGBeanInfoFactory();
-    private static final byte[] INSTRUCTION = ("# Put variables and their substitution values in this file. \n"
-            + "# They will be used when processing the corresponding config.xml. \n"
-            + "# Values in this file can be overridden by environment variables and system properties \n"
-            + "# by prefixing the property name with 'org.apache.geronimo.config.substitution.' \n"
-            + "# For example, an entry such as hostName=localhost \n"
-            + "# can be overridden by an environment variable or system property org.apache.geronimo.config.substitution.hostName=foo \n"
-            + "# When running multiple instances of Geronimo choose a PortOffset value such that none of the ports conflict. \n"
-            + "# For example, try PortOffset=10 \n").getBytes();
-    private org.osgi.service.cm.Configuration configuration;
-
-    @Property()
     static final String OVERRIDES_KEY = ".overrides";
+
     @Property(value = "org.apache.geronimo.config.substitution.")
     static final String PREFIX_KEY = ".configSubstitutionsPrefix";
+
     @Property(boolValue = false)
     static final String READ_ONLY_KEY = "readOnly";
+    private boolean readOnly;
 
+    @Property(value = "default")
+    static final String SERVER_NAME_KEY = "serverName";
+    private String serverName;
 
-//    public LocalAttributeManager(String configFile, String configSubstitutionsFileName, String configSubstitutionsPrefix, boolean readOnly, ServerInfo serverInfo) {
-//        this.configFile = System.getProperty(CONFIG_FILE_PROPERTY, configFile);
-//        resolvedPropertiesFile = System.getProperty(SUBSTITUTIONS_FILE_PROPERTY, configSubstitutionsFileName);
-//        configSubstitutionsFile = resolvedPropertiesFile == null? null: serverInfo.resolveServer(resolvedPropertiesFile);
-//        localConfigSubstitutions = loadConfigSubstitutions(configSubstitutionsFile);
-//        prefix = System.getProperty(SUBSTITUTION_PREFIX_PREFIX, configSubstitutionsPrefix);
-//        Map<String, Object> configSubstitutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
-//        expressionParser = new JexlExpressionParser(configSubstitutions);
-//        this.readOnly = readOnly;
-//        this.serverInfo = serverInfo;
-//        serverOverride = new ServerOverride();
-//
-//        log.debug("setting configSubstitutionsFile to: {}", configSubstitutionsFile);
-//
-//        infoFactory = newGBeanInfoFactory();
-//    }
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private ConfigurationAdmin configurationAdmin;
+
+    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
+        this.configurationAdmin = configurationAdmin;
+    }
+
+    public void unsetConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
+        if (configurationAdmin == this.configurationAdmin) {
+            this.configurationAdmin = null;
+        }
+    }
+
+    private org.osgi.service.cm.Configuration configuration;
+
 
     @Activate
-    public void activate(org.osgi.service.cm.Configuration configuration) throws IOException {
-        this.configuration = configuration;
-        Dictionary dictionary = configuration.getProperties();
-        String overrides = (String) dictionary.remove(OVERRIDES_KEY);
-        String configSubstitutionsPrefix = (String) dictionary.remove(PREFIX_KEY);
-        readOnly = (Boolean) dictionary.get(READ_ONLY_KEY);
-        localConfigSubstitutions = loadConfigSubstitutions(dictionary);
+    public void activate(Map<String, Object> properties) throws IOException {
+        readOnly = (Boolean) properties.get(READ_ONLY_KEY);
+        serverName = (String) properties.get(SERVER_NAME_KEY);
+        String configSubstitutionsPrefix = (String) properties.remove(PREFIX_KEY);
+        String servicePid = (String) properties.get(Constants.SERVICE_PID);
+        this.configuration = configurationAdmin.getConfiguration(servicePid);
+
+        Dictionary<Object, Object> d = getConfigurationProperties();
+        String overrides = (String) d.get(OVERRIDES_KEY);
+        localConfigSubstitutions = loadConfigSubstitutions(d);
         prefix = System.getProperty(SUBSTITUTION_PREFIX_PREFIX, configSubstitutionsPrefix);
         Map<String, Object> configSubstitutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
-        expressionParser = new JexlExpressionParser(configSubstitutions);
+        expressionParser.setVariables(configSubstitutions);
 
         load(overrides);
+    }
+
+
+    /**
+     * DS modified method.  This is called back every time the config admin Configuration is updated, but asynchronously.
+     *
+     * @param properties DS properties (which include configuration properties)
+     * @throws IOException
+     */
+    @Modified
+    public void modified(Map<String, Object> properties) throws IOException {
+//        readOnly = (Boolean) properties.get(READ_ONLY_KEY);
+//        serverName = (String) properties.get(SERVER_NAME_KEY);
+//        String configSubstitutionsPrefix = (String) properties.remove(PREFIX_KEY);
+//        String servicePid = (String) properties.get(Constants.SERVICE_PID);
+//        this.configuration = configurationAdmin.getConfiguration(servicePid);
+//
+//        Dictionary<Object, Object> d = getConfigurationProperties();
+//        String overrides = (String) d.get(OVERRIDES_KEY);
+//        localConfigSubstitutions = loadConfigSubstitutions(d);
+//        prefix = System.getProperty(SUBSTITUTION_PREFIX_PREFIX, configSubstitutionsPrefix);
+//        Map<String, Object> configSubstitutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
+//        expressionParser.setVariables(configSubstitutions);
+//
+//        load(overrides);
+    }
+
+    private Dictionary<Object, Object> getConfigurationProperties() {
+        Dictionary<Object, Object> d = configuration.getProperties();
+        if (d == null) {
+            d = new Hashtable<Object, Object>();
+        }
+        return d;
     }
 
     public boolean isReadOnly() {
@@ -244,7 +253,7 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         return gbean.applyOverrides(data, configName, gbeanName, bundle);
     }
 
-    public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans, boolean load, String condition) throws InvalidGBeanException {
+    public synchronized void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans, boolean load, String condition) throws InvalidGBeanException {
         if (readOnly) {
             return;
         }
@@ -271,11 +280,16 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         return expressionParser.parse(in);
     }
 
-    public void addConfigSubstitutions(Map<String, String> properties) {
+    @Override
+    public String getServerName() {
+        return serverName;
+    }
+
+    public synchronized void addConfigSubstitutions(Map<String, String> properties) {
         localConfigSubstitutions.putAll(properties);
-        Map<String, Object> configSubstutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
-        storeConfigSubstitutions(configuration, localConfigSubstitutions);
-        expressionParser.setVariables(configSubstutions);
+        Map<String, Object> configSubstitutions = loadAllConfigSubstitutions(localConfigSubstitutions, prefix);
+        expressionParser.setVariables(configSubstitutions);
+        attributeChanged();
     }
 
     public synchronized void setValue(Artifact configurationName, AbstractName gbeanName, GAttributeInfo attribute, Object value, Bundle bundle) {
@@ -395,49 +409,24 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         if (readOnly) {
             return;
         }
-//        ensureParentDirectory();
-//        if (!tempFile.exists() && !tempFile.createNewFile()) {
-//            throw new IOException("Unable to create manageable attribute working file for save " + tempFile.getAbsolutePath());
-//        }
-//        if (!tempFile.canWrite()) {
-//            throw new IOException("Unable to write to manageable attribute working file for save " + tempFile.getAbsolutePath());
-//        }
 
         // write the new configuration to the temp file
         String overrides = saveXml(serverOverride);
         if (overrides == null) {
             throw new IOException("Could not save serverOverride: " + serverOverride);
         }
-        Dictionary d = configuration.getProperties();
+        Dictionary<Object, Object> d = getConfigurationProperties();
+        for (Map.Entry<String, String> entry: localConfigSubstitutions.entrySet()) {
+            d.put("." + entry.getKey(), entry.getValue());
+        }
         d.put(OVERRIDES_KEY, overrides);
         configuration.update(d);
 
-//        // delete the current backup file
-//        if (backupFile.exists()) {
-//            if (!backupFile.delete()) {
-//                throw new IOException("Unable to delete old backup file in order to back up current manageable attribute working file for save");
-//            }
-//        }
-//
-//        // rename the existing configuration file to the backup file
-//        if (attributeFile.exists()) {
-//            if (!attributeFile.renameTo(backupFile)) {
-//                throw new IOException("Unable to rename " + attributeFile.getAbsolutePath() + " to " + backupFile.getAbsolutePath() + " in order to back up manageable attribute save file");
-//            }
-//        }
-//
-//        // rename the temp file the the configuration file
-//        if (!tempFile.renameTo(attributeFile)) {
-//            throw new IOException(
-//                    "EXTREMELY CRITICAL!  Unable to move manageable attributes working file to proper file name!  Configuration will revert to defaults unless this is manually corrected!  (could not rename " + tempFile.getAbsolutePath() + " to " + attributeFile.getAbsolutePath() + ")");
-//        }
     }
 
     void write(Writer writer) throws XMLStreamException, JAXBException,
             IOException {
-        AttributesType attributes = serverOverride.writeXml();
-        AttributesXmlUtil.writeAttributes(attributes, writer);
-        writer.flush();
+        write(serverOverride, writer);
     }
 
     private static String saveXml(ServerOverride serverOverride) {
@@ -579,24 +568,6 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         } catch (IOException e) {
             log.error("could not save serverOverrides", e);
         }
-//        if (currentTask != null) {
-//            currentTask.cancel();
-//        }
-//        if (timer != null) {
-//            currentTask = new TimerTask() {
-//
-//                public void run() {
-//                    try {
-//                        LocalAttributeManager.this.save();
-//                    } catch (IOException e) {
-//                        log.error("IOException occurred while saving attributes", e);
-//                    } catch (Throwable t) {
-//                        log.error("Error occurred during execution of attributeChanged TimerTask", t);
-//                    }
-//                }
-//            };
-//            timer.schedule(currentTask, SAVE_BUFFER_MS);
-//        }
     }
 
     private static Map<String, Object> loadAllConfigSubstitutions(Map<String, String> configSubstitutions, String prefix) {
@@ -607,56 +578,35 @@ public class LocalAttributeManager implements PluginAttributeStore, PersistentCo
         addGeronimoSubstitutions(vars, System.getenv(), prefix);
         //properties file is least significant
         if (configSubstitutions != null) {
-            addGeronimoSubstitutions(vars, configSubstitutions, ".");
+            addGeronimoSubstitutions(vars, configSubstitutions, "");
         }
         ParserUtils.addDefaultVariables(vars);
         return vars;
     }
 
-//    private static Properties loadConfigSubstitutions(File configSubstitutionsFile) {
-//        Properties properties = new Properties();
-//        if (configSubstitutionsFile != null) {
-//            if (!configSubstitutionsFile.exists()) {
-//                //write out empty file with instructions as a hint to users.
-//                storeConfigSubstitutions(configSubstitutionsFile, properties);
-//            } else {
-//                try {
-//                    FileInputStream in = new FileInputStream(configSubstitutionsFile);
-//                    try {
-//                        properties.load(in);
-//                    } finally {
-//                        in.close();
-//                    }
-//                } catch (Exception e) {
-//                    log.error("Caught exception {} trying to read properties file {}", e, configSubstitutionsFile.getAbsolutePath());
-//                }
-//            }
-//        }
-//        return properties;
-//    }
-    private static Map<String, String> loadConfigSubstitutions(Dictionary<?, ?> dictionary) {
+    private static Map<String, String> loadConfigSubstitutions(Dictionary dictionary) {
         Map<String, String> properties = new HashMap<String, String>();
-        for (Enumeration<?> e = dictionary.keys(); e.hasMoreElements(); ) {
+        for (Enumeration e = dictionary.keys(); e.hasMoreElements();) {
             String key = (String) e.nextElement();
-            if (key.startsWith(".")) {
-                String value = (String) dictionary.get(key);
-                properties.put(key.substring(1), value);
+            Object value = dictionary.get(key);
+            if (key.startsWith(".") && !key.equals(OVERRIDES_KEY) && value instanceof String) {
+                properties.put(key.substring(1) , (String) value);
             }
         }
         return properties;
     }
 
-    private static void storeConfigSubstitutions(org.osgi.service.cm.Configuration configuration, Map<String, String> properties) {
-        Dictionary<Object, Object> d = configuration.getProperties();
-        for (Map.Entry<String, String> entry: properties.entrySet()) {
-            d.put("." + entry.getKey(), entry.getValue());
-        }
-        try {
-            configuration.update(d);
-        } catch (IOException e) {
-            log.error("Caught exception {} trying to update Configuration dictionary", e);
-        }
-    }
+//    private synchronized void storeConfigSubstitutions(Map<String, String> properties) {
+//        Dictionary<Object, Object> d = getConfigurationProperties();
+//        for (Map.Entry<String, String> entry: properties.entrySet()) {
+//            d.put("." + entry.getKey(), entry.getValue());
+//        }
+//        try {
+//            configuration.update(d);
+//        } catch (IOException e) {
+//            log.error("Caught exception {} trying to update Configuration dictionary", e);
+//        }
+//    }
 
     private static void addGeronimoSubstitutions(Map<String, Object> vars, Map<?, ?> props, String prefix) {
         if (prefix != null) {

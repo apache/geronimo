@@ -44,4 +44,6 @@ public interface PluginAttributeStore extends ManageableAttributeStore {
     boolean isModuleInstalled(Artifact artifact);
 
     String substitute(final String in);
+
+    String getServerName();
 }
