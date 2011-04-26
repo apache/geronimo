@@ -25,13 +25,12 @@ import java.lang.reflect.Method;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
-import org.apache.geronimo.deployment.javabean.xbeans.JavabeanType;
-import org.apache.geronimo.deployment.javabean.xbeans.PropertyType;
-import org.apache.geronimo.deployment.javabean.xbeans.BeanPropertyType;
+import org.apache.geronimo.deployment.service.plan.BeanPropertyType;
+import org.apache.geronimo.deployment.service.plan.JavabeanType;
+import org.apache.geronimo.deployment.service.plan.PropertyType;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.crypto.EncryptionManager;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 
 /**
@@ -45,15 +44,15 @@ public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
         return NAMESPACE;
     }
 
-    public Object getValue(XmlObject xmlObject, XmlObject enclosing, String type, Bundle bundle) throws DeploymentException {
-        JavabeanType javabean = (JavabeanType) xmlObject.copy().changeType(JavabeanType.type);
+    public Object getValue(Object xmlObject, Object enclosing, String type, Bundle bundle) throws DeploymentException {
+        JavabeanType javabean = (JavabeanType) xmlObject;
         return internalGetValue(javabean, type, bundle);
     }
 
     private Object internalGetValue(JavabeanType javabean, String type, Bundle bundle) throws DeploymentException {
         String className = type;
-        if (javabean.isSetClass1()) {
-            className = javabean.getClass1();
+        if (javabean.getClazz() != null) {
+            className = javabean.getClazz();
         }
         Class clazz = null;
         try {
@@ -79,11 +78,9 @@ public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
             throw new DeploymentException("Could not analyze java bean class", e);
         }
 
-        PropertyType[] properties = javabean.getPropertyArray();
-        for (int i = 0; i < properties.length; i++) {
-            PropertyType property = properties[i];
+        for (PropertyType property: javabean.getProperty()) {
             String propertyName = Introspector.decapitalize(property.getName());
-            String propertyString = property.getStringValue().trim();
+            String propertyString = property.getValue();
             for (int j = 0; j < propertyDescriptors.length; j++) {
                 PropertyDescriptor propertyDescriptor = propertyDescriptors[j];
                 if (propertyName.equals(propertyDescriptor.getName())) {
@@ -116,9 +113,7 @@ public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
             }
         }
 
-        BeanPropertyType[] beanProperties = javabean.getBeanPropertyArray();
-        for (int i = 0; i < beanProperties.length; i++) {
-            BeanPropertyType beanProperty = beanProperties[i];
+        for (BeanPropertyType beanProperty: javabean.getBeanProperty()) {
             String propertyName = Introspector.decapitalize(beanProperty.getName().trim());
             JavabeanType innerBean = beanProperty.getJavabean();
             for (int j = 0; j < propertyDescriptors.length; j++) {

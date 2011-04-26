@@ -45,7 +45,7 @@ public class PlanProcessorMojoTest extends PlexusTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         processorMojo = new PlanProcessorMojo();
-        processorMojo.useMavenDependencies = new UseMavenDependencies(false, false, false);
+//        processorMojo.useMavenDependencies = new UseMavenDependencies(false, false, false);
         Model model = new Model();
         MavenProject mavenProject = new MavenProject(model);
         mavenProject.setGroupId("dummy-group");

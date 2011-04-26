@@ -16,7 +16,7 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
     <!--Deployer used to process modules and plans-->
 
-    <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
+    <gbean name="Deployer" class="org.apache.geronimo.deployment.DeployerImpl">
         <reference name="Store">
         </reference>
         <reference name="Builders"></reference>

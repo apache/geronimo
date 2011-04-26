@@ -5,3 +5,4 @@
 target
 eclipse-classes
 bin
+*.log

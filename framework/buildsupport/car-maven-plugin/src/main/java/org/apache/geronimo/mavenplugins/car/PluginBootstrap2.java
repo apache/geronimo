@@ -90,7 +90,8 @@ public class PluginBootstrap2 {
         bundleContext.registerService(DependencyManager.class.getName(), dependencyManager, new Hashtable());
 
         GBeanBuilder gBeanBuilder = new GBeanBuilder(null, null);
-        ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.<Repository>singleton(repository), Collections.<NamespaceDrivenBuilder>singleton(gBeanBuilder), new Jsr77Naming(), bundleContext);
+        ServiceConfigBuilder builder = new ServiceConfigBuilder();
+        builder.activate(bundleContext);
         ConfigurationStore targetConfigurationStore = new NullConfigurationStore() {
             public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
                 StringBuilder configurationPathBuilder = new StringBuilder("repository");

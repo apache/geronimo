@@ -57,16 +57,6 @@ public class ConfigurationExtender {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationExtender.class);
 
-//    private BundleContext bundleContext;
-//
-//    private ConfigurationManager configurationManager;
-//
-//    private DependencyManager dependencyManager;
-//
-//    private Map<Long, Artifact> bundleIdArtifactMap = new ConcurrentHashMap<Long, Artifact>();
-//
-//    private Set<Long> loadedBundleIds = Collections.synchronizedSet(new HashSet<Long>());
-
     private final Map<Long, Configuration> configurationMap = new ConcurrentHashMap<Long, Configuration>();
 
     private BundleTracker bt;

@@ -98,8 +98,8 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void println(String s) throws IOException {
         if (jlineConsoleEnabled) {
-            jlineConsoleReader.print(s);
-            jlineConsoleReader.println();
+            jlineConsoleReader.println(s);
+
         } else {
             console.println(s);
             console.println();
@@ -148,7 +148,11 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void flushConsole() throws IOException {
         if (jlineConsoleEnabled) {
+<<<<<<< HEAD
              jlineConsoleReader.flush();
+=======
+            jlineConsoleReader.flush();
+>>>>>>> d253307... ServiceConfigBuilder as a service.  Remove use of xmlbeans from ServiceConfigBuilder
         } else {
             console.flush();
         }

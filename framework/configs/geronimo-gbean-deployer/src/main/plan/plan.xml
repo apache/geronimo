@@ -15,7 +15,7 @@
     limitations under the License.-->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
 
-    <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
+    <gbean name="Deployer" class="org.apache.geronimo.deployment.DeployerImpl">
         <attribute name="remoteDeployAddress">localhost:8080</attribute>
         <reference name="Store">
         </reference>

@@ -413,9 +413,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      *
      * @return customization source for gbeans
      */
-    ManageableAttributeStore getManageableAttributeStore() {
-        return attributeStore;
-    }
+//    ManageableAttributeStore getManageableAttributeStore() {
+//        return attributeStore;
+//    }
 
     public synchronized AbstractName addGBean(String name, GBeanData gbean) throws GBeanAlreadyExistsException {
         AbstractName abstractName = gbean.getAbstractName();

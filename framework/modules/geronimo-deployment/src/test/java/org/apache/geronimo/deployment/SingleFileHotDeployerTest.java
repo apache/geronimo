@@ -36,7 +36,6 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -281,7 +280,7 @@ public class SingleFileHotDeployerTest extends TestSupport {
                     null,
                     ConfigurationModuleType.CAR,
                     new Jsr77Naming(),
-                    new SimpleConfigurationManager(Collections.<ConfigurationStore>singletonList(store), artifactResolver, Collections.<Repository>emptySet(), bundleContext), bundleContext);
+                    bundleContext);
         }
     }
 

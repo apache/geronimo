@@ -22,9 +22,12 @@ package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
 import java.lang.Override;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.geronimo.deployment.ConfigurationBuilder;
+import org.apache.geronimo.deployment.Deployer;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -82,26 +85,48 @@ public class AbstractFrameworkMojo extends AbstractMojo {
     private String karafHome;
 
     private Framework framework;
+    private long timeout = 20000L;
+    private List<ServiceReference> services = new ArrayList<ServiceReference>();
 
 
     @java.lang.Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         initializeFramework();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
+        getService(FeaturesService.class);
+        getService(Deployer.class);
+        getService(ConfigurationBuilder.class);
+        listBundles();
 
-        }
-        ServiceReference sr = framework.getBundleContext().getServiceReference(FeaturesService.class.getName());
-        Object o = framework.getBundleContext().getService(sr);
-        if (o == null) {
-            throw new RuntimeException("no feature service found");
+        done();
+    }
+
+    protected void done() throws MojoExecutionException {
+        for (ServiceReference sr: services) {
+            framework.getBundleContext().ungetService(sr);
         }
         try {
             framework.stop();
         } catch (BundleException e) {
             throw new MojoExecutionException("Can't stop framework: ", e );
         }
+    }
+
+    protected <T> T getService(Class<T> clazz) throws MojoExecutionException {
+        long timeout = this.timeout;
+        while (timeout > 0) {
+            ServiceReference sr = framework.getBundleContext().getServiceReference(clazz.getName());
+            if (sr != null) {
+                services.add(sr);
+                return (T)framework.getBundleContext().getService(sr);
+            }
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                throw new MojoExecutionException("Interrupted waiting for service " + clazz.getName() + " at " + (this.timeout - timeout)/1000 + " seconds");
+            }
+            timeout = timeout - 100;
+        }
+        throw new MojoExecutionException("Could not get service " + clazz.getName() + " in " + this.timeout/1000 + " seconds");
     }
 
     void initializeFramework() throws MojoFailureException {

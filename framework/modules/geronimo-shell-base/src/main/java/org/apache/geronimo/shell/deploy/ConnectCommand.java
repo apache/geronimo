@@ -23,15 +23,14 @@ import java.io.IOException;
 
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.apache.felix.service.command.CommandSession;
 import org.apache.geronimo.cli.deployer.ConnectionParamsImpl;
 import org.apache.geronimo.deployment.cli.OfflineServerConnection;
 import org.apache.geronimo.deployment.cli.OnlineServerConnection;
 import org.apache.geronimo.deployment.cli.ServerConnection;
 import org.apache.geronimo.deployment.cli.ServerConnection.UsernamePasswordHandler;
-import org.apache.geronimo.deployment.plugin.factories.BaseDeploymentFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.shell.BaseCommandSupport;
-import org.apache.felix.service.command.CommandSession;
 
 /**
  * @version $Rev$ $Date$

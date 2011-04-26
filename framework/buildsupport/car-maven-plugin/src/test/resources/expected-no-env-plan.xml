@@ -28,9 +28,6 @@
             <dep:version>dummy-version</dep:version>
             <dep:type>car</dep:type>
         </dep:moduleId>
-        <dep:dependencies/>
-        <dep:hidden-classes/>
-        <dep:non-overridable-classes/>
     </dep:environment>
     <node/>
 </module>

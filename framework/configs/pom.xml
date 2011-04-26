@@ -34,7 +34,7 @@
 
     <modules>
         <module>geronimo-gbean-deployer</module>
-        <module>geronimo-gbean-deployer-bootstrap</module>
+        <!--<module>geronimo-gbean-deployer-bootstrap</module>-->
         <module>client-system</module>
         <module>j2ee-security</module>
         <module>j2ee-system</module>

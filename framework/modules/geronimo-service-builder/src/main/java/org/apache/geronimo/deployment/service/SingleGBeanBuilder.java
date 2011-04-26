@@ -21,15 +21,16 @@ import java.beans.PropertyEditor;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.xbeans.PatternType;
-import org.apache.geronimo.deployment.xbeans.ReferenceType;
+import org.apache.geronimo.deployment.service.plan.PatternType;
+import org.apache.geronimo.deployment.service.plan.ReferenceType;
+import org.apache.geronimo.deployment.service.plan.XmlAttributeType;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -38,7 +39,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 
 /**
@@ -92,41 +92,41 @@ public class SingleGBeanBuilder {
         }
     }
 
-    public void setXmlAttribute(String name, XmlObject xmlObject, XmlObject enclosing) throws DeploymentException {
-        String namespace = xmlObject.getDomNode().getNamespaceURI();
-        XmlAttributeBuilder builder = (XmlAttributeBuilder) xmlAttributeBuilderMap.get(namespace);
-        if (builder == null) {
-            throw new DeploymentException("No attribute builder deployed for namespace: " + namespace);
-        }
-        GAttributeInfo attribute = gbean.getGBeanInfo().getAttribute(name);
-        if (attribute == null) {
-            throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getAbstractName());
-        }
-        String type = attribute.getType();
-        Object value = builder.getValue(xmlObject, enclosing, type, bundle);
-        gbean.setAttribute(name, value);
+    public void setXmlAttribute(String name, Object xmlObject, XmlAttributeType enclosing) throws DeploymentException {
+//        String namespace = xmlObject.getDomNode().getNamespaceURI();
+//        XmlAttributeBuilder builder = (XmlAttributeBuilder) xmlAttributeBuilderMap.get(namespace);
+//        if (builder == null) {
+//            throw new DeploymentException("No attribute builder deployed for namespace: " + namespace);
+//        }
+//        GAttributeInfo attribute = gbean.getGBeanInfo().getAttribute(name);
+//        if (attribute == null) {
+//            throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getAbstractName());
+//        }
+//        String type = attribute.getType();
+//        Object value = builder.getValue(xmlObject, enclosing, type, bundle);
+//        gbean.setAttribute(name, value);
     }
 
-    public void setXmlReference(String name, XmlObject xmlObject) throws DeploymentException {
-        String namespace = xmlObject.getDomNode().getNamespaceURI();
-        XmlReferenceBuilder builder = (XmlReferenceBuilder) xmlReferenceBuilderMap.get(namespace);
-        if (builder == null) {
-            throw new DeploymentException("No reference builder deployed for namespace: " + namespace);
-        }
-        ReferencePatterns references = builder.getReferences(xmlObject, context, moduleName, bundle);
-        if (references != null) {
-            gbean.setReferencePatterns(name, references);
-        }
+    public void setXmlReference(String name, Object xmlObject) throws DeploymentException {
+//        String namespace = xmlObject.getDomNode().getNamespaceURI();
+//        XmlReferenceBuilder builder = (XmlReferenceBuilder) xmlReferenceBuilderMap.get(namespace);
+//        if (builder == null) {
+//            throw new DeploymentException("No reference builder deployed for namespace: " + namespace);
+//        }
+//        ReferencePatterns references = builder.getReferences(xmlObject, context, moduleName, bundle);
+//        if (references != null) {
+//            gbean.setReferencePatterns(name, references);
+//        }
     }
 
     public void setReference(String name, ReferenceType pattern, AbstractName parentName) throws DeploymentException {
-        setReference(name, new PatternType[]{pattern}, parentName);
+        gbean.setReferencePatterns(name, new ReferencePatterns(buildAbstractNameQuery(name, pattern)));
     }
 
-    public void setReference(String name, PatternType[] patterns, AbstractName parentName) throws DeploymentException {
-        Set patternNames = new HashSet(patterns.length);
-        for (int i = 0; i < patterns.length; i++) {
-            patternNames.add(buildAbstractNameQuery(name, patterns[i]));
+    public void setReference(String name, List<PatternType> patterns, AbstractName parentName) throws DeploymentException {
+        Set<AbstractNameQuery> patternNames = new HashSet<AbstractNameQuery>(patterns.size());
+        for (PatternType patternType: patterns) {
+            patternNames.add(buildAbstractNameQuery(name, patternType));
         }
         gbean.setReferencePatterns(name, patternNames);
     }
@@ -142,9 +142,7 @@ public class SingleGBeanBuilder {
 //        }
         assert refName != null;
         GReferenceInfo referenceInfo = null;
-        Set referenceInfos = gbean.getGBeanInfo().getReferences();
-        for (Iterator iterator = referenceInfos.iterator(); iterator.hasNext();) {
-            GReferenceInfo testReferenceInfo = (GReferenceInfo) iterator.next();
+        for (GReferenceInfo testReferenceInfo: gbean.getGBeanInfo().getReferences()) {
             String testRefName = testReferenceInfo.getName();
             if (testRefName.equals(refName)) {
                 referenceInfo = testReferenceInfo;
@@ -164,19 +162,19 @@ public class SingleGBeanBuilder {
     }
 
     public static AbstractNameQuery buildAbstractNameQuery(PatternType pattern, String nameTypeName, Set interfaceTypes) {
-        String groupId = pattern.isSetGroupId() ? pattern.getGroupId().trim() : null;
-        String artifactid = pattern.isSetArtifactId() ? pattern.getArtifactId().trim() : null;
-        String version = pattern.isSetVersion() ? pattern.getVersion().trim() : null;
-        String module = pattern.isSetModule() ? pattern.getModule().trim() : null;
-        String type = pattern.isSetType() ? pattern.getType().trim() : null;
-        String name = pattern.isSetName() ? pattern.getName().trim() : null;
+        String groupId = pattern.getGroupId();
+        String artifactid = pattern.getArtifactId().trim();
+        String version = pattern.getVersion().trim();
+        String module = pattern.getModule().trim();
+        String type = pattern.getType().trim();
+        String name = pattern.getName().trim();
 
         Artifact artifact = artifactid != null? new Artifact(groupId, artifactid, version, "car"): null;
         //get the type from the gbean info if not supplied explicitly
         if (type == null) {
             type = nameTypeName;
         }
-        Map nameMap = new HashMap();
+        Map<String, String> nameMap = new HashMap<String, String>();
         if (name != null) {
             nameMap.put("name", name);
         }

@@ -21,7 +21,8 @@ import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
+import org.apache.geronimo.deployment.service.plan.ArtifactType;
+import org.apache.geronimo.deployment.service.plan.ObjectFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.gbean.GBeanData;
@@ -37,7 +38,7 @@ public class EnvironmentBuilderTest extends TestCase {
     }
 
     public void testImportParent1() throws Exception {
-        ArtifactType anImport = ArtifactType.Factory.newInstance();
+        ArtifactType anImport = new ObjectFactory().createArtifactType();
         anImport.setGroupId("groupId");
         anImport.setType("type");
         anImport.setArtifactId("artifactId");

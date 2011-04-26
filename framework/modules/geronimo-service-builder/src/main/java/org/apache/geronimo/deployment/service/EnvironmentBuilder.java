@@ -18,60 +18,37 @@
 package org.apache.geronimo.deployment.service;
 
 import java.beans.PropertyEditorSupport;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
-import javax.xml.namespace.QName;
-
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
-import org.apache.geronimo.deployment.xbeans.ClassFilterType;
-import org.apache.geronimo.deployment.xbeans.DependenciesType;
-import org.apache.geronimo.deployment.xbeans.EnvironmentDocument;
-import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.ImportType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.service.plan.ArtifactType;
+import org.apache.geronimo.deployment.service.plan.EnvironmentType;
+import org.apache.geronimo.deployment.service.plan.ObjectFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
-import org.osgi.framework.Bundle;
 
 /**
  * @version $Rev$ $Date$
  */
-public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttributeBuilder {
-    private final static QName QNAME = EnvironmentDocument.type.getDocumentElementName();
-    private final static String NAMESPACE = QNAME.getNamespaceURI();
+public class EnvironmentBuilder extends PropertyEditorSupport /*implements XmlAttributeBuilder*/ {
+//    private final static QName QNAME = EnvironmentDocument.type.getDocumentElementName();
+//    private final static String NAMESPACE = QNAME.getNamespaceURI();
 
     public static Environment buildEnvironment(EnvironmentType environmentType) {
         Environment environment = new Environment();
         if (environmentType != null) {
-            if (environmentType.isSetModuleId()) {
                 environment.setConfigId(toArtifact(environmentType.getModuleId(), null));
-            }
 
-            if (environmentType.isSetBundleActivator()) {
                 environment.setBundleActivator(trim(environmentType.getBundleActivator()));
-            }
-            for (String importPackage: environmentType.getImportPackageArray()) {
+            for (String importPackage: environmentType.getImportPackage()) {
                 environment.addImportPackage(trim(importPackage));
             }
-            for (String exportPackage: environmentType.getExportPackageArray()) {
+            for (String exportPackage: environmentType.getExportPackage()) {
                 environment.addExportPackage(trim(exportPackage));
             }
-            for (String requireBundle : environmentType.getRequireBundleArray()) {
+            for (String requireBundle : environmentType.getRequireBundle()) {
                 environment.addRequireBundle(requireBundle);
             }
-            for (String dynamicImportPackage: environmentType.getDynamicImportPackageArray()) {
+            for (String dynamicImportPackage: environmentType.getDynamicImportPackage()) {
                 environment.addDynamicImportPackage(trim(dynamicImportPackage));
             }
                         
@@ -104,52 +81,23 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
     }
 
     public static EnvironmentType buildEnvironmentType(Environment environment) {
-        EnvironmentType environmentType = EnvironmentType.Factory.newInstance();
+        EnvironmentType environmentType = new ObjectFactory().createEnvironmentType();
         if (environment.getConfigId() != null) {
             ArtifactType configId = toArtifactType(environment.getConfigId());
             environmentType.setModuleId(configId);
         }
 
-        if (environment.getBundleActivator() != null) {
             environmentType.setBundleActivator(environment.getBundleActivator());
-        }
-        for (String bundleClassPath: environment.getBundleClassPath()) {
-            environmentType.addBundleClassPath(bundleClassPath);
-        }
-        for (String importPackage: environment.getImportPackages()) {
-            environmentType.addImportPackage(importPackage);
-        }
-        for (String exportPackage: environment.getExportPackages()) {
-            environmentType.addExportPackage(exportPackage);
-        }
-        for (String requireBundle : environment.getRequireBundles()) {
-            environmentType.addRequireBundle(requireBundle);
-        }
-        for (String dynamicImportPackage: environment.getDynamicImportPackages()) {
-            environmentType.addDynamicImportPackage(dynamicImportPackage);
-        }
+            environmentType.getBundleClassPath().addAll(environment.getBundleClassPath());
+            environmentType.getImportPackage().addAll(environment.getImportPackages());
+            environmentType.getExportPackage().addAll(environment.getExportPackages());
+            environmentType.getRequireBundle().addAll(environment.getRequireBundles());
+            environmentType.getDynamicImportPackage().addAll(environment.getDynamicImportPackages());
                 return environmentType;
     }
 
-    private static ClassFilterType toFilterType(Set filters) {
-        String[] classFilters = (String[]) filters.toArray(new String[filters.size()]);
-        ClassFilterType classFilter = ClassFilterType.Factory.newInstance();
-        classFilter.setFilterArray(classFilters);
-        return classFilter;
-    }
-
-    private static List<DependencyType> toDependencyTypes(Collection artifacts) {
-        List<DependencyType> dependencies = new ArrayList<DependencyType>();
-        for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
-            Dependency dependency = (Dependency) iterator.next();
-            DependencyType artifactType = toDependencyType(dependency);
-            dependencies.add(artifactType);
-        }
-        return dependencies;
-    }
-
     private static ArtifactType toArtifactType(Artifact artifact) {
-        ArtifactType artifactType = ArtifactType.Factory.newInstance();
+        ArtifactType artifactType = new ObjectFactory().createArtifactType();
         fillArtifactType(artifact, artifactType);
         return artifactType;
     }
@@ -169,32 +117,6 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         }
     }
 
-    private static DependencyType toDependencyType(Dependency dependency) {
-        DependencyType dependencyType = DependencyType.Factory.newInstance();
-        fillArtifactType(dependency.getArtifact(), dependencyType);
-
-        org.apache.geronimo.kernel.repository.ImportType importType = dependency.getImportType();
-        if (importType == org.apache.geronimo.kernel.repository.ImportType.CLASSES) {
-            dependencyType.setImport(ImportType.CLASSES);
-        } else if (importType == org.apache.geronimo.kernel.repository.ImportType.SERVICES) {
-            dependencyType.setImport(ImportType.SERVICES);
-        }
-
-        return dependencyType;
-    }
-
-    private static Set toFilters(ClassFilterType filterType) {
-        Set filters = new HashSet();
-        if (filterType != null) {
-            String[] filterArray = filterType.getFilterArray();
-            for (int i = 0; i < filterArray.length; i++) {
-                String filter = filterArray[i].trim();
-                filters.add(filter);
-            }
-        }
-        return filters;
-    }
-
     //package level for testing
     static LinkedHashSet toArtifacts(ArtifactType[] artifactTypes) {
         LinkedHashSet artifacts = new LinkedHashSet();
@@ -206,34 +128,11 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         return artifacts;
     }
 
-    private static LinkedHashSet<Dependency> toDependencies(DependencyType[] dependencyArray) {
-        LinkedHashSet<Dependency> dependencies = new LinkedHashSet<Dependency>();
-        for (int i = 0; i < dependencyArray.length; i++) {
-            DependencyType artifactType = dependencyArray[i];
-            Dependency dependency = toDependency(artifactType);
-            dependencies.add(dependency);
-        }
-        return dependencies;
-    }
-
-    private static Dependency toDependency(DependencyType dependencyType) {
-        Artifact artifact = toArtifact(dependencyType, null);
-        if (ImportType.CLASSES.equals(dependencyType.getImport())) {
-            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.CLASSES);
-        } else if (ImportType.SERVICES.equals(dependencyType.getImport())) {
-            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.SERVICES);
-        } else if (dependencyType.getImport() == null) {
-            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.ALL);
-        } else {
-            throw new IllegalArgumentException("Unknown import type: " + dependencyType.getImport());
-        }
-    }
-
     private static Artifact toArtifact(ArtifactType artifactType, String defaultType) {
-        String groupId = artifactType.isSetGroupId() ? trim(artifactType.getGroupId()) : null;
-        String type = artifactType.isSetType() ? trim(artifactType.getType()) : defaultType;
+        String groupId = trim(artifactType.getGroupId());
+        String type = trim(artifactType.getType());
         String artifactId = trim(artifactType.getArtifactId());
-        String version = artifactType.isSetVersion() ? trim(artifactType.getVersion()) : null;
+        String version = trim(artifactType.getVersion());
         return new Artifact(groupId, artifactId, version, type);
     }
 
@@ -246,54 +145,54 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
 
 
     public String getNamespace() {
-        return NAMESPACE;
+        return null;//NAMESPACE;
     }
 
-    public Object getValue(XmlObject xmlObject, XmlObject enclosing, String type, Bundle bundle) throws DeploymentException {
+//    public Object getValue(XmlObject xmlObject, XmlObject enclosing, String type, Bundle bundle) throws DeploymentException {
+//
+//        EnvironmentType environmentType;
+//        if (xmlObject instanceof EnvironmentType) {
+//            environmentType = (EnvironmentType) xmlObject;
+//        } else {
+//            environmentType = (EnvironmentType) xmlObject.copy().changeType(EnvironmentType.type);
+//        }
+//        try {
+//            XmlOptions xmlOptions = new XmlOptions();
+//            xmlOptions.setLoadLineNumbers();
+//            Collection errors = new ArrayList();
+//            xmlOptions.setErrorListener(errors);
+//            if (!environmentType.validate(xmlOptions)) {
+//                throw new XmlException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + environmentType.toString(), null, errors);
+//            }
+//        } catch (XmlException e) {
+//            throw new DeploymentException(e);
+//        }
+//
+//        return buildEnvironment(environmentType);
+//    }
 
-        EnvironmentType environmentType;
-        if (xmlObject instanceof EnvironmentType) {
-            environmentType = (EnvironmentType) xmlObject;
-        } else {
-            environmentType = (EnvironmentType) xmlObject.copy().changeType(EnvironmentType.type);
-        }
-        try {
-            XmlOptions xmlOptions = new XmlOptions();
-            xmlOptions.setLoadLineNumbers();
-            Collection errors = new ArrayList();
-            xmlOptions.setErrorListener(errors);
-            if (!environmentType.validate(xmlOptions)) {
-                throw new XmlException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + environmentType.toString(), null, errors);
-            }
-        } catch (XmlException e) {
-            throw new DeploymentException(e);
-        }
+//    public String getAsText() {
+//        Environment environment = (Environment) getValue();
+//        EnvironmentType environmentType = buildEnvironmentType(environment);
+//        XmlOptions xmlOptions = new XmlOptions();
+//        xmlOptions.setSaveSyntheticDocumentElement(QNAME);
+//        xmlOptions.setSavePrettyPrint();
+//        return environmentType.xmlText(xmlOptions);
+//    }
 
-        return buildEnvironment(environmentType);
-    }
-
-    public String getAsText() {
-        Environment environment = (Environment) getValue();
-        EnvironmentType environmentType = buildEnvironmentType(environment);
-        XmlOptions xmlOptions = new XmlOptions();
-        xmlOptions.setSaveSyntheticDocumentElement(QNAME);
-        xmlOptions.setSavePrettyPrint();
-        return environmentType.xmlText(xmlOptions);
-    }
-
-    public void setAsText(String text) {
-        try {
-            EnvironmentDocument environmentDocument = EnvironmentDocument.Factory.parse(text);
-            EnvironmentType environmentType = environmentDocument.getEnvironment();
-            Environment environment = (Environment) getValue(environmentType, null, null, null);
-            setValue(environment);
-
-        } catch (XmlException e) {
-            throw new PropertyEditorException(e);
-        } catch (DeploymentException e) {
-            throw new PropertyEditorException(e);
-        }
-    }
+//    public void setAsText(String text) {
+//        try {
+//            EnvironmentDocument environmentDocument = EnvironmentDocument.Factory.parse(text);
+//            EnvironmentType environmentType = environmentDocument.getEnvironment();
+//            Environment environment = (Environment) getValue(environmentType, null, null, null);
+//            setValue(environment);
+//
+//        } catch (XmlException e) {
+//            throw new PropertyEditorException(e);
+//        } catch (DeploymentException e) {
+//            throw new PropertyEditorException(e);
+//        }
+//    }
 
 
     //This is added by hand to the xmlAttributeBuilders since it is needed to bootstrap the ServiceConfigBuilder.

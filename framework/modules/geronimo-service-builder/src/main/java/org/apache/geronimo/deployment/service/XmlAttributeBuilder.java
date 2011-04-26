@@ -27,6 +27,6 @@ public interface XmlAttributeBuilder {
 
     String getNamespace();
 
-    Object getValue(XmlObject xmlObject, XmlObject enclosing, String type, Bundle bundle) throws DeploymentException;
+    Object getValue(Object xmlObject, Object enclosing, String type, Bundle bundle) throws DeploymentException;
 
 }
