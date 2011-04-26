@@ -71,6 +71,13 @@
             <classifier>features</classifier>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.feature</groupId>
+            <artifactId>server-security-config</artifactId>
+            <version>${project.version}</version>
+            <type>kar</type>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -190,6 +197,7 @@
                         <feature>jndi</feature>
                         <feature>obr</feature>
                         <feature>j2ee-system</feature>
+                        <feature>server-security-config</feature>
                     </bootFeatures>
                 </configuration>
             </plugin>

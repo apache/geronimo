@@ -39,38 +39,34 @@
         <!-- parent -->
         <dependency>
             <groupId>org.apache.geronimo.framework.feature</groupId>
-            <artifactId>j2ee-security</artifactId>
+            <artifactId>j2ee-system</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-security</artifactId>
+            <groupId>org.apache.geronimo.framework.config</groupId>
+            <artifactId>server-security-config</artifactId>
             <version>${project.version}</version>
+            <type>car</type>
         </dependency>
     </dependencies>
 
-<!--
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>car-maven-plugin</artifactId>
+                <groupId>org.apache.karaf.tooling</groupId>
+                <artifactId>karaf-maven-plugin</artifactId>
                 <configuration>
-                    <deploymentConfigs>
-                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                    </deploymentConfigs>
-                    <category>Security</category>
-                    <instance>
-                        <plugin-artifact>
-                            <copy-file relative-to="server" dest-dir="var/security">security/</copy-file>
-                        </plugin-artifact>
-                    </instance>
+                    <startLevel>50</startLevel>
+                    <checkDependencyChange>true</checkDependencyChange>
+                    <warnOnDependencyChange>true</warnOnDependencyChange>
+                    <logDependencyChanges>true</logDependencyChanges>
+                    <!--<overwriteChangedDependencies>true</overwriteChangedDependencies>-->
+                    <!--<aggregateFeatures>true</aggregateFeatures>-->
                 </configuration>
             </plugin>
         </plugins>
     </build>
--->
 
 </project>

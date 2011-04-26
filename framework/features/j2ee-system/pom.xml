@@ -201,12 +201,12 @@
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
-            <artifactId>server-security-config</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework.config</groupId>-->
+            <!--<artifactId>server-security-config</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.framework.config</groupId>
             <artifactId>plugin</artifactId>

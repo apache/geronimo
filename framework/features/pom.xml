@@ -46,7 +46,7 @@
         <!--<module>online-deployer</module>-->
         <!--<module>rmi-naming</module>-->
         <!--<module>plugin</module>-->
-        <!--<module>server-security-config</module>-->
+        <module>server-security-config</module>
         <!--<module>shutdown</module>-->
         <!--<module>jmx-security</module>-->
         <!--<module>karaf-framework</module>-->
