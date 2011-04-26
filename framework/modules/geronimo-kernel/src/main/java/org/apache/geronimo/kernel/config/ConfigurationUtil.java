@@ -193,10 +193,10 @@ public final class ConfigurationUtil {
             artifactResolver = new DefaultArtifactResolver(new DefaultArtifactManager(), bootRepository);
         } else {
             // a bootstrap configuration can not have any dependencies
-            List dependencies = configurationData.getEnvironment().getDependencies();
-            if (!dependencies.isEmpty()) {
-                configurationData.getEnvironment().setDependencies(Collections.EMPTY_SET);
-            }
+//            List dependencies = configurationData.getEnvironment().getDependencies();
+//            if (!dependencies.isEmpty()) {
+//                configurationData.getEnvironment().setDependencies(Collections.EMPTY_SET);
+//            }
         }
         ConfigurationResolver configurationResolver = new ConfigurationResolver(configurationData, repositories, artifactResolver);
 
@@ -425,7 +425,7 @@ public final class ConfigurationUtil {
         gbeanData.addDependency(configurationName);
     }
 
-    static void startConfigurationGBeans(AbstractName configurationName, Configuration configuration, Kernel kernel) throws InvalidConfigException {
+    public static void startConfigurationGBeans(AbstractName configurationName, Configuration configuration, Kernel kernel) throws InvalidConfigException {
         List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
 

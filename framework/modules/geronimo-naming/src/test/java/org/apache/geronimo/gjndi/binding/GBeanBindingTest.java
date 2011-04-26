@@ -16,6 +16,13 @@
  */
 package org.apache.geronimo.gjndi.binding;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -23,7 +30,7 @@ import org.apache.geronimo.gjndi.AbstractContextTest;
 import org.apache.geronimo.gjndi.GlobalContextGBean;
 import org.apache.geronimo.gjndi.WritableContextGBean;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -33,18 +40,12 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * @version $Rev$ $Date$
  */
-public class GBeanBindingTest extends AbstractContextTest {    
-    private Kernel kernel;
+public class GBeanBindingTest extends AbstractContextTest {
+    private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
+    private BasicKernel kernel;
 
     private Map<String, Object> globalBindings;
     private AbstractName ds1Name;
@@ -90,8 +91,9 @@ public class GBeanBindingTest extends AbstractContextTest {
     protected void setUp() throws Exception {
         super.setUp();
 
-        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel = new BasicKernel();
+//        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
+//        kernel.boot();
 
         ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
 

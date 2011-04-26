@@ -63,11 +63,13 @@ public class LoginKerberosTest extends AbstractTest {
         gbean = buildGBeanData("name", "KerberosSecurityRealm", GenericSecurityRealm.class);
         kerberosRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "TOOLAZYDOGS.COM");
+        gbean.setAttribute("global", true);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         kernel.loadGBean(gbean, bundleContext);
         kernel.startGBean(kerberosLM);
         kernel.startGBean(testUseName);
         kernel.startGBean(kerberosRealm);
+        ((GenericSecurityRealm)kernel.getGBean(kerberosRealm)).setServerInfo(serverInfo);
     }
 
     public void tearDown() throws Exception {

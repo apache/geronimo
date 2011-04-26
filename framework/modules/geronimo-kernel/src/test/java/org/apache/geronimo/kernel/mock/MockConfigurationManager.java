@@ -39,7 +39,6 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationResolver;
-import org.apache.geronimo.kernel.config.DependencyNode;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -122,7 +121,7 @@ public class MockConfigurationManager implements ConfigurationManager {
     public LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         try {
             Artifact configId = configurationData.getEnvironment().getConfigId();
-            Configuration configuration = new Configuration(configurationData, new DependencyNode(configId, null, null), null, null, null, this);
+            Configuration configuration = new Configuration(configurationData, null);
             configurations.put(configId, configuration);
         } catch (InvalidConfigException e) {
 

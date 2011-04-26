@@ -312,12 +312,6 @@ public interface Kernel {
     String getShortNameFor(Object service);
 
     /**
-     * Brings the kernel online
-     * @throws Exception if the kernel can not boot
-     */
-    void boot() throws Exception;
-
-    /**
      * Returns the time this kernel was last booted.
      * @return the time this kernel was last booted; null if the kernel has not been
      */
@@ -335,11 +329,11 @@ public interface Kernel {
      */
     void unregisterShutdownHook(Runnable hook);
 
-    /**
-     * Stops the kernel
-     */
-    void shutdown();
-
+//    /**
+//     * Stops the kernel
+//     */
+//    void shutdown();
+//
     /**
      * Has the kernel been booted
      * @return true if the kernel has been booted; false otherwise

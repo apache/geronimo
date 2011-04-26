@@ -880,13 +880,6 @@ public class KernelDelegate implements Kernel {
         return proxyManager;
     }
 
-    /**
-     * Throws UnsupportedOperationException.  A remote kernel will alreayd be booted.
-     */
-    public void boot() throws Exception {
-        throw new UnsupportedOperationException("A remote kernel can not be booted");
-    }
-
     private Object getKernelAttribute(String attributeName) {
         try {
             return mbeanServer.getAttribute(Kernel.KERNEL, attributeName);

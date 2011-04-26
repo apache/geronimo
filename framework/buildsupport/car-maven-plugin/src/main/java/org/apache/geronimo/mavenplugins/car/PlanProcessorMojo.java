@@ -177,7 +177,7 @@ public class PlanProcessorMojo
 
         Environment newEnvironment = new Environment();
         newEnvironment.setConfigId(configId);
-        newEnvironment.setDependencies(dependencies);
+//        newEnvironment.setDependencies(dependencies);
         if (boot) {
             newEnvironment.setBundleActivator(BootActivator.class.getName());
         }

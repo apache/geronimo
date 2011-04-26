@@ -16,9 +16,16 @@
  */
 package org.apache.geronimo.gjndi;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.naming.InitialContext;
+import javax.naming.NameNotFoundException;
+import javax.naming.NotContextException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -31,19 +38,12 @@ import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.naming.java.javaURLContextFactory;
 import org.apache.xbean.naming.context.ImmutableContext;
 
-import javax.naming.InitialContext;
-import javax.naming.NameNotFoundException;
-import javax.naming.NotContextException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * @version $Rev$ $Date$
  */
 public class JavaCompGBeanTest extends AbstractContextTest {
-    //private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
-    private Kernel kernel;
+    private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
+    private BasicKernel kernel;
 
     public void testLookupEnv() throws Exception {
         Map javaCompBindings = new HashMap();
@@ -85,8 +85,9 @@ public class JavaCompGBeanTest extends AbstractContextTest {
     protected void setUp() throws Exception {
         super.setUp();
 
-        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel = new BasicKernel();
+//        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
+//        kernel.boot();
 
         ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
 

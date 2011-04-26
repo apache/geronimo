@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -38,7 +39,7 @@ import org.osgi.framework.BundleContext;
  */
 public class ConfigTest extends TestCase {
     private BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), null, null, null);
-    private Kernel kernel;
+    private BasicKernel kernel;
     private AbstractName gbeanName1;
     private AbstractName gbeanName2;
     private ConfigurationData configurationData;
@@ -181,8 +182,8 @@ public class ConfigTest extends TestCase {
     protected void setUp() throws Exception {
         System.setProperty("geronimo.build.car", "true");
         super.setUp();
-        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel = new BasicKernel();
+//        kernel.boot();
 
         ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
 

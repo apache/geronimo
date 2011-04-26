@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +30,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -41,9 +40,9 @@ import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$
@@ -77,7 +76,7 @@ public class CommandLine {
         }
     }
 
-    private Kernel kernel;
+    private BasicKernel kernel;
     private AbstractName configurationName;
 
     public void invokeMainGBean(List configurations, AbstractNameQuery mainGBeanQuery, String mainMethod, String[] args) throws Exception {
@@ -149,10 +148,11 @@ public class CommandLine {
         }
     }
 
-    protected Kernel getBootedKernel() throws Exception {
+    protected BasicKernel getBootedKernel() throws Exception {
         BundleContext bundleContext = null;
-        kernel = KernelFactory.newInstance(bundleContext).createKernel("geronimo");
-        kernel.boot();
+        BasicKernel kernel = new BasicKernel();
+//        kernel = KernelFactory.newInstance(bundleContext).createKernel("geronimo");
+        kernel.boot(bundleContext);
         return kernel;
     }
 

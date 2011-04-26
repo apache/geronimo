@@ -67,17 +67,17 @@ public class SimpleCredentialStoreImplTest extends AbstractTest {
 
         JaasLoginModuleUse lmu = new JaasLoginModuleUse(lm, null, LoginModuleControlFlag.REQUIRED);
 
-        gsr = new GenericSecurityRealm("properties-realm", lmu, false, true, (ServerInfo) kernel.getGBean(serverInfo), bundle, kernel);
+        gsr = new GenericSecurityRealm("properties-realm", lmu, false, true, serverInfo, bundle, kernel);
 
     }
 
-    public void tearDown() throws Exception {
-        kernel.stopGBean(serverInfo);
-
-        kernel.unloadGBean(serverInfo);
-
-        super.tearDown();
-    }
+//    public void tearDown() throws Exception {
+//        kernel.stopGBean(serverInfo);
+//
+//        kernel.unloadGBean(serverInfo);
+//
+//        super.tearDown();
+//    }
 
     public void testCredentialStore() throws Exception {
         Map<String, String> callbackHanders = new HashMap<String, String>();

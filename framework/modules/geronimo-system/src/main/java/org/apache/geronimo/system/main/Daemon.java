@@ -22,7 +22,7 @@ import java.io.InputStream;
 
 import org.apache.geronimo.cli.CLParserException;
 import org.apache.geronimo.cli.daemon.DaemonCLParser;
-import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.osgi.framework.BundleContext;
 
@@ -34,7 +34,7 @@ public class Daemon extends EmbeddedDaemon {
 
     private Daemon() {
         //TODO osgi bundleContext == null
-        super(KernelFactory.newInstance(null).createKernel("geronimo"), null);
+        super(new BasicKernel(), null);
     }
 
     @Override
@@ -43,19 +43,19 @@ public class Daemon extends EmbeddedDaemon {
         BundleContext bundleContext = null;
 
         // boot the kernel
-        try {
-            kernel.boot();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 1;
-        }
+//        try {
+//            kernel.boot();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return 1;
+//        }
 
         // add our shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
             public void run() {
                 System.out.println("");
                 System.out.println("Server shutdown started");
-                kernel.shutdown();
+//                kernel.shutdown();
                 System.out.println("Server shutdown completed");
             }
         });

@@ -26,10 +26,9 @@ import java.util.Dictionary;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.kernel.util.Main;
 import org.apache.geronimo.system.main.LongStartupMonitor;
 import org.apache.geronimo.system.main.StartupMonitor;
@@ -48,14 +47,14 @@ public class BootActivator implements BundleActivator {
     private static final Logger log = LoggerFactory.getLogger(BootActivator.class);
 
     private ServiceRegistration kernelRegistration;
-    private BundleActivator configurationActivator;
 
     public void start(BundleContext bundleContext) throws Exception {
         if (bundleContext.getServiceReference(Kernel.class.getName()) == null) {
             StartupMonitor monitor = new LongStartupMonitor();
             monitor.systemStarting(System.currentTimeMillis());
-            Kernel kernel = KernelFactory.newInstance(bundleContext).createKernel("geronimo");
-            kernel.boot();
+            Kernel kernel = new BasicKernel();
+//            Kernel kernel = KernelFactory.newInstance(bundleContext).createKernel("geronimo");
+//            kernel.boot();
             monitor.systemStarted(kernel);
             Dictionary dictionary = null;//new Hashtable();
             kernelRegistration = bundleContext.registerService(Kernel.class.getName(), kernel, dictionary);
@@ -80,20 +79,21 @@ public class BootActivator implements BundleActivator {
             }
 
         } else {
-            configurationActivator = new ConfigurationActivator();
-            configurationActivator.start(bundleContext);
+//            configurationActivator = new ConfigurationActivator();
+//            configurationActivator.start(bundleContext);
         }
 
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
-        if (configurationActivator == null) {
-            Kernel kernel = (Kernel) bundleContext.getService(kernelRegistration.getReference());
+//        if (configurationActivator == null) {
+        if (true) {
+            BasicKernel kernel = (BasicKernel) bundleContext.getService(kernelRegistration.getReference());
             kernel.shutdown();
             kernelRegistration.unregister();
             kernelRegistration = null;
         } else {
-            configurationActivator.stop(bundleContext);
+//            configurationActivator.stop(bundleContext);
         }
     }
 

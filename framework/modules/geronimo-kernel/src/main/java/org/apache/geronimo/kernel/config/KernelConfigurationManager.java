@@ -201,7 +201,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
 
             // declare the dependencies as loaded
             if (artifactManager != null) {
-                artifactManager.loadArtifacts(configurationId, configuration.getDependencyNode().getParents());
+                artifactManager.loadArtifacts(configurationId, new LinkedHashSet<Artifact>());
             }
             Map<Artifact, Configuration> moreLoadedConfigurations = new LinkedHashMap<Artifact, Configuration>(loadedConfigurations);
             moreLoadedConfigurations.put(dependencyNode.getId(), configuration);

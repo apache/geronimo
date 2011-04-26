@@ -61,7 +61,7 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         gbean.setAttribute("realmName", SIMPLE_REALM);
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
-        gbean.setReferencePattern("ServerInfo", serverInfo);
+//        gbean.setReferencePattern("ServerInfo", serverInfo);
         gbean.setAttribute("global", Boolean.TRUE);
         kernel.loadGBean(gbean, bundleContext);
 
@@ -94,7 +94,6 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         gbean.setAttribute("realmName", COMPLEX_REALM);
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         gbean.setReferencePattern("LoginModuleConfiguration", neverFailUseName);
-        gbean.setReferencePattern("ServerInfo", serverInfo);
         gbean.setAttribute("global", Boolean.TRUE);
         kernel.loadGBean(gbean, bundleContext);
 
@@ -102,11 +101,13 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         kernel.startGBean(testCE);
         kernel.startGBean(testUseName);
         kernel.startGBean(testRealm);
+        ((GenericSecurityRealm)kernel.getGBean(testRealm)).setServerInfo(serverInfo);
 
         kernel.startGBean(neverFailModule);
         kernel.startGBean(neverFailUseName);
         kernel.startGBean(propsUseName);
         kernel.startGBean(testRealm2);
+        ((GenericSecurityRealm)kernel.getGBean(testRealm2)).setServerInfo(serverInfo);
     }
 
     protected abstract GBeanData setupTestLoginModule() throws Exception;
@@ -116,12 +117,12 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         kernel.stopGBean(testCE);
         kernel.stopGBean(neverFailModule);
         kernel.stopGBean(loginConfiguration);
-        kernel.stopGBean(serverInfo);
+//        kernel.stopGBean(serverInfo);
 
         kernel.unloadGBean(testCE);
         kernel.unloadGBean(testRealm);
         kernel.unloadGBean(loginConfiguration);
-        kernel.unloadGBean(serverInfo);
+//        kernel.unloadGBean(serverInfo);
 
         super.tearDown();
     }

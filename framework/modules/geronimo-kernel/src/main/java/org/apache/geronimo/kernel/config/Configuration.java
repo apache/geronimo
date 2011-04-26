@@ -47,6 +47,7 @@ import org.apache.xbean.osgi.bundle.util.DelegatingBundle;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.osgi.framework.Bundle;
@@ -125,21 +126,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private final AbstractName abstractName;
 
     /**
-     * Used to resolve dependecies and paths
-     */
-    private final ConfigurationResolver configurationResolver;
-
-    /**
-     * Contains ids of class and service dependencies for parent configurations
-     */
-    private final DependencyNode dependencyNode;
-
-    /**
-     * All service parents depth first
-     */
-    private final List<Configuration> allServiceParents;
-
-    /**
      * The GBeanData objects by ObjectName
      */
     private final Map<AbstractName, GBeanData> gbeans = new LinkedHashMap<AbstractName, GBeanData>();
@@ -173,24 +159,20 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     private Kernel kernel;
 
+    private List<ServiceReference> bundleReferences = new ArrayList<ServiceReference>();
     /**
      * Creates a configuration.
      *
 //     * @param classLoaderHolder Classloaders for this configuration
+     *
+     *
      * @param configurationData the module type, environment and classpath of the configuration
-     * @param dependencyNode Class and Service parent ids
-     * @param allServiceParents ordered list of transitive closure of service parents for gbean searches
      * @param attributeStore Customization info for gbeans
-     * @param configurationResolver (there should be a better way) Where this configuration is actually located in file system
      * @throws InvalidConfigException if this configuration turns out to have a problem.
      */
     public Configuration(
             @ParamAttribute(name = "configurationData") ConfigurationData configurationData,
-            @ParamAttribute(name = "dependencyNode") DependencyNode dependencyNode,
-            @ParamAttribute(name = "allServiceParents") List<Configuration> allServiceParents,
-            @ParamAttribute(name = "attributeStore") ManageableAttributeStore attributeStore,
-            @ParamAttribute(name = "configurationResolver") ConfigurationResolver configurationResolver,
-            @ParamAttribute(name = "configurationManager") ConfigurationManager configurationManager) throws InvalidConfigException {
+            @ParamAttribute(name = "attributeStore") ManageableAttributeStore attributeStore) throws InvalidConfigException {
         if (configurationData == null) {
             throw new NullPointerException("configurationData is null");
         }
@@ -200,15 +182,12 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         this.configurationData = configurationData;
         this.naming = configurationData.getNaming();
         this.attributeStore = attributeStore;
-        this.dependencyNode = dependencyNode;
-        this.allServiceParents = allServiceParents;
-        this.configurationResolver = configurationResolver;
-        this.abstractName = getConfigurationAbstractName(dependencyNode.getId());
+        this.abstractName = getConfigurationAbstractName(configurationData.getId());
         this.bundle = configurationData.getBundle();
 
-        if (configurationData.isUseEnvironment() && configurationManager != null) {
+        if (!configurationData.getEnvironment().getBundleFilters().isEmpty()) {
             try {
-                List<Bundle> bundles = getParentBundles(configurationData, configurationResolver, configurationManager);
+                List<Bundle> bundles = getParentBundles(configurationData);
                 this.bundle = new DelegatingBundle(bundles);
             } catch (Exception e) {
                 log.debug("Failed to identify bundle parents for " + configurationData.getId(), e);
@@ -219,7 +198,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             // Deserialize the GBeans in the configurationData
             Collection<GBeanData> gbeans = configurationData.getGBeans(bundle);
             if (attributeStore != null) {
-                gbeans = attributeStore.applyOverrides(dependencyNode.getId(), gbeans, bundle);
+                gbeans = attributeStore.applyOverrides(configurationData.getId(), gbeans, bundle);
             }
             for (GBeanData gbeanData : gbeans) {
                 this.gbeans.put(gbeanData.getAbstractName(), gbeanData);
@@ -237,22 +216,18 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private List<Bundle> getParentBundles(ConfigurationData configurationData,
-                                          ConfigurationResolver configurationResolver,
-                                          ConfigurationManager configurationManager)
+    private List<Bundle> getParentBundles(ConfigurationData configurationData)
                                           throws MissingDependencyException, InvalidConfigException {
         List<Bundle> bundles = new ArrayList<Bundle>();
         bundles.add(configurationData.getBundle());
-
-        LinkedHashSet<Artifact> parents = configurationManager.resolveParentIds(configurationData);
-        for (Artifact parent : parents) {
-            String location = getBundleLocation(configurationResolver, parent);
-            Bundle bundle = getBundleByLocation(configurationData.getBundle().getBundleContext(), location);
-            if (bundle != null) {
-                bundles.add(bundle);
-            }
+        BundleContext bundleContext = configurationData.getBundle().getBundleContext();
+        List<String> bundleFilters = configurationData.getEnvironment().getBundleFilters();
+        for (String bundleFilter: bundleFilters) {
+            ServiceReference sr = bundleContext.getServiceReference(bundleFilter);
+            bundleReferences.add(sr);
+            Bundle bundle = (Bundle) bundleContext.getService(sr);
+            bundles.add(bundle);
         }
-
         return bundles;
     }
 
@@ -295,7 +270,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @return the unique Id
      */
     public Artifact getId() {
-        return dependencyNode.getId();
+        return configurationData.getId();
     }
 
     /**
@@ -315,37 +290,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return abstractName;
     }
 
-//    public ClassLoaderHolder getClassLoaderHolder() {
-//        return classLoaderHolder;
-//    }
-
-    /**
-     * Gets the parent configurations used for class loading.
-     * @return the parents of this configuration used for class loading
-     */
-//    public List<Configuration> getClassParents() {
-//        return classParents;
-//    }
-
-    /**
-     * Gets the parent configurations used for service resolution.
-     *
-     * @return the parents of this configuration used for service resolution
-     */
-//    public List<Configuration> getServiceParents() {
-//        return serviceParents;
-//    }
     public DependencyNode getDependencyNode() {
-        return dependencyNode;
+        return null;
+//        return dependencyNode;
     }
-
-    /**
-     * Gets the artifact dependencies of this configuration.
-     * @return the artifact dependencies of this configuration
-     */
-//    public LinkedHashSet<Artifact> getDependencies() {
-//        return dependencies;
-//    }
 
     /**
      * Gets the declaration of the environment in which this configuration runs.
@@ -374,9 +322,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Provide a way to locate where this configuration is for web apps and persistence units
      * @return the ConfigurationResolver for this configuration
      */
-    public ConfigurationResolver getConfigurationResolver() {
-        return configurationResolver;
-    }
+//    public ConfigurationResolver getConfigurationResolver() {
+//        return configurationResolver;
+//    }
 
     /**
      * Gets the type of the configuration (WAR, RAR et cetera)

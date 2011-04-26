@@ -65,6 +65,7 @@ public class NewServerInstanceGBean implements NewServerInstance {
         this.bundleContext = bundleContext;
     }
 
+    //TODO disabled for now, osgi conversion
     public void newServerInstance(String serverName) throws Exception {
         try {
             PluginListType pluginList = new PluginListType();
@@ -81,17 +82,17 @@ public class NewServerInstanceGBean implements NewServerInstance {
                 }
             }
 
-            Kernel kernel = new BasicKernel("assembly", bundleContext);
-
-            try {
-                PluginInstallerGBean pluginInstallerGBean = oldPluginInstallerGBean.pluginInstallerCopy(serverName, kernel);
-                GeronimoSourceRepository localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
-
-                DownloadResults downloadPoller = new DownloadResults();
-                pluginInstallerGBean.install(pluginList, localSourceRepository, true, null, null, downloadPoller);
-            } finally {
-                kernel.shutdown();
-            }
+//            Kernel kernel = new BasicKernel("assembly", bundleContext);
+//
+//            try {
+//                PluginInstallerGBean pluginInstallerGBean = oldPluginInstallerGBean.pluginInstallerCopy(serverName, kernel);
+//                GeronimoSourceRepository localSourceRepository = new GeronimoSourceRepository(configManager.getRepositories(), configManager.getArtifactResolver());
+//
+//                DownloadResults downloadPoller = new DownloadResults();
+//                pluginInstallerGBean.install(pluginList, localSourceRepository, true, null, null, downloadPoller);
+//            } finally {
+//                kernel.shutdown();
+//            }
         } catch (Throwable t) {
             t.printStackTrace();
         }

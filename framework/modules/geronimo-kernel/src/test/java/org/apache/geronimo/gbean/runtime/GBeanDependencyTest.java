@@ -21,8 +21,8 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.MockGBean;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -50,12 +50,12 @@ public class GBeanDependencyTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel = new BasicKernel();
+//        kernel.boot();
     }
 
     protected void tearDown() throws Exception {
-        kernel.shutdown();
+//        kernel.shutdown();
         super.tearDown();
     }
 }

@@ -286,12 +286,6 @@ public class ArchiveCarMojo
                     ZipEntry importTxtEntry = includedJarFile.getEntry("META-INF/imports.txt");
                     if (importTxtEntry != null) {
                         StringBuilder imports = new StringBuilder();
-                        if (boot) {
-                            archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, BootActivator.class.getName());
-                            imports.append("org.apache.geronimo.system.osgi,");
-                        } else {
-                            //archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, ConfigurationActivator.class.getName());
-                        }
                         archive.addManifestEntry(Constants.BUNDLE_NAME, project.getName());
                         archive.addManifestEntry(Constants.BUNDLE_VENDOR, project.getOrganization().getName());
                         ArtifactVersion version = project.getArtifact().getSelectedVersion();

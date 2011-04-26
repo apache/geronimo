@@ -20,134 +20,162 @@ package org.apache.geronimo.system.configuration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.OsgiService;
-import org.apache.geronimo.gbean.annotation.ParamReference;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.LifecycleException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.util.IOUtils;
-import org.apache.geronimo.system.plugin.model.DependencyType;
-import org.apache.geronimo.system.plugin.model.PluginArtifactType;
-import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.SynchronousBundleListener;
+import org.osgi.util.tracker.BundleTracker;
+import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
-@GBean
-@OsgiService
-public class ConfigurationExtender implements SynchronousBundleListener, GBeanLifecycle {
+@Component
+public class ConfigurationExtender {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationExtender.class);
 
-    private BundleContext bundleContext;
+//    private BundleContext bundleContext;
+//
+//    private ConfigurationManager configurationManager;
+//
+//    private DependencyManager dependencyManager;
+//
+//    private Map<Long, Artifact> bundleIdArtifactMap = new ConcurrentHashMap<Long, Artifact>();
+//
+//    private Set<Long> loadedBundleIds = Collections.synchronizedSet(new HashSet<Long>());
 
-    private ConfigurationManager configurationManager;
+    private final Map<Long, Configuration> configurationMap = new ConcurrentHashMap<Long, Configuration>();
 
-    private DependencyManager dependencyManager;
+    private BundleTracker bt;
 
-    private Map<Long, Artifact> bundleIdArtifactMap = new ConcurrentHashMap<Long, Artifact>();
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY)
+    private ManageableAttributeStore manageableAttributeStore;
 
-    private Set<Long> loadedBundleIds = Collections.synchronizedSet(new HashSet<Long>());
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private Kernel kernel;
 
-    private Map<Long, BundleListener> bundleIdListenerMap = new ConcurrentHashMap<Long, BundleListener>();
+    public void setKernel(Kernel kernel) {
+        this.kernel = kernel;
+    }
 
-    public ConfigurationExtender(@ParamReference(name = "ConfigurationManager", namingType = "ConfigurationManager") ConfigurationManager configurationManager,
-            @ParamReference(name = "DependencyManager") DependencyManager dependencyManager, @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-        this.configurationManager = configurationManager;
-        this.dependencyManager = dependencyManager;
-        for (Bundle bundle : bundleContext.getBundles()) {
-            //After the first start, all the bundles are cached, and some of them will be resolved by some rules by OSGi container.
-            //And DependencyManager is not installed while those bundles are resolved, so we need to invoke the install method to make sure
-            //that all the dependent bundles are resolved first, especially those car bundles.
-            if (!loadedBundleIds.contains(bundle.getBundleId())) {
-                recursiveLoadConfigurationData(bundle);
+    public void unsetKernel(Kernel kernel) {
+        if (kernel == this.kernel) {
+            this.kernel = null;
+        }
+    }
+
+    public void setManageableAttributeStore(ManageableAttributeStore manageableAttributeStore) {
+        this.manageableAttributeStore = manageableAttributeStore;
+    }
+
+    public void unsetManageableAttributeStore(ManageableAttributeStore manageableAttributeStore) {
+        if (manageableAttributeStore == this.manageableAttributeStore) {
+            this.manageableAttributeStore = null;
+        }
+    }
+
+    @Activate
+    public void start(BundleContext bundleContext) {
+        bt = new BundleTracker(bundleContext, Bundle.RESOLVED | Bundle.ACTIVE, new ConfigurationBundleTrackerCustomizer());
+        bt.open();
+
+    }
+
+    @Deactivate
+    public void stop() {
+        bt.close();
+        bt = null;
+    }
+
+    private class ConfigurationBundleTrackerCustomizer implements BundleTrackerCustomizer {
+        @Override
+        public Object addingBundle(Bundle bundle, BundleEvent bundleEvent) {
+            if (bundle.getState() == Bundle.RESOLVED) {
+                return loadConfiguration(bundle);
+            } else if (bundle.getState() == Bundle.ACTIVE) {
+                return startConfiguration(bundle);
+            }
+            return null;
+        }
+
+        @Override
+        public void modifiedBundle(Bundle bundle, BundleEvent bundleEvent, Object o) {
+        }
+
+        @Override
+        public void removedBundle(Bundle bundle, BundleEvent bundleEvent, Object o) {
+            if (bundleEvent.getType() == BundleEvent.STOPPED) {
+                stopConfiguration(bundle, (Configuration)o);
+            } else if (bundleEvent.getType() == BundleEvent.UNRESOLVED) {
+                unloadConfiguration(bundle, (Configuration)o);
             }
         }
     }
 
-    @Override
-    public void bundleChanged(BundleEvent event) {
-        try {
-            int eventType = event.getType();
-            Bundle bundle = event.getBundle();
-            if (eventType == BundleEvent.RESOLVED) {
-                if (!loadedBundleIds.contains(bundle.getBundleId())) {
-                    recursiveLoadConfigurationData(bundle);
-                }
-            } else if (eventType == BundleEvent.STOPPING) {
-                stopConfiguration(bundle);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
-    protected void loadConfiguration(Bundle bundle) {
-        PluginArtifactType pluginArtifact = dependencyManager.getCachedPluginMetadata(bundle);
-        if (pluginArtifact == null) {
-            if (BundleUtils.isResolved(bundle)) {
-                loadedBundleIds.add(bundle.getBundleId());
-            }
-            return;
-        }
-        Set<Long> dependentBundleIds = new HashSet<Long>();
-        for (DependencyType dependency : pluginArtifact.getDependency()) {
-            Long dependentBundleId = dependencyManager.getBundle(dependency.toArtifact()).getBundleId();
-            if (!loadedBundleIds.contains(dependentBundleId)) {
-                dependentBundleIds.add(dependentBundleId);
-            }
-        }
-        if (dependentBundleIds.size() > 0) {
-            bundleIdListenerMap.put(bundle.getBundleId(), new BundleListener(bundle, dependentBundleIds));
-            return;
-        }
-        _loadConfiguration(bundle);
-        loadedBundleIds.add(bundle.getBundleId());
+//    protected Configuration loadConfiguration(Bundle bundle) {
+//        PluginArtifactType pluginArtifact = dependencyManager.getCachedPluginMetadata(bundle);
+//        if (pluginArtifact == null) {
+//            if (BundleUtils.isResolved(bundle)) {
+//                loadedBundleIds.add(bundle.getBundleId());
+//            }
+//            return;
+//        }
+//        Set<Long> dependentBundleIds = new HashSet<Long>();
+//        for (DependencyType dependency : pluginArtifact.getDependency()) {
+//            Long dependentBundleId = dependencyManager.getBundle(dependency.toArtifact()).getBundleId();
+//            if (!loadedBundleIds.contains(dependentBundleId)) {
+//                dependentBundleIds.add(dependentBundleId);
+//            }
+//        }
+//        if (dependentBundleIds.size() > 0) {
+//            bundleIdListenerMap.put(bundle.getBundleId(), new BundleListener(bundle, dependentBundleIds));
+//            return;
+//        }
+//        _loadConfiguration(bundle);
+//        loadedBundleIds.add(bundle.getBundleId());
+//
+//        boolean bundleStatusChanged;
+//        do {
+//            bundleStatusChanged = false;
+//            for (Iterator<Map.Entry<Long, BundleListener>> it = bundleIdListenerMap.entrySet().iterator(); it.hasNext();) {
+//                Map.Entry<Long, BundleListener> entry = it.next();
+//                if (entry.getValue().bundleChanged(bundle)) {
+//                    bundleStatusChanged = true;
+//                    it.remove();
+//                }
+//            }
+//        } while (bundleStatusChanged);
+//    }
 
-        boolean bundleStatusChanged;
-        do {
-            bundleStatusChanged = false;
-            for (Iterator<Map.Entry<Long, BundleListener>> it = bundleIdListenerMap.entrySet().iterator(); it.hasNext();) {
-                Map.Entry<Long, BundleListener> entry = it.next();
-                if (entry.getValue().bundleChanged(bundle)) {
-                    bundleStatusChanged = true;
-                    it.remove();
-                }
-            }
-        } while (bundleStatusChanged);
-    }
-
-    private void _loadConfiguration(Bundle bundle) {
-        loadedBundleIds.add(bundle.getBundleId());
+    private Configuration loadConfiguration(Bundle bundle) {
+//        loadedBundleIds.add(bundle.getBundleId());
         URL configSerURL = bundle.getEntry("META-INF/config.ser");
         if (configSerURL == null) {
-            return;
+            return null;
         }
         InputStream in = null;
         try {
@@ -155,99 +183,107 @@ public class ConfigurationExtender implements SynchronousBundleListener, GBeanLi
             //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
             ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
             data.setBundle(bundle);
-            configurationManager.loadConfiguration(data);
-            bundleIdArtifactMap.put(bundle.getBundleId(), data.getId());
+            Configuration configuration = new Configuration(data, manageableAttributeStore);
+            configurationMap.put(bundle.getBundleId(), configuration);
+            for (GBeanData gBeanData: configuration.getGBeans().values()) {
+                kernel.loadGBean(gBeanData, configuration.getBundle().getBundleContext());
+            }
+            return configuration;
+
+//            configurationManager.loadConfiguration(data);
+//            bundleIdArtifactMap.put(bundle.getBundleId(), data.getId());
         } catch (IOException e) {
             logger.error("Could not read the config.ser file from bundle " + bundle.getLocation(), e);
         } catch (ClassNotFoundException e) {
             logger.error("Could not load required classes from bundle " + bundle.getLocation(), e);
-        } catch (NoSuchConfigException e) {
-            logger.error("Could not load configuration from bundle " + bundle.getLocation(), e);
-        } catch (LifecycleException e) {
-            logger.error("Could not load configuration from bundle " + bundle.getLocation(), e);
+        } catch (InvalidConfigException e) {
+            logger.error("Could not load Configuration from bundle " + bundle.getLocation(), e);
+        } catch (GBeanAlreadyExistsException e) {
+            logger.error("Duplicate gbean in bundle " + bundle.getLocation(), e);
         } finally {
             IOUtils.close(in);
         }
+        return null;
     }
 
-    protected void stopConfiguration(Bundle bundle) {
-        Artifact id = getArtifact(bundle);
-        if (id == null) {
-            return;
+    private Configuration startConfiguration(Bundle bundle) {
+        Configuration configuration = configurationMap.get(bundle.getBundleId());
+        if (configuration != null) {
+            try {
+                ConfigurationUtil.startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
+            } catch (InvalidConfigException e) {
+                logger.error("Could not start Configuration from bundle " + bundle.getLocation(), e);
+            }
         }
-        ServiceReference kernelReference = null;
-        try {
-            kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
-            if (kernelReference == null) {
-                return;
-            }
-            Kernel kernel = (Kernel) bundleContext.getService(kernelReference);
-            AbstractName name = Configuration.getConfigurationAbstractName(id);
-            //TODO investigate how this is called and whether just stopping/unloading the configuration gbean will
-            //leave the configuration model in a consistent state.  We might need a shutdown flag set elsewhere to avoid
-            //overwriting the load attribute in config.xml. This code mimics the shutdown hook in KernelConfigurationManager
-            //see https://issues.apache.org/jira/browse/GERONIMO-4909
-            try {
-                kernel.stopGBean(name);
-            } catch (Exception e) {
-                //ignore
-            }
-            try {
-                kernel.unloadGBean(name);
-            } catch (Exception e) {
-            }
-            //TODO this code is more symmetrical with start, but currently sets the load attribute to false in config.xml,
-            //which prevents restarting the server.
-            //ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
-            //manager.unloadConfiguration(id);
-        } catch (InvalidConfigException e) {
-            //
-        } finally {
-            if (kernelReference != null) {
+
+        return configuration;
+    }
+
+
+    protected void stopConfiguration(Bundle bundle, Configuration configuration) {
+        if (configuration != null) {
+            for (AbstractName abstractName: configuration.getGBeans().keySet()) {
                 try {
-                    bundleContext.ungetService(kernelReference);
-                } catch (Exception e) {
+                    kernel.stopGBean(abstractName);
+                } catch (GBeanNotFoundException e) {
+                    logger.error("Could not stop gbean " + abstractName + " from bundle " + bundle.getLocation(), e);
                 }
             }
         }
+//        Artifact id = getArtifact(bundle);
+//        if (id == null) {
+//            return;
+//        }
+//        ServiceReference kernelReference = null;
+//        try {
+//            kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
+//            if (kernelReference == null) {
+//                return;
+//            }
+//            Kernel kernel = (Kernel) bundleContext.getService(kernelReference);
+//            AbstractName name = Configuration.getConfigurationAbstractName(id);
+//            //TODO investigate how this is called and whether just stopping/unloading the configuration gbean will
+//            //leave the configuration model in a consistent state.  We might need a shutdown flag set elsewhere to avoid
+//            //overwriting the load attribute in config.xml. This code mimics the shutdown hook in KernelConfigurationManager
+//            //see https://issues.apache.org/jira/browse/GERONIMO-4909
+//            try {
+//                kernel.stopGBean(name);
+//            } catch (Exception e) {
+//                //ignore
+//            }
+//            try {
+//                kernel.unloadGBean(name);
+//            } catch (Exception e) {
+//            }
+//            //TODO this code is more symmetrical with start, but currently sets the load attribute to false in config.xml,
+//            //which prevents restarting the server.
+//            //ConfigurationManager manager = ConfigurationUtil.getConfigurationManager(kernel);
+//            //manager.unloadConfiguration(id);
+//        } catch (InvalidConfigException e) {
+//            //
+//        } finally {
+//            if (kernelReference != null) {
+//                try {
+//                    bundleContext.ungetService(kernelReference);
+//                } catch (Exception e) {
+//                }
+//            }
+//        }
     }
 
-    private Artifact getArtifact(Bundle bundle) {
-        return bundleIdArtifactMap.get(bundle.getBundleId());
-    }
-
-    @Override
-    public void doStart() throws Exception {
-        bundleContext.addBundleListener(this);
-    }
-
-    @Override
-    public void doStop() throws Exception {
-        bundleContext.removeBundleListener(this);
-    }
-
-    @Override
-    public void doFail() {
-        try {
-            doStop();
-        } catch (Exception e) {
-        }
-    }
-
-    private void recursiveLoadConfigurationData(Bundle bundle) {
-        PluginArtifactType pluginArtifact = dependencyManager.getCachedPluginMetadata(bundle);
-        if (pluginArtifact != null) {
-            for (DependencyType dependency : pluginArtifact.getDependency()) {
-                Bundle dependentBundle = dependencyManager.getBundle(dependency.toArtifact());
-                if (dependentBundle == null || loadedBundleIds.contains(dependentBundle.getBundleId())) {
-                    continue;
+    private void unloadConfiguration(Bundle bundle, Configuration configuration) {
+        if (configuration != null) {
+            for (AbstractName abstractName: configuration.getGBeans().keySet()) {
+                try {
+                    kernel.unloadGBean(abstractName);
+                } catch (GBeanNotFoundException e) {
+                    logger.error("Could not unload gbean " + abstractName + " from bundle " + bundle.getLocation(), e);
                 }
-                recursiveLoadConfigurationData(dependentBundle);
-                loadConfiguration(dependentBundle);
             }
+
         }
-        loadConfiguration(bundle);
     }
+
 
     private class BundleListener {
 
@@ -267,10 +303,11 @@ public class ConfigurationExtender implements SynchronousBundleListener, GBeanLi
             }
             dependentBundleIds.remove(dependentBundleId);
             if (dependentBundleIds.size() == 0) {
-                _loadConfiguration(hostBundle);
+//                _loadConfiguration(hostBundle);
                 return true;
             }
             return false;
         }
     }
+
 }

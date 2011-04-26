@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -35,8 +36,8 @@ public class SimpleGBeanTest extends TestCase {
 
     public void test() throws Exception {
         // boot the kernel
-        Kernel kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        BasicKernel kernel = new BasicKernel();
+//        kernel.boot();
 
         // load the configuration manager bootstrap service
         ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());

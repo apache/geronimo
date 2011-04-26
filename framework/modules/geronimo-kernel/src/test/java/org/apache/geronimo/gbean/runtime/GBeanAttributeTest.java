@@ -23,10 +23,10 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.MockGBean;
-import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -50,7 +50,7 @@ public class GBeanAttributeTest extends TestCase {
 
     private GAttributeInfo persistentPrimitiveAttributeInfo = null;
     private GAttributeInfo attributeInfo = null;
-    private Kernel kernel;
+    private BasicKernel kernel;
 
     public final void testGBeanAttributeEncryption() {
         GBeanInfo ginfo = gbeanInstance.getGBeanInfo();
@@ -335,8 +335,8 @@ public class GBeanAttributeTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        kernel.boot();
+        kernel = new BasicKernel();
+//        kernel.boot();
 
         AbstractName name = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
         gbeanInstance = new GBeanInstance(new GBeanData(name, MockGBean.getGBeanInfo()),

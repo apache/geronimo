@@ -71,7 +71,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     private final JaasLoginModuleUse loginModuleUse;
 
     private final boolean global;
-    private final ServerInfo serverInfo;
+    private ServerInfo serverInfo;
     private final Bundle bundle;
     private final Kernel kernel;
     private final Configuration configuration;
@@ -94,6 +94,11 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
 
         refresh();
         configuration = new SingleLoginConfiguration(this);
+    }
+
+    public void setServerInfo(ServerInfo serverInfo) {
+        this.serverInfo = serverInfo;
+        refresh();
     }
 
     public String getRealmName() {

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.osgi.framework.BundleContext;
 
@@ -59,9 +59,9 @@ public class MainConfigurationBootstrapper {
             loadPersistentConfigurations();
             return getMain();
         } catch (Exception e) {
-            if (null != kernel) {
-                kernel.shutdown();
-            }
+//            if (null != kernel) {
+//                kernel.shutdown();
+//            }
             e.printStackTrace();
             System.exit(1);
             throw new AssertionError();
@@ -69,12 +69,13 @@ public class MainConfigurationBootstrapper {
     }
     
     public void bootKernel(BundleContext bundleContext) throws Exception {
-        kernel = KernelFactory.newInstance(bundleContext).createKernel("MainBootstrapper");
-        kernel.boot();
+        kernel = new BasicKernel();
+//        kernel = KernelFactory.newInstance(bundleContext).createKernel("MainBootstrapper");
+//        kernel.boot();
 
         Runtime.getRuntime().addShutdownHook(new Thread("MainBootstrapper shutdown thread") {
             public void run() {
-                kernel.shutdown();
+                ((BasicKernel)kernel).shutdown();
             }
         });
     }

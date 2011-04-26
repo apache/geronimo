@@ -86,9 +86,9 @@ public class OSGiMetaDataBuilder {
 
     protected void processClassloadingRules(Environment environment) {
         //Process Hidden Class
-        for (String hiddenClassPrefix : environment.getClassLoadingRules().getHiddenRule().getClassPrefixes()) {
-            environment.addImportPackage("!" + hiddenClassPrefix);
-        }
+//        for (String hiddenClassPrefix : environment.getClassLoadingRules().getHiddenRule().getClassPrefixes()) {
+//            environment.addImportPackage("!" + hiddenClassPrefix);
+//        }
         //Non-Overridable-Classes
         /*for (String hiddenClassPrefix : environment.getClassLoadingRules().getHiddenRule().getClassPrefixes()) {
             environment.getImportPackages().add(hiddenClassPrefix);
@@ -166,8 +166,7 @@ public class OSGiMetaDataBuilder {
         }
         environment.removeDynamicImportPackages(removedDynamicImportPackages);
 
-        OSGiBuildContext osgiBuildContext = new OSGiBuildContext(environment, hiddenImportPackageNamePrefixes, hiddenImportPackageNames, dependencyManager, environment.getClassLoadingRules()
-                .isInverseClassLoading());
+        OSGiBuildContext osgiBuildContext = new OSGiBuildContext(environment, hiddenImportPackageNamePrefixes, hiddenImportPackageNames, dependencyManager, false);
         osgiBuildContext.setClientModule(clientModule);
         if (clientModule) {
             osgiBuildContext.setClientArtifactResolver(getClientArtifactResolver());

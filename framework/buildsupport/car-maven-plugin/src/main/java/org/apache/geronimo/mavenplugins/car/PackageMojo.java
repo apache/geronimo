@@ -34,8 +34,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -44,7 +44,6 @@ import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.RecordingLifecycleMonitor;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.system.configuration.ConfigurationExtender;
 import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.repository.Maven2Repository;
@@ -54,6 +53,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.codehaus.plexus.util.FileUtils;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.launch.Framework;
 
@@ -179,6 +179,8 @@ public class PackageMojo extends AbstractCarMojo {
      */
     protected String pluginMetadataFileName = null;
     private BundleContext bundleContext;
+    private ServiceRegistration kernelRegistration;
+    private ServiceReference kernelReference;
 
     //
     // Mojo
@@ -309,8 +311,8 @@ public class PackageMojo extends AbstractCarMojo {
 
         DependencyManager dependencyManager = kernel.getGBean(DependencyManager.class);
         //Register ConfigurationExtender Listener
-        ConfigurationExtender configurationExtender = new ConfigurationExtender(configurationManager, dependencyManager, bundleContext);
-        configurationExtender.doStart();
+//        ConfigurationExtender configurationExtender = new ConfigurationExtender(configurationManager, dependencyManager, bundleContext);
+//        configurationExtender.doStart();
 
         try {
             for (String artifactName : deploymentConfigs) {
@@ -340,9 +342,10 @@ public class PackageMojo extends AbstractCarMojo {
         AbstractName deployer = locateDeployer(kernel);
         invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
         //use a fresh kernel for each module
-        configurationExtender.doStop();
-        kernel.shutdown();
+//        configurationExtender.doStop();
+//        kernel.shutdown();
         kernel = null;
+        bundleContext.ungetService(kernelReference);
         bundleContext.getBundle().stop();
         bundleContext = null;
     }
@@ -366,13 +369,14 @@ public class PackageMojo extends AbstractCarMojo {
         // boot one ourselves
         bundleContext = getFramework().getBundleContext();
 
-        kernel = KernelFactory.newInstance(bundleContext).createKernel(KERNEL_NAME);
-        kernel.boot();
+//        kernel = KernelFactory.newInstance(bundleContext).createKernel(KERNEL_NAME);
+//        kernel.boot();
         AbstractName sourceRepoName = bootDeployerSystem();
         Dictionary dictionary = null;
-        ServiceRegistration kernelRegistration = bundleContext.registerService(Kernel.class.getName(), kernel, dictionary);
+//        kernelRegistration = bundleContext.registerService(Kernel.class.getName(), kernel, dictionary);
+        kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
 
-        return kernel;
+        return (Kernel) bundleContext.getService(kernelReference);
     }
 
     /**

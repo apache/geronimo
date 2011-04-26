@@ -370,10 +370,6 @@ public class KernelGBean implements Kernel{
         return kernel.getShortNameFor(service);
     }
 
-    public void boot() throws Exception {
-        kernel.boot();
-    }
-
     public Date getBootTime() {
         return kernel.getBootTime();
     }
@@ -384,10 +380,6 @@ public class KernelGBean implements Kernel{
 
     public void unregisterShutdownHook(Runnable hook) {
         kernel.unregisterShutdownHook(hook);
-    }
-
-    public void shutdown() {
-        kernel.shutdown();
     }
 
     public boolean isRunning() {

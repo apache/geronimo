@@ -223,7 +223,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         final ArtifactManager artifactManager = new DefaultArtifactManager();
 
         forceMkdir(new File(targetServerPath));
-        serverInfo = new BasicServerInfo(targetServerPath, false, null);
+        serverInfo = new BasicServerInfo(targetServerPath, false);
         File targetRepositoryFile = serverInfo.resolve(targetRepositoryPath);
         forceMkdir(targetRepositoryFile);
         writeableRepo = new Maven2Repository(targetRepositoryFile);
@@ -445,22 +445,23 @@ public class PluginInstallerGBean implements PluginInstaller {
             FileUtils.delete(targetServerPath);
         }
         String targetServerPathName = targetServerPath.getAbsolutePath();
-        Kernel kernel = new BasicKernel("assembly", bundleContext);
-
-        try {
-            PluginInstallerGBean installer = new PluginInstallerGBean(
-                    targetRepositoryPath,
-                    targetServerPathName,
-                    installedPluginsList,
-                    serverInstanceDatas,
-                    pluginRepositoryList,
-                    kernel,
-                    bundleContext);
-
-            installer.install(pluginList, localSourceRepository, true, null, null, downloadPoller);
-        } finally {
-            kernel.shutdown();
-        }
+        //TODO disabled for now osgi conversion
+//        Kernel kernel = new BasicKernel("assembly", bundleContext);
+//
+//        try {
+//            PluginInstallerGBean installer = new PluginInstallerGBean(
+//                    targetRepositoryPath,
+//                    targetServerPathName,
+//                    installedPluginsList,
+//                    serverInstanceDatas,
+//                    pluginRepositoryList,
+//                    kernel,
+//                    bundleContext);
+//
+//            installer.install(pluginList, localSourceRepository, true, null, null, downloadPoller);
+//        } finally {
+//            kernel.shutdown();
+//        }
         return downloadPoller;
     }
 
@@ -1296,11 +1297,11 @@ public class PluginInstallerGBean implements PluginInstaller {
             if (instance == null) {
                 //no plugin metadata, guess with something else
                 if (data != null) {
-                    for (Dependency dep : getDependencies(data)) {
-                        Artifact artifact = dep.getArtifact();
-                        log.debug("Attempting to download dependency={} for configuration={}", artifact, configID);
-                        downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true, servers, loadOverride);
-                    }
+//                    for (Dependency dep : getDependencies(data)) {
+//                        Artifact artifact = dep.getArtifact();
+//                        log.debug("Attempting to download dependency={} for configuration={}", artifact, configID);
+//                        downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true, servers, loadOverride);
+//                    }
                 }
             } else {
                 //rely on plugin metadata if present.
@@ -1475,14 +1476,14 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @param data configuration data
      * @return dependencies of configuration
      */
-    private static Dependency[] getDependencies(ConfigurationData data) {
-        List<Dependency> dependencies = new ArrayList<Dependency>(data.getEnvironment().getDependencies());
-        Collection<ConfigurationData> children = data.getChildConfigurations().values();
-        for (ConfigurationData child : children) {
-            dependencies.addAll(child.getEnvironment().getDependencies());
-        }
-        return dependencies.toArray(new Dependency[dependencies.size()]);
-    }
+//    private static Dependency[] getDependencies(ConfigurationData data) {
+//        List<Dependency> dependencies = new ArrayList<Dependency>(data.getEnvironment().getDependencies());
+//        Collection<ConfigurationData> children = data.getChildConfigurations().values();
+//        for (ConfigurationData child : children) {
+//            dependencies.addAll(child.getEnvironment().getDependencies());
+//        }
+//        return dependencies.toArray(new Dependency[dependencies.size()]);
+//    }
 
     /**
      * Searches for an artifact in the listed repositories, where the artifact
@@ -1634,11 +1635,11 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     public static void addGeronimoDependencies(ConfigurationData data, List<DependencyType> deps, boolean includeVersion) {
-        processDependencyList(data.getEnvironment().getDependencies(), deps, includeVersion);
-        Map<String, ConfigurationData> children = data.getChildConfigurations();
-        for (ConfigurationData child : children.values()) {
-            processDependencyList(child.getEnvironment().getDependencies(), deps, includeVersion);
-        }
+//        processDependencyList(data.getEnvironment().getDependencies(), deps, includeVersion);
+//        Map<String, ConfigurationData> children = data.getChildConfigurations();
+//        for (ConfigurationData child : children.values()) {
+//            processDependencyList(child.getEnvironment().getDependencies(), deps, includeVersion);
+//        }
     }
 
     /**

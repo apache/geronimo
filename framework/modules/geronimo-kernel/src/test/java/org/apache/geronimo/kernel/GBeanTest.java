@@ -28,6 +28,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
@@ -39,7 +40,7 @@ import org.osgi.framework.BundleContext;
 public class GBeanTest extends TestCase {
     private BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), null, null, null);
     private static KernelWrapper kernelWrapper = new KernelWrapper();
-    private Kernel realKernel;
+    private BasicKernel realKernel;
     private Kernel kernel;
 
     /**
@@ -182,6 +183,7 @@ public class GBeanTest extends TestCase {
     }
 
     public void testGetGBean() throws Exception {
+        realKernel.boot(bundleContext);
         GBeanData gbean = buildGBeanData("name", "test", MockGBean.getGBeanInfo());
         gbean.setAttribute("finalInt", new Integer(123));
 
@@ -522,8 +524,8 @@ public class GBeanTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        realKernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-        realKernel.boot();
+        realKernel = new BasicKernel();
+//        realKernel.boot();
         kernel = kernelWrapper.wrap(realKernel);
     }
 

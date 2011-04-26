@@ -38,8 +38,6 @@ import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.ImportType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ClassLoadingRule;
-import org.apache.geronimo.kernel.repository.ClassLoadingRules;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlException;
@@ -61,11 +59,6 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
                 environment.setConfigId(toArtifact(environmentType.getModuleId(), null));
             }
 
-            if (environmentType.isSetDependencies()) {
-                DependencyType[] dependencyArray = environmentType.getDependencies().getDependencyArray();
-                LinkedHashSet dependencies = toDependencies(dependencyArray);
-                environment.setDependencies(dependencies);
-            }
             if (environmentType.isSetBundleActivator()) {
                 environment.setBundleActivator(trim(environmentType.getBundleActivator()));
             }
@@ -82,9 +75,6 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
                 environment.addDynamicImportPackage(trim(dynamicImportPackage));
             }
                         
-            environment.setSuppressDefaultEnvironment(environmentType.isSetSuppressDefaultEnvironment());
-            
-            ClassLoadingRulesUtil.configureRules(environment.getClassLoadingRules(), environmentType);
         }
 
         return environment;
@@ -96,7 +86,6 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
             if (environment.getConfigId() == null) {
                 environment.setConfigId(additionalEnvironment.getConfigId());
             }
-            environment.addDependencies(additionalEnvironment.getDependencies());
             environment.addToBundleClassPath(additionalEnvironment.getBundleClassPath());
             environment.addImportPackages(additionalEnvironment.getImportPackages());
             environment.addExportPackages(additionalEnvironment.getExportPackages());
@@ -106,19 +95,11 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
                 environment.setBundleActivator(additionalEnvironment.getBundleActivator());
             }
             
-            environment.setSuppressDefaultEnvironment(environment.isSuppressDefaultEnvironment() || additionalEnvironment.isSuppressDefaultEnvironment());
-            
-            ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
-            ClassLoadingRules additionalClassLoadingRules = additionalEnvironment.getClassLoadingRules();
-            classLoadingRules.merge(additionalClassLoadingRules);
         }
     }
 
     public static Environment buildEnvironment(EnvironmentType environmentType, Environment defaultEnvironment) {
         Environment environment = buildEnvironment(environmentType);
-        if (!environment.isSuppressDefaultEnvironment()) {
-            mergeEnvironments(environment, defaultEnvironment);
-        }
         return environment;
     }
 
@@ -129,11 +110,6 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
             environmentType.setModuleId(configId);
         }
 
-        List<DependencyType> dependencies = toDependencyTypes(environment.getDependencies());
-        DependencyType[] dependencyTypes = dependencies.toArray(new DependencyType[dependencies.size()]);
-        DependenciesType dependenciesType = environmentType.addNewDependencies();
-        dependenciesType.setDependencyArray(dependencyTypes);
-        
         if (environment.getBundleActivator() != null) {
             environmentType.setBundleActivator(environment.getBundleActivator());
         }
@@ -152,26 +128,7 @@ public class EnvironmentBuilder extends PropertyEditorSupport implements XmlAttr
         for (String dynamicImportPackage: environment.getDynamicImportPackages()) {
             environmentType.addDynamicImportPackage(dynamicImportPackage);
         }
-        
-        ClassLoadingRules classLoadingRules = environment.getClassLoadingRules();
-        if (classLoadingRules.isInverseClassLoading()) {
-            environmentType.addNewInverseClassloading();
-        }
-        
-        if (environment.isSuppressDefaultEnvironment()) {
-            environmentType.addNewSuppressDefaultEnvironment();
-        }
-        
-        ClassLoadingRule classLoadingRule = classLoadingRules.getHiddenRule();
-        environmentType.setHiddenClasses(toFilterType(classLoadingRule.getClassPrefixes()));
-        
-        classLoadingRule = classLoadingRules.getNonOverrideableRule();
-        environmentType.setNonOverridableClasses(toFilterType(classLoadingRule.getClassPrefixes()));
-
-        classLoadingRule = classLoadingRules.getPrivateRule();
-        environmentType.setPrivateClasses(toFilterType(classLoadingRule.getClassPrefixes()));
-        
-        return environmentType;
+                return environmentType;
     }
 
     private static ClassFilterType toFilterType(Set filters) {

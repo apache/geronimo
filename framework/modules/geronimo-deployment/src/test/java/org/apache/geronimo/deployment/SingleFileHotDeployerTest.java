@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -34,7 +33,6 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.DependencyNode;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -380,13 +378,8 @@ public class SingleFileHotDeployerTest extends TestSupport {
             try {
                 return new Configuration(
                         loadedConfigurationData,
-                        new DependencyNode(loadedConfigurationData.getId(),
-                                new LinkedHashSet<Artifact>(),
-                                new LinkedHashSet<Artifact>()),
-                        new ArrayList<Configuration>(),
-                        null,
-                        null,
-                        this);
+                        null
+                );
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

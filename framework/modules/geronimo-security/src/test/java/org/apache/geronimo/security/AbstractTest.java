@@ -30,14 +30,13 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
-
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.MultiGBeanInfoFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
@@ -45,6 +44,7 @@ import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.realm.providers.CertificateCallback;
 import org.apache.geronimo.security.realm.providers.CertificateChainCallback;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.testsupport.TestSupport;
 
 
@@ -52,8 +52,8 @@ import org.apache.geronimo.testsupport.TestSupport;
  * @version $Rev$ $Date$
  */
 public abstract class AbstractTest extends TestSupport {
-    protected Kernel kernel;
-    protected AbstractName serverInfo;
+    protected BasicKernel kernel;
+    protected ServerInfo serverInfo;
     protected AbstractName testLoginModule;
     protected AbstractName testRealm;
     private static final String REALM_NAME = "test-realm";
@@ -65,18 +65,15 @@ public abstract class AbstractTest extends TestSupport {
     protected void setUp() throws Exception {
         bundleContext = new MockBundleContext(getClass().getClassLoader(), BASEDIR.getAbsolutePath(), null, null);
 
-        kernel = KernelFactory.newInstance(bundleContext).createKernel("test.kernel");
-        kernel.boot();
+        kernel = new BasicKernel();
+//        kernel = KernelFactory.newInstance(bundleContext).createKernel("test.kernel");
+        kernel.boot(bundleContext);
 
         GBeanData gbean;
 
         // Create all the parts
         if (needServerInfo) {
-            gbean = buildGBeanData("name", "ServerInfo", BasicServerInfo.class);
-            serverInfo = gbean.getAbstractName();
-            gbean.setAttribute("baseDirectory", BASEDIR.getAbsolutePath());
-            kernel.loadGBean(gbean, bundleContext);
-            kernel.startGBean(serverInfo);
+            serverInfo = new BasicServerInfo(BASEDIR.getAbsolutePath());
         }
         if (needLoginConfiguration) {
             gbean = buildGBeanData("name", "LoginConfiguration", GeronimoLoginConfiguration.class);

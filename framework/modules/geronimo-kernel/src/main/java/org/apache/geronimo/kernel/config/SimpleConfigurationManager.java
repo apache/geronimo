@@ -392,7 +392,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     protected Configuration doStart(ConfigurationData configurationData, Set<Artifact> resolvedParentIds, Map<Artifact, Configuration> loadedConfigurations, ConfigurationResolver configurationResolver) throws Exception {
         DependencyNode dependencyNode = buildDependencyNode(configurationData);
         List<Configuration> allServiceParents = buildAllServiceParents(loadedConfigurations, dependencyNode);
-        Configuration configuration = new Configuration(configurationData, dependencyNode, allServiceParents, null, configurationResolver, this);
+        Configuration configuration = new Configuration(configurationData, null);
         configuration.doStart();
         //TODO why???
         resolvedParentIds.add(configuration.getId());
@@ -566,28 +566,28 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         Environment environment = configurationData.getEnvironment();
 
         LinkedHashSet<Artifact> parentIds = new LinkedHashSet<Artifact>();
-        List<Dependency> dependencies = new ArrayList<Dependency>(environment.getDependencies());
-        for (ListIterator<Dependency> iterator = dependencies.listIterator(); iterator.hasNext();) {
-            Dependency dependency = iterator.next();
-            Artifact resolvedArtifact = artifactResolver.resolveInClassLoader(dependency.getArtifact());
-//            if (isConfiguration(resolvedArtifact)) {
-            parentIds.add(resolvedArtifact);
-
-            // update the dependency list to contain the resolved artifact
-            dependency = new Dependency(resolvedArtifact, dependency.getImportType());
-            iterator.set(dependency);
-//            } else if (dependency.getImportType() == ImportType.SERVICES) {
-//                 Service depdendencies require that the depdencency be a configuration
-//                throw new InvalidConfigException("Dependency does not have services: " + resolvedArtifact);
-//            }
-        }
-
-        for (ConfigurationData childConfigurationData : configurationData.getChildConfigurations().values()) {
-            LinkedHashSet<Artifact> childParentIds = resolveParentIds(childConfigurationData);
-            // remove this configuration's id from the parent Ids since it will cause an infinite loop
-            childParentIds.remove(configurationData.getId());
-            parentIds.addAll(childParentIds);
-        }
+//        List<Dependency> dependencies = new ArrayList<Dependency>(environment.getDependencies());
+//        for (ListIterator<Dependency> iterator = dependencies.listIterator(); iterator.hasNext();) {
+//            Dependency dependency = iterator.next();
+//            Artifact resolvedArtifact = artifactResolver.resolveInClassLoader(dependency.getArtifact());
+////            if (isConfiguration(resolvedArtifact)) {
+//            parentIds.add(resolvedArtifact);
+//
+//            // update the dependency list to contain the resolved artifact
+//            dependency = new Dependency(resolvedArtifact, dependency.getImportType());
+//            iterator.set(dependency);
+////            } else if (dependency.getImportType() == ImportType.SERVICES) {
+////                 Service depdendencies require that the depdencency be a configuration
+////                throw new InvalidConfigException("Dependency does not have services: " + resolvedArtifact);
+////            }
+//        }
+//
+//        for (ConfigurationData childConfigurationData : configurationData.getChildConfigurations().values()) {
+//            LinkedHashSet<Artifact> childParentIds = resolveParentIds(childConfigurationData);
+//            // remove this configuration's id from the parent Ids since it will cause an infinite loop
+//            childParentIds.remove(configurationData.getId());
+//            parentIds.addAll(childParentIds);
+//        }
         return parentIds;
     }
 
@@ -699,16 +699,16 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
     protected Set<Artifact> getParentArtifacts(ConfigurationData configurationData) {
         LinkedHashSet<Artifact> parentIds = new LinkedHashSet<Artifact>();
-        for (Dependency dependency : configurationData.getEnvironment().getDependencies()) {
-            parentIds.add(dependency.getArtifact());
-        }
-
-        for (ConfigurationData childConfigurationData : configurationData.getChildConfigurations().values()) {
-            Set<Artifact> childParentIds = getParentArtifacts(childConfigurationData);
-            // remove this configuration's id from the parent Ids since it will cause an infinite loop
-            childParentIds.remove(configurationData.getId());
-            parentIds.addAll(childParentIds);
-        }
+//        for (Dependency dependency : configurationData.getEnvironment().getDependencies()) {
+//            parentIds.add(dependency.getArtifact());
+//        }
+//
+//        for (ConfigurationData childConfigurationData : configurationData.getChildConfigurations().values()) {
+//            Set<Artifact> childParentIds = getParentArtifacts(childConfigurationData);
+//            // remove this configuration's id from the parent Ids since it will cause an infinite loop
+//            childParentIds.remove(configurationData.getId());
+//            parentIds.addAll(childParentIds);
+//        }
         return parentIds;
     }
 
@@ -1026,18 +1026,18 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     }
 
     private boolean hasHardDependency(Artifact configurationId, ConfigurationData configurationData) {
-        for (Dependency dependency : configurationData.getEnvironment().getDependencies()) {
-            Artifact artifact = dependency.getArtifact();
-            if (artifact.getVersion() != null && artifact.matches(configurationId)) {
-                return true;
-            }
-        }
-
-        for (ConfigurationData childConfigurationData : configurationData.getChildConfigurations().values()) {
-            if (hasHardDependency(configurationId, childConfigurationData)) {
-                return true;
-            }
-        }
+//        for (Dependency dependency : configurationData.getEnvironment().getDependencies()) {
+//            Artifact artifact = dependency.getArtifact();
+//            if (artifact.getVersion() != null && artifact.matches(configurationId)) {
+//                return true;
+//            }
+//        }
+//
+//        for (ConfigurationData childConfigurationData : configurationData.getChildConfigurations().values()) {
+//            if (hasHardDependency(configurationId, childConfigurationData)) {
+//                return true;
+//            }
+//        }
         return false;
     }
 

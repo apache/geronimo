@@ -24,12 +24,10 @@ import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
-
-import org.apache.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
@@ -37,6 +35,7 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.karaf.jaas.boot.ProxyLoginModule;
 
 
 /**
@@ -113,8 +112,9 @@ public class ConfigurationEntryTest extends AbstractTest {
     protected void setUp() throws Exception {
 //        super.setUp();
         bundleContext = new MockBundleContext(getClass().getClassLoader(), BASEDIR.getAbsolutePath(), null, null);
-        kernel = KernelFactory.newInstance(bundleContext).createKernel("test.kernel");
-        kernel.boot();
+        kernel = new BasicKernel();
+//        kernel = KernelFactory.newInstance(bundleContext).createKernel("test.kernel");
+//        kernel.boot();
 
         GBeanData gbean;
 

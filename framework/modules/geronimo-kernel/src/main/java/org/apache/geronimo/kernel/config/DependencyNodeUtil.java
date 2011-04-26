@@ -103,25 +103,25 @@ public class DependencyNodeUtil {
         Artifact id = environment.getConfigId();
         LinkedHashSet<Artifact> classParents = new LinkedHashSet<Artifact>();
         LinkedHashSet<Artifact> serviceParents = new LinkedHashSet<Artifact>();
-        for (Dependency dependency: environment.getDependencies()) {
-            try {
-                Artifact parent = artifactResolver.resolveInClassLoader(dependency.getArtifact());
-                if (configurationFilter.isConfiguration(parent)) {
-                    if (dependency.getImportType() == ImportType.ALL || dependency.getImportType() == ImportType.SERVICES) {
-                        serviceParents.add(parent);
-                    }
-                    if (dependency.getImportType() == ImportType.ALL || dependency.getImportType() == ImportType.CLASSES) {
-                        classParents.add(parent);
-                    }
-                } else {
-                    if (dependency.getImportType() == ImportType.SERVICES) {
-                        throw new MissingDependencyException("Not a configuration but import type services only", parent, id);
-                    }
-                }
-            } catch (MissingDependencyException e) {
-                throw (MissingDependencyException)new MissingDependencyException("Attempting to resolve environment: " + environment, dependency.getArtifact(), id).initCause(e);
-            }
-        }
+//        for (Dependency dependency: environment.getDependencies()) {
+//            try {
+//                Artifact parent = artifactResolver.resolveInClassLoader(dependency.getArtifact());
+//                if (configurationFilter.isConfiguration(parent)) {
+//                    if (dependency.getImportType() == ImportType.ALL || dependency.getImportType() == ImportType.SERVICES) {
+//                        serviceParents.add(parent);
+//                    }
+//                    if (dependency.getImportType() == ImportType.ALL || dependency.getImportType() == ImportType.CLASSES) {
+//                        classParents.add(parent);
+//                    }
+//                } else {
+//                    if (dependency.getImportType() == ImportType.SERVICES) {
+//                        throw new MissingDependencyException("Not a configuration but import type services only", parent, id);
+//                    }
+//                }
+//            } catch (MissingDependencyException e) {
+//                throw (MissingDependencyException)new MissingDependencyException("Attempting to resolve environment: " + environment, dependency.getArtifact(), id).initCause(e);
+//            }
+//        }
         return new DependencyNode(id, classParents, serviceParents);
     }
 

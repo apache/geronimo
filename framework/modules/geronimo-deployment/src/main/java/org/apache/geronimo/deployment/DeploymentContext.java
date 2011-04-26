@@ -221,10 +221,10 @@ public class DeploymentContext {
         pluginType.setName("Temporary Plugin metadata for deployment");
         PluginArtifactType instance = new PluginArtifactType();
         instance.setModuleId(ArtifactType.newArtifactType(environment.getConfigId()));
-        List<DependencyType> dependenciees = instance.getDependency();
-        for (Dependency dependency: environment.getDependencies()) {
-            dependenciees.add(DependencyType.newDependencyType(dependency));
-        }
+//        List<DependencyType> dependenciees = instance.getDependency();
+//        for (Dependency dependency: environment.getDependencies()) {
+//            dependenciees.add(DependencyType.newDependencyType(dependency));
+//        }
         pluginType.getPluginArtifact().add(instance);
         File metaInf = new File(getConfigurationDir(), "META-INF");
         metaInf.mkdirs();

@@ -49,7 +49,8 @@ import org.slf4j.LoggerFactory;
 @GBean
 public class GeronimoLoginConfiguration extends Configuration implements GBeanLifecycle, ReferenceCollectionListener {
     private static final Logger log = LoggerFactory.getLogger(GeronimoLoginConfiguration.class);
-    private final Map<String, AppConfigurationEntry[]> entries = new ConcurrentHashMap<String, AppConfigurationEntry[]>();
+    private final Map<String, ConfigurationEntryFactory> entries = new ConcurrentHashMap<String, ConfigurationEntryFactory>();
+//    private final Map<String, AppConfigurationEntry[]> entries = new ConcurrentHashMap<String, AppConfigurationEntry[]>();
     private Configuration oldConfiguration;
     private final Collection<ConfigurationEntryFactory> configurations;
     private final boolean useAllConfigurations;
@@ -80,7 +81,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
     }
 
     public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
-        return entries.get(name);
+        return entries.get(name).getAppConfigurationEntries();
     }
 
     public void refresh() {
@@ -109,8 +110,8 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
             if (entries.containsKey(factory.getConfigurationName())) {
                 throw new java.lang.IllegalArgumentException("ConfigurationEntry named: " + factory.getConfigurationName() + " already registered");
             }
-            AppConfigurationEntry[] ace = factory.getAppConfigurationEntries();
-            entries.put(factory.getConfigurationName(), ace);
+//            AppConfigurationEntry[] ace = factory.getAppConfigurationEntries();
+            entries.put(factory.getConfigurationName(), factory);
             log.debug("Added Application Configuration Entry " + factory.getConfigurationName());
         }
     }
