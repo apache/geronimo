@@ -123,9 +123,9 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         this.readOnly = readOnly;
         this.serverInfo = serverInfo;
         serverOverride = new ServerOverride();
-        
+
         log.debug("setting configSubstitutionsFile to: {}", configSubstitutionsFile);
-        
+
         infoFactory = newGBeanInfoFactory();
     }
 
@@ -194,8 +194,8 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         }
 
         // set the attributes
-        for (Iterator iterator = gbeanDatas.iterator(); iterator.hasNext();) {
-            GBeanData data = (GBeanData) iterator.next();
+        for (Iterator<GBeanData> iterator = gbeanDatas.iterator(); iterator.hasNext();) {
+            GBeanData data = iterator.next();
             boolean load = setAttributes(data, configuration, configName, bundle);
             if (!load) {
                 iterator.remove();
@@ -243,9 +243,9 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
         }
         configuration.setLoad(load);
         configuration.setCondition(condition);
-        
+
         log.debug("Added gbeans for module: {}  load: {}",  moduleName, load);
-        
+
         attributeChanged();
     }
 
@@ -674,7 +674,7 @@ public class LocalAttributeManager implements LocalPluginAttributeStore, Persist
             try {
                 FileOutputStream out = new FileOutputStream(configSubstitutionsFile);
                 try {
-                    out.write(INSTRUCTION);                    
+                    out.write(INSTRUCTION);
                     properties.store(out, null);
                 } finally {
                     out.close();

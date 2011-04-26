@@ -70,12 +70,6 @@ public class ConfigurationManagerTest extends TestCase {
         assertFalse(configurationManager.isRunning(artifact3));
         assertFalse(configurationManager.isRunning(artifact2));
         assertFalse(configurationManager.isRunning(artifact1));
-        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
-        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
-        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact3))) ;
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact2))) ;
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact1))) ;
         assertFalse(kernel.isLoaded(gbean1));
         assertFalse(kernel.isLoaded(gbean2));
         assertFalse(kernel.isLoaded(gbean3));
@@ -103,17 +97,25 @@ public class ConfigurationManagerTest extends TestCase {
         assertFalse(configurationManager.isRunning(artifact3));
         assertFalse(configurationManager.isRunning(artifact2));
         assertFalse(configurationManager.isRunning(artifact1));
-        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
-        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
-        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact3))) ;
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact2))) ;
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact1))) ;
+        //loadConfiguration does not load the Configuration GBean now
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertFalse(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+
         assertFalse(kernel.isLoaded(gbean1));
         assertFalse(kernel.isLoaded(gbean2));
         assertFalse(kernel.isLoaded(gbean3));
 
         configurationManager.startConfiguration(artifact3);
+
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact1))) ;
+
         assertTrue(configurationManager.isRunning(artifact3));
         assertTrue(configurationManager.isRunning(artifact2));
         assertTrue(configurationManager.isRunning(artifact1));
@@ -749,7 +751,7 @@ public class ConfigurationManagerTest extends TestCase {
 
     protected void tearDown() throws Exception {
         kernel.shutdown();
-        ((MockConfigStore)configStore).cleanup(); 
+        ((MockConfigStore)configStore).cleanup();
         super.tearDown();
     }
 

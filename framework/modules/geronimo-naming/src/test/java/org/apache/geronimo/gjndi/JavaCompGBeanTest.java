@@ -27,7 +27,6 @@ import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.naming.java.javaURLContextFactory;
 import org.apache.xbean.naming.context.ImmutableContext;
@@ -105,7 +104,7 @@ public class JavaCompGBeanTest extends AbstractContextTest {
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
         ConfigurationData configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
-        configurationData.setBundleContext(bundleContext);
+        configurationData.setBundle(bundleContext.getBundle());
         configurationData.addGBean("GlobalContext", GlobalContextGBean.class);
         configurationData.addGBean("JavaComp", JavaCompContextGBean.class);
 

@@ -220,4 +220,10 @@ public class MockConfigurationManager implements ConfigurationManager {
     public Bundle getBundle(Artifact id) {
         return null;
     }
+
+    public ConfigurationData getLoadedConfigurationData(Artifact configurationId) {
+        return null;
+    }
+
+
 }

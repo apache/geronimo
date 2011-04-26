@@ -55,7 +55,7 @@ public class GBeanBindingTest extends AbstractContextTest {
         * InitialContext ctx = new InitialContext();
         assertEq(globalBindings, ctx);
 
-        
+
         //
         // stop ds2
         //
@@ -109,7 +109,7 @@ public class GBeanBindingTest extends AbstractContextTest {
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
         ConfigurationData configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
-        configurationData.setBundleContext(bundleContext);
+        configurationData.setBundle(bundleContext.getBundle());
         configurationData.addGBean("GlobalContext", GlobalContextGBean.class);
 
         // dataSources
@@ -130,7 +130,7 @@ public class GBeanBindingTest extends AbstractContextTest {
         dsBinding.setAttribute("abstractNameQuery", new AbstractNameQuery(null,
                 Collections.singletonMap("name", "ds1"),
                 DataSource.class.getName()));
-        
+
         GBeanData ds1Binding = configurationData.addGBean("ds1Binding", GBeanBinding.class);
         ds1Binding.setReferencePattern("Context", writableName);
         ds1Binding.setAttribute("name", "ds1");

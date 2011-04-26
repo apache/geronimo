@@ -22,16 +22,12 @@ package org.apache.geronimo.mavenplugins.car;
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
-import java.util.Dictionary;
 
-import org.apache.geronimo.mavenplugins.car.PluginBootstrap2;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -39,7 +35,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -47,10 +42,10 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.RecordingLifecycleMonitor;
-import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.system.configuration.ConfigurationExtender;
+import org.apache.geronimo.system.configuration.DependencyManager;
 import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
@@ -311,6 +306,12 @@ public class PackageMojo extends AbstractCarMojo {
 
         // start the Configuration we're going to use for this deployment
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+
+        DependencyManager dependencyManager = kernel.getGBean(DependencyManager.class);
+        //Register ConfigurationExtender Listener
+        ConfigurationExtender configurationExtender = new ConfigurationExtender(configurationManager, dependencyManager, bundleContext);
+        configurationExtender.doStart();
+
         try {
             for (String artifactName : deploymentConfigs) {
                 org.apache.geronimo.kernel.repository.Artifact configName = org.apache.geronimo.kernel.repository.Artifact.create(artifactName);
@@ -339,6 +340,7 @@ public class PackageMojo extends AbstractCarMojo {
         AbstractName deployer = locateDeployer(kernel);
         invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
         //use a fresh kernel for each module
+        configurationExtender.doStop();
         kernel.shutdown();
         kernel = null;
         bundleContext.getBundle().stop();

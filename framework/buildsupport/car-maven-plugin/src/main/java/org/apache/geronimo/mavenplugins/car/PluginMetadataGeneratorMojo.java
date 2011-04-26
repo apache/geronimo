@@ -24,14 +24,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import javax.xml.bind.JAXBException;
 
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
@@ -120,7 +117,7 @@ public class PluginMetadataGeneratorMojo
      * @parameter
      */
     private String category;
-    
+
     /**
      * Whether the geronimo plugin is a geronimo plugin group.
      *
@@ -134,10 +131,10 @@ public class PluginMetadataGeneratorMojo
      * @parameter
      */
     private List<Dependency> dependencies = Collections.emptyList();
-    
-    
+
+
     /**
-     * An {@link Dependency} to include as a module of the CAR. we need to exclude this 
+     * An {@link Dependency} to include as a module of the CAR. we need to exclude this
      * from the dependencies since we've included its content in the car directly.
      *
      * @parameter
@@ -260,12 +257,12 @@ public class PluginMetadataGeneratorMojo
             }
             instance.setModuleId(artifactType);
             addDependencies(instance);
-            
+
             // this module is embeded into the car, we don't want to install it as a dependency again.
             if (module != null) {
                 removeIncludedModule(instance.getDependency(), module);
             }
-            
+
             targetDir.mkdirs();
             File targetFile = new File(targetDir.toURI().resolve(pluginMetadataFileName));
             targetFile.getParentFile().mkdirs();
@@ -287,7 +284,7 @@ public class PluginMetadataGeneratorMojo
         }
 
         try {
-//generate obr repository.xml
+            //generate obr repository.xml
             File obr = new File(targetDir.toURI().resolve(obrFileName));
             obr.getParentFile().mkdirs();
             Set<Artifact> artifacts = new HashSet<Artifact>();
@@ -302,21 +299,21 @@ public class PluginMetadataGeneratorMojo
     }
 
     private void addDependencies(PluginArtifactType instance) throws InvalidConfigException, IOException, NoSuchConfigException, InvalidDependencyVersionException, ArtifactResolutionException, ProjectBuildingException, MojoExecutionException {
-        LinkedHashSet<DependencyType> resolvedDependencies = toDependencies(dependencies, useMavenDependencies, false);
-            instance.getDependency().addAll(resolvedDependencies);
+        LinkedHashSet<DependencyType> resolvedDependencies = toDependencies(dependencies, useMavenDependencies, true);
+        instance.getDependency().addAll(resolvedDependencies);
     }
-    
+
     private void removeIncludedModule(List<DependencyType> sourceList, Dependency removeTarget) {
-       
+
         for (DependencyType dependencyType : sourceList) {
-            
+
             if (dependencyType.toArtifact().equals(removeTarget.toArtifactType().toArtifact())){
-                
+
                 sourceList.remove(dependencyType);
             }
-            
+
             break;
-            
+
         }
     }
 

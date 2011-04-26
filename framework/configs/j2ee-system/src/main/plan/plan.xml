@@ -84,7 +84,7 @@ specific services - those should be provided by children.
         <reference name="ConfigurationManagers">
             <name>ConfigurationManager</name>
         </reference>
-    </gbean>
+    </gbean>        
 
     <!--Configuration Manager service-->
     <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.EditableKernelConfigurationManager">
@@ -105,6 +105,15 @@ specific services - those should be provided by children.
         </reference>
         <reference name="ArtifactResolver">
             <name>ArtifactResolver</name>
+        </reference>
+    </gbean>
+    
+    <gbean name="ConfigurationExtender" class="org.apache.geronimo.system.configuration.ConfigurationExtender">
+        <reference name="ConfigurationManager">
+            <name>ConfigurationManager</name>
+        </reference>
+        <reference name="DependencyManager">
+            <name>DependencyManager</name>
         </reference>
     </gbean>
 

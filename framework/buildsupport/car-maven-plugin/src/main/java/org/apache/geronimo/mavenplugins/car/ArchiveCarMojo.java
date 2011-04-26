@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.system.osgi.BootActivator;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
@@ -75,7 +74,7 @@ public class ArchiveCarMojo
      * @readonly
      */
     private JarArchiver jarArchiver = null;
-    
+
     /**
      * The Jar archiver.
      *
@@ -175,7 +174,7 @@ public class ArchiveCarMojo
      * @parameter
      */
     private Map instructions;
-    
+
     /**
      * An {@link Dependency} to include as a module of the CAR. we need this here to determine
      * if the included module is a EBA application.
@@ -183,8 +182,8 @@ public class ArchiveCarMojo
      * @parameter
      */
     private Dependency module = null;
-    
-    
+
+
 
     //
     // Mojo
@@ -203,20 +202,20 @@ public class ArchiveCarMojo
         //
         // HACK: Generate the filename in the repo... really should delegate this to the repo impl
         //
-        
+
         String groupId=project.getGroupId().replace('.', '/');
         String artifactId=project.getArtifactId();
         String version=project.getVersion();
         String type="car";
-        
+
         if (module != null && module.getType() != null && module.getType().equals("eba")) {
             groupId = org.apache.geronimo.kernel.util.BundleUtil.EBA_GROUP_ID;
             artifactId = module.getArtifactId();
             version = module.getVersion();
             type = "eba";
         }
-        
-        
+
+
         File dir = new File(targetRepository,groupId );
         dir = new File(dir, artifactId);
         dir = new File(dir, version);
@@ -224,7 +223,7 @@ public class ArchiveCarMojo
 
         return dir;
     }
-    
+
 
 
     /**
@@ -275,9 +274,9 @@ public class ArchiveCarMojo
 
             //For no plan car, do nothing
             if (artifactDirectory.exists()) {
-                
+
                 JarFile includedJarFile = new JarFile(artifactDirectory) ;
-                
+
                 if (includedJarFile.getEntry("META-INF/MANIFEST.MF") != null) {
                     FilesetManifestConfig mergeFilesetManifestConfig = new FilesetManifestConfig();
                     mergeFilesetManifestConfig.setValue("merge");
@@ -286,12 +285,12 @@ public class ArchiveCarMojo
                     //File configFile = new File(new File(getArtifactInRepositoryDir(), "META-INF"), "imports.txt");
                     ZipEntry importTxtEntry = includedJarFile.getEntry("META-INF/imports.txt");
                     if (importTxtEntry != null) {
-                        StringBuilder imports = new StringBuilder("org.apache.geronimo.kernel.osgi,");
+                        StringBuilder imports = new StringBuilder();
                         if (boot) {
                             archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, BootActivator.class.getName());
                             imports.append("org.apache.geronimo.system.osgi,");
                         } else {
-                            archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, ConfigurationActivator.class.getName());
+                            //archive.addManifestEntry(Constants.BUNDLE_ACTIVATOR, ConfigurationActivator.class.getName());
                         }
                         archive.addManifestEntry(Constants.BUNDLE_NAME, project.getName());
                         archive.addManifestEntry(Constants.BUNDLE_VENDOR, project.getOrganization().getName());
@@ -348,16 +347,16 @@ public class ArchiveCarMojo
             archiver.cleanup();
         }
     }
-    
+
     private static class GeronimoArchiver extends MavenArchiver {
-        
+
         private ArchiverManager archiverManager;
         private List<File> tmpDirs = new ArrayList<File>();
-        
+
         public GeronimoArchiver(ArchiverManager archiverManager) {
             this.archiverManager = archiverManager;
         }
-        
+
         public void addArchivedFileSet(File archiveFile) throws ArchiverException {
             UnArchiver unArchiver;
             try {
@@ -372,8 +371,8 @@ public class ArchiveCarMojo
 
             tempDir.mkdirs();
 
-            tmpDirs.add(tempDir); 
-            
+            tmpDirs.add(tempDir);
+
             unArchiver.setSourceFile(archiveFile);
             unArchiver.setDestDirectory(tempDir);
 
@@ -386,7 +385,7 @@ public class ArchiveCarMojo
 
             getArchiver().addDirectory(tempDir, null, null, null);
         }
-        
+
         public void cleanup() {
             for (File dir : tmpDirs) {
                 try {
@@ -395,9 +394,9 @@ public class ArchiveCarMojo
                     e.printStackTrace();
                 }
             }
-            tmpDirs.clear();        
+            tmpDirs.clear();
         }
-        
+
     }
-    
+
 }

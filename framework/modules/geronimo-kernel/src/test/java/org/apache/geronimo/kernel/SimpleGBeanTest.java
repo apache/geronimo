@@ -47,7 +47,7 @@ public class SimpleGBeanTest extends TestCase {
         // create a configuration for our test bean
         Artifact configurationId = new Artifact("test", "test", "", "car");
         ConfigurationData configurationData = new ConfigurationData(configurationId, kernel.getNaming());
-        configurationData.setBundleContext(bundleContext);
+        configurationData.setBundle(bundleContext.getBundle());
         GBeanData mockBean1 = configurationData.addGBean("MyBean", TestGBean.getGBeanInfo());
         mockBean1.setAttribute("value", "1234");
 
@@ -65,7 +65,7 @@ public class SimpleGBeanTest extends TestCase {
         assertEquals("1234", kernel.invoke("MyBean", "fetchValue"));
         // this does not work without addOperation
         assertEquals("1234", kernel.invoke("MyBean", "getValue"));
-        
+
         // invoke GBean by type
         assertEquals("1234", kernel.getAttribute(TestGBean.class, "value"));
         assertEquals("1234", kernel.invoke(TestGBean.class, "fetchValue"));

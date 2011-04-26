@@ -66,7 +66,7 @@ public class BootActivator implements BundleActivator {
             try {
                 //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
                 ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
-                data.setBundleContext(bundleContext);
+                data.setBundle(bundleContext.getBundle());
                 AbstractName name = ConfigurationUtil.loadBootstrapConfiguration(kernel, data, bundleContext, false);
 //                Artifact id = data.getId();
 //                manager.startConfiguration(id);
@@ -75,7 +75,7 @@ public class BootActivator implements BundleActivator {
             }
 
             // register Main service if Main GBean present
-            if (bundleContext.getServiceReference(org.apache.geronimo.main.Main.class.getName()) == null) { 
+            if (bundleContext.getServiceReference(org.apache.geronimo.main.Main.class.getName()) == null) {
                 registerMainService(bundleContext, kernel);
             }
 
@@ -96,17 +96,17 @@ public class BootActivator implements BundleActivator {
             configurationActivator.stop(bundleContext);
         }
     }
-    
+
     private void registerMainService(BundleContext bundleContext, Kernel kernel) {
         try {
             final Main main = kernel.getGBean(Main.class);
             bundleContext.registerService(
-                    org.apache.geronimo.main.Main.class.getName(), 
+                    org.apache.geronimo.main.Main.class.getName(),
                     new org.apache.geronimo.main.Main() {
                         public int execute(Object opaque) {
                             return main.execute(opaque);
-                        }                    
-                    }, 
+                        }
+                    },
                     null);
         } catch (GBeanNotFoundException e) {
             // ignore

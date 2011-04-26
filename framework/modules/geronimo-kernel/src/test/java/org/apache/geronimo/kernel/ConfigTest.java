@@ -50,17 +50,15 @@ public class ConfigTest extends TestCase {
         // load -- config should be running and gbean registered but not started
         configurationManager.loadConfiguration(configurationData);
         Configuration configuration = configurationManager.getConfiguration(configurationId);
-        AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
-
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
-        assertNotNull(configuration.getBundle());
-
-        assertFalse(kernel.isLoaded(gbeanName1));
-        assertFalse(kernel.isLoaded(gbeanName2));
+        assertNull(configuration);
 
         // start -- gbeans should now be started
         configurationManager.startConfiguration(configurationId);
 
+        configuration = configurationManager.getConfiguration(configurationId);
+        AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
+        assertNotNull(configuration.getBundle());
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
         assertTrue(kernel.isLoaded(gbeanName1));
         assertTrue(kernel.isLoaded(gbeanName2));
 
@@ -110,17 +108,19 @@ public class ConfigTest extends TestCase {
         // load -- config should be running and gbean registered but not started
         configurationManager.loadConfiguration(configurationData);
         Configuration configuration = configurationManager.getConfiguration(configurationId);
-        AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
-
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
-        assertNotNull(configuration.getBundle());
-
-        assertFalse(kernel.isLoaded(gbeanName1));
-        assertFalse(kernel.isLoaded(gbeanName2));
+        assertNull(configuration);
 
 
         // start -- gbeans should now be started
         configurationManager.startConfiguration(configurationId);
+
+        configuration = configurationManager.getConfiguration(configurationId);
+        assertNotNull(configuration);
+
+        AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
+
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
+        assertNotNull(configuration.getBundle());
 
         assertTrue(kernel.isLoaded(gbeanName1));
         assertTrue(kernel.isLoaded(gbeanName2));
@@ -201,7 +201,7 @@ public class ConfigTest extends TestCase {
 
 
         configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
-        configurationData.setBundleContext(bundleContext);
+        configurationData.setBundle(bundleContext.getBundle());
 
         GBeanData mockBean1 = configurationData.addGBean("MyMockGMBean1", MockGBean.getGBeanInfo());
         gbeanName1 = mockBean1.getAbstractName();

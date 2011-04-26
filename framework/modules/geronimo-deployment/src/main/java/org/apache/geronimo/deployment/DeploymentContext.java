@@ -44,8 +44,8 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.IllegalConfigurationException;
-import org.apache.geronimo.deployment.util.osgi.DummyExportPackagesSelector;
 import org.apache.geronimo.deployment.util.osgi.OSGiMetaDataBuilder;
+import org.apache.geronimo.deployment.util.osgi.DummyExportPackagesSelector;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -63,7 +63,6 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.Manifest;
 import org.apache.geronimo.kernel.config.ManifestException;
-import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -78,7 +77,6 @@ import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,7 +144,7 @@ public class DeploymentContext {
         this.naming = naming;
         this.moduleType = moduleType;
         this.environment = environment;
-        this.configurationManager = configurationManager;
+        this.configurationManager = createConfigurationManager(configurationManager, Collections.<Repository> emptyList(), bundleContext);
         this.bundleContext = bundleContext;
 
         if (null == inPlaceConfigurationDir) {
@@ -175,12 +173,16 @@ public class DeploymentContext {
         this.naming = naming;
         this.moduleType = moduleType;
         this.environment = environment;
-        this.configurationManager = configurationManager;
+        this.configurationManager = createConfigurationManager(configurationManager, Collections.<Repository> emptyList(), bundleContext);
         this.resourceContext = resourceContext;
         this.bundleContext = bundleContext;
     }
 
     private static ConfigurationManager createConfigurationManager(ConfigurationManager configurationManager, Collection<Repository> repositories, BundleContext bundleContext) {
+        //TODO Hack for KernelConfigurationManager, while creating temp configuration, we have to start the configuration, but do not want to start those sub gbeans.
+        if (configurationManager instanceof DeploymentConfigurationManager) {
+            return configurationManager;
+        }
         return new DeploymentConfigurationManager(configurationManager, repositories, bundleContext);
     }
 
@@ -205,8 +207,9 @@ public class DeploymentContext {
             if (BundleUtils.canStart(tempBundle)) {
                 tempBundle.start(Bundle.START_TRANSIENT);
             }
-            configurationData.setBundleContext(tempBundle.getBundleContext());
+            configurationData.setBundle(tempBundle);
             configurationManager.loadConfiguration(configurationData);
+            configurationManager.startConfiguration(environment.getConfigId());
             return configurationManager.getConfiguration(environment.getConfigId());
         } catch (Exception e) {
             throw new DeploymentException("Unable to create configuration for deployment: dependencies: " + resolvedParentIds, e);
@@ -511,10 +514,10 @@ public class DeploymentContext {
             } catch (Exception ignored) {
             }
         }
-        if (tempBundle != null) {
+        if (tempBundle != null && BundleUtils.canUninstall(tempBundle)) {
             try {
                 tempBundle.uninstall();
-            } catch (BundleException e) {
+            } catch (Exception e) {
             }
         }
         if (tempBundleFile != null) {
@@ -547,11 +550,7 @@ public class DeploymentContext {
 
         // TODO OSGI figure out exports
         environment.addToBundleClassPath(bundleClassPath);
-        // TODO OSGI leave out if we use a extender mechanism
-        if (environment.getBundleActivator() == null) {
-            environment.setBundleActivator(ConfigurationActivator.class.getName());
-            environment.addImportPackage(getImportPackageName(ConfigurationActivator.class.getName()));
-        }
+
         List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
 
@@ -565,7 +564,6 @@ public class DeploymentContext {
             }
         } else {
             LinkedHashSet<String> imports = getImports(gbeans);
-            addImport(imports, environment.getBundleActivator());
             environment.addImportPackages(imports);
             environment.addDynamicImportPackage("*");
             osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext, new DummyExportPackagesSelector());

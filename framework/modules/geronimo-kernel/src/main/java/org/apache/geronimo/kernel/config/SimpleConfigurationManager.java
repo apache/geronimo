@@ -20,22 +20,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Dependency;
@@ -43,6 +43,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -57,6 +58,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     protected static final Logger log = LoggerFactory.getLogger(SimpleConfigurationManager.class);
     protected final Collection<ConfigurationStore> stores;
     private final ArtifactResolver artifactResolver;
+    protected final Map<Artifact, ConfigurationData> loadedConfigurationData = new HashMap<Artifact, ConfigurationData>();
     protected final Map<Artifact, Configuration> configurations = new LinkedHashMap<Artifact, Configuration>();
     protected final Map<Artifact, Bundle> bundles = new LinkedHashMap<Artifact, Bundle>();
     protected final ConfigurationModel configurationModel;
@@ -65,13 +67,13 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     protected final BundleContext bundleContext;
 
     //TODO need thread local of loaded configurations OSGI GROSS!!
-    private final ThreadLocal<Map<Artifact, Configuration>> loadedConfigurations = new ThreadLocal<Map<Artifact, Configuration>>() {
+    protected final ThreadLocal<Map<Artifact, Configuration>> loadedConfigurations = new ThreadLocal<Map<Artifact, Configuration>>() {
     };
 
     /**
      * When this is not null, it points to the "new" configuration that is
      * part of an in-process reload operation.  This configuration will
-     * definitely be loaded, but might not be started yet.  It shold never be
+     * definitely be loaded, but might not be started yet.  It should never be
      * populated outside the scope of a reload operation.
      */
     private Configuration reloadingConfiguration;
@@ -112,6 +114,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return configurationModel;
     }
 
+    @Override
     public synchronized boolean isInstalled(Artifact configId) {
         if (!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact " + configId + " is not fully resolved");
@@ -124,6 +127,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return false;
     }
 
+    @Override
     public boolean isLoaded(Artifact configId) {
         if (!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact " + configId + " is not fully resolved");
@@ -138,6 +142,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
+    @Override
     public synchronized boolean isRunning(Artifact configId) {
         if (!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact " + configId + " is not fully resolved");
@@ -145,6 +150,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return configurationModel.isStarted(configId);
     }
 
+    @Override
     public Artifact[] getInstalled(Artifact query) {
         Artifact[] all = artifactResolver.queryArtifacts(query);
         List<Artifact> configs = new ArrayList<Artifact>();
@@ -159,15 +165,17 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return configs.toArray(new Artifact[configs.size()]);
     }
 
+    @Override
     public Artifact[] getLoaded(Artifact query) {
         return configurationModel.getLoaded(query);
     }
 
+    @Override
     public Artifact[] getRunning(Artifact query) {
         return configurationModel.getStarted(query);
     }
 
-
+    @Override
     public List<AbstractName> listStores() {
         List<ConfigurationStore> storeSnapshot = getStoreList();
         List<AbstractName> result = new ArrayList<AbstractName>(storeSnapshot.size());
@@ -177,16 +185,19 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return result;
     }
 
+    @Override
     public ConfigurationStore[] getStores() {
         List<ConfigurationStore> storeSnapshot = getStoreList();
         return storeSnapshot.toArray(new ConfigurationStore[storeSnapshot.size()]);
     }
 
+    @Override
     public Collection<? extends Repository> getRepositories() {
         return repositories;
     }
 
-    public List listConfigurations() {
+    @Override
+    public List<ConfigurationInfo> listConfigurations() {
         List<ConfigurationStore> storeSnapshot = getStoreList();
         List<ConfigurationInfo> list = new ArrayList<ConfigurationInfo>();
         for (ConfigurationStore store : storeSnapshot) {
@@ -195,6 +206,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return list;
     }
 
+    @Override
     public ConfigurationStore getStoreForConfiguration(Artifact configId) {
         if (!configId.isResolved()) {
             throw new IllegalArgumentException("Artifact " + configId + " is not fully resolved");
@@ -208,6 +220,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return null;
     }
 
+    @Override
     public List<ConfigurationInfo> listConfigurations(AbstractName storeName) throws NoSuchStoreException {
         for (ConfigurationStore store : getStoreList()) {
             if (storeName.equals(store.getAbstractName())) {
@@ -245,13 +258,14 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return list;
     }
 
+    @Override
     public boolean isConfiguration(Artifact artifact) {
         if (!artifact.isResolved()) {
             throw new IllegalArgumentException("Artifact " + artifact + " is not fully resolved");
         }
         synchronized (configurations) {
             // if it is loaded, it is definitely a configuration
-            if (configurations.containsKey(artifact)) {
+            if (getLoadedConfigurationData(artifact) != null) {
                 return true;
             }
         }
@@ -265,6 +279,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return false;
     }
 
+    @Override
     public Configuration getConfiguration(Artifact configurationId) {
         if (!configurationId.isResolved()) {
             throw new IllegalArgumentException("Artifact " + configurationId + " is not fully resolved");
@@ -279,6 +294,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
+    @Override
     public Bundle getBundle(Artifact id) {
         if (!id.isResolved()) {
             throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
@@ -286,140 +302,105 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return bundles.get(id);
     }
 
+    @Override
     public synchronized LifecycleResults loadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
         return loadConfiguration(configurationId, NullLifecycleMonitor.INSTANCE);
     }
 
+    @Override
     public synchronized LifecycleResults loadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         if (!configurationId.isResolved()) {
             throw new IllegalArgumentException("Artifact " + configurationId + " is not fully resolved");
         }
         if (isLoaded(configurationId)) {
             // already loaded, so just mark the configuration as user loaded
-            load(configurationId);
-
+            loadConfigurationModel(configurationId);
             monitor.finished();
             return new LifecycleResults();
         }
-
 
         // load the ConfigurationData for the new configuration
         try {
             String location = locateBundle(configurationId, monitor);
             Bundle bundle = bundleContext.installBundle(location);
-            if (BundleUtils.canStart(bundle)) {
-                bundle.start(Bundle.START_TRANSIENT);
+            if(!BundleUtils.isResolved(bundle)) {
+                BundleUtils.resolve(bundle);
             }
-            bundles.put(configurationId, bundle);
+            //loadConfiguration(ConfigurationData) should be successfully invoked in the same thread by the ConfigurationExtender
         } catch (Exception e) {
-            monitor.finished();
             throw new LifecycleException("load", configurationId, e);
+        } finally {
+            monitor.finished();
         }
 
-        // load the configuration
         LifecycleResults results = new LifecycleResults();
         synchronized (configurations) {
-            if (!configurations.containsKey(configurationId)) {
-                configurationModel.addConfiguration(configurationId, Collections.<Artifact> emptySet(), Collections.<Artifact> emptySet());
-            }
+        if (!loadedConfigurationData.containsKey(configurationId)) {
+            addConfigurationModel(configurationId, Collections.<Artifact> emptySet(), Collections.<Artifact> emptySet());
         }
-        load(configurationId);
+
+        }
+        loadConfigurationModel(configurationId);
         return results;
     }
 
+    @Override
     public synchronized LifecycleResults loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
         return loadConfiguration(configurationData, NullLifecycleMonitor.INSTANCE);
     }
 
+    @Override
     public synchronized LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         Artifact id = configurationData.getId();
         LifecycleResults results = new LifecycleResults();
         if (!isLoaded(id)) {
-            // recursively load configurations from the new child to the parents
-//            LinkedHashMap<Artifact, UnloadedConfiguration> configurationsToLoad = new LinkedHashMap<Artifact, UnloadedConfiguration>();
-            LinkedHashSet<Artifact> resolvedParents;
             try {
-                resolvedParents = resolveParentIds(configurationData);
-//                loadDepthFirst(configurationData, configurationsToLoad, monitor);
+                //TODO Just check whether we could resolve all the parents, and still need to invoke this while starting the configuration
+                resolveParentIds(configurationData);
+                loadedConfigurationData.put(id, configurationData);
+                bundles.put(id, configurationData.getBundle());
+                addConfigurationModel(id);
             } catch (Exception e) {
                 monitor.finished();
                 throw new LifecycleException("load", id, e);
             }
 
-            // load and start the unloaded the gbean for each configuration (depth first)
-            Map<Artifact, Configuration> actuallyLoaded = loadedConfigurations.get();
-            boolean newLoad = actuallyLoaded == null;
-            if (actuallyLoaded == null) {
-                actuallyLoaded = new LinkedHashMap<Artifact, Configuration>(resolvedParents.size());
-                loadedConfigurations.set(actuallyLoaded);
-            }
-            try {
-                // update the status of the loaded configurations
-                Configuration configuration = load(configurationData, resolvedParents, actuallyLoaded);
-                actuallyLoaded.put(configurationData.getId(), configuration);
-                addNewConfigurationToModel(configuration);
-            } catch (Exception e) {
-//                monitor.failed(configurationId, e);
-
-                // there was a problem, so we need to unload all configurations that were actually loaded
-//                for (Bundle bundle : actuallyLoaded.values()) {
-//                    try {
-//                        //TODO OSGI REALLY?
-//                        bundle.stop();
-//                    } catch (BundleException e1) {
-//                        //?? TODO OSGI WHAT??
-//                    }
-//                }
-
-                monitor.finished();
-                throw new LifecycleException("load", id, e);
-            } finally {
-                if (newLoad) {
-                    loadedConfigurations.remove();
-                }
-            }
         }
-        load(id);
+        loadConfigurationModel(id);
         monitor.finished();
         return results;
     }
 
-    protected void load(Artifact configurationId) throws NoSuchConfigException {
+    protected void loadConfigurationModel(Artifact configurationId) throws NoSuchConfigException {
         configurationModel.load(configurationId);
     }
 
-    protected Configuration load(ConfigurationData configurationData, LinkedHashSet<Artifact> resolvedParentIds, Map<Artifact, Configuration> loadedConfigurations) throws InvalidConfigException {
+    protected Configuration start(ConfigurationData configurationData, Set<Artifact> resolvedParentIds, Map<Artifact, Configuration> loadedConfigurations) throws InvalidConfigException {
         try {
             ConfigurationResolver configurationResolver = newConfigurationResolver(configurationData);
-
-            return doLoad(configurationData, resolvedParentIds, loadedConfigurations, configurationResolver);
+            return doStart(configurationData, resolvedParentIds, loadedConfigurations, configurationResolver);
         } catch (Exception e) {
             throw new InvalidConfigException("Error starting configuration gbean " + configurationData.getId(), e);
         }
     }
 
+    @Override
     public ConfigurationResolver newConfigurationResolver(ConfigurationData configurationData) {
-        ConfigurationResolver configurationResolver = new ConfigurationResolver(configurationData, repositories, artifactResolver);
-        return configurationResolver;
+        return new ConfigurationResolver(configurationData, repositories, artifactResolver);
     }
 
-    protected Configuration doLoad(ConfigurationData configurationData, LinkedHashSet<Artifact> resolvedParentIds, Map<Artifact, Configuration> loadedConfigurations, ConfigurationResolver configurationResolver) throws Exception {
+    protected Configuration doStart(ConfigurationData configurationData, Set<Artifact> resolvedParentIds, Map<Artifact, Configuration> loadedConfigurations, ConfigurationResolver configurationResolver) throws Exception {
         DependencyNode dependencyNode = buildDependencyNode(configurationData);
-
-//        ClassLoaderHolder classLoaderHolder = buildClassLoaders(configurationData, loadedConfigurations, dependencyNode, configurationResolver);
-
         List<Configuration> allServiceParents = buildAllServiceParents(loadedConfigurations, dependencyNode);
-
         Configuration configuration = new Configuration(configurationData, dependencyNode, allServiceParents, null, configurationResolver, this);
         configuration.doStart();
         //TODO why???
         resolvedParentIds.add(configuration.getId());
-
         Map<Artifact, Configuration> moreLoadedConfigurations = loadedConfigurations;//new LinkedHashMap<Artifact, Configuration>(loadedConfigurations);
         moreLoadedConfigurations.put(dependencyNode.getId(), configuration);
         for (Map.Entry<String, ConfigurationData> childEntry : configurationData.getChildConfigurations().entrySet()) {
             ConfigurationResolver childResolver = configurationResolver.createChildResolver(childEntry.getKey());
-            Configuration child = doLoad(childEntry.getValue(), resolvedParentIds, moreLoadedConfigurations, childResolver);
+            Configuration child = doStart(childEntry.getValue(), resolvedParentIds, moreLoadedConfigurations, childResolver);
             configuration.addChild(child);
         }
         return configuration;
@@ -433,10 +414,14 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return allServiceParents;
     }
 
-
+    /**
+     * Return a DependencyNode instance which contains all its class and service parents, including those of its child configurations, but it does not contain those from parents
+     * @param configurationData
+     * @return
+     * @throws MissingDependencyException
+     */
     protected DependencyNode buildDependencyNode(ConfigurationData configurationData) throws MissingDependencyException {
-        DependencyNode dependencyNode = DependencyNodeUtil.toDependencyNode(configurationData.getEnvironment(), artifactResolver, this);
-        return dependencyNode;
+        return DependencyNodeUtil.toDependencyNode(configurationData, artifactResolver, this);
     }
 
     private void addDepthFirstServiceParents(Artifact id, List<Configuration> ancestors, Set<Artifact> ids, Map<Artifact, Configuration> loadedConfigurations) throws InvalidConfigException {
@@ -464,11 +449,10 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     private Configuration getConfiguration(Artifact resolvedArtifact, Map<Artifact, Configuration> loadedConfigurations) throws InvalidConfigException {
         Configuration parent;
 
-        //TODO OSGI track loaded configurations in thread local ???
+        //TODO OSGi track loaded configurations in thread local ???
         if (loadedConfigurations.containsKey(resolvedArtifact)) {
             parent = loadedConfigurations.get(resolvedArtifact);
-        } else
-        if (isLoaded(resolvedArtifact)) {
+        } else if (isLoaded(resolvedArtifact)) {
             parent = getConfiguration(resolvedArtifact);
         } else {
             throw new InvalidConfigException("Cound not find parent configuration: " + resolvedArtifact);
@@ -476,73 +460,17 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return parent;
     }
 
-//    private void addNewConfigurationsToModel(Map<Artifact, Bundle> loadedConfigurations) throws NoSuchConfigException {
-//        for (Bundle configuration : loadedConfigurations.values()) {
-//            addNewConfigurationToModel(configuration);
-//        }
-//    }
-
-    protected void addNewConfigurationToModel(Configuration configuration) throws NoSuchConfigException {
-        configurationModel.addConfiguration(configuration.getId(),
-                getConfigurationIds(getLoadParents(configuration)),
-                getConfigurationIds(getStartParents(configuration)));
-        configurations.put(configuration.getId(), configuration);
-    }
-
-    protected LinkedHashSet<Configuration> getLoadParents(Configuration configuration) throws NoSuchConfigException {
-        LinkedHashSet<Configuration> loadParent = new LinkedHashSet<Configuration>();
-        getLoadParentsInternal(configuration, loadParent, this);
-        return loadParent;
-    }
-
-    private void getLoadParentsInternal(final Configuration configuration, LinkedHashSet<Configuration> parents, final ConfigurationSource configurationSource) throws NoSuchConfigException {
-        DependencyNodeUtil.addClassParents(configuration.getDependencyNode(), parents, configurationSource);
-        for (Configuration childConfiguration : configuration.getChildren()) {
-            ConfigurationSource childSource = new ConfigurationSource() {
-
-                public Configuration getConfiguration(Artifact configurationId) {
-                    if (configurationId.equals(configuration.getId())) {
-                        return configuration;
-                    }
-                    return configurationSource.getConfiguration(configurationId);
-                }
-            };
-            getLoadParentsInternal(childConfiguration, parents, childSource);
-            // remove this configuration from the parent Ids since it will cause an infinite loop
-            parents.remove(configuration);
+    protected void addConfigurationModel(Artifact id) throws NoSuchConfigException, MissingDependencyException {
+        ConfigurationData configurationData = getLoadedConfigurationData(id);
+        if (configurationData == null) {
+            throw new NoSuchConfigException(id, "Should be load the configurationData first");
         }
+        DependencyNode node = buildDependencyNode(configurationData);
+        addConfigurationModel(id, node.getClassParents(), node.getServiceParents());
     }
 
-    protected LinkedHashSet<Configuration> getStartParents(Configuration configuration) throws NoSuchConfigException {
-        LinkedHashSet<Configuration> startParent = new LinkedHashSet<Configuration>();
-        getStartParentsInternal(configuration, startParent, this);
-        return startParent;
-    }
-
-    private void getStartParentsInternal(final Configuration configuration, LinkedHashSet<Configuration> parents, final ConfigurationSource configurationSource) throws NoSuchConfigException {
-        DependencyNodeUtil.addServiceParents(configuration.getDependencyNode(), parents, configurationSource);
-        for (Configuration childConfiguration : configuration.getChildren()) {
-            ConfigurationSource childSource = new ConfigurationSource() {
-
-                public Configuration getConfiguration(Artifact configurationId) {
-                    if (configurationId.equals(configuration.getId())) {
-                        return configuration;
-                    }
-                    return configurationSource.getConfiguration(configurationId);
-                }
-            };
-            getStartParentsInternal(childConfiguration, parents, childSource);
-            // remove this configuration from the parent Ids since it will cause an infinite loop
-            parents.remove(configuration);
-        }
-    }
-
-    private static LinkedHashSet<Artifact> getConfigurationIds(Collection<Configuration> configurations) {
-        LinkedHashSet<Artifact> configurationIds = new LinkedHashSet<Artifact>(configurations.size());
-        for (Configuration configuration : configurations) {
-            configurationIds.add(configuration.getId());
-        }
-        return configurationIds;
+    protected void addConfigurationModel(Artifact id, Set<Artifact> loadParentsIds, Set<Artifact> startParentsIds) throws NoSuchConfigException {
+        configurationModel.addConfiguration(id, loadParentsIds, startParentsIds);
     }
 
     private synchronized void loadDepthFirst(ConfigurationData configurationData, LinkedHashMap<Artifact, UnloadedConfiguration> configurationsToLoad, LifecycleMonitor monitor) throws NoSuchConfigException, IOException, InvalidConfigException, MissingDependencyException {
@@ -566,7 +494,10 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
-    // Return ids that can be loaded in sorted order.  Remove loadable ids from source set.
+    /*
+     * Return ids that can be loaded in sorted order.  Remove loadable ids from source set.
+     */
+    @Override
     public LinkedHashSet<Artifact> sort(List<Artifact> ids, LifecycleMonitor monitor) throws InvalidConfigException, IOException, NoSuchConfigException, MissingDependencyException {
         LinkedHashSet<Artifact> sorted = new LinkedHashSet<Artifact>();
         sort(ids, sorted, monitor);
@@ -630,6 +561,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         throw exception;
     }
 
+    @Override
     public LinkedHashSet<Artifact> resolveParentIds(ConfigurationData configurationData) throws MissingDependencyException, InvalidConfigException {
         Environment environment = configurationData.getEnvironment();
 
@@ -677,90 +609,167 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
+    @Override
     public synchronized LifecycleResults startConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
         return startConfiguration(id, NullLifecycleMonitor.INSTANCE);
     }
 
+    @Override
     public synchronized LifecycleResults startConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         if (!id.isResolved()) {
+            monitor.finished();
             throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
         }
-        LinkedHashSet<Artifact> unstartedConfigurations = configurationModel.start(id);
 
-        addConfigurationsToMonitor(monitor, unstartedConfigurations);
+        ConfigurationData configurationData = getLoadedConfigurationData(id);
+        if (configurationData == null) {
+            monitor.finished();
+            throw new LifecycleException("start", id, new Throwable());
+        }
+
+        Map<Artifact, Configuration> actuallyLoaded = loadedConfigurations.get();
+        boolean newLoad = actuallyLoaded == null;
 
         LifecycleResults results = new LifecycleResults();
-        Artifact configurationId = null;
+        List<Bundle> unstartedBundles = new LinkedList<Bundle>();
         try {
-            for (Artifact unstartedConfiguration : unstartedConfigurations) {
-                configurationId = unstartedConfiguration;
-                Configuration configuration = getConfiguration(configurationId);
-                if (configuration == null) {
-                    throw new NoSuchConfigException(configurationId, "trying to start ancestor config, but not found");
-                }
-                monitor.starting(configurationId);
-                start(configuration);
-                monitor.succeeded(configurationId);
-
-                results.addStarted(configurationId);
+            if (actuallyLoaded == null) {
+                actuallyLoaded = new LinkedHashMap<Artifact, Configuration>();
+                loadedConfigurations.set(actuallyLoaded);
             }
+
+            LinkedHashSet<Artifact> unstartedConfigurationIds = configurationModel.start(id);
+            addConfigurationsToMonitor(monitor, unstartedConfigurationIds);
+            for (Artifact unstartedConfigurationId : unstartedConfigurationIds) {
+                //Step 1. Start Bundle
+                Bundle bundle = getBundle(unstartedConfigurationId);
+
+                if (BundleUtils.canStart(bundle)) {
+                    try {
+                        bundle.start(Bundle.START_TRANSIENT);
+                        unstartedBundles.add(bundle);
+                    } catch (Exception e) {
+                        monitor.finished();
+                        throw new LifecycleException("start", id, e);
+                    }
+                }
+
+                //Step 2. Start Configuration
+                monitor.starting(unstartedConfigurationId);
+                ConfigurationData unstartedConfigurationData = getLoadedConfigurationData(unstartedConfigurationId);
+                Set<Artifact> parentArtifacts = resolveParentIds(unstartedConfigurationData);
+                Configuration configuration = start(unstartedConfigurationData, parentArtifacts, actuallyLoaded);
+                actuallyLoaded.put(unstartedConfigurationId, configuration);
+
+                //configurationModel.start(configuration.getId());
+                configurations.put(unstartedConfigurationId, configuration);
+                startInternal(configuration);
+                monitor.succeeded(unstartedConfigurationId);
+                results.addStarted(unstartedConfigurationId);
+            }
+            return results;
         } catch (Exception e) {
-            monitor.failed(configurationId, e);
+            monitor.failed(id, e);
             configurationModel.stop(id);
 
             for (Artifact started : results.getStarted()) {
-                Configuration configuration = getConfiguration(started);
+                Configuration stopConfiguration = getConfiguration(started);
                 monitor.stopping(started);
-                stop(configuration);
+                stopInternal(stopConfiguration);
                 monitor.succeeded(started);
             }
-            monitor.finished();
+
+            for (Bundle bundle : unstartedBundles) {
+                if (BundleUtils.canStop(bundle)) {
+                    try {
+                        bundle.stop();
+                    } catch (Exception e1) {
+                    }
+                }
+            }
+
             throw new LifecycleException("start", id, e);
+        } finally {
+            if (newLoad) {
+                loadedConfigurations.remove();
+            }
+            monitor.finished();
         }
-        monitor.finished();
-        return results;
     }
 
-    protected void start(Configuration configuration) throws Exception {
-        throw new UnsupportedOperationException();
+    protected Set<Artifact> getParentArtifacts(ConfigurationData configurationData) {
+        LinkedHashSet<Artifact> parentIds = new LinkedHashSet<Artifact>();
+        for (Dependency dependency : configurationData.getEnvironment().getDependencies()) {
+            parentIds.add(dependency.getArtifact());
+        }
+
+        for (ConfigurationData childConfigurationData : configurationData.getChildConfigurations().values()) {
+            Set<Artifact> childParentIds = getParentArtifacts(childConfigurationData);
+            // remove this configuration's id from the parent Ids since it will cause an infinite loop
+            childParentIds.remove(configurationData.getId());
+            parentIds.addAll(childParentIds);
+        }
+        return parentIds;
     }
 
+    protected void startInternal(Configuration configuration) throws Exception {
+    }
+
+    @Override
     public synchronized LifecycleResults stopConfiguration(Artifact id) throws NoSuchConfigException {
         return stopConfiguration(id, NullLifecycleMonitor.INSTANCE);
     }
 
+    @Override
     public synchronized LifecycleResults stopConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException {
         if (!id.isResolved()) {
             throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
         }
-        LinkedHashSet<Artifact> stopList = configurationModel.stop(id);
 
+        LinkedHashSet<Artifact> stopList = configurationModel.stop(id);
         addConfigurationsToMonitor(monitor, stopList);
 
         LifecycleResults results = new LifecycleResults();
         for (Artifact configurationId : stopList) {
+            //Step 1. Stop Configuration
             Configuration configuration = getConfiguration(configurationId);
-
             monitor.stopping(configurationId);
-            stop(configuration);
+            stopInternal(configuration);
             monitor.succeeded(configurationId);
-
+            configurations.remove(configuration.getId());
             results.addStopped(configurationId);
+
+            //Step 2. Stop Bundle
+            Bundle bundle = getBundle(configurationId);
+            if (bundle != null && BundleUtils.canStop(bundle)) {
+                try {
+                    bundle.stop(Bundle.STOP_TRANSIENT);
+                } catch (BundleException e) {
+                    //Only log some error messages here, no need to throw a LifecycleException here.
+                    log.error("fail to stop the bundle" + bundle.getLocation(), e);
+                }
+            }
         }
 
         monitor.finished();
         return results;
     }
 
-    protected void stop(Configuration configuration) {
-        // Don't throw an exception because we call this from unload to be sure that all
-        // unloaded configurations are stopped first
+    protected void stopInternal(Configuration configuration) {
+        try {
+            configuration.doStop();
+        } catch (Exception e) {
+            log.error("fail to stop configuration " + configuration.getId(), e);
+        }
+        configurations.remove(configuration.getId());
     }
 
+    @Override
     public synchronized LifecycleResults restartConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
         return restartConfiguration(id, NullLifecycleMonitor.INSTANCE);
     }
 
+    @Override
     public synchronized LifecycleResults restartConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         if (!id.isResolved()) {
             throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
@@ -773,10 +782,23 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         // stop the configuations
         LifecycleResults results = new LifecycleResults();
         for (Artifact configurationId : restartList) {
+            //Step 1. Stop Configuration
             Configuration configuration = getConfiguration(configurationId);
             monitor.stopping(configurationId);
-            stop(configuration);
+            stopInternal(configuration);
             monitor.succeeded(configurationId);
+
+            //Step 2. Stop Bundle
+            Bundle bundle = getBundle(configurationId);
+            if (bundle != null && BundleUtils.canStop(bundle)) {
+                try {
+                    bundle.stop(Bundle.STOP_TRANSIENT);
+                } catch (BundleException e) {
+                    //Only log some error messages here, no need to throw a LifecycleException here.
+                    log.error("fail to stop the bundle" + bundle.getLocation(), e);
+                }
+            }
+
             results.addStopped(configurationId);
         }
 
@@ -785,19 +807,36 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
         // restart the configurations
         Set<Artifact> skip = new HashSet<Artifact>();
+        Map<Artifact, Configuration> actuallyLoaded = new LinkedHashMap<Artifact, Configuration>(restartList.size());
         for (Artifact configurationId : restartList) {
 
-            // skip the configurations that have alredy failed or are children of failed configurations
+            // skip the configurations that have already failed or are children of failed configurations
             if (skip.contains(configurationId)) {
                 continue;
             }
 
             // try to start the configuation
             try {
-                Configuration configuration = getConfiguration(configurationId);
-                applyOverrides(configuration);
+                //Step 1. Start Bundle
+                Bundle bundle = getBundle(configurationId);
+
+                if (BundleUtils.canStart(bundle)) {
+                    try {
+                        bundle.start(Bundle.START_TRANSIENT);
+                    } catch (Exception e) {
+                        monitor.finished();
+                        throw new LifecycleException("start", id, e);
+                    }
+                }
+
+                //Step 2. Start Configuration
                 monitor.starting(configurationId);
-                start(configuration);
+                ConfigurationData configurationData = getLoadedConfigurationData(configurationId);
+                Set<Artifact> parentArtifacts = resolveParentIds(configurationData);
+                Configuration configuration = start(configurationData, parentArtifacts, actuallyLoaded);
+                actuallyLoaded.put(configurationId, configuration);
+                startInternal(configuration);
+                configurations.put(configurationId, configuration);
                 monitor.succeeded(configurationId);
                 results.addStarted(configurationId);
             } catch (Exception e) {
@@ -835,15 +874,17 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return results;
     }
 
+    @Override
     public synchronized LifecycleResults unloadConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
         return unloadConfiguration(id, NullLifecycleMonitor.INSTANCE);
     }
 
+    @Override
     public synchronized LifecycleResults unloadConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         if (!id.isResolved()) {
             throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
         }
-        Set started = configurationModel.getStarted();
+        Set<Artifact> started = configurationModel.getStarted();
         LinkedHashSet<Artifact> unloadList = configurationModel.unload(id);
 
         addConfigurationsToMonitor(monitor, unloadList);
@@ -853,71 +894,71 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             Configuration configuration = getConfiguration(configurationId);
 
             // first make sure it is stopped
-            if (started.contains(configurationId)) {
-                monitor.stopping(configurationId);
-                stop(configuration);
-                monitor.succeeded(configurationId);
-                results.addStopped(configurationId);
-            } else {
-                // call stop just to be sure the beans aren't running
-                stop(configuration);
+            if (configuration != null) {
+                if (started.contains(configurationId)) {
+                    monitor.stopping(configurationId);
+                    stopInternal(configuration);
+                    monitor.succeeded(configurationId);
+                    results.addStopped(configurationId);
+                } else {
+                    // call stop just to be sure the beans aren't running
+                    stopInternal(configuration);
+                }
             }
-
             // now unload it
             monitor.unloading(configurationId);
-            unload(configuration);
+            unloadInternal(configurationId);
             monitor.succeeded(configurationId);
             results.addUnloaded(configurationId);
 
             // clean up the model
-            removeConfigurationFromModel(configurationId);
-
-            try {
-                Bundle bundle = bundles.remove(configurationId);
-                if (bundle != null) {
+            removeConfigurationModel(configurationId);
+            // remove from the loadedConfigurationData map
+            loadedConfigurationData.remove(id);
+            Bundle bundle = bundles.remove(configurationId);
+            if (bundle != null) {
+                try {
                     if (BundleUtils.canStop(bundle)) {
                         bundle.stop(Bundle.STOP_TRANSIENT);
                     }
                     if (BundleUtils.canUninstall(bundle)) {
                         bundle.uninstall();
-                    }
+                   }
+                } catch (BundleException e) {
+                    monitor.finished();
+                    throw new LifecycleException("unload", configurationId, e);
                 }
-            } catch (BundleException e) {
-                monitor.finished();
-                throw new LifecycleException("unload", configurationId, e);
             }
         }
         monitor.finished();
         return results;
     }
 
-    protected void removeConfigurationFromModel(Artifact configurationId) throws NoSuchConfigException {
+    protected void removeConfigurationModel(Artifact configurationId) throws NoSuchConfigException {
         if (configurationModel.containsConfiguration(configurationId)) {
             configurationModel.removeConfiguration(configurationId);
         }
-        configurations.remove(configurationId);
     }
 
-    protected void unload(Configuration configuration) {
-        try {
-            configuration.doStop();
-        } catch (Exception e) {
-            log.debug("Problem unloading config: " + configuration.getId(), e);
-        }
+    protected void unloadInternal(Artifact configurationId) {
     }
 
+    @Override
     public synchronized LifecycleResults reloadConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
         return reloadConfiguration(id, NullLifecycleMonitor.INSTANCE);
     }
 
+    @Override
     public synchronized LifecycleResults reloadConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         return reloadConfiguration(id, id.getVersion(), monitor);
     }
 
+    @Override
     public synchronized LifecycleResults reloadConfiguration(Artifact id, Version version) throws NoSuchConfigException, LifecycleException {
         return reloadConfiguration(id, version, NullLifecycleMonitor.INSTANCE);
     }
 
+    @Override
     public synchronized LifecycleResults reloadConfiguration(Artifact id, Version version, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         if (!id.isResolved()) {
             throw new IllegalArgumentException("Artifact " + id + " is not fully resolved");
@@ -950,7 +991,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
             return reloadConfiguration(existingUnloadedConfiguration, newData, monitor);
         } else { // The configuration to reload is loaded
-            ConfigurationData existingConfigurationData = configuration.getConfigurationData();
+            ConfigurationData existingConfigurationData = getLoadedConfigurationData(configuration.getId());
             UnloadedConfiguration existingUnloadedConfiguration = new UnloadedConfiguration(existingConfigurationData, getResolvedParentIds(configuration));
 
             Artifact newId = new Artifact(id.getGroupId(), id.getArtifactId(), version, id.getType());
@@ -968,10 +1009,12 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
+    @Override
     public synchronized LifecycleResults reloadConfiguration(ConfigurationData configurationData) throws LifecycleException, NoSuchConfigException {
         return reloadConfiguration(configurationData, NullLifecycleMonitor.INSTANCE);
     }
 
+    @Override
     public synchronized LifecycleResults reloadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws LifecycleException, NoSuchConfigException {
         Configuration configuration = getConfiguration(configurationData.getId());
         if (configuration == null) {
@@ -1008,13 +1051,13 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         //
         // recursively load the new configuration; this will catch any new parents
         //
-        LinkedHashMap<Artifact, UnloadedConfiguration> newConfigurations = new LinkedHashMap<Artifact, UnloadedConfiguration>();
+        /*LinkedHashMap<Artifact, UnloadedConfiguration> newConfigurations = new LinkedHashMap<Artifact, UnloadedConfiguration>();
         try {
             loadDepthFirst(newConfigurationData, newConfigurations, monitor);
         } catch (Exception e) {
             monitor.finished();
             throw new LifecycleException("reload", newConfigurationId, e);
-        }
+        }*/
 
         //
         // get a list of the started configuration, so we can restart them later
@@ -1026,21 +1069,19 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         //
         //   note: we are iterating in reverse order
         LinkedHashMap<Artifact, LinkedHashSet<Artifact>> existingParents = new LinkedHashMap<Artifact, LinkedHashSet<Artifact>>();
-        LinkedHashMap<Artifact, UnloadedConfiguration> reloadChildren = new LinkedHashMap<Artifact, UnloadedConfiguration>();
-        for (Artifact configurationId : reverse(configurationModel.reload(existingConfigurationId))) {
+        LinkedHashSet<Artifact> reloadChildren = configurationModel.reload(existingConfigurationId);
+        //Remove myself from the children configuration list
+        reloadChildren.remove(existingConfigurationId);
 
-            if (configurationId.equals(existingConfigurationId)) {
-                continue;
-            }
+        for (Artifact configurationId : reverse(reloadChildren)) {
 
             // if new configurations contains the child something we have a circular dependency
-            if (newConfigurations.containsKey(configurationId)) {
+            /*if (newConfigurations.containsKey(configurationId)) {
                 throw new LifecycleException("reload", newConfigurationId,
                         new IllegalStateException("Circular depenency between " + newConfigurationId + " and " + configurationId));
-            }
+            }*/
 
             Configuration configuration = getConfiguration(configurationId);
-            ConfigurationData configurationData = configuration.getConfigurationData();
 
             // save off the exising resolved parent ids in case we need to restore this configuration
             LinkedHashSet<Artifact> existingParentIds = getResolvedParentIds(configuration);
@@ -1048,7 +1089,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
             // check that the child doen't have a hard dependency on the old configuration
             LinkedHashSet<Artifact> resolvedParentIds;
-            if (hasHardDependency(existingConfigurationId, configurationData)) {
+            if (hasHardDependency(existingConfigurationId, configuration.getConfigurationData())) {
                 if (force) {
                     throw new LifecycleException("reload", newConfigurationId,
                             new IllegalStateException("Existing configuration " + configurationId + " has a hard dependency on the current version of this configuration " + existingConfigurationId));
@@ -1061,8 +1102,6 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 resolvedParentIds.remove(existingConfigurationId);
                 resolvedParentIds.add(newConfigurationId);
             }
-
-            reloadChildren.put(configurationId, new UnloadedConfiguration(configurationData, resolvedParentIds));
             monitor.addConfiguration(configurationId);
         }
 
@@ -1072,147 +1111,143 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
         // note: we are iterating in reverse order
         LifecycleResults results = new LifecycleResults();
-        for (Artifact configurationId : reverse(reloadChildren).keySet()) {
+        for (Artifact configurationId : reloadChildren) {
             Configuration configuration = getConfiguration(configurationId);
 
-            // first make sure it is stopped
-            if (started.contains(configurationId)) {
-                monitor.stopping(configurationId);
-                stop(configuration);
-                monitor.succeeded(configurationId);
-                results.addStopped(configurationId);
-            } else {
-                // call stop just to be sure the beans aren't running
-                stop(configuration);
+            //Step 1. Stop Configuration
+            if (configuration != null) {
+                // first make sure it is stopped
+                if (started.contains(configurationId)) {
+                    monitor.stopping(configurationId);
+                    stopInternal(configuration);
+                    monitor.succeeded(configurationId);
+                    results.addStopped(configurationId);
+                } else {
+                    // call stop just to be sure the beans aren't running
+                    stopInternal(configuration);
+                }
+                configurationModel.stop(configurationId);
+            }
+
+            //Step 2. Stop Bundle
+            Bundle bundle = getBundle(configurationId);
+            if (bundle != null && BundleUtils.canStop(bundle)) {
+                try {
+                    bundle.stop(Bundle.STOP_TRANSIENT);
+                } catch (BundleException e) {
+                    //Only log some error messages here, no need to throw a LifecycleException here.
+                    log.error("fail to stop the bundle" + bundle.getLocation(), e);
+                }
             }
 
             // now unload it
+            //Step 3. Unload the Configuraiton
             monitor.unloading(configurationId);
-            unload(configuration);
+            unloadInternal(configurationId);
             monitor.succeeded(configurationId);
             results.addUnloaded(configurationId);
+            //remove from the loadedConfigurationData map
+            loadedConfigurationData.remove(configurationId);
+            configurationModel.unload(configurationId);
+
+            //Step 4. Uninstall the bundle
+            if (bundle != null) {
+                try {
+                    if (BundleUtils.canUninstall(bundle)) {
+                        bundle.uninstall();
+                    }
+                } catch (BundleException e) {
+                    throw new LifecycleException("reload", configurationId, e);
+                }
+            }
         }
 
-        //
-        // unload the existing config
-        //
-        Configuration existingConfiguration = getConfiguration(existingConfigurationId);
-        if (started.contains(existingConfigurationId)) {
-            monitor.stopping(existingConfigurationId);
-            stop(existingConfiguration);
-            monitor.succeeded(existingConfigurationId);
-            results.addStopped(existingConfigurationId);
-        } else if (existingConfiguration != null) {
-            // call stop just to be sure the beans aren't running
-            stop(existingConfiguration);
-        }
-        if (existingConfiguration != null) {
-            monitor.unloading(existingConfigurationId);
-            unload(existingConfiguration);
-            monitor.succeeded(existingConfigurationId);
-            results.addUnloaded(existingConfigurationId);
-        }
+        {
+            // unload the existing config
+            //Step 1. Stop the existing Configuration
+            Configuration existingConfiguration = getConfiguration(existingConfigurationId);
+            if (started.contains(existingConfigurationId)) {
+                monitor.stopping(existingConfigurationId);
+                stopInternal(existingConfiguration);
+                monitor.succeeded(existingConfigurationId);
+                results.addStopped(existingConfigurationId);
+            } else if (existingConfiguration != null) {
+                // call stop just to be sure the beans aren't running
+                stopInternal(existingConfiguration);
+            }
+            configurationModel.stop(existingConfigurationId);
+            //Step 2. Stop Bundle
+            Bundle bundle = getBundle(existingConfigurationId);
+            if (bundle != null && BundleUtils.canStop(bundle)) {
+                try {
+                    bundle.stop(Bundle.STOP_TRANSIENT);
+                } catch (BundleException e) {
+                    //Only log some error messages here, no need to throw a LifecycleException here.
+                    log.error("fail to stop the bundle" + bundle.getLocation(), e);
+                }
+            }
+            //Step 3. Unload the existing configuration
+            if (existingConfiguration != null) {
+                monitor.unloading(existingConfigurationId);
+                unloadInternal(existingConfigurationId);
+                monitor.succeeded(existingConfigurationId);
+                results.addUnloaded(existingConfigurationId);
 
+                configurationModel.unload(existingConfigurationId);
+            }
+            //Step 4. Uninstall the bundle
+            if (bundle != null) {
+                try {
+                    if (BundleUtils.canUninstall(bundle)) {
+                        bundle.uninstall();
+                    }
+                } catch (BundleException e) {
+                    throw new LifecycleException("reload", existingConfigurationId, e);
+                }
+            }
+        }
         //
         // load the new configurations
         //
         boolean reinstatedExisting = false;
         /* reduce variable scope */
         {
-            Map<Artifact, Configuration> loadedParents = new LinkedHashMap<Artifact, Configuration>();
-            Map<Artifact, Configuration> startedParents = new LinkedHashMap<Artifact, Configuration>();
+            Set<Artifact> loadedParents = new LinkedHashSet<Artifact>();
+            Set<Artifact> startedParents = new LinkedHashSet<Artifact>();
             Configuration newConfiguration = null;
             Artifact configurationId = null;
             try {
-                //
-                // load all of the new configurations
-                //
-                for (Map.Entry<Artifact, UnloadedConfiguration> entry : newConfigurations.entrySet()) {
-                    configurationId = entry.getKey();
-                    UnloadedConfiguration unloadedConfiguration = entry.getValue();
+                // Step 1. Load the parents of new configuration ( Due to the DependencyManager, if the new ConfigurationData is ready, all its parents should also be loaded
+                LifecycleResults loadLifecycleResults = loadConfiguration(newConfigurationData, monitor);
+                mergeLifecycleResults(loadLifecycleResults, results);
 
-                    monitor.loading(configurationId);
-                    Configuration configuration = load(unloadedConfiguration.getConfigurationData(), unloadedConfiguration.getResolvedParentIds(), loadedParents);
-                    monitor.succeeded(configurationId);
-
-                    if (configurationId.equals(newConfigurationId)) {
-                        newConfiguration = configuration;
-                        synchronized (reloadingConfigurationLock) {
-                            reloadingConfiguration = configuration;
-                        }
-                    } else {
-                        loadedParents.put(configurationId, configuration);
-                    }
-                }
-
-                if (newConfiguration == null) {
-                    AssertionError cause = new AssertionError("Internal error: configuration was not load");
-                    results.addFailed(newConfigurationId, cause);
-                    throw new LifecycleException("reload", newConfigurationId, results);
-                }
-
-                //
-                // start the new configurations if the old one was running
-                //
+                // Step 2. Start the new configurations if the old one was running
                 if (started.contains(existingConfigurationId)) {
+                    LifecycleResults startLifecycleResults = startConfiguration(newConfigurationId, monitor);
+                    mergeLifecycleResults(startLifecycleResults, results);
 
-                    // determine which of the parents we need to start
-                    LinkedHashSet<Configuration> startList = new LinkedHashSet<Configuration>();
-                    for (Configuration serviceParent : getStartParents(newConfiguration)) {
-                        if (loadedParents.containsKey(serviceParent.getId())) {
-                            startList.add(serviceParent);
-                        }
-                    }
-
-                    // start the new parents
-                    for (Configuration startParent : startList) {
-                        monitor.starting(configurationId);
-                        start(startParent);
-                        monitor.succeeded(configurationId);
-
-                        startedParents.put(configurationId, startParent);
-                    }
-
-                    //  start the new configuration
-                    monitor.starting(newConfigurationId);
-                    start(newConfiguration);
-                    monitor.succeeded(newConfigurationId);
-                }
-
-                //
-                // update the results
-                //
-                results.setLoaded(loadedParents.keySet());
-                results.addLoaded(newConfigurationId);
-                if (started.contains(existingConfigurationId)) {
-                    results.setStarted(startedParents.keySet());
+                    newConfiguration = configurations.get(newConfigurationId);
+                    //Update the results
+                    loadedParents.addAll(startLifecycleResults.getLoaded());
+                    results.setLoaded(startLifecycleResults.getLoaded());
+                    results.addLoaded(newConfigurationId);
+                    startedParents.addAll(startLifecycleResults.getStarted());
+                    results.setStarted(startLifecycleResults.getStarted());
                     results.addStarted(newConfigurationId);
                 }
-
-                //
-                // update the model
-                //
 
                 // add all of the new configurations the model
                 //TODO OSGI TOTALLY BROKEN
 //                addNewConfigurationsToModel(loadedParents);
 
                 // now ugrade the existing node in the model
+                DependencyNode dependencyNode = buildDependencyNode(newConfiguration.getConfigurationData());
                 if (configurationModel.containsConfiguration(existingConfigurationId)) {
-                    configurationModel.upgradeConfiguration(existingConfigurationId,
-                            newConfigurationId,
-                            getConfigurationIds(getLoadParents(newConfiguration)),
-                            getConfigurationIds(getStartParents(newConfiguration)));
+                    configurationModel.upgradeConfiguration(existingConfigurationId, newConfigurationId, dependencyNode.getClassParents(), dependencyNode.getServiceParents());
                 } else {
-                    configurationModel.addConfiguration(newConfigurationId,
-                            getConfigurationIds(getLoadParents(newConfiguration)),
-                            getConfigurationIds(getStartParents(newConfiguration)));
-                    load(newConfigurationId);
+                    configurationModel.addConfiguration(newConfigurationId, dependencyNode.getClassParents(), dependencyNode.getServiceParents());
+                    loadConfigurationModel(newConfigurationId);
                 }
-
-                // replace the configuraiton in he configurations map
-                configurations.remove(existingConfiguration.getId());
-                configurations.put(newConfigurationId, newConfiguration);
 
                 // migrate the configuration settings
                 migrateConfiguration(existingConfigurationId, newConfigurationId, newConfiguration, started.contains(existingConfigurationId));
@@ -1223,17 +1258,22 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 //
                 // stop and unload all configurations that were actually loaded
                 //
-                for (Configuration configuration : startedParents.values()) {
-                    stop(configuration);
+                for (Artifact startParentId : startedParents) {
+                    Configuration startParentConfiguration = configurations.get(startParentId);
+                    if (startParentConfiguration != null) {
+                        stopInternal(startParentConfiguration);
+                    }
                 }
-                for (Configuration configuration : loadedParents.values()) {
-                    unload(configuration);
+
+                //TODO loadedParents should be always empty, as we always eagerly load all the parents
+                for (Artifact loadedParentId : loadedParents) {
+                    unloadInternal(loadedParentId);
                 }
 
                 // stop and unload the newConfiguration
                 if (newConfiguration != null) {
-                    stop(newConfiguration);
-                    unload(newConfiguration);
+                    stopInternal(newConfiguration);
+                    unloadInternal(newConfiguration.getId());
                 }
 
                 //
@@ -1241,7 +1281,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 //
                 Configuration configuration = null;
                 try {
-                    configuration = load(existingUnloadedConfiguration.getConfigurationData(),
+                    configuration = start(existingUnloadedConfiguration.getConfigurationData(),
                             existingUnloadedConfiguration.getResolvedParentIds(),
                             Collections.<Artifact, Configuration>emptyMap()
                     );
@@ -1250,11 +1290,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                     }
                     // if the configuration was started before restart it
                     if (started.contains(existingConfigurationId)) {
-                        start(configuration);
+                        startInternal(configuration);
                         results.addStarted(existingConfigurationId);
                     }
 
-                    // don't mark as loded until start completes as it may thorw an exception
+                    // don't mark as loaded until start completes as it may throw an exception
                     results.addLoaded(existingConfigurationId);
 
                     configurations.put(existingConfigurationId, configuration);
@@ -1265,7 +1305,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
                     // we tried our best
                     if (configuration != null) {
-                        unload(configuration);
+                       unloadInternal(configuration.getId());
                     }
 
                     //
@@ -1273,7 +1313,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                     //
                     for (Artifact childId : results.getUnloaded()) {
                         configurationModel.unload(childId);
-                        removeConfigurationFromModel(childId);
+                        removeConfigurationModel(childId);
                     }
 
                     throw new LifecycleException("reload", newConfigurationId, results);
@@ -1289,9 +1329,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         // reload as many child configurations as possible
         //
         Set<Artifact> skip = new HashSet<Artifact>();
-        for (Map.Entry<Artifact, UnloadedConfiguration> entry : reloadChildren.entrySet()) {
-            Artifact configurationId = entry.getKey();
-            UnloadedConfiguration unloadedConfiguration = entry.getValue();
+        for (Artifact configurationId : reverse(reloadChildren)) {
 
             // skip the configurations that have alredy failed or are children of failed configurations
             if (skip.contains(configurationId)) {
@@ -1303,20 +1341,20 @@ public class SimpleConfigurationManager implements ConfigurationManager {
             try {
                 // get the correct resolved parent ids based on if we are loading with the new config id or the existing one
                 LinkedHashSet<Artifact> resolvedParentIds;
-                if (!reinstatedExisting) {
-                    resolvedParentIds = unloadedConfiguration.getResolvedParentIds();
-                } else {
+                /*if (reinstatedExisting) {
                     resolvedParentIds = existingParents.get(configurationId);
-                }
+                } else {
+                    resolvedParentIds = unloadedConfiguration.getResolvedParentIds();
+                }*/
+                LifecycleResults loadLifecycleResults = loadConfiguration(configurationId, monitor);
+                mergeLifecycleResults(loadLifecycleResults, results);
 
+                ConfigurationData childConfigurationData = getLoadedConfigurationData(configurationId);
+                resolvedParentIds = resolveParentIds(childConfigurationData);
                 // if the resolved parent ids is null, then we are not supposed to reload this configuration
                 if (resolvedParentIds != null) {
                     monitor.loading(configurationId);
-                    configuration = load(unloadedConfiguration.getConfigurationData(),
-                            resolvedParentIds,
-                            Collections.<Artifact,
-                                    Configuration>emptyMap()
-                    );
+                    configuration = start(childConfigurationData, resolvedParentIds, Collections.<Artifact, Configuration> emptyMap());
                     synchronized (reloadingConfigurationLock) {
                         reloadingConfiguration = configuration;
                     }
@@ -1325,9 +1363,11 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                     // if the configuration was started before restart it
                     if (started.contains(configurationId)) {
                         monitor.starting(configurationId);
-                        start(configuration);
+                        startInternal(configuration);
                         monitor.succeeded(configurationId);
                         results.addStarted(configurationId);
+
+                        configurationModel.start(configurationId);
                     }
 
                     // don't mark as loded until start completes as it may thow an exception
@@ -1335,7 +1375,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
                     configurations.put(configurationId, configuration);
                 } else {
-                    removeConfigurationFromModel(configurationId);
+                    removeConfigurationModel(configurationId);
                 }
             } catch (Exception e) {
                 // the configuraiton failed to restart
@@ -1345,7 +1385,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
 
                 // unload the configuration if it was loaded and failed in start
                 if (configuration != null) {
-                    unload(configuration);
+                   unloadInternal(configuration.getId());
                 }
 
                 // officially unload the configuration in the model (without gc)
@@ -1353,9 +1393,9 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 configurationModel.removeConfiguration(configurationId);
 
                 // all of the configurations to be unloaded must be in our unloaded list, or the model is corrupt
-                if (!reloadChildren.keySet().containsAll(unloadList)) {
+               /* if (!reloadChildren.keySet().containsAll(unloadList)) {
                     throw new AssertionError("Configuration data model is corrupt.   You must restart your server.");
-                }
+                }*/
 
                 // add the children of the failed configuration to the results as unloaded
                 for (Artifact failedId : unloadList) {
@@ -1396,10 +1436,29 @@ public class SimpleConfigurationManager implements ConfigurationManager {
     protected void migrateConfiguration(Artifact oldName, Artifact newName, Configuration configuration, boolean running) throws NoSuchConfigException {
     }
 
+    protected void mergeLifecycleResults(LifecycleResults mergedLifecycleResults, LifecycleResults lifecycleResults) {
+        for (Artifact loadedArtifact : mergedLifecycleResults.getLoaded()) {
+            lifecycleResults.addLoaded(loadedArtifact);
+        }
+        for (Artifact startedArtifact : mergedLifecycleResults.getStarted()) {
+            lifecycleResults.addStarted(startedArtifact);
+        }
+        for (Artifact stoppedArtifact : mergedLifecycleResults.getStopped()) {
+            lifecycleResults.addStopped(stoppedArtifact);
+        }
+        for (Artifact unloadedArtifact : mergedLifecycleResults.getUnloaded()) {
+            lifecycleResults.addUnloaded(unloadedArtifact);
+        }
+        for (Map.Entry<Artifact, Throwable> failedEntry : mergedLifecycleResults.getFailed().entrySet()) {
+            lifecycleResults.addFailed(failedEntry.getKey(), failedEntry.getValue());
+        }
+    }
+
     private static LinkedHashSet<Artifact> getResolvedParentIds(Configuration configuration) {
         return configuration.getDependencyNode().getParents();
     }
 
+    @Override
     public void uninstallConfiguration(Artifact configurationId) throws IOException, NoSuchConfigException, LifecycleException {
         synchronized (this) {
             if (!configurationId.isResolved()) {
@@ -1414,21 +1473,28 @@ public class SimpleConfigurationManager implements ConfigurationManager {
                 }
             }
 
-            uninstall(configurationId);
+            uninstallInternal(configurationId);
 
             for (ConfigurationStore store : getStoreList()) {
                 if (store.containsConfiguration(configurationId)) {
                     store.uninstall(configurationId);
                 }
             }
-
-            removeConfigurationFromModel(configurationId);
+            removeConfigurationModel(configurationId);
         }
         notifyWatchers(configurationId);
     }
 
-    protected void uninstall(Artifact configurationId) {
+    protected void uninstallInternal(Artifact configurationId) {
         //child class can override this method
+    }
+
+    @Override
+    public synchronized ConfigurationData getLoadedConfigurationData(Artifact configurationId) {
+        if (!configurationId.isResolved()) {
+            throw new IllegalArgumentException("Artifact " + configurationId + " is not fully resolved");
+        }
+        return loadedConfigurationData.get(configurationId);
     }
 
     private void notifyWatchers(Artifact id) {
@@ -1437,6 +1503,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
     }
 
+    @Override
     public ArtifactResolver getArtifactResolver() {
         return artifactResolver;
     }
@@ -1446,10 +1513,12 @@ public class SimpleConfigurationManager implements ConfigurationManager {
      *
      * @return false
      */
+    @Override
     public boolean isOnline() {
         return false;
     }
 
+    @Override
     public void setOnline(boolean online) {
     }
 
@@ -1457,7 +1526,7 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         return new ArrayList<ConfigurationStore>(stores);
     }
 
-    private static void addConfigurationsToMonitor(LifecycleMonitor monitor, LinkedHashSet<Artifact> configurations) {
+    private void addConfigurationsToMonitor(LifecycleMonitor monitor, LinkedHashSet<Artifact> configurations) {
         for (Artifact configurationId : configurations) {
             monitor.addConfiguration(configurationId);
         }
@@ -1482,21 +1551,4 @@ public class SimpleConfigurationManager implements ConfigurationManager {
         }
         return map;
     }
-
-    /**
-     * Used to apply overrides to a configuration's gbeans.
-     * The overrides are applied before configuration restart.
-     *
-     * @param configuration configuration to customize
-     * @throws InvalidConfigException on error
-     */
-    private void applyOverrides(Configuration configuration) throws InvalidConfigException {
-        Bundle bundle = configuration.getBundle();
-        Collection<GBeanData> gbeans = configuration.getConfigurationData().getGBeans(bundle);
-        if (configuration.getManageableAttributeStore() != null) {
-            configuration.getManageableAttributeStore().applyOverrides(configuration.getId(), gbeans,
-                    bundle);
-        }
-    }
-
 }

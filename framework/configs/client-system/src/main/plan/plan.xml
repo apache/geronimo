@@ -83,6 +83,15 @@
         </reference>
     </gbean>
 
+    <gbean name="ConfigurationExtender" class="org.apache.geronimo.system.configuration.ConfigurationExtender">
+        <reference name="ConfigurationManager">
+            <name>ConfigurationManager</name>
+        </reference>
+        <reference name="DependencyManager">
+            <name>DependencyManager</name>
+        </reference>
+    </gbean>
+    
     <gbean name="DependencyManager" class="org.apache.geronimo.system.configuration.DependencyManager">
         <reference name="Repositories"></reference>
         <reference name="ArtifactResolver">

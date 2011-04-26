@@ -198,12 +198,12 @@ public class WebApplication implements Runnable {
                         bundle);
                 webModule.setEarContext(deploymentContext);
                 webModule.setRootEarContext(deploymentContext);
-                
+
                 deploymentContext.flush();
                 deploymentContext.initializeConfiguration();
 
                 webModule.getJndiScope(JndiScope.app).put("app/AppName", webModule.getName());
-                
+
                 webModuleBuilder.initContext(deploymentContext, webModule, bundle);
 
                 AbstractName appJndiName = naming.createChildName(deploymentContext.getModuleName(), "ApplicationJndi", "ApplicationJndi");
@@ -232,7 +232,7 @@ public class WebApplication implements Runnable {
             }
 
             configurationData.setUseEnvironment(true);
-            configurationData.setBundleContext(bundle.getBundleContext());
+            configurationData.setBundle(bundle);
 
             configurationManager.loadConfiguration(configurationData);
             configurationManager.startConfiguration(configurationData.getId());

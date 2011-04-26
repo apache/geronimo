@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -237,7 +238,7 @@ public class WebFragmentTest extends XmlBeansTestSupport {
 
         @Override
         public Collection<? extends Repository> getRepositories() {
-            return null;
+            return Collections.<Repository>emptyList();
         }
 
         @Override
@@ -252,7 +253,7 @@ public class WebFragmentTest extends XmlBeansTestSupport {
 
         @Override
         public ConfigurationStore[] getStores() {
-            return null;
+            return new ConfigurationStore[0];
         }
 
         @Override
@@ -405,6 +406,12 @@ public class WebFragmentTest extends XmlBeansTestSupport {
 
         @Override
         public LifecycleResults unloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
+            return null;
+        }
+
+        @Override
+        public ConfigurationData getLoadedConfigurationData(Artifact arg0) {
+            // TODO Auto-generated method stub
             return null;
         }
     }

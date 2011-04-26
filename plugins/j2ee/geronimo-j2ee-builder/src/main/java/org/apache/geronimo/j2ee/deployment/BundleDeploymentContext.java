@@ -37,9 +37,9 @@ import org.osgi.framework.BundleContext;
  * @version $Rev:386276 $ $Date$
  */
 public class BundleDeploymentContext extends EARContext {
-      
+
     private Bundle bundle;
-    
+
     public BundleDeploymentContext(Environment environment,
                                    ConfigurationModuleType moduleType,
                                    Naming naming,
@@ -52,31 +52,31 @@ public class BundleDeploymentContext extends EARContext {
                                    AbstractNameQuery corbaGBeanObjectName,
                                    Map messageDestinations,
                                    Bundle bundle) throws DeploymentException {
-        super(null, null, 
+        super(null, null,
               environment, moduleType, naming, configurationManager, new BundleResourceContext(bundle), bundleContext,
-              serverName, baseName, transactionManagerObjectName, connectionTrackerObjectName, 
+              serverName, baseName, transactionManagerObjectName, connectionTrackerObjectName,
               corbaGBeanObjectName, messageDestinations);
         this.bundle = bundle;
     }
-   
+
     @Override
     public void initializeConfiguration() throws DeploymentException {
         try {
             ConfigurationData configurationData = new ConfigurationData(moduleType, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
-            configurationData.setBundleContext(bundle.getBundleContext());
+            configurationData.setBundle(bundle);
             configurationManager.loadConfiguration(configurationData);
             this.configuration = configurationManager.getConfiguration(environment.getConfigId());
         } catch (Exception e) {
             throw new DeploymentException("Unable to create configuration for deployment", e);
         }
     }
-    
+
     @Override
-    public void getCompleteManifestClassPath(Deployable deployable, 
-                                             URI moduleBaseUri, 
-                                             URI resolutionUri, 
-                                             Collection<String> classpath, 
+    public void getCompleteManifestClassPath(Deployable deployable,
+                                             URI moduleBaseUri,
+                                             URI resolutionUri,
+                                             Collection<String> classpath,
                                              Collection<String> exclusions) throws DeploymentException {
     }
-    
+
 }

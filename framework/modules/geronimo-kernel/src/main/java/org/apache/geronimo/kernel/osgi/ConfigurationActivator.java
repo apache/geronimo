@@ -20,21 +20,9 @@
 
 package org.apache.geronimo.kernel.osgi;
 
-import java.io.InputStream;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.ServiceReference;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
@@ -45,7 +33,7 @@ public class ConfigurationActivator implements BundleActivator {
 
 
     public void start(BundleContext bundleContext) throws Exception {
-        ServiceReference kernelReference = null;
+        /*ServiceReference kernelReference = null;
         InputStream in = null;
         try {
             kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
@@ -58,7 +46,7 @@ public class ConfigurationActivator implements BundleActivator {
             in = bundle.getEntry("META-INF/config.ser").openStream();
             //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
             ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
-            data.setBundleContext(bundleContext);
+            data.setBundle(bundleContext.getBundle());
             manager.loadConfiguration(data);
             id = data.getId();
             //            manager.startConfiguration(id);
@@ -73,11 +61,11 @@ public class ConfigurationActivator implements BundleActivator {
                     bundleContext.ungetService(kernelReference);
                 } catch (Exception e) {
                 }
-        }
+        }*/
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
-        ServiceReference kernelReference = null;
+        /*ServiceReference kernelReference = null;
         try {
             kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
             if (kernelReference == null) {
@@ -111,6 +99,6 @@ public class ConfigurationActivator implements BundleActivator {
                     bundleContext.ungetService(kernelReference);
                 } catch (Exception e) {
                 }
-        }
+        }*/
     }
 }

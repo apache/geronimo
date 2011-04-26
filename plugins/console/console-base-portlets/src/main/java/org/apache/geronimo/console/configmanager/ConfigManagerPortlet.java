@@ -41,11 +41,13 @@ import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -76,7 +78,7 @@ public class ConfigManagerPortlet extends BasePortlet {
     private static final String CONFIG_INIT_PARAM = "config-type";
 
     private static final String SHOW_DEPENDENCIES_COOKIE = "org.apache.geronimo.configmanager.showDependencies";
-    
+
     private Kernel kernel;
 
     private PortletRequestDispatcher normalView;
@@ -144,12 +146,12 @@ public class ConfigManagerPortlet extends BasePortlet {
     public void processAction(ActionRequest actionRequest, ActionResponse actionResponse) throws PortletException, IOException {
         String action = actionRequest.getParameter("action");
         actionResponse.setRenderParameter("message", ""); // set to blank first
-        
+
         try {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             String config = getConfigID(actionRequest);
             Artifact configId = Artifact.create(config);
-            
+
             if (START_ACTION.equals(action)) {
 
                 if (!configurationManager.isLoaded(configId)) {
@@ -163,28 +165,28 @@ public class ConfigManagerPortlet extends BasePortlet {
                 }
 
             } else if (STOP_ACTION.equals(action)) {
-                
+
                 if(configurationManager.isLoaded(configId)) {
                     LifecycleResults lcresult = configurationManager.unloadConfiguration(configId);
                     addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg02") + printResults(lcresult.getStopped()));
                 }
 
             } else if (UNINSTALL_ACTION.equals(action)) {
-                
+
                 configurationManager.uninstallConfiguration(configId);
-                
+
                 addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg04") + "<br />" + configId);
-                
+
             } else if (RESTART_ACTION.equals(action)) {
-                
+
                 LifecycleResults lcresult = configurationManager.restartConfiguration(configId);
                 addInfoMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.infoMsg03") + printResults(lcresult.getStarted()));
-                
+
             } else {
                 addWarningMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.warnMsg01") + action + "<br />");
                 throw new PortletException("Invalid value for changeState: " + action);
             }
-            
+
         } catch (NoSuchConfigException e) {
             // ignore this for now
             addErrorMessage(actionRequest, getLocalizedString(actionRequest, "consolebase.errorMsg01"));
@@ -198,7 +200,7 @@ public class ConfigManagerPortlet extends BasePortlet {
             logger.error("Exception", e);
         }
     }
-    
+
     /**
      * Check if a configuration should be listed here. This method depends on the "config-type" portlet parameter
      * which is set in portle.xml.
@@ -223,107 +225,40 @@ public class ConfigManagerPortlet extends BasePortlet {
         List<ModuleDetails> moduleDetails = new ArrayList<ModuleDetails>();
         ConfigurationManager configManager = PortletManager.getConfigurationManager();
         List<ConfigurationInfo> infos = configManager.listConfigurations();
-    
+
         for (ConfigurationInfo info : infos) {
             if (ConfigurationModuleType.WAR.getName().equalsIgnoreCase(moduleType)) {
-
                 if (info.getType().getValue() == ConfigurationModuleType.WAR.getValue()) {
-                    ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());
-                    try {
-                        AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
-                        boolean loaded = loadModule(configManager, configObjName);
-
-                        WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());
-
-                        if (webModule != null) {
-                            details.getContextPaths().add(webModule.getContextPath());
-                            details.setDisplayName(webModule.getDisplayName());
-                        }
-
-                        if (showDependencies) {
-                            addDependencies(details, configObjName);
-                        }
-
-                        if (loaded) {
-                            unloadModule(configManager, configObjName);
-                        }
-                    } catch (InvalidConfigException ice) {
-                        // Should not occur
-                        ice.printStackTrace();
+                    ModuleDetails webModuleDetails = loadWebModuleDetails(renderRequest, info, showDependencies, configManager);
+                    if (webModuleDetails != null) {
+                        moduleDetails.add(webModuleDetails);
                     }
-                    moduleDetails.add(details);
                 } else if (info.getType().getValue() == ConfigurationModuleType.EAR.getValue()) {
-                    try {
-                        AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
-                        boolean loaded = loadModule(configManager, configObjName);
-
-                        Configuration config = configManager.getConfiguration(info.getConfigID());
-                        if(config != null){
-                            for (Configuration child : config.getChildren()) {
-                                if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()) {
-                                    ModuleDetails childDetails = new ModuleDetails(info.getConfigID(), child.getModuleType(), info.getState());
-                                    childDetails.setComponentName(child.getId().toString());
-                                    WebModule webModule = getWebModule(config, child);
-                                    if (webModule != null) {
-                                        childDetails.getContextPaths().add(webModule.getContextPath());
-                                        childDetails.setDisplayName(webModule.getDisplayName());
-                                    }
-                                    if (showDependencies) {
-                                        addDependencies(childDetails, configObjName);
-                                    }
-                                    moduleDetails.add(childDetails);
-                                }
-                            }
-                        }
-
-                        if (loaded) {
-                            unloadModule(configManager, configObjName);
-                        }
-                    } catch (InvalidConfigException ice) {
-                        // Should not occur
-                        ice.printStackTrace();
+                    List<ModuleDetails> childrenWebModuleDetails = loadWebModuleDetailsFromEARModule(renderRequest, info, showDependencies, configManager);
+                    if (childrenWebModuleDetails != null) {
+                        moduleDetails.addAll(childrenWebModuleDetails);
                     }
                 }
-
             } else if (shouldListConfig(info.getType())) {
-                ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), getConfigurationState(info));
-                try {
-                    AbstractName configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
-                    boolean loaded = loadModule(configManager, configObjName);
-
                     if (info.getType().getValue() == ConfigurationModuleType.EAR.getValue()) {
-                        Configuration config = configManager.getConfiguration(info.getConfigID());
-                        if(config != null){
-                            Iterator childs = config.getChildren().iterator();
-                            while (childs.hasNext()) {
-                                Configuration child = (Configuration) childs.next();
-                                if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()) {
-                                    WebModule webModule = getWebModule(config, child);
-                                    if (webModule != null) {
-                                        details.getContextPaths().add(webModule.getContextPath());
-                                    }
-                                }
-                            }
+                        ModuleDetails earModuleDetails = loadEARModuleDetails(renderRequest, info, showDependencies, configManager);
+                        if(earModuleDetails != null) {
+                            moduleDetails.add(earModuleDetails);
                         }
                     } else if (info.getType().equals(ConfigurationModuleType.CAR)) {
-                        Configuration config = configManager.getConfiguration(info.getConfigID());
-                        details.setClientAppServerSide(config.getOwnedConfigurations().size() > 0);
+                        ModuleDetails clientModuleDetails = loadCARModuleDetails(renderRequest,info,showDependencies, configManager);
+                        if(clientModuleDetails != null) {
+                            moduleDetails.add(clientModuleDetails);
+                        }
+                    } else {
+                        ModuleDetails commonModuleDetails = loadCommonModuleDetails(renderRequest, info, showDependencies, configManager);
+                        if(commonModuleDetails != null) {
+                            moduleDetails.add(commonModuleDetails);
+                        }
                     }
-                    if (showDependencies) {
-                        addDependencies(details, configObjName);
-                    }
-                    if (loaded) {
-                        unloadModule(configManager, configObjName);
-                    }
-                } catch (InvalidConfigException ice) {
-                    // Should not occur
-                    ice.printStackTrace();
-                }
-                moduleDetails.add(details);
-            }  
-            
-        }            
-        
+            }
+        }
+
         Collections.sort(moduleDetails);
         renderRequest.setAttribute("configurations", moduleDetails);
         renderRequest.setAttribute("showWebInfo", Boolean.valueOf(showWebInfo()));
@@ -336,6 +271,206 @@ public class ConfigManagerPortlet extends BasePortlet {
             normalView.include(renderRequest, renderResponse);
         } else {
             maximizedView.include(renderRequest, renderResponse);
+        }
+    }
+
+    private ModuleDetails loadCommonModuleDetails(RenderRequest renderRequest, ConfigurationInfo info, boolean showDependencies, ConfigurationManager configurationManager) {
+        boolean loaded = false;
+        AbstractName configObjName = null;
+        try {
+            configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
+            loaded = loadModule(configurationManager, configObjName);
+            ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), getConfigurationState(info));
+            if (!loaded && showDependencies) {
+                addDependencies(details, configObjName);
+            }
+            return details;
+        } catch (Exception e) {
+            logger.error("Fail to load Client side CAR module " + info.getConfigID(), e);
+            return null;
+        } finally {
+            if (loaded) {
+                try {
+                    unloadModule(configurationManager, configObjName);
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    private ModuleDetails loadCARModuleDetails(RenderRequest renderRequest, ConfigurationInfo info, boolean showDependencies, ConfigurationManager configurationManager) {
+        boolean loaded = false;
+        AbstractName configObjName = null;
+        try {
+            configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
+            loaded = loadModule(configurationManager, configObjName);
+            ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), getConfigurationState(info));
+            ConfigurationData configurationData = configurationManager.getLoadedConfigurationData(info.getConfigID());
+            if (configurationData == null) {
+                return null;
+            }
+            details.setClientAppServerSide(configurationData.getOwnedConfigurations().size() > 0);
+            if (!loaded && showDependencies) {
+                addDependencies(details, configObjName);
+            }
+            return details;
+        } catch (Exception e) {
+            logger.error("Fail to load Client side CAR module " + info.getConfigID(), e);
+            return null;
+        } finally {
+            if (loaded) {
+                try {
+                    unloadModule(configurationManager, configObjName);
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    private ModuleDetails loadEARModuleDetails(RenderRequest renderRequest, ConfigurationInfo info, boolean showDependencies, ConfigurationManager configurationManager) {
+        boolean loaded = false;
+        AbstractName configObjName = null;
+        try {
+            configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
+            loaded = loadModule(configurationManager, configObjName);
+            ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), getConfigurationState(info));
+            ConfigurationData configurationData = configurationManager.getLoadedConfigurationData(info.getConfigID());
+            if (configurationData == null) {
+                return null;
+            }
+            for (Map.Entry<String, ConfigurationData> entry : configurationData.getChildConfigurations().entrySet()) {
+                ConfigurationData childConfigurationData = entry.getValue();
+                if (childConfigurationData.getModuleType().getValue() != ConfigurationModuleType.WAR.getValue()) {
+                    continue;
+                }
+                List<GBeanData> gbeanDatas = configurationData.getGBeans(configurationData.getBundle());
+                for (GBeanData gbeanData : gbeanDatas) {
+                    if (gbeanData.getGBeanInfo().getJ2eeType().equals(NameFactory.WEB_MODULE)) {
+                        details.getContextPaths().add((String) gbeanData.getAttribute("contextPath"));
+                        break;
+                    }
+                }
+            }
+            if (!loaded && showDependencies) {
+                    addDependencies(details, configObjName);
+            }
+            return details;
+        } catch (Exception e) {
+            logger.error("Fail to load EAR module " + info.getConfigID(), e);
+            return null;
+        } finally {
+            if (loaded) {
+                try {
+                    unloadModule(configurationManager, configObjName);
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    private ModuleDetails loadWebModuleDetails(RenderRequest renderRequest, ConfigurationInfo info, boolean showDependencies, ConfigurationManager configurationManager) {
+        boolean loaded = false;
+        AbstractName configObjName = null;
+        try {
+            ModuleDetails details = new ModuleDetails(info.getConfigID(), info.getType(), info.getState());
+            configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
+            loaded = loadModule(configurationManager, configObjName);
+            if (loaded) {
+                ConfigurationData configurationData = configurationManager.getLoadedConfigurationData(info.getConfigID());
+                if (configurationData != null) {
+                    List<GBeanData> gbeanDatas = configurationData.getGBeans(configurationData.getBundle());
+                    for (GBeanData gbeanData : gbeanDatas) {
+                        if (gbeanData.getGBeanInfo().getJ2eeType().equals(NameFactory.WEB_MODULE)) {
+                            details.getContextPaths().add((String) gbeanData.getAttribute("contextPath"));
+                            break;
+                        }
+                    }
+                }
+            } else {
+                WebModule webModule = (WebModule) PortletManager.getModule(renderRequest, info.getConfigID());
+                if (webModule != null) {
+                    details.getContextPaths().add(webModule.getContextPath());
+                    details.setDisplayName(webModule.getDisplayName());
+                }
+
+                if (showDependencies) {
+                    addDependencies(details, configObjName);
+                }
+            }
+            return details;
+        } catch (InvalidConfigException ice) {
+            logger.error("Fail to load web module " + info.getConfigID(), ice);
+            return null;
+        } finally {
+            if (loaded) {
+                try {
+                    unloadModule(configurationManager, configObjName);
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    private List<ModuleDetails> loadWebModuleDetailsFromEARModule(RenderRequest renderRequest, ConfigurationInfo info, boolean showDependencies, ConfigurationManager configurationManager) {
+        boolean loaded = false;
+        AbstractName configObjName = null;
+        try {
+            configObjName = Configuration.getConfigurationAbstractName(info.getConfigID());
+            loaded = loadModule(configurationManager, configObjName);
+            List<ModuleDetails> childrenModuleDetails = new ArrayList<ModuleDetails>();
+            if (loaded) {
+                ConfigurationData configurationData = configurationManager.getLoadedConfigurationData(info.getConfigID());
+                if (configurationData == null) {
+                    return Collections.<ModuleDetails> emptyList();
+                }
+                for (Map.Entry<String, ConfigurationData> entry : configurationData.getChildConfigurations().entrySet()) {
+                    ConfigurationData childConfigurationData = entry.getValue();
+                    if (childConfigurationData.getModuleType().getValue() != ConfigurationModuleType.WAR.getValue()) {
+                        continue;
+                    }
+                    ModuleDetails childWebModuleDetails = new ModuleDetails(info.getConfigID(), childConfigurationData.getModuleType(), info.getState());
+                    childrenModuleDetails.add(childWebModuleDetails);
+
+                    List<GBeanData> gbeanDatas = configurationData.getGBeans(configurationData.getBundle());
+                    for (GBeanData gbeanData : gbeanDatas) {
+                        if (gbeanData.getGBeanInfo().getJ2eeType().equals(NameFactory.WEB_MODULE)) {
+                            childWebModuleDetails.getContextPaths().add((String) gbeanData.getAttribute("contextPath"));
+                            break;
+                        }
+                    }
+
+                }
+            } else {
+                Configuration config = configurationManager.getConfiguration(info.getConfigID());
+                if (config != null) {
+                    for (Configuration child : config.getChildren()) {
+                        if (child.getModuleType().getValue() == ConfigurationModuleType.WAR.getValue()) {
+                            ModuleDetails childDetails = new ModuleDetails(info.getConfigID(), child.getModuleType(), info.getState());
+                            childDetails.setComponentName(child.getId().toString());
+                            WebModule webModule = getWebModule(config, child);
+                            if (webModule != null) {
+                                childDetails.getContextPaths().add(webModule.getContextPath());
+                                childDetails.setDisplayName(webModule.getDisplayName());
+                            }
+                            if (showDependencies) {
+                                addDependencies(childDetails, configObjName);
+                            }
+                            childrenModuleDetails.add(childDetails);
+                        }
+                    }
+                }
+            }
+            return childrenModuleDetails;
+        } catch (InvalidConfigException ice) {
+            logger.error("Fail to load ear module ", ice);
+            return null;
+        } finally {
+            if (loaded) {
+                try {
+                    unloadModule(configurationManager, configObjName);
+                } catch (Exception e) {
+                }
+            }
         }
     }
 
@@ -362,7 +497,7 @@ public class ConfigManagerPortlet extends BasePortlet {
         }
         return configurationState;
     }
-    
+
     private WebModule getWebModule(Configuration config, Configuration child) {
         try {
             Map<String, String> query1 = new HashMap<String, String>();

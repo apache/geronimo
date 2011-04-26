@@ -32,7 +32,6 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$
@@ -105,8 +104,8 @@ public class ConfigurationData implements Serializable {
      */
     private transient ConfigurationDataTransformer configurationDataTransformer;
 
-    private transient BundleContext bundleContext;
-    
+    private transient Bundle bundle;
+
     private transient boolean useEnvironment;
 
     public ConfigurationData(Artifact configId, Naming naming, GBeanState gbeanState) {
@@ -213,15 +212,19 @@ public class ConfigurationData implements Serializable {
         return gbeanState;
     }
 
-    public BundleContext getBundleContext() {
+    /*public BundleContext getBundleContext() {
         if (bundleContext == null) {
             throw new NullPointerException("bundleContext is null in configurationData: " + getId());
         }
         return bundleContext;
+    }*/
+
+    public void setBundle(Bundle bundle) {
+        this.bundle = bundle;
     }
 
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
+    public Bundle getBundle() {
+        return bundle;
     }
 
     /**
@@ -305,7 +308,7 @@ public class ConfigurationData implements Serializable {
     public void setConfigurationDataTransformer(ConfigurationDataTransformer configurationDataTransformer) {
         this.configurationDataTransformer = configurationDataTransformer;
     }
-    
+
     public boolean isUseEnvironment() {
         return useEnvironment;
     }

@@ -166,7 +166,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Manageable Attribute Store containing overrides to this configuration.
      */
     private ManageableAttributeStore attributeStore = null;
-    
+
     private Bundle bundle;
 
     /**
@@ -198,17 +198,17 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         this.allServiceParents = allServiceParents;
         this.configurationResolver = configurationResolver;
         this.abstractName = getConfigurationAbstractName(dependencyNode.getId());
-        this.bundle = configurationData.getBundleContext().getBundle();
-        
+        this.bundle = configurationData.getBundle();
+
         if (configurationData.isUseEnvironment() && configurationManager != null) {
             try {
-                List<Bundle> bundles = getParentBundles(configurationData, configurationResolver, configurationManager);            
+                List<Bundle> bundles = getParentBundles(configurationData, configurationResolver, configurationManager);
                 this.bundle = new DelegatingBundle(bundles);
             } catch (Exception e) {
                 log.debug("Failed to identify bundle parents for " + configurationData.getId(), e);
             }
         }
-        
+
         try {
             // Deserialize the GBeans in the configurationData
             Collection<GBeanData> gbeans = configurationData.getGBeans(bundle);
@@ -233,20 +233,20 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     private List<Bundle> getParentBundles(ConfigurationData configurationData,
                                           ConfigurationResolver configurationResolver,
-                                          ConfigurationManager configurationManager) 
+                                          ConfigurationManager configurationManager)
                                           throws MissingDependencyException, InvalidConfigException {
         List<Bundle> bundles = new ArrayList<Bundle>();
-        bundles.add(configurationData.getBundleContext().getBundle());
-      
+        bundles.add(configurationData.getBundle());
+
         LinkedHashSet<Artifact> parents = configurationManager.resolveParentIds(configurationData);
         for (Artifact parent : parents) {
             String location = getBundleLocation(configurationResolver, parent);
-            Bundle bundle = getBundleByLocation(configurationData.getBundleContext(), location);
+            Bundle bundle = getBundleByLocation(configurationData.getBundle().getBundleContext(), location);
             if (bundle != null) {
                 bundles.add(bundle);
             }
         }
-        
+
         return bundles;
     }
 
@@ -264,7 +264,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             return null;
         }
     }
-    
+
     private static Bundle getBundleByLocation(BundleContext bundleContext, String location) {
         for (Bundle bundle: bundleContext.getBundles()) {
             if (location.equals(bundle.getLocation())) {
@@ -273,7 +273,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
         return null;
     }
-    
+
     /**
      * Add a contained configuration, such as for a war inside an ear
      * @param child contained configuration

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.jar.JarOutputStream;
 
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -85,7 +86,8 @@ public class PluginBootstrap2 {
 //        ModuleType config = ModuleDocument.Factory.parse(plan).getModule();
 
         Maven2Repository repository = new Maven2Repository(localRepo);
-        new DependencyManager(bundleContext, Collections.<Repository>singleton(repository), null);
+        DependencyManager dependencyManager = new DependencyManager(bundleContext, Collections.<Repository>singleton(repository), null);
+        bundleContext.registerService(DependencyManager.class.getName(), dependencyManager, new Hashtable());
 
         GBeanBuilder gBeanBuilder = new GBeanBuilder(null, null);
         ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.<Repository>singleton(repository), Collections.<NamespaceDrivenBuilder>singleton(gBeanBuilder), new Jsr77Naming(), bundleContext);

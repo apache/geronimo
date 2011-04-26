@@ -390,7 +390,6 @@ public abstract class AbstractCarMojo
                 explicitDependencyMap.put(getKey(dependency), dependency);
             }
 
-
             getDependencies(project, useMavenDependencies.isUseTransitiveDependencies());
             for (Artifact entry : localDependencies) {
                 dependencies.add(toDependencyType(entry, explicitDependencyMap, useMavenDependencies.isIncludeVersion(), includeImport));
@@ -429,6 +428,7 @@ public abstract class AbstractCarMojo
         }
         if (explicitDependency != null) {
             dependency.setStart(explicitDependency.isStart());
+            dependency.setEagerStart(explicitDependency.isEagerStart());
         }
         return dependency;
     }
@@ -881,7 +881,6 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.system.properties," +
                         "org.apache.geronimo.system.repository," +
                         "org.apache.geronimo.system.resolver," +
-                        "org.apache.geronimo.system.serverinfo," +
                         "org.apache.geronimo.system.threads," +
                         "org.apache.geronimo.system.util," +
                         "org.apache.geronimo.transformer," +
@@ -890,7 +889,9 @@ public abstract class AbstractCarMojo
                         "org.apache.karaf.jaas.boot;version=\"2.2.1.SNAPSHOT\"," +
                         "org.apache.yoko," +
                         "org.apache.yoko.osgi," +
-                        "org.apache.yoko.rmispec.util"
+                        "org.apache.yoko.rmispec.util," +
+                        "org.apache.xbean.osgi.bundle.util;version=\"3.8.0.SNAPSHOT\"," +
+                        "org.apache.xbean.osgi.bundle.util.jar;version=\"3.8.0.SNAPSHOT\""
         );
         /*
 

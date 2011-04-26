@@ -111,7 +111,7 @@ public class MockBundleContext implements BundleContext {
         }
         BundleContext bundleContext = new WrappingBundleContext(bundle);
         bundle.setBundleContext(bundleContext);
-        configurationData.setBundleContext(bundleContext);
+        configurationData.setBundle(bundleContext.getBundle());
         try {
             configurationManager.loadConfiguration(configurationData);
         } catch (NoSuchConfigException e) {

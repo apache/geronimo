@@ -139,7 +139,7 @@ public interface ConfigurationManager extends ConfigurationSource {
      * This includes all configurations installed, regardless of whether they are
      * currently loaded or running.
      */
-    List listConfigurations();
+    List<ConfigurationInfo> listConfigurations();
 
     /**
      * Return a list of the stores this manager knows about.
@@ -503,6 +503,7 @@ public interface ConfigurationManager extends ConfigurationSource {
      * @return online status of ConfigurationManager
      */
     boolean isOnline();
+
     void setOnline(boolean online);
 
     Collection<? extends Repository> getRepositories();
@@ -514,4 +515,6 @@ public interface ConfigurationManager extends ConfigurationSource {
     LinkedHashSet<Artifact> resolveParentIds(ConfigurationData configurationData) throws MissingDependencyException, InvalidConfigException;
 
     Bundle getBundle(Artifact id);
+
+    ConfigurationData getLoadedConfigurationData(Artifact configurationId);
 }

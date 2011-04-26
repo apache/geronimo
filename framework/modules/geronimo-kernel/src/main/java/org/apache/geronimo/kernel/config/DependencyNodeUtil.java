@@ -21,6 +21,7 @@
 package org.apache.geronimo.kernel.config;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -78,6 +79,26 @@ public class DependencyNodeUtil {
         }
     }
 
+    /**
+     * This method will check all its sub configurations, and add those class and service parents into the target DependencyNode
+     * @param configurationData
+     * @param artifactResolver
+     * @param configurationFilter
+     * @return
+     * @throws MissingDependencyException
+     */
+    public static DependencyNode toDependencyNode(ConfigurationData configurationData, ArtifactResolver artifactResolver, ConfigurationManager configurationFilter) throws MissingDependencyException {
+        DependencyNode dependencyNode = toDependencyNode(configurationData.getEnvironment(), artifactResolver, configurationFilter);
+        for(Map.Entry<String, ConfigurationData> entry : configurationData.getChildConfigurations().entrySet()) {
+            DependencyNode childDependencyNode = toDependencyNode(entry.getValue(), artifactResolver, configurationFilter);
+            childDependencyNode.getClassParents().remove(configurationData.getId());
+            childDependencyNode.getServiceParents().remove(configurationData.getId());
+            dependencyNode.getClassParents().addAll(childDependencyNode.getClassParents());
+            dependencyNode.getServiceParents().addAll(childDependencyNode.getServiceParents());
+        }
+        return dependencyNode;
+    }
+
     public static DependencyNode toDependencyNode(Environment environment, ArtifactResolver artifactResolver, ConfigurationManager configurationFilter) throws MissingDependencyException {
         Artifact id = environment.getConfigId();
         LinkedHashSet<Artifact> classParents = new LinkedHashSet<Artifact>();
@@ -103,5 +124,6 @@ public class DependencyNodeUtil {
         }
         return new DependencyNode(id, classParents, serviceParents);
     }
+
 
 }

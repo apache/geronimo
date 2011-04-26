@@ -176,7 +176,7 @@ public final class ConfigurationUtil {
         if (configurationData == null) throw new NullPointerException("configurationData is null");
         if (bundleContext == null) throw new NullPointerException("bundle is null");
 
-        configurationData.setBundleContext(bundleContext);
+        configurationData.setBundle(bundleContext.getBundle());
 
         // build the gbean data
         Artifact configId = configurationData.getId();

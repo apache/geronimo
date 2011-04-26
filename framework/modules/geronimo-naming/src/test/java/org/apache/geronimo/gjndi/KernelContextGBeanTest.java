@@ -18,7 +18,6 @@ package org.apache.geronimo.gjndi;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -45,7 +44,6 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.xbean.naming.context.ImmutableContext;
-import org.apache.xbean.naming.global.GlobalContextManager;
 
 /**
  * @version $Rev$ $Date$
@@ -196,7 +194,7 @@ public class KernelContextGBeanTest extends AbstractContextTest {
         configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
         configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
-        configurationData.setBundleContext(bundleContext);
+        configurationData.setBundle(bundleContext.getBundle());
         configurationData.addGBean("GlobalContext", GlobalContextGBean.class);
 
         GBeanInfoBuilder builder = new GBeanInfoBuilder(ImmutableContext.class);
