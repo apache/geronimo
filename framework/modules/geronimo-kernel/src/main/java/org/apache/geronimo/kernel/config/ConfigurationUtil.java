@@ -528,15 +528,15 @@ public final class ConfigurationUtil {
                 ConfigurationUtil.startConfigurationGBeans(childConfiguration, kernel);
             }
         } catch (Throwable e) {
-            for (AbstractName gbeanName : started) {
-                try {
-                    kernel.stopGBean(gbeanName);
-                } catch (GBeanNotFoundException ignored) {
-                } catch (IllegalStateException ignored) {
-                } catch (InternalKernelException kernelException) {
-                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
-                }
-            }
+//            for (AbstractName gbeanName : started) {
+//                try {
+//                    kernel.stopGBean(gbeanName);
+//                } catch (GBeanNotFoundException ignored) {
+//                } catch (IllegalStateException ignored) {
+//                } catch (InternalKernelException kernelException) {
+//                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
+//                }
+//            }
             if (e instanceof Error) {
                 throw (Error) e;
             }

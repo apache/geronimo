@@ -80,6 +80,12 @@
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-reflect</artifactId>
         </dependency>
+        <!-- commands -->
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!--<dependency>-->
             <!--<groupId>org.apache.geronimo.specs</groupId>-->
