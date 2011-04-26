@@ -26,100 +26,76 @@ import java.net.URI;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
+import org.apache.geronimo.gbean.wrapper.AbstractServiceWrapper;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
  * @version $Rev:$ $Date:$
  */
 @GBean
-public class WrappingServerInfo implements ServerInfo {
-
-    private ServerInfo serverInfo;
+public class WrappingServerInfo extends AbstractServiceWrapper<ServerInfo> implements ServerInfo {
 
     public WrappingServerInfo(@ParamSpecial(type = SpecialAttributeType.bundle)final Bundle bundle) {
-        final BundleContext bundleContext = bundle.getBundleContext();
-        ServiceTracker t = new ServiceTracker(bundleContext, ServerInfo.class.getName(), new ServiceTrackerCustomizer() {
-
-            @Override
-            public Object addingService(ServiceReference serviceReference) {
-                serverInfo = (ServerInfo) bundleContext.getService(serviceReference);
-                return null;
-            }
-
-            @Override
-            public void modifiedService(ServiceReference serviceReference, Object o) {
-            }
-
-            @Override
-            public void removedService(ServiceReference serviceReference, Object o) {
-                serverInfo = null;
-            }
-        });
-        t.open();
+       super(bundle, ServerInfo.class);
     }
-
 
     @Override
     public String getBaseDirectory() {
-        return serverInfo.getBaseDirectory();
+        return get().getBaseDirectory();
     }
 
-    @Override
+   @Override
     public String getBuildDate() {
-        return serverInfo.getBuildDate();
+        return get().getBuildDate();
     }
 
     @Override
     public String getBuildTime() {
-        return serverInfo.getBuildTime();
+        return get().getBuildTime();
     }
 
     @Override
     public String getCopyright() {
-        return serverInfo.getCopyright();
+        return get().getCopyright();
     }
 
     @Override
     public String getCurrentBaseDirectory() {
-        return serverInfo.getCurrentBaseDirectory();
+        return get().getCurrentBaseDirectory();
     }
 
     @Override
     public String getVersion() {
-        return serverInfo.getVersion();
+        return get().getVersion();
     }
 
     @Override
     public File resolve(String filename) {
-        return serverInfo.resolve(filename);
+        return get().resolve(filename);
     }
 
     @Override
     public URI resolve(URI uri) {
-        return serverInfo.resolve(uri);
+        return get().resolve(uri);
     }
 
     @Override
     public String resolvePath(String filename) {
-        return serverInfo.resolvePath(filename);
+        return get().resolvePath(filename);
     }
 
     @Override
     public File resolveServer(String filename) {
-        return serverInfo.resolveServer(filename);
+        return get().resolveServer(filename);
     }
 
     @Override
     public URI resolveServer(URI uri) {
-        return serverInfo.resolveServer(uri);
+        return get().resolveServer(uri);
     }
 
     @Override
     public String resolveServerPath(String filename) {
-        return serverInfo.resolveServerPath(filename);
+        return get().resolveServerPath(filename);
     }
 }

@@ -17,6 +17,7 @@
 package org.apache.geronimo.system.configuration;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
@@ -38,7 +39,7 @@ public interface PluginAttributeStore extends ManageableAttributeStore {
      */
     public void setModuleGBeans(Artifact moduleName, List<GbeanType> gbeans, boolean load, String condition) throws InvalidGBeanException;
 
-    void addConfigSubstitutions(Properties properties);
+    void addConfigSubstitutions(Map<String, String> properties);
 
     boolean isModuleInstalled(Artifact artifact);
 

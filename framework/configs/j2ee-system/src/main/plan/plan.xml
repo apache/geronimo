@@ -49,23 +49,23 @@ specific services - those should be provided by children.
     <!--<gbean name="ConfigurationDataTransformer" class="org.apache.geronimo.kernel.config.transformer.GroovyTransformer" />-->
 
     <!--Configuration Store service-->
-    <!--<gbean name="Local" class="org.apache.geronimo.system.configuration.RepositoryConfigurationStore">-->
+    <gbean name="Local" class="org.apache.geronimo.system.configuration.WrapperConfigurationStore">
         <!--<reference name="Repository">-->
             <!--<name>Repository</name>-->
         <!--</reference>-->
-        <!--&lt;!&ndash;<reference name="ConfigurationDataTransformer">&ndash;&gt;-->
-            <!--&lt;!&ndash;<name>ConfigurationDataTransformer</name>&ndash;&gt;-->
-        <!--&lt;!&ndash;</reference>&ndash;&gt;-->
-    <!--</gbean>-->
+        <!--<reference name="ConfigurationDataTransformer">-->
+            <!--<name>ConfigurationDataTransformer</name>-->
+        <!--</reference>-->
+    </gbean>
 
     <!--User-editable attribute service-->
-    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-        <attribute name="configFile">var/config/config.xml</attribute>
-        <attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>
-        <attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>
+    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.WrapperAttributeManager">
+        <!--<reference name="ServerInfo">-->
+            <!--<name>ServerInfo</name>-->
+        <!--</reference>-->
+        <!--<attribute name="configFile">var/config/config.xml</attribute>-->
+        <!--<attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>-->
+        <!--<attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>-->
     </gbean>
 
     <!-- ArtifactManager -->

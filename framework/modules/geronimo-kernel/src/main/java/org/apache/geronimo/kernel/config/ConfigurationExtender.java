@@ -20,20 +20,17 @@ package org.apache.geronimo.kernel.config;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.osgi.framework.Bundle;
@@ -52,7 +49,10 @@ public class ConfigurationExtender {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationExtender.class);
 
-    private final Map<Long, Configuration> configurationMap = new ConcurrentHashMap<Long, Configuration>();
+    private final Map<Long, GetConfiguration> configurationMap = new ConcurrentHashMap<Long, GetConfiguration>();
+
+    private final Executor executor = Executors.newCachedThreadPool();
+
 
     private BundleTracker bt;
 
@@ -113,9 +113,9 @@ public class ConfigurationExtender {
         @Override
         public void removedBundle(Bundle bundle, BundleEvent bundleEvent, Object o) {
             if (bundleEvent.getType() == BundleEvent.STOPPED) {
-                stopConfiguration(bundle, (Configuration)o);
+                stopConfiguration(bundle, (GetConfiguration)o);
             } else if (bundleEvent.getType() == BundleEvent.UNRESOLVED) {
-                unloadConfiguration(bundle, (Configuration)o);
+                unloadConfiguration(bundle, (GetConfiguration)o);
             }
         }
     }
@@ -156,65 +156,65 @@ public class ConfigurationExtender {
 //        } while (bundleStatusChanged);
 //    }
 
-    private Configuration loadConfiguration(Bundle bundle) {
+    private LoadConfiguration loadConfiguration(Bundle bundle) {
 //        loadedBundleIds.add(bundle.getBundleId());
         URL configSerURL = bundle.getEntry("META-INF/config.ser");
         if (configSerURL == null) {
             return null;
         }
-        InputStream in = null;
-        try {
-            in = configSerURL.openStream();
-            //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
-            ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
-            data.setBundle(bundle);
-            Configuration configuration = new Configuration(data, manageableAttributeStore);
-            configurationMap.put(bundle.getBundleId(), configuration);
-            ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
-//            for (GBeanData gBeanData: configuration.getGBeans().values()) {
-//                kernel.loadGBean(gBeanData, configuration.getBundle());
-//            }
-            return configuration;
+        LoadConfiguration loader = new LoadConfiguration(bundle, configSerURL);
+        executor.execute(loader);
+        configurationMap.put(bundle.getBundleId(), loader);
+        return loader;
+//
+//        InputStream in = null;
+//        try {
+//            in = configSerURL.openStream();
+//            //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
+//            ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
+//            data.setBundle(bundle);
+//            Configuration configuration = new Configuration(data, manageableAttributeStore);
+//            configurationMap.put(bundle.getBundleId(), configuration);
+//            ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
+////            for (GBeanData gBeanData: configuration.getGBeans().values()) {
+////                kernel.loadGBean(gBeanData, configuration.getBundle());
+////            }
+//            return configuration;
+//
+////            configurationManager.loadConfiguration(data);
+////            bundleIdArtifactMap.put(bundle.getBundleId(), data.getId());
+//        } catch (IOException e) {
+//            logger.error("Could not read the config.ser file from bundle " + bundle.getLocation(), e);
+//        } catch (ClassNotFoundException e) {
+//            logger.error("Could not load required classes from bundle " + bundle.getLocation(), e);
+//        } catch (InvalidConfigException e) {
+//            logger.error("Could not load Configuration from bundle " + bundle.getLocation(), e);
+////        } catch (GBeanAlreadyExistsException e) {
+////            logger.error("Duplicate gbean in bundle " + bundle.getLocation(), e);
+//        } finally {
+//            IOUtils.close(in);
+//        }
+//        return null;
+    }
 
-//            configurationManager.loadConfiguration(data);
-//            bundleIdArtifactMap.put(bundle.getBundleId(), data.getId());
-        } catch (IOException e) {
-            logger.error("Could not read the config.ser file from bundle " + bundle.getLocation(), e);
-        } catch (ClassNotFoundException e) {
-            logger.error("Could not load required classes from bundle " + bundle.getLocation(), e);
-        } catch (InvalidConfigException e) {
-            logger.error("Could not load Configuration from bundle " + bundle.getLocation(), e);
-//        } catch (GBeanAlreadyExistsException e) {
-//            logger.error("Duplicate gbean in bundle " + bundle.getLocation(), e);
-        } finally {
-            IOUtils.close(in);
+    private StartConfiguration startConfiguration(Bundle bundle) {
+        GetConfiguration loader = configurationMap.get(bundle.getBundleId());
+        if (loader != null) {
+            StartConfiguration startConfiguration = new StartConfiguration(loader);
+            executor.execute(startConfiguration);
+            configurationMap.put(bundle.getBundleId(), startConfiguration);
+            return startConfiguration;
         }
         return null;
     }
 
-    private Configuration startConfiguration(Bundle bundle) {
-        Configuration configuration = configurationMap.get(bundle.getBundleId());
+
+    protected void stopConfiguration(Bundle bundle, GetConfiguration configuration) {
         if (configuration != null) {
-            try {
-                ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
-            } catch (InvalidConfigException e) {
-                logger.error("Could not start Configuration from bundle " + bundle.getLocation(), e);
-            }
-        }
-
-        return configuration;
-    }
-
-
-    protected void stopConfiguration(Bundle bundle, Configuration configuration) {
-        if (configuration != null) {
-            for (AbstractName abstractName: configuration.getGBeans().keySet()) {
-                try {
-                    kernel.stopGBean(abstractName);
-                } catch (GBeanNotFoundException e) {
-                    logger.error("Could not stop gbean " + abstractName + " from bundle " + bundle.getLocation(), e);
-                }
-            }
+            GetConfiguration start = configurationMap.get(bundle.getBundleId());
+            StopConfiguration stopConfiguration = new StopConfiguration(start);
+            executor.execute(stopConfiguration);
+            configurationMap.put(bundle.getBundleId(), stopConfiguration);
         }
 //        Artifact id = getArtifact(bundle);
 //        if (id == null) {
@@ -257,42 +257,179 @@ public class ConfigurationExtender {
 //        }
     }
 
-    private void unloadConfiguration(Bundle bundle, Configuration configuration) {
+    private void unloadConfiguration(Bundle bundle, GetConfiguration configuration) {
         if (configuration != null) {
-            for (AbstractName abstractName: configuration.getGBeans().keySet()) {
-                try {
-                    kernel.unloadGBean(abstractName);
-                } catch (GBeanNotFoundException e) {
-                    logger.error("Could not unload gbean " + abstractName + " from bundle " + bundle.getLocation(), e);
-                }
-            }
-
+            GetConfiguration start = configurationMap.get(bundle.getBundleId());
+            UnloadConfiguration unloadConfiguration = new UnloadConfiguration(start);
+            executor.execute(unloadConfiguration);
+            configurationMap.remove(bundle.getBundleId());
         }
     }
 
+    private interface GetConfiguration {
 
-    private class BundleListener {
+        Configuration getConfiguration();
 
-        private Bundle hostBundle;
+        Bundle getBundle();
 
-        private Set<Long> dependentBundleIds = new HashSet<Long>();
+    }
 
-        public BundleListener(Bundle hostBundle, Set<Long> dependentBundleIds) {
-            this.hostBundle = hostBundle;
-            this.dependentBundleIds = dependentBundleIds;
+    private class LoadConfiguration implements Runnable, GetConfiguration {
+
+        private final URL configSerURL;
+        private final Bundle bundle;
+        private Configuration configuration;
+        private CountDownLatch latch = new CountDownLatch(1);
+
+        private LoadConfiguration(Bundle bundle, URL configSerURL) {
+            this.bundle = bundle;
+            this.configSerURL = configSerURL;
         }
 
-        public boolean bundleChanged(Bundle bundle) {
-            Long dependentBundleId = bundle.getBundleId();
-            if (!dependentBundleIds.contains(dependentBundleId)) {
-                return false;
+        @Override
+        public void run() {
+            InputStream in = null;
+            try {
+                in = configSerURL.openStream();
+                //TODO there are additional consistency checks in RepositoryConfigurationStore that we should use.
+                ConfigurationData data = ConfigurationUtil.readConfigurationData(in);
+                data.setBundle(bundle);
+                Configuration configuration = new Configuration(data, manageableAttributeStore);
+                ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
+//            for (GBeanData gBeanData: configuration.getGBeans().values()) {
+//                kernel.loadGBean(gBeanData, configuration.getBundle());
+//            }
+                this.configuration = configuration;
+
+//            configurationManager.loadConfiguration(data);
+//            bundleIdArtifactMap.put(bundle.getBundleId(), data.getId());
+            } catch (IOException e) {
+                logger.error("Could not read the config.ser file from bundle " + bundle.getLocation(), e);
+            } catch (ClassNotFoundException e) {
+                logger.error("Could not load required classes from bundle " + bundle.getLocation(), e);
+            } catch (InvalidConfigException e) {
+                logger.error("Could not load Configuration from bundle " + bundle.getLocation(), e);
+//        } catch (GBeanAlreadyExistsException e) {
+//            logger.error("Duplicate gbean in bundle " + bundle.getLocation(), e);
+            } finally {
+                IOUtils.close(in);
             }
-            dependentBundleIds.remove(dependentBundleId);
-            if (dependentBundleIds.size() == 0) {
-//                _loadConfiguration(hostBundle);
-                return true;
+            latch.countDown();
+
+        }
+
+        @Override
+        public Configuration getConfiguration() {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+
             }
-            return false;
+            return configuration;
+        }
+
+        @Override
+        public Bundle getBundle() {
+            return bundle;
+        }
+
+    }
+
+    private class StartConfiguration implements Runnable, GetConfiguration {
+
+        private final GetConfiguration loader;
+        private CountDownLatch latch = new CountDownLatch(1);
+
+        private StartConfiguration(GetConfiguration loader) {
+            this.loader = loader;
+        }
+
+        @Override
+        public void run() {
+            Configuration configuration = loader.getConfiguration();
+            if (configuration != null) {
+                try {
+                    ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
+                } catch (InvalidConfigException e) {
+                    logger.error("Could not start Configuration from bundle " + loader.getBundle().getLocation(), e);
+                }
+            }
+            latch.countDown();
+        }
+        @Override
+        public Configuration getConfiguration() {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+
+            }
+            return loader.getConfiguration();
+        }
+
+        @Override
+        public Bundle getBundle() {
+            return loader.getBundle();
+        }
+
+    }
+
+    private class StopConfiguration implements Runnable, GetConfiguration {
+
+        private final GetConfiguration loader;
+        private CountDownLatch latch = new CountDownLatch(1);
+
+        private StopConfiguration(GetConfiguration loader) {
+            this.loader = loader;
+        }
+
+        @Override
+        public void run() {
+            Configuration configuration = loader.getConfiguration();
+            if (configuration != null) {
+                try {
+                    ConfigurationUtil.stopConfigurationGBeans(configuration, kernel);
+                } catch (InvalidConfigException e) {
+                    logger.error("Could not start Configuration from bundle " + loader.getBundle().getLocation(), e);
+                }
+            }
+            latch.countDown();
+        }
+        @Override
+        public Configuration getConfiguration() {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+
+            }
+            return loader.getConfiguration();
+        }
+
+        @Override
+        public Bundle getBundle() {
+            return loader.getBundle();
+        }
+    }
+
+    private class UnloadConfiguration implements Runnable {
+
+        private final GetConfiguration loader;
+        private CountDownLatch latch = new CountDownLatch(1);
+
+        private UnloadConfiguration(GetConfiguration loader) {
+            this.loader = loader;
+        }
+
+        @Override
+        public void run() {
+            Configuration configuration = loader.getConfiguration();
+            if (configuration != null) {
+                try {
+                    ConfigurationUtil.unloadConfigurationGBeans(configuration, kernel);
+                } catch (InvalidConfigException e) {
+                    logger.error("Could not start Configuration from bundle " + loader.getBundle().getLocation(), e);
+                }
+            }
+            latch.countDown();
         }
     }
 

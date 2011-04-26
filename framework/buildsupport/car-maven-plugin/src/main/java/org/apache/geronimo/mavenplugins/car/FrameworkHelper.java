@@ -101,7 +101,7 @@ public class FrameworkHelper {
     }
 
     public Framework start() throws Exception {
-//        ThreadLocalProperties.install();
+        ThreadLocalProperties.install();
         for (Iterator<Map.Entry<Object, Object>> it = System.getProperties().entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<Object, Object> entry = it.next();
             if (((String)entry.getKey()).startsWith("karaf.")) {
@@ -119,7 +119,7 @@ public class FrameworkHelper {
         try {
             destroy();
         } finally {
-//            ThreadLocalProperties.uninstall();
+            ThreadLocalProperties.uninstall();
         }
     }
 
