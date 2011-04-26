@@ -1309,7 +1309,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ActivationSpecInfo
         connectionFactoryGBeanData.setServiceInterfaces(implementedInterfaces.toArray(new String[implementedInterfaces.size()]));
         String jndiName = connectiondefinitionInstance.getJndiName();
         if (jndiName == null) {
-            jndiName = naming.toOsgiJndiName(connectionFactoryAbstractName);
+//            jndiName = naming.toOsgiJndiName(connectionFactoryAbstractName);
+            //TODO hack
+            jndiName = connectiondefinitionInstance.getName().trim();
         } else {
             jndiName = jndiName.trim();
         }

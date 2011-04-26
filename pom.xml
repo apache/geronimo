@@ -59,8 +59,8 @@
 
         <geronimoSchemaVersion>1.2</geronimoSchemaVersion>
         <warnOnDependencyChange>true</warnOnDependencyChange>
-        <logDependencyChanges>true</logDependencyChanges>
-        <overwriteChangedDependencies>true</overwriteChangedDependencies>
+        <logDependencyChanges>false</logDependencyChanges>
+        <overwriteChangedDependencies>false</overwriteChangedDependencies>
 
         <!--
         FIXME: STOP using properties for dependency versions unless you absolutly need them,
@@ -2024,13 +2024,15 @@ only found in cxf
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.0.1</version>
+                    <version>2.3.4</version>
                     <extensions>true</extensions>
                     <configuration>
                         <instructions>
                             <Implementation-Title>${project.name}</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
                             <Bundle-DocURL>${project.url}</Bundle-DocURL>
+                            <_versionpolicy-impl>[$(version;==;$(@)),$(version;=+;$(@)))</_versionpolicy-impl>
+                            <_versionpolicy-uses>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy-uses>
                         </instructions>
                     </configuration>
                 </plugin>

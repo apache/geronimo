@@ -18,6 +18,7 @@ package org.apache.geronimo.kernel;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.management.ObjectName;
@@ -377,4 +378,7 @@ public interface Kernel {
     Object invoke(ObjectName name, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
 
     String getStateReason(AbstractName abstractName);
+
+    //delegated from Configuration
+    LinkedHashSet<GBeanData> findGBeanDatas(Set<AbstractNameQuery> patterns);
 }

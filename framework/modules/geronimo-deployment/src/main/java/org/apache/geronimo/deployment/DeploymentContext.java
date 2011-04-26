@@ -346,7 +346,7 @@ public class DeploymentContext {
     }
 
     public LinkedHashSet<GBeanData> findGBeanDatas(Configuration configuration, AbstractNameQuery pattern) {
-        return configuration.findGBeanDatas(configuration, Collections.singleton(pattern));
+        return configuration.findGBeanDatas(Collections.singleton(pattern));
     }
 
     public LinkedHashSet<AbstractName> findGBeans(Set<AbstractNameQuery> patterns) {
@@ -482,6 +482,10 @@ public class DeploymentContext {
         resourceContext.addFile(targetPath, source);
     }
 
+    public void addFile(URI targetPath, byte[] source) throws IOException {
+        resourceContext.addFile(targetPath, source);
+    }
+
     public File getTargetFile(URI targetPath) {
         return resourceContext.getTargetFile(targetPath);
     }
@@ -538,15 +542,15 @@ public class DeploymentContext {
      * @throws DeploymentException if configuration is invalid
      */
     public ConfigurationData getConfigurationData() throws DeploymentException {
-        List<String> failures = verify(configuration);
-        if (!failures.isEmpty()) {
-            StringBuffer message = new StringBuffer();
-            for (String failure : failures) {
-                if (message.length() > 0) message.append("\n");
-                message.append(failure);
-            }
-            throw new DeploymentException(message.toString());
-        }
+//        List<String> failures = verify(configuration);
+//        if (!failures.isEmpty()) {
+//            StringBuffer message = new StringBuffer();
+//            for (String failure : failures) {
+//                if (message.length() > 0) message.append("\n");
+//                message.append(failure);
+//            }
+//            throw new DeploymentException(message.toString());
+//        }
 
         // TODO OSGI figure out exports
         environment.addToBundleClassPath(bundleClassPath);

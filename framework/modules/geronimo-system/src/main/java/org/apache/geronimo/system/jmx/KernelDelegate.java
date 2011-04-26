@@ -17,6 +17,7 @@
 package org.apache.geronimo.system.jmx;
 
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -64,6 +65,17 @@ public class KernelDelegate implements Kernel {
 
     public Naming getNaming() {
         return (Naming) getKernelAttribute("naming");
+    }
+
+    @Override
+    public LinkedHashSet<GBeanData> findGBeanDatas(Set<AbstractNameQuery> patterns) {
+        try {
+            return (LinkedHashSet<GBeanData>)invokeKernel("findGBeanDatas", new Object[] {patterns}, new String[] {Set.class.getName()});
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
     }
 
     @Deprecated

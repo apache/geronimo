@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.basic;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import javax.management.ObjectName;
@@ -279,6 +280,13 @@ public class BasicKernel implements Kernel
             return false;
         }
     }
+
+    //delegated from Configuration
+    @Override
+    public LinkedHashSet<GBeanData> findGBeanDatas(Set<AbstractNameQuery> patterns) {
+        return registry.findGBeanDatas(patterns);
+    }
+
 
     public Object getGBean(String shortName) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         return getGBean(shortName, null);

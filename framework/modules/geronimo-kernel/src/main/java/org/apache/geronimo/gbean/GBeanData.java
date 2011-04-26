@@ -110,6 +110,38 @@ public class GBeanData implements Externalizable {
         }
     }
 
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//
+//        GBeanData gBeanData = (GBeanData) o;
+//
+//        if (priority != gBeanData.priority) return false;
+//        if (abstractName != null ? !abstractName.equals(gBeanData.abstractName) : gBeanData.abstractName != null) return false;
+//        if (attributes != null ? !attributes.equals(gBeanData.attributes) : gBeanData.attributes != null) return false;
+//        if (dependencies != null ? !dependencies.equals(gBeanData.dependencies) : gBeanData.dependencies != null) return false;
+//        if (gbeanInfo != null ? !gbeanInfo.equals(gBeanData.gbeanInfo) : gBeanData.gbeanInfo != null) return false;
+//        if (references != null ? !references.equals(gBeanData.references) : gBeanData.references != null) return false;
+//        if (!Arrays.equals(serviceInterfaces, gBeanData.serviceInterfaces)) return false;
+//        if (serviceProperties != null ? !serviceProperties.equals(gBeanData.serviceProperties) : gBeanData.serviceProperties != null) return false;
+//
+//        return true;
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        int result = gbeanInfo != null ? gbeanInfo.hashCode() : 0;
+//        result = 31 * result + (attributes != null ? attributes.hashCode() : 0);
+//        result = 31 * result + (references != null ? references.hashCode() : 0);
+//        result = 31 * result + (dependencies != null ? dependencies.hashCode() : 0);
+//        result = 31 * result + (abstractName != null ? abstractName.hashCode() : 0);
+//        result = 31 * result + priority;
+//        result = 31 * result + (serviceInterfaces != null ? Arrays.hashCode(serviceInterfaces) : 0);
+//        result = 31 * result + (serviceProperties != null ? serviceProperties.hashCode() : 0);
+//        return result;
+//    }
+
     public AbstractName getAbstractName() {
         return abstractName;
     }

@@ -413,7 +413,12 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                         if (!BundleUtils.isResolved(currentBundle)) {
                             BundleUtils.resolve(currentBundle);
                             if (!BundleUtils.isResolved(currentBundle)) {
-                                log.error("Could not resolve the dependency bundle" + currentBundle.getLocation());
+                                log.error("Could not resolve the dependency bundle " + currentBundle.getLocation());
+                                StringBuilder buf = new StringBuilder("known bundles: ");
+                                for (Bundle b: bundleContext.getBundles()) {
+                                    buf.append("\n   ").append(b.getLocation()).append("  state: ").append(b.getState());
+                                }
+                                log.error(buf.toString());
                             }
                         }
                     }
@@ -536,3 +541,4 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         }
     }
 }
+

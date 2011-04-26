@@ -16,10 +16,13 @@
  */
 package org.apache.geronimo.kernel.basic;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,11 +31,13 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.gbean.runtime.InstanceRegistry;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
@@ -214,6 +219,27 @@ public class BasicRegistry implements InstanceRegistry {
         }
         return result;
     }
+
+    public LinkedHashSet<GBeanData> findGBeanDatas(Set<AbstractNameQuery> patterns) {
+        LinkedHashSet<GBeanData> result = new LinkedHashSet<GBeanData>();
+
+        List<Map.Entry<AbstractName, GBeanInstance>> gbeanNames;
+        synchronized (this) {
+            gbeanNames = new ArrayList<Map.Entry<AbstractName, GBeanInstance>>(infoRegistry.entrySet());
+        }
+        for (AbstractNameQuery abstractNameQuery : patterns) {
+                // Search the GBeans
+                for (Map.Entry<AbstractName, GBeanInstance> entry : gbeanNames) {
+                    AbstractName abstractName = entry.getKey();
+                    GBeanInstance gBeanInstance = entry.getValue();
+                    if (abstractNameQuery.matches(abstractName, gBeanInstance.getGBeanInfo().getInterfaces())) {
+                        result.add(gBeanInstance.getGBeanData());
+                    }
+                }
+        }
+        return result;
+    }
+
 
     private ObjectName normalizeObjectName(ObjectName objectName) {
         if (objectName != null && objectName.getDomain().length() == 0) {

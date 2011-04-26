@@ -40,6 +40,8 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.xbean.osgi.bundle.util.DelegatingBundle;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -169,6 +171,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     private Bundle bundle;
 
+    private Kernel kernel;
+
     /**
      * Creates a configuration.
      *
@@ -190,6 +194,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         if (configurationData == null) {
             throw new NullPointerException("configurationData is null");
         }
+
+        this.kernel = KernelRegistry.getSingleKernel();
 
         this.configurationData = configurationData;
         this.naming = configurationData.getNaming();
@@ -523,7 +529,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public GBeanData findGBeanData(Set<AbstractNameQuery> patterns) throws GBeanNotFoundException {
         if (patterns == null) throw new NullPointerException("patterns is null");
-        Set<GBeanData> result = findGBeanDatas(this, patterns);
+        Set<GBeanData> result = findGBeanDatasHere(patterns);
         if (result.size() > 1) {
             throw new GBeanNotFoundException("More than one match to referencePatterns in local configuration", patterns, mapToNames(result));
         } else if (result.size() == 1) {
@@ -531,10 +537,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
 
         // search all parents
-        for (Configuration configuration : allServiceParents) {
-            result.addAll(findGBeanDatas(configuration, patterns));
+        result.addAll(findGBeanDatasInKernel(patterns));
 
-        }
         // if we already found a match we have an ambiguous query
         if (result.size() > 1) {
             List<AbstractName> names = new ArrayList<AbstractName>(result.size());
@@ -591,32 +595,60 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public LinkedHashSet<GBeanData> findGBeanDatas(Set<AbstractNameQuery> patterns) {
         if (patterns == null) throw new NullPointerException("patterns is null");
-        LinkedHashSet<GBeanData> datas = findGBeanDatas(this, patterns);
+        LinkedHashSet<GBeanData> datas = findGBeanDatasHere(patterns);
 
         // search all parents
-        for (Configuration configuration : allServiceParents) {
-            Set<GBeanData> match = findGBeanDatas(configuration, patterns);
-            datas.addAll(match);
-        }
+        Set<GBeanData> match = findGBeanDatasInKernel(patterns);
+        datas.addAll(match);
         return datas;
     }
 
     /**
      * Find the gbeanDatas matching the patterns in this configuration only, ignoring parents.
      *
-     * @param configuration configuration to look in
+     *
      * @param patterns      patterns to look for
      * @return set of gbeandatas matching one of the patterns from this configuration only, not including parents.
      */
-    public LinkedHashSet<GBeanData> findGBeanDatas(Configuration configuration, Set<AbstractNameQuery> patterns) {
+    @Deprecated
+    public LinkedHashSet<GBeanData> findGBeanDatas(Configuration ignored, Set<AbstractNameQuery> patterns) {
+        return findGBeanDatasInKernel(patterns);
+    }
+
+
+    public LinkedHashSet<GBeanData> findGBeanDatasInKernel(Set<AbstractNameQuery> patterns) {
+        return kernel.findGBeanDatas(patterns);
+//        LinkedHashSet<GBeanData> result = new LinkedHashSet<GBeanData>();
+//
+//        Set<Map.Entry<AbstractName, GBeanData>> gbeanNames = configuration.getGBeans().entrySet();
+//        for (AbstractNameQuery abstractNameQuery : patterns) {
+//            Artifact queryArtifact = abstractNameQuery.getArtifact();
+//
+//            // Does this query apply to this configuration
+//            if (queryArtifact == null || queryArtifact.matches(configuration.getId())) {
+//
+//                // Search the GBeans
+//                for (Map.Entry<AbstractName, GBeanData> entry : gbeanNames) {
+//                    AbstractName abstractName = entry.getKey();
+//                    GBeanData gbeanData = entry.getValue();
+//                    if (abstractNameQuery.matches(abstractName, gbeanData.getGBeanInfo().getInterfaces())) {
+//                        result.add(gbeanData);
+//                    }
+//                }
+//            }
+//        }
+//        return result;
+    }
+
+    private LinkedHashSet<GBeanData> findGBeanDatasHere(Set<AbstractNameQuery> patterns) {
         LinkedHashSet<GBeanData> result = new LinkedHashSet<GBeanData>();
 
-        Set<Map.Entry<AbstractName, GBeanData>> gbeanNames = configuration.getGBeans().entrySet();
+        Set<Map.Entry<AbstractName, GBeanData>> gbeanNames = getGBeans().entrySet();
         for (AbstractNameQuery abstractNameQuery : patterns) {
             Artifact queryArtifact = abstractNameQuery.getArtifact();
 
             // Does this query apply to this configuration
-            if (queryArtifact == null || queryArtifact.matches(configuration.getId())) {
+            if (queryArtifact == null || queryArtifact.matches(getId())) {
 
                 // Search the GBeans
                 for (Map.Entry<AbstractName, GBeanData> entry : gbeanNames) {
