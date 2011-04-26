@@ -18,7 +18,6 @@ package org.apache.geronimo.kernel;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.management.ObjectName;
@@ -30,6 +29,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev:386515 $ $Date$
@@ -76,13 +76,12 @@ public interface Kernel {
      * Load a specific GBean into this kernel.
      * This is intended for applications that are embedding the kernel.
      *
-     *
      * @param gbeanData the GBean to load
-     * @param bundle
+     * @param bundleContext
      * @throws org.apache.geronimo.kernel.GBeanAlreadyExistsException if the name is already used
      * @throws org.apache.geronimo.kernel.InternalKernelException if there is a problem during registration
      */
-    void loadGBean(GBeanData gbeanData, Bundle bundle) throws GBeanAlreadyExistsException, InternalKernelException;
+    void loadGBean(GBeanData gbeanData, BundleContext bundleContext) throws GBeanAlreadyExistsException, InternalKernelException;
 
     /**
      * Is there a GBean registered with the kernel under the specified name?
@@ -312,6 +311,12 @@ public interface Kernel {
     String getShortNameFor(Object service);
 
     /**
+     * Brings the kernel online
+     * @throws Exception if the kernel can not boot
+     */
+    void boot() throws Exception;
+
+    /**
      * Returns the time this kernel was last booted.
      * @return the time this kernel was last booted; null if the kernel has not been
      */
@@ -329,11 +334,11 @@ public interface Kernel {
      */
     void unregisterShutdownHook(Runnable hook);
 
-//    /**
-//     * Stops the kernel
-//     */
-//    void shutdown();
-//
+    /**
+     * Stops the kernel
+     */
+    void shutdown();
+
     /**
      * Has the kernel been booted
      * @return true if the kernel has been booted; false otherwise
@@ -372,7 +377,4 @@ public interface Kernel {
     Object invoke(ObjectName name, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
 
     String getStateReason(AbstractName abstractName);
-
-    //delegated from Configuration
-    LinkedHashSet<GBeanData> findGBeanDatas(Set<AbstractNameQuery> patterns);
 }

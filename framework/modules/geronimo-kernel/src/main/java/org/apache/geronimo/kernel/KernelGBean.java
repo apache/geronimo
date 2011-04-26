@@ -17,7 +17,6 @@
 package org.apache.geronimo.kernel;
 
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.management.ObjectName;
 
@@ -29,6 +28,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev:386515 $ $Date$
@@ -60,8 +60,8 @@ public class KernelGBean implements Kernel{
         return kernel.getProxyManager();
     }
 
-    public void loadGBean(GBeanData gbeanData, Bundle bundle) throws GBeanAlreadyExistsException, InternalKernelException {
-        kernel.loadGBean(gbeanData, bundle);
+    public void loadGBean(GBeanData gbeanData, BundleContext bundleContext) throws GBeanAlreadyExistsException, InternalKernelException {
+        kernel.loadGBean(gbeanData, bundleContext);
     }
 
     public boolean isLoaded(AbstractName name) {
@@ -340,11 +340,6 @@ public class KernelGBean implements Kernel{
         return kernel.getStateReason(abstractName);
     }
 
-    @Override
-    public LinkedHashSet<GBeanData> findGBeanDatas(Set<AbstractNameQuery> patterns) {
-        return kernel.findGBeanDatas(patterns);
-    }
-
     public Object invoke(AbstractName abstractName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
         return kernel.invoke(abstractName, methodName, args, types);
     }
@@ -369,6 +364,10 @@ public class KernelGBean implements Kernel{
         return kernel.getShortNameFor(service);
     }
 
+    public void boot() throws Exception {
+        kernel.boot();
+    }
+
     public Date getBootTime() {
         return kernel.getBootTime();
     }
@@ -379,6 +378,10 @@ public class KernelGBean implements Kernel{
 
     public void unregisterShutdownHook(Runnable hook) {
         kernel.unregisterShutdownHook(hook);
+    }
+
+    public void shutdown() {
+        kernel.shutdown();
     }
 
     public boolean isRunning() {

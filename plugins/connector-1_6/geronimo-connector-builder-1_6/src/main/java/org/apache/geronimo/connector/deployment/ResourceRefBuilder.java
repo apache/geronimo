@@ -225,42 +225,42 @@ public class ResourceRefBuilder extends AbstractNamingBuilder implements Resourc
 //                j2eeType = NameFactory.JCA_CONNECTION_FACTORY;
                 j2eeType = NameFactory.JCA_CONNECTION_MANAGER;
             }
-//            try {
-//                AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, null, gerResourceRef);
+            try {
+                AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, null, gerResourceRef);
 
-//                AbstractName abstractName = module.getEarContext().findGBean(containerId);
-//                String osgiJndiName = module.getEarContext().getNaming().toOsgiJndiName(abstractName);
-                String filter = "(osgi.jndi.service.name=" + name + ')';
+                AbstractName abstractName = module.getEarContext().findGBean(containerId);
+                String osgiJndiName = module.getEarContext().getNaming().toOsgiJndiName(abstractName);
+                String filter = "(osgi.jndi.service.name=" + osgiJndiName + ')';
 
                 return new ResourceReference(filter, type);
                         //ResourceReferenceFactory<ResourceException>(module.getConfigId(), containerId, iface);
-//            } catch (GBeanNotFoundException e) {
-//                StringBuffer errorMessage = new StringBuffer("Unable to resolve resource reference '");
-//                errorMessage.append(name);
-//                errorMessage.append("' (");
-//                if (e.hasMatches()) {
-//                    errorMessage.append("Found multiple matching resources.  Try being more specific in a resource-ref mapping in your Geronimo deployment plan.\n");
-//                    for (AbstractName match : e.getMatches()) {
-//                        errorMessage.append(match).append("\n");
-//                    }
-//                } else if (gerResourceRef == null) {
-//                    errorMessage.append("Could not auto-map to resource.  Try adding a resource-ref mapping to your Geronimo deployment plan.");
-//                } else if (gerResourceRef.isSetResourceLink()) {
-//                    errorMessage.append("Could not find resource '");
-//                    errorMessage.append(gerResourceRef.getResourceLink());
-//                    errorMessage.append("'.  Perhaps it has not yet been configured, or your application does not have a dependency declared for that resource module?");
-//                } else {
-//                    errorMessage.append("Could not find the resource specified in your Geronimo deployment plan:");
-//                    errorMessage.append(gerResourceRef.getPattern());
-//                }
-//                errorMessage.append("\nSearch conducted in current module and dependencies:\n");
-//                for (Dependency dependency : module.getEnvironment().getDependencies()) {
-//                    errorMessage.append(dependency).append("\n");
-//                }
-//                errorMessage.append(")");
-//
-//                throw new DeploymentException(errorMessage.toString());
-//            }
+            } catch (GBeanNotFoundException e) {
+                StringBuffer errorMessage = new StringBuffer("Unable to resolve resource reference '");
+                errorMessage.append(name);
+                errorMessage.append("' (");
+                if (e.hasMatches()) {
+                    errorMessage.append("Found multiple matching resources.  Try being more specific in a resource-ref mapping in your Geronimo deployment plan.\n");
+                    for (AbstractName match : e.getMatches()) {
+                        errorMessage.append(match).append("\n");
+                    }
+                } else if (gerResourceRef == null) {
+                    errorMessage.append("Could not auto-map to resource.  Try adding a resource-ref mapping to your Geronimo deployment plan.");
+                } else if (gerResourceRef.isSetResourceLink()) {
+                    errorMessage.append("Could not find resource '");
+                    errorMessage.append(gerResourceRef.getResourceLink());
+                    errorMessage.append("'.  Perhaps it has not yet been configured, or your application does not have a dependency declared for that resource module?");
+                } else {
+                    errorMessage.append("Could not find the resource specified in your Geronimo deployment plan:");
+                    errorMessage.append(gerResourceRef.getPattern());
+                }
+                errorMessage.append("\nSearch conducted in current module and dependencies:\n");
+                for (Dependency dependency : module.getEnvironment().getDependencies()) {
+                    errorMessage.append(dependency).append("\n");
+                }
+                errorMessage.append(")");
+
+                throw new DeploymentException(errorMessage.toString());
+            }
         }
 
         return null;

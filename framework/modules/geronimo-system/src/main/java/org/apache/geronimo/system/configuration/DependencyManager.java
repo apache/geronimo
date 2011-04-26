@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +50,6 @@ import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.apache.geronimo.system.plugin.model.DependencyType;
-import org.apache.geronimo.system.plugin.model.ImportType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
@@ -70,7 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @version $Rev: 1063963 $ $Date: 2011-01-27 10:41:13 +0800 (Thu, 27 Jan 2011) $
+ * @version $Rev$ $Date$
  */
 @GBean
 @OsgiService
@@ -100,10 +98,6 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
 
     private ServiceReference respositoryAdminReference;
 
-    private ThreadLocal<List<Long>> threadInstalledBundles = new ThreadLocal<List<Long>>();
-
-    private ThreadLocal<List<Long>> threadEagerStartBundles = new ThreadLocal<List<Long>>();
-
     public DependencyManager(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
             @ParamReference(name = "Repositories", namingType = "Repository") Collection<Repository> repositories,
             @ParamReference(name = "ArtifactResolver", namingType = "ArtifactResolver") ArtifactResolver artifactResolver) {
@@ -114,13 +108,13 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
 
     public void bundleChanged(BundleEvent bundleEvent) {
         int eventType = bundleEvent.getType();
-        Bundle bundle = bundleEvent.getBundle();
-        if ((eventType == BundleEvent.INSTALLED || eventType == BundleEvent.RESOLVED) && !dependentBundleIdsMap.containsKey(bundle.getBundleId())) {
-            installed(bundle);
+        //TODO Need to optimize the codes, as we will not receive the INSTALLED event after the cache is created
+        if (eventType == BundleEvent.INSTALLED || eventType == BundleEvent.RESOLVED) {
+            installed(bundleEvent.getBundle());
         } else if (eventType == BundleEvent.STARTING) {
-            starting(bundle);
+            starting(bundleEvent.getBundle());
         } else if (eventType == BundleEvent.UNINSTALLED) {
-            uninstall(bundle);
+            uninstall(bundleEvent.getBundle());
         }
     }
 
@@ -182,11 +176,13 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
     }
 
     public Bundle getBundle(Artifact artifact) {
-        try {
-            if (artifactResolver != null) {
-                artifact = artifactResolver.resolveInClassLoader(artifact);
+        if (!artifact.isResolved()) {
+            try {
+                if (artifactResolver != null) {
+                    artifact = artifactResolver.resolveInClassLoader(artifact);
+                }
+            } catch (MissingDependencyException e) {
             }
-        } catch (MissingDependencyException e) {
         }
         return artifactBundleMap.get(artifact);
     }
@@ -206,7 +202,7 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
             }
             return new Artifact(artifactFragments[0], artifactFragments[1], artifactFragments.length > 2 ? artifactFragments[2] : "",
                     artifactFragments.length > 3 && artifactFragments[3].length() > 0 ? artifactFragments[3] : "jar");
-        } else if (installationLocation.startsWith("reference:file://")) {
+        } else if(installationLocation.startsWith("reference:file://")) {
             //TODO a better way for this ???
             installationLocation = installationLocation.substring("reference:file://".length());
             for (Repository repo : repositories) {
@@ -257,9 +253,9 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         ServiceReference reference = null;
         try {
             reference = bundleContext.getServiceReference(PackageAdmin.class.getName());
-            if (reference == null) {
+            if(reference == null) {
                 log.warn("No PackageAdmin service is found, fail to get export packages of " + bundle.getLocation());
-                return Collections.<ExportPackage> emptySet();
+                return Collections.<ExportPackage>emptySet();
             }
             PackageAdmin packageAdmin = (PackageAdmin) bundleContext.getService(reference);
             ExportedPackage[] exportedPackages = packageAdmin.getExportedPackages(bundle);
@@ -346,29 +342,18 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
     }
 
     public void installed(Bundle bundle) {
-        List<Long> installedBundles = threadInstalledBundles.get();
-        List<Long> eagerStartBundles = threadEagerStartBundles.get();
-        boolean created = false;
-        if (installedBundles == null) {
-            installedBundles = new LinkedList<Long>();
-            threadInstalledBundles.set(installedBundles);
-            eagerStartBundles = new LinkedList<Long>();
-            threadEagerStartBundles.set(eagerStartBundles);
-            created = true;
+        if (bundleIdArtifactMap.containsKey(bundle.getBundleId())) {
+            return;
         }
+        addArtifactBundleEntry(bundle);
+        PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
+        if (pluginArtifactType == null) {
+            return;
+        }
+        List<DependencyType> dependencies = pluginArtifactType.getDependency();
+        Set<Long> dependentBundleIds = new HashSet<Long>();
+        Set<Long> fullDependentBundleIds = new HashSet<Long>();
         try {
-            if (bundleIdArtifactMap.containsKey(bundle.getBundleId())) {
-                return;
-            }
-            addArtifactBundleEntry(bundle);
-            PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
-            if (pluginArtifactType == null) {
-                return;
-            }
-            List<DependencyType> dependencies = pluginArtifactType.getDependency();
-            Set<Long> dependentBundleIds = new HashSet<Long>();
-            Set<Long> fullDependentBundleIds = new HashSet<Long>();
-
             for (DependencyType dependencyType : dependencies) {
                 if (log.isDebugEnabled()) {
                     log.debug("Installing artifact: " + dependencyType);
@@ -381,13 +366,7 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                 try {
                     Bundle installedDependentBundle = bundleContext.installBundle(location);
                     long installedDependentBundleId = installedDependentBundle.getBundleId();
-                    installedBundles.add(installedDependentBundleId);
                     dependentBundleIds.add(installedDependentBundleId);
-
-                    if (dependencyType.isEagerStart() && BundleUtils.canStart(installedDependentBundle)) {
-                        eagerStartBundles.add(installedDependentBundleId);
-                    }
-
                     if (fullDependentBundleIds.add(installedDependentBundleId)) {
                         Set<Long> parentDependentBundleIds = fullDependentBundleIdsMap.get(installedDependentBundleId);
                         if (parentDependentBundleIds != null) {
@@ -398,41 +377,10 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                     log.warn("Could not install bundle for artifact: " + artifact, e);
                 }
             }
-            installedBundles.add(bundle.getBundleId());
             fullDependentBundleIdsMap.put(bundle.getBundleId(), fullDependentBundleIds);
             dependentBundleIdsMap.put(bundle.getBundleId(), dependentBundleIds);
         } catch (Exception e) {
-            log.error("Could not install bundle", e);
-        } finally {
-            if (created) {
-                threadInstalledBundles.remove();
-                threadEagerStartBundles.remove();
-                try {
-                    for (Long bundleId : installedBundles) {
-                        Bundle currentBundle = bundleContext.getBundle(bundleId);
-                        if (!BundleUtils.isResolved(currentBundle)) {
-                            BundleUtils.resolve(currentBundle);
-                            if (!BundleUtils.isResolved(currentBundle)) {
-                                log.error("Could not resolve the dependency bundle " + currentBundle.getLocation());
-                                StringBuilder buf = new StringBuilder("known bundles: ");
-                                for (Bundle b: bundleContext.getBundles()) {
-                                    buf.append("\n   ").append(b.getLocation()).append("  state: ").append(b.getState());
-                                }
-                                log.error(buf.toString());
-                            }
-                        }
-                    }
-                    for (Long bundleId : eagerStartBundles) {
-                        Bundle currentBundle = bundleContext.getBundle(bundleId);
-                        if (BundleUtils.canStart(currentBundle)) {
-                            currentBundle.start(Bundle.START_TRANSIENT);
-                        }
-                    }
-                } catch (Exception e) {
-                    log.warn("Fail to resolve or start the bundle", e);
-                }
-
-            }
+            log.error("Could not install bundle dependency", e);
         }
     }
 
@@ -452,8 +400,7 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                     }
                     String location = locateBundle(artifact);
                     Bundle b = bundleContext.installBundle(location);
-                    //Do not start the bundle of ImportType.CLASSES, for class loading use, they are only required to be in the RESOLVED status
-                    if (b.getState() != Bundle.ACTIVE && (!ImportType.CLASSES.equals(dependencyType.getImport()) || dependencyType.isEagerStart())) {
+                    if (b.getState() != Bundle.ACTIVE ) {
                         bundles.add(b);
                     }
                 }

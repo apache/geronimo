@@ -33,7 +33,6 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.DebugLoggingLifecycleMonitor;
@@ -268,13 +267,11 @@ public class EmbeddedDaemon implements Main {
     }
 
     protected void shutdownKernel() {
-        if (kernel instanceof BasicKernel) {
-            try {
-                ((BasicKernel)kernel).shutdown();
-            } catch (Exception e1) {
-                System.err.println("Exception caught during kernel shutdown");
-                e1.printStackTrace();
-            }
+        try {
+            kernel.shutdown();
+        } catch (Exception e1) {
+            System.err.println("Exception caught during kernel shutdown");
+            e1.printStackTrace();
         }
     }
 

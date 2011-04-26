@@ -65,38 +65,38 @@ public class TimeoutTest extends AbstractTest {
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "PropertiesDomain");
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
 
         gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testCE);
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
 
         gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.class);
         testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
+        gbean.setReferencePattern("ServerInfo", serverInfo);
         gbean.setAttribute("global", Boolean.TRUE);
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
 
         kernel.startGBean(loginConfiguration);
         kernel.startGBean(testCE);
         kernel.startGBean(testUseName);
         kernel.startGBean(testRealm);
-        ((GenericSecurityRealm)kernel.getGBean(testRealm)).setServerInfo(serverInfo);
     }
 
     public void tearDown() throws Exception {
         kernel.stopGBean(testRealm);
         kernel.stopGBean(testCE);
         kernel.stopGBean(loginConfiguration);
-//        kernel.stopGBean(serverInfo);
+        kernel.stopGBean(serverInfo);
 
         kernel.unloadGBean(testCE);
         kernel.unloadGBean(testRealm);
         kernel.unloadGBean(loginConfiguration);
-//        kernel.unloadGBean(serverInfo);
+        kernel.unloadGBean(serverInfo);
 
         kernel.shutdown();
     }

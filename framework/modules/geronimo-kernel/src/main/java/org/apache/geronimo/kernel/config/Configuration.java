@@ -40,14 +40,11 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.xbean.osgi.bundle.util.DelegatingBundle;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.osgi.framework.Bundle;
@@ -126,6 +123,21 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private final AbstractName abstractName;
 
     /**
+     * Used to resolve dependecies and paths
+     */
+    private final ConfigurationResolver configurationResolver;
+
+    /**
+     * Contains ids of class and service dependencies for parent configurations
+     */
+    private final DependencyNode dependencyNode;
+
+    /**
+     * All service parents depth first
+     */
+    private final List<Configuration> allServiceParents;
+
+    /**
      * The GBeanData objects by ObjectName
      */
     private final Map<AbstractName, GBeanData> gbeans = new LinkedHashMap<AbstractName, GBeanData>();
@@ -154,51 +166,54 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Manageable Attribute Store containing overrides to this configuration.
      */
     private ManageableAttributeStore attributeStore = null;
-
+    
     private Bundle bundle;
 
-    private Kernel kernel;
-
-    private List<ServiceReference> bundleReferences = new ArrayList<ServiceReference>();
     /**
      * Creates a configuration.
      *
 //     * @param classLoaderHolder Classloaders for this configuration
-     *
-     *
      * @param configurationData the module type, environment and classpath of the configuration
+     * @param dependencyNode Class and Service parent ids
+     * @param allServiceParents ordered list of transitive closure of service parents for gbean searches
      * @param attributeStore Customization info for gbeans
+     * @param configurationResolver (there should be a better way) Where this configuration is actually located in file system
      * @throws InvalidConfigException if this configuration turns out to have a problem.
      */
     public Configuration(
             @ParamAttribute(name = "configurationData") ConfigurationData configurationData,
-            @ParamAttribute(name = "attributeStore") ManageableAttributeStore attributeStore) throws InvalidConfigException {
+            @ParamAttribute(name = "dependencyNode") DependencyNode dependencyNode,
+            @ParamAttribute(name = "allServiceParents") List<Configuration> allServiceParents,
+            @ParamAttribute(name = "attributeStore") ManageableAttributeStore attributeStore,
+            @ParamAttribute(name = "configurationResolver") ConfigurationResolver configurationResolver,
+            @ParamAttribute(name = "configurationManager") ConfigurationManager configurationManager) throws InvalidConfigException {
         if (configurationData == null) {
             throw new NullPointerException("configurationData is null");
         }
 
-        this.kernel = KernelRegistry.getSingleKernel();
-
         this.configurationData = configurationData;
         this.naming = configurationData.getNaming();
         this.attributeStore = attributeStore;
-        this.abstractName = getConfigurationAbstractName(configurationData.getId());
-        this.bundle = configurationData.getBundle();
-
-        if (!configurationData.getEnvironment().getBundleFilters().isEmpty()) {
+        this.dependencyNode = dependencyNode;
+        this.allServiceParents = allServiceParents;
+        this.configurationResolver = configurationResolver;
+        this.abstractName = getConfigurationAbstractName(dependencyNode.getId());
+        this.bundle = configurationData.getBundleContext().getBundle();
+        
+        if (configurationData.isUseEnvironment() && configurationManager != null) {
             try {
-                List<Bundle> bundles = getParentBundles(configurationData);
+                List<Bundle> bundles = getParentBundles(configurationData, configurationResolver, configurationManager);            
                 this.bundle = new DelegatingBundle(bundles);
             } catch (Exception e) {
                 log.debug("Failed to identify bundle parents for " + configurationData.getId(), e);
             }
         }
-
+        
         try {
             // Deserialize the GBeans in the configurationData
             Collection<GBeanData> gbeans = configurationData.getGBeans(bundle);
             if (attributeStore != null) {
-                gbeans = attributeStore.applyOverrides(configurationData.getId(), gbeans, bundle);
+                gbeans = attributeStore.applyOverrides(dependencyNode.getId(), gbeans, bundle);
             }
             for (GBeanData gbeanData : gbeans) {
                 this.gbeans.put(gbeanData.getAbstractName(), gbeanData);
@@ -216,18 +231,22 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private List<Bundle> getParentBundles(ConfigurationData configurationData)
+    private List<Bundle> getParentBundles(ConfigurationData configurationData,
+                                          ConfigurationResolver configurationResolver,
+                                          ConfigurationManager configurationManager) 
                                           throws MissingDependencyException, InvalidConfigException {
         List<Bundle> bundles = new ArrayList<Bundle>();
-        bundles.add(configurationData.getBundle());
-        BundleContext bundleContext = configurationData.getBundle().getBundleContext();
-        List<String> bundleFilters = configurationData.getEnvironment().getBundleFilters();
-        for (String bundleFilter: bundleFilters) {
-            ServiceReference sr = bundleContext.getServiceReference(bundleFilter);
-            bundleReferences.add(sr);
-            Bundle bundle = (Bundle) bundleContext.getService(sr);
-            bundles.add(bundle);
+        bundles.add(configurationData.getBundleContext().getBundle());
+      
+        LinkedHashSet<Artifact> parents = configurationManager.resolveParentIds(configurationData);
+        for (Artifact parent : parents) {
+            String location = getBundleLocation(configurationResolver, parent);
+            Bundle bundle = getBundleByLocation(configurationData.getBundleContext(), location);
+            if (bundle != null) {
+                bundles.add(bundle);
+            }
         }
+        
         return bundles;
     }
 
@@ -245,7 +264,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             return null;
         }
     }
-
+    
     private static Bundle getBundleByLocation(BundleContext bundleContext, String location) {
         for (Bundle bundle: bundleContext.getBundles()) {
             if (location.equals(bundle.getLocation())) {
@@ -254,7 +273,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
         return null;
     }
-
+    
     /**
      * Add a contained configuration, such as for a war inside an ear
      * @param child contained configuration
@@ -270,7 +289,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @return the unique Id
      */
     public Artifact getId() {
-        return configurationData.getId();
+        return dependencyNode.getId();
     }
 
     /**
@@ -290,10 +309,37 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return abstractName;
     }
 
+//    public ClassLoaderHolder getClassLoaderHolder() {
+//        return classLoaderHolder;
+//    }
+
+    /**
+     * Gets the parent configurations used for class loading.
+     * @return the parents of this configuration used for class loading
+     */
+//    public List<Configuration> getClassParents() {
+//        return classParents;
+//    }
+
+    /**
+     * Gets the parent configurations used for service resolution.
+     *
+     * @return the parents of this configuration used for service resolution
+     */
+//    public List<Configuration> getServiceParents() {
+//        return serviceParents;
+//    }
     public DependencyNode getDependencyNode() {
-        return null;
-//        return dependencyNode;
+        return dependencyNode;
     }
+
+    /**
+     * Gets the artifact dependencies of this configuration.
+     * @return the artifact dependencies of this configuration
+     */
+//    public LinkedHashSet<Artifact> getDependencies() {
+//        return dependencies;
+//    }
 
     /**
      * Gets the declaration of the environment in which this configuration runs.
@@ -322,9 +368,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Provide a way to locate where this configuration is for web apps and persistence units
      * @return the ConfigurationResolver for this configuration
      */
-//    public ConfigurationResolver getConfigurationResolver() {
-//        return configurationResolver;
-//    }
+    public ConfigurationResolver getConfigurationResolver() {
+        return configurationResolver;
+    }
 
     /**
      * Gets the type of the configuration (WAR, RAR et cetera)
@@ -413,9 +459,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      *
      * @return customization source for gbeans
      */
-//    ManageableAttributeStore getManageableAttributeStore() {
-//        return attributeStore;
-//    }
+    ManageableAttributeStore getManageableAttributeStore() {
+        return attributeStore;
+    }
 
     public synchronized AbstractName addGBean(String name, GBeanData gbean) throws GBeanAlreadyExistsException {
         AbstractName abstractName = gbean.getAbstractName();
@@ -477,7 +523,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public GBeanData findGBeanData(Set<AbstractNameQuery> patterns) throws GBeanNotFoundException {
         if (patterns == null) throw new NullPointerException("patterns is null");
-        Set<GBeanData> result = findGBeanDatasHere(patterns);
+        Set<GBeanData> result = findGBeanDatas(this, patterns);
         if (result.size() > 1) {
             throw new GBeanNotFoundException("More than one match to referencePatterns in local configuration", patterns, mapToNames(result));
         } else if (result.size() == 1) {
@@ -485,8 +531,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
 
         // search all parents
-        result.addAll(findGBeanDatasInKernel(patterns));
+        for (Configuration configuration : allServiceParents) {
+            result.addAll(findGBeanDatas(configuration, patterns));
 
+        }
         // if we already found a match we have an ambiguous query
         if (result.size() > 1) {
             List<AbstractName> names = new ArrayList<AbstractName>(result.size());
@@ -543,60 +591,32 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public LinkedHashSet<GBeanData> findGBeanDatas(Set<AbstractNameQuery> patterns) {
         if (patterns == null) throw new NullPointerException("patterns is null");
-        LinkedHashSet<GBeanData> datas = findGBeanDatasHere(patterns);
+        LinkedHashSet<GBeanData> datas = findGBeanDatas(this, patterns);
 
         // search all parents
-        Set<GBeanData> match = findGBeanDatasInKernel(patterns);
-        datas.addAll(match);
+        for (Configuration configuration : allServiceParents) {
+            Set<GBeanData> match = findGBeanDatas(configuration, patterns);
+            datas.addAll(match);
+        }
         return datas;
     }
 
     /**
      * Find the gbeanDatas matching the patterns in this configuration only, ignoring parents.
      *
-     *
+     * @param configuration configuration to look in
      * @param patterns      patterns to look for
      * @return set of gbeandatas matching one of the patterns from this configuration only, not including parents.
      */
-    @Deprecated
-    public LinkedHashSet<GBeanData> findGBeanDatas(Configuration ignored, Set<AbstractNameQuery> patterns) {
-        return findGBeanDatasInKernel(patterns);
-    }
-
-
-    public LinkedHashSet<GBeanData> findGBeanDatasInKernel(Set<AbstractNameQuery> patterns) {
-        return kernel.findGBeanDatas(patterns);
-//        LinkedHashSet<GBeanData> result = new LinkedHashSet<GBeanData>();
-//
-//        Set<Map.Entry<AbstractName, GBeanData>> gbeanNames = configuration.getGBeans().entrySet();
-//        for (AbstractNameQuery abstractNameQuery : patterns) {
-//            Artifact queryArtifact = abstractNameQuery.getArtifact();
-//
-//            // Does this query apply to this configuration
-//            if (queryArtifact == null || queryArtifact.matches(configuration.getId())) {
-//
-//                // Search the GBeans
-//                for (Map.Entry<AbstractName, GBeanData> entry : gbeanNames) {
-//                    AbstractName abstractName = entry.getKey();
-//                    GBeanData gbeanData = entry.getValue();
-//                    if (abstractNameQuery.matches(abstractName, gbeanData.getGBeanInfo().getInterfaces())) {
-//                        result.add(gbeanData);
-//                    }
-//                }
-//            }
-//        }
-//        return result;
-    }
-
-    private LinkedHashSet<GBeanData> findGBeanDatasHere(Set<AbstractNameQuery> patterns) {
+    public LinkedHashSet<GBeanData> findGBeanDatas(Configuration configuration, Set<AbstractNameQuery> patterns) {
         LinkedHashSet<GBeanData> result = new LinkedHashSet<GBeanData>();
 
-        Set<Map.Entry<AbstractName, GBeanData>> gbeanNames = getGBeans().entrySet();
+        Set<Map.Entry<AbstractName, GBeanData>> gbeanNames = configuration.getGBeans().entrySet();
         for (AbstractNameQuery abstractNameQuery : patterns) {
             Artifact queryArtifact = abstractNameQuery.getArtifact();
 
             // Does this query apply to this configuration
-            if (queryArtifact == null || queryArtifact.matches(getId())) {
+            if (queryArtifact == null || queryArtifact.matches(configuration.getId())) {
 
                 // Search the GBeans
                 for (Map.Entry<AbstractName, GBeanData> entry : gbeanNames) {

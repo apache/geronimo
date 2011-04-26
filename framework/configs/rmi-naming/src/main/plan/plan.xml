@@ -23,8 +23,8 @@
     <gbean name="WaitForBlueprint" class="org.apache.geronimo.blueprint.WaitForBlueprintGBean"/>
 
     <gbean name="RMIRegistry" class="org.apache.geronimo.kernel.rmi.RMIRegistryService">
-        <attribute name="port">1099</attribute>
-        <attribute name="host">localhost</attribute>
+        <attribute name="port">${planNamingPort}</attribute>
+        <attribute name="host">${ServerHostname}</attribute>
         <attribute name="classLoaderSpi">org.apache.geronimo.kernel.rmi.RMIClassLoaderSpiImpl</attribute>
     </gbean>
 

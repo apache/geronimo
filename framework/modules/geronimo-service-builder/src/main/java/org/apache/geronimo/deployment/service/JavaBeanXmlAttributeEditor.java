@@ -24,20 +24,19 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditorSupport;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.lang.reflect.Method;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
+import org.apache.geronimo.deployment.javabean.xbeans.BeanPropertyType;
+import org.apache.geronimo.deployment.javabean.xbeans.JavabeanDocument;
+import org.apache.geronimo.deployment.javabean.xbeans.JavabeanType;
+import org.apache.geronimo.deployment.javabean.xbeans.PropertyType;
 import org.apache.geronimo.crypto.EncryptionManager;
-import org.apache.geronimo.deployment.service.plan.BeanPropertyType;
-import org.apache.geronimo.deployment.service.plan.JavabeanType;
-import org.apache.geronimo.deployment.service.plan.JaxbUtil;
-import org.apache.geronimo.deployment.service.plan.ObjectFactory;
-import org.apache.geronimo.deployment.service.plan.PropertyType;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
 import org.osgi.framework.Bundle;
 
 /**
@@ -45,7 +44,7 @@ import org.osgi.framework.Bundle;
  * @version $Rev:$ $Date:$
  */
 public class JavaBeanXmlAttributeEditor extends PropertyEditorSupport {
-//    private static final QName QNAME = JavabeanDocument.type.getDocumentElementName();
+    private static final QName QNAME = JavabeanDocument.type.getDocumentElementName();
     private static final Class[] PRIMITIVES_CLASSES = new Class[] {String.class,
         Boolean.class,
         Character.class,
@@ -78,19 +77,17 @@ public class JavaBeanXmlAttributeEditor extends PropertyEditorSupport {
     @Override
     public void setAsText(String text) throws IllegalArgumentException {
         try {
-            StringReader reader = new StringReader(text);
-            JavabeanType javaBeanType = JaxbUtil.unmarshalJavabean(reader, false);
+            JavabeanDocument document = JavabeanDocument.Factory.parse(text);
+            JavabeanType javaBeanType = document.getJavabean();
             
             Object javabean = xmlAttributeBuilder.getValue(javaBeanType,
-                    null, javaBeanClazz.getName(),
+                    document, javaBeanClazz.getName(),
                 bundle);
 
             setValue(javabean);
+        } catch (XmlException e) {
+            throw new PropertyEditorException(e);
         } catch (DeploymentException e) {
-            throw new PropertyEditorException(e);
-        } catch (JAXBException e) {
-            throw new PropertyEditorException(e);
-        } catch (XMLStreamException e) {
             throw new PropertyEditorException(e);
         }
     }
@@ -98,19 +95,17 @@ public class JavaBeanXmlAttributeEditor extends PropertyEditorSupport {
     @Override
     public String getAsText() {
         JavabeanType javabeanType = getJavabeanType(getValue());
-        StringWriter writer = new StringWriter();
-        try {
-            JaxbUtil.marshal(JavabeanType.class, javabeanType, writer);
-        } catch (JAXBException e) {
-            throw new PropertyEditorException("Could not marshal javabean " + javabeanType, e);
-        }
-        return writer.toString();
+        
+        XmlOptions xmlOptions = new XmlOptions();
+        xmlOptions.setSaveSyntheticDocumentElement(QNAME);
+        xmlOptions.setSavePrettyPrint();
+        return javabeanType.xmlText(xmlOptions);
     }
 
     protected JavabeanType getJavabeanType(Object javaBean) {
-        JavabeanType javabeanType = new ObjectFactory().createJavabeanType();
+        JavabeanType javabeanType = JavabeanType.Factory.newInstance();
 
-        javabeanType.setClazz(javaBean.getClass().getName());
+        javabeanType.setClass1(javaBean.getClass().getName());
         
         PropertyDescriptor[] propertyDescriptors;
         try {
@@ -146,7 +141,7 @@ public class JavaBeanXmlAttributeEditor extends PropertyEditorSupport {
         }
         
         if (isPrimitive(value)) {
-            PropertyType propertyType = new ObjectFactory().createPropertyType();
+            PropertyType propertyType = javabeanType.addNewProperty();
             propertyType.setName(propertyDescriptor.getName());
             
             String valueAsString = value.toString();
@@ -154,15 +149,13 @@ public class JavaBeanXmlAttributeEditor extends PropertyEditorSupport {
                 valueAsString = EncryptionManager.encrypt(valueAsString);
             }
             
-            propertyType.setValue(valueAsString);
-            javabeanType.getProperty().add(propertyType);
+            propertyType.setStringValue(valueAsString);
         } else {
             JavabeanType nestedJavabeanType = getJavabeanType(value);
             
-            BeanPropertyType propertyType = new ObjectFactory().createBeanPropertyType();
+            BeanPropertyType propertyType = javabeanType.addNewBeanProperty();
             propertyType.setName(propertyDescriptor.getName());
             propertyType.setJavabean(nestedJavabeanType);
-            javabeanType.getBeanProperty().add(propertyType);
         }
     }
     

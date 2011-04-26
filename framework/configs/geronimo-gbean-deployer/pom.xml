@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.framework.config</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
@@ -55,12 +55,19 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>plugin</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -92,11 +99,15 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
+                    <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
+                    </deploymentConfigs>
+                    <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
 
                     <category>Geronimo Core</category>
                     <dependencies>
                         <dependency>
-                            <groupId>org.apache.geronimo.framework.config</groupId>
+                            <groupId>org.apache.geronimo.framework</groupId>
                             <artifactId>plugin</artifactId>
                             <version>${project.version}</version>
                             <type>car</type>

@@ -46,7 +46,7 @@ public class MavenConfigStore
     extends RepositoryConfigurationStore
 {
     public MavenConfigStore(Kernel kernel, String objectName, WritableListableRepository repository) {
-        super(repository);
+        super(kernel, objectName, null, repository);
     }
 
     public MavenConfigStore(WritableListableRepository repository) {

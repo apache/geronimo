@@ -19,14 +19,15 @@ package org.apache.geronimo.deployment;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
 public interface NamespaceDrivenBuilder extends AbstractNamespaceBuilder {
 
-    void buildEnvironment(Object container, Environment environment) throws DeploymentException;
+    void buildEnvironment(XmlObject container, Environment environment) throws DeploymentException;
  
-    void build(Object container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException;
+    void build(XmlObject container, DeploymentContext applicationContext, DeploymentContext moduleContext) throws DeploymentException;
 
 }

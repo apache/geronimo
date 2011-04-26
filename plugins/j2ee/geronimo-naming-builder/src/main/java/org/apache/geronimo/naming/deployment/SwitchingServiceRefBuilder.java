@@ -26,22 +26,25 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.JndiPlan;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.annotation.ResourceAnnotationHelper;
 import org.apache.geronimo.j2ee.deployment.annotation.WebServiceRefAnnotationHelper;
-import org.apache.geronimo.j2ee.deployment.model.naming.ServiceRefType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefDocument;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.ServiceRef;
 import org.apache.openejb.jee.Text;
+import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,13 +53,13 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(SwitchingServiceRefBuilder.class);
 
-//    private static final QName GER_SERVICE_REF_QNAME = GerServiceRefDocument.type
-//            .getDocumentElementName();
+    private static final QName GER_SERVICE_REF_QNAME = GerServiceRefDocument.type
+            .getDocumentElementName();
 
-//    private static final QNameSet GER_SERVICE_REF_QNAME_SET = QNameSet
-//            .singleton(GER_SERVICE_REF_QNAME);
+    private static final QNameSet GER_SERVICE_REF_QNAME_SET = QNameSet
+            .singleton(GER_SERVICE_REF_QNAME);
 
-//    private final QNameSet serviceRefQNameSet;
+    private final QNameSet serviceRefQNameSet;
 
     private final Collection jaxrpcBuilders;
 
@@ -68,11 +71,11 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         super(null);
         this.jaxrpcBuilders = jaxrpcBuilders;
         this.jaxwsBuilders = jaxwsBuilders;
-//        this.serviceRefQNameSet = buildQNameSet(eeNamespaces, "service-ref");
+        this.serviceRefQNameSet = buildQNameSet(eeNamespaces, "service-ref");
     }
 
     public void buildEnvironment(JndiConsumer specDD,
-            JndiPlan plan,
+            XmlObject plan,
             Environment environment)
             throws DeploymentException {
         if (this.jaxrpcBuilders != null && !this.jaxrpcBuilders.isEmpty()) {
@@ -84,7 +87,7 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
     }
 
     public void buildNaming(JndiConsumer specDD,
-            JndiPlan plan,
+            XmlObject plan,
             Module module,
             Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
 
@@ -95,9 +98,9 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 
         Collection<ServiceRef> serviceRefs = specDD.getServiceRef();
 
-        List<ServiceRefType> gerServiceRefsUntyped = plan == null ? Collections.<ServiceRefType>emptyList() : plan
-                .getServiceRef();
-        Map<String, ServiceRefType> serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
+        XmlObject[] gerServiceRefsUntyped = plan == null ? NO_REFS : plan
+                .selectChildren(GER_SERVICE_REF_QNAME_SET);
+        Map<String, GerServiceRefType> serviceRefMap = mapServiceRefs(gerServiceRefsUntyped);
 
         if (serviceRefs.size() > 0) {
             Bundle bundle = module.getEarContext().getDeploymentBundle();
@@ -106,8 +109,8 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
 
             for (ServiceRef serviceRef : serviceRefs) {
 
-                String name = serviceRef.getServiceRefName();
-                ServiceRefType gerServiceRefType = serviceRefMap.get(name);
+                String name = getStringValue(serviceRef.getServiceRefName());
+                GerServiceRefType gerServiceRefType = serviceRefMap.get(name);
                 serviceRefMap.remove(name);
 
                 String serviceInterfaceName = serviceRef.getServiceInterface();
@@ -173,13 +176,17 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         }
     }
 
-    private Map<String, ServiceRefType> mapServiceRefs(List<ServiceRefType> refs) {
-        Map<String, ServiceRefType> refMap = new HashMap<String, ServiceRefType>();
-        for (ServiceRefType ref: refs) {
+    private Map<String, GerServiceRefType> mapServiceRefs(XmlObject[] refs) {
+        if (refs != null && refs.length > 0) {
+            Map<String, GerServiceRefType> refMap = new HashMap<String, GerServiceRefType>();
+            for (int i = 0; i < refs.length; i++) {
+                GerServiceRefType ref = (GerServiceRefType) refs[i].copy().changeType(GerServiceRefType.type);
                 String serviceRefName = ref.getServiceRefName().trim();
                 refMap.put(serviceRefName, ref);
             }
             return refMap;
+        }
+        return Collections.<String, GerServiceRefType> emptyMap();
     }
 
     private void processAnnotations(JndiConsumer specDD, Module module) throws DeploymentException {
@@ -193,6 +200,14 @@ public class SwitchingServiceRefBuilder extends AbstractNamingBuilder {
         catch (Exception e) {
             log.warn("Unable to process @Resource annotations for module" + module.getName(), e);
         }
+    }
+
+    public QNameSet getSpecQNameSet() {
+        return serviceRefQNameSet;
+    }
+
+    public QNameSet getPlanQNameSet() {
+        return GER_SERVICE_REF_QNAME_SET;
     }
 
     public static class ServiceRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {

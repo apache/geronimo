@@ -49,10 +49,10 @@ public class WaitForBlueprintGBean {
     private volatile BlueprintEvent event;
     private CountDownLatch latch = new CountDownLatch(1);
 
-    public WaitForBlueprintGBean(@ParamSpecial(type = SpecialAttributeType.bundle) Bundle thsBundle,
+    public WaitForBlueprintGBean(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
                                  @ParamAttribute(name = "packageName") String packageName,
                                  @ParamAttribute(name = "symbolicName") String symbolicName) throws Exception {        
-        final Bundle bundle = getBundle(thsBundle.getBundleContext(), symbolicName, packageName);
+        final Bundle bundle = getBundle(bundleContext, symbolicName, packageName);
         BlueprintListener listener = new BlueprintListener() {
 
             @Override
@@ -65,7 +65,7 @@ public class WaitForBlueprintGBean {
                 }
             }
         };
-        ServiceRegistration registration = thsBundle.getBundleContext().registerService(BlueprintListener.class.getName(), listener, new Hashtable());
+        ServiceRegistration registration = bundleContext.registerService(BlueprintListener.class.getName(), listener, new Hashtable());
         latch.await();
         registration.unregister();
         if (event.getType() == BlueprintEvent.FAILURE) {

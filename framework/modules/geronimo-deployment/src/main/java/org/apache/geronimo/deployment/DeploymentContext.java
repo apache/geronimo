@@ -39,6 +39,9 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.IllegalConfigurationException;
 import org.apache.geronimo.deployment.util.osgi.DummyExportPackagesSelector;
@@ -56,21 +59,26 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.Manifest;
 import org.apache.geronimo.kernel.config.ManifestException;
+import org.apache.geronimo.kernel.osgi.ConfigurationActivator;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.system.plugin.model.ArtifactType;
+import org.apache.geronimo.system.plugin.model.DependencyType;
 import org.apache.geronimo.system.plugin.model.PluginArtifactType;
 import org.apache.geronimo.system.plugin.model.PluginType;
 import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
 import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +93,7 @@ public class DeploymentContext {
     protected final File inPlaceConfigurationDir;
     protected final ResourceContext resourceContext;
     protected final Map<String, ConfigurationData> childConfigurationDatas = new LinkedHashMap<String, ConfigurationData>();
-//    protected final ConfigurationManager configurationManager;
+    protected final ConfigurationManager configurationManager;
     protected final Naming naming;
     protected final List<ConfigurationData> additionalDeployment = new ArrayList<ConfigurationData>();
     protected final AbstractName moduleName;
@@ -106,10 +114,11 @@ public class DeploymentContext {
                              AbstractName moduleName,
                              ConfigurationModuleType moduleType,
                              Naming naming,
+                             ConfigurationManager configurationManager,
                              Collection<Repository> repositories,
                              BundleContext bundleContext) throws DeploymentException {
         this(baseDir, inPlaceConfigurationDir, environment, moduleName, moduleType, naming,
-                bundleContext);
+             createConfigurationManager(configurationManager, repositories, bundleContext), bundleContext);
     }
 
     public DeploymentContext(File baseDir,
@@ -118,10 +127,11 @@ public class DeploymentContext {
                              AbstractName moduleName,
                              ConfigurationModuleType moduleType,
                              Naming naming,
+                             ConfigurationManager configurationManager,
                              BundleContext bundleContext) throws DeploymentException {
         if (environment == null) throw new NullPointerException("environment is null");
         if (moduleType == null) throw new NullPointerException("type is null");
-//        if (configurationManager == null) throw new NullPointerException("configurationManager is null");
+        if (configurationManager == null) throw new NullPointerException("configurationManager is null");
         if (baseDir == null) throw new NullPointerException("baseDir is null");
         if (!baseDir.exists() && !baseDir.mkdirs()) {
             throw new DeploymentException("Could not create directory for deployment context assembly: " + baseDir);
@@ -136,7 +146,7 @@ public class DeploymentContext {
         this.naming = naming;
         this.moduleType = moduleType;
         this.environment = environment;
-//        this.configurationManager = createConfigurationManager(configurationManager, Collections.<Repository> emptyList(), bundleContext);
+        this.configurationManager = configurationManager;
         this.bundleContext = bundleContext;
 
         if (null == inPlaceConfigurationDir) {
@@ -153,6 +163,7 @@ public class DeploymentContext {
                                 AbstractName moduleName,
                                 ConfigurationModuleType moduleType,
                                 Naming naming,
+                                ConfigurationManager configurationManager,
                                 ResourceContext resourceContext,
                                 BundleContext bundleContext) throws DeploymentException {
         if (bundleContext == null) {
@@ -164,18 +175,14 @@ public class DeploymentContext {
         this.naming = naming;
         this.moduleType = moduleType;
         this.environment = environment;
-//        this.configurationManager = createConfigurationManager(configurationManager, Collections.<Repository> emptyList(), bundleContext);
+        this.configurationManager = configurationManager;
         this.resourceContext = resourceContext;
         this.bundleContext = bundleContext;
     }
 
-//    private static ConfigurationManager createConfigurationManager(ConfigurationManager configurationManager, Collection<Repository> repositories, BundleContext bundleContext) {
-//        //TODO Hack for KernelConfigurationManager, while creating temp configuration, we have to start the configuration, but do not want to start those sub gbeans.
-//        if (configurationManager instanceof DeploymentConfigurationManager) {
-//            return configurationManager;
-//        }
-//        return new DeploymentConfigurationManager(configurationManager, repositories, bundleContext);
-//    }
+    private static ConfigurationManager createConfigurationManager(ConfigurationManager configurationManager, Collection<Repository> repositories, BundleContext bundleContext) {
+        return new DeploymentConfigurationManager(configurationManager, repositories, bundleContext);
+    }
 
     /**
      * call to set up the (empty) Configuration we will use to store the gbeans we add to the context. It will use a temporary BundleContext/Bundle for classloading.
@@ -195,29 +202,26 @@ public class DeploymentContext {
             JarUtils.jarDirectory(this.getConfigurationDir(), tempBundleFile);
             String location = "reference:" + tempBundleFile.toURI().toURL();
             tempBundle = bundleContext.installBundle(location);
-            configurationData.setBundle(tempBundle);
             if (BundleUtils.canStart(tempBundle)) {
                 tempBundle.start(Bundle.START_TRANSIENT);
             }
-            return new Configuration(configurationData, null);
-//            configurationData.setBundle(tempBundle);
-//            configurationManager.loadConfiguration(configurationData);
-//            configurationManager.startConfiguration(environment.getConfigId());
-//            return configurationManager.getConfiguration(environment.getConfigId());
+            configurationData.setBundleContext(tempBundle.getBundleContext());
+            configurationManager.loadConfiguration(configurationData);
+            return configurationManager.getConfiguration(environment.getConfigId());
         } catch (Exception e) {
             throw new DeploymentException("Unable to create configuration for deployment: dependencies: " + resolvedParentIds, e);
         }
     }
 
-    private void createPluginMetadata() throws IOException {
+    private void createPluginMetadata() throws IOException, JAXBException, XMLStreamException {
         PluginType pluginType = new PluginType();
         pluginType.setName("Temporary Plugin metadata for deployment");
         PluginArtifactType instance = new PluginArtifactType();
         instance.setModuleId(ArtifactType.newArtifactType(environment.getConfigId()));
-//        List<DependencyType> dependenciees = instance.getDependency();
-//        for (Dependency dependency: environment.getDependencies()) {
-//            dependenciees.add(DependencyType.newDependencyType(dependency));
-//        }
+        List<DependencyType> dependenciees = instance.getDependency();
+        for (Dependency dependency: environment.getDependencies()) {
+            dependenciees.add(DependencyType.newDependencyType(dependency));
+        }
         pluginType.getPluginArtifact().add(instance);
         File metaInf = new File(getConfigurationDir(), "META-INF");
         metaInf.mkdirs();
@@ -266,9 +270,9 @@ public class DeploymentContext {
         return (inPlaceConfigurationDir == null) ? baseDir : inPlaceConfigurationDir;
     }
 
-//    public ConfigurationManager getConfigurationManager() {
-//        return configurationManager;
-//    }
+    public ConfigurationManager getConfigurationManager() {
+        return configurationManager;
+    }
 
     public Artifact getConfigID() {
         return environment.getConfigId();
@@ -339,7 +343,7 @@ public class DeploymentContext {
     }
 
     public LinkedHashSet<GBeanData> findGBeanDatas(Configuration configuration, AbstractNameQuery pattern) {
-        return configuration.findGBeanDatas(Collections.singleton(pattern));
+        return configuration.findGBeanDatas(configuration, Collections.singleton(pattern));
     }
 
     public LinkedHashSet<AbstractName> findGBeans(Set<AbstractNameQuery> patterns) {
@@ -475,10 +479,6 @@ public class DeploymentContext {
         resourceContext.addFile(targetPath, source);
     }
 
-    public void addFile(URI targetPath, byte[] source) throws IOException {
-        resourceContext.addFile(targetPath, source);
-    }
-
     public File getTargetFile(URI targetPath) {
         return resourceContext.getTargetFile(targetPath);
     }
@@ -505,16 +505,16 @@ public class DeploymentContext {
     }
 
     public void close() throws IOException, DeploymentException {
-//        if (configurationManager != null && configuration != null) {
-//            try {
-//                configurationManager.unloadConfiguration(configuration.getId());
-//            } catch (Exception ignored) {
-//            }
-//        }
-        if (tempBundle != null && BundleUtils.canUninstall(tempBundle)) {
+        if (configurationManager != null && configuration != null) {
+            try {
+                configurationManager.unloadConfiguration(configuration.getId());
+            } catch (Exception ignored) {
+            }
+        }
+        if (tempBundle != null) {
             try {
                 tempBundle.uninstall();
-            } catch (Exception e) {
+            } catch (BundleException e) {
             }
         }
         if (tempBundleFile != null) {
@@ -535,42 +535,47 @@ public class DeploymentContext {
      * @throws DeploymentException if configuration is invalid
      */
     public ConfigurationData getConfigurationData() throws DeploymentException {
-//        List<String> failures = verify(configuration);
-//        if (!failures.isEmpty()) {
-//            StringBuffer message = new StringBuffer();
-//            for (String failure : failures) {
-//                if (message.length() > 0) message.append("\n");
-//                message.append(failure);
-//            }
-//            throw new DeploymentException(message.toString());
-//        }
+        List<String> failures = verify(configuration);
+        if (!failures.isEmpty()) {
+            StringBuffer message = new StringBuffer();
+            for (String failure : failures) {
+                if (message.length() > 0) message.append("\n");
+                message.append(failure);
+            }
+            throw new DeploymentException(message.toString());
+        }
 
         // TODO OSGI figure out exports
         environment.addToBundleClassPath(bundleClassPath);
-
+        // TODO OSGI leave out if we use a extender mechanism
+        if (environment.getBundleActivator() == null) {
+            environment.setBundleActivator(ConfigurationActivator.class.getName());
+            environment.addImportPackage(getImportPackageName(ConfigurationActivator.class.getName()));
+        }
         List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
 
         OSGiMetaDataBuilder osgiMetaDataBuilder = null;
         //TODO Import package calculation is only used for deployed applications, should be use the same way for car package later
-//        if (System.getProperty("geronimo.build.car") == null) {
-//            osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext);
-//            //Hack Codes Here For RAR module, will remove while the connector refactoring is done
-//            if (configuration.getModuleType() == ConfigurationModuleType.RAR) {
-//                environment.addDynamicImportPackage("*");
-//            }
-//        }// else {
+        if (System.getProperty("geronimo.build.car") == null) {
+            osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext);
+            //Hack Codes Here For RAR module, will remove while the connector refactoring is done
+            if (configuration.getModuleType() == ConfigurationModuleType.RAR) {
+                environment.addDynamicImportPackage("*");
+            }
+        } else {
             LinkedHashSet<String> imports = getImports(gbeans);
+            addImport(imports, environment.getBundleActivator());
             environment.addImportPackages(imports);
             environment.addDynamicImportPackage("*");
             osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext, new DummyExportPackagesSelector());
-//        }
+        }
 
-//        try {
-//            osgiMetaDataBuilder.build(environment, configuration.getModuleType() == ConfigurationModuleType.CAR);
-//        } catch (IllegalConfigurationException e) {
-//            throw new DeploymentException(e);
-//        }
+        try {
+            osgiMetaDataBuilder.build(environment, configuration.getModuleType() == ConfigurationModuleType.CAR);
+        } catch (IllegalConfigurationException e) {
+            throw new DeploymentException(e);
+        }
 
         if (tempBundle != null) {
             try {

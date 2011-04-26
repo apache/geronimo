@@ -18,23 +18,28 @@
 package org.apache.geronimo.naming.deployment;
 
 import java.beans.Introspector;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.annotation.Injection;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.JndiPlan;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.j2ee.deployment.model.naming.PatternType;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -43,8 +48,16 @@ import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.schema.NamespaceElementConverter;
+import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryDocument;
+import org.apache.geronimo.xbeans.geronimo.naming.GerAbstractNamingEntryType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
+import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +68,12 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractNamingBuilder implements NamingBuilder {
     private final Logger log = LoggerFactory.getLogger(AbstractNamingBuilder.class);
 
-//    protected static final QName BASE_NAMING_QNAME = GerAbstractNamingEntryType.type.getDocumentElementName();
+    protected static final QName BASE_NAMING_QNAME = GerAbstractNamingEntryType.type.getDocumentElementName();
     protected static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
     protected static final String JEE_NAMESPACE = "http://java.sun.com/xml/ns/javaee";
     protected static final NamespaceElementConverter J2EE_CONVERTER = new NamespaceElementConverter(J2EE_NAMESPACE);
     protected static final NamespaceElementConverter JEE_CONVERTER = new NamespaceElementConverter(JEE_NAMESPACE);
-//    protected static final NamespaceElementConverter NAMING_CONVERTER = new NamespaceElementConverter(GerAbstractNamingEntryDocument.type.getDocumentElementName().getNamespaceURI());
+    protected static final NamespaceElementConverter NAMING_CONVERTER = new NamespaceElementConverter(GerAbstractNamingEntryDocument.type.getDocumentElementName().getNamespaceURI());
 
     private final Environment defaultEnvironment;
 
@@ -76,7 +89,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return this.defaultEnvironment;
     }
 
-    public void buildEnvironment(JndiConsumer specDD, JndiPlan plan, Environment environment) throws DeploymentException {
+    public void buildEnvironment(JndiConsumer specDD, XmlObject plan, Environment environment) throws DeploymentException {
         // TODO Currently this method is called before the xml is metadata complete, so will not contain all refs
         // Just always call mergeEnvironment until this is fixed
         //
@@ -85,27 +98,27 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         // }
     }
 
-//    protected boolean willMergeEnvironment(JndiConsumer specDD, JndiPlan plan) throws DeploymentException {
-//        return false;
-//    }
-//
-//    protected boolean matchesDefaultEnvironment(Environment environment) {
-//        for (Iterator iterator = defaultEnvironment.getDependencies().iterator(); iterator.hasNext();) {
-//            Dependency defaultDependency = (Dependency) iterator.next();
-//            boolean matches = false;
-//            for (Iterator iterator1 = environment.getDependencies().iterator(); iterator1.hasNext();) {
-//                Dependency actualDependency = (Dependency) iterator1.next();
-//                if (matches(defaultDependency, actualDependency)) {
-//                    matches = true;
-//                    break;
-//                }
-//            }
-//            if (!matches) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
+    protected boolean willMergeEnvironment(JndiConsumer specDD, XmlObject plan) throws DeploymentException {
+        return false;
+    }
+
+    protected boolean matchesDefaultEnvironment(Environment environment) {
+        for (Iterator iterator = defaultEnvironment.getDependencies().iterator(); iterator.hasNext();) {
+            Dependency defaultDependency = (Dependency) iterator.next();
+            boolean matches = false;
+            for (Iterator iterator1 = environment.getDependencies().iterator(); iterator1.hasNext();) {
+                Dependency actualDependency = (Dependency) iterator1.next();
+                if (matches(defaultDependency, actualDependency)) {
+                    matches = true;
+                    break;
+                }
+            }
+            if (!matches) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private boolean matches(Dependency defaultDependency, Dependency actualDependency) {
         if (defaultDependency.getArtifact().matches(actualDependency.getArtifact())
@@ -116,7 +129,7 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return false;
     }
 
-    public void initContext(JndiConsumer specDD, JndiPlan plan, Module module) throws DeploymentException {
+    public void initContext(JndiConsumer specDD, XmlObject plan, Module module) throws DeploymentException {
     }
     
     public int getPriority() {
@@ -184,94 +197,94 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
         return GBEAN_NAME_KEY.get(sharedContext);
     }
 
-//    protected static QNameSet buildQNameSet(String[] eeNamespaces, String localPart) {
-//        Set qnames = new HashSet(eeNamespaces.length);
-//        for (int i = 0; i < eeNamespaces.length; i++) {
-//            String namespace = eeNamespaces[i];
-//            qnames.add(new QName(namespace, localPart));
-//        }
-//        //xmlbeans 2.0 has a bug so forArray doesn't work.  Don't know if it's fixed in later xmlbeans versions
-//        //return QNameSet.forArray(qnames);
-//        return QNameSet.forSets(null, Collections.EMPTY_SET, Collections.EMPTY_SET, qnames);
-//    }
+    protected static QNameSet buildQNameSet(String[] eeNamespaces, String localPart) {
+        Set qnames = new HashSet(eeNamespaces.length);
+        for (int i = 0; i < eeNamespaces.length; i++) {
+            String namespace = eeNamespaces[i];
+            qnames.add(new QName(namespace, localPart));
+        }
+        //xmlbeans 2.0 has a bug so forArray doesn't work.  Don't know if it's fixed in later xmlbeans versions
+        //return QNameSet.forArray(qnames);
+        return QNameSet.forSets(null, Collections.EMPTY_SET, Collections.EMPTY_SET, qnames);
+    }
 
-//    /**
-//     * @param xmlObjects
-//     * @param converter
-//     * @param type
-//     * @return
-//     * @throws DeploymentException
-//     * @deprecated
-//     */
-//    protected static XmlObject[] convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, SchemaType type) throws DeploymentException {
-//        //bizarre ArrayStoreException if xmlObjects is loaded by the wrong classloader
-//        XmlObject[] converted = new XmlObject[xmlObjects.length];
-//        for (int i = 0; i < xmlObjects.length; i++) {
-//            XmlObject xmlObject = xmlObjects[i].copy();
-//            if (xmlObject.schemaType() != type) {
-//                converter.convertElement(xmlObject);
-//                converted[i] = xmlObject.changeType(type);
-//            } else {
-//                converted[i] = xmlObject;
-//            }
-//            try {
-//                XmlBeansUtil.validateDD(converted[i]);
-//            } catch (XmlException e) {
-//                throw new DeploymentException("Could not validate xmlObject of type " + type, e);
-//            }
-//        }
-//        return converted;
-//
-//    }
+    /**
+     * @param xmlObjects
+     * @param converter
+     * @param type
+     * @return
+     * @throws DeploymentException
+     * @deprecated
+     */
+    protected static XmlObject[] convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, SchemaType type) throws DeploymentException {
+        //bizarre ArrayStoreException if xmlObjects is loaded by the wrong classloader
+        XmlObject[] converted = new XmlObject[xmlObjects.length];
+        for (int i = 0; i < xmlObjects.length; i++) {
+            XmlObject xmlObject = xmlObjects[i].copy();
+            if (xmlObject.schemaType() != type) {
+                converter.convertElement(xmlObject);
+                converted[i] = xmlObject.changeType(type);
+            } else {
+                converted[i] = xmlObject;
+            }
+            try {
+                XmlBeansUtil.validateDD(converted[i]);
+            } catch (XmlException e) {
+                throw new DeploymentException("Could not validate xmlObject of type " + type, e);
+            }
+        }
+        return converted;
 
-//    protected static <T extends XmlObject> List<T> convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, Class<T> c, SchemaType type) throws DeploymentException {
-//        //there's probably a better way to say T extends XmlObject and get the type from that
-//        List<T> result = new ArrayList<T>(xmlObjects.length);
-//        for (XmlObject xmlObject : xmlObjects) {
-//            xmlObject = convert(xmlObject, converter, type);
-//            result.add((T) xmlObject);
-//        }
-//        return result;
-//    }
-//
-//    protected static XmlObject convert(XmlObject xmlObject, NamespaceElementConverter converter, SchemaType type) throws DeploymentException {
-//        Map ns = new HashMap();
-//        XmlCursor cursor = xmlObject.newCursor();
-//        try {
-//            cursor.getAllNamespaces(ns);
-//        } finally {
-//            cursor.dispose();
-//        }
-//        xmlObject = xmlObject.copy();
-//        cursor = xmlObject.newCursor();
-//        cursor.toNextToken();
-//        try {
-//            for (Object o : ns.entrySet()) {
-//                Map.Entry entry = (Map.Entry) o;
-//                cursor.insertNamespace((String) entry.getKey(), (String) entry.getValue());
-//            }
-//        } finally {
-//            cursor.dispose();
-//        }
-//
-//        if (xmlObject.schemaType() != type) {
-//            converter.convertElement(xmlObject);
-//            xmlObject = xmlObject.changeType(type);
-//        }
-//        try {
-//            XmlBeansUtil.validateDD(xmlObject);
-//        } catch (XmlException e) {
-//            throw new DeploymentException("Could not validate xmlObject of type " + type, e);
-//        }
-//        return xmlObject;
-//    }
-//
-//    protected static String getStringValue(String s) {
-//        return s == null ? null : s.trim();
-//    }
+    }
+
+    protected static <T extends XmlObject> List<T> convert(XmlObject[] xmlObjects, NamespaceElementConverter converter, Class<T> c, SchemaType type) throws DeploymentException {
+        //there's probably a better way to say T extends XmlObject and get the type from that
+        List<T> result = new ArrayList<T>(xmlObjects.length);
+        for (XmlObject xmlObject : xmlObjects) {
+            xmlObject = convert(xmlObject, converter, type);
+            result.add((T) xmlObject);
+        }
+        return result;
+    }
+
+    protected static XmlObject convert(XmlObject xmlObject, NamespaceElementConverter converter, SchemaType type) throws DeploymentException {
+        Map ns = new HashMap();
+        XmlCursor cursor = xmlObject.newCursor();
+        try {
+            cursor.getAllNamespaces(ns);
+        } finally {
+            cursor.dispose();
+        }
+        xmlObject = xmlObject.copy();
+        cursor = xmlObject.newCursor();
+        cursor.toNextToken();
+        try {
+            for (Object o : ns.entrySet()) {
+                Map.Entry entry = (Map.Entry) o;
+                cursor.insertNamespace((String) entry.getKey(), (String) entry.getValue());
+            }
+        } finally {
+            cursor.dispose();
+        }
+
+        if (xmlObject.schemaType() != type) {
+            converter.convertElement(xmlObject);
+            xmlObject = xmlObject.changeType(type);
+        }
+        try {
+            XmlBeansUtil.validateDD(xmlObject);
+        } catch (XmlException e) {
+            throw new DeploymentException("Could not validate xmlObject of type " + type, e);
+        }
+        return xmlObject;
+    }
+
+    protected static String getStringValue(String s) {
+        return s == null ? null : s.trim();
+    }
     
 
-    public static AbstractNameQuery buildAbstractNameQuery(PatternType pattern, String type, String moduleType, Set interfaceTypes) {
+    public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type, String moduleType, Set interfaceTypes) {
         return ENCConfigBuilder.buildAbstractNameQueryFromPattern(pattern, null, type, moduleType, interfaceTypes);
     }
 
@@ -328,9 +341,9 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
     }
 
 
-//    public QName getBaseQName() {
-//        return BASE_NAMING_QNAME;
-//    }
+    public QName getBaseQName() {
+        return BASE_NAMING_QNAME;
+    }
 
     protected String inferAndCheckType(Module module, Bundle bundle, List<InjectionTarget> injectionTargets, String name, String typeName) throws DeploymentException {
         Class<?> type = null;
@@ -342,10 +355,10 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
             }
         }
         for (InjectionTarget injectionTarget : injectionTargets) {
-            String className = injectionTarget.getInjectionTargetClass();
+            String className = getStringValue(injectionTarget.getInjectionTargetClass());
             try {
                 Class<?> clazz = bundle.loadClass(className);
-                String fieldName = injectionTarget.getInjectionTargetName();
+                String fieldName = getStringValue(injectionTarget.getInjectionTargetName());
                 Class<?> fieldType = getField(clazz, fieldName);
                 fieldType = deprimitivize(fieldType);
                 if (type == null) {

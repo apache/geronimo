@@ -21,30 +21,22 @@
 
 <xsd:schema
         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
         xmlns:geronimo="http://geronimo.apache.org/xml/ns/security-2.0"
-        xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
         targetNamespace="http://geronimo.apache.org/xml/ns/security-2.0"
+        xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
+        xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
         elementFormDefault="qualified"
         attributeFormDefault="unqualified"
-        version="2.0"
-        jxb:version="2.0">
+        version="2.0">
 
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
-    <!--<xsd:import namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0" schemaLocation="geronimo-application-2.0.xsd"/>-->
-    <!--<xsd:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2" schemaLocation="geronimo-module-1.2.xsd"/>-->
+    <xsd:import namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0" schemaLocation="geronimo-application-2.0.xsd"/>
+    <xsd:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2" schemaLocation="geronimo-module-1.2.xsd"/>
 
-    <xsd:annotation>
-       <xsd:appinfo>
-           <jxb:bindings schemaLocation="./geronimo-security-2.0.xsd" node="/xsd:schema">
-               <jxb:schemaBindings>
-                  <jxb:package name="org.apache.geronimo.security.deployment.model.security"/>
-               </jxb:schemaBindings>
-           </jxb:bindings>
-       </xsd:appinfo>
-    </xsd:annotation>
-    <xsd:element name="security" type="geronimo:securityType"/>
-    <xsd:element name="security-ref" type="geronimo:security-refType"/>
-    <xsd:element name="credential-store" type="xsd:string"/>
+    <xsd:element name="security" type="geronimo:securityType" substitutionGroup="app:security"/>
+    <xsd:element name="security-ref" type="geronimo:security-refType" substitutionGroup="app:security"/>
+    <xsd:element name="credential-store" type="sys:patternType"/>
     <xsd:element name="default-subject" type="geronimo:subject-infoType"/>
 
     <xsd:complexType name="securityType">
@@ -56,12 +48,12 @@
                 appropriate access checks as outlined in the JACC spec.
             </xsd:documentation>
         </xsd:annotation>
-        <!--<xsd:complexContent>-->
-            <!--<xsd:extension base="app:abstract-securityType">-->
+        <xsd:complexContent>
+            <xsd:extension base="app:abstract-securityType">
                 <xsd:sequence>
                     <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0"
                                  maxOccurs="unbounded"/>
-                    <xsd:element name="credential-store-ref" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="credential-store-ref" type="sys:patternType" minOccurs="0"/>
                     <xsd:element name="default-subject" type="geronimo:subject-infoType" minOccurs="0"/>
                     <xsd:element name="role-mappings" type="geronimo:role-mappingsType" minOccurs="0"/>
                 </xsd:sequence>
@@ -99,8 +91,8 @@
                         </xsd:documentation>
                     </xsd:annotation>
                 </xsd:attribute>
-            <!--</xsd:extension>-->
-        <!--</xsd:complexContent>-->
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="security-refType">
@@ -109,14 +101,14 @@
                 Reference to security element in a parent module.
             </xsd:documentation>
         </xsd:annotation>
-        <!--<xsd:complexContent>-->
-            <!--<xsd:extension base="app:abstract-securityType">-->
+        <xsd:complexContent>
+            <xsd:extension base="app:abstract-securityType">
                 <xsd:choice>
                     <xsd:element name="name" type="xsd:string"/>
-                    <xsd:element name="ref" type="xsd:string"/>
+                    <xsd:element name="ref" type="sys:patternType"/>
                 </xsd:choice>
-             <!--</xsd:extension>-->
-        <!--</xsd:complexContent>-->
+             </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:complexType name="descriptionType">

@@ -48,22 +48,22 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
 
         gbean = setupTestLoginModule();
         testCE = gbean.getAbstractName();
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
 
         gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testCE);
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
 
         gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.class);
         testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", SIMPLE_REALM);
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
-//        gbean.setReferencePattern("ServerInfo", serverInfo);
+        gbean.setReferencePattern("ServerInfo", serverInfo);
         gbean.setAttribute("global", Boolean.TRUE);
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
 
         gbean = buildGBeanData("name", "NeverFailLoginModule", LoginModuleGBean.class);
         neverFailModule = gbean.getAbstractName();
@@ -71,14 +71,14 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         gbean.setAttribute("options", null);
         gbean.setAttribute("loginDomainName", "NeverFailDomain");
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
         kernel.startGBean(neverFailModule);
 
         gbean = buildGBeanData("name", "PropertiesLoginModuleUse2", JaasLoginModuleUse.class);
         AbstractName propsUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.OPTIONAL);
         gbean.setReferencePattern("LoginModule", testCE);
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
         kernel.startGBean(propsUseName);
 
         gbean = buildGBeanData("name", "NeverFailLoginModuleUse", JaasLoginModuleUse.class);
@@ -86,7 +86,7 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", neverFailModule);
         gbean.setReferencePattern("Next", propsUseName);
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
         kernel.startGBean(neverFailUseName);
 
         gbean = buildGBeanData("name", "PropertiesSecurityRealm2", GenericSecurityRealm.class);
@@ -94,20 +94,19 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         gbean.setAttribute("realmName", COMPLEX_REALM);
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         gbean.setReferencePattern("LoginModuleConfiguration", neverFailUseName);
+        gbean.setReferencePattern("ServerInfo", serverInfo);
         gbean.setAttribute("global", Boolean.TRUE);
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
 
         kernel.startGBean(loginConfiguration);
         kernel.startGBean(testCE);
         kernel.startGBean(testUseName);
         kernel.startGBean(testRealm);
-        ((GenericSecurityRealm)kernel.getGBean(testRealm)).setServerInfo(serverInfo);
 
         kernel.startGBean(neverFailModule);
         kernel.startGBean(neverFailUseName);
         kernel.startGBean(propsUseName);
         kernel.startGBean(testRealm2);
-        ((GenericSecurityRealm)kernel.getGBean(testRealm2)).setServerInfo(serverInfo);
     }
 
     protected abstract GBeanData setupTestLoginModule() throws Exception;
@@ -117,12 +116,12 @@ public abstract class AbstractLoginModuleTest extends AbstractTest {
         kernel.stopGBean(testCE);
         kernel.stopGBean(neverFailModule);
         kernel.stopGBean(loginConfiguration);
-//        kernel.stopGBean(serverInfo);
+        kernel.stopGBean(serverInfo);
 
         kernel.unloadGBean(testCE);
         kernel.unloadGBean(testRealm);
         kernel.unloadGBean(loginConfiguration);
-//        kernel.unloadGBean(serverInfo);
+        kernel.unloadGBean(serverInfo);
 
         super.tearDown();
     }

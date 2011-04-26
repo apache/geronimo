@@ -22,7 +22,7 @@ import java.io.InputStream;
 
 import org.apache.geronimo.cli.CLParserException;
 import org.apache.geronimo.cli.daemon.DaemonCLParser;
-import org.apache.geronimo.kernel.basic.BasicKernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.osgi.framework.BundleContext;
 
@@ -34,29 +34,28 @@ public class Daemon extends EmbeddedDaemon {
 
     private Daemon() {
         //TODO osgi bundleContext == null
-        super(new BasicKernel(), null);
+        super(KernelFactory.newInstance(null).createKernel("geronimo"), null);
     }
 
     @Override
     protected int initializeKernel() throws Exception {
-        if (true) throw new Exception("use ConfigurationExtener");
         ClassLoader classLoader = EmbeddedDaemon.class.getClassLoader();
         BundleContext bundleContext = null;
 
         // boot the kernel
-//        try {
-//            kernel.boot();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return 1;
-//        }
+        try {
+            kernel.boot();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 1;
+        }
 
         // add our shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
             public void run() {
                 System.out.println("");
                 System.out.println("Server shutdown started");
-//                kernel.shutdown();
+                kernel.shutdown();
                 System.out.println("Server shutdown completed");
             }
         });
@@ -64,7 +63,7 @@ public class Daemon extends EmbeddedDaemon {
         // load this configuration
         InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
         try {
-//            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext);
+            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext);
         } finally {
             if (in != null) {
                 try {

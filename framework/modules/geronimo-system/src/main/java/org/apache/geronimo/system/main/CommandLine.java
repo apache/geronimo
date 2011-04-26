@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -30,7 +31,7 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.basic.BasicKernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -40,9 +41,9 @@ import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$
@@ -76,7 +77,7 @@ public class CommandLine {
         }
     }
 
-    private BasicKernel kernel;
+    private Kernel kernel;
     private AbstractName configurationName;
 
     public void invokeMainGBean(List configurations, AbstractNameQuery mainGBeanQuery, String mainMethod, String[] args) throws Exception {
@@ -131,13 +132,12 @@ public class CommandLine {
     }
 
     protected void loadBootstrapConfiguration() throws Exception {
-        if (true) throw new Exception("use COnfigurationExtender");
 //        ClassLoader classLoader = CommandLine.class.getClassLoader();
         BundleContext bundleContext = null;
         InputStream in = bundleContext.getBundle().getResource("META-INF/config.ser").openStream();
         try {
             // load the configuration
-//            configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext);
+            configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext);
         } finally {
             if (in != null) {
                 try {
@@ -149,16 +149,14 @@ public class CommandLine {
         }
     }
 
-    protected BasicKernel getBootedKernel() throws Exception {
+    protected Kernel getBootedKernel() throws Exception {
         BundleContext bundleContext = null;
-        BasicKernel kernel = new BasicKernel();
-//        kernel = KernelFactory.newInstance(bundleContext).createKernel("geronimo");
-        kernel.boot(bundleContext);
+        kernel = KernelFactory.newInstance(bundleContext).createKernel("geronimo");
+        kernel.boot();
         return kernel;
     }
 
     protected void startKernel(Artifact moduleId) throws Exception {
-        if (true) throw new IllegalStateException("don't call this");
         getBootedKernel();
 //        ClassLoader classLoader = CommandLine.class.getClassLoader();
         BundleContext bundleContext = null;
@@ -169,7 +167,7 @@ public class CommandLine {
                 ConfigurationData moduleData = ConfigurationUtil.readConfigurationData(in);
                 if (moduleId.matches(moduleData.getId())) {
                     // load the configuration
-//                    configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, moduleData, bundleContext);
+                    configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, moduleData, bundleContext);
                     return;
                 }
             } finally {

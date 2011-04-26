@@ -20,38 +20,38 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.WrappingServerInfo"/>
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 
-    <!--<gbean name="Repository" class="org.apache.geronimo.system.repository.Maven2Repository">-->
-        <!--<attribute name="root">repository/</attribute>-->
-        <!--<reference name="ServerInfo">-->
-            <!--<name>ServerInfo</name>-->
-        <!--</reference>-->
-    <!--</gbean>-->
+    <gbean name="Repository" class="org.apache.geronimo.system.repository.Maven2Repository">
+        <attribute name="root">repository/</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
 
-    <gbean name="Local" class="org.apache.geronimo.system.configuration.WrapperConfigurationStore"/>
-        <!--<reference name="Repository">-->
-            <!--<name>Repository</name>-->
-        <!--</reference>-->
-    <!--</gbean>-->
+    <gbean name="Local" class="org.apache.geronimo.system.configuration.RepositoryConfigurationStore">
+        <reference name="Repository">
+            <name>Repository</name>
+        </reference>
+    </gbean>
 
-    <!--<gbean name="ArtifactManager" class="org.apache.geronimo.kernel.repository.DefaultArtifactManager"/>-->
+    <gbean name="ArtifactManager" class="org.apache.geronimo.kernel.repository.DefaultArtifactManager"/>
 
-    <!--<gbean name="ArtifactResolver" class="org.apache.geronimo.kernel.repository.DefaultArtifactResolver">-->
-        <!--<reference name="ArtifactManager">-->
-            <!--<name>ArtifactManager</name>-->
-        <!--</reference>-->
-        <!--<reference name="Repositories"></reference>-->
-    <!--</gbean>-->
+    <gbean name="ArtifactResolver" class="org.apache.geronimo.kernel.repository.DefaultArtifactResolver">
+        <reference name="ArtifactManager">
+            <name>ArtifactManager</name>
+        </reference>
+        <reference name="Repositories"></reference>
+    </gbean>
 
-    <!--<gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.SimpleConfigurationManager">-->
-        <!--<reference name="Repositories"></reference>-->
-        <!--<reference name="Stores"></reference>-->
-        <!--<reference name="Watchers"></reference>-->
-        <!--<reference name="ArtifactResolver">-->
-            <!--<name>ArtifactResolver</name>-->
-        <!--</reference>-->
-    <!--</gbean>-->
+    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.SimpleConfigurationManager">
+        <reference name="Repositories"></reference>
+        <reference name="Stores"></reference>
+        <reference name="Watchers"></reference>
+        <reference name="ArtifactResolver">
+            <name>ArtifactResolver</name>
+        </reference>
+    </gbean>
 
     <gbean name="StopServer" class="org.apache.geronimo.deployment.cli.StopServer"/>
 

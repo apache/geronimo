@@ -18,6 +18,7 @@
 
 <xsd:schema targetNamespace="http://geronimo.apache.org/xml/ns/naming-1.2"
     xmlns:gernaming="http://geronimo.apache.org/xml/ns/naming-1.2"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
     attributeFormDefault="unqualified" version="1.0">
 
@@ -37,16 +38,16 @@
         </xsd:documentation>
     </xsd:annotation>
 
-    <!--<xsd:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2"-->
-        <!--schemaLocation="geronimo-module-1.2.xsd">-->
-        <!--<xsd:annotation>-->
-            <!--<xsd:documentation>-->
-                <!--Import Geronimo Services deployment plans, the imported plan-->
-                <!--includes complex types like moduleType, environmentType,-->
-                <!--dependenciesType, etc. required by this plan schema.-->
-            <!--</xsd:documentation>-->
-        <!--</xsd:annotation>-->
-    <!--</xsd:import>-->
+    <xsd:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2"
+        schemaLocation="geronimo-module-1.2.xsd">
+        <xsd:annotation>
+            <xsd:documentation>
+                Import Geronimo Services deployment plans, the imported plan
+                includes complex types like moduleType, environmentType,
+                dependenciesType, etc. required by this plan schema.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:import>
 
     <xsd:element name="env-entry" type="gernaming:env-entryType">
         <xsd:annotation>
@@ -917,10 +918,28 @@
 
     <xsd:complexType name="patternType">
         <xsd:sequence>
-            <xsd:element name="filter" type="xsd:string" minOccurs="0">
+            <xsd:element name="groupId" type="xsd:string" minOccurs="0">
                 <xsd:annotation>
                     <xsd:documentation>
-                        osgi filter for bundle containing external component
+                        The name for group containing module to match. By
+                        default is it considered wild card '*'.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="artifactId" type="xsd:string" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The name for module in a specified group to be matched.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="version" type="xsd:string" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The version number for the module formatted by dot
+                        separated numbers. If no version is provided it will be
+                        defaulted latest available version matching other
+                        criterions.
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>

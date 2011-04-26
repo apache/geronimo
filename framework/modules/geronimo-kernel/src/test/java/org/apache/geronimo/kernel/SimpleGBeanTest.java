@@ -19,15 +19,13 @@ package org.apache.geronimo.kernel;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.basic.BasicKernel;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationExtender;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.KernelConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import junit.framework.TestCase;
-import org.osgi.framework.BundleEvent;
 
 /**
  * @version $Rev$ $Date$
@@ -37,32 +35,25 @@ public class SimpleGBeanTest extends TestCase {
 
     public void test() throws Exception {
         // boot the kernel
-        BasicKernel kernel = new BasicKernel();
-//        kernel.boot();
-        ConfigurationExtender configurationExtender = new ConfigurationExtender();
-        configurationExtender.setKernel(kernel);
-        configurationExtender.start(bundleContext);
-        // load the configuration manager bootstrap service
-//        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
-//        bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
+        Kernel kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
+        kernel.boot();
 
-//        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
-//        ConfigurationManager configurationManager = kernel.getGBean(ConfigurationManager.class);
+        // load the configuration manager bootstrap service
+        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
+        bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
+        ConfigurationManager configurationManager = kernel.getGBean(ConfigurationManager.class);
 
         // create a configuration for our test bean
         Artifact configurationId = new Artifact("test", "test", "", "car");
         ConfigurationData configurationData = new ConfigurationData(configurationId, kernel.getNaming());
-        configurationData.setBundle(bundleContext.getBundle());
+        configurationData.setBundleContext(bundleContext);
         GBeanData mockBean1 = configurationData.addGBean("MyBean", TestGBean.getGBeanInfo());
         mockBean1.setAttribute("value", "1234");
-        Configuration configuration = new Configuration(configurationData, null);
+
         // load and start the configuration
-        ConfigurationUtil.loadConfigurationGBeans(configuration,  kernel);
-        ConfigurationUtil.startConfigurationGBeans(configuration,  kernel);
-//        bundleContext.bundleEvent(BundleEvent.RESOLVED, bundleContext.getBundle());
-//        bundleContext.bundleEvent(BundleEvent.STARTED, bundleContext.getBundle());
-//        configurationManager.loadConfiguration(configurationData);
-//        configurationManager.startConfiguration(configurationId);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(configurationId);
 
         // invoke GBean directly
         TestGBean testGBean = (TestGBean) kernel.getGBean("MyBean");
@@ -74,7 +65,7 @@ public class SimpleGBeanTest extends TestCase {
         assertEquals("1234", kernel.invoke("MyBean", "fetchValue"));
         // this does not work without addOperation
         assertEquals("1234", kernel.invoke("MyBean", "getValue"));
-
+        
         // invoke GBean by type
         assertEquals("1234", kernel.getAttribute(TestGBean.class, "value"));
         assertEquals("1234", kernel.invoke(TestGBean.class, "fetchValue"));
@@ -84,10 +75,8 @@ public class SimpleGBeanTest extends TestCase {
         assertEquals("1234", kernel.invoke("MyBean", TestGBean.class, "fetchValue"));
 
         // stop and unload configuration
-//        bundleContext.bundleEvent(BundleEvent.STOPPED, bundleContext.getBundle());
-//        bundleContext.bundleEvent(BundleEvent.UNRESOLVED, bundleContext.getBundle());
-//        configurationManager.stopConfiguration(configurationId);
-//        configurationManager.unloadConfiguration(configurationId);
+        configurationManager.stopConfiguration(configurationId);
+        configurationManager.unloadConfiguration(configurationId);
 
         // stop the kernel
         kernel.shutdown();

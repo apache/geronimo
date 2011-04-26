@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.jar.JarOutputStream;
 
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -86,12 +85,10 @@ public class PluginBootstrap2 {
 //        ModuleType config = ModuleDocument.Factory.parse(plan).getModule();
 
         Maven2Repository repository = new Maven2Repository(localRepo);
-        DependencyManager dependencyManager = new DependencyManager(bundleContext, Collections.<Repository>singleton(repository), null);
-        bundleContext.registerService(DependencyManager.class.getName(), dependencyManager, new Hashtable());
+        new DependencyManager(bundleContext, Collections.<Repository>singleton(repository), null);
 
         GBeanBuilder gBeanBuilder = new GBeanBuilder(null, null);
-        ServiceConfigBuilder builder = new ServiceConfigBuilder();
-        builder.activate(bundleContext);
+        ServiceConfigBuilder builder = new ServiceConfigBuilder(null, Collections.<Repository>singleton(repository), Collections.<NamespaceDrivenBuilder>singleton(gBeanBuilder), new Jsr77Naming(), bundleContext);
         ConfigurationStore targetConfigurationStore = new NullConfigurationStore() {
             public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
                 StringBuilder configurationPathBuilder = new StringBuilder("repository");

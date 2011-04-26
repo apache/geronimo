@@ -21,20 +21,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.j2ee.deployment.model.app.ApplicationType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlObject;
 
 public class NamingBuilderCollectionTest extends TestCase {
-
+    
     public void testNamingBuilderSorting() throws Exception {
                 
         List<NamingBuilder> callList = new ArrayList<NamingBuilder>();        
@@ -88,21 +86,21 @@ public class NamingBuilderCollectionTest extends TestCase {
             this.callList = callList;
         }
         
-        public void buildEnvironment(JndiConsumer specDD, JndiPlan plan, Environment environment)
+        public void buildEnvironment(JndiConsumer specDD, XmlObject plan, Environment environment)
                 throws DeploymentException {
             this.callList.add("buildEnvironment");
             this.callList.add(this);
         }
 
         public void buildNaming(JndiConsumer specDD,
-                                JndiPlan plan,
+                                XmlObject plan,
                                 Module module,
                                 Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
             this.callList.add("buildNaming");
             this.callList.add(this);
         }
 
-        public void initContext(JndiConsumer specDD, JndiPlan plan, Module module)
+        public void initContext(JndiConsumer specDD, XmlObject plan, Module module)
                 throws DeploymentException {
             this.callList.add("initContext");
             this.callList.add(this);

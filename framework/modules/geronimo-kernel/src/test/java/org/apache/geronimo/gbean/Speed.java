@@ -21,8 +21,8 @@ import java.lang.reflect.Method;
 import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.gbean.runtime.RawInvoker;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.MockGBean;
-import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.testsupport.TestSupport;
 
@@ -93,13 +93,13 @@ public class Speed extends TestSupport {
         printResults("FastClass", end, start, iterations);
 
         // start a kernel
-        Kernel kernel = new BasicKernel();
-//        kernel.boot();
+        Kernel kernel = KernelFactory.newInstance(getBundleContext()).createKernel("speed");
+        kernel.boot();
         AbstractName abstractName = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
         GBeanData mockGBean = new GBeanData(abstractName, MockGBean.getGBeanInfo());
         mockGBean.setAttribute("Name", "bar");
         mockGBean.setAttribute("FinalInt", new Integer(57));
-        kernel.loadGBean(mockGBean, getBundleContext().getBundle());
+        kernel.loadGBean(mockGBean, getBundleContext());
         kernel.startGBean(abstractName);
 
         // reflect proxy
@@ -222,13 +222,13 @@ public class Speed extends TestSupport {
         printResults("FastClass", end, start, iterations);
 
         // start a kernel
-        Kernel kernel = new BasicKernel();
-//        kernel.boot();
+        Kernel kernel = KernelFactory.newInstance(getBundleContext()).createKernel("speed");
+        kernel.boot();
         AbstractName abstractName = kernel.getNaming().createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
         GBeanData mockGBean = new GBeanData(abstractName, MockGBean.getGBeanInfo());
         mockGBean.setAttribute("Name", "bar");
         mockGBean.setAttribute("FinalInt", new Integer(57));
-        kernel.loadGBean(mockGBean, getBundleContext().getBundle());
+        kernel.loadGBean(mockGBean, getBundleContext());
         kernel.startGBean(mockGBean.getAbstractName());
 
         // reflect proxy

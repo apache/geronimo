@@ -1,0 +1,236 @@
+Release Notes -- Apache Geronimo -- Version Geronimo @VERSION@
+
+
+Geronimo URLs
+-------------
+Home Page:     http://geronimo.apache.org/
+Downloads:     http://geronimo.apache.org/downloads.html
+Documentation: http://geronimo.apache.org/documentation.html
+Mailing Lists: http://geronimo.apache.org/mailing-lists.html
+Source Code:   http://geronimo.apache.org/source-code.html
+Bug Tracking:  http://issues.apache.org/jira/browse/GERONIMO
+Wiki:          http://cwiki.apache.org/geronimo
+
+
+Documentation
+-------------
+Please see http://cwiki.apache.org/GMOxDOC30/documentation.html for the
+latest documentation on this release.
+OR
+Please see http://cwiki.apache.org/GMOxDOC22/documentation.html for Geronimo 
+2.2 documentation until Geronimo @VERSION@ documentation is created
+
+IMPORTANT
+---------
+This is a Milestone release, that means that is not the final version of
+Apache Geronimo v3.0 Take a look at "Known Issues and Limitations" section for
+further details.
+
+
+System Requirements
+-------------------
+You need a platform that supports the Sun JDK 6.0+ (J2SE 1.6.0+) or greater.
+
+Most testing has been done on Linux, Mac OS X, and Windows.
+
+
+Geronimo @VERSION@ Enhancements
+-------------------------
+
+Support for portions of SUN's Java Enterprise Edition 6.0 specification:
+  - EJB 3.1 (partial) 
+  - JPA 2.0
+  - Servlet 3.0
+  - JSP 2.2 
+  - EL 2.2 
+  - JSF 2.0 
+  - JSTL 1.2 
+  - JCA 1.6 
+  - JACC 1.4 
+  - JASPIC 1.0 
+  - JAXB-2.2 
+  - Annocations 1.1 
+  - Interceptors 1.1 
+  - OSGi application support 
+  - Apache Aries programming model, including support for 
+       - OSGi Blueprint service
+       - OSGi JNDI extender 
+       - OSGi Web Application Bundle Support 
+  
+
+Geronimo @VERSION@ Issues Resolved
+------------------------------
+
+** Sub-task
+    * [GERONIMO-4410] - Update JPA 2.0 spec component
+    * [GERONIMO-4680] - Create a plugin in for OpenJPA 2.0. 
+    * [GERONIMO-4831] - stop building dojo-0.4.3 from ext
+    * [GERONIMO-4832] - Modify EJB portlets to fit the new APIs of Tree and TreeEntry
+    * [GERONIMO-4902] - need license file modifications for imported plexus code in osgi sandbox modules/geronimo-plugin
+    * [GERONIMO-4914] - gogo commands for manipulating g. plugins
+    * [GERONIMO-4917] - Figure out how to use ext and endorsed classpaths under felix/karaf and get our corba spec in there.
+    * [GERONIMO-4919] - The @WebListener annotation needs to be able to accept a value as the description
+    * [GERONIMO-4923] - Remove those classloader plugins
+    * [GERONIMO-4924] - Reenable the client container in Geronimo
+    * [GERONIMO-4933] - Some optimization for loaded bundle checking
+    * [GERONIMO-4948] - To migrate existing geronimo gshell commands to karaf based shell.
+    * [GERONIMO-4962] - prevent jasper from assuming all classloaders are URLClassLoaders
+    * [GERONIMO-4964] - base jetty servletcontext getResource on bundle getEntry
+    * [GERONIMO-4973] - Classpath entrys in karaf-client.jar is ../system/ instead of ../repository/ 
+    * [GERONIMO-4976] - rfc 66 support for jetty and tomcat
+    * [GERONIMO-4989] - Jetty and tomcat need to support ServletContext.getResource from a bundle, not file system location
+    * [GERONIMO-4990] - Add serialVersionUID to serializable spec classes from javadoc
+    * [GERONIMO-4992] - Tomcat StandardContext use of Class.forName(className) doesn't work well in osgi
+    * [GERONIMO-4994] - To support multiple level navigation tree in geronimo web console.
+    * [GERONIMO-5008] - Create util methods for all the Geronimo components
+    * [GERONIMO-5017] - Create geronimo-annotation_1.1_spec jar
+    * [GERONIMO-5018] - Remove -EA- versioning from the JEE6 spec versions. 
+    * [GERONIMO-5029] - Integrate WAR to WAB converter/url handler from Apache Aries
+    * [GERONIMO-5031] - Implement EL spec 2.2 
+    * [GERONIMO-5034] - Integrate JMX (RFC 142) implementation from Apache Aries
+    * [GERONIMO-5037] - Support Servlet 3.0 annotation and fragment web file
+    * [GERONIMO-5038] - Need to URLEncode temp bundle location since felix URLDecodes it
+    * [GERONIMO-5093] - Create JAXB 2.2 spec jar
+    * [GERONIMO-5094] - Integrate the 2.2 version of the jaxb reference implementation. 
+    * [GERONIMO-5098] - Create Servlet 3.0 version of the spec jar. 
+    * [GERONIMO-5099] - Create JSP 2.2 spec jar 
+    * [GERONIMO-5100] - Create connector 1.6 spec jar
+    * [GERONIMO-5104] - Update the jsf spec level to 2.o 
+    * [GERONIMO-5105] - Create JACC 1.4 spec jar 
+    * [GERONIMO-5106] - Create a spec jar for JASPIC 1.0 
+    * [GERONIMO-5107] - Implement JASPIC 1.0 in Geronimo
+    * [GERONIMO-5108] - Create interceptor 1.1 spec jar
+    * [GERONIMO-5111] - Create a bundle version of jstl 1.2 and change dependencies to new version 
+    * [GERONIMO-5112] - Implement the DataSourceDefinition annotation
+    * [GERONIMO-5114] - Implement the ManagedBean annotation
+    * [GERONIMO-5118] - Create an ejb 3.1 spec jar implementation 
+    * [GERONIMO-5133] - Geroinimo versions of the specs should pick up the additions made to the service mix versions of the bundles. 
+    * [GERONIMO-5165] - Discover database drivers in META-INF/services/java.sql.Driver files
+    * [GERONIMO-5169] - Remove GShell
+    * [GERONIMO-5174] - System bundle exports JAX-WS packages with wrong version
+    * [GERONIMO-5178] - Inconsistent handling of META-INF/services files by different Geronmo specs. 
+    * [GERONIMO-5188] - Uplevel the stax spec implementation to the 1.3 maintenance release level. 
+    * [GERONIMO-5201] - Repace service versions of spec bundles with Geronimo latest versions. 
+    * [GERONIMO-5202] - jaxb 2.2 version problem. 
+    * [GERONIMO-5203] - JTA OSGi services & blueprint extensions
+    * [GERONIMO-5218] - The portlets page in iframe height is limited in debug view, so that some content is not visible when expanding the tree in debug view.
+    * [GERONIMO-5234] - JavaEE6 sample - Servlet 3.0 - Web Fragment
+    * [GERONIMO-5235] - JavaEE6 sample - Servlet 3.0 - Part attribute
+    * [GERONIMO-5236] - JavaEE6 sample - Servlet 3.0 - Annotations for servlets, filters and listeners
+    * [GERONIMO-5237] - JavaEE6 sample - Servlet 3.0 - JAR resources support
+    * [GERONIMO-5238] - JavaEE6 sample - Servlet 3.0 - Programmatically register and initialize servlets and filters
+    * [GERONIMO-5239] - Restructure samples layout to categorize samples into Java EE 5, Java EE 6, and OSGi
+    * [GERONIMO-5240] - Add daytrader(JavaEE) into the samples code tree
+    * [GERONIMO-5251] - Support environment entires of type Class or Enum
+    * [GERONIMO-5266] - JavaEE6 sample - JPA 2.0 - Criteria API
+    * [GERONIMO-5272] - JavaEE6 sample - JSF 2.0 - AJAX interaction
+    * [GERONIMO-5273] - JavaEE6 sample - EJB 3.1 - Singleton
+    * [GERONIMO-5275] - JavaEE6 sample - RESTful service
+    * [GERONIMO-5276] - JavaEE6 sample - EJB 3.1 - Timer Service
+
+** Bug
+    * [GERONIMO-4566] - Need extra servlet mappings for jetty and tomcat for welcome jsps compiled into servlets
+    * [GERONIMO-4859] - Default JMX monitoring MBeans list should include JVM MBean.
+    * [GERONIMO-4886] - Request Time Count attribute does not exist in connector mbean.
+    * [GERONIMO-4928] - In the JPA persistence.xml loading code, exclude-unlisted-classes handling not compliant with JPA3.0 spec
+    * [GERONIMO-5147] - deploy.sh exits with non-zero status because of stty echo
+    * [GERONIMO-5151] - JSTL sql tags do not work
+    * [GERONIMO-5176] - our DependencyManager needs to know about artifact aliases.
+    * [GERONIMO-5211] - geronimo start command is very verbose
+    * [GERONIMO-5213] - Review Geronimo 3.0 commands need a thorough review
+    * [GERONIMO-5246] - Geronimo 3.0 version of activemq still has spring dependencies. 
+    * [GERONIMO-5247] - IllegalStateException during Geronimo build. 
+    * [GERONIMO-5249] - Use karaf jaas boot code to load login modules
+    * [GERONIMO-5259] - Annoying "access denied" security exceptions for oenwebbeans while java2 security is enabled.
+    * [GERONIMO-5260] - Geronimo bundle members need to be released separately 
+    * [GERONIMO-5261] - Fix LICENSE and NOTICE files for the Geronimo bundles subprojects. 
+    * [GERONIMO-5279] - search-plugins, install-library deploy command fails with NoClassDefFoundError
+    * [GERONIMO-5281] - MergeHelper should not load all classes in bundle
+    * [GERONIMO-5285] - deploy, undeploy, deploy of blog sample fails
+    * [GERONIMO-5286] - Many irrelevant build properties end up in the manifest
+    * [GERONIMO-5287] - Felix instance cache is not cleared for client/shutdown/deploy
+    * [GERONIMO-5289] - Test all combinations of heuristic exceptions
+    * [GERONIMO-5291] - Can not get multipart data sent from html form.
+    * [GERONIMO-5301] - DatabaseInitializationGBean class not found.
+    * [GERONIMO-5308] - Use cookie version 0 for Tomcat 7
+    * [GERONIMO-5321] - mvn install -Dstage=bootstrap no longer working. 
+    * [GERONIMO-5330] - env-entry values should not be trimmed
+    * [GERONIMO-5333] - Server start fails, but java process stays active
+    * [GERONIMO-5335] - ClassNotFoundException running 'geronimo stop'
+    * [GERONIMO-5337] - ServerHostName does not control the bind ip address for Tomcat Connectors
+
+** Improvement
+    * [GERONIMO-434] - Connection factories extracted from conceptually wrong gbean
+    * [GERONIMO-4694] - Upgrade to Derby 10.5.3.0
+    * [GERONIMO-4723] - Replace our dojo repackaging with the released dojo-war
+    * [GERONIMO-4907] - GBeanInstance to Ignore Missing Setters
+    * [GERONIMO-4975] - Simplify integrating new ModuleBuilders with EARConfigBuilder
+    * [GERONIMO-4984] - EjbDaemonGBean can start multiple daemons
+    * [GERONIMO-5149] - More flexibility checking for dependency changes
+
+** New Feature
+    * [GERONIMO-4918] - EJB 3.1 Singleton Support
+    * [GERONIMO-5263] - Support Servlet 3.0 new features in Tomcat assembly
+
+
+
+
+
+** Task
+    * [GERONIMO-4888] - Update the version of dojo-war dependency to 1.3.2
+    * [GERONIMO-4916] - move osgi framework in to replace pre-osgi framwork
+    * [GERONIMO-5171] - Upgrade WADI from 2.1.1. to 2.1.2  in 22 branch and trunk.
+
+
+Certification Status
+--------------------
+
+Apache Geronimo vGeronimo @VERSION@, being a MILESTONE release is not yet certified.
+
+
+Distributions
+-------------
+Apache Geronimo vGeronimo @VERSION@ is available in five distributions so you can pick
+the one that best fits your environment.
+
+The available distributions are as follows:
+
+Non-Certified distributions:
+- Apache Geronimo with Tomcat web container and OpenJPA for persistence.
+- Apache Geronimo with Jetty web container and OpenJPA for persistence.
+- Little-G with Tomcat web container, minimal configuration.
+- Little-G with Jetty web container, minimal configuration.
+- Geronimo framework, stripped down Geronimo pluggable framework.
+
+Note: Non-Certified distributions do not contain a complete Java EE 6 stack and
+so cannot be certified.  
+
+Supported features
+------------------
+- Web applications using servlet 3.0, jsf 2.0, and jsp 2.2.
+- Web Application Bundles in the OSGi style .
+- The OSGi/Aries EBA programming model with support for blueprint, 
+- JPA, transactions, and JNDI. 
+- Traditional Java EE apps, including support for JPA 2.0, EJB 3.0, 
+  ActiveMQ 5.3.2, and JCA 1.6 
+  
+
+Known Issues and Limitations
+----------------------------
+Geronimo @VERSION@ is a milestone release and should only
+be used for learning about the upcoming Geronimo 3.0 release with Java
+EE 6 and OSGi/Aries support and not for any type of production usage...
+
+In particular, the following limitations need to be noted:                
+   - This release does not include support for Web Services.  Web Services 
+   support is not a required component for the Java EE 6 Web Profile, which is 
+   the focus of the Geronimo 3.0 release. 
+   - The OpenEJB version used in this milestone is still largely at the EJB 3.0 
+   support level.  
+   - The following components required by the Java EE 6 Web Profile are not yet 
+   included in this release:
+       - Java Context and Dependency Injection (JSRs 299 and 330).   
+       - Bean Validation (JSR 302) 
+       - Managed Beans (JSR 318) 
+       
+

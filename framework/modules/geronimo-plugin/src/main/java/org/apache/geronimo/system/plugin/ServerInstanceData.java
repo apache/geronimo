@@ -30,7 +30,6 @@ import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.system.configuration.LocalAttributeManager;
 import org.apache.geronimo.system.configuration.LocalPluginAttributeStore;
-import org.apache.geronimo.system.configuration.PluginAttributeStore;
 import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -113,17 +112,20 @@ public class ServerInstanceData {
                 artifactManager,
                 Collections.singleton(targetRepo),
                 serverInfo);
-        PluginAttributeStore attributeStore;
+        LocalPluginAttributeStore attributeStore;
         if (attributeManagerFrom == null) {
-            attributeStore = new LocalAttributeManager();
-            //TODO osgi
-            ((LocalAttributeManager)attributeStore).activate(null);
+            attributeStore = new LocalAttributeManager(getConfigFile(),
+                    getConfigSubstitutionsFile(),
+                    getConfigSubstitutionsPrefix(),
+                    false,
+                    serverInfo);
+            ((LocalAttributeManager)attributeStore).load();
         } else {
             ServerInstance shared = serverInstances.get(attributeManagerFrom);
             if (shared == null) {
                 throw new IllegalArgumentException("Incorrect configuration: no server instance named '" + attributeManagerFrom + "' defined before being shared from '" + name + "'");
             }
-            attributeStore = shared.getAttributeStore();
+            attributeStore = (LocalPluginAttributeStore) shared.getAttributeStore();
         }
         return new ServerInstance(name, attributeStore, geronimoArtifactResolver);
     }

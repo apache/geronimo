@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -33,9 +34,11 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.DependencyNode;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.LifecycleResults;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.mock.MockConfigStore;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -280,7 +283,7 @@ public class SingleFileHotDeployerTest extends TestSupport {
                     null,
                     ConfigurationModuleType.CAR,
                     new Jsr77Naming(),
-                    bundleContext);
+                    new SimpleConfigurationManager(Collections.<ConfigurationStore>singletonList(store), artifactResolver, Collections.<Repository>emptySet(), bundleContext), bundleContext);
         }
     }
 
@@ -377,8 +380,13 @@ public class SingleFileHotDeployerTest extends TestSupport {
             try {
                 return new Configuration(
                         loadedConfigurationData,
-                        null
-                );
+                        new DependencyNode(loadedConfigurationData.getId(),
+                                new LinkedHashSet<Artifact>(),
+                                new LinkedHashSet<Artifact>()),
+                        new ArrayList<Configuration>(),
+                        null,
+                        null,
+                        this);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -168,7 +168,7 @@ public final class GBeanInstance implements StateManageable {
      */
     private final ClassLoader classLoader;
 
-    private final Bundle bundle;
+    private final BundleContext bundleContext;
 
     /**
      * Metadata describing the attributes, operations and references of this GBean
@@ -227,24 +227,24 @@ public final class GBeanInstance implements StateManageable {
      * Construct a GBeanMBean using the supplied GBeanData and bundle
      *
      * @param gbeanData     the data for the new GBean including GBeanInfo, intial attribute values, and reference patterns
-     * @param bundle bundle for loading gbean class.  Note the bundle context may not be available at all times.
+     * @param bundleContext
      * @throws org.apache.geronimo.gbean.InvalidConfigurationException
      *          if the gbeanInfo is inconsistent with the actual java classes, such as
      *          mismatched attribute types or the intial data cannot be set
      */
-    public GBeanInstance(GBeanData gbeanData, Kernel kernel, DependencyManager dependencyManager, LifecycleBroadcaster lifecycleBroadcaster, Bundle bundle) throws InvalidConfigurationException {
+    public GBeanInstance(GBeanData gbeanData, Kernel kernel, DependencyManager dependencyManager, LifecycleBroadcaster lifecycleBroadcaster, BundleContext bundleContext) throws InvalidConfigurationException {
         this.abstractName = gbeanData.getAbstractName();
         this.kernel = kernel;
         this.lifecycleBroadcaster = lifecycleBroadcaster;
         this.gbeanInstanceState = new GBeanInstanceState(abstractName, kernel, dependencyManager, this, lifecycleBroadcaster);
-        this.bundle = bundle;
-        this.classLoader = new BundleClassLoader(bundle);
+        this.bundleContext = bundleContext;
+        this.classLoader = new BundleClassLoader(bundleContext.getBundle());
 
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
         try {
-            type = this.bundle.loadClass(gbeanInfo.getClassName());
+            type = bundleContext.getBundle().loadClass(gbeanInfo.getClassName());
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load GBeanInfo class from classloader: " + this.bundle +
+            throw new InvalidConfigurationException("Could not load GBeanInfo class from classloader: " + bundleContext +
                     " className=" + gbeanInfo.getClassName(), e);
         }
 
@@ -435,7 +435,7 @@ public final class GBeanInstance implements StateManageable {
      * @return the bundle used to build this gbean
      */
     public Bundle getBundle() {
-        return bundle;
+        return bundleContext.getBundle();
     }
 
     /**
@@ -1009,7 +1009,7 @@ public final class GBeanInstance implements StateManageable {
                     if (serviceProperties.get(OSGI_JNDI_NAME_PROPERTY) == null) {
                         serviceProperties.put(OSGI_JNDI_NAME_PROPERTY, kernel.getNaming().toOsgiJndiName(abstractName));
                     }
-                    serviceRegistration = bundle.getBundleContext().registerService(serviceInterfaces, instance, serviceProperties);
+                    serviceRegistration = bundleContext.registerService(serviceInterfaces, instance, serviceProperties);
                     log.debug("Registered gbean " + abstractName + " as osgi service under interfaces " + Arrays.asList(serviceInterfaces) + " with properties " + serviceProperties);
                 }
                 instanceState = RUNNING;
@@ -1236,13 +1236,13 @@ public final class GBeanInstance implements StateManageable {
                         this,
                         "bundle",
                         Bundle.class,
-                        bundle));
+                        bundleContext.getBundle()));
         attributesMap.put("bundleContext",
                 GBeanAttribute.createSpecialAttribute(attributesMap.get("bundleContext"),
                         this,
                         "bundleContext",
                         BundleContext.class,
-                        bundle.getBundleContext()));
+                        bundleContext));
 
         attributesMap.put("kernel",
                 GBeanAttribute.createSpecialAttribute(attributesMap.get("kernel"),

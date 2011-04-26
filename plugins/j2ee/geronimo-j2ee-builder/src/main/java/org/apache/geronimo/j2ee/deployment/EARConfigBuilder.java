@@ -17,8 +17,6 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -43,13 +41,19 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.PatternType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -61,13 +65,6 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.apache.geronimo.j2ee.deployment.model.app.ApplicationType;
-import org.apache.geronimo.j2ee.deployment.model.app.ArtifactType;
-import org.apache.geronimo.j2ee.deployment.model.app.EnvironmentType;
-import org.apache.geronimo.j2ee.deployment.model.app.ExtModuleType;
-import org.apache.geronimo.j2ee.deployment.model.app.JaxbUtil;
-import org.apache.geronimo.j2ee.deployment.model.app.ModuleType;
-import org.apache.geronimo.j2ee.deployment.model.app.ObjectFactory;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.jndi.ApplicationJndi;
 import org.apache.geronimo.j2ee.jndi.JndiKey;
@@ -87,15 +84,24 @@ import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.kernel.util.NestedJarFile;
 import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
 import org.apache.openejb.jee.Application;
+//import org.apache.openejb.jee.Module;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.Web;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -111,7 +117,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private static final Logger log = LoggerFactory.getLogger(EARConfigBuilder.class);
     private static final String LINE_SEP = System.getProperty("line.separator");
 
-//    private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
+    private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
     private static final Map<String, String> NAMESPACE_UPDATES = new HashMap<String, String>();
 
     static {
@@ -127,12 +133,12 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     private final SingleElementCollection connectorConfigBuilder;
     private final SingleElementCollection appClientConfigBuilder;
     private final SingleElementCollection resourceReferenceBuilder;
-//    private final NamespaceDrivenBuilderCollection serviceBuilders;
+    private final NamespaceDrivenBuilderCollection serviceBuilders;
     private final Collection<ModuleBuilderExtension> BValModuleBuilders;
     private final Collection<ModuleBuilderExtension> persistenceUnitBuilders;
     private final NamingBuilder namingBuilders;
 
-//    private final Environment defaultEnvironment;
+    private final Environment defaultEnvironment;
     private final AbstractNameQuery serverName;
     private final AbstractNameQuery transactionManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
@@ -156,8 +162,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         }
     };
 
-    public EARConfigBuilder(
-//            @ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
+    public EARConfigBuilder(@ParamAttribute(name = "defaultEnvironment") Environment defaultEnvironment,
                             @ParamAttribute(name = "transactionManagerAbstractName") AbstractNameQuery transactionManagerAbstractName,
                             @ParamAttribute(name = "connectionTrackerAbstractName") AbstractNameQuery connectionTrackerAbstractName,
                             @ParamAttribute(name = "corbaGBeanAbstractName") AbstractNameQuery corbaGBeanAbstractName,
@@ -169,15 +174,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             @ParamReference(name = "ConnectorConfigBuilder", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilder> connectorConfigBuilder,
                             @ParamReference(name = "ActivationSpecInfoLocator", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilder> resourceReferenceBuilder,
                             @ParamReference(name = "AppClientConfigBuilder", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilder> appClientConfigBuilder,
-//                            @ParamReference(name = "ServiceBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<NamespaceDrivenBuilder> serviceBuilders,
+                            @ParamReference(name = "ServiceBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<NamespaceDrivenBuilder> serviceBuilders,
                             @ParamReference(name = "BValModuleBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilderExtension> BValModuleBuilders,
                             @ParamReference(name = "PersistenceUnitBuilders", namingType = NameFactory.MODULE_BUILDER) Collection<ModuleBuilderExtension> persistenceUnitBuilders,
                             @ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER) NamingBuilder namingBuilders,
                             @ParamReference(name = "ArtifactResolvers", namingType = "ArtifactResolver") Collection<? extends ArtifactResolver> artifactResolvers,
                             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                             @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws GBeanNotFoundException {
-        this(
-//                defaultEnvironment,
+        this(defaultEnvironment,
                 transactionManagerAbstractName,
                 connectionTrackerAbstractName,
                 corbaGBeanAbstractName,
@@ -190,7 +194,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 new SingleElementCollection<ModuleBuilder>(connectorConfigBuilder),
                 new SingleElementCollection<ModuleBuilder>(resourceReferenceBuilder),
                 new SingleElementCollection<ModuleBuilder>(appClientConfigBuilder),
-//                serviceBuilders,
+                serviceBuilders,
                 BValModuleBuilders,
                 persistenceUnitBuilders,
                 namingBuilders,
@@ -199,8 +203,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 bundleContext);
     }
 
-    public EARConfigBuilder(
-//            Environment defaultEnvironment,
+    public EARConfigBuilder(Environment defaultEnvironment,
                             AbstractNameQuery transactionManagerAbstractName,
                             AbstractNameQuery connectionTrackerAbstractName,
                             AbstractNameQuery corbaGBeanAbstractName,
@@ -218,8 +221,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                             NamingBuilder namingBuilders,
                             Naming naming,
                             Collection<? extends ArtifactResolver> artifactResolvers, BundleContext bundleContext) {
-        this(
-//                defaultEnvironment,
+        this(defaultEnvironment,
                 transactionManagerAbstractName,
                 connectionTrackerAbstractName,
                 corbaGBeanAbstractName,
@@ -232,7 +234,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 new SingleElementCollection<ModuleBuilder>(connectorConfigBuilder),
                 new SingleElementCollection<ActivationSpecInfoLocator>(activationSpecInfoLocator),
                 new SingleElementCollection<ModuleBuilder>(appClientConfigBuilder),
-//                serviceBuilder == null ? Collections.<NamespaceDrivenBuilder>emptySet() : Collections.singleton(serviceBuilder),
+                serviceBuilder == null ? Collections.<NamespaceDrivenBuilder>emptySet() : Collections.singleton(serviceBuilder),
                 BValModuleBuilder == null ? Collections.<ModuleBuilderExtension>emptySet() : Collections.singleton(BValModuleBuilder),
                 persistenceUnitBuilder == null ? Collections.<ModuleBuilderExtension>emptySet() : Collections.singleton(persistenceUnitBuilder),
                 namingBuilders,
@@ -241,8 +243,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 bundleContext);
     }
 
-    private EARConfigBuilder(
-//            Environment defaultEnvironment,
+    private EARConfigBuilder(Environment defaultEnvironment,
                              AbstractNameQuery transactionManagerAbstractName,
                              AbstractNameQuery connectionTrackerAbstractName,
                              AbstractNameQuery corbaGBeanAbstractName,
@@ -255,7 +256,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                              SingleElementCollection connectorConfigBuilder,
                              SingleElementCollection resourceReferenceBuilder,
                              SingleElementCollection appClientConfigBuilder,
-//                             Collection<NamespaceDrivenBuilder> serviceBuilders,
+                             Collection<NamespaceDrivenBuilder> serviceBuilders,
                              Collection<ModuleBuilderExtension> BValModuleBuilders,
                              Collection<ModuleBuilderExtension> persistenceUnitBuilders,
                              NamingBuilder namingBuilders,
@@ -264,14 +265,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                              BundleContext bundleContext) {
         this.configurationManager = configurationManager;
         this.repositories = repositories;
-//        this.defaultEnvironment = defaultEnvironment;
+        this.defaultEnvironment = defaultEnvironment;
 
         this.ejbConfigBuilder = ejbConfigBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
         this.webConfigBuilder = webConfigBuilder;
         this.connectorConfigBuilder = connectorConfigBuilder;
         this.appClientConfigBuilder = appClientConfigBuilder;
-//        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
+        this.serviceBuilders = new NamespaceDrivenBuilderCollection(serviceBuilders);
         this.BValModuleBuilders = BValModuleBuilders;
         this.persistenceUnitBuilders = persistenceUnitBuilders;
         this.namingBuilders = namingBuilders;
@@ -287,11 +288,11 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
     }
 
     public void doStart() throws Exception {
-//        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
     }
 
     public void doStop() {
-//        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
     }
 
     public void doFail() {
@@ -400,74 +401,36 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
         }
 
-        ApplicationType applicationType = null;
+        GerApplicationType gerApplication = null;
         try {
-            if (planFile != null) {
-                InputStream in = new FileInputStream(planFile);
-                try {
-    //                    moduleType = JaxbUtil.unmarshal(ModuleType.class, in, false);
-                    applicationType = JaxbUtil.unmarshalApplication(in, false);
-    //                } catch (XMLStreamException e) {
-    //                     return null;
-                } catch (JAXBException e) {
-                    return null;
-                } finally {
-                    in.close();
-                }
-    //                xmlObject = XmlBeansUtil.parse(planFile.toURI().toURL(), getClass().getClassLoader());
-            } else {
-                URL path = JarUtils.createJarURL(earFile, "META-INF/geronimo-service.xml");
-                try {
-                    InputStream in = path.openStream();
-                    try {
-    //                        moduleType = JaxbUtil.unmarshal(ModuleType.class, in, false);
-                        applicationType = JaxbUtil.unmarshalApplication(in, false);
-                    } catch (JAXBException e) {
-                        throw new DeploymentException("Could not unmarshall plan", e);
-                    } finally {
-                        in.close();
+            // load the geronimo-application.xml from either the supplied plan or from the earFile
+            XmlObject rawPlan;
+            try {
+                if (planFile != null) {
+                    rawPlan = XmlBeansUtil.parse(planFile.toURI().toURL(), getClass().getClassLoader());
+                    gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, APPLICATION_QNAME, GerApplicationType.type);
+                    if (gerApplication == null) {
+                        return null;
                     }
-                } catch (FileNotFoundException e) {
-                    // no plan
+                } else {
+                    URL path = JarUtils.createJarURL(earFile, "META-INF/geronimo-application.xml");
+                    rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
+                    gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, APPLICATION_QNAME, GerApplicationType.type);
                 }
+            } catch (IOException e) {
+                //TODO isn't this an error?
             }
-        } catch (XMLStreamException e) {
-            throw new DeploymentException("Could not unmarshall plan", e);
-        } catch (IOException e) {
-            throw new DeploymentException("Could not unmarshall plan", e);
-        }
-        if (applicationType == null) {
-            applicationType = createDefaultPlan(application, earFile);
-        }
-//        try {
-//            // load the geronimo-application.xml from either the supplied plan or from the earFile
-//            XmlObject rawPlan;
-//            try {
-//                if (planFile != null) {
-//                    rawPlan = XmlBeansUtil.parse(planFile.toURI().toURL(), getClass().getClassLoader());
-//                    applicationType = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, APPLICATION_QNAME, GerApplicationType.type);
-//                    if (applicationType == null) {
-//                        return null;
-//                    }
-//                } else {
-//                    URL path = JarUtils.createJarURL(earFile, "META-INF/geronimo-application.xml");
-//                    rawPlan = XmlBeansUtil.parse(path, getClass().getClassLoader());
-//                    applicationType = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, APPLICATION_QNAME, GerApplicationType.type);
-//                }
-//            } catch (IOException e) {
-//                //TODO isn't this an error?
-//            }
-//
-//            // if we got one extract the validate it otherwise create a default one
-//            if (applicationType == null) {
-//                applicationType = createDefaultPlan(application, earFile);
-//            }
-//        } catch (XmlException e) {
-//            throw new DeploymentException(e);
-//        }
 
-        EnvironmentType environmentType = applicationType.getEnvironment();
-        Environment environment = buildEnvironment(environmentType);
+            // if we got one extract the validate it otherwise create a default one
+            if (gerApplication == null) {
+                gerApplication = createDefaultPlan(application, earFile);
+            }
+        } catch (XmlException e) {
+            throw new DeploymentException(e);
+        }
+
+        EnvironmentType environmentType = gerApplication.getEnvironment();
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
         idBuilder.resolve(environment, earFile == null ? planFile.getName() : new File(earFile.getName()).getName(), "ear");
         // Make this EAR's settings the default for child modules
         idBuilder.setDefaultGroup(environment.getConfigId().getGroupId());
@@ -475,7 +438,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
 
         Artifact artifact = environment.getConfigId();
         AbstractName earName = naming.createRootName(artifact, artifact.toString(), NameFactory.J2EE_APPLICATION);
-        namingBuilders.buildEnvironment(application, applicationType, environment);
+        namingBuilders.buildEnvironment(application, gerApplication, environment);
 
         // get the modules either the application plan or for a stand alone module from the specific deployer
         // todo change module so you can extract the real module path back out.. then we can eliminate
@@ -494,11 +457,11 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 applicationName,
                 earFile,
                 application,
-                applicationType,
+                gerApplication,
                 application.toString()
         );
         try {
-            addModules(earFile, application, applicationType, environment, applicationInfo, idBuilder);
+            addModules(earFile, application, gerApplication, environment, applicationInfo, idBuilder);
             if (applicationInfo.getModules().isEmpty()) {
                 //if no application.xml and no modules detected, return null for stand-alone module processing
                 return null;
@@ -523,20 +486,6 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         return applicationInfo;
     }
 
-    private Environment buildEnvironment(EnvironmentType environmentType) {
-        Environment environment = new Environment();
-        ArtifactType artifactType = environmentType.getModuleId();
-        Artifact artifact = new Artifact(artifactType.getGroupId(), artifactType.getArtifactId(), artifactType.getVersion(), artifactType.getType());
-        environment.setConfigId(artifact);
-        environment.setBundleActivator(environmentType.getBundleActivator());
-        environment.addDynamicImportPackages(environmentType.getDynamicImportPackage());
-        environment.addExportPackages(environmentType.getExportPackage());
-        environment.addImportPackages(environmentType.getImportPackage());
-        environment.addRequireBundles(environmentType.getRequireBundle());
-
-        return environment;
-    }
-
     private void addModulesToDefaultPlan(Application application, Set<Module<?, ?>> modules) {
         for (Module module : modules) {
             ConfigurationModuleType configurationModuleType = module.getType();
@@ -558,14 +507,11 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         }
     }
 
-    private ApplicationType createDefaultPlan(Application application, JarFile module) {
+    private GerApplicationType createDefaultPlan(Application application, JarFile module) {
         // construct the empty geronimo-application.xml
-        ObjectFactory objectFactory = new ObjectFactory();
-        ApplicationType applicationType = objectFactory.createApplicationType();
-        EnvironmentType environmentType = objectFactory.createEnvironmentType();
-        applicationType.setEnvironment(environmentType);
-        ArtifactType artifactType = objectFactory.createArtifactType();
-        environmentType.setModuleId(artifactType);
+        GerApplicationType gerApplication = GerApplicationType.Factory.newInstance();
+        EnvironmentType environmentType = gerApplication.addNewEnvironment();
+        ArtifactType artifactType = environmentType.addNewModuleId();
 
         artifactType.setGroupId(Artifact.DEFAULT_GROUP_ID);
 
@@ -585,7 +531,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         artifactType.setArtifactId(id);
         artifactType.setVersion("" + System.currentTimeMillis());
         artifactType.setType("car");
-        return applicationType;
+        return gerApplication;
     }
 
     public Artifact getConfigurationID(Object plan, JarFile module, ModuleIDBuilder idBuilder) throws IOException, DeploymentException {
@@ -631,6 +577,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     applicationInfo.getEnvironment(),
                     applicationType,
                     naming,
+                    configurationManager,
                     bundleContext,
                     serverName,
                     applicationInfo.getModuleName(),
@@ -670,7 +617,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 }
             }
 
-            ApplicationType geronimoApplication = applicationInfo.getVendorDD();
+            GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
 
             // each module installs it's files into the output context.. this is different for each module type
             for (Module module : applicationInfo.getModules()) {
@@ -709,9 +656,9 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
             }
 
             // add gbeans declared in the geronimo-application.xml
-//            if (geronimoApplication != null) {
-//                serviceBuilders.build(geronimoApplication, earContext, earContext);
-//            }
+            if (geronimoApplication != null) {
+                serviceBuilders.build(geronimoApplication, earContext, earContext);
+            }
 
             if (ConfigurationModuleType.EAR == applicationType) {
                 
@@ -877,7 +824,7 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         return filter;
     }
 
-    private void addModules(JarFile earFile, Application application, ApplicationType gerApplication, Environment environment, Module applicationInfo, ModuleIDBuilder idBuilder) throws DeploymentException {
+    private void addModules(JarFile earFile, Application application, GerApplicationType gerApplication, Environment environment, Module applicationInfo, ModuleIDBuilder idBuilder) throws DeploymentException {
         Map<String, Object> altVendorDDs = new HashMap<String, Object>();
         try {
             mapVendorPlans(gerApplication, altVendorDDs, earFile);
@@ -1046,36 +993,36 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                 throw new DeploymentException("Geronimo ear plan contains modules that are not in the ear: " + missingModules);
             }
             //deploy the extension modules
-            for (ExtModuleType gerExtModule : gerApplication.getExtModule()) {
+            for (GerExtModuleType gerExtModule : gerApplication.getExtModuleArray()) {
                 String moduleName;
                 ModuleBuilder builder;
                 Object moduleContextInfo = null;
                 String moduleTypeName;
 
-                if (gerExtModule.getEjb() != null) {
-                    moduleName = gerExtModule.getEjb();
+                if (gerExtModule.isSetEjb()) {
+                    moduleName = gerExtModule.getEjb().getStringValue();
                     builder = getEjbConfigBuilder();
                     if (builder == null) {
                         throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + moduleName);
                     }
                     moduleTypeName = "an EJB";
-                } else if (gerExtModule.getWeb() != null) {
-                    moduleName = gerExtModule.getWeb();
+                } else if (gerExtModule.isSetWeb()) {
+                    moduleName = gerExtModule.getWeb().getStringValue();
                     if (getWebConfigBuilder() == null) {
                         throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + moduleName);
                     }
                     builder = getWebConfigBuilder();
                     moduleTypeName = "a war";
                     //ext modules must use vendor plan to set context-root
-                } else if (gerExtModule.getConnector() != null) {
-                    moduleName = gerExtModule.getConnector();
+                } else if (gerExtModule.isSetConnector()) {
+                    moduleName = gerExtModule.getConnector().getStringValue();
                     if (getConnectorConfigBuilder() == null) {
                         throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + moduleName);
                     }
                     builder = getConnectorConfigBuilder();
                     moduleTypeName = "a connector";
-                } else if (gerExtModule.getJava() != null) {
-                    moduleName = gerExtModule.getJava();
+                } else if (gerExtModule.isSetJava()) {
+                    moduleName = gerExtModule.getJava().getStringValue();
                     if (getAppClientConfigBuilder() == null) {
                         throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + moduleName);
                     }
@@ -1085,10 +1032,14 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     throw new DeploymentException("Could not find a module builder for module: " + gerExtModule);
                 }
                 //dd is included explicitly
-                Object vendorDD = gerExtModule.getAny();
+                XmlObject[] anys = gerExtModule.selectChildren(GerExtModuleType.type.qnameSetForWildcardElements());
+                if (anys.length != 1) {
+                    throw new DeploymentException("Unexpected count of xs:any elements in embedded vendor plan " + anys.length + " qnameset: " + GerExtModuleType.type.qnameSetForWildcardElements());
+                }
+                Object vendorDD = anys[0];
 
                 JarFile moduleFile;
-//                if (gerExtModule.isSetInternalPath()) {
+                if (gerExtModule.isSetInternalPath()) {
                     String modulePath = gerExtModule.getInternalPath().trim();
                     applicationInfo.getModuleLocations().add(modulePath);
                     try {
@@ -1096,35 +1047,35 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
                     } catch (IOException e) {
                         throw new DeploymentException("Invalid moduleFile: " + modulePath, e);
                     }
-////                } else {
-////                    PatternType patternType = gerExtModule.getExternalPath();
-////                    String groupId = trim(patternType.getGroupId());
-////                    String artifactId = trim(patternType.getArtifactId());
-////                    String version = trim(patternType.getVersion());
-////                    String type = trim(patternType.getType());
-////                    Artifact artifact = new Artifact(groupId, artifactId, version, type);
-////                    try {
-////                        artifact = getArtifactResolver().resolveInClassLoader(artifact);
-////                    } catch (MissingDependencyException e) {
-////                        throw new DeploymentException("Could not resolve external rar location in repository: " + artifact, e);
-////                    }
-////                    File location = null;
-////                    for (Repository repository : repositories) {
-////                        if (repository.contains(artifact)) {
-////                            location = repository.getLocation(artifact);
-////                            break;
-////                        }
-////                    }
-//                    if (location == null) {
-//                        throw new DeploymentException(moduleTypeName + " is missing in repositories: " + artifact);
-//                    }
-//                    try {
-//                        moduleFile = new JarFile(location);
-//                    } catch (IOException e) {
-//                        throw new DeploymentException("Could not access contents of " + moduleTypeName, e);
-//                    }
-//
-//                }
+                } else {
+                    PatternType patternType = gerExtModule.getExternalPath();
+                    String groupId = trim(patternType.getGroupId());
+                    String artifactId = trim(patternType.getArtifactId());
+                    String version = trim(patternType.getVersion());
+                    String type = trim(patternType.getType());
+                    Artifact artifact = new Artifact(groupId, artifactId, version, type);
+                    try {
+                        artifact = getArtifactResolver().resolveInClassLoader(artifact);
+                    } catch (MissingDependencyException e) {
+                        throw new DeploymentException("Could not resolve external rar location in repository: " + artifact, e);
+                    }
+                    File location = null;
+                    for (Repository repository : repositories) {
+                        if (repository.contains(artifact)) {
+                            location = repository.getLocation(artifact);
+                            break;
+                        }
+                    }
+                    if (location == null) {
+                        throw new DeploymentException(moduleTypeName + " is missing in repositories: " + artifact);
+                    }
+                    try {
+                        moduleFile = new JarFile(location);
+                    } catch (IOException e) {
+                        throw new DeploymentException("Could not access contents of " + moduleTypeName, e);
+                    }
+
+                }
 
                 Module module = builder.createModule(vendorDD,
                         moduleFile,
@@ -1170,32 +1121,37 @@ public class EARConfigBuilder implements ConfigurationBuilder, CorbaGBeanNameSou
         return libDir != null && entry.getName().startsWith(libDir);
     }
 
-    private void mapVendorPlans(ApplicationType gerApplication, Map<String, Object> altVendorDDs, JarFile earFile) throws DeploymentException {
+    private void mapVendorPlans(GerApplicationType gerApplication, Map<String, Object> altVendorDDs, JarFile earFile) throws DeploymentException {
         //build map from module path to alt vendor dd
-        for (ModuleType moduleType : gerApplication.getModule()) {
+        for (GerModuleType gerModule : gerApplication.getModuleArray()) {
             String path = null;
-            if (moduleType.getEjb() != null) {
-                path = moduleType.getEjb();
-            } else if (moduleType.getWeb() != null) {
-                path = moduleType.getWeb();
-            } else if (moduleType.getConnector() != null) {
-                path = moduleType.getConnector();
-            } else if (moduleType.getJava() != null) {
-                path = moduleType.getJava();
+            if (gerModule.isSetEjb()) {
+                path = gerModule.getEjb().getStringValue();
+            } else if (gerModule.isSetWeb()) {
+                path = gerModule.getWeb().getStringValue();
+            } else if (gerModule.isSetConnector()) {
+                path = gerModule.getConnector().getStringValue();
+            } else if (gerModule.isSetJava()) {
+                path = gerModule.getJava().getStringValue();
             }
 //            if (!paths.contains(path)) {
 //                throw new DeploymentException("Geronimo deployment plan refers to module '" + path + "' but that was not defined in the META-INF/application.xml");
 //            }
 
-            if (moduleType.getAltDd() != null) {
+            if (gerModule.isSetAltDd()) {
                 // the the url of the alt dd
                 try {
-                    altVendorDDs.put(path, JarUtils.toTempFile(earFile, moduleType.getAltDd()));
+                    altVendorDDs.put(path, JarUtils.toTempFile(earFile, gerModule.getAltDd().getStringValue()));
                 } catch (IOException e) {
-                    throw new DeploymentException("Invalid alt vendor dd url: " + moduleType.getAltDd(), e);
+                    throw new DeploymentException("Invalid alt vendor dd url: " + gerModule.getAltDd().getStringValue(), e);
                 }
             } else {
-                altVendorDDs.put(path, moduleType.getAny());
+                //dd is included explicitly
+                XmlObject[] anys = gerModule.selectChildren(GerModuleType.type.qnameSetForWildcardElements());
+                if (anys.length != 1) {
+                    throw new DeploymentException("Unexpected count of xs:any elements in embedded vendor plan " + anys.length + " qnameset: " + GerModuleType.type.qnameSetForWildcardElements());
+                }
+                altVendorDDs.put(path, anys[0]);
             }
         }
     }

@@ -48,7 +48,7 @@ import org.osgi.framework.BundleException;
 
 /**
  * Installs Geronimo module CAR files into a target repository to support assembly.
- * TODO disabled, probably use karaf kar support.
+ *
  * @version $Rev$ $Date$
  * @goal install-modules
  */
@@ -177,10 +177,9 @@ public class InstallModulesMojo extends AbstractCarMojo {
         DownloadResults downloadPoller = new DownloadResults();
         String targetServerPath = targetServerDirectory.getAbsolutePath();
 
-        BasicKernel kernel = new BasicKernel();
+        Kernel kernel = new BasicKernel("Assembly", bundleContext);
         PluginRepositoryList pluginRepoList = new PluginRepositoryDownloader(Collections.singletonMap(localRepo, (String[]) null), true);
         try {
-            kernel.boot(bundleContext);
             PluginInstallerGBean installer = new PluginInstallerGBean(targetRepositoryPath, targetServerPath, installedPluginsList, servers, pluginRepoList, kernel, bundleContext);
             installer.install(pluginList, sourceRepo, true, null, null, downloadPoller);
             if (overrides != null) {

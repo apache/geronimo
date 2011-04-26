@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+    
+        http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
+    xmlns:geronimo="http://geronimo.apache.org/xml/ns/security-1.2"
+    targetNamespace="http://geronimo.apache.org/xml/ns/security-1.2"
+    xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
+    elementFormDefault="qualified" attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xsd:annotation>
+        <xsd:documentation>
+            This is a partial XML Schema Definition for common security
+            elements. This schema will never be used directly but its elements
+            are used in geronimo-application-client-2.0.xsd,
+            geronimo-connector-1.2.xsd, geronimo-web-2.0.1.xsd,
+            geronimo-tomcat-2.0.1.xsd, and geronimo-jetty-2.0.2.xsd. All the schemas
+            or plans using elements of this schema must specify the top level
+            element with one of the namespace specified as
+            "http://geronimo.apache.org/xml/ns/j2ee/security-1.2". The default
+            location for this document is
+            http://geronimo.apache.org/schemas-1.2/geronimo-security-1.2.xsd.
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"
+        schemaLocation="http://www.w3.org/2001/xml.xsd" />
+    <xsd:import
+        namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
+        schemaLocation="geronimo-application-2.0.xsd">
+        <xsd:annotation>
+            <xsd:documentation>
+                Import Geronimo enterprise application deployment plans. The
+                imported plan includes complex types abstract-securityType
+                required by this plan schema.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:import>
+
+    <xsd:element name="security" type="geronimo:securityType"
+        substitutionGroup="app:security">
+        <xsd:annotation>
+            <xsd:documentation>
+                The element security is used to map security roles setting for
+                applications. If this element is present, all the web and EJB
+                modules must make the appropriate access checks as outlined by
+                the JACC specifications. Essentially, it configures the
+                security-realms to be used by applications.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:element name="default-principal"
+        type="geronimo:default-principalType">
+        <xsd:annotation>
+            <xsd:documentation>
+                The element default-principal provides the principal to be used
+                during unauthorized access.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="securityType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Security entries
+
+                If this element is present, all web and EJB modules MUST make
+                the appropriate access checks as outlined in the JACC spec.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="app:abstract-securityType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Extension of abstract-securityType element defined in
+                        geronimo-application-2.0.xsd.
+                    </xsd:documentation>
+                </xsd:annotation>
+
+                <xsd:sequence>
+                    <xsd:element name="description"
+                        type="geronimo:descriptionType" minOccurs="0"
+                        maxOccurs="unbounded">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Language specific description of security
+                                element.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="default-principal"
+                        type="geronimo:default-principalType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The element default-principal provides the
+                                principal to be used during unauthorized access.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="role-mappings"
+                        type="geronimo:role-mappingsType" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The element role-mappings provides the mapping
+                                information for roles defined in deployment
+                                descriptors and security realms available.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="doas-current-caller" type="xsd:boolean"
+                    default="false">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Set doas-current-caller attribute to "true" if the
+                            work is to be performed as the calling Subject
+                            instead of as application server. The default value
+                            for doas-current-caller is false.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="use-context-handler" type="xsd:boolean"
+                    default="false">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Set this attribute to "true" if the installed JACC
+                            policy contexts will use PolicyContextHandlers.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="default-role" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Used by the the Deployer to assign method
+                            permissions for all of the unspecified methods,
+                            either by assigning them to security roles, or by
+                            marking them as unchecked. If the value of
+                            default-role is empty, then the unspecified methods
+                            are marked unchecked
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="descriptionType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute ref="xml:lang">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The reference to XML schema's lang attribute. This
+                            is used to define the language for this descriptor.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="default-principalType">
+        <xsd:sequence>
+            <xsd:element name="description" type="geronimo:descriptionType"
+                minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Language specific description for default principle.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:choice>
+                <xsd:element name="principal" type="geronimo:principalType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The principal element defines the to be used for
+                            default principal, mapped using simple mapping
+                            principal.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="login-domain-principal"
+                    type="geronimo:loginDomainPrincipalType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The login-domain-principal element defines the to be
+                            used for default principal, mapped using login
+                            domain specific mapping.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="realm-principal"
+                    type="geronimo:realmPrincipalType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The realm-principal element defines the to be used
+                            for default principal, mapped using login domain and
+                            realm specific mapping.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:choice>
+            <xsd:element name="named-username-password-credential"
+                type="geronimo:named-username-password-credentialType"
+                minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The named-username-password-credential element defines
+                        named credential to be used on per-user authentication
+                        bases.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="named-username-password-credentialType">
+        <xsd:sequence>
+            <xsd:element name="name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The name for this credential.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="username" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The username for this credential.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="password" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The password for this credential.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="role-mappingsType">
+        <xsd:sequence>
+            <xsd:element name="role" type="geronimo:roleType" minOccurs="1"
+                maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The set of principals used to map the roles defined in
+                        deployment descriptors.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="roleType">
+        <xsd:sequence>
+            <xsd:element name="description" type="geronimo:descriptionType"
+                minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The language specific description of the role.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="realm-principal"
+                type="geronimo:realmPrincipalType" minOccurs="0"
+                maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The realm-principal element defines the to be used for
+                        default principal, mapped using login domain and realm
+                        specific mapping.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="login-domain-principal"
+                type="geronimo:loginDomainPrincipalType" minOccurs="0"
+                maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The login-domain-principal element defines the to be
+                        used for default principal, mapped using login domain
+                        specific mapping.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="principal" type="geronimo:principalType"
+                minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The principal element defines the to be used for default
+                        principal, mapped using simple mapping principal.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="distinguished-name"
+                type="geronimo:distinguishedNameType" minOccurs="0"
+                maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The distinguished-name element defines the client
+                        certification authentication.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="role-name" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The role-name element defines the name for this role.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="realmPrincipalType">
+        <xsd:complexContent>
+            <xsd:extension base="geronimo:loginDomainPrincipalType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Extends loginDomainPrincipalType defined later in this
+                        schema.
+                    </xsd:documentation>
+                </xsd:annotation>
+                <xsd:attribute name="realm-name" type="xsd:string"
+                    use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The realm-name attribute maps to the Geronimo
+                            security realm.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="loginDomainPrincipalType">
+        <xsd:complexContent>
+            <xsd:extension base="geronimo:principalType">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Extends principalType defined later in this schema.
+                    </xsd:documentation>
+                </xsd:annotation>
+                <xsd:attribute name="domain-name" type="xsd:string"
+                    use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The domain-name attribute maps to the
+                            login-domain-name set for the JAAS login module.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="principalType">
+        <xsd:sequence>
+            <xsd:element name="description" type="geronimo:descriptionType"
+                minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The language specific description for this principal.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="class" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The class attribute provides the fully qualified class name
+                    of the principal class. The default Geronimo principal
+                    classes are
+                    org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal
+                    and
+                    org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="name" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The name attribute provides the unique name for this
+                    principal.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="designated-run-as" type="xsd:boolean"
+            default="false">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Set this attribute to "true" if this principal is to be used
+                    as the run-as principal for this role.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+    <xsd:complexType name="distinguishedNameType">
+        <xsd:sequence>
+            <xsd:element name="description" type="geronimo:descriptionType"
+                minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Language specific description of distinguished name
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>
+                    The name of the distinguished name provided in client
+                    certificate.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="designated-run-as" type="xsd:boolean"
+            default="false">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Set this attribute to "true" if this principal is to be used
+                    as the run-as principal for this role.
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+
+</xsd:schema>

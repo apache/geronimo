@@ -93,9 +93,9 @@ public class SingleFileHotDeployer {
 
         // get the existing inplace configuration if there is one
         ConfigurationInfo existingConfiguration = null;
-        List<ConfigurationInfo> list = configurationManager.listConfigurations();
-        for (Iterator<ConfigurationInfo> iterator = list.iterator(); iterator.hasNext();) {
-            ConfigurationInfo configurationInfo = iterator.next();
+        List list = configurationManager.listConfigurations();
+        for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+            ConfigurationInfo configurationInfo = (ConfigurationInfo) iterator.next();
             if (dir.equals(configurationInfo.getInPlaceLocation())) {
                 existingConfiguration = configurationInfo;
             }
@@ -224,12 +224,12 @@ public class SingleFileHotDeployer {
         return new Artifact(group, artifactId, version, type);
     }
 
-    private List<String> deployConfiguration(ConfigurationBuilder builder, ConfigurationStore store, Artifact configurationId, Object plan, JarFile module, Collection stores, ArtifactResolver artifactResolver) throws DeploymentException {
+    private List deployConfiguration(ConfigurationBuilder builder, ConfigurationStore store, Artifact configurationId, Object plan, JarFile module, Collection stores, ArtifactResolver artifactResolver) throws DeploymentException {
         try {
             // It's our responsibility to close this context, once we're done with it...
             DeploymentContext context = builder.buildConfiguration(true, configurationId, plan, module, stores, artifactResolver, store);
             context.initializeConfiguration();
-            List<ConfigurationData> configurations = new ArrayList<ConfigurationData>();
+            List configurations = new ArrayList();
             try {
                 configurations.add(context.getConfigurationData());
                 configurations.addAll(context.getAdditionalDeployment());
@@ -237,9 +237,9 @@ public class SingleFileHotDeployer {
                 if (configurations.isEmpty()) {
                     throw new DeploymentException("Deployer did not create any configurations");
                 }
-                List<String> deployedURIs = new ArrayList<String>();
-                for (Iterator<ConfigurationData> iterator = configurations.iterator(); iterator.hasNext();) {
-                    ConfigurationData configurationData = iterator.next();
+                List deployedURIs = new ArrayList();
+                for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+                    ConfigurationData configurationData = (ConfigurationData) iterator.next();
                     configurationData.setAutoStart(false);
                     store.install(configurationData);
                     deployedURIs.add(configurationData.getId().toString());
@@ -273,10 +273,10 @@ public class SingleFileHotDeployer {
         }
     }
 
-    private void cleanupConfigurations(List<ConfigurationData> configurations) {
-        LinkedList<String> cannotBeDeletedList = new LinkedList<String>();
-        for (Iterator<ConfigurationData> iterator = configurations.iterator(); iterator.hasNext();) {
-            ConfigurationData configurationData = iterator.next();
+    private void cleanupConfigurations(List configurations) {
+        LinkedList cannotBeDeletedList = new LinkedList();
+        for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
+            ConfigurationData configurationData = (ConfigurationData) iterator.next();
             File dir = configurationData.getConfigurationDir();
             cannotBeDeletedList.clear();
             if (!FileUtils.recursiveDelete(dir,cannotBeDeletedList)) {

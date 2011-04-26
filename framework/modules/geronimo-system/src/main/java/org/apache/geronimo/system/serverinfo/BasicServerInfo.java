@@ -19,12 +19,18 @@ package org.apache.geronimo.system.serverinfo;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.JarURLConnection;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Service;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
+import org.apache.geronimo.gbean.annotation.ParamSpecial;
+import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.system.properties.JvmVendor;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +40,8 @@ import org.slf4j.LoggerFactory;
  *
  * @version $Rev$ $Date$
  */
-@Component
-@Service
+
+@GBean
 public class BasicServerInfo implements ServerInfo {
     
     private static final Logger LOG = LoggerFactory.getLogger(BasicServerInfo.class);
@@ -44,22 +50,31 @@ public class BasicServerInfo implements ServerInfo {
     public static final String SERVER_DIR_SYS_PROP = "org.apache.geronimo.server.dir";
     public static final String HOME_DIR_SYS_PROP = "org.apache.geronimo.home.dir";
     
-    private String baseDirectory;
-    private File base;
-    private File baseServer;
-    private URI baseURI;
-    private URI baseServerURI;
+    private final String baseDirectory;
+    private final File base;
+    private final File baseServer;
+    private final URI baseURI;
+    private final URI baseServerURI;
 
-    public BasicServerInfo() throws Exception {
-        this(null, true);
+    public BasicServerInfo() {
+        baseDirectory = null;
+        base = null;
+        baseServer = null;
+        baseURI = null;
+        baseServerURI = null;
     }
 
     public BasicServerInfo(String defaultBaseDirectory) throws Exception {
-        this(defaultBaseDirectory, true);
+        this(defaultBaseDirectory, true, null);
+    }
+    
+    public BasicServerInfo(String defaultBaseDirectory, boolean useSystemProperties) throws Exception {
+        this(defaultBaseDirectory, useSystemProperties, null);
     }
 
-    public BasicServerInfo(String defaultBaseDirectory,
-                           boolean useSystemProperties) throws Exception {
+    public BasicServerInfo(@ParamAttribute(name = "baseDirectory")String defaultBaseDirectory,
+                           @ParamAttribute(name="useSystemProperties") boolean useSystemProperties,
+                           @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext) throws Exception {
         // Before we try the persistent value, we always check the
         // system properties first.  This lets an admin override this
         // on the command line.
@@ -93,12 +108,6 @@ public class BasicServerInfo implements ServerInfo {
         System.setProperty("java.io.tmpdir", tmpDir);
         
         logEnvInfo();
-    }
-
-    @Deactivate
-    public void stop() {
-        System.getProperties().remove(HOME_DIR_SYS_PROP);
-        System.getProperties().remove(SERVER_DIR_SYS_PROP);
     }
 
     public BasicServerInfo(String baseDirectory, String serverName) {

@@ -20,7 +20,6 @@ package org.apache.geronimo.naming.deployment;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
@@ -43,9 +42,6 @@ import org.apache.geronimo.j2ee.deployment.ConnectorModule;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingBuilder;
-import org.apache.geronimo.j2ee.deployment.model.app.ApplicationType;
-import org.apache.geronimo.j2ee.deployment.model.app.JaxbUtil;
-import org.apache.geronimo.j2ee.deployment.model.naming.EnvEntryType;
 import org.apache.geronimo.j2ee.jndi.JndiScope;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -136,64 +132,64 @@ public class EnvironmentEntryBuilderTest extends TestCase {
             "</env-entry>" +
             "</web-app>";
 
-    private static final String TEST_PLAN = "<application xmlns=\"http://geronimo.apache.org/xml/ns/j2ee/application-2.0\">" +
-            "<env-entry xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+    private static final String TEST_PLAN = "<tmp xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
             "<env-entry-name>string</env-entry-name>" +
             "<env-entry-value>Goodbye World</env-entry-value>" +
             "</env-entry>" +
 
-            "<env-entry xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
             "<env-entry-name>char</env-entry-name>" +
             "<env-entry-value>K</env-entry-value>" +
             "</env-entry>" +
 
-            "<env-entry xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
             "<env-entry-name>byte</env-entry-name>" +
             "<env-entry-value>21</env-entry-value>" +
             "</env-entry>" +
 
-            "<env-entry xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
             "<env-entry-name>short</env-entry-name>" +
             "<env-entry-value>4321</env-entry-value>" +
             "</env-entry>" +
 
-            "<env-entry xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
             "<env-entry-name>int</env-entry-name>" +
             "<env-entry-value>87654321</env-entry-value>" +
             "</env-entry>" +
 
-            "<env-entry xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
             "<env-entry-name>long</env-entry-name>" +
             "<env-entry-value>6543210987654321</env-entry-value>" +
             "</env-entry>" +
 
-            "<env-entry xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
             "<env-entry-name>float</env-entry-name>" +
             "<env-entry-value>654.321</env-entry-value>" +
             "</env-entry>" +
 
-            "<env-entry xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
             "<env-entry-name>double</env-entry-name>" +
             "<env-entry-value>9876.54321</env-entry-value>" +
             "</env-entry>" +
 
-            "<env-entry xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
             "<env-entry-name>boolean</env-entry-name>" +
             "<env-entry-value>FALSE</env-entry-value>" +
             "</env-entry>" +
 
-            "<env-entry xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
             "<env-entry-name>class</env-entry-name>" +
             "<env-entry-type>java.lang.Class</env-entry-type>" +
             "<env-entry-value>java.net.URL</env-entry-value>" +
             "</env-entry>" +
 
-            "<env-entry xmlns=\"http://geronimo.apache.org/xml/ns/naming-1.2\">" +
+            "<env-entry>" +
             "<env-entry-name>enum</env-entry-name>" +
             "<env-entry-type>java.util.concurrent.TimeUnit</env-entry-type>" +
             "<env-entry-value>SECONDS</env-entry-value>" +
             "</env-entry>" +
-            "</application>";
+            "</tmp>";
 
     private Module module;
 
@@ -204,13 +200,14 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, locations);
         Artifact id = new Artifact("test", "test", "", "car");
         module  = new ConnectorModule(false, new AbstractName(id, Collections.singletonMap("name", "test")), null, null, null, "foo", null, null, null, null, null);
-//        ConfigurationManager configurationManager = new MockConfigurationManager();
+        ConfigurationManager configurationManager = new MockConfigurationManager();
         EARContext earContext = new EARContext(new File("foo"),
             null,
             new Environment(artifact),
             ConfigurationModuleType.EAR,
             new Jsr77Naming(),
-                bundleContext,
+            configurationManager,
+            bundleContext,
             null,
             null,
             null,
@@ -269,7 +266,14 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         Boolean booleanVal = Boolean.FALSE;
 
         WebApp webApp = load(TEST, WebApp.class);
-        ApplicationType plan = JaxbUtil.unmarshalApplication(new ByteArrayInputStream(TEST_PLAN.getBytes()), false);
+        XmlObject plan = XmlObject.Factory.parse(TEST_PLAN);
+        XmlCursor cursor = plan.newCursor();
+        try {
+            cursor.toFirstChild();
+            plan = cursor.getObject();
+        } finally {
+            cursor.dispose();
+        }
         environmentEntryBuilder.buildNaming(webApp, plan, module, componentContext);
         Context context = EnterpriseNamingContext.livenReferences(module.getJndiScope(JndiScope.comp), null, null, getClass().getClassLoader(), null, "comp/");
         Set actual = new HashSet();
@@ -307,17 +311,5 @@ public class EnvironmentEntryBuilderTest extends TestCase {
         }
     }
 
-    public void testMarshall() throws Exception {
-        ApplicationType  applicationType = new ApplicationType();
-        EnvEntryType envEntryType = new EnvEntryType();
-        envEntryType.setEnvEntryName("name");
-        envEntryType.setEnvEntryValue("value");
-        applicationType.getEnvEntry().add(envEntryType);
-        StringWriter writer = new StringWriter();
-        JaxbUtil.marshal(ApplicationType.class, applicationType, writer);
-        String s = writer.toString();
-        System.out.println(s);
-//        throw new Exception(s);
 
-    }
 }

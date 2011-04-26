@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.framework.config</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
@@ -35,9 +35,17 @@
     <description>Sample security configuration for a demo geronimo server. Not suitable for production use.</description>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- parent -->
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-security</artifactId>
             <version>${project.version}</version>
             <type>car</type>
@@ -47,35 +55,6 @@
             <artifactId>geronimo-security</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaspic_1.0_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jacc_1.4_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.components</groupId>
-            <artifactId>geronimo-jaspi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>sxc-jaxb</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>sxc-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-management</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -84,11 +63,14 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
+                    <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
+                    </deploymentConfigs>
                     <category>Security</category>
                     <instance>
-                        <!--<plugin-artifact>-->
-                            <!--<copy-file relative-to="server" dest-dir="var/security">security/</copy-file>-->
-                        <!--</plugin-artifact>-->
+                        <plugin-artifact>
+                            <copy-file relative-to="server" dest-dir="var/security">security/</copy-file>
+                        </plugin-artifact>
                     </instance>
                 </configuration>
             </plugin>

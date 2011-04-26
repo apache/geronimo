@@ -152,7 +152,7 @@ public abstract class EARConfigBuilderTestSupport
         repo.add(Artifact.create("org.apache.geronimo.tests/test/1/car"));
         repository = new MockRepository(repo);
         defaultParentId = new Environment();
-//        defaultParentId.addDependency(new Artifact("org.apache.geronimo.tests", "test", "1", "car"), ImportType.ALL);
+        defaultParentId.addDependency(new Artifact("org.apache.geronimo.tests", "test", "1", "car"), ImportType.ALL);
     }
 
     protected void tearDown() throws Exception {
@@ -164,7 +164,7 @@ public abstract class EARConfigBuilderTestSupport
         ConfigurationData configurationData = null;
         DeploymentContext context = null;
         try {
-            EARConfigBuilder configBuilder = new EARConfigBuilder(//defaultParentId,
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                     transactionManagerAbstractNameQuery,
                     connectionTrackerAbstractNameQuery,
                     corbaGBeanAbstractNameQuery,
@@ -198,7 +198,7 @@ public abstract class EARConfigBuilderTestSupport
     }
 
     public void testBadEJBJARConfiguration() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(//defaultParentId,
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
@@ -238,7 +238,7 @@ public abstract class EARConfigBuilderTestSupport
     }
 
     public void testBadWARConfiguration() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(//defaultParentId,
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
@@ -278,7 +278,7 @@ public abstract class EARConfigBuilderTestSupport
     }
 
     public void testBadRARConfiguration() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(//defaultParentId,
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
@@ -318,7 +318,7 @@ public abstract class EARConfigBuilderTestSupport
     }
 
     public void testBadCARConfiguration() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(//defaultParentId,
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
@@ -358,7 +358,7 @@ public abstract class EARConfigBuilderTestSupport
     }
 
     public void testNoEJBDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(//defaultParentId,
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
@@ -399,7 +399,7 @@ public abstract class EARConfigBuilderTestSupport
     }
 
     public void testNoWARDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(//defaultParentId,
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,
@@ -439,7 +439,7 @@ public abstract class EARConfigBuilderTestSupport
     }
 
     public void testNoConnectorDeployer() throws Exception {
-        EARConfigBuilder configBuilder = new EARConfigBuilder(//defaultParentId,
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
                 transactionManagerAbstractNameQuery,
                 connectionTrackerAbstractNameQuery,
                 corbaGBeanAbstractNameQuery,

@@ -16,17 +16,9 @@
  */
 package org.apache.geronimo.gjndi;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.naming.InitialContext;
-import javax.naming.NameNotFoundException;
-import javax.naming.NotContextException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.basic.BasicKernel;
-import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -35,16 +27,24 @@ import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.geronimo.naming.java.javaURLContextFactory;
 import org.apache.xbean.naming.context.ImmutableContext;
+
+import javax.naming.InitialContext;
+import javax.naming.NameNotFoundException;
+import javax.naming.NotContextException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
  */
 public class JavaCompGBeanTest extends AbstractContextTest {
-    private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
-    private BasicKernel kernel;
+    //private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
+    private Kernel kernel;
 
     public void testLookupEnv() throws Exception {
         Map javaCompBindings = new HashMap();
@@ -86,33 +86,31 @@ public class JavaCompGBeanTest extends AbstractContextTest {
     protected void setUp() throws Exception {
         super.setUp();
 
-        kernel = new BasicKernel();
-//        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-//        kernel.boot();
+        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
+        kernel.boot();
 
-//        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
-//
-//        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
-//
-//        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
-//        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-//
-//        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
-//        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-//        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
-//
-//        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
-//
-//        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
+
+        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+
+        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
+        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+
+        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
+        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
+
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
         ConfigurationData configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
-        configurationData.setBundle(bundleContext.getBundle());
+        configurationData.setBundleContext(bundleContext);
         configurationData.addGBean("GlobalContext", GlobalContextGBean.class);
         configurationData.addGBean("JavaComp", JavaCompContextGBean.class);
 
-        Configuration configuration = new Configuration(configurationData, null);
-        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
-        ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(configurationData.getId());
 
     }
 

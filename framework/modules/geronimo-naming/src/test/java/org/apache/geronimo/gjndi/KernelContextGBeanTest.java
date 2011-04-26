@@ -18,12 +18,14 @@ package org.apache.geronimo.gjndi;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -32,18 +34,18 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.AnnotationGBeanInfoBuilder;
 import org.apache.geronimo.gjndi.binding.ResourceBinding;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.basic.BasicKernel;
-import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.KernelConfigurationManager;
-import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.naming.java.RootContext;
 import org.apache.xbean.naming.context.ImmutableContext;
+import org.apache.xbean.naming.global.GlobalContextManager;
 
 /**
  * @version $Rev$ $Date$
@@ -51,7 +53,7 @@ import org.apache.xbean.naming.context.ImmutableContext;
 public class KernelContextGBeanTest extends AbstractContextTest {
     private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
     private Kernel kernel;
-//    private ConfigurationManager configurationManager;
+    private ConfigurationManager configurationManager;
     private ConfigurationData configurationData;
     private GBeanInfo immutableContextGBeanInfo;
 
@@ -81,9 +83,8 @@ public class KernelContextGBeanTest extends AbstractContextTest {
         Map testBindings = getNestedBindings(globalBindings, "test/");
         test.setAttribute("bindings", testBindings);
 
-        Configuration configuration = new Configuration(configurationData, null);
-        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
-        ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(configurationData.getId());
 
         InitialContext ctx = new InitialContext();
         assertEq(globalBindings, ctx);
@@ -120,9 +121,8 @@ public class KernelContextGBeanTest extends AbstractContextTest {
 
     public void testGBeanFormatBinding() throws Exception {
         setUpJcaContext();
-        Configuration configuration = new Configuration(configurationData, null);
-        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
-        ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
+        configurationManager.loadConfiguration(configurationData);
+        configurationManager.startConfiguration(configurationData.getId());
 
         InitialContext ctx = new InitialContext();
         Context fooCtx = ctx.createSubcontext("jca:foo");
@@ -177,27 +177,26 @@ public class KernelContextGBeanTest extends AbstractContextTest {
     protected void setUp() throws Exception {
         super.setUp();
 
-        kernel = new BasicKernel();
-//        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
-//        kernel.boot();
+        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
+        kernel.boot();
 
-//        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
-//
-//        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
-//
-//        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
-//        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-//
-//        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
-//        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-//        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
-//
-//        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
-//
-//        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
+
+        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+
+        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
+        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+
+        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
+        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
+
+        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
         configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
-        configurationData.setBundle(bundleContext.getBundle());
+        configurationData.setBundleContext(bundleContext);
         configurationData.addGBean("GlobalContext", GlobalContextGBean.class);
 
         GBeanInfoBuilder builder = new GBeanInfoBuilder(ImmutableContext.class);
@@ -210,7 +209,7 @@ public class KernelContextGBeanTest extends AbstractContextTest {
     }
 
     protected void tearDown() throws Exception {
-//        kernel.shutdown();
+        kernel.shutdown();
         super.tearDown();
     }
 }

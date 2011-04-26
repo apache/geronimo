@@ -17,27 +17,30 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.JndiPlan;
 import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.model.naming.GbeanRefType;
-import org.apache.geronimo.j2ee.deployment.model.naming.PatternType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.naming.reference.GBeanReference;
+import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefDocument;
+import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
+import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 
 /**
@@ -45,19 +48,26 @@ import org.osgi.framework.Bundle;
  */
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
 public class GBeanRefBuilder extends AbstractNamingBuilder {
+    private static final QName GBEAN_REF_QNAME = GerGbeanRefDocument.type.getDocumentElementName();
+    private static final QNameSet GBEAN_REF_QNAME_SET = QNameSet.singleton(GBEAN_REF_QNAME);
 
     @Override
-    public void buildNaming(JndiConsumer specDD, JndiPlan plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         if (plan == null) {
             return;
         }
-        List<GbeanRefType> gbeanRefsUntyped = plan.getGBeanRef();
-        for (GbeanRefType gbeanRef : gbeanRefsUntyped) {
-            List<PatternType> gbeanLocatorArray = gbeanRef.getPattern();
+        XmlObject[] gbeanRefsUntyped = plan.selectChildren(GBEAN_REF_QNAME_SET);
+        for (XmlObject gbeanRefUntyped : gbeanRefsUntyped) {
+            GerGbeanRefType gbeanRef = (GerGbeanRefType) gbeanRefUntyped.copy().changeType(GerGbeanRefType.type);
+            if (gbeanRef == null) {
+                throw new DeploymentException("Could not read gbeanRef " + gbeanRefUntyped + " as the correct xml type");
+            }
+            GerPatternType[] gbeanLocatorArray = gbeanRef.getPatternArray();
 
-            List<String> interfaceTypes = gbeanRef.getRefType();
+            String[] interfaceTypesArray = gbeanRef.getRefTypeArray();
+            Set<String> interfaceTypes = new HashSet<String>(Arrays.asList(interfaceTypesArray));
             Set<AbstractNameQuery> queries = new HashSet<AbstractNameQuery>();
-            for (PatternType patternType : gbeanLocatorArray) {
+            for (GerPatternType patternType : gbeanLocatorArray) {
                 AbstractNameQuery abstractNameQuery = ENCConfigBuilder.buildAbstractNameQuery(patternType, null, null, interfaceTypes);
                 queries.add(abstractNameQuery);
             }
@@ -87,14 +97,14 @@ public class GBeanRefBuilder extends AbstractNamingBuilder {
         }
     }
 
-//    @Override
-//    public QNameSet getSpecQNameSet() {
-//        return QNameSet.EMPTY;
-//    }
+    @Override
+    public QNameSet getSpecQNameSet() {
+        return QNameSet.EMPTY;
+    }
 
-//    @Override
-//    public QNameSet getPlanQNameSet() {
-//        return GBEAN_REF_QNAME_SET;
-//    }
+    @Override
+    public QNameSet getPlanQNameSet() {
+        return GBEAN_REF_QNAME_SET;
+    }
 
 }

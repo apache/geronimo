@@ -49,12 +49,6 @@
             <!--<artifactId>geronimo-schema-j2ee_1.4</artifactId>-->
         <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.annotations</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- g-kernel, g-common is coming from this via geronimo-system -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -84,10 +78,10 @@
 
     <build>
         <plugins>
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>xmlbeans-maven-plugin</artifactId>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xmlbeans-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -95,52 +89,26 @@
                     <instructions>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Import-Package>
-                            javax.enterprise.deploy.*;resolution:=optional,
-                            org.apache.xmlbeans.*;resolution:=optional,
+                            org.apache.xmlbeans.impl.schema;version="2.4",
                             *
                         </Import-Package>
                         <Export-Package>
+                            org.apache.geronimo.deployment.xbeans.impl,
+                            org.apache.geronimo.deployment.javabean.xbeans.impl,
+                            org.apache.geronimo.deployment.xbeans,
+                            org.apache.geronimo.deployment.javabean.xbeans,
                             org.apache.geronimo.deployment.dconfigbean,
                             org.apache.geronimo.deployment.service,
+                            org.apache.geronimo.deployment.service.jsr88
                         </Export-Package>
+                        <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
+                        <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
                     </instructions>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
             </plugin>
 
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>jaxb</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>jaxb2-maven-plugin</artifactId>
-                        <!--<version>1.3</version>-->
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>xjc</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <schemaDirectory>src/main/xsd</schemaDirectory>
-                            <packageName>org.apache.geronimo.deployment.service.plan</packageName>
-                            <!--<schemaListFileName>src/main/xsdlist/xsdlist.txt</schemaListFileName>-->
-                            <extension>true</extension>
-                        </configuration>
-                    </plugin>
-
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 </project>
 

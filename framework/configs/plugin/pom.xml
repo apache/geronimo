@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.framework.config</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
@@ -35,9 +35,16 @@
     <description>Plugin management services including the installer.</description>
 
     <dependencies>
-
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>rmi-naming</artifactId>
             <version>${project.version}</version>
             <type>car</type>
@@ -73,11 +80,6 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.ant</artifactId>
         </dependency>
 
     </dependencies>
@@ -117,17 +119,17 @@
                     <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
                     <category>Geronimo Core</category>
                     <instance>
-                        <!--<plugin-artifact>-->
-                            <!--<config-xml-content>-->
-                                <!--<gbean name="DownloadedPluginRepos">-->
-                                    <!--<attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-3.0.txt</attribute>-->
-                                <!--</gbean>-->
-                            <!--</config-xml-content>-->
-                            <!--&lt;!&ndash;<artifact-alias key="org.apache.geronimo.framework/jsr88-cli//car">org.apache.geronimo.framework/plugin/${project.version}/car</artifact-alias>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<artifact-alias key="org.apache.geronimo.framework/jsr88-cli/${project.version}/car">org.apache.geronimo.framework/plugin/${project.version}/car</artifact-alias>&ndash;&gt;-->
-                            <!--<copy-file dest-dir="schema">schema/xsd/</copy-file>-->
-                            <!--<copy-file dest-dir="var/config" relative-to="server">plugin-repositories.properties</copy-file>-->
-                        <!--</plugin-artifact>-->
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="DownloadedPluginRepos">
+                                    <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-3.0.txt</attribute>
+                                </gbean>
+                            </config-xml-content>
+                            <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli//car">org.apache.geronimo.framework/plugin/${project.version}/car</artifact-alias>-->
+                            <!--<artifact-alias key="org.apache.geronimo.framework/jsr88-cli/${project.version}/car">org.apache.geronimo.framework/plugin/${project.version}/car</artifact-alias>-->
+                            <copy-file dest-dir="schema">schema/xsd/</copy-file>
+                            <copy-file dest-dir="var/config" relative-to="server">plugin-repositories.properties</copy-file>
+                        </plugin-artifact>
                     </instance>
                 </configuration>
             </plugin>

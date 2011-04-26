@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 public interface ConfigurationSource {
 
     /**
-     * Gets a loaded Configuration (does not see unstarted configurations).
+     * Gets a loaded Configuration (does not see unloaded configurations).
      *
      * @param configurationId the unique ID of the configuration to get, which
      *                        must be fully resolved (isResolved() == true)

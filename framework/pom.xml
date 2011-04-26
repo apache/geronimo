@@ -32,7 +32,14 @@
     <artifactId>framework</artifactId>
     <name>Geronimo Framework</name>
     <packaging>pom</packaging>
-
+    
+    <properties>        
+        <equinox.version>3.6.0.v20100517</equinox.version>        
+        <felix.configadmin.version>1.2.4</felix.configadmin.version>        
+        <felix.framework.version>3.0.2</felix.framework.version>       
+        <pax.url.version>1.1.2</pax.url.version>        
+    </properties>
+    
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -144,23 +151,23 @@
                 </exclusions>
             </dependency>
 
-            <!--<dependency>-->
-                <!--<groupId>org.apache.servicemix.bundles</groupId>-->
-                <!--<artifactId>org.apache.servicemix.bundles.xpp3</artifactId>-->
-                <!--<version>1.1.4c_3</version>-->
-            <!--</dependency>-->
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
+                <version>1.1.4c_3</version>
+            </dependency>
 
-            <!--<dependency>-->
-                <!--<groupId>org.apache.servicemix.bundles</groupId>-->
-                <!--<artifactId>org.apache.servicemix.bundles.xstream</artifactId>-->
-                <!--<version>1.3_3</version>-->
-                <!--<exclusions>-->
-                    <!--<exclusion>-->
-                        <!--<groupId>xpp3</groupId>-->
-                        <!--<artifactId>xpp3_min</artifactId>-->
-                    <!--</exclusion>-->
-                <!--</exclusions>-->
-            <!--</dependency>-->
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.xstream</artifactId>
+                <version>1.3_3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xpp3</groupId>
+                        <artifactId>xpp3_min</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.maven</groupId>
@@ -188,7 +195,6 @@
                 <module>modules</module>
                 <module>buildsupport</module>
                 <module>configs</module>
-                <module>features</module>
                 <module>plugingroups</module>
                 <module>assemblies</module>
             </modules>

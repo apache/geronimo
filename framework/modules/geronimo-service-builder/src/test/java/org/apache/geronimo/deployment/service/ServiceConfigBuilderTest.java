@@ -17,7 +17,6 @@
 package org.apache.geronimo.deployment.service;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,8 +31,9 @@ import junit.framework.TestCase;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.FooBarBean;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
-import org.apache.geronimo.deployment.service.plan.JaxbUtil;
-import org.apache.geronimo.deployment.service.plan.ModuleType;
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
+import org.apache.geronimo.deployment.xbeans.ModuleDocument;
+import org.apache.geronimo.deployment.xbeans.ModuleType;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferenceCollection;
@@ -54,6 +54,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$
@@ -70,8 +71,7 @@ public class ServiceConfigBuilderTest extends TestCase {
         File file = new File(url.getPath());
         JarFile jar = new JarFile(file);
         assertTrue(file.exists());
-        ServiceConfigBuilder builder = new ServiceConfigBuilder();
-        builder.activate(bundleContext);
+        ServiceConfigBuilder builder = new ServiceConfigBuilder(parentEnvironment, null, new Jsr77Naming(), bundleContext);
         assertNull(builder.getDeploymentPlan(null, jar, new ModuleIDBuilder()));
         jar.close();
     }
@@ -82,17 +82,12 @@ public class ServiceConfigBuilderTest extends TestCase {
         //this is kind of cheating, we rely on the builder to iterate through existing members of the collection.
         referenceCollection.add(javaBeanXmlAttributeBuilder);
         Naming naming = new Jsr77Naming();
-        GBeanBuilder gbeanBuilder = new GBeanBuilder(referenceCollection, null);
+        NamespaceDrivenBuilder gbeanBuilder = new GBeanBuilder(referenceCollection, null);
 //        ConfigurationBuilder serviceBuilder = new ServiceConfigBuilder(parentEnvironment, null, Collections.singleton(gbeanBuilder), naming);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         final URL plan1 = cl.getResource("services/plan1.xml");
-        InputStream in = plan1.openStream();
-        ModuleType plan;
-        try {
-            plan = JaxbUtil.unmarshalModule(in, false);
-        } finally {
-            in.close();
-        }
+        ModuleDocument doc = ModuleDocument.Factory.parse(plan1);
+        ModuleType plan = doc.getModule();
         File outFile = File.createTempFile("foo", "bar");
         outFile.delete();
         if (!outFile.mkdirs()) {
@@ -115,9 +110,9 @@ public class ServiceConfigBuilderTest extends TestCase {
             ConfigurationManager configurationManager = new SimpleConfigurationManager(Collections.EMPTY_SET, artifactResolver, Collections.EMPTY_SET, bundleContext);
             bundleContext.setConfigurationManager(configurationManager);
             AbstractName moduleName = naming.createRootName(environment.getConfigId(), "foo", "bar");
-            DeploymentContext context = new DeploymentContext(outFile, null, environment, moduleName, ConfigurationModuleType.CAR, naming, Collections.<Repository>singleton(mockRepository), bundleContext);
+            DeploymentContext context = new DeploymentContext(outFile, null, environment, moduleName, ConfigurationModuleType.CAR, naming, configurationManager, Collections.<Repository>singleton(mockRepository), bundleContext);
             context.initializeConfiguration();
-            gbeanBuilder.build(plan.getGbean(), context, context);
+            gbeanBuilder.build(plan, context, context);
             Set gbeanNames = context.getGBeanNames();
             assertEquals(1, gbeanNames.size());
             AbstractName beanName = (AbstractName) gbeanNames.iterator().next();

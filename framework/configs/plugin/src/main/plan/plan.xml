@@ -30,9 +30,9 @@
         <reference name="ConfigStore">
             <name>Local</name>
         </reference>
-        <!--<reference name="ConfigManager">-->
-            <!--<name>ConfigurationManager</name>-->
-        <!--</reference>-->
+        <reference name="ConfigManager">
+            <name>ConfigurationManager</name>
+        </reference>
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
@@ -68,9 +68,9 @@
         <reference name="AttributeStore">
             <name>AttributeManager</name>
         </reference>
-        <!--<reference name="ArtifactResolver">-->
-            <!--<name>ArtifactResolver</name>-->
-        <!--</reference>-->
+        <reference name="ArtifactResolver">
+            <name>ArtifactResolver</name>
+        </reference>
     </gbean>
 
     <gbean name="Offline" class="org.apache.geronimo.system.plugin.ServerInstanceData">
@@ -115,9 +115,9 @@
         <reference name="PluginInstallerGBean">
             <name>PluginInstaller</name>
         </reference>
-        <!--<reference name="ConfigManager">-->
-            <!--<name>ConfigurationManager</name>-->
-        <!--</reference>-->
+        <reference name="ConfigManager">
+            <name>ConfigurationManager</name>
+        </reference>
         <reference name="PersistentConfigurationList">
             <type>AttributeStore</type>
             <name>AttributeManager</name>

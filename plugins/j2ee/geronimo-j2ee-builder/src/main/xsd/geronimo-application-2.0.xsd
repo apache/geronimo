@@ -116,14 +116,14 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <!--<xs:element ref="sys:service" minOccurs="0" maxOccurs="unbounded">-->
-                <!--<xs:annotation>-->
-                    <!--<xs:documentation>-->
-                        <!--Reference to service element defined in imported-->
-                        <!--"geronimo-module-1.2.xsd".-->
-                    <!--</xs:documentation>-->
-                <!--</xs:annotation>-->
-            <!--</xs:element>-->
+            <xs:element ref="sys:service" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Reference to service element defined in imported
+                        "geronimo-module-1.2.xsd".
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
 
         <!--TODO application name should be settable using name-key in the environment.  Does this work? -->
@@ -149,7 +149,7 @@
         </xs:annotation>
         <xs:sequence>
             <xs:choice>
-                <xs:element name="connector" type="xs:token">
+                <xs:element name="connector" type="geronimo:pathType">
                     <xs:annotation>
                         <xs:documentation>
                             The presence of this element is indicative of J2EE
@@ -160,7 +160,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="ejb" type="xs:token">
+                <xs:element name="ejb" type="geronimo:pathType">
                     <xs:annotation>
                         <xs:documentation>
                             The presence of this element is indicative of J2EE
@@ -171,7 +171,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="java" type="xs:token">
+                <xs:element name="java" type="geronimo:pathType">
                     <xs:annotation>
                         <xs:documentation>
                             The presence of this element is indicative of J2EE
@@ -183,7 +183,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="web" type="xs:token">
+                <xs:element name="web" type="geronimo:pathType">
                     <xs:annotation>
                         <xs:documentation>
                             The presence of this element is indicative of Web
@@ -196,7 +196,7 @@
                 </xs:element>
             </xs:choice>
             <xs:choice>
-                <xs:element name="alt-dd" type="xs:token">
+                <xs:element name="alt-dd" type="geronimo:pathType">
                     <xs:annotation>
                         <xs:documentation>
                             Specifies an optional URI to the post-assembly
@@ -266,7 +266,7 @@
         </xs:annotation>
         <xs:sequence>
             <xs:choice>
-                <xs:element name="connector" type="xs:token">
+                <xs:element name="connector" type="geronimo:pathType">
                     <xs:annotation>
                         <xs:documentation>
                             The presence of this element is indicative of J2EE
@@ -277,7 +277,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="ejb" type="xs:token">
+                <xs:element name="ejb" type="geronimo:pathType">
                     <xs:annotation>
                         <xs:documentation>
                             The presence of this element is indicative of J2EE
@@ -288,7 +288,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="java" type="xs:token">
+                <xs:element name="java" type="geronimo:pathType">
                     <xs:annotation>
                         <xs:documentation>
                             The presence of this element is indicative of J2EE
@@ -300,7 +300,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="web" type="xs:token">
+                <xs:element name="web" type="geronimo:pathType">
                     <xs:annotation>
                         <xs:documentation>
                             The presence of this element is indicative of Web
@@ -325,15 +325,15 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <!--<xs:element name="external-path" type="sys:patternType">-->
-                    <!--<xs:annotation>-->
-                        <!--<xs:documentation>-->
-                            <!--The element indicates that the module is not a part-->
-                            <!--of this enterprise application, but rather located-->
-                            <!--matching the supplied pattern in a Geronimo repository.-->
-                        <!--</xs:documentation>-->
-                    <!--</xs:annotation>-->
-                <!--</xs:element>-->
+                <xs:element name="external-path" type="sys:patternType">
+                    <xs:annotation>
+                        <xs:documentation>
+                            The element indicates that the module is not a part
+                            of this enterprise application, but rather located
+                            matching the supplied pattern in a Geronimo repository.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
             </xs:choice>
 
             <!--TODO consider an alt-spec-dd element-->
@@ -350,24 +350,24 @@
         </xs:sequence>
     </xs:complexType>
 
-    <!--<xs:complexType name="pathType">-->
-        <!--<xs:annotation>-->
-            <!--<xs:documentation>Mirrors j2ee:pathType.</xs:documentation>-->
-        <!--</xs:annotation>-->
-        <!--<xs:simpleContent>-->
-            <!--<xs:restriction base="geronimo:string" />-->
-        <!--</xs:simpleContent>-->
-    <!--</xs:complexType>-->
+    <xs:complexType name="pathType">
+        <xs:annotation>
+            <xs:documentation>Mirrors j2ee:pathType.</xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:restriction base="geronimo:string" />
+        </xs:simpleContent>
+    </xs:complexType>
 
-    <!--<xs:complexType name="string">-->
-        <!--<xs:annotation>-->
-            <!--<xs:documentation>Mirrors j2ee:string.</xs:documentation>-->
-        <!--</xs:annotation>-->
-        <!--<xs:simpleContent>-->
-            <!--<xs:extension base="xs:token">-->
-                <!--<xs:attribute name="id" type="xs:ID" />-->
-            <!--</xs:extension>-->
-        <!--</xs:simpleContent>-->
-    <!--</xs:complexType>-->
+    <xs:complexType name="string">
+        <xs:annotation>
+            <xs:documentation>Mirrors j2ee:string.</xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:token">
+                <xs:attribute name="id" type="xs:ID" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
 
 </xs:schema>

@@ -20,7 +20,6 @@ import org.apache.geronimo.cli.client.ClientCLParser;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.util.Main;
 import org.osgi.framework.Bundle;
 
@@ -29,10 +28,10 @@ import org.osgi.framework.Bundle;
  */
 public class EmbeddedClientCommandLine extends ClientCommandLine implements Main {
     
-    private final BasicKernel kernel;
+    private final Kernel kernel;
     private final Bundle bundle;
 
-    public EmbeddedClientCommandLine(BasicKernel kernel, Bundle bundle) {
+    public EmbeddedClientCommandLine(Kernel kernel, Bundle bundle) {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");
         }
@@ -48,7 +47,7 @@ public class EmbeddedClientCommandLine extends ClientCommandLine implements Main
     }
     
     @Override
-    protected BasicKernel getBootedKernel() throws Exception {
+    protected Kernel getBootedKernel() throws Exception {
         return kernel;
     }
     
@@ -60,7 +59,7 @@ public class EmbeddedClientCommandLine extends ClientCommandLine implements Main
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EmbeddedClientCommandLine.class, "EmbeddedClientCommandLine");
-        infoFactory.addAttribute("kernel", BasicKernel.class, false);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("bundle", Bundle.class, false);
         infoFactory.setConstructor(new String[]{"kernel", "bundle"});
         GBEAN_INFO = infoFactory.getBeanInfo();

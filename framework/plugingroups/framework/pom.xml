@@ -50,79 +50,79 @@
         </dependency>
         
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-system</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>client-system</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>rmi-naming</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>plugin</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>j2ee-security</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>server-security-config</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>shutdown</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>jsr88-cli</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>online-deployer</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
     </dependencies>
 
-    <!--<build>-->
-        <!--<plugins>-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.geronimo.buildsupport</groupId>-->
-                <!--<artifactId>car-maven-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<category>Geronimo Plugin Group</category>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-        <!--</plugins>-->
-    <!--</build>-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.geronimo.buildsupport</groupId>
+                <artifactId>car-maven-plugin</artifactId>
+                <configuration>
+                    <category>Geronimo Plugin Group</category>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

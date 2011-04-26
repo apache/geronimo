@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.framework.config</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
@@ -36,10 +36,17 @@
     <description>Basic Geronimo server security infrastructure</description>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- parent -->
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>rmi-naming</artifactId>
             <version>${project.version}</version>
             <type>car</type>
@@ -51,48 +58,16 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-jmx-remoting</artifactId>-->
-            <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-jmx-remoting</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.components</groupId>
             <artifactId>geronimo-jaspi</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>sxc-jaxb</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>sxc-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-management</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaspic_1.0_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jacc_1.4_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.1_spec</artifactId>
-        </dependency>
-
 <!--
         <dependency>
             <groupId>org.soter.rbac</groupId>
@@ -115,17 +90,17 @@
                 <configuration>
                     <category>Security</category>
                     <instance>
-                        <!--<plugin-artifact>-->
-                            <!--<config-xml-content>-->
-                                <!--<gbean name="JMXService">-->
-                                    <!--<attribute name="protocol">rmi</attribute>-->
-                                    <!--<attribute name="host">#{ServerHostname}</attribute>-->
-                                    <!--<attribute name="port">#{JMXPort + PortOffset}</attribute>-->
-                                    <!--<attribute name="urlPath">/jndi/rmi://#{ServerHostname}:#{NamingPort + PortOffset}/JMXConnector</attribute>-->
-                                <!--</gbean>-->
-                             <!--</config-xml-content>-->
-                            <!--<config-substitution key="JMXPort">9999</config-substitution>-->
-                        <!--</plugin-artifact>-->
+                        <plugin-artifact>
+                            <config-xml-content>
+                                <gbean name="JMXService">
+                                    <attribute name="protocol">rmi</attribute>
+                                    <attribute name="host">#{ServerHostname}</attribute>
+                                    <attribute name="port">#{JMXPort + PortOffset}</attribute>
+                                    <attribute name="urlPath">/jndi/rmi://#{ServerHostname}:#{NamingPort + PortOffset}/JMXConnector</attribute>
+                                </gbean>
+                             </config-xml-content>
+                            <config-substitution key="JMXPort">9999</config-substitution>
+                        </plugin-artifact>
                     </instance>
                 </configuration>
             </plugin>

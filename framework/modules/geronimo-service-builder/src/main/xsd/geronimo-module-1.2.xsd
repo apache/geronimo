@@ -18,10 +18,7 @@
 
 <xs:schema targetNamespace="http://geronimo.apache.org/xml/ns/deployment-1.2"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
-    jxb:version="1.0"
-    elementFormDefault="qualified"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
     attributeFormDefault="unqualified">
 
     <xs:annotation>
@@ -80,7 +77,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="sys:service" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>
                         Reference to service element defined later in this xsd.
@@ -154,6 +151,15 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element name="dependencies" type="sys:dependenciesType"
+                minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        "dependencies" holds all classloader and dependency
+                        information for the module
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="bundle-activator" type="xs:string" minOccurs="0"/>
             <xs:element name="bundle-classPath" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="import-package" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
@@ -161,26 +167,135 @@
             <xs:element name="require-bundle" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="dynamic-import-package" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
+            <xs:element name="hidden-classes" type="sys:classFilterType"
+                minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        A list of classes which will never be loaded from parent
+                        ClassLoaders of this module. For example, if Log4J was
+                        listed here, the module would never see Geronimo's copy
+                        of Log4J. If the module provided it's own Log4J JAR it
+                        would use that, otherwise it would not be able to load
+                        Log4J at all.
+
+                        The classes are specified in zero or more child "filter"
+                        elements where each filter element specifies a
+                        fully-qualified class name or prefix. Essentially, any
+                        class that starts with one of the prefixes listed here
+                        will be treated as hidden. For example, if you specify
+                        two filter elements containing "java.util" and
+                        "java.lang" then you would really screw up your
+                        application. :)
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="non-overridable-classes"
+                type="sys:classFilterType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        A list of classes which will only be loaded from parent
+                        ClassLoaders of this module (never from the module's own
+                        ClassLoader). For example, this is used to prevent a web
+                        application from redefining "javax.servlet", so those
+                        classes will *always* be loaded from the server instead
+                        of from the web web application's own ClassPath.
+
+                        The classes are specified in zero or more child "filter"
+                        elements where each filter element specifies a
+                        fully-qualified class name or prefix. Essentially, any
+                        class that starts with one of the prefixes listed here
+                        will be treated as hidden. For example, specifying two
+                        filter elements containing "javax.servlet" and
+                        "javax.ejb" would protect some of the core J2EE classes
+                        from being overridden.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="private-classes"
+                type="sys:classFilterType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        A list of classes which will only be loaded from the
+                        ClassLoader of this module or from parent ClassLoaders.
+                        
+                        This is used to prevent children configurations to see
+                        specific classes from its parents. The same effect can
+                        be achieved by using hidden-classes. However,
+                        private-classes is the preferred approach to hide 
+                        specific classes from all children configurations. 
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="inverse-classloading" type="sys:emptyType"
+                minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        If the "inverse-classloading" element is specified, the
+                        standard class loading delegation model is to be
+                        reversed for this module.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="suppress-default-environment" type="sys:emptyType"
+                minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        If the "suppress-default-environment" element is
+                        specified then any default environment build by a
+                        builder when deploying the plan will be suppressed.
+
+                        An example of where this is useful is when deploying a
+                        connector on an app client in a separate (standalone)
+                        module (not as part of a client plan).
+
+                        The connector builder defaultEnvironment includes some
+                        server modules that won't work on an app client, so you
+                        need to suppress the default environment and supply a
+                        complete environment including all parents for a
+                        non-app-client module you want to run on an app client
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="dependencies" type="sys:dependenciesType" />
+
+    <xs:complexType name="dependenciesType">
+        <xs:sequence>
+            <xs:element name="dependency" type="sys:dependencyType"
+                minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        "dependency" holds an artifact locating an artifact in a
+                        repository. Depending on the type of artifact and value
+                        of the import element, the artifact may be included in
+                        the current classpath, be loaded as a parent, may
+                        require the services in the artifact to be started, or
+                        may not be added to the classpath.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="emptyType" />
 
-    <!--<xs:element name="service" type="sys:abstract-serviceType">-->
-        <!--<xs:annotation>-->
-            <!--<xs:documentation>-->
-                <!--An empty generic element to be extended by gbean and other-->
-                <!--module types.-->
-            <!--</xs:documentation>-->
-        <!--</xs:annotation>-->
-    <!--</xs:element>-->
+    <xs:element name="service" type="sys:abstract-serviceType">
+        <xs:annotation>
+            <xs:documentation>
+                An empty generic element to be extended by gbean and other
+                module types.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
 
-    <!--<xs:complexType name="abstract-serviceType" abstract="true">-->
-        <!--<xs:sequence></xs:sequence>-->
-    <!--</xs:complexType>-->
+    <xs:complexType name="abstract-serviceType" abstract="true">
+        <xs:sequence></xs:sequence>
+    </xs:complexType>
 
-    <xs:element name="gbean" type="sys:gbeanType">
-        <!--substitutionGroup="sys:service">-->
+    <xs:element name="gbean" type="sys:gbeanType"
+        substitutionGroup="sys:service">
         <xs:annotation>
             <xs:documentation>
                 Adds a new custom component to the server. The component will be
@@ -191,18 +306,18 @@
         </xs:annotation>
     </xs:element>
 
-    <!--<xs:complexType name="classFilterType">-->
-        <!--<xs:sequence>-->
-            <!--<xs:element name="filter" type="xs:string" minOccurs="0"-->
-                <!--maxOccurs="unbounded">-->
-                <!--<xs:annotation>-->
-                    <!--<xs:documentation>-->
-                        <!--A fully-qualified class name or prefix to be filtered.-->
-                    <!--</xs:documentation>-->
-                <!--</xs:annotation>-->
-            <!--</xs:element>-->
-        <!--</xs:sequence>-->
-    <!--</xs:complexType>-->
+    <xs:complexType name="classFilterType">
+        <xs:sequence>
+            <xs:element name="filter" type="xs:string" minOccurs="0"
+                maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        A fully-qualified class name or prefix to be filtered.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="artifactType">
         <xs:annotation>
@@ -285,80 +400,80 @@
         </xs:sequence>
     </xs:complexType>
 
-    <!--<xs:complexType name="dependencyType">-->
-        <!--<xs:complexContent>-->
-            <!--<xs:extension base="sys:artifactType">-->
-                <!--<xs:annotation>-->
-                    <!--<xs:documentation>-->
-                        <!--DependencyType includes all the elements defined in-->
-                        <!--artifactType.-->
-                    <!--</xs:documentation>-->
-                <!--</xs:annotation>-->
-                <!--<xs:sequence>-->
-                    <!--<xs:element name="import" type="sys:importType"-->
-                        <!--minOccurs="0">-->
-                        <!--<xs:annotation>-->
-                            <!--<xs:documentation>-->
-                                <!--The import element is restrictive element to-->
-                                <!--defined type of dependency. The default (when-->
-                                <!--omitted) is to include the specified dependency-->
-                                <!--in the classloader (as a parent or URL). If-->
-                                <!--defined as "classes" means that the classes must-->
-                                <!--be included in the current module's classloader-->
-                                <!--but the dependency does not need to be started.-->
-                                <!--Specifying "services" means that the dependency-->
-                                <!--(a module) must be started before the current-->
-                                <!--module, but it is not included as a parent-->
-                                <!--classloader.-->
-                            <!--</xs:documentation>-->
-                        <!--</xs:annotation>-->
-                    <!--</xs:element>-->
-                <!--</xs:sequence>-->
+    <xs:complexType name="dependencyType">
+        <xs:complexContent>
+            <xs:extension base="sys:artifactType">
+                <xs:annotation>
+                    <xs:documentation>
+                        DependencyType includes all the elements defined in
+                        artifactType.
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:sequence>
+                    <xs:element name="import" type="sys:importType"
+                        minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation>
+                                The import element is restrictive element to
+                                defined type of dependency. The default (when
+                                omitted) is to include the specified dependency
+                                in the classloader (as a parent or URL). If
+                                defined as "classes" means that the classes must
+                                be included in the current module's classloader
+                                but the dependency does not need to be started.
+                                Specifying "services" means that the dependency
+                                (a module) must be started before the current
+                                module, but it is not included as a parent
+                                classloader.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
 
-            <!--</xs:extension>-->
-        <!--</xs:complexContent>-->
-    <!--</xs:complexType>-->
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
 
-    <!--<xs:simpleType name="importType">-->
-        <!--<xs:annotation>-->
-            <!--<xs:documentation>-->
-                <!--<![CDATA[-->
-            <!--The import element is restrictive.  The default (when omitted) is to include the specified dependency in-->
-            <!--the classloader (as a parent or URL) and (if the dependency is a module) make sure it is started-->
-            <!--before starting the current module.  Specifying "classes" means that the classes must be included-->
-            <!--in the current module's classloader but the dependency does not need to be started. (I'm not sure this-->
-            <!--is actually possible, but it is what is meant).  Specifying "services" means that the dependency (a module)-->
-            <!--must be started before the current module, but it is not included as a parent classloader.-->
+    <xs:simpleType name="importType">
+        <xs:annotation>
+            <xs:documentation>
+                <![CDATA[
+            The import element is restrictive.  The default (when omitted) is to include the specified dependency in
+            the classloader (as a parent or URL) and (if the dependency is a module) make sure it is started
+            before starting the current module.  Specifying "classes" means that the classes must be included
+            in the current module's classloader but the dependency does not need to be started. (I'm not sure this
+            is actually possible, but it is what is meant).  Specifying "services" means that the dependency (a module)
+            must be started before the current module, but it is not included as a parent classloader.
 
-            <!--You probably never need to use the import element.-->
-                <!--]]>-->
-            <!--</xs:documentation>-->
-        <!--</xs:annotation>-->
-        <!--<xs:restriction base="xs:string">-->
-            <!--<xs:enumeration value="classes">-->
-                <!--<xs:annotation>-->
-                    <!--<xs:documentation>-->
-                        <!--The value "classes" means that the classes must be-->
-                        <!--included in the current module's classloader but the-->
-                        <!--dependency does not need to be started.-->
-                    <!--</xs:documentation>-->
-                <!--</xs:annotation>-->
-            <!--</xs:enumeration>-->
-            <!--<xs:enumeration value="services">-->
-                <!--<xs:annotation>-->
-                    <!--<xs:documentation>-->
-                        <!--The value "services" means that the dependency (a-->
-                        <!--module) must be started before the current module, but-->
-                        <!--it is not included as a parent classloader.-->
-                    <!--</xs:documentation>-->
-                <!--</xs:annotation>-->
-            <!--</xs:enumeration>-->
-        <!--</xs:restriction>-->
-    <!--</xs:simpleType>-->
+            You probably never need to use the import element.
+                ]]>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="classes">
+                <xs:annotation>
+                    <xs:documentation>
+                        The value "classes" means that the classes must be
+                        included in the current module's classloader but the
+                        dependency does not need to be started.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+            <xs:enumeration value="services">
+                <xs:annotation>
+                    <xs:documentation>
+                        The value "services" means that the dependency (a
+                        module) must be started before the current module, but
+                        it is not included as a parent classloader.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="gbeanType">
-        <!--<xs:complexContent>-->
-            <!--<xs:extension base="sys:abstract-serviceType">-->
+        <xs:complexContent>
+            <xs:extension base="sys:abstract-serviceType">
                 <xs:annotation>
                     <xs:documentation>
                         gbeanType includes all the elements defined in
@@ -366,9 +481,8 @@
                     </xs:documentation>
                 </xs:annotation>
 
-                <!--<xs:choice minOccurs="0" maxOccurs="unbounded">-->
-                <xs:sequence>
-                    <xs:element name="attribute" type="sys:attributeType" minOccurs="0" maxOccurs="unbounded">
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="attribute" type="sys:attributeType">
                         <xs:annotation>
                             <xs:documentation>
                                 The attribute provide the name-value pair of
@@ -379,7 +493,7 @@
                         </xs:annotation>
                     </xs:element>
                     <xs:element name="xml-attribute"
-                        type="sys:xml-attributeType" minOccurs="0" maxOccurs="unbounded">
+                        type="sys:xml-attributeType">
                         <xs:annotation>
                             <xs:documentation>
                                 The xml-attribute specifies the value of
@@ -390,7 +504,7 @@
                             </xs:documentation>
                         </xs:annotation>
                     </xs:element>
-                    <xs:element name="reference" type="sys:referenceType" minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="reference" type="sys:referenceType">
                         <xs:annotation>
                             <xs:documentation>
                                 The "reference" element specifies the value of a
@@ -402,7 +516,7 @@
                             </xs:documentation>
                         </xs:annotation>
                     </xs:element>
-                    <xs:element name="references" type="sys:referencesType" minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="references" type="sys:referencesType">
                         <xs:annotation>
                             <xs:documentation>
                                 The "references" element specifies the value of
@@ -412,7 +526,7 @@
                         </xs:annotation>
                     </xs:element>
                     <xs:element name="xml-reference"
-                        type="sys:xml-attributeType" minOccurs="0" maxOccurs="unbounded">
+                        type="sys:xml-attributeType">
                         <xs:annotation>
                             <xs:documentation>
                                 The xml-reference specifies the value of
@@ -423,7 +537,7 @@
                             </xs:documentation>
                         </xs:annotation>
                     </xs:element>
-                    <xs:element name="dependency" type="sys:patternType" minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="dependency" type="sys:patternType">
                         <xs:annotation>
                             <xs:documentation>
                                 The element "dependency" is used to resolve
@@ -434,7 +548,7 @@
                             </xs:documentation>
                         </xs:annotation>
                     </xs:element>
-                </xs:sequence>
+                </xs:choice>
                 <xs:attribute name="name" type="xs:string" use="required">
                     <xs:annotation>
                         <xs:documentation>
@@ -453,8 +567,8 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-            <!--</xs:extension>-->
-        <!--</xs:complexContent>-->
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="attributeType">
@@ -590,16 +704,6 @@
                 </xs:annotation>
                 <xs:attribute name="name" type="xs:string">
                     <xs:annotation>
-                        <xs:appinfo>
-                            <!--<jxb:property version="1.0" name="refName"/>-->
-                            <jxb:bindings node="//xs:complexType[@name='referenceType']">
-                                <jxb:bindings node=".//xs:attribute[@name='name']">
-                                <!--<jxb:bindings version="1.0">-->
-                                    <jxb:property name="refName"/>
-                                </jxb:bindings>
-                            </jxb:bindings>
-
-                        </xs:appinfo>
                         <xs:documentation>
                             The name for the current reference. This name should
                             be same as specified in GBeanInfo for this GBean.

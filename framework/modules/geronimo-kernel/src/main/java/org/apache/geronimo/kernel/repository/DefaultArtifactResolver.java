@@ -24,11 +24,14 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.DependencyNodeUtil;
 
 /**
  * @version $Rev$ $Date$
@@ -193,52 +196,51 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         if (matches(configuration.getId(), working)) {
             return configuration.getId();
         }
-        return getArtifactVersion(artifactManager.getLoadedArtifacts(configuration.getId()), working);
 
-//        Environment environment = configuration.getEnvironment();
-//        if (environment.getClassLoadingRules().isInverseClassLoading()) {
-//            // Search dependencies of the configuration before searching the parents
-////                Artifact artifact = getArtifactVersion(configuration.getDependencies(), working);
-//            Artifact artifact = getArtifactVersion(artifactManager.getLoadedArtifacts(configuration.getId()), working);
-//            if (artifact != null) {
-//                return artifact;
-//            }
-//
-//            // wasn't declared in the dependencies, so search the parents of the configuration
-//            artifact = searchOneParent(configuration, working);
-//            if (artifact != null) {
-//                return artifact;
-//            }
-//
-//        } else {
-//            // Search the parents before the dependencies of the configuration
-//            Artifact artifact = searchOneParent(configuration, working);
-//
-//            if (artifact != null) {
-//                return artifact;
-//            }
-//
-//            // wasn't declared in a parent check the dependencies of the configuration
-////                Artifact artifact = getArtifactVersion(configuration.getDependencies(), working);
-//            artifact = getArtifactVersion(artifactManager.getLoadedArtifacts(configuration.getId()), working);
-//            if (artifact != null) {
-//                return artifact;
-//            }
-//        }
-//        return null;
+        Environment environment = configuration.getEnvironment();
+        if (environment.getClassLoadingRules().isInverseClassLoading()) {
+            // Search dependencies of the configuration before searching the parents
+//                Artifact artifact = getArtifactVersion(configuration.getDependencies(), working);
+            Artifact artifact = getArtifactVersion(artifactManager.getLoadedArtifacts(configuration.getId()), working);
+            if (artifact != null) {
+                return artifact;
+            }
+
+            // wasn't declared in the dependencies, so search the parents of the configuration
+            artifact = searchOneParent(configuration, working);
+            if (artifact != null) {
+                return artifact;
+            }
+
+        } else {
+            // Search the parents before the dependencies of the configuration
+            Artifact artifact = searchOneParent(configuration, working);
+
+            if (artifact != null) {
+                return artifact;
+            }
+
+            // wasn't declared in a parent check the dependencies of the configuration
+//                Artifact artifact = getArtifactVersion(configuration.getDependencies(), working);
+            artifact = getArtifactVersion(artifactManager.getLoadedArtifacts(configuration.getId()), working);
+            if (artifact != null) {
+                return artifact;
+            }
+        }
+        return null;
     }
 
     private Artifact searchOneParent(Configuration configuration, Artifact working) {
-//        LinkedHashSet<Artifact> parentIds = configuration.getDependencyNode().getClassParents();
-//        if (!parentIds.isEmpty()) {
-//            for (Artifact parentId: parentIds) {
-//                Configuration parent = getConfiguration(parentId);
-//                Artifact artifact = searchParent(parent, working);
-//                if (artifact != null) {
-//                    return artifact;
-//                }
-//            }
-//        }
+        LinkedHashSet<Artifact> parentIds = configuration.getDependencyNode().getClassParents();
+        if (!parentIds.isEmpty()) {
+            for (Artifact parentId: parentIds) {
+                Configuration parent = getConfiguration(parentId);
+                Artifact artifact = searchParent(parent, working);
+                if (artifact != null) {
+                    return artifact;
+                }
+            }
+        }
         return null;
     }
 

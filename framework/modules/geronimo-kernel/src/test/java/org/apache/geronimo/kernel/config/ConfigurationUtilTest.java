@@ -33,6 +33,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.MockGBean;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
+import org.apache.geronimo.kernel.config.xstream.XStreamConfigurationMarshaler;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
@@ -40,6 +41,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
  */
 public class ConfigurationUtilTest extends TestCase {
     private MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), null, null, null);
+    private XStreamConfigurationMarshaler xstreamConfigurationMarshaler = new XStreamConfigurationMarshaler();
     private SerializedConfigurationMarshaler serializedConfigurationMarshaler = new SerializedConfigurationMarshaler();
     private static Artifact artifact3 = new Artifact("test", "3", "3.3", "bar");
     private static final Jsr77Naming naming = new Jsr77Naming();

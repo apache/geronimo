@@ -81,7 +81,7 @@ public abstract class BaseCommandSupport extends OsgiCommandSupport implements C
     /**
      * Utility method for issuing shell prompts.
      *
-     * @param msg The prompt string.
+     * @param prompt The prompt string.
      *
      * @return The string return result.
      */

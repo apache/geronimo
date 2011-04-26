@@ -98,7 +98,8 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void println(String s) throws IOException {
         if (jlineConsoleEnabled) {
-            jlineConsoleReader.println(s);
+            jlineConsoleReader.print(s);
+            jlineConsoleReader.println();
         } else {
             console.println(s);
             console.println();
@@ -147,7 +148,7 @@ public class StreamConsoleReader implements ConsoleReader {
     @Override
     public void flushConsole() throws IOException {
         if (jlineConsoleEnabled) {
-            jlineConsoleReader.flush();
+             jlineConsoleReader.flush();
         } else {
             console.flush();
         }

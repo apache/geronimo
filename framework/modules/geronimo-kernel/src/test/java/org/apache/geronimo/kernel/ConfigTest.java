@@ -21,7 +21,6 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -39,26 +38,29 @@ import org.osgi.framework.BundleContext;
  */
 public class ConfigTest extends TestCase {
     private BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), null, null, null);
-    private BasicKernel kernel;
+    private Kernel kernel;
     private AbstractName gbeanName1;
     private AbstractName gbeanName2;
     private ConfigurationData configurationData;
-//    private ConfigurationManager configurationManager;
+    private ConfigurationManager configurationManager;
 
     public void testConfigLifecycle() throws Exception {
         Artifact configurationId = configurationData.getId();
 
         // load -- config should be running and gbean registered but not started
-        Configuration configuration = new Configuration(configurationData, null);
-        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
-//        assertNull(configuration);
+        configurationManager.loadConfiguration(configurationData);
+        Configuration configuration = configurationManager.getConfiguration(configurationId);
+        AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
+
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
+        assertNotNull(configuration.getBundle());
+
+        assertFalse(kernel.isLoaded(gbeanName1));
+        assertFalse(kernel.isLoaded(gbeanName2));
 
         // start -- gbeans should now be started
-        ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
+        configurationManager.startConfiguration(configurationId);
 
-        AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
-        assertNotNull(configuration.getBundle());
-//        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
         assertTrue(kernel.isLoaded(gbeanName1));
         assertTrue(kernel.isLoaded(gbeanName2));
 
@@ -87,16 +89,16 @@ public class ConfigTest extends TestCase {
 
 
         // stop -- gbeans should now be started, but still registered
-        ConfigurationUtil.stopConfigurationGBeans(configuration,  kernel);
+        configurationManager.stopConfiguration(configurationId);
 
-        assertFalse(kernel.isRunning(gbeanName1));
-        assertFalse(kernel.isRunning(gbeanName2));
+        assertFalse(kernel.isLoaded(gbeanName1));
+        assertFalse(kernel.isLoaded(gbeanName2));
 
 
         // unload -- configuration and gbeans should be unloaded
-        ConfigurationUtil.unloadConfigurationGBeans(configuration,  kernel);
+        configurationManager.unloadConfiguration(configurationId);
 
-//        assertFalse(kernel.isLoaded(configurationName));
+        assertFalse(kernel.isLoaded(configurationName));
         assertFalse(kernel.isLoaded(gbeanName1));
         assertFalse(kernel.isLoaded(gbeanName2));
 
@@ -106,21 +108,19 @@ public class ConfigTest extends TestCase {
         Artifact configurationId = configurationData.getId();
 
         // load -- config should be running and gbean registered but not started
-        Configuration configuration = new Configuration(configurationData, null);
-        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
-//        assertNull(configuration);
+        configurationManager.loadConfiguration(configurationData);
+        Configuration configuration = configurationManager.getConfiguration(configurationId);
+        AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
+
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
+        assertNotNull(configuration.getBundle());
+
+        assertFalse(kernel.isLoaded(gbeanName1));
+        assertFalse(kernel.isLoaded(gbeanName2));
 
 
         // start -- gbeans should now be started
-        ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
-
-//        configuration = configurationManager.getConfiguration(configurationId);
-        assertNotNull(configuration);
-
-        AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
-
-//        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
-        assertNotNull(configuration.getBundle());
+        configurationManager.startConfiguration(configurationId);
 
         assertTrue(kernel.isLoaded(gbeanName1));
         assertTrue(kernel.isLoaded(gbeanName2));
@@ -129,35 +129,27 @@ public class ConfigTest extends TestCase {
 
 
         // stop -- gbeans should now be started, but still registered
-        for (AbstractName abstractName: configuration.getGBeans().keySet()) {
-//            try {
-                kernel.stopGBean(abstractName);
-//            } catch (GBeanNotFoundException e) {
-//                logger.error("Could not stop gbean " + abstractName + " from bundle " + bundle.getLocation(), e);
-//            }
-        }
+        configurationManager.stopConfiguration(configurationId);
 
-        assertTrue(kernel.isLoaded(gbeanName1));
-        assertTrue(kernel.isLoaded(gbeanName2));
-        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName1));
-        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName2));
+        assertFalse(kernel.isLoaded(gbeanName1));
+        assertFalse(kernel.isLoaded(gbeanName2));
 
 
         // restart -- gbeans should now be started
-//        configurationManager.startConfiguration(configurationId);
-//
-//        assertTrue(kernel.isLoaded(gbeanName1));
-//        assertTrue(kernel.isLoaded(gbeanName2));
-//        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanName1));
-//        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanName2));
-//
-//        // unload -- configuration and gbeans should be unloaded
-//        configurationManager.stopConfiguration(configurationId);
-//        configurationManager.unloadConfiguration(configurationId);
-//
-//        assertFalse(kernel.isLoaded(configurationName));
-//        assertFalse(kernel.isLoaded(gbeanName1));
-//        assertFalse(kernel.isLoaded(gbeanName2));
+        configurationManager.startConfiguration(configurationId);
+
+        assertTrue(kernel.isLoaded(gbeanName1));
+        assertTrue(kernel.isLoaded(gbeanName2));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanName1));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanName2));
+
+        // unload -- configuration and gbeans should be unloaded
+        configurationManager.stopConfiguration(configurationId);
+        configurationManager.unloadConfiguration(configurationId);
+
+        assertFalse(kernel.isLoaded(configurationName));
+        assertFalse(kernel.isLoaded(gbeanName1));
+        assertFalse(kernel.isLoaded(gbeanName2));
 
     }
 
@@ -189,27 +181,27 @@ public class ConfigTest extends TestCase {
     protected void setUp() throws Exception {
         System.setProperty("geronimo.build.car", "true");
         super.setUp();
-        kernel = new BasicKernel();
-//        kernel.boot();
+        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
+        kernel.boot();
 
-//        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
-//
-//        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
-//
-//        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
-//        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-//
-//        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
-//        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-//        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
-//
-//        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
-//
-//        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
+
+        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+
+        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
+        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+
+        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
+        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
+
+        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
 
         configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
-        configurationData.setBundle(bundleContext.getBundle());
+        configurationData.setBundleContext(bundleContext);
 
         GBeanData mockBean1 = configurationData.addGBean("MyMockGMBean1", MockGBean.getGBeanInfo());
         gbeanName1 = mockBean1.getAbstractName();

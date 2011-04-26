@@ -27,7 +27,7 @@ public class DummyJavaBean {
     private String encryptOnPersist;
     private String string;
     private boolean booleanValue;
-    private char charValue =' ';
+    private char charValue;
     private byte byteValue;
     private short shortValue;
     private int intValue;

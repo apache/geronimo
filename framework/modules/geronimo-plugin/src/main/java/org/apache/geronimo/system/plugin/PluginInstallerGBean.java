@@ -223,7 +223,7 @@ public class PluginInstallerGBean implements PluginInstaller {
         final ArtifactManager artifactManager = new DefaultArtifactManager();
 
         forceMkdir(new File(targetServerPath));
-        serverInfo = new BasicServerInfo(targetServerPath, false);
+        serverInfo = new BasicServerInfo(targetServerPath, false, null);
         File targetRepositoryFile = serverInfo.resolve(targetRepositoryPath);
         forceMkdir(targetRepositoryFile);
         writeableRepo = new Maven2Repository(targetRepositoryFile);
@@ -445,23 +445,22 @@ public class PluginInstallerGBean implements PluginInstaller {
             FileUtils.delete(targetServerPath);
         }
         String targetServerPathName = targetServerPath.getAbsolutePath();
-        //TODO disabled for now osgi conversion
-//        Kernel kernel = new BasicKernel("assembly", bundleContext);
-//
-//        try {
-//            PluginInstallerGBean installer = new PluginInstallerGBean(
-//                    targetRepositoryPath,
-//                    targetServerPathName,
-//                    installedPluginsList,
-//                    serverInstanceDatas,
-//                    pluginRepositoryList,
-//                    kernel,
-//                    bundleContext);
-//
-//            installer.install(pluginList, localSourceRepository, true, null, null, downloadPoller);
-//        } finally {
-//            kernel.shutdown();
-//        }
+        Kernel kernel = new BasicKernel("assembly", bundleContext);
+
+        try {
+            PluginInstallerGBean installer = new PluginInstallerGBean(
+                    targetRepositoryPath,
+                    targetServerPathName,
+                    installedPluginsList,
+                    serverInstanceDatas,
+                    pluginRepositoryList,
+                    kernel,
+                    bundleContext);
+
+            installer.install(pluginList, localSourceRepository, true, null, null, downloadPoller);
+        } finally {
+            kernel.shutdown();
+        }
         return downloadPoller;
     }
 
@@ -1297,11 +1296,11 @@ public class PluginInstallerGBean implements PluginInstaller {
             if (instance == null) {
                 //no plugin metadata, guess with something else
                 if (data != null) {
-//                    for (Dependency dep : getDependencies(data)) {
-//                        Artifact artifact = dep.getArtifact();
-//                        log.debug("Attempting to download dependency={} for configuration={}", artifact, configID);
-//                        downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true, servers, loadOverride);
-//                    }
+                    for (Dependency dep : getDependencies(data)) {
+                        Artifact artifact = dep.getArtifact();
+                        log.debug("Attempting to download dependency={} for configuration={}", artifact, configID);
+                        downloadArtifact(artifact, metadata, repos, username, password, monitor, soFar, parentStack, true, servers, loadOverride);
+                    }
                 }
             } else {
                 //rely on plugin metadata if present.
@@ -1476,14 +1475,14 @@ public class PluginInstallerGBean implements PluginInstaller {
      * @param data configuration data
      * @return dependencies of configuration
      */
-//    private static Dependency[] getDependencies(ConfigurationData data) {
-//        List<Dependency> dependencies = new ArrayList<Dependency>(data.getEnvironment().getDependencies());
-//        Collection<ConfigurationData> children = data.getChildConfigurations().values();
-//        for (ConfigurationData child : children) {
-//            dependencies.addAll(child.getEnvironment().getDependencies());
-//        }
-//        return dependencies.toArray(new Dependency[dependencies.size()]);
-//    }
+    private static Dependency[] getDependencies(ConfigurationData data) {
+        List<Dependency> dependencies = new ArrayList<Dependency>(data.getEnvironment().getDependencies());
+        Collection<ConfigurationData> children = data.getChildConfigurations().values();
+        for (ConfigurationData child : children) {
+            dependencies.addAll(child.getEnvironment().getDependencies());
+        }
+        return dependencies.toArray(new Dependency[dependencies.size()]);
+    }
 
     /**
      * Searches for an artifact in the listed repositories, where the artifact
@@ -1635,11 +1634,11 @@ public class PluginInstallerGBean implements PluginInstaller {
     }
 
     public static void addGeronimoDependencies(ConfigurationData data, List<DependencyType> deps, boolean includeVersion) {
-//        processDependencyList(data.getEnvironment().getDependencies(), deps, includeVersion);
-//        Map<String, ConfigurationData> children = data.getChildConfigurations();
-//        for (ConfigurationData child : children.values()) {
-//            processDependencyList(child.getEnvironment().getDependencies(), deps, includeVersion);
-//        }
+        processDependencyList(data.getEnvironment().getDependencies(), deps, includeVersion);
+        Map<String, ConfigurationData> children = data.getChildConfigurations();
+        for (ConfigurationData child : children.values()) {
+            processDependencyList(child.getEnvironment().getDependencies(), deps, includeVersion);
+        }
     }
 
     /**
@@ -1793,21 +1792,21 @@ public class PluginInstallerGBean implements PluginInstaller {
             return;
         }
         if (!pluginData.getConfigSubstitution().isEmpty()) {
-            Map<String, Map<String, String>> propertiesMap = toPropertiesMap(pluginData.getConfigSubstitution());
-            for (Map.Entry<String, Map<String, String>> entry : propertiesMap.entrySet()) {
+            Map<String, Properties> propertiesMap = toPropertiesMap(pluginData.getConfigSubstitution());
+            for (Map.Entry<String, Properties> entry : propertiesMap.entrySet()) {
                 String serverName = entry.getKey();
                 ServerInstance serverInstance = getServerInstance(serverName, servers);
                 serverInstance.getAttributeStore().addConfigSubstitutions(entry.getValue());
             }
         }
-//        if (!pluginData.getArtifactAlias().isEmpty()) {
-//            Map<String, Map<String, String>> propertiesMap = toPropertiesMap(pluginData.getArtifactAlias());
-//            for (Map.Entry<String, Map<String, String>> entry : propertiesMap.entrySet()) {
-//                String serverName = entry.getKey();
-//                ServerInstance serverInstance = getServerInstance(serverName, servers);
-//                serverInstance.getArtifactResolver().addAliases(entry.getValue());
-//            }
-//        }
+        if (!pluginData.getArtifactAlias().isEmpty()) {
+            Map<String, Properties> propertiesMap = toPropertiesMap(pluginData.getArtifactAlias());
+            for (Map.Entry<String, Properties> entry : propertiesMap.entrySet()) {
+                String serverName = entry.getKey();
+                ServerInstance serverInstance = getServerInstance(serverName, servers);
+                serverInstance.getArtifactResolver().addAliases(entry.getValue());
+            }
+        }
     }
 
     private ServerInstance getServerInstance(String serverName, Map<String, ServerInstance> servers) throws NoServerInstanceException {
@@ -1818,16 +1817,16 @@ public class PluginInstallerGBean implements PluginInstaller {
         return serverInstance;
     }
 
-    private Map<String, Map<String, String>> toPropertiesMap(List<PropertyType> propertyTypes) {
-        Map<String, Map<String, String>> propertiesMap = new HashMap<String, Map<String, String>>();
+    private Map<String, Properties> toPropertiesMap(List<PropertyType> propertyTypes) {
+        Map<String, Properties> propertiesMap = new HashMap<String, Properties>();
         for (PropertyType propertyType : propertyTypes) {
             String serverName = propertyType.getServer();
-            Map<String, String> properties = propertiesMap.get(serverName);
+            Properties properties = propertiesMap.get(serverName);
             if (properties == null) {
-                properties = new HashMap<String, String>();
+                properties = new Properties();
                 propertiesMap.put(serverName, properties);
             }
-            properties.put(propertyType.getKey(), propertyType.getValue());
+            properties.setProperty(propertyType.getKey(), propertyType.getValue());
         }
         return propertiesMap;
     }

@@ -27,11 +27,12 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.security.deployment.model.credentialstore.CredentialStoreType;
-import org.apache.geronimo.security.deployment.model.credentialstore.CredentialType;
-import org.apache.geronimo.security.deployment.model.credentialstore.ObjectFactory;
-import org.apache.geronimo.security.deployment.model.credentialstore.RealmType;
-import org.apache.geronimo.security.deployment.model.credentialstore.SubjectType;
+import org.apache.geronimo.xbeans.geronimo.credentialstore.CredentialStoreDocument;
+import org.apache.geronimo.xbeans.geronimo.credentialstore.CredentialStoreType;
+import org.apache.geronimo.xbeans.geronimo.credentialstore.CredentialType;
+import org.apache.geronimo.xbeans.geronimo.credentialstore.RealmType;
+import org.apache.geronimo.xbeans.geronimo.credentialstore.SubjectType;
+import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 
 /**
@@ -39,24 +40,24 @@ import org.osgi.framework.Bundle;
  */
 public class CredentialStoreBuilder implements XmlAttributeBuilder {
 
-    private static final String NAMESPACE = ObjectFactory._CredentialStore_QNAME.getNamespaceURI();
+    private static final String NAMESPACE = CredentialStoreDocument.type.getDocumentElementName().getNamespaceURI();
 
     public String getNamespace() {
         return NAMESPACE;
     }
 
-    public Object getValue(Object xmlObject, Object enclosing, String type, Bundle bundle) throws DeploymentException {
+    public Object getValue(XmlObject xmlObject, XmlObject enclosing, String type, Bundle bundle) throws DeploymentException {
         Map<String, Map<String, Map<String, String>>> credentialStore = new HashMap<String, Map<String, Map<String, String>>>();
-        CredentialStoreType cst = (CredentialStoreType) xmlObject;
-        for (RealmType realmType: cst.getRealm()) {
+        CredentialStoreType cst = (CredentialStoreType) xmlObject.copy().changeType(CredentialStoreType.type);
+        for (RealmType realmType: cst.getRealmArray()) {
             String realmName = realmType.getName().trim();
             Map<String, Map<String, String>> realm = new HashMap<String, Map<String, String>>();
             credentialStore.put(realmName, realm);
-            for (SubjectType subjectType: realmType.getSubject()) {
+            for (SubjectType subjectType: realmType.getSubjectArray()) {
                 String id = subjectType.getId().trim();
                 Map<String, String> subject = new HashMap<String, String>();
                 realm.put(id, subject);
-                for (CredentialType credentialType: subjectType.getCredential()) {
+                for (CredentialType credentialType: subjectType.getCredentialArray()) {
                     String handlerType = credentialType.getType().trim();
                     String value = credentialType.getValue().trim();
                     subject.put(handlerType, value);

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -238,7 +237,7 @@ public class WebFragmentTest extends XmlBeansTestSupport {
 
         @Override
         public Collection<? extends Repository> getRepositories() {
-            return Collections.<Repository>emptyList();
+            return null;
         }
 
         @Override
@@ -253,7 +252,7 @@ public class WebFragmentTest extends XmlBeansTestSupport {
 
         @Override
         public ConfigurationStore[] getStores() {
-            return new ConfigurationStore[0];
+            return null;
         }
 
         @Override
@@ -408,12 +407,6 @@ public class WebFragmentTest extends XmlBeansTestSupport {
         public LifecycleResults unloadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException {
             return null;
         }
-
-        @Override
-        public ConfigurationData getLoadedConfigurationData(Artifact arg0) {
-            // TODO Auto-generated method stub
-            return null;
-        }
     }
 
     private static class DummyEARContext extends EARContext {
@@ -442,7 +435,7 @@ public class WebFragmentTest extends XmlBeansTestSupport {
          * }
          */
         public DummyEARContext() throws Exception {
-            super(FileUtils.createTempDir(), null, new Environment(), ConfigurationModuleType.WAR, null, new MockBundleContext(new MockBundle(WebFragmentTest.class
+            super(FileUtils.createTempDir(), null, new Environment(), ConfigurationModuleType.WAR, null, new DummyConfigurationManager(), new MockBundleContext(new MockBundle(WebFragmentTest.class
                     .getClassLoader(), "", 1L)), null, null, null, null, null, null);
         }
     }

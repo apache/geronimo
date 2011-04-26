@@ -37,7 +37,8 @@ import org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.j2ee.management.impl.JVMImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.basic.BasicKernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -50,23 +51,20 @@ import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.JVM;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.system.serverinfo.WrappingServerInfo;
-import org.apache.geronimo.testsupport.TestSupport;
 import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$
  */
-public abstract class Abstract77Test extends TestSupport {
-//    protected static final GBeanData SERVER_INFO_DATA = buildGBeanData(new String[] {"role"}, new String[] {"ServerInfo"}, WrappingServerInfo.class);
+public abstract class Abstract77Test extends TestCase {
+    protected static final GBeanData SERVER_INFO_DATA = buildGBeanData(new String[] {"role"}, new String[] {"ServerInfo"}, BasicServerInfo.class);
+
     protected static final String DOMAIN = "geronimo.test";
     protected static final GBeanData DOMAIN_DATA = buildGBeanData(new String[] {"j2eeType", "name"}, new String[] {"J2EEDomain", DOMAIN}, J2EEDomainImpl.class);
     protected static final GBeanData SERVER_DATA = buildGBeanData(new String[] {"j2eeType", "name"}, new String[] {"J2EEServer", "test"}, J2EEServerImpl.class);
     protected static final GBeanData JVM_DATA = buildGBeanData(new String[] {"j2eeType", "J2EEServer", "name"}, new String[] {"JVM", "test", "JVM"}, JVMImpl.class);
 
-    protected BasicKernel kernel;
-    protected ServerInfo serverInfo;
+    protected Kernel kernel;
 
     private static GBeanData buildGBeanData(String[] key, String[] value, Class info) {
         AbstractName abstractName = buildAbstractName(key, value);
@@ -93,23 +91,19 @@ public abstract class Abstract77Test extends TestSupport {
     protected void setUp() throws Exception {
         super.setUp();
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), null);
-        kernel = new BasicKernel();
-        //KernelFactory.newInstance(bundleContext).createKernel(DOMAIN);
-        kernel.boot(bundleContext);
+        kernel = KernelFactory.newInstance(bundleContext).createKernel(DOMAIN);
+        kernel.boot();
 
         // server info
-        serverInfo = new BasicServerInfo(BASEDIR.getAbsolutePath());
-        bundleContext.registerService(new String[] {ServerInfo.class.getName()}, serverInfo, null);
-
-//        SERVER_INFO_DATA.setAttribute("baseDirectory", System.getProperty("java.io.tmpdir"));
-//        kernel.loadGBean(SERVER_INFO_DATA, bundleContext.getBundle());
+        SERVER_INFO_DATA.setAttribute("baseDirectory", System.getProperty("java.io.tmpdir"));
+        kernel.loadGBean(SERVER_INFO_DATA, bundleContext);
 
         // domain
         DOMAIN_DATA.setReferencePatterns("Servers", new ReferencePatterns(new AbstractNameQuery(J2EEServer.class.getName())));
-        kernel.loadGBean(DOMAIN_DATA, bundleContext.getBundle());
+        kernel.loadGBean(DOMAIN_DATA, bundleContext);
 
         // server
-//        SERVER_DATA.setReferencePattern("ServerInfo", SERVER_INFO_DATA.getAbstractName());
+        SERVER_DATA.setReferencePattern("ServerInfo", SERVER_INFO_DATA.getAbstractName());
         SERVER_DATA.setReferencePatterns("JVMs", new ReferencePatterns(new AbstractNameQuery(JVM.class.getName())));
         LinkedHashSet resourcePatterns = new LinkedHashSet();
         resourcePatterns.add(new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JAVA_MAIL_RESOURCE), J2EEResource.class.getName()));
@@ -127,13 +121,13 @@ public abstract class Abstract77Test extends TestSupport {
         SERVER_DATA.setReferencePatterns("ResourceAdapterModules", new ReferencePatterns(new AbstractNameQuery(ResourceAdapterModule.class.getName())));
         SERVER_DATA.setReferencePatterns("WebModules", new ReferencePatterns(new AbstractNameQuery(WebModule.class.getName())));
         // Can't test, there are none of these available
-        kernel.loadGBean(SERVER_DATA, bundleContext.getBundle());
+        kernel.loadGBean(SERVER_DATA, bundleContext);
 
         // JVM
-        kernel.loadGBean(JVM_DATA, bundleContext.getBundle());
+        kernel.loadGBean(JVM_DATA, bundleContext);
 
         // start um
-//        kernel.startGBean(SERVER_INFO_DATA.getAbstractName());
+        kernel.startGBean(SERVER_INFO_DATA.getAbstractName());
         kernel.startGBean(DOMAIN_DATA.getAbstractName());
         kernel.startGBean(SERVER_DATA.getAbstractName());
         kernel.startGBean(JVM_DATA.getAbstractName());
@@ -144,11 +138,11 @@ public abstract class Abstract77Test extends TestSupport {
         kernel.stopGBean(JVM_DATA.getAbstractName());
         kernel.stopGBean(SERVER_DATA.getAbstractName());
         kernel.stopGBean(DOMAIN_DATA.getAbstractName());
-//        kernel.stopGBean(SERVER_INFO_DATA.getAbstractName());
+        kernel.stopGBean(SERVER_INFO_DATA.getAbstractName());
         kernel.unloadGBean(JVM_DATA.getAbstractName());
         kernel.unloadGBean(SERVER_DATA.getAbstractName());
         kernel.unloadGBean(DOMAIN_DATA.getAbstractName());
-//        kernel.unloadGBean(SERVER_INFO_DATA.getAbstractName());
+        kernel.unloadGBean(SERVER_INFO_DATA.getAbstractName());
         kernel.shutdown();
         kernel = null;
     }

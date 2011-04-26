@@ -49,8 +49,8 @@ public class OfflineDeployerStarter {
             "car");
     
     private final Kernel kernel;
-    private  AbstractName onlineDeployerConfigurationManagerName;
-    private  ConfigurationManager onlineDeployerConfigurationManager;
+    private final AbstractName onlineDeployerConfigurationManagerName;
+    private final ConfigurationManager onlineDeployerConfigurationManager;
     private final Set<AbstractName> onlineDeployerConfigStores;
 
     public OfflineDeployerStarter(Kernel kernel) throws GBeanNotFoundException {
@@ -59,8 +59,8 @@ public class OfflineDeployerStarter {
         }
         this.kernel = kernel;
         
-//        onlineDeployerConfigurationManagerName = ConfigurationUtil.getConfigurationManagerName(kernel);
-//        onlineDeployerConfigurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        onlineDeployerConfigurationManagerName = ConfigurationUtil.getConfigurationManagerName(kernel);
+        onlineDeployerConfigurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         onlineDeployerConfigStores = kernel.listGBeans(new AbstractNameQuery(ConfigurationStore.class.getName()));
     }
     

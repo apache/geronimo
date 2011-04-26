@@ -28,11 +28,9 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -40,9 +38,8 @@ import org.osgi.framework.BundleContext;
  */
 public class GBeanTest extends TestCase {
     private BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), null, null, null);
-    private Bundle bundle = bundleContext.getBundle();
     private static KernelWrapper kernelWrapper = new KernelWrapper();
-    private BasicKernel realKernel;
+    private Kernel realKernel;
     private Kernel kernel;
 
     /**
@@ -87,7 +84,7 @@ public class GBeanTest extends TestCase {
     public void testListGBeans() throws Exception {
         GBeanData gbean = buildGBeanData("name", "test", MockGBean.getGBeanInfo());
 
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
         kernel.startGBean(gbean.getAbstractName());
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean.getAbstractName()));
 
@@ -104,7 +101,7 @@ public class GBeanTest extends TestCase {
         assertFalse(kernel.isLoaded(gbean.getAbstractName()));
         assertFalse(kernel.isRunning(gbean.getAbstractName()));
 
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
         assertTrue(kernel.isLoaded(gbean.getAbstractName()));
         assertFalse(kernel.isRunning(gbean.getAbstractName()));
 
@@ -125,7 +122,7 @@ public class GBeanTest extends TestCase {
         assertFalse(kernel.isLoaded("name"));
         assertFalse(kernel.isRunning("name"));
 
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
         assertTrue(kernel.isLoaded("name"));
         assertFalse(kernel.isRunning("name"));
 
@@ -146,7 +143,7 @@ public class GBeanTest extends TestCase {
         assertFalse(kernel.isLoaded(MockGBean.class));
         assertFalse(kernel.isRunning(MockGBean.class));
 
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
         assertTrue(kernel.isLoaded(MockGBean.class));
         assertFalse(kernel.isRunning(MockGBean.class));
 
@@ -167,7 +164,7 @@ public class GBeanTest extends TestCase {
         assertFalse(kernel.isLoaded("name", MockGBean.class));
         assertFalse(kernel.isRunning("name", MockGBean.class));
 
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
         assertTrue(kernel.isLoaded("name", MockGBean.class));
         assertFalse(kernel.isRunning("name", MockGBean.class));
 
@@ -185,11 +182,10 @@ public class GBeanTest extends TestCase {
     }
 
     public void testGetGBean() throws Exception {
-        realKernel.boot(bundleContext);
         GBeanData gbean = buildGBeanData("name", "test", MockGBean.getGBeanInfo());
         gbean.setAttribute("finalInt", new Integer(123));
 
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
         kernel.startGBean(gbean.getAbstractName());
         assertTrue(kernel.isRunning(gbean.getAbstractName()));
 
@@ -224,7 +220,7 @@ public class GBeanTest extends TestCase {
         String otherValue = "other-value";
         gbean.setAttribute("value", testValue);
 
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
         kernel.startGBean(gbean.getAbstractName());
         assertTrue(kernel.isRunning(gbean.getAbstractName()));
         MockGBean mockGBean = (MockGBean) kernel.getGBean(gbean.getAbstractName());
@@ -334,7 +330,7 @@ public class GBeanTest extends TestCase {
         gbean.setAttribute("name", "Test");
         gbean.setAttribute("finalInt", new Integer(123));
 
-        kernel.loadGBean(gbean, bundle);
+        kernel.loadGBean(gbean, bundleContext);
         kernel.startGBean(gbean.getAbstractName());
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean.getAbstractName()));
         assertEquals("Hello", kernel.invoke(gbean.getAbstractName(), "doSomething", new Object[]{"Hello"}, new String[]{String.class.getName()}));
@@ -359,13 +355,13 @@ public class GBeanTest extends TestCase {
 //        ClassLoader cl = MockGBean.class.getClassLoader();
         GBeanData gbean1 = buildGBeanData("name", "test", MockGBean.getGBeanInfo());
         gbean1.setAttribute("finalInt", new Integer(123));
-        kernel.loadGBean(gbean1, bundle);
+        kernel.loadGBean(gbean1, bundleContext);
         kernel.startGBean(gbean1.getAbstractName());
 
         GBeanData gbean2 = buildGBeanData("name", "test2", MockGBean.getGBeanInfo());
         gbean2.setAttribute("finalInt", new Integer(123));
         gbean2.setReferencePattern("MockEndpoint", gbean1.getAbstractName());
-        kernel.loadGBean(gbean2, bundle);
+        kernel.loadGBean(gbean2, bundleContext);
         kernel.startGBean(gbean2.getAbstractName());
 
         assertEquals("endpointCheck", kernel.invoke(gbean2.getAbstractName(), "checkEndpoint", null, null));
@@ -375,13 +371,13 @@ public class GBeanTest extends TestCase {
 //        ClassLoader cl = MockGBean.class.getClassLoader();
         GBeanData gbean1 = buildGBeanData("name", "test", MockGBean.getGBeanInfo());
         gbean1.setAttribute("finalInt", new Integer(123));
-        kernel.loadGBean(gbean1, bundle);
+        kernel.loadGBean(gbean1, bundleContext);
         kernel.startGBean(gbean1.getAbstractName());
 
         GBeanData gbean2 = buildGBeanData("name", "test2", MockGBean.getGBeanInfo());
         gbean2.setAttribute("finalInt", new Integer(123));
         gbean2.setReferencePattern("MockEndpoint", gbean1.getAbstractName());
-        kernel.loadGBean(gbean2, bundle);
+        kernel.loadGBean(gbean2, bundleContext);
         kernel.startGBean(gbean2.getAbstractName());
 
 
@@ -397,11 +393,11 @@ public class GBeanTest extends TestCase {
 //        GBeanData gbean = buildGBeanData("name", "test", MockGBean.getGBeanInfo());
 //        gbean.setAttribute("name", "Test");
 //        gbean.setAttribute("finalInt", new Integer(123));
-//        kernel.loadGBean(gbean, bundle);
+//        kernel.loadGBean(gbean, bundleContext);
 //        kernel.startGBean(gbean.getAbstractName());
 //        ProxyManager mgr = kernel.getProxyManager();
 //
-//        Object test = mgr.createProxy(gbean.getAbstractName(), bundle);
+//        Object test = mgr.createProxy(gbean.getAbstractName(), bundleContext);
 //        assertTrue(test instanceof MockEndpoint);
 //        assertTrue(test instanceof MockParentInterface1);
 //        assertTrue(test instanceof MockParentInterface2);
@@ -526,8 +522,8 @@ public class GBeanTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        realKernel = new BasicKernel();
-//        realKernel.boot();
+        realKernel = KernelFactory.newInstance(bundleContext).createKernel("test");
+        realKernel.boot();
         kernel = kernelWrapper.wrap(realKernel);
     }
 

@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.framework.config</groupId>
+        <groupId>org.apache.geronimo.framework</groupId>
         <artifactId>configs</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
@@ -84,10 +84,10 @@
             <artifactId>commons-cli</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.servicemix.bundles</groupId>-->
-            <!--<artifactId>org.apache.servicemix.bundles.xstream</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.xstream</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.cglib</artifactId>
@@ -104,47 +104,66 @@
         </dependency>
 
         <!-- used by plugin installer -->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.specs</groupId>-->
-            <!--<artifactId>geronimo-jaxb_2.2_spec</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxb_2.2_spec</artifactId>
+        </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
-            <!--<artifactId>jaxb-impl</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.specs</groupId>-->
-            <!--<artifactId>geronimo-stax-api_1.2_spec</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.2_spec</artifactId>
+        </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
-            <!--<artifactId>woodstox</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>woodstox</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>sxc-jaxb</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.bundles</groupId>
+            <artifactId>sxc-runtime</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.1_spec</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.ops4j.pax.logging</groupId>-->
-            <!--<artifactId>pax-logging-api</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.geronimo.framework</groupId>-->
-            <!--<artifactId>geronimo-pax-logging</artifactId>-->
-            <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-pax-logging</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.apache.felix</groupId>-->
-            <!--<artifactId>org.apache.felix.configadmin</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.configadmin</artifactId>
+        </dependency>
 
+
+        <!-- build order hint -->
+        <dependency>
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
+            <version>${project.version}</version>
+            <type>car</type>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -154,48 +173,11 @@
                 <artifactId>car-maven-plugin</artifactId>
 
                 <configuration>
-
-                    <!--<dependencies>-->
-                        <!--<dependency>-->
-                            <!--<groupId>org.apache.geronimo.specs</groupId>-->
-                            <!--<artifactId>geronimo-jaxb_2.2_spec</artifactId>-->
-                            <!--<type>jar</type>-->
-                            <!--<eagerStart>true</eagerStart>-->
-                            <!--<start>false</start>-->
-                        <!--</dependency>-->
-                        <!---->
-                        <!--<dependency>-->
-                            <!--<groupId>org.apache.geronimo.specs</groupId>-->
-                            <!--<artifactId>geronimo-activation_1.1_spec</artifactId>-->
-                            <!--<type>jar</type>-->
-                            <!--<eagerStart>true</eagerStart>-->
-                            <!--<start>false</start>-->
-                        <!--</dependency>-->
-                        <!---->
-                        <!--<dependency>-->
-                            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
-                            <!--<artifactId>jaxb-impl</artifactId>-->
-                            <!--<type>jar</type>-->
-                            <!--<eagerStart>true</eagerStart>-->
-                            <!--<start>false</start>-->
-                        <!--</dependency>-->
-
-                        <!--<dependency>-->
-                            <!--<groupId>org.apache.geronimo.specs</groupId>-->
-                            <!--<artifactId>geronimo-stax-api_1.2_spec</artifactId>-->
-                            <!--<type>jar</type>-->
-                            <!--<eagerStart>true</eagerStart>-->
-                            <!--<start>false</start>-->
-                        <!--</dependency>-->
-
-                        <!--<dependency>-->
-                            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
-                            <!--<artifactId>woodstox</artifactId>-->
-                            <!--<type>jar</type>-->
-                            <!--<eagerStart>true</eagerStart>-->
-                            <!--<start>false</start>-->
-                        <!--</dependency>-->
-                    <!--</dependencies>-->
+                    <deploymentConfigs>
+                        <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
+                    </deploymentConfigs>
+                    <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
+                    <boot>true</boot>
                     <!--<archive>-->
                         <!--<manifestEntries>-->
                             <!--<Endorsed-Dirs>lib/endorsed</Endorsed-Dirs>-->

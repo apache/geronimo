@@ -18,9 +18,6 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.util.jar.JarFile;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import org.apache.geronimo.j2ee.deployment.model.app.ApplicationType;
 import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -51,5 +48,4 @@ public class EARConfigBuilder5Test
 
         super.tearDown();
     }
-
 }

@@ -20,14 +20,11 @@
 
 package org.apache.geronimo.security.deployment;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -41,8 +38,6 @@ import org.apache.geronimo.kernel.mock.MockConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.security.deployment.model.JaxbUtil;
-import org.apache.geronimo.security.deployment.model.loginconfig.LoginConfigType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -97,7 +92,7 @@ public class LoginConfigBuilderTest extends TestCase {
     //2.0 namespace, without server-side, with login-module-ref
     private static final String SAMPLE4 = "            <lc:login-config xmlns:lc=\"http://geronimo.apache.org/xml/ns/loginconfig-2.0\">\n" +
             "                <lc:login-module-ref control-flag=\"REQUIRED\" wrap-principals=\"true\">\n" +
-            "                    <lc:filter>client-properties-lm</lc:filter>\n" +
+            "                    <lc:pattern><name xmlns='http://geronimo.apache.org/xml/ns/deployment-1.2'>client-properties-lm</name></lc:pattern>\n" +
             "                </lc:login-module-ref>\n" +
             "                <lc:login-module control-flag=\"REQUIRED\" wrap-principals=\"true\">\n" +
             "                    <lc:login-domain-name>default</lc:login-domain-name>\n" +
@@ -119,22 +114,18 @@ public class LoginConfigBuilderTest extends TestCase {
         doTest(SAMPLE4);
     }
 
-    private void doTest(String text) throws XmlException, DeploymentException, JAXBException, XMLStreamException {
+    private void doTest(String text) throws XmlException, DeploymentException {
         GeronimoSecurityBuilderImpl secBuilder = new GeronimoSecurityBuilderImpl(null, null, null);
         secBuilder.doStart();
         LoginConfigBuilder builder = new LoginConfigBuilder(new Jsr77Naming(), null);
-        LoginConfigType xmlObject = JaxbUtil.unmarshalLoginConfig(new ByteArrayInputStream(text.getBytes()), false);
+        XmlObject xmlObject = XmlBeansUtil.parse(text);
+        XmlCursor cursor = xmlObject.newCursor();
+        cursor.toFirstContentToken();
+        xmlObject = cursor.getObject();
         HashMap<String, Artifact> locations = new HashMap<String, Artifact>();
         locations.put(null, Artifact.create("test/foo/1.0/car"));
         BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", new HashMap<Artifact, ConfigurationData>(), locations);
-        DeploymentContext context = new DeploymentContext(new File("."),
-                null,
-                new Environment(Artifact.create("test/foo/1.0/car")),
-                null,
-                ConfigurationModuleType.SERVICE,
-                new Jsr77Naming(),
-                Collections.<Repository>emptySet(),
-                bundleContext);
+        DeploymentContext context = new DeploymentContext(new File("."), null, new Environment(Artifact.create("test/foo/1.0/car")), null, ConfigurationModuleType.SERVICE, new Jsr77Naming(), new MockConfigurationManager(), Collections.<Repository>emptySet(), bundleContext);
         context.initializeConfiguration();
         AbstractName parentName = new AbstractName(URI.create("test/foo/1.0/car?name=parent,j2eeType=foo"));
         builder.getReferences(xmlObject, context, parentName, bundleContext.getBundle());

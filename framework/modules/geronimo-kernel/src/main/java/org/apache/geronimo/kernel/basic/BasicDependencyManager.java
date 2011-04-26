@@ -66,7 +66,7 @@ public class BasicDependencyManager implements DependencyManager {
      */
     private final Map parentToChildMap = new HashMap();
 
-    public BasicDependencyManager(LifecycleMonitor lifecycleMonitor) {
+    public BasicDependencyManager(LifecycleMonitor lifecycleMonitor) throws Exception {
         assert lifecycleMonitor != null;
         this.lifecycleMonitor = lifecycleMonitor;
         lifecycleMonitor.addLifecycleListener(lifecycleListener, new AbstractNameQuery(null, Collections.EMPTY_MAP, Collections.EMPTY_SET));

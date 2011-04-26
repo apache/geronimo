@@ -17,7 +17,6 @@
 package org.apache.geronimo.system.jmx;
 
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -41,6 +40,7 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev$ $Date$
@@ -64,17 +64,6 @@ public class KernelDelegate implements Kernel {
 
     public Naming getNaming() {
         return (Naming) getKernelAttribute("naming");
-    }
-
-    @Override
-    public LinkedHashSet<GBeanData> findGBeanDatas(Set<AbstractNameQuery> patterns) {
-        try {
-            return (LinkedHashSet<GBeanData>)invokeKernel("findGBeanDatas", new Object[] {patterns}, new String[] {Set.class.getName()});
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
     }
 
     @Deprecated
@@ -135,9 +124,9 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public void loadGBean(GBeanData gbeanData, Bundle bundle) throws GBeanAlreadyExistsException {
+    public void loadGBean(GBeanData gbeanData, BundleContext bundleContext) throws GBeanAlreadyExistsException {
         try {
-            invokeKernel("loadGBean", new Object[] {gbeanData, bundle}, new String[] {GBeanData.class.getName(), ClassLoader.class.getName()});
+            invokeKernel("loadGBean", new Object[] {gbeanData, bundleContext}, new String[] {GBeanData.class.getName(), ClassLoader.class.getName()});
         } catch (GBeanAlreadyExistsException e) {
             throw e;
         } catch (RuntimeException e) {
@@ -877,6 +866,13 @@ public class KernelDelegate implements Kernel {
 
     public ProxyManager getProxyManager() {
         return proxyManager;
+    }
+
+    /**
+     * Throws UnsupportedOperationException.  A remote kernel will alreayd be booted.
+     */
+    public void boot() throws Exception {
+        throw new UnsupportedOperationException("A remote kernel can not be booted");
     }
 
     private Object getKernelAttribute(String attributeName) {

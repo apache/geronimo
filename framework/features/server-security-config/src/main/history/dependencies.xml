@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0" name="server-security-config">
-    <feature>
-        <feature>j2ee-system</feature>
-        <bundle>mvn:org.apache.geronimo.framework.config/server-security-config/3.0-SNAPSHOT/car</bundle>
-    </feature>
-</features>

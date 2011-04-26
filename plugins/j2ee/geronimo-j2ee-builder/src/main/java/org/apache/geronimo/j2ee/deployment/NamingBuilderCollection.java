@@ -24,38 +24,41 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.AbstractBuilderCollection;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamReference;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.jee.JndiConsumer;
+import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
 @GBean(j2eeType = NameFactory.MODULE_BUILDER)
-public class NamingBuilderCollection implements NamingBuilder {
-
-    private Collection<NamingBuilder> builders;
+public class NamingBuilderCollection extends AbstractBuilderCollection<NamingBuilder> implements NamingBuilder {
 
     public NamingBuilderCollection(@ParamReference(name = "NamingBuilders", namingType = NameFactory.MODULE_BUILDER)Collection<NamingBuilder> builders) {
-        this.builders = builders;
+        super(builders);
     }
 
-    public void buildEnvironment(JndiConsumer specDD, JndiPlan plan, Environment environment) throws DeploymentException {
+    public void buildEnvironment(JndiConsumer specDD, XmlObject plan, Environment environment) throws DeploymentException {
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             namingBuilder.buildEnvironment(specDD, plan, environment);
         }
     }
 
-    public void initContext(JndiConsumer specDD, JndiPlan plan, Module module) throws DeploymentException {
+    public void initContext(JndiConsumer specDD, XmlObject plan, Module module) throws DeploymentException {
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             namingBuilder.initContext(specDD, plan, module);
         }
     }
 
-    public void buildNaming(JndiConsumer specDD, JndiPlan plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
+    public void buildNaming(JndiConsumer specDD, XmlObject plan, Module module, Map<EARContext.Key, Object> sharedContext) throws DeploymentException {
         for (NamingBuilder namingBuilder : getSortedBuilders()) {
             if (EARConfigBuilder.createPlanMode.get().booleanValue()) {
                 try {
@@ -83,6 +86,18 @@ public class NamingBuilderCollection implements NamingBuilder {
     
     public int getPriority() {
         return NORMAL_PRIORITY;
+    }
+
+    public QName getBaseQName() {
+        return new QName("foo");
+    }
+
+    public QNameSet getSpecQNameSet() {
+        return QNameSet.EMPTY;
+    }
+
+    public QNameSet getPlanQNameSet() {
+        return QNameSet.EMPTY;
     }
 
 }

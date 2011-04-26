@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.basic.BasicKernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.osgi.framework.BundleContext;
 
@@ -53,16 +53,15 @@ public class MainConfigurationBootstrapper {
     protected Kernel kernel;
 
     public Main getMain(BundleContext bundleContext) {
-        if (true) throw new IllegalStateException("use configurationExtender");
         try {
             bootKernel(bundleContext);
-//            loadBootConfiguration(bundleContext);
+            loadBootConfiguration(bundleContext);
             loadPersistentConfigurations();
             return getMain();
         } catch (Exception e) {
-//            if (null != kernel) {
-//                kernel.shutdown();
-//            }
+            if (null != kernel) {
+                kernel.shutdown();
+            }
             e.printStackTrace();
             System.exit(1);
             throw new AssertionError();
@@ -70,22 +69,20 @@ public class MainConfigurationBootstrapper {
     }
     
     public void bootKernel(BundleContext bundleContext) throws Exception {
-        kernel = new BasicKernel();
-//        kernel = KernelFactory.newInstance(bundleContext).createKernel("MainBootstrapper");
-//        kernel.boot();
+        kernel = KernelFactory.newInstance(bundleContext).createKernel("MainBootstrapper");
+        kernel.boot();
 
         Runtime.getRuntime().addShutdownHook(new Thread("MainBootstrapper shutdown thread") {
             public void run() {
-                ((BasicKernel)kernel).shutdown();
+                kernel.shutdown();
             }
         });
     }
     
     public void loadBootConfiguration(BundleContext bundleContext) throws Exception {
-        if (true) throw new Exception("use ConfigurationExtender");
         InputStream in = bundleContext.getBundle().getResource("META-INF/config.ser").openStream();
         try {
-//            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext, true);
+            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext, true);
         } finally {
             if (in != null) {
                 try {

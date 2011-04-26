@@ -21,7 +21,6 @@
 package org.apache.geronimo.kernel.config;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -79,51 +78,30 @@ public class DependencyNodeUtil {
         }
     }
 
-    /**
-     * This method will check all its sub configurations, and add those class and service parents into the target DependencyNode
-     * @param configurationData
-     * @param artifactResolver
-     * @param configurationFilter
-     * @return
-     * @throws MissingDependencyException
-     */
-    public static DependencyNode toDependencyNode(ConfigurationData configurationData, ArtifactResolver artifactResolver, ConfigurationManager configurationFilter) throws MissingDependencyException {
-        DependencyNode dependencyNode = toDependencyNode(configurationData.getEnvironment(), artifactResolver, configurationFilter);
-        for(Map.Entry<String, ConfigurationData> entry : configurationData.getChildConfigurations().entrySet()) {
-            DependencyNode childDependencyNode = toDependencyNode(entry.getValue(), artifactResolver, configurationFilter);
-            childDependencyNode.getClassParents().remove(configurationData.getId());
-            childDependencyNode.getServiceParents().remove(configurationData.getId());
-            dependencyNode.getClassParents().addAll(childDependencyNode.getClassParents());
-            dependencyNode.getServiceParents().addAll(childDependencyNode.getServiceParents());
-        }
-        return dependencyNode;
-    }
-
     public static DependencyNode toDependencyNode(Environment environment, ArtifactResolver artifactResolver, ConfigurationManager configurationFilter) throws MissingDependencyException {
         Artifact id = environment.getConfigId();
         LinkedHashSet<Artifact> classParents = new LinkedHashSet<Artifact>();
         LinkedHashSet<Artifact> serviceParents = new LinkedHashSet<Artifact>();
-//        for (Dependency dependency: environment.getDependencies()) {
-//            try {
-//                Artifact parent = artifactResolver.resolveInClassLoader(dependency.getArtifact());
-//                if (configurationFilter.isConfiguration(parent)) {
-//                    if (dependency.getImportType() == ImportType.ALL || dependency.getImportType() == ImportType.SERVICES) {
-//                        serviceParents.add(parent);
-//                    }
-//                    if (dependency.getImportType() == ImportType.ALL || dependency.getImportType() == ImportType.CLASSES) {
-//                        classParents.add(parent);
-//                    }
-//                } else {
-//                    if (dependency.getImportType() == ImportType.SERVICES) {
-//                        throw new MissingDependencyException("Not a configuration but import type services only", parent, id);
-//                    }
-//                }
-//            } catch (MissingDependencyException e) {
-//                throw (MissingDependencyException)new MissingDependencyException("Attempting to resolve environment: " + environment, dependency.getArtifact(), id).initCause(e);
-//            }
-//        }
+        for (Dependency dependency: environment.getDependencies()) {
+            try {
+                Artifact parent = artifactResolver.resolveInClassLoader(dependency.getArtifact());
+                if (configurationFilter.isConfiguration(parent)) {
+                    if (dependency.getImportType() == ImportType.ALL || dependency.getImportType() == ImportType.SERVICES) {
+                        serviceParents.add(parent);
+                    }
+                    if (dependency.getImportType() == ImportType.ALL || dependency.getImportType() == ImportType.CLASSES) {
+                        classParents.add(parent);
+                    }
+                } else {
+                    if (dependency.getImportType() == ImportType.SERVICES) {
+                        throw new MissingDependencyException("Not a configuration but import type services only", parent, id);
+                    }
+                }
+            } catch (MissingDependencyException e) {
+                throw (MissingDependencyException)new MissingDependencyException("Attempting to resolve environment: " + environment, dependency.getArtifact(), id).initCause(e);
+            }
+        }
         return new DependencyNode(id, classParents, serviceParents);
     }
-
 
 }

@@ -34,11 +34,6 @@ public class Dependency extends ModuleId {
      */
     private Boolean start;
 
-    /**
-     * @parameter
-     */
-    private Boolean eagerStart;
-
     public Boolean isStart() {
         if (start == null) {
             return Boolean.TRUE;
@@ -50,17 +45,6 @@ public class Dependency extends ModuleId {
         this.start = start;
     }
 
-    public Boolean isEagerStart() {
-        if (eagerStart == null) {
-            return Boolean.FALSE;
-        }
-        return eagerStart;
-    }
-
-    public void setEagerStart(Boolean eagerStart) {
-        this.eagerStart = eagerStart;
-    }
-
     public DependencyType toDependencyType() {
         DependencyType dependency = new DependencyType();
         dependency.setGroupId(groupId);
@@ -68,7 +52,6 @@ public class Dependency extends ModuleId {
         dependency.setVersion(version);
         dependency.setType(type);
         dependency.setStart(start);
-        dependency.setEagerStart(eagerStart);
         dependency.setImport(getImport() == null? org.apache.geronimo.system.plugin.model.ImportType.ALL:
                 org.apache.geronimo.system.plugin.model.ImportType.fromValue(getImport()));
 

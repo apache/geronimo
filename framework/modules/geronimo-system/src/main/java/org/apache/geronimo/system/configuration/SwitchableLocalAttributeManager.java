@@ -22,25 +22,20 @@ import java.util.List;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.annotation.GBean;
-import org.apache.geronimo.gbean.annotation.ParamSpecial;
-import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.SwitchablePersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.osgi.framework.Bundle;
 
 /**
  *
  * @version $Rev: 486815 $ $Date: 2006-12-14 06:45:10 +1100 (Thu, 14 Dec 2006) $
  */
-@GBean
-public class SwitchableLocalAttributeManager extends WrapperAttributeManager implements SwitchablePersistentConfigurationList {
+public class SwitchableLocalAttributeManager extends LocalAttributeManager implements SwitchablePersistentConfigurationList {
     private boolean online;
     
-    public SwitchableLocalAttributeManager(@ParamSpecial(type = SpecialAttributeType.bundle)final Bundle bundle) {
-        super(bundle);
+    public SwitchableLocalAttributeManager(String configFile, String substitutionsFile, String configSubstitutionsPrefix, boolean readOnly, ServerInfo serverInfo) {
+        super(configFile, substitutionsFile, configSubstitutionsPrefix, readOnly, serverInfo);
     }
 
     @Override
@@ -91,4 +86,18 @@ public class SwitchableLocalAttributeManager extends WrapperAttributeManager imp
         }
     }
     
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SwitchableLocalAttributeManager.class, LocalAttributeManager.GBEAN_INFO);
+
+        infoFactory.addInterface(SwitchablePersistentConfigurationList.class);
+        
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }

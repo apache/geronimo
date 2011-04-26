@@ -23,7 +23,6 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
-import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.osgi.framework.BundleContext;
 
@@ -37,7 +36,7 @@ public abstract class TestSupport
 {
 //    @Inject
     protected BundleContext bundleContext;
-    protected Bundle bundle;
+
 
     private final TestUtil testUtil;
     
@@ -86,11 +85,6 @@ public abstract class TestSupport
 
 //        bundleContext = new MockBundleContext(getClass().getClassLoader(), BASEDIR.getAbsolutePath());
         log.info("Initialized");
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-        this.bundle = bundleContext.getBundle();
     }
 
     public BundleContext getBundleContext() {

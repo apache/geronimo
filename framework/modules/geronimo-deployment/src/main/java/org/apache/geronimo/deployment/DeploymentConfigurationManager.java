@@ -20,7 +20,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -28,8 +31,8 @@ import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModel;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.DependencyNode;
 import org.apache.geronimo.kernel.config.DeploymentWatcher;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.LifecycleMonitor;
 import org.apache.geronimo.kernel.config.LifecycleResults;
@@ -37,7 +40,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.SimpleConfigurationManager;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Version;
 import org.osgi.framework.Bundle;
@@ -64,6 +67,10 @@ public class DeploymentConfigurationManager extends SimpleConfigurationManager {
     //
     // GENERAL DATA
     //
+
+    public synchronized boolean isInstalled(Artifact configId) {
+        return super.isInstalled(configId);
+    }
 
     public synchronized boolean isLoaded(Artifact configId) {
         return configurationManager.isLoaded(configId) || super.isLoaded(configId);
@@ -94,10 +101,8 @@ public class DeploymentConfigurationManager extends SimpleConfigurationManager {
         return bundle;
     }
 
-    @Override
-    public synchronized ConfigurationData getLoadedConfigurationData(Artifact configurationId) {
-        ConfigurationData configurationData = configurationManager.getLoadedConfigurationData(configurationId);
-        return configurationData == null ? super.getLoadedConfigurationData(configurationId) : configurationData;
+    public ArtifactResolver getArtifactResolver() {
+        return super.getArtifactResolver();
     }
 
     /**
@@ -111,38 +116,77 @@ public class DeploymentConfigurationManager extends SimpleConfigurationManager {
     public void setOnline(boolean online) {
     }
 
-    @Override
-    protected void addConfigurationModel(Artifact id) throws NoSuchConfigException, MissingDependencyException {
-        ConfigurationData configurationData = getLoadedConfigurationData(id);
-        if (configurationData == null) {
-            throw new NoSuchConfigException(id, "Should be load the configurationData first");
-        }
-        DependencyNode node = buildDependencyNode(configurationData);
-        for (Artifact classParentId : node.getClassParents()) {
-            if (!configurationModel.containsConfiguration(classParentId)) {
-                configurationModel.addConfiguration(classParentId, Collections.<Artifact> emptySet(), Collections.<Artifact> emptySet());
-                configurationModel.load(classParentId);
-            }
-        }
-        for (Artifact serviceParentId : node.getServiceParents()) {
-            if (!configurationModel.containsConfiguration(serviceParentId)) {
-                configurationModel.addConfiguration(serviceParentId, Collections.<Artifact> emptySet(), Collections.<Artifact> emptySet());
-                configurationModel.load(serviceParentId);
-            }
-        }
-        configurationModel.addConfiguration(id, node.getClassParents(), node.getServiceParents());
+    //
+    // LOAD
+    //
+
+    public synchronized LifecycleResults loadConfiguration(Artifact configurationId) throws NoSuchConfigException, LifecycleException {
+        return super.loadConfiguration(configurationId);
     }
 
-    @Override
-    protected void loadConfigurationModel(Artifact configurationId) throws NoSuchConfigException {
+    public synchronized LifecycleResults loadConfiguration(Artifact configurationId, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+        return super.loadConfiguration(configurationId, monitor);
+    }
+
+    public synchronized LifecycleResults loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, LifecycleException {
+        return super.loadConfiguration(configurationData);
+    }
+
+    public synchronized LifecycleResults loadConfiguration(ConfigurationData configurationData, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+        return super.loadConfiguration(configurationData, monitor);
+    }
+
+    protected Configuration load(ConfigurationData configurationData, LinkedHashSet<Artifact> resolvedParentIds, Map<Artifact, Configuration> loadedConfigurations) throws InvalidConfigException {
+        return super.load(configurationData, resolvedParentIds, loadedConfigurations);
+    }
+
+    protected void load(Artifact configurationId) throws NoSuchConfigException {
         if (configurationModel.containsConfiguration(configurationId)) {
-            super.loadConfigurationModel(configurationId);
+            super.load(configurationId);
         }
     }
 
-    @Override
-    protected void startInternal(Configuration configuration) throws Exception {
+    protected void addNewConfigurationToModel(Configuration configuration) throws NoSuchConfigException {
+        LinkedHashSet<Configuration> loadParents = getLoadParents(configuration);
+        for (Configuration loadParent : loadParents) {
+            if (!configurationModel.containsConfiguration(loadParent.getId())) {
+                configurationModel.addConfiguration(loadParent.getId(), Collections.<Artifact>emptySet(), Collections.<Artifact>emptySet());
+                configurationModel.load(loadParent.getId());
+            }
+        }
+        LinkedHashSet<Configuration> startParents = getStartParents(configuration);
+        for (Configuration startParent : startParents) {
+            if (!configurationModel.containsConfiguration(startParent.getId())) {
+                configurationModel.addConfiguration(startParent.getId(), Collections.<Artifact>emptySet(), Collections.<Artifact>emptySet());
+                configurationModel.load(startParent.getId());
+            }
+        }
+        super.addNewConfigurationToModel(configuration);
     }
+
+    //
+    // UNLOAD
+    //
+
+    public synchronized LifecycleResults unloadConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
+        return super.unloadConfiguration(id);
+    }
+
+    public synchronized LifecycleResults unloadConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
+        return super.unloadConfiguration(id, monitor);
+    }
+
+    protected void unload(Configuration configuration) {
+        super.unload(configuration);
+    }
+
+    //
+    // STOP.. used by unload
+    //
+    protected void stop(Configuration configuration) {
+        super.stop(configuration);
+    }
+
 
     //
     // UNSUPPORTED
@@ -168,7 +212,7 @@ public class DeploymentConfigurationManager extends SimpleConfigurationManager {
         throw new UnsupportedOperationException();
     }
 
-    public List<ConfigurationInfo> listConfigurations() {
+    public List listConfigurations() {
         throw new UnsupportedOperationException();
     }
 
@@ -180,13 +224,17 @@ public class DeploymentConfigurationManager extends SimpleConfigurationManager {
         throw new UnsupportedOperationException();
     }
 
-    /*public synchronized LifecycleResults startConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
+    public synchronized LifecycleResults startConfiguration(Artifact id) throws NoSuchConfigException, LifecycleException {
         throw new UnsupportedOperationException();
     }
 
     public synchronized LifecycleResults startConfiguration(Artifact id, LifecycleMonitor monitor) throws NoSuchConfigException, LifecycleException {
         throw new UnsupportedOperationException();
-    }*/
+    }
+
+    protected void start(Configuration configuration) throws Exception {
+        throw new UnsupportedOperationException();
+    }
 
     public synchronized LifecycleResults stopConfiguration(Artifact id) throws NoSuchConfigException {
         throw new UnsupportedOperationException();

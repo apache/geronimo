@@ -21,8 +21,8 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.MockGBean;
-import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -39,10 +39,10 @@ public class GBeanDependencyTest extends TestCase {
         GBeanData gbeanDataParent = new GBeanData(parentName, MockGBean.getGBeanInfo());
         GBeanData gbeanDataChild = new GBeanData(kernel.getNaming().createChildName(parentName, "child", "child"), MockGBean.getGBeanInfo());
         gbeanDataChild.addDependency(new ReferencePatterns(parentName));
-        kernel.loadGBean(gbeanDataChild, bundleContext.getBundle());
+        kernel.loadGBean(gbeanDataChild, bundleContext);
         kernel.startGBean(gbeanDataChild.getAbstractName());
         assertEquals(State.STARTING_INDEX, kernel.getGBeanState(gbeanDataChild.getAbstractName()));
-        kernel.loadGBean(gbeanDataParent, bundleContext.getBundle());
+        kernel.loadGBean(gbeanDataParent, bundleContext);
         assertEquals(State.STARTING_INDEX, kernel.getGBeanState(gbeanDataChild.getAbstractName()));
         kernel.startGBean(parentName);
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanDataChild.getAbstractName()));
@@ -50,12 +50,12 @@ public class GBeanDependencyTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = new BasicKernel();
-//        kernel.boot();
+        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
+        kernel.boot();
     }
 
     protected void tearDown() throws Exception {
-//        kernel.shutdown();
+        kernel.shutdown();
         super.tearDown();
     }
 }

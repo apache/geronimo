@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -39,7 +38,7 @@ public class LocalServer extends CommandLine {
         startKernel(Artifact.create(bootModule));
         Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
             public void run() {
-                ((BasicKernel)getKernel()).shutdown();
+                getKernel().shutdown();
             }
         });
         List configs = getConfigurationList(configListLocation);

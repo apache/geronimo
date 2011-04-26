@@ -32,7 +32,6 @@ public class ImportType implements Serializable {
     public static final ImportType ALL = new ImportType("all");
     public static final ImportType CLASSES = new ImportType("classes");
     public static final ImportType SERVICES = new ImportType("services");
-    public static final ImportType START = new ImportType("start");
 
     public static ImportType getByName(String name) {
         ImportType type = (ImportType) typesByName.get(name.toLowerCase());
