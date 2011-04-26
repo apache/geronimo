@@ -126,10 +126,10 @@ public class EditableKernelConfigurationManager extends KernelConfigurationManag
 
 
             // preprocess the gbean data before loading it into the kernel
-            ConfigurationUtil.preprocessGBeanData(configuration.getAbstractName(), configuration, gbean);
+            ConfigurationUtil.preprocessGBeanData(configuration, gbean);
 
             // register the bean with the kernel
-            kernel.loadGBean(gbean, configuration.getBundleContext());
+            kernel.loadGBean(gbean, configuration.getBundle());
 
             // start the configuration
             if (start) {

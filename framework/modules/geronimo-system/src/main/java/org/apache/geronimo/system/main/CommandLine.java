@@ -131,12 +131,13 @@ public class CommandLine {
     }
 
     protected void loadBootstrapConfiguration() throws Exception {
+        if (true) throw new Exception("use COnfigurationExtender");
 //        ClassLoader classLoader = CommandLine.class.getClassLoader();
         BundleContext bundleContext = null;
         InputStream in = bundleContext.getBundle().getResource("META-INF/config.ser").openStream();
         try {
             // load the configuration
-            configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext);
+//            configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext);
         } finally {
             if (in != null) {
                 try {
@@ -157,6 +158,7 @@ public class CommandLine {
     }
 
     protected void startKernel(Artifact moduleId) throws Exception {
+        if (true) throw new IllegalStateException("don't call this");
         getBootedKernel();
 //        ClassLoader classLoader = CommandLine.class.getClassLoader();
         BundleContext bundleContext = null;
@@ -167,7 +169,7 @@ public class CommandLine {
                 ConfigurationData moduleData = ConfigurationUtil.readConfigurationData(in);
                 if (moduleId.matches(moduleData.getId())) {
                     // load the configuration
-                    configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, moduleData, bundleContext);
+//                    configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, moduleData, bundleContext);
                     return;
                 }
             } finally {

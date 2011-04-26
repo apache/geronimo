@@ -158,66 +158,66 @@ public final class ConfigurationUtil {
         return configurationMarshaler.newGBeanState(gbeans);
     }
 
-    public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, BundleContext bundleContext) throws Exception {
-        return loadBootstrapConfiguration(kernel, in, bundleContext, false);
-    }
-
-    public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, BundleContext bundleContext, boolean enableBootRepo) throws Exception {
-        ConfigurationData configurationData = readConfigurationData(in);
-        return loadBootstrapConfiguration(kernel, configurationData, bundleContext, enableBootRepo);
-    }
-
-    public static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, BundleContext bundleContext) throws Exception {
-        return loadBootstrapConfiguration(kernel, configurationData, bundleContext, false);
-    }
-
-    public static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, BundleContext bundleContext, boolean enableBootRepo) throws Exception {
-        if (kernel == null) throw new NullPointerException("kernel is null");
-        if (configurationData == null) throw new NullPointerException("configurationData is null");
-        if (bundleContext == null) throw new NullPointerException("bundle is null");
-
-        configurationData.setBundle(bundleContext.getBundle());
-
-        // build the gbean data
-        Artifact configId = configurationData.getId();
-        AbstractName abstractName = Configuration.getConfigurationAbstractName(configId);
-        GBeanData gbeanData = new GBeanData(abstractName, Configuration.class);
-        gbeanData.setAttribute("configurationData", configurationData);
-
-        Collection repositories = null;
-        ArtifactResolver artifactResolver = null;
-        if (enableBootRepo) {
-            String repository = System.getProperty("Xorg.apache.geronimo.repository.boot.path", "repository");
-            Maven2Repository bootRepository = new Maven2Repository(new File(getBootDirectory(), repository));
-            repositories = Collections.singleton(bootRepository);
-            artifactResolver = new DefaultArtifactResolver(new DefaultArtifactManager(), bootRepository);
-        } else {
-            // a bootstrap configuration can not have any dependencies
-//            List dependencies = configurationData.getEnvironment().getDependencies();
-//            if (!dependencies.isEmpty()) {
-//                configurationData.getEnvironment().setDependencies(Collections.EMPTY_SET);
-//            }
-        }
-        ConfigurationResolver configurationResolver = new ConfigurationResolver(configurationData, repositories, artifactResolver);
-
-        DependencyNode dependencyNode = new DependencyNode(configId, new LinkedHashSet<Artifact>(), new LinkedHashSet<Artifact>());
-        gbeanData.setAttribute("dependencyNode", dependencyNode);
-        gbeanData.setAttribute("allServiceParents", Collections.<Configuration>emptyList());
-
-
-        // load and start the gbean
-        kernel.loadGBean(gbeanData, bundleContext);
-        kernel.startGBean(gbeanData.getAbstractName());
-
-        Configuration configuration = (Configuration) kernel.getGBean(gbeanData.getAbstractName());
-
-        // start the gbeans
-        startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
-
-        ConfigurationManager configurationManager = getConfigurationManager(kernel);
-        configurationManager.loadConfiguration(configId);
-        return gbeanData.getAbstractName();
-    }
+//    public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, BundleContext bundleContext) throws Exception {
+//        return loadBootstrapConfiguration(kernel, in, bundleContext, false);
+//    }
+//
+//     static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, BundleContext bundleContext, boolean enableBootRepo) throws Exception {
+//        ConfigurationData configurationData = readConfigurationData(in);
+//        return loadBootstrapConfiguration(kernel, configurationData, bundleContext, enableBootRepo);
+//    }
+//
+//     static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, BundleContext bundleContext) throws Exception {
+//        return loadBootstrapConfiguration(kernel, configurationData, bundleContext, false);
+//    }
+//
+//     static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, BundleContext bundleContext, boolean enableBootRepo) throws Exception {
+//        if (kernel == null) throw new NullPointerException("kernel is null");
+//        if (configurationData == null) throw new NullPointerException("configurationData is null");
+//        if (bundleContext == null) throw new NullPointerException("bundle is null");
+//        if (true) throw new IllegalStateException("Don't call this");
+//        configurationData.setBundle(bundleContext.getBundle());
+//
+//        // build the gbean data
+//        Artifact configId = configurationData.getId();
+//        AbstractName abstractName = Configuration.getConfigurationAbstractName(configId);
+//        GBeanData gbeanData = new GBeanData(abstractName, Configuration.class);
+//        gbeanData.setAttribute("configurationData", configurationData);
+//
+//        Collection repositories = null;
+//        ArtifactResolver artifactResolver = null;
+//        if (enableBootRepo) {
+//            String repository = System.getProperty("Xorg.apache.geronimo.repository.boot.path", "repository");
+//            Maven2Repository bootRepository = new Maven2Repository(new File(getBootDirectory(), repository));
+//            repositories = Collections.singleton(bootRepository);
+//            artifactResolver = new DefaultArtifactResolver(new DefaultArtifactManager(), bootRepository);
+//        } else {
+//            // a bootstrap configuration can not have any dependencies
+////            List dependencies = configurationData.getEnvironment().getDependencies();
+////            if (!dependencies.isEmpty()) {
+////                configurationData.getEnvironment().setDependencies(Collections.EMPTY_SET);
+////            }
+//        }
+//        ConfigurationResolver configurationResolver = new ConfigurationResolver(configurationData, repositories, artifactResolver);
+//
+//        DependencyNode dependencyNode = new DependencyNode(configId, new LinkedHashSet<Artifact>(), new LinkedHashSet<Artifact>());
+//        gbeanData.setAttribute("dependencyNode", dependencyNode);
+//        gbeanData.setAttribute("allServiceParents", Collections.<Configuration>emptyList());
+//
+//
+//        // load and start the gbean
+//        kernel.loadGBean(gbeanData, bundleContext.getBundle());
+//        kernel.startGBean(gbeanData.getAbstractName());
+//
+//        Configuration configuration = (Configuration) kernel.getGBean(gbeanData.getAbstractName());
+//
+//        // start the gbeans
+//        startConfigurationGBeans(configuration, kernel);
+//
+//        ConfigurationManager configurationManager = getConfigurationManager(kernel);
+//        configurationManager.loadConfiguration(configId);
+//        return gbeanData.getAbstractName();
+//    }
 
     public static void writeConfigurationData(ConfigurationData configurationData, OutputStream out) throws IOException {
         configurationMarshaler.writeConfigurationData(configurationData, out);
@@ -302,27 +302,27 @@ public final class ConfigurationUtil {
      * @return Its AbstractName
      * @throws IllegalStateException Occurs if a ConfigurationManager cannot be identified
      */
-    public static AbstractName getConfigurationManagerName(Kernel kernel) {
-        Set names = kernel.listGBeans(new AbstractNameQuery(ConfigurationManager.class.getName()));
-        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            AbstractName abstractName = (AbstractName) iterator.next();
-            if (!kernel.isRunning(abstractName)) {
-                iterator.remove();
-            }
-        }
-        if (names.isEmpty()) {
-            throw new IllegalStateException("A Configuration Manager could not be found in the kernel");
-        }
-        if (names.size() > 1) {
-            String error = "More than one Configuration Manager was found in the kernel: ";
-            for (Object name : names) {
-                AbstractName abName = (AbstractName)name;
-                error = error + "\"" + abName.toString() + "\" ";
-            }
-            throw new IllegalStateException(error);
-        }
-        return (AbstractName) names.iterator().next();
-    }
+//    public static AbstractName getConfigurationManagerName(Kernel kernel) {
+//        Set names = kernel.listGBeans(new AbstractNameQuery(ConfigurationManager.class.getName()));
+//        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+//            AbstractName abstractName = (AbstractName) iterator.next();
+//            if (!kernel.isRunning(abstractName)) {
+//                iterator.remove();
+//            }
+//        }
+//        if (names.isEmpty()) {
+//            throw new IllegalStateException("A Configuration Manager could not be found in the kernel");
+//        }
+//        if (names.size() > 1) {
+//            String error = "More than one Configuration Manager was found in the kernel: ";
+//            for (Object name : names) {
+//                AbstractName abName = (AbstractName)name;
+//                error = error + "\"" + abName.toString() + "\" ";
+//            }
+//            throw new IllegalStateException(error);
+//        }
+//        return (AbstractName) names.iterator().next();
+//    }
 
 
     /**
@@ -341,33 +341,33 @@ public final class ConfigurationUtil {
      * @return The EdtiableConfigurationManager, or none if there is not one available.
      * @throws IllegalStateException Occurs if there are multiple EditableConfigurationManagers in the kernel.
      */
-    public static EditableConfigurationManager getEditableConfigurationManager(Kernel kernel) {
-        Set names = kernel.listGBeans(new AbstractNameQuery(EditableConfigurationManager.class.getName()));
-        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
-            AbstractName abstractName = (AbstractName) iterator.next();
-            if (!kernel.isRunning(abstractName)) {
-                iterator.remove();
-            }
-        }
-        if (names.isEmpty()) {
-            return null; // may be one, just not editable
-        }
-        if (names.size() > 1) {
-            throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
-        }
-        AbstractName configurationManagerName = (AbstractName) names.iterator().next();
-        try {
-            return (EditableConfigurationManager) kernel.getGBean(configurationManagerName);
-        } catch (GBeanNotFoundException e) {
-            return null;
-        }
-    }
+//    public static EditableConfigurationManager getEditableConfigurationManager(Kernel kernel) {
+//        Set names = kernel.listGBeans(new AbstractNameQuery(EditableConfigurationManager.class.getName()));
+//        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+//            AbstractName abstractName = (AbstractName) iterator.next();
+//            if (!kernel.isRunning(abstractName)) {
+//                iterator.remove();
+//            }
+//        }
+//        if (names.isEmpty()) {
+//            return null; // may be one, just not editable
+//        }
+//        if (names.size() > 1) {
+//            throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
+//        }
+//        AbstractName configurationManagerName = (AbstractName) names.iterator().next();
+//        try {
+//            return (EditableConfigurationManager) kernel.getGBean(configurationManagerName);
+//        } catch (GBeanNotFoundException e) {
+//            return null;
+//        }
+//    }
 
     public static void releaseConfigurationManager(Kernel kernel, ConfigurationManager configurationManager) {
 //        kernel.getProxyManager().destroyProxy(configurationManager);
     }
 
-    static void preprocessGBeanData(AbstractName configurationName, Configuration configuration, GBeanData gbeanData) throws InvalidConfigException {
+    static void preprocessGBeanData(Configuration configuration, GBeanData gbeanData) throws InvalidConfigException {
         if (log.isDebugEnabled()) {
             log.debug("resolving dependencies for " + gbeanData.getAbstractName());
         }
@@ -426,15 +426,14 @@ public final class ConfigurationUtil {
         }
         */
         // add a dependency from the gbean to the configuration
-        gbeanData.addDependency(configurationName);
+//        gbeanData.addDependency(configuration.getAbstractName());
     }
 
-    public static void startConfigurationGBeans(AbstractName configurationName, Configuration configuration, Kernel kernel) throws InvalidConfigException {
+    public static void loadConfigurationGBeans(Configuration configuration, Kernel kernel) throws InvalidConfigException {
         List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
         Collections.sort(gbeans, new GBeanData.PriorityComparator());
 
         List<AbstractName> loaded = new ArrayList<AbstractName>(gbeans.size());
-        List<AbstractName> started = new ArrayList<AbstractName>(gbeans.size());
 
         try {
             // register all the GBeans
@@ -444,10 +443,10 @@ public final class ConfigurationUtil {
                 gbeanData = new GBeanData(gbeanData);
 
                 // preprocess the gbeanData (resolve references, set base url, declare dependency, etc.)
-                preprocessGBeanData(configurationName, configuration, gbeanData);
+                preprocessGBeanData(configuration, gbeanData);
 
                 try {
-                    kernel.loadGBean(gbeanData, configuration.getBundleContext());
+                    kernel.loadGBean(gbeanData, configuration.getBundle());
                     loaded.add(gbeanData.getAbstractName());
                 } catch (GBeanAlreadyExistsException e) {
                     throw new InvalidConfigException(e);
@@ -456,6 +455,37 @@ public final class ConfigurationUtil {
                     throw e;
                 }
             }
+
+
+            for (Configuration childConfiguration : configuration.getChildren()) {
+                ConfigurationUtil.loadConfigurationGBeans(childConfiguration, kernel);
+            }
+        } catch (Throwable e) {
+            for (AbstractName gbeanName : loaded) {
+                try {
+                    kernel.unloadGBean(gbeanName);
+                } catch (GBeanNotFoundException ignored) {
+                } catch (IllegalStateException ignored) {
+                } catch (InternalKernelException kernelException) {
+                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
+                }
+            }
+            if (e instanceof Error) {
+                throw (Error) e;
+            }
+            if (e instanceof InvalidConfigException) {
+                throw (InvalidConfigException) e;
+            }
+            throw new InvalidConfigException("Unknown start exception", e);
+        }
+    }
+    public static void startConfigurationGBeans(Configuration configuration, Kernel kernel) throws InvalidConfigException {
+        List<GBeanData> gbeans = new ArrayList<GBeanData>(configuration.getGBeans().values());
+        Collections.sort(gbeans, new GBeanData.PriorityComparator());
+
+        List<AbstractName> started = new ArrayList<AbstractName>(gbeans.size());
+
+        try {
 
             try {
                 // start the gbeans
@@ -495,21 +525,12 @@ public final class ConfigurationUtil {
             }
 
             for (Configuration childConfiguration : configuration.getChildren()) {
-                ConfigurationUtil.startConfigurationGBeans(configurationName, childConfiguration, kernel);
+                ConfigurationUtil.startConfigurationGBeans(childConfiguration, kernel);
             }
         } catch (Throwable e) {
             for (AbstractName gbeanName : started) {
                 try {
                     kernel.stopGBean(gbeanName);
-                } catch (GBeanNotFoundException ignored) {
-                } catch (IllegalStateException ignored) {
-                } catch (InternalKernelException kernelException) {
-                    log.debug("Error cleaning up after failed start of configuration " + configuration.getId() + " gbean " + gbeanName, kernelException);
-                }
-            }
-            for (AbstractName gbeanName : loaded) {
-                try {
-                    kernel.unloadGBean(gbeanName);
                 } catch (GBeanNotFoundException ignored) {
                 } catch (IllegalStateException ignored) {
                 } catch (InternalKernelException kernelException) {
@@ -523,6 +544,34 @@ public final class ConfigurationUtil {
                 throw (InvalidConfigException) e;
             }
             throw new InvalidConfigException("Unknown start exception", e);
+        }
+    }
+
+    public static void stopConfigurationGBeans(Configuration configuration, Kernel kernel) throws InvalidConfigException {
+        List<AbstractName> missing = new ArrayList<AbstractName>();
+        for (AbstractName name: configuration.getGBeans().keySet()) {
+                try {
+                    kernel.stopGBean(name);
+                } catch (GBeanNotFoundException e) {
+                    missing.add(name);
+                }
+        }
+        if (!missing.isEmpty()) {
+            throw new InvalidConfigException("Could not stop these gbeans: " + missing);
+        }
+    }
+
+    public static void unloadConfigurationGBeans(Configuration configuration, Kernel kernel) throws InvalidConfigException {
+        List<AbstractName> missing = new ArrayList<AbstractName>();
+        for (AbstractName name: configuration.getGBeans().keySet()) {
+                try {
+                    kernel.unloadGBean(name);
+                } catch (GBeanNotFoundException e) {
+                    missing.add(name);
+                }
+        }
+        if (!missing.isEmpty()) {
+            throw new InvalidConfigException("Could not unload these gbeans: " + missing);
         }
     }
 }

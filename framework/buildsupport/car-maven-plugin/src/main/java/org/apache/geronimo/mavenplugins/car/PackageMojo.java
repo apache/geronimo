@@ -23,6 +23,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashSet;
@@ -213,15 +214,23 @@ public class PackageMojo extends AbstractFrameworkMojo {
                 if (!planFile.exists()) {
                     return;
                 }
+                List<Long> ids = new ArrayList<Long>();
                 for (Artifact dependency : (Set<Artifact>) project.getDependencyArtifacts()) {
                     if ("compile".equals(dependency.getScope()) || "runtime".equals(dependency.getScope())) {
                         getLog().info("starting dependency: " + dependency);
                         File file = dependency.getFile();
                         try {
-                            getFramework().getBundleContext().installBundle("reference:" + file.toURI().toURL());
+                            ids.add(getFramework().getBundleContext().installBundle("reference:" + file.toURI().toURL()).getBundleId());
                         } catch (BundleException e) {
                             getLog().info("Can't start " + dependency + " due to " + e.getMessage());
                         }
+                    }
+                }
+                for (Long id: ids) {
+                    try {
+                        getFramework().getBundleContext().getBundle(id).start();
+                    } catch (BundleException e) {
+                        getLog().info("Can't start " + id + " due to " + e.getMessage());
                     }
                 }
                 listBundles();

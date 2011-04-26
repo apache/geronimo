@@ -65,20 +65,20 @@ public class TimeoutTest extends AbstractTest {
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "PropertiesDomain");
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testCE);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.class);
         testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         gbean.setAttribute("global", Boolean.TRUE);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         kernel.startGBean(loginConfiguration);
         kernel.startGBean(testCE);

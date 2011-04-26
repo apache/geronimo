@@ -144,23 +144,23 @@
                 </exclusions>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
-                <version>1.1.4c_3</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.servicemix.bundles</groupId>-->
+                <!--<artifactId>org.apache.servicemix.bundles.xpp3</artifactId>-->
+                <!--<version>1.1.4c_3</version>-->
+            <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.xstream</artifactId>
-                <version>1.3_3</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>xpp3</groupId>
-                        <artifactId>xpp3_min</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.servicemix.bundles</groupId>-->
+                <!--<artifactId>org.apache.servicemix.bundles.xstream</artifactId>-->
+                <!--<version>1.3_3</version>-->
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>xpp3</groupId>-->
+                        <!--<artifactId>xpp3_min</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions>-->
+            <!--</dependency>-->
 
             <dependency>
                 <groupId>org.apache.maven</groupId>

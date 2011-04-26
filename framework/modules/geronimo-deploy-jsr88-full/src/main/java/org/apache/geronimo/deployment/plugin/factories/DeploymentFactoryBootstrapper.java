@@ -65,6 +65,7 @@ public class DeploymentFactoryBootstrapper implements DeploymentFactory {
     }
     
     protected Kernel newKernel() throws DeploymentManagerCreationException {
+        if (true) throw new DeploymentManagerCreationException("use ConfigurationExtender");
 //        ClassLoader classLoader = DeploymentFactoryBootstrapper.class.getClassLoader();
         BundleContext bundleContext = null;
         MainBootstrapper bootstrapper = new MainBootstrapper();

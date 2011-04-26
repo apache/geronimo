@@ -31,6 +31,7 @@ import org.apache.geronimo.gjndi.GlobalContextGBean;
 import org.apache.geronimo.gjndi.WritableContextGBean;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicKernel;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -96,20 +97,20 @@ public class GBeanBindingTest extends AbstractContextTest {
 //        kernel = KernelFactory.newInstance(bundleContext).createKernel("test");
 //        kernel.boot();
 
-        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
-
-        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
-
-        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
-        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-
-        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
-        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
-
-        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
-
-        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//        ConfigurationData bootstrap = new ConfigurationData(new Artifact("bootstrap", "bootstrap", "", "car"), kernel.getNaming());
+//
+//        GBeanData artifactManagerData = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+//
+//        GBeanData artifactResolverData = bootstrap.addGBean("ArtifactResolver", DefaultArtifactResolver.class);
+//        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+//
+//        GBeanData configurationManagerData = bootstrap.addGBean("ConfigurationManager", KernelConfigurationManager.class);
+//        configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
+//        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+//
+//        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
+//
+//        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
         ConfigurationData configurationData = new ConfigurationData(new Artifact("test", "test", "", "car"), kernel.getNaming());
         configurationData.setBundle(bundleContext.getBundle());
@@ -148,8 +149,9 @@ public class GBeanBindingTest extends AbstractContextTest {
                 Collections.singletonMap("name", "ds2"),
                 DataSource.class.getName()));
 
-        configurationManager.loadConfiguration(configurationData);
-        configurationManager.startConfiguration(configurationData.getId());
+        Configuration configuration = new Configuration(configurationData, null);
+        ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
+        ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
 
         DataSource ds1 = (DataSource) kernel.getGBean(ds1Name);
         DataSource ds2 = (DataSource) kernel.getGBean(ds2Name);

@@ -21,6 +21,7 @@ import java.io.File;
 import java.net.URI;
 
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.system.properties.JvmVendor;
@@ -92,6 +93,12 @@ public class BasicServerInfo implements ServerInfo {
         System.setProperty("java.io.tmpdir", tmpDir);
         
         logEnvInfo();
+    }
+
+    @Deactivate
+    public void stop() {
+        System.getProperties().remove(HOME_DIR_SYS_PROP);
+        System.getProperties().remove(SERVER_DIR_SYS_PROP);
     }
 
     public BasicServerInfo(String baseDirectory, String serverName) {

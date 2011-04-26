@@ -150,18 +150,18 @@
                             <groupId>cglib</groupId>
                             <artifactId>cglib-nodep</artifactId>
                         </element>
-                        <element>
-                            <groupId>xpp3</groupId>
-                            <artifactId>xpp3_min</artifactId>
-                        </element>
+                        <!--<element>-->
+                            <!--<groupId>xpp3</groupId>-->
+                            <!--<artifactId>xpp3_min</artifactId>-->
+                        <!--</element>-->
                         <element>
                             <groupId>org.apache.xbean</groupId>
                             <artifactId>xbean-reflect</artifactId>
                         </element>
-                        <element>
-                            <groupId>com.thoughtworks.xstream</groupId>
-                            <artifactId>xstream</artifactId>
-                        </element>
+                        <!--<element>-->
+                            <!--<groupId>com.thoughtworks.xstream</groupId>-->
+                            <!--<artifactId>xstream</artifactId>-->
+                        <!--</element>-->
                     </classpath>
                     <classpathPrefix>../lib</classpathPrefix>
                     <category>Deployment</category>

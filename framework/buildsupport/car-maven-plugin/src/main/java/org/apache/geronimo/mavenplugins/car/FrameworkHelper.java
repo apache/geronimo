@@ -43,6 +43,7 @@ import java.security.Security;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -101,6 +102,12 @@ public class FrameworkHelper {
 
     public Framework start() throws Exception {
 //        ThreadLocalProperties.install();
+        for (Iterator<Map.Entry<Object, Object>> it = System.getProperties().entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<Object, Object> entry = it.next();
+            if (((String)entry.getKey()).startsWith("karaf.")) {
+                it.remove();
+            }
+        }
         System.setProperty(PROP_KARAF_HOME, karafHomeString);
         System.setProperty(PROP_KARAF_BASE, karafHomeString);
         launch();

@@ -27,7 +27,7 @@ import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
-import org.osgi.framework.BundleContext;
+import org.osgi.framework.Bundle;
 
 /**
  * Creates a real mbean server of finds an existing one with the specified mbeanServerId
@@ -38,13 +38,13 @@ import org.osgi.framework.BundleContext;
 public class RealMBeanServerReference implements MBeanServerReference, GBeanLifecycle {
     private static final String GERONIMO_DEFAULT_DOMAIN = "geronimo";
 
-    private BundleContext bundleContext;
+    private Bundle bundle;
     private MBeanServer mbeanServer;
 
-    public RealMBeanServerReference(@ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
+    public RealMBeanServerReference(@ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
                                     @ParamAttribute(name="usePlatformMBeanServer") boolean usePlatformMBeanServer,
                                     @ParamAttribute(name="mbeanServerId")String mbeanServerId) throws MBeanServerNotFound {
-        this.bundleContext = bundleContext;
+        this.bundle = bundle;
         if (usePlatformMBeanServer) {
             mbeanServer = ManagementFactory.getPlatformMBeanServer();
         } else {
@@ -88,7 +88,7 @@ public class RealMBeanServerReference implements MBeanServerReference, GBeanLife
 
     public void doStart() throws Exception {
         if (mbeanServer != null) {
-            bundleContext.registerService(MBeanServer.class.getName(), mbeanServer, null);
+            bundle.getBundleContext().registerService(MBeanServer.class.getName(), mbeanServer, null);
         }       
     }
 

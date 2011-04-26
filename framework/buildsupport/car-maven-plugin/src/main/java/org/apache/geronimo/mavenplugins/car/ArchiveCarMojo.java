@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import org.apache.geronimo.system.osgi.BootActivator;
 import org.apache.maven.archiver.MavenArchiveConfiguration;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
@@ -120,7 +119,7 @@ public class ArchiveCarMojo
     /**
      * The Geronimo repository where modules will be packaged up from.
      *
-     * @parameter expression="${project.build.directory}/repository"
+     * @parameter expression="${project.build.directory}/karaf/local-repo"
      * @required
      */
     private File targetRepository = null;

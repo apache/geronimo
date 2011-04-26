@@ -52,20 +52,20 @@ public class LoginKerberosTest extends AbstractTest {
         props.put("useTicketCache", "true");
         props.put("doNotPrompt", "true");
         gbean.setAttribute("options", props);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData("name", "KerberosLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", kerberosLM);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData("name", "KerberosSecurityRealm", GenericSecurityRealm.class);
         kerberosRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "TOOLAZYDOGS.COM");
         gbean.setAttribute("global", true);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
         kernel.startGBean(kerberosLM);
         kernel.startGBean(testUseName);
         kernel.startGBean(kerberosRealm);

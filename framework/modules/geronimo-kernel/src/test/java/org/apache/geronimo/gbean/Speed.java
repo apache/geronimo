@@ -99,7 +99,7 @@ public class Speed extends TestSupport {
         GBeanData mockGBean = new GBeanData(abstractName, MockGBean.getGBeanInfo());
         mockGBean.setAttribute("Name", "bar");
         mockGBean.setAttribute("FinalInt", new Integer(57));
-        kernel.loadGBean(mockGBean, getBundleContext());
+        kernel.loadGBean(mockGBean, getBundleContext().getBundle());
         kernel.startGBean(abstractName);
 
         // reflect proxy
@@ -228,7 +228,7 @@ public class Speed extends TestSupport {
         GBeanData mockGBean = new GBeanData(abstractName, MockGBean.getGBeanInfo());
         mockGBean.setAttribute("Name", "bar");
         mockGBean.setAttribute("FinalInt", new Integer(57));
-        kernel.loadGBean(mockGBean, getBundleContext());
+        kernel.loadGBean(mockGBean, getBundleContext().getBundle());
         kernel.startGBean(mockGBean.getAbstractName());
 
         // reflect proxy

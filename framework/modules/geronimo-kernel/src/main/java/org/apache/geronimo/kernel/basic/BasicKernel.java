@@ -161,7 +161,7 @@ public class
 
         // load and start the kernel gbean
         GBeanData kernelGBeanData = new GBeanData(KERNEL_NAME, KernelGBean.GBEAN_INFO);
-        loadGBean(kernelGBeanData, bundleContext);
+        loadGBean(kernelGBeanData, bundleContext.getBundle());
         startGBean(KERNEL_NAME);
 
         running = true;
@@ -415,11 +415,11 @@ public class
         return gbeanInstance.getGBeanData();
     }
 
-    public void loadGBean(GBeanData gbeanData, BundleContext bundleContext) throws GBeanAlreadyExistsException, InternalKernelException {
+    public void loadGBean(GBeanData gbeanData, Bundle bundle) throws GBeanAlreadyExistsException, InternalKernelException {
         AbstractName abstractName = gbeanData.getAbstractName();
         Set interfaces = gbeanData.getGBeanInfo().getInterfaces();
         LifecycleBroadcaster lifecycleBroadcaster = lifecycleMonitor.createLifecycleBroadcaster(abstractName, interfaces);
-        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleBroadcaster, bundleContext);
+        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleBroadcaster, bundle);
         registry.register(gbeanInstance);
         lifecycleBroadcaster.fireLoadedEvent();
     }

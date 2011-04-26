@@ -29,9 +29,9 @@ specific services - those should be provided by children.
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <!-- ServerInfo service -->
-    <!--<gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo">-->
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.WrappingServerInfo">
         <!--<attribute name="useSystemProperties">true</attribute>-->
-    <!--</gbean>-->
+    </gbean>
 
     <!--Repository-->
     <!--<gbean name="Repository" class="org.apache.geronimo.system.repository.Maven2Repository">-->
@@ -60,9 +60,9 @@ specific services - those should be provided by children.
 
     <!--User-editable attribute service-->
     <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
-        <!--<reference name="ServerInfo">-->
-            <!--<name>ServerInfo</name>-->
-        <!--</reference>-->
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
         <attribute name="configFile">var/config/config.xml</attribute>
         <attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>
         <attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>
@@ -127,18 +127,18 @@ specific services - those should be provided by children.
     <!--<gbean name="Logger" class="org.apache.geronimo.system.logging.OSGILogServiceWrapper">       -->
     <!--</gbean>    -->
 
-    <gbean name="GeronimoOBR" class="org.apache.geronimo.obr.GeronimoOBRGBean">
-        <!--<reference name="Repository">-->
-            <!--<name>Repository</name>-->
-        <!--</reference>-->
-        <!--<reference name="ServerInfo">-->
-            <!--<name>ServerInfo</name>-->
-        <!--</reference>-->
-        <attribute name="exclusions">
-             org.apache.felix/org.apache.felix.framework//,
-             org.eclipse/osgi//
-        </attribute>
-    </gbean>
+    <!--<gbean name="GeronimoOBR" class="org.apache.geronimo.obr.GeronimoOBRGBean">-->
+        <!--&lt;!&ndash;<reference name="Repository">&ndash;&gt;-->
+            <!--&lt;!&ndash;<name>Repository</name>&ndash;&gt;-->
+        <!--&lt;!&ndash;</reference>&ndash;&gt;-->
+        <!--&lt;!&ndash;<reference name="ServerInfo">&ndash;&gt;-->
+            <!--&lt;!&ndash;<name>ServerInfo</name>&ndash;&gt;-->
+        <!--&lt;!&ndash;</reference>&ndash;&gt;-->
+        <!--<attribute name="exclusions">-->
+             <!--org.apache.felix/org.apache.felix.framework//,-->
+             <!--org.eclipse/osgi//-->
+        <!--</attribute>-->
+    <!--</gbean>-->
 
     <!--<gbean name="EmbeddedDaemon" class="org.apache.geronimo.system.main.EmbeddedDaemon"/>-->
 

@@ -553,18 +553,18 @@ public class DeploymentContext {
 
         OSGiMetaDataBuilder osgiMetaDataBuilder = null;
         //TODO Import package calculation is only used for deployed applications, should be use the same way for car package later
-        if (System.getProperty("geronimo.build.car") == null) {
-            osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext);
-            //Hack Codes Here For RAR module, will remove while the connector refactoring is done
-            if (configuration.getModuleType() == ConfigurationModuleType.RAR) {
-                environment.addDynamicImportPackage("*");
-            }
-        } else {
+//        if (System.getProperty("geronimo.build.car") == null) {
+//            osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext);
+//            //Hack Codes Here For RAR module, will remove while the connector refactoring is done
+//            if (configuration.getModuleType() == ConfigurationModuleType.RAR) {
+//                environment.addDynamicImportPackage("*");
+//            }
+//        }// else {
             LinkedHashSet<String> imports = getImports(gbeans);
             environment.addImportPackages(imports);
             environment.addDynamicImportPackage("*");
             osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext, new DummyExportPackagesSelector());
-        }
+//        }
 
 //        try {
 //            osgiMetaDataBuilder.build(environment, configuration.getModuleType() == ConfigurationModuleType.CAR);

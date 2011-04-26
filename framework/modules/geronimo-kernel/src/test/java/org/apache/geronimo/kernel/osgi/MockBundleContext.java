@@ -22,12 +22,15 @@ package org.apache.geronimo.kernel.osgi;
 
 import java.io.InputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.InvalidSyntaxException;
@@ -59,6 +62,8 @@ public class MockBundleContext implements BundleContext {
     private final Map<String, Artifact> locations;
     private final Map<Long, Bundle> bundles = new HashMap<Long, Bundle>();
     private final Map<String, ServiceReference> serviceReferences = new HashMap<String, ServiceReference>();
+
+    private final List<BundleListener> bundleListeners = new ArrayList<BundleListener>();
 
     private long counter = 0;
 
@@ -144,9 +149,11 @@ public class MockBundleContext implements BundleContext {
     }
 
     public void addBundleListener(BundleListener bundleListener) {
+        bundleListeners.add(bundleListener);
     }
 
     public void removeBundleListener(BundleListener bundleListener) {
+        bundleListeners.remove(bundleListener);
     }
 
     public void addFrameworkListener(FrameworkListener frameworkListener) {
@@ -191,6 +198,13 @@ public class MockBundleContext implements BundleContext {
 
     public Filter createFilter(String s) throws InvalidSyntaxException {
         return null;
+    }
+
+    public void bundleEvent(int type, Bundle bundle) {
+        BundleEvent bundleEvent = new BundleEvent(type, bundle);
+        for (BundleListener listener: bundleListeners) {
+            listener.bundleChanged(bundleEvent);
+        }
     }
 
     private Artifact getArtifactByLocation(String location) {

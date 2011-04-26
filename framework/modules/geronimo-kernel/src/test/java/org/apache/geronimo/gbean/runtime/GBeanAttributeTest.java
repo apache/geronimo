@@ -343,7 +343,7 @@ public class GBeanAttributeTest extends TestCase {
                 kernel,
                 kernel.getDependencyManager(),
                 new MyLifecycleBroadcaster(),
-                bundleContext);
+                bundleContext.getBundle());
 
         getInvoker = new MethodInvoker() {
             public Object invoke(Object target, Object[] arguments) throws Exception {

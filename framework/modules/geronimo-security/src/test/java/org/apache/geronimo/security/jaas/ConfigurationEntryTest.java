@@ -111,7 +111,7 @@ public class ConfigurationEntryTest extends AbstractTest {
 
     protected void setUp() throws Exception {
 //        super.setUp();
-        bundleContext = new MockBundleContext(getClass().getClassLoader(), BASEDIR.getAbsolutePath(), null, null);
+        setBundleContext(new MockBundleContext(getClass().getClassLoader(), BASEDIR.getAbsolutePath(), null, null));
         kernel = new BasicKernel();
 //        kernel = KernelFactory.newInstance(bundleContext).createKernel("test.kernel");
 //        kernel.boot();
@@ -123,13 +123,13 @@ public class ConfigurationEntryTest extends AbstractTest {
         gbean = buildGBeanData("name", "ServerInfo", BasicServerInfo.class);
         serverInfo = gbean.getAbstractName();
         gbean.setAttribute("baseDirectory", BASEDIR.getAbsolutePath());
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
         kernel.startGBean(serverInfo);
 
         gbean = buildGBeanData("new", "LoginConfiguration", GeronimoLoginConfiguration.class);
         loginConfiguration = gbean.getAbstractName();
         gbean.setReferencePattern("Configurations", new AbstractNameQuery(ConfigurationEntryFactory.class.getName()));
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.class);
         testProperties = gbean.getAbstractName();
@@ -140,13 +140,13 @@ public class ConfigurationEntryTest extends AbstractTest {
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "TestProperties");
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData("name", "GeronimoPasswordCredentialLoginModule", LoginModuleGBean.class);
         testUPCred = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.GeronimoPasswordCredentialLoginModule");
         gbean.setAttribute("options", new HashMap<String, Object>());
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData    ("name", "AuditLoginModule", LoginModuleGBean.class);
         testCE = gbean.getAbstractName();
@@ -154,27 +154,27 @@ public class ConfigurationEntryTest extends AbstractTest {
         props = new HashMap<String, Object>();
         props.put("file", new File(BASEDIR, "target/login-audit.log").getPath());
         gbean.setAttribute("options", props);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData("name", "GeronimoPasswordCredentialLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName3 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testUPCred);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData("name", "AuditLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName2 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testCE);
         gbean.setReferencePattern("Next", testUseName3);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.class);
         AbstractName testUseName1 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("LoginModule", testProperties);
         gbean.setReferencePattern("Next", testUseName2);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.class);
         testRealm = gbean.getAbstractName();
@@ -182,7 +182,7 @@ public class ConfigurationEntryTest extends AbstractTest {
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName1);
         gbean.setReferencePattern("ServerInfo", serverInfo);
         gbean.setAttribute("global", Boolean.TRUE);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         kernel.startGBean(loginConfiguration);
         kernel.startGBean(testCE);

@@ -64,14 +64,14 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
         props.put("useTicketCache", "true");
         props.put("doNotPrompt", "true");
         gbean.setAttribute("options", props);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         gbean = buildGBeanData("name", "kerberosConfigurationEntry", DirectConfigurationEntry.class);
         kerberosCE = gbean.getAbstractName();
         gbean.setAttribute("applicationConfigName", "kerberos-foobar");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setReferencePattern("Module", kerberosLM);
-        kernel.loadGBean(gbean, bundleContext);
+        kernel.loadGBean(gbean, bundle);
 
         kernel.startGBean(loginConfiguration);
         kernel.startGBean(kerberosLM);

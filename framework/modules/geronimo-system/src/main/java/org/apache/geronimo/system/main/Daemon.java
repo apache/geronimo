@@ -39,6 +39,7 @@ public class Daemon extends EmbeddedDaemon {
 
     @Override
     protected int initializeKernel() throws Exception {
+        if (true) throw new Exception("use ConfigurationExtener");
         ClassLoader classLoader = EmbeddedDaemon.class.getClassLoader();
         BundleContext bundleContext = null;
 
@@ -63,7 +64,7 @@ public class Daemon extends EmbeddedDaemon {
         // load this configuration
         InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
         try {
-            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext);
+//            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext);
         } finally {
             if (in != null) {
                 try {

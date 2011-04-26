@@ -29,7 +29,6 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 /**
  * @version $Rev:386515 $ $Date$
@@ -61,8 +60,8 @@ public class KernelGBean implements Kernel{
         return kernel.getProxyManager();
     }
 
-    public void loadGBean(GBeanData gbeanData, BundleContext bundleContext) throws GBeanAlreadyExistsException, InternalKernelException {
-        kernel.loadGBean(gbeanData, bundleContext);
+    public void loadGBean(GBeanData gbeanData, Bundle bundle) throws GBeanAlreadyExistsException, InternalKernelException {
+        kernel.loadGBean(gbeanData, bundle);
     }
 
     public boolean isLoaded(AbstractName name) {

@@ -63,7 +63,7 @@ public abstract class AbstractTest extends TestSupport {
     protected boolean needLoginConfiguration = true;
 
     protected void setUp() throws Exception {
-        bundleContext = new MockBundleContext(getClass().getClassLoader(), BASEDIR.getAbsolutePath(), null, null);
+        setBundleContext(new MockBundleContext(getClass().getClassLoader(), BASEDIR.getAbsolutePath(), null, null));
 
         kernel = new BasicKernel();
 //        kernel = KernelFactory.newInstance(bundleContext).createKernel("test.kernel");
@@ -79,7 +79,7 @@ public abstract class AbstractTest extends TestSupport {
             gbean = buildGBeanData("name", "LoginConfiguration", GeronimoLoginConfiguration.class);
             loginConfiguration = gbean.getAbstractName();
             gbean.setReferencePattern("Configurations", new AbstractNameQuery(ConfigurationEntryFactory.class.getName()));
-            kernel.loadGBean(gbean, bundleContext);
+            kernel.loadGBean(gbean, bundle);
             kernel.startGBean(loginConfiguration);
         }
 

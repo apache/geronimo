@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.system.configuration;
+package org.apache.geronimo.kernel.config;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,11 +35,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.util.IOUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -175,9 +170,10 @@ public class ConfigurationExtender {
             data.setBundle(bundle);
             Configuration configuration = new Configuration(data, manageableAttributeStore);
             configurationMap.put(bundle.getBundleId(), configuration);
-            for (GBeanData gBeanData: configuration.getGBeans().values()) {
-                kernel.loadGBean(gBeanData, configuration.getBundle().getBundleContext());
-            }
+            ConfigurationUtil.loadConfigurationGBeans(configuration, kernel);
+//            for (GBeanData gBeanData: configuration.getGBeans().values()) {
+//                kernel.loadGBean(gBeanData, configuration.getBundle());
+//            }
             return configuration;
 
 //            configurationManager.loadConfiguration(data);
@@ -188,8 +184,8 @@ public class ConfigurationExtender {
             logger.error("Could not load required classes from bundle " + bundle.getLocation(), e);
         } catch (InvalidConfigException e) {
             logger.error("Could not load Configuration from bundle " + bundle.getLocation(), e);
-        } catch (GBeanAlreadyExistsException e) {
-            logger.error("Duplicate gbean in bundle " + bundle.getLocation(), e);
+//        } catch (GBeanAlreadyExistsException e) {
+//            logger.error("Duplicate gbean in bundle " + bundle.getLocation(), e);
         } finally {
             IOUtils.close(in);
         }
@@ -200,7 +196,7 @@ public class ConfigurationExtender {
         Configuration configuration = configurationMap.get(bundle.getBundleId());
         if (configuration != null) {
             try {
-                ConfigurationUtil.startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
+                ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
             } catch (InvalidConfigException e) {
                 logger.error("Could not start Configuration from bundle " + bundle.getLocation(), e);
             }

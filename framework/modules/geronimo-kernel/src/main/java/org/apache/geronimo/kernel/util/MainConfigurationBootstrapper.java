@@ -53,9 +53,10 @@ public class MainConfigurationBootstrapper {
     protected Kernel kernel;
 
     public Main getMain(BundleContext bundleContext) {
+        if (true) throw new IllegalStateException("use configurationExtender");
         try {
             bootKernel(bundleContext);
-            loadBootConfiguration(bundleContext);
+//            loadBootConfiguration(bundleContext);
             loadPersistentConfigurations();
             return getMain();
         } catch (Exception e) {
@@ -81,9 +82,10 @@ public class MainConfigurationBootstrapper {
     }
     
     public void loadBootConfiguration(BundleContext bundleContext) throws Exception {
+        if (true) throw new Exception("use ConfigurationExtender");
         InputStream in = bundleContext.getBundle().getResource("META-INF/config.ser").openStream();
         try {
-            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext, true);
+//            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, bundleContext, true);
         } finally {
             if (in != null) {
                 try {

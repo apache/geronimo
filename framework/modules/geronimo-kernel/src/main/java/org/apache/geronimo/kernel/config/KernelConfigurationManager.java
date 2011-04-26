@@ -182,7 +182,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
         // load the configuration
         try {
             //TODO OSGI more likely use the configuration bundle??
-            kernel.loadGBean(gbeanData, bundleContext);
+            kernel.loadGBean(gbeanData, bundleContext.getBundle());
         } catch (GBeanAlreadyExistsException e) {
             throw new InvalidConfigException("Unable to load configuration gbean " + configurationId, e);
         }
@@ -225,7 +225,7 @@ public class KernelConfigurationManager extends SimpleConfigurationManager imple
     @Override
     protected void startInternal(Configuration configuration) throws InvalidConfigException {
         if (online) {
-            ConfigurationUtil.startConfigurationGBeans(configuration.getAbstractName(), configuration, kernel);
+            ConfigurationUtil.startConfigurationGBeans(configuration, kernel);
         }
 
         if (configurationList != null && configuration.getConfigurationData().isAutoStart()) {

@@ -96,10 +96,11 @@ public class SecurityServiceImpl implements SecurityService {
                 currentThread.setContextClassLoader(oldClassLoader);
             }
         }
-        if (keyStore != null) sysOverRide(serverInfo.resolveServerPath(keyStore), KEYSTORE);
+        //TODO OSGI serverInfo is a service now
+//        if (keyStore != null) sysOverRide(serverInfo.resolveServerPath(keyStore), KEYSTORE);
         if (keyStorePassword != null) sysOverRide(keyStorePassword, KEYSTORE_PASSWORD);
 
-        if (trustStore != null) sysOverRide(serverInfo.resolveServerPath(trustStore), TRUSTSTORE);
+//        if (trustStore != null) sysOverRide(serverInfo.resolveServerPath(trustStore), TRUSTSTORE);
         if (trustStorePassword != null) sysOverRide(trustStorePassword, TRUSTSTORE_PASSWORD);
 
         log.debug(KEYSTORE + ": " + System.getProperty(KEYSTORE));
