@@ -134,6 +134,7 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.bundlerepository</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

@@ -51,11 +51,11 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-jmx-remoting</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-jmx-remoting</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.components</groupId>

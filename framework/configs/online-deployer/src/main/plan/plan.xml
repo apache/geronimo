@@ -21,7 +21,7 @@
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
     <!-- ServerInfo service -->
-    <!--<gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>-->
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.WrappingServerInfo"/>
 
     <!--Repository-->
     <!--<gbean name="Repository" class="org.apache.geronimo.system.repository.Maven2Repository">-->
@@ -32,11 +32,11 @@
     <!--</gbean>-->
 
     <!--Configuration Store service-->
-    <!--<gbean name="Local" class="org.apache.geronimo.system.configuration.RepositoryConfigurationStore">-->
+    <gbean name="Local" class="org.apache.geronimo.system.configuration.WrapperConfigurationStore">
         <!--<reference name="Repository">-->
             <!--<name>Repository</name>-->
         <!--</reference>-->
-    <!--</gbean>-->
+    </gbean>
 
     <!-- ArtifactManager -->
     <!--<gbean name="ArtifactManager" class="org.apache.geronimo.kernel.repository.DefaultArtifactManager"/>-->
@@ -58,12 +58,12 @@
     <!--</gbean>-->
 
     <!--User-editable attribute service-->
-    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
+    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.WrapperAttributeManager">
         <!--<reference name="ServerInfo">-->
             <!--<name>ServerInfo</name>-->
         <!--</reference>-->
-        <attribute name="readOnly">true</attribute>
-        <attribute name="configFile">var/config/jsr88-configurer-config.xml</attribute>
+        <!--<attribute name="readOnly">true</attribute>-->
+        <!--<attribute name="configFile">var/config/jsr88-configurer-config.xml</attribute>-->
     </gbean>
 
     <!--Server attribute service-->
@@ -71,9 +71,9 @@
         <!--<reference name="ServerInfo">-->
             <!--<name>ServerInfo</name>-->
         <!--</reference>-->
-        <attribute name="configFile">var/config/config.xml</attribute>
-        <attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>
-        <attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>
+        <!--<attribute name="configFile">var/config/config.xml</attribute>-->
+        <!--<attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>-->
+        <!--<attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>-->
     </gbean>
 
     <!--Configuration Manager service-->

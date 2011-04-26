@@ -166,21 +166,22 @@
             <artifactId>geronimo-activation_1.1_spec</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.ops4j.pax.logging</groupId>-->
+            <!--<artifactId>pax-logging-api</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-pax-logging</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!-- TODO figure out if this is the best way to implement what we want. Consider a fragment? -->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-pax-logging</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.configadmin</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.felix</groupId>-->
+            <!--<artifactId>org.apache.felix.configadmin</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.framework.config</groupId>

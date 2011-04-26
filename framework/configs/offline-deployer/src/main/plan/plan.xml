@@ -20,14 +20,14 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-        <attribute name="readOnly">true</attribute>
-        <attribute name="configFile">var/config/offline-deployer-config.xml</attribute>
-        <attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>
-        <attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>
+    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.WrapperAttributeManager">
+        <!--<reference name="ServerInfo">-->
+            <!--<name>ServerInfo</name>-->
+        <!--</reference>-->
+        <!--<attribute name="readOnly">true</attribute>-->
+        <!--<attribute name="configFile">var/config/offline-deployer-config.xml</attribute>-->
+        <!--<attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>-->
+        <!--<attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>-->
     </gbean>
 
     <!-- System Properties -->

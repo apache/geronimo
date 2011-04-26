@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.annotation.GBean;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.gbean.wrapper.AbstractServiceWrapper;
@@ -44,6 +45,7 @@ import org.osgi.framework.Bundle;
 /**
  * @version $Rev:$ $Date:$
  */
+@GBean(j2eeType = "ConfigurationStore")
 public class WrapperConfigurationStore extends AbstractServiceWrapper<ConfigurationStore> implements ConfigurationStore {
     
     public WrapperConfigurationStore(@ParamSpecial(type = SpecialAttributeType.bundle) final Bundle bundle) {

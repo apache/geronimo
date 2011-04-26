@@ -20,7 +20,7 @@
 
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
 
-    <!--<gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>-->
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.WrappingServerInfo"/>
 
     <!--<gbean name="Repository" class="org.apache.geronimo.system.repository.Maven2Repository">-->
         <!--<attribute name="root">repository/</attribute>-->
@@ -29,7 +29,7 @@
         <!--</reference>-->
     <!--</gbean>-->
 
-    <!--<gbean name="Local" class="org.apache.geronimo.system.configuration.RepositoryConfigurationStore">-->
+    <gbean name="Local" class="org.apache.geronimo.system.configuration.WrapperConfigurationStore"/>
         <!--<reference name="Repository">-->
             <!--<name>Repository</name>-->
         <!--</reference>-->

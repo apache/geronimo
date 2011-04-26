@@ -35,6 +35,7 @@
         <dependency>
             <groupId>org.apache.aries.blueprint</groupId>
             <artifactId>org.apache.aries.blueprint</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

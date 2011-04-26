@@ -47,6 +47,7 @@
             <groupId>org.apache.karaf.assemblies.features</groupId>
             <artifactId>karaf-full</artifactId>
             <type>kar</type>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.karaf.assemblies.features</groupId>
@@ -68,6 +69,7 @@
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
@@ -172,6 +174,27 @@
                 
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.karaf.tooling</groupId>
+                <artifactId>karaf-maven-plugin</artifactId>
+                <configuration>
+                    <bootFeatures>
+                        <feature>management</feature>
+                        <feature>standard</feature>
+                        <feature>karaf-full</feature>
+                        <feature>ssh</feature>
+                        <feature>config</feature>
+                        <feature>declarative-services</feature>
+                        <feature>management</feature>
+                        <feature>jndi</feature>
+                        <feature>obr</feature>
+                        <feature>j2ee-system</feature>
+                    </bootFeatures>
+                </configuration>
+            </plugin>
+
+        </plugins>
     </build>
 
     <profiles>
