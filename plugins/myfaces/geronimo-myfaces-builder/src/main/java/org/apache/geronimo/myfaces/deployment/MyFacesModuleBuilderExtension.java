@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.myfaces.deployment;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -36,8 +34,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
 import javax.faces.component.FacesComponent;
 import javax.faces.component.behavior.FacesBehavior;
 import javax.faces.context.ExternalContext;
@@ -69,7 +65,6 @@ import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.util.IOUtils;
-import org.apache.geronimo.kernel.util.JarUtils;
 import org.apache.geronimo.myfaces.FacesConfigDigester;
 import org.apache.geronimo.myfaces.LifecycleProviderGBean;
 import org.apache.geronimo.myfaces.config.resource.ConfigurationResource;
@@ -271,7 +266,11 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         AbstractName myFacesWebAppContextName = moduleContext.getNaming().createChildName(moduleName, "myFacesWebAppContext", "MyFacesWebAppContext");
         GBeanData myFacesWebAppContextData = new GBeanData(myFacesWebAppContextName, MyFacesWebAppContext.class);
 
-        myFacesWebAppContextData.setAttribute("faceletConfigResources", JSF_FACELET_CONFIG_RESOURCES.get(earContext.getGeneralData()));
+        Set<ConfigurationResource> faceletsLibraries = new HashSet<ConfigurationResource>();
+        faceletsLibraries.addAll(JSF_FACELET_CONFIG_RESOURCES.get(earContext.getGeneralData()));
+        faceletsLibraries.addAll(getContextFaceletsLibraries(webApp, webModule));
+        myFacesWebAppContextData.setAttribute("faceletConfigResources", faceletsLibraries);
+
         ClassLoader deploymentClassLoader = new BundleClassLoader(bundle);
         ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -408,6 +407,28 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         return Collections.<FacesConfig> emptyList();
     }
 
+    protected List<ConfigurationResource> getContextFaceletsLibraries(WebApp webApp, WebModule webModule) throws DeploymentException {
+        String moduleNamePrefix = webModule.isStandAlone() ? "" : webModule.getTargetPath() + "/";
+        for (ParamValue paramValue : webApp.getContextParam()) {
+            if (paramValue.getParamName().trim().equals("javax.faces.FACELETS_LIBRARIES")) {
+                List<ConfigurationResource> faceletsLibraries = new ArrayList<ConfigurationResource>();
+                String configFiles = paramValue.getParamValue().trim();
+                StringTokenizer st = new StringTokenizer(configFiles, ";", false);
+                while (st.hasMoreTokens()) {
+                    String faceletsLibrary = st.nextToken().trim();
+                    if (!faceletsLibrary.isEmpty()) {
+                        if (faceletsLibrary.startsWith("/")) {
+                            faceletsLibrary = faceletsLibrary.substring(1);
+                        }
+                        faceletsLibraries.add(new ConfigurationResource(null, moduleNamePrefix + faceletsLibrary));
+                    }
+                }
+                return faceletsLibraries;
+            }
+        }
+        return Collections.<ConfigurationResource> emptyList();
+    }
+
     protected FacesConfig getStandardFacesConfig() {
         try {
             //TODO A better way to find the standard faces configuration file ?
@@ -491,7 +512,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                 bundle.getBundleContext().ungetService(reference);
             }
         }
-        //2 WEB-INF/classes/META-INF folder        
+        //2 WEB-INF/classes/META-INF folder
         Enumeration<URL> classesEn = bundle.findEntries(moduleNamePrefix + "WEB-INF/classes/META-INF/", "*faces-config.xml", false);
         if (classesEn != null) {
             while (classesEn.hasMoreElements()) {
@@ -565,7 +586,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                 bundle.getBundleContext().ungetService(reference);
             }
         }
-        //2 WEB-INF/classes/META-INF folder        
+        //2 WEB-INF/classes/META-INF folder
         Enumeration<URL> classesEn = bundle.findEntries(moduleNamePrefix + "WEB-INF/classes/META-INF/", "*.tag-lib.xml", false);
         if (classesEn != null) {
             while (classesEn.hasMoreElements()) {
@@ -582,7 +603,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             }
         }
         return metaInfConfigurationResources;
-    }    
+    }
 
     private boolean hasFacesServlet(WebApp webApp) {
         for (Servlet servlet : webApp.getServlet()) {
