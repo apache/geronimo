@@ -160,11 +160,21 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>2.2.1</version>
+            <version>3.0</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
+           <groupId>org.sonatype.aether</groupId>
+           <artifactId>aether-api</artifactId>
+           <version>1.8</version>
+         </dependency>
+         <dependency>
+           <groupId>org.sonatype.aether</groupId>
+           <artifactId>aether-util</artifactId>
+           <version>1.8</version>
+         </dependency>
+         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-archiver</artifactId>
             <version>2.2</version>
@@ -281,6 +291,15 @@
                     <groupId>org.apache.felix</groupId>
                     <artifactId>org.apache.felix.framework</artifactId>
                 </dependency>
+                <!--<dependency>-->
+                    <!--<groupId>org.apache.karaf</groupId>-->
+                    <!--<artifactId>org.apache.karaf.main</artifactId>-->
+                <!--</dependency>-->
+                <dependency>
+                    <groupId>org.apache.karaf.assemblies.features</groupId>
+                    <artifactId>karaf-framework</artifactId>
+                    <type>kar</type>
+                </dependency>
             </dependencies>
 
         </profile>
@@ -300,10 +319,103 @@
                     <groupId>org.eclipse</groupId>
                     <artifactId>osgi</artifactId>
                 </dependency>
+                <!--<dependency>-->
+                    <!--<groupId>org.apache.karaf</groupId>-->
+                    <!--<artifactId>org.apache.karaf.main</artifactId>-->
+                <!--</dependency>-->
+                <dependency>
+                    <groupId>org.apache.karaf.assemblies.features</groupId>
+                    <artifactId>karaf-framework</artifactId>
+                    <type>kar</type>
+                </dependency>
             </dependencies>
 
         </profile>
     </profiles>
+    <build>
+        <plugins>
+<!--    This causes a class cast exception
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.2</version>
+                <executions>
+                  <execution>
+                    <id>unpack</id>
+                    <phase>generate-resources</phase>
+                    <goals>
+                      <goal>unpack</goal>
+                    </goals>
+                    <configuration>
+                      <artifactItems>
+                        <artifactItem>
+                            <groupId>org.apache.karaf.assemblies.features</groupId>
+                            <artifactId>karaf-framework</artifactId>
+                            <type>kar</type>
+                          <overWrite>false</overWrite>
+                          <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                          <includes>resources/etc/**</includes>
+                        </artifactItem>
+                      </artifactItems>
+                    </configuration>
+                  </execution>
+                </executions>
+            </plugin>
+-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.2</version>
+                <executions>
+                  <execution>
+                    <id>copy</id>
+                    <phase>generate-resources</phase>
+                    <goals>
+                      <goal>copy</goal>
+                    </goals>
+                    <configuration>
+                      <artifactItems>
+                        <artifactItem>
+                            <groupId>org.apache.karaf.assemblies.features</groupId>
+                            <artifactId>karaf-framework</artifactId>
+                            <type>kar</type>
+                          <!--<overWrite>false</overWrite>-->
+                          <!--<outputDirectory>${project.build.directory}/classes</outputDirectory>-->
+                          <!--<includes>resources/etc/**</includes>-->
+                        </artifactItem>
+                      </artifactItems>
+                        <stripVersion>true</stripVersion>
+                    </configuration>
+                  </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                  <execution>
+                    <phase>process-resources</phase>
+                    <configuration>
+                      <target>
+                          <unzip src="${project.build.directory}/dependency/karaf-framework.kar"
+                                 dest="${project.build.directory}/classes">
+                              <patternset>
+                                  <include name="resources/etc/**"/>
+                                  <exclude name="resources/etc/startup.properties"/>
+                              </patternset>
+                          </unzip>
+
+                      </target>
+                    </configuration>
+                    <goals>
+                      <goal>run</goal>
+                    </goals>
+                  </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
 

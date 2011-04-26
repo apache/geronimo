@@ -30,8 +30,8 @@ import org.apache.geronimo.kernel.basic.BasicKernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.util.Main;
-import org.apache.geronimo.system.main.LongStartupMonitor;
-import org.apache.geronimo.system.main.StartupMonitor;
+//import org.apache.geronimo.system.main.LongStartupMonitor;
+//import org.apache.geronimo.system.main.StartupMonitor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -50,12 +50,12 @@ public class BootActivator implements BundleActivator {
 
     public void start(BundleContext bundleContext) throws Exception {
         if (bundleContext.getServiceReference(Kernel.class.getName()) == null) {
-            StartupMonitor monitor = new LongStartupMonitor();
-            monitor.systemStarting(System.currentTimeMillis());
+//            StartupMonitor monitor = new LongStartupMonitor();
+//            monitor.systemStarting(System.currentTimeMillis());
             Kernel kernel = new BasicKernel();
 //            Kernel kernel = KernelFactory.newInstance(bundleContext).createKernel("geronimo");
 //            kernel.boot();
-            monitor.systemStarted(kernel);
+//            monitor.systemStarted(kernel);
             Dictionary dictionary = null;//new Hashtable();
             kernelRegistration = bundleContext.registerService(Kernel.class.getName(), kernel, dictionary);
             //boot the root configuration
@@ -74,9 +74,9 @@ public class BootActivator implements BundleActivator {
             }
 
             // register Main service if Main GBean present
-            if (bundleContext.getServiceReference(org.apache.geronimo.main.Main.class.getName()) == null) {
-                registerMainService(bundleContext, kernel);
-            }
+//            if (bundleContext.getServiceReference(org.apache.geronimo.main.Main.class.getName()) == null) {
+//                registerMainService(bundleContext, kernel);
+//            }
 
         } else {
 //            configurationActivator = new ConfigurationActivator();
@@ -97,19 +97,19 @@ public class BootActivator implements BundleActivator {
         }
     }
 
-    private void registerMainService(BundleContext bundleContext, Kernel kernel) {
-        try {
-            final Main main = kernel.getGBean(Main.class);
-            bundleContext.registerService(
-                    org.apache.geronimo.main.Main.class.getName(),
-                    new org.apache.geronimo.main.Main() {
-                        public int execute(Object opaque) {
-                            return main.execute(opaque);
-                        }
-                    },
-                    null);
-        } catch (GBeanNotFoundException e) {
-            // ignore
-        }
-    }
+//    private void registerMainService(BundleContext bundleContext, Kernel kernel) {
+//        try {
+//            final Main main = kernel.getGBean(Main.class);
+//            bundleContext.registerService(
+//                    org.apache.geronimo.main.Main.class.getName(),
+//                    new org.apache.geronimo.main.Main() {
+//                        public int execute(Object opaque) {
+//                            return main.execute(opaque);
+//                        }
+//                    },
+//                    null);
+//        } catch (GBeanNotFoundException e) {
+//            // ignore
+//        }
+//    }
 }

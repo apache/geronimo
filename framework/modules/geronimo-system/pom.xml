@@ -39,12 +39,12 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-main</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-main</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>
@@ -193,7 +193,10 @@
                 <configuration>
                     <instructions>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                        <Import-Package>org.apache.log4j.helpers;resolution:=optional,
+                        <Import-Package>
+                            org.apache.geronimo.cli.*;resolution:=optional,
+                            net.sf.cglib.*;resolution:=optional,
+                            org.apache.log4j.helpers;resolution:=optional,
                             *</Import-Package>
                     </instructions>
                 </configuration>

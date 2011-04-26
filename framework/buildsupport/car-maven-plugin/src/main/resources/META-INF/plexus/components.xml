@@ -45,12 +45,10 @@
                             </process-resources>
                             <compile>
                                 org.apache.geronimo.buildsupport:car-maven-plugin:validate-configuration,
-                                org.apache.geronimo.buildsupport:car-maven-plugin:prepare-plan,
-                                org.apache.geronimo.buildsupport:car-maven-plugin:verify-no-dependency-change,
-                                org.apache.geronimo.buildsupport:car-maven-plugin:prepare-metadata
+                                org.apache.geronimo.buildsupport:car-maven-plugin:prepare-plan
                             </compile>
                             <package>
-                                org.apache.geronimo.buildsupport:car-maven-plugin:package,
+                                org.apache.geronimo.buildsupport:car-maven-plugin:karaf-framework,
                                 org.apache.geronimo.buildsupport:car-maven-plugin:archive-car
                             </package>
                             <install>
