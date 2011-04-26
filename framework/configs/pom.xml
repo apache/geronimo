@@ -28,13 +28,13 @@
         <version>3.0-SNAPSHOT</version>
     </parent>
 
+    <groupId>org.apache.geronimo.framework.config</groupId>
     <artifactId>configs</artifactId>
     <name>Geronimo Framework, Configs</name>
     <packaging>pom</packaging>
 
     <modules>
-        <module>geronimo-gbean-deployer</module>
-        <!--<module>geronimo-gbean-deployer-bootstrap</module>-->
+        <!--<module>geronimo-gbean-deployer</module>-->
         <module>client-system</module>
         <module>j2ee-security</module>
         <module>j2ee-system</module>
@@ -47,7 +47,6 @@
         <module>server-security-config</module>
         <module>shutdown</module>
         <module>jmx-security</module>
-        <module>karaf-framework</module>
     </modules>
 
     <build>

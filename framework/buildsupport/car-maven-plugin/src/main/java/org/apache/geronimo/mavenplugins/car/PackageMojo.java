@@ -20,6 +20,8 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -28,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.geronimo.deployment.Deployer;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -51,8 +54,12 @@ import org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.launch.Framework;
@@ -60,12 +67,12 @@ import org.osgi.framework.launch.Framework;
 /**
  * Build a Geronimo Configuration using the local Maven infrastructure.
  *
- * @goal package
+ * @goal compile-gbean-plan
  * @requiresDependencyResolution compile
  *
  * @version $Rev$ $Date$
  */
-public class PackageMojo extends AbstractCarMojo {
+public class PackageMojo extends AbstractFrameworkMojo {
 
 
     /**
@@ -139,29 +146,29 @@ public class PackageMojo extends AbstractCarMojo {
      */
     private Dependency module = null;
 
-    /**
-     * The location where the properties mapping will be generated.
-     * <p/>
-     * <p>
-     * Probably don't want to change this.
-     * </p>
-     *
-     * @parameter expression="${project.build.directory}/explicit-versions.properties"
-     */
-    private File explicitResolutionProperties = null;
+//    /**
+//     * The location where the properties mapping will be generated.
+//     * <p/>
+//     * <p>
+//     * Probably don't want to change this.
+//     * </p>
+//     *
+//     * @parameter expression="${project.build.directory}/explicit-versions.properties"
+//     */
+//    private File explicitResolutionProperties = null;
 
-    /**
-     * True to enable the bootshell when packaging.
-     *
-     * @parameter
-     */
-    private boolean bootstrap = false;
+//    /**
+//     * True to enable the bootshell when packaging.
+//     *
+//     * @parameter
+//     */
+//    private boolean bootstrap = false;
 
-    /**
-     * Holds a local repo lookup instance so that we can use the current project to resolve.
-     * This is required since the Kernel used to deploy is cached.
-     */
-    private static ThreadLocal<Maven2RepositoryAdapter.ArtifactLookup> lookupHolder = new ThreadLocal<Maven2RepositoryAdapter.ArtifactLookup>();
+//    /**
+//     * Holds a local repo lookup instance so that we can use the current project to resolve.
+//     * This is required since the Kernel used to deploy is cached.
+//     */
+//    private static ThreadLocal<Maven2RepositoryAdapter.ArtifactLookup> lookupHolder = new ThreadLocal<Maven2RepositoryAdapter.ArtifactLookup>();
 
     /**
      * Directory for generated plugin metadata file.
@@ -178,206 +185,266 @@ public class PackageMojo extends AbstractCarMojo {
      * @required
      */
     protected String pluginMetadataFileName = null;
-    private BundleContext bundleContext;
-    private ServiceRegistration kernelRegistration;
-    private ServiceReference kernelReference;
 
+//    private BundleContext bundleContext;
+//    private ServiceRegistration kernelRegistration;
+//    private ServiceReference kernelReference;
+
+    /**
+     * The maven project.
+     *
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     */
+    protected MavenProject project;
     //
     // Mojo
     //
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void doExecute() throws MojoExecutionException {
         try {
-            // We need to make sure to clean up any previous work first or this operation will fail
-            FileUtils.forceDelete(targetRepository);
-            FileUtils.forceMkdir(targetRepository);
+            try {
+                super.doExecute();
+                // We need to make sure to clean up any previous work first or this operation will fail
+                FileUtils.forceDelete(targetRepository);
+                FileUtils.forceMkdir(targetRepository);
 
-            if (!planFile.exists()) {
-                return;
+                if (!planFile.exists()) {
+                    return;
+                }
+                for (Artifact dependency : (Set<Artifact>) project.getDependencyArtifacts()) {
+                    if ("compile".equals(dependency.getScope()) || "runtime".equals(dependency.getScope())) {
+                        getLog().info("starting dependency: " + dependency);
+                        File file = dependency.getFile();
+                        try {
+                            getFramework().getBundleContext().installBundle("reference:" + file.toURI().toURL());
+                        } catch (BundleException e) {
+                            getLog().info("Can't start " + dependency + " due to " + e.getMessage());
+                        }
+                    }
+                }
+                listBundles();
+                Object deployer = getService(Deployer.class);
+                invokeDeployer(deployer, null);
+//            } catch (MojoExecutionException e) {
+            } catch (Exception e) {
+                getLog().info("Exception, use console to investigate ", e);
+                listBundles();
+                for (Bundle b: getFramework().getBundleContext().getBundles()) {
+                    if (b.getState() != 32) {
+                        try {
+                            b.start();
+                        } catch (BundleException e1) {
+                            getLog().info("Could not start " + b + e.getMessage());
+                        }
+                    }
+                }
+                while (1 == 1) {
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException e1) {
+                        //exit
+                        break;
+                    }
+                }
+                throw e;
+//            } catch (RuntimeException e) {
+//                getLog().info("RuntimeException, use console to investigate ", e);
+//                listBundles();
+//                while (1 == 1) {
+//                    try {
+//                        Thread.sleep(1000L);
+//                    } catch (InterruptedException e1) {
+//                        //exit
+//                        break;
+//                    }
+//                }
+//                throw e;
             }
 
             // Use the default configs if none specified
-            if (deploymentConfigs == null) {
-                if (bootstrap) {
-                    deploymentConfigs = new String[]{};
-                } else {
-                    deploymentConfigs = new String[]{defaultDeploymentConfig};
-                }
-            }
-            getLog().debug("Deployment configs: " + Arrays.asList(deploymentConfigs));
-
-            getDependencies(project, false);
+//            if (deploymentConfigs == null) {
+//                if (bootstrap) {
+//                    deploymentConfigs = new String[]{};
+//                } else {
+//                    deploymentConfigs = new String[]{defaultDeploymentConfig};
+//                }
+//            }
+//            getLog().debug("Deployment configs: " + Arrays.asList(deploymentConfigs));
+//
+//            getDependencies(project, false);
             // If module is set, then resolve the artifact and set moduleFile
-            if (module != null) {
-                Artifact artifact = resolveArtifact(module.getGroupId(), module.getArtifactId(), module.getType());
-                if (artifact == null) {
-                    throw new MojoExecutionException("Could not resolve module " + module.getGroupId() + ":" + module.getArtifactId() + ":" + module.getType() + ". Perhaps it is not listed as a dependency");
-                }
-                moduleFile = artifact.getFile();
-                getLog().debug("Using module file: " + moduleFile);
-            }
+//            if (module != null) {
+//                Artifact artifact = resolveArtifact(module.getGroupId(), module.getArtifactId(), module.getType());
+//                if (artifact == null) {
+//                    throw new MojoExecutionException("Could not resolve module " + module.getGroupId() + ":" + module.getArtifactId() + ":" + module.getType() + ". Perhaps it is not listed as a dependency");
+//                }
+//                moduleFile = artifact.getFile();
+//                getLog().debug("Using module file: " + moduleFile);
+//            }
 
 
-            generateExplicitVersionProperties(explicitResolutionProperties, dependencyArtifacts);
+//            generateExplicitVersionProperties(explicitResolutionProperties, dependencyArtifacts);
 
             //
             // NOTE: Install a local lookup, so that the cached kernel can resolve based on the current project
             //       and not the project where the kernel was first initialized.
             //
-            lookupHolder.set(new ArtifactLookupImpl());
+//            lookupHolder.set(new ArtifactLookupImpl());
 
-            if (bootstrap) {
-                executeBootShell();
-            } else {
-                buildPackage();
-            }
+//            if (bootstrap) {
+//                executeBootShell();
+//            } else {
+//                buildPackage();
+//            }
         } catch (Exception e) {
             throw new MojoExecutionException("could not package plugin", e);
-        } finally {
-            cleanup();
+//        } finally {
+//            cleanup();
         }
     }
 
-    private File getArtifactInRepositoryDir() {
-        //
-        // HACK: Generate the filename in the repo... really should delegate this to the repo impl
-        //
+//    private File getArtifactInRepositoryDir() {
+//        //
+//        // HACK: Generate the filename in the repo... really should delegate this to the repo impl
+//        //
+//
+//        File dir = new File(targetRepository, project.getGroupId().replace('.', '/'));
+//        dir = new File(dir, project.getArtifactId());
+//        dir = new File(dir, project.getVersion());
+//        dir = new File(dir, project.getArtifactId() + "-" + project.getVersion() + ".car");
+//
+//        return dir;
+//    }
 
-        File dir = new File(targetRepository, project.getGroupId().replace('.', '/'));
-        dir = new File(dir, project.getArtifactId());
-        dir = new File(dir, project.getVersion());
-        dir = new File(dir, project.getArtifactId() + "-" + project.getVersion() + ".car");
-
-        return dir;
-    }
-
-    public void executeBootShell() throws Exception {
-        getLog().debug("Starting bootstrap shell...");
-
-        PluginBootstrap2 boot = new PluginBootstrap2();
-
-        boot.setBuildDir(outputDirectory);
-        boot.setCarFile(getArtifactInRepositoryDir());
-        boot.setLocalRepo(repository);
-        boot.setPlan(planFile);
-        Framework framework = getFramework();
-        BundleContext bundleContext = framework.getBundleContext();
-        boot.setBundleContext(bundleContext);
-
-        // Keep the same behavior with RepositoryConfigurationStore
-        boot.setExpanded(false);
-
-        boot.bootstrap();
-    }
+//    public void executeBootShell() throws Exception {
+//        getLog().debug("Starting bootstrap shell...");
+//
+//        PluginBootstrap2 boot = new PluginBootstrap2();
+//
+//        boot.setBuildDir(outputDirectory);
+//        boot.setCarFile(getArtifactInRepositoryDir());
+//        boot.setLocalRepo(repository);
+//        boot.setPlan(planFile);
+//        Framework framework = getFramework();
+//        BundleContext bundleContext = framework.getBundleContext();
+//        boot.setBundleContext(bundleContext);
+//
+//        // Keep the same behavior with RepositoryConfigurationStore
+//        boot.setExpanded(false);
+//
+//        boot.bootstrap();
+//    }
 
     //
     // Deployment
     //
 
-    private static final String KERNEL_NAME = "geronimo.maven";
-
-    /**
-     * Reference to the kernel that will last the lifetime of this classloader.
-     * The KernelRegistry keeps soft references that may be garbage collected.
-     */
-    private Kernel kernel;
-
-    private AbstractName targetConfigStoreAName;
-
-    private AbstractName targetRepositoryAName;
-
-    private boolean targetSet;
-
+//    private static final String KERNEL_NAME = "geronimo.maven";
+//
+//    /**
+//     * Reference to the kernel that will last the lifetime of this classloader.
+//     * The KernelRegistry keeps soft references that may be garbage collected.
+//     */
+//    private Kernel kernel;
+//
+//    private AbstractName targetConfigStoreAName;
+//
+//    private AbstractName targetRepositoryAName;
+//
+//    private boolean targetSet;
+//
     public void buildPackage() throws Exception {
         getLog().info("Packaging module configuration: " + planFile);
 
-        Kernel kernel = createKernel();
-        if (!targetSet) {
-            kernel.stopGBean(targetRepositoryAName);
-            kernel.setAttribute(targetRepositoryAName, "root", targetRepository.toURI());
-            kernel.startGBean(targetRepositoryAName);
-
-            if (kernel.getGBeanState(targetConfigStoreAName) != State.RUNNING_INDEX) {
-                throw new IllegalStateException("After restarted repository then config store is not running");
-            }
-
-            targetSet = true;
-        }
-
-        getLog().debug("Starting configurations..." + Arrays.asList(deploymentConfigs));
-
-        // start the Configuration we're going to use for this deployment
-        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-
-        DependencyManager dependencyManager = kernel.getGBean(DependencyManager.class);
+//        Kernel kernel = createKernel();
+//        if (!targetSet) {
+//            kernel.stopGBean(targetRepositoryAName);
+//            kernel.setAttribute(targetRepositoryAName, "root", targetRepository.toURI());
+//            kernel.startGBean(targetRepositoryAName);
+//
+//            if (kernel.getGBeanState(targetConfigStoreAName) != State.RUNNING_INDEX) {
+//                throw new IllegalStateException("After restarted repository then config store is not running");
+//            }
+//
+//            targetSet = true;
+//        }
+//
+//        getLog().debug("Starting configurations..." + Arrays.asList(deploymentConfigs));
+//
+//        // start the Configuration we're going to use for this deployment
+//        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+//
+//        DependencyManager dependencyManager = kernel.getGBean(DependencyManager.class);
         //Register ConfigurationExtender Listener
 //        ConfigurationExtender configurationExtender = new ConfigurationExtender(configurationManager, dependencyManager, bundleContext);
 //        configurationExtender.doStart();
 
-        try {
-            for (String artifactName : deploymentConfigs) {
-                org.apache.geronimo.kernel.repository.Artifact configName = org.apache.geronimo.kernel.repository.Artifact.create(artifactName);
-                if (!configurationManager.isLoaded(configName)) {
-                    RecordingLifecycleMonitor monitor = new RecordingLifecycleMonitor();
-                    try {
-                        configurationManager.loadConfiguration(configName, monitor);
-                    } catch (LifecycleException e) {
-                        getLog().error("Could not load deployer configuration: " + configName + "\n" + monitor.toString(), e);
-                    }
-                    monitor = new RecordingLifecycleMonitor();
-                    try {
-                        configurationManager.startConfiguration(configName, monitor);
-                        getLog().info("Started deployer: " + configName);
-                    } catch (LifecycleException e) {
-                        getLog().error("Could not start deployer configuration: " + configName + "\n" + monitor.toString(), e);
-                    }
-                }
-            }
-        } finally {
-            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-        }
+//        try {
+//            for (String artifactName : deploymentConfigs) {
+//                org.apache.geronimo.kernel.repository.Artifact configName = org.apache.geronimo.kernel.repository.Artifact.create(artifactName);
+//                if (!configurationManager.isLoaded(configName)) {
+//                    RecordingLifecycleMonitor monitor = new RecordingLifecycleMonitor();
+//                    try {
+//                        configurationManager.loadConfiguration(configName, monitor);
+//                    } catch (LifecycleException e) {
+//                        getLog().error("Could not load deployer configuration: " + configName + "\n" + monitor.toString(), e);
+//                    }
+//                    monitor = new RecordingLifecycleMonitor();
+//                    try {
+//                        configurationManager.startConfiguration(configName, monitor);
+//                        getLog().info("Started deployer: " + configName);
+//                    } catch (LifecycleException e) {
+//                        getLog().error("Could not start deployer configuration: " + configName + "\n" + monitor.toString(), e);
+//                    }
+//                }
+//            }
+//        } finally {
+//            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+//        }
 
-        getLog().debug("Deploying...");
-
-        AbstractName deployer = locateDeployer(kernel);
-        invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
-        //use a fresh kernel for each module
-//        configurationExtender.doStop();
-//        kernel.shutdown();
-        kernel = null;
-        bundleContext.ungetService(kernelReference);
-        bundleContext.getBundle().stop();
-        bundleContext = null;
+//        getLog().debug("Deploying...");
+//
+//        AbstractName deployer = locateDeployer(kernel);
+//        invokeDeployer(kernel, deployer, targetConfigStoreAName.toString());
+//        //use a fresh kernel for each module
+////        configurationExtender.doStop();
+////        kernel.shutdown();
+//        kernel = null;
+//        bundleContext.ungetService(kernelReference);
+//        bundleContext.getBundle().stop();
+//        bundleContext = null;
     }
 
     /**
      * Create a Geronimo Kernel to contain the deployment configurations.
      */
-    private synchronized Kernel createKernel() throws Exception {
-        // first return our cached version
-//        if (kernel != null) {
-//            return kernel;
-//        }
-        getLog().debug("Creating kernel...");
-
-        // check the registry in case someone else created one
-//        kernel = KernelRegistry.getKernel(KERNEL_NAME);
-//        if (kernel != null) {
-//            return kernel;
-//        }
-
-        // boot one ourselves
-        bundleContext = getFramework().getBundleContext();
-
-//        kernel = KernelFactory.newInstance(bundleContext).createKernel(KERNEL_NAME);
-//        kernel.boot();
-        AbstractName sourceRepoName = bootDeployerSystem();
-        Dictionary dictionary = null;
-//        kernelRegistration = bundleContext.registerService(Kernel.class.getName(), kernel, dictionary);
-        kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
-
-        return (Kernel) bundleContext.getService(kernelReference);
-    }
+//    private synchronized Kernel createKernel() throws Exception {
+//        // first return our cached version
+////        if (kernel != null) {
+////            return kernel;
+////        }
+//        getLog().debug("Creating kernel...");
+//
+//        // check the registry in case someone else created one
+////        kernel = KernelRegistry.getKernel(KERNEL_NAME);
+////        if (kernel != null) {
+////            return kernel;
+////        }
+//
+//        // boot one ourselves
+//        bundleContext = getFramework().getBundleContext();
+//
+////        kernel = KernelFactory.newInstance(bundleContext).createKernel(KERNEL_NAME);
+////        kernel.boot();
+//        AbstractName sourceRepoName = bootDeployerSystem();
+//        Dictionary dictionary = null;
+////        kernelRegistration = bundleContext.registerService(Kernel.class.getName(), kernel, dictionary);
+//        kernelReference = bundleContext.getServiceReference(Kernel.class.getName());
+//
+//        return (Kernel) bundleContext.getService(kernelReference);
+//    }
 
     /**
      * Boot the in-Maven deployment system.
@@ -387,89 +454,89 @@ public class PackageMojo extends AbstractCarMojo {
      * the local maven installation.
      * </p>
      */
-    private AbstractName bootDeployerSystem() throws Exception {
-        getLog().debug("Booting deployer system...");
-
-        org.apache.geronimo.kernel.repository.Artifact baseId =
-                new org.apache.geronimo.kernel.repository.Artifact("geronimo", "packaging", "fixed", "car");
-        Naming naming = kernel.getNaming();
-        ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
-        ClassLoader cl = getClass().getClassLoader();
-        Set<AbstractName> repoNames = new HashSet<AbstractName>();
-
-        //
-        // NOTE: Install an adapter for the source repository that will leverage the Maven2 repository subsystem
-        //       to allow for better handling of SNAPSHOT values.
-        //
-        GBeanData repoGBean = bootstrap.addGBean("SourceRepository", GBeanInfo.getGBeanInfo(Maven2RepositoryAdapter.class.getName(), bundleContext.getBundle()));
-        Maven2RepositoryAdapter.ArtifactLookup lookup = new Maven2RepositoryAdapter.ArtifactLookup() {
-            private Maven2RepositoryAdapter.ArtifactLookup getDelegate() {
-                return lookupHolder.get();
-            }
-
-            public File getBasedir() {
-                return getDelegate().getBasedir();
-            }
-
-            public File getLocation(final org.apache.geronimo.kernel.repository.Artifact artifact) {
-                return getDelegate().getLocation(artifact);
-            }
-        };
-        repoGBean.setAttribute("lookup", lookup);
-        repoGBean.setAttribute("dependencies", dependencyArtifacts);
-        repoNames.add(repoGBean.getAbstractName());
-
-        // Target repo
-        GBeanData targetRepoGBean = bootstrap.addGBean("TargetRepository", GBeanInfo.getGBeanInfo(Maven2Repository.class.getName(), bundleContext.getBundle()));
-        URI targetRepositoryURI = targetRepository.toURI();
-        targetRepoGBean.setAttribute("root", targetRepositoryURI);
-        repoNames.add(targetRepoGBean.getAbstractName());
-        targetRepositoryAName = targetRepoGBean.getAbstractName();
-
-        GBeanData artifactManagerGBean = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
-        GBeanData artifactResolverGBean = bootstrap.addGBean("ArtifactResolver", ExplicitDefaultArtifactResolver.class);
-        artifactResolverGBean.setAttribute("versionMapLocation", explicitResolutionProperties.getAbsolutePath());
-        ReferencePatterns repoPatterns = new ReferencePatterns(repoNames);
-        artifactResolverGBean.setReferencePatterns("Repositories", repoPatterns);
-        artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
-
-        GBeanData dependencyManager = bootstrap.addGBean("DependencyManager", DependencyManager.class);
-        dependencyManager.setReferencePattern("Repositories", repoGBean.getAbstractName());
-        dependencyManager.setReferencePattern("ArtifactResolver", artifactResolverGBean.getAbstractName());
-
-        Set storeNames = new HashSet();
-
-        // Source config store
-        GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(MavenConfigStore.class.getName(), bundleContext.getBundle());
-        GBeanData storeGBean = bootstrap.addGBean("ConfigStore", configStoreInfo);
-        if (configStoreInfo.getReference("Repository") != null) {
-            storeGBean.setReferencePattern("Repository", repoGBean.getAbstractName());
-        }
-        storeNames.add(storeGBean.getAbstractName());
-
-        // Target config store
-        GBeanInfo targetConfigStoreInfo = GBeanInfo.getGBeanInfo(RepositoryConfigurationStore.class.getName(), bundleContext.getBundle());
-        GBeanData targetStoreGBean = bootstrap.addGBean("TargetConfigStore", targetConfigStoreInfo);
-        if (targetConfigStoreInfo.getReference("Repository") != null) {
-            targetStoreGBean.setReferencePattern("Repository", targetRepoGBean.getAbstractName());
-        }
-        storeNames.add(targetStoreGBean.getAbstractName());
-
-        targetConfigStoreAName = targetStoreGBean.getAbstractName();
-        targetSet = true;
-
-        GBeanData attrManagerGBean = bootstrap.addGBean("AttributeStore", MavenAttributeStore.GBEAN_INFO);
-        GBeanData configManagerGBean = bootstrap.addGBean("ConfigManager", KernelConfigurationManager.class);
-        configManagerGBean.setReferencePatterns("Stores", new ReferencePatterns(storeNames));
-        configManagerGBean.setReferencePattern("AttributeStore", attrManagerGBean.getAbstractName());
-        configManagerGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
-        configManagerGBean.setReferencePattern("ArtifactResolver", artifactResolverGBean.getAbstractName());
-        configManagerGBean.setReferencePatterns("Repositories", repoPatterns);
-
-        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
-
-        return repoGBean.getAbstractName();
-    }
+//    private AbstractName bootDeployerSystem() throws Exception {
+//        getLog().debug("Booting deployer system...");
+//
+//        org.apache.geronimo.kernel.repository.Artifact baseId =
+//                new org.apache.geronimo.kernel.repository.Artifact("geronimo", "packaging", "fixed", "car");
+//        Naming naming = kernel.getNaming();
+//        ConfigurationData bootstrap = new ConfigurationData(baseId, naming);
+//        ClassLoader cl = getClass().getClassLoader();
+//        Set<AbstractName> repoNames = new HashSet<AbstractName>();
+//
+//        //
+//        // NOTE: Install an adapter for the source repository that will leverage the Maven2 repository subsystem
+//        //       to allow for better handling of SNAPSHOT values.
+//        //
+//        GBeanData repoGBean = bootstrap.addGBean("SourceRepository", GBeanInfo.getGBeanInfo(Maven2RepositoryAdapter.class.getName(), bundleContext.getBundle()));
+//        Maven2RepositoryAdapter.ArtifactLookup lookup = new Maven2RepositoryAdapter.ArtifactLookup() {
+//            private Maven2RepositoryAdapter.ArtifactLookup getDelegate() {
+//                return lookupHolder.get();
+//            }
+//
+//            public File getBasedir() {
+//                return getDelegate().getBasedir();
+//            }
+//
+//            public File getLocation(final org.apache.geronimo.kernel.repository.Artifact artifact) {
+//                return getDelegate().getLocation(artifact);
+//            }
+//        };
+//        repoGBean.setAttribute("lookup", lookup);
+//        repoGBean.setAttribute("dependencies", dependencyArtifacts);
+//        repoNames.add(repoGBean.getAbstractName());
+//
+//        // Target repo
+//        GBeanData targetRepoGBean = bootstrap.addGBean("TargetRepository", GBeanInfo.getGBeanInfo(Maven2Repository.class.getName(), bundleContext.getBundle()));
+//        URI targetRepositoryURI = targetRepository.toURI();
+//        targetRepoGBean.setAttribute("root", targetRepositoryURI);
+//        repoNames.add(targetRepoGBean.getAbstractName());
+//        targetRepositoryAName = targetRepoGBean.getAbstractName();
+//
+//        GBeanData artifactManagerGBean = bootstrap.addGBean("ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+//        GBeanData artifactResolverGBean = bootstrap.addGBean("ArtifactResolver", ExplicitDefaultArtifactResolver.class);
+//        artifactResolverGBean.setAttribute("versionMapLocation", explicitResolutionProperties.getAbsolutePath());
+//        ReferencePatterns repoPatterns = new ReferencePatterns(repoNames);
+//        artifactResolverGBean.setReferencePatterns("Repositories", repoPatterns);
+//        artifactResolverGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
+//
+//        GBeanData dependencyManager = bootstrap.addGBean("DependencyManager", DependencyManager.class);
+//        dependencyManager.setReferencePattern("Repositories", repoGBean.getAbstractName());
+//        dependencyManager.setReferencePattern("ArtifactResolver", artifactResolverGBean.getAbstractName());
+//
+//        Set storeNames = new HashSet();
+//
+//        // Source config store
+//        GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(MavenConfigStore.class.getName(), bundleContext.getBundle());
+//        GBeanData storeGBean = bootstrap.addGBean("ConfigStore", configStoreInfo);
+//        if (configStoreInfo.getReference("Repository") != null) {
+//            storeGBean.setReferencePattern("Repository", repoGBean.getAbstractName());
+//        }
+//        storeNames.add(storeGBean.getAbstractName());
+//
+//        // Target config store
+//        GBeanInfo targetConfigStoreInfo = GBeanInfo.getGBeanInfo(RepositoryConfigurationStore.class.getName(), bundleContext.getBundle());
+//        GBeanData targetStoreGBean = bootstrap.addGBean("TargetConfigStore", targetConfigStoreInfo);
+//        if (targetConfigStoreInfo.getReference("Repository") != null) {
+//            targetStoreGBean.setReferencePattern("Repository", targetRepoGBean.getAbstractName());
+//        }
+//        storeNames.add(targetStoreGBean.getAbstractName());
+//
+//        targetConfigStoreAName = targetStoreGBean.getAbstractName();
+//        targetSet = true;
+//
+//        GBeanData attrManagerGBean = bootstrap.addGBean("AttributeStore", MavenAttributeStore.GBEAN_INFO);
+//        GBeanData configManagerGBean = bootstrap.addGBean("ConfigManager", KernelConfigurationManager.class);
+//        configManagerGBean.setReferencePatterns("Stores", new ReferencePatterns(storeNames));
+//        configManagerGBean.setReferencePattern("AttributeStore", attrManagerGBean.getAbstractName());
+//        configManagerGBean.setReferencePattern("ArtifactManager", artifactManagerGBean.getAbstractName());
+//        configManagerGBean.setReferencePattern("ArtifactResolver", artifactResolverGBean.getAbstractName());
+//        configManagerGBean.setReferencePatterns("Repositories", repoPatterns);
+//
+//        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, bundleContext);
+//
+//        return repoGBean.getAbstractName();
+//    }
 
     /**
      * Locate a Deployer GBean matching the deployerName pattern.
@@ -478,56 +545,31 @@ public class PackageMojo extends AbstractCarMojo {
      * @return the ObjectName of the Deployer GBean
      * @throws IllegalStateException if there is not exactly one GBean matching the deployerName pattern
      */
-    private AbstractName locateDeployer(final Kernel kernel) {
-        AbstractName name = new AbstractName(URI.create(deployerName));
+//    private AbstractName locateDeployer(final Kernel kernel) {
+//        AbstractName name = new AbstractName(URI.create(deployerName));
+//
+//        Iterator i = kernel.listGBeans(new AbstractNameQuery(name)).iterator();
+//        if (!i.hasNext()) {
+//            throw new IllegalStateException("No deployer found matching deployerName: " + name);
+//        }
+//
+//        AbstractName deployer = (AbstractName) i.next();
+//        if (i.hasNext()) {
+//            throw new IllegalStateException("Multiple deployers found matching deployerName: " + name);
+//        }
+//
+//        return deployer;
+//    }
 
-        Iterator i = kernel.listGBeans(new AbstractNameQuery(name)).iterator();
-        if (!i.hasNext()) {
-            throw new IllegalStateException("No deployer found matching deployerName: " + name);
-        }
-
-        AbstractName deployer = (AbstractName) i.next();
-        if (i.hasNext()) {
-            throw new IllegalStateException("Multiple deployers found matching deployerName: " + name);
-        }
-
-        return deployer;
-    }
-
-    private static final String[] DEPLOY_SIGNATURE = {
-            boolean.class.getName(),
-            File.class.getName(),
-            File.class.getName(),
-            File.class.getName(),
-            Boolean.TYPE.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
-            String.class.getName(),
+    private static final Class[] DEPLOY_SIGNATURE = {
+            boolean.class,
+            File.class,
+            File.class
     };
 
-    private List invokeDeployer(final Kernel kernel, final AbstractName deployer, final String targetConfigStore) throws Exception {
-        Object[] args = {
-                Boolean.FALSE, // Not in-place
-                moduleFile,
-                planFile,
-                null, // Target file
-                Boolean.TRUE, // Install
-                null, // main-class
-                null, // main-gbean
-                null, // main-method
-                null, // Manifest configurations
-                null, // class-path
-                null, // endorsed-dirs
-                null, // extension-dirs
-                targetConfigStore
-        };
-
-        return (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIGNATURE);
+    private List<String> invokeDeployer(Object deployer, final String targetConfigStore) throws Exception {
+        Method m = deployer.getClass().getMethod("deploy", DEPLOY_SIGNATURE);
+        return (List<String>) m.invoke(deployer, new Object[] {Boolean.FALSE, moduleFile, planFile});
     }
 
 }

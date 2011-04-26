@@ -37,7 +37,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
+            <groupId>org.apache.geronimo.framework.config</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
             <version>${project.version}</version>
             <type>car</type>

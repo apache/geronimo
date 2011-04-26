@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!--
+Configuration for the innermost ring of a Geronimo server.
+This module should only contain critical services needed to
+run other Configurations - for example, the ServerInfo, Logging
+and Repository services used to load them.
+
+This module should *NOT* be used to provide server or application
+specific services - those should be provided by children.
+-->
+
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <gbean name="EmbeddedDaemon" class="org.apache.geronimo.system.main.EmbeddedDaemon"/>
+
+    <!-- ServerInfo service -->
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
+
+    <!--Repository-->
+    <gbean name="Repository" class="org.apache.geronimo.system.repository.Maven2Repository">
+        <attribute name="root">repository/</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+
+    <!-- Pinged and changed when the server completes loading when all the persistent configuration is loaded -->
+    <gbean name="ServerStatus" class="org.apache.geronimo.system.main.ServerStatusGBean">
+        <attribute name="serverStarted">false</attribute>
+    </gbean>
+
+    <!--Configuration Store service-->
+    <gbean name="Local" class="org.apache.geronimo.system.configuration.RepositoryConfigurationStore">
+        <reference name="Repository">
+            <name>Repository</name>
+        </reference>
+    </gbean>
+
+    <!--User-editable attribute service-->
+    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <attribute name="configFile">var/config/config.xml</attribute>
+        <attribute name="substitutionsFile">var/config/config-substitutions.properties</attribute>
+        <attribute name="substitutionPrefix">org.apache.geronimo.config.substitution.</attribute>
+    </gbean>
+
+    <!-- ArtifactManager -->
+    <gbean name="ArtifactManager" class="org.apache.geronimo.kernel.repository.DefaultArtifactManager"/>
+
+    <!-- ArtifactResolver -->
+    <gbean name="ArtifactResolver" class="org.apache.geronimo.system.resolver.ExplicitDefaultArtifactResolver">
+        <reference name="ArtifactManager">
+            <name>ArtifactManager</name>
+        </reference>
+        <reference name="Repositories"></reference>
+        <attribute name="versionMapLocation">var/config/artifact_aliases.properties</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+
+    <!--Configuration Manager service-->
+    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.EditableKernelConfigurationManager">
+        <reference name="Repositories"></reference>
+        <reference name="Stores"></reference>
+        <reference name="Watchers"></reference>
+        <reference name="AttributeStore">
+            <name>AttributeManager</name>
+        </reference>
+        <reference name="PersistentConfigurationList">
+            <type>AttributeStore</type>
+            <name>AttributeManager</name>
+        </reference>
+        <reference name="ArtifactManager">
+            <name>ArtifactManager</name>
+        </reference>
+        <reference name="ArtifactResolver">
+            <name>ArtifactResolver</name>
+        </reference>
+    </gbean>
+
+    <!-- Logging service -->
+    <gbean name="Logger" class="org.apache.geronimo.system.logging.OSGILogServiceWrapper">       
+        <attribute name="configFileName">var/log/server-log4j.properties</attribute>
+        <attribute name="refreshPeriodSeconds">60</attribute>
+    </gbean>
+
+</module>

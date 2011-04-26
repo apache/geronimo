@@ -118,25 +118,35 @@ public class PlanProcessorMojo
             environmentType.setModuleId(artifactType);
 
 
-
-                if (targetDir.exists()) {
-                    if (!targetDir.isDirectory()) {
-                        throw new RuntimeException("TargetDir: " + this.targetDir + " exists and is not a directory");
-                    }
-                } else {
-                    targetDir.mkdirs();
+            if (targetDir.exists()) {
+                if (!targetDir.isDirectory()) {
+                    throw new RuntimeException("TargetDir: " + this.targetDir + " exists and is not a directory");
                 }
+            } else {
+                targetDir.mkdirs();
+            }
 
-                Writer out = new FileWriter(targetFile);
+            Writer out = new FileWriter(targetFile);
             try {
-                JaxbUtil.marshal(ModuleType.class, moduleType, out);
+                JaxbUtil.marshalModule(moduleType, out);
             } finally {
                 out.close();
             }
 
             if (getLog() != null) {
-                    getLog().info("Generated: " + targetFile);
-                }
+                getLog().info("Generated: " + targetFile);
+            }
+            //TODO temporary test
+            in = new FileInputStream(targetFile);
+            ModuleType m2;
+            try {
+                m2 = JaxbUtil.unmarshalModule(in, false);
+            } finally {
+                in.close();
+            }
+            if (m2.getEnvironment() == null || moduleType.getGbean().size() != m2.getGbean().size()) {
+                throw new IllegalStateException("m2 missing environment or gbeans " + m2.getEnvironment() + " gbean count: " + m2.getGbean().size());
+            }
         } catch (Exception e) {
             throw new MojoExecutionException("Could not process plan", e);
         }

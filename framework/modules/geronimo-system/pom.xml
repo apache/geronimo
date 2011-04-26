@@ -74,6 +74,7 @@
             <groupId>org.apache.geronimo.framework</groupId>
             <artifactId>geronimo-pax-logging</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -103,30 +104,30 @@
             <artifactId>org.apache.felix.scr</artifactId>
         </dependency>
         <!-- plugin management -->
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxb_2.2_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-jaxb_2.2_spec</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-stax-api_1.2_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-stax-api_1.2_spec</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>jaxb-impl</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+            <!--<artifactId>jaxb-impl</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.1_spec</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-activation_1.1_spec</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.bundles</groupId>
-            <artifactId>woodstox</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+            <!--<artifactId>woodstox</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -195,6 +196,7 @@
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Import-Package>
                             org.apache.geronimo.cli.*;resolution:=optional,
+                            org.apache.geronimo.logging.*;resolution:=optional,
                             net.sf.cglib.*;resolution:=optional,
                             org.apache.log4j.helpers;resolution:=optional,
                             *</Import-Package>

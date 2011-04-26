@@ -76,11 +76,15 @@ public class PluginXmlUtil {
         }
     }
 
-    public static void writePluginMetadata(PluginType metadata, OutputStream out) throws XMLStreamException, JAXBException {
-        Marshaller marshaller = PLUGIN_CONTEXT.createMarshaller();
-        marshaller.setProperty("jaxb.formatted.output", true);
-        JAXBElement<PluginType> element = new ObjectFactory().createGeronimoPlugin(metadata);
-        marshaller.marshal(element, out);
+    public static void writePluginMetadata(PluginType metadata, OutputStream out) throws IOException {
+        try {
+            Marshaller marshaller = PLUGIN_CONTEXT.createMarshaller();
+            marshaller.setProperty("jaxb.formatted.output", true);
+            JAXBElement<PluginType> element = new ObjectFactory().createGeronimoPlugin(metadata);
+            marshaller.marshal(element, out);
+        } catch (JAXBException e) {
+            throw new IOException("Could not marshal plugin type", e);
+        }
     }
 
     public static void writePluginArtifact(PluginArtifactType value, Writer out) throws XMLStreamException, JAXBException {

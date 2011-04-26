@@ -116,9 +116,10 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             if (planFile != null) {
                 InputStream in = new FileInputStream(planFile);
                 try {
+//                    moduleType = JaxbUtil.unmarshal(ModuleType.class, in, false);
                     moduleType = JaxbUtil.unmarshalModule(in, false);
-                } catch (XMLStreamException e) {
-                     return null;
+//                } catch (XMLStreamException e) {
+//                     return null;
                 } catch (JAXBException e) {
                     return null;
                 } finally {
@@ -130,6 +131,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 try {
                     InputStream in = path.openStream();
                     try {
+//                        moduleType = JaxbUtil.unmarshal(ModuleType.class, in, false);
                         moduleType = JaxbUtil.unmarshalModule(in, false);
                     } finally {
                         in.close();
@@ -161,21 +163,21 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 //            }
 //            XmlBeansUtil.validateDD(moduleDoc);
             // If there's no artifact ID and we won't be able to figure one out later, use the plan file name.  Bit of a hack.
-            if(jarFile == null && (moduleType.getEnvironment() == null ||
-                        moduleType.getEnvironment().getModuleId() == null ||
-                        moduleType.getEnvironment().getModuleId().getArtifactId() == null)) {
-                if(moduleType.getEnvironment() == null) {
-//                    moduleType.addNewEnvironment();
+            if(jarFile == null) {
+                if (moduleType.getEnvironment() == null) {
+                    moduleType.setEnvironment(new EnvironmentType());
                 }
-                if(moduleType.getEnvironment().getModuleId() == null) {
-//                    moduleType.getEnvironment().addNewModuleId();
+                if (moduleType.getEnvironment().getModuleId() == null) {
+                    moduleType.getEnvironment().setModuleId(new ArtifactType());
                 }
-                String name = planFile.getName();
-                int pos = name.lastIndexOf('.');
-                if(pos > -1) {
-                    name = name.substring(0, pos);
+                if (moduleType.getEnvironment().getModuleId().getArtifactId() == null) {
+                    String name = planFile.getName();
+                    int pos = name.lastIndexOf('.');
+                    if(pos > -1) {
+                        name = name.substring(0, pos);
+                    }
+                    moduleType.getEnvironment().getModuleId().setArtifactId(name);
                 }
-                moduleType.getEnvironment().getModuleId().setArtifactId(name);
             }
             return moduleType;
         } catch (Exception e) {

@@ -70,7 +70,8 @@ public class GBeanBindingTest extends AbstractContextTest {
         kernel.startGBean(ds2Name);
         DataSource ds2 = (DataSource) kernel.getGBean(ds2Name);
         globalBindings.put("writable/ds2", ds2);
-        assertEq(globalBindings, ctx);   */     
+        assertEq(globalBindings, ctx);
+        */
     }
 
     protected Map getNestedBindings(Map globalBindings, String nestedPath) {

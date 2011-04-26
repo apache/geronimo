@@ -39,8 +39,6 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.stream.XMLStreamException;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.IllegalConfigurationException;
 import org.apache.geronimo.deployment.util.osgi.DummyExportPackagesSelector;
@@ -211,7 +209,7 @@ public class DeploymentContext {
         }
     }
 
-    private void createPluginMetadata() throws IOException, JAXBException, XMLStreamException {
+    private void createPluginMetadata() throws IOException {
         PluginType pluginType = new PluginType();
         pluginType.setName("Temporary Plugin metadata for deployment");
         PluginArtifactType instance = new PluginArtifactType();
@@ -568,11 +566,11 @@ public class DeploymentContext {
             osgiMetaDataBuilder = new OSGiMetaDataBuilder(bundleContext, new DummyExportPackagesSelector());
         }
 
-        try {
-            osgiMetaDataBuilder.build(environment, configuration.getModuleType() == ConfigurationModuleType.CAR);
-        } catch (IllegalConfigurationException e) {
-            throw new DeploymentException(e);
-        }
+//        try {
+//            osgiMetaDataBuilder.build(environment, configuration.getModuleType() == ConfigurationModuleType.CAR);
+//        } catch (IllegalConfigurationException e) {
+//            throw new DeploymentException(e);
+//        }
 
         if (tempBundle != null) {
             try {

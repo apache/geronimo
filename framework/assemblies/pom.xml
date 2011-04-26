@@ -39,41 +39,41 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.geronimo.buildsupport</groupId>
-                <artifactId>car-maven-plugin</artifactId>
-                <configuration>
-                    <osiApproved>true</osiApproved>
-                    <servers>
-                        <serverInstance>
-                            <name>default</name>
-                            <configFile>var/config/config.xml</configFile>
-                            <configSubstitutionsFile>var/config/config-substitutions.properties</configSubstitutionsFile>
-                            <configSubstitutionsPrefix>org.apache.geronimo.config.substitution.</configSubstitutionsPrefix>
-                            <artifactAliasesFile>var/config/artifact_aliases.properties</artifactAliasesFile>
-                        </serverInstance>
-                        <serverInstance>
-                            <name>client</name>
-                            <attributeManagerFrom>default</attributeManagerFrom>
-                            <artifactAliasesFile>var/config/client_artifact_aliases.properties</artifactAliasesFile>
-                        </serverInstance>
-                        <serverInstance>
-                            <name>offline</name>
-                            <configFile>var/config/offline-deployer-config.xml</configFile>
-                            <configSubstitutionsFile>var/config/config-substitutions.properties</configSubstitutionsFile>
-                            <configSubstitutionsPrefix>org.apache.geronimo.config.substitution.</configSubstitutionsPrefix>
-                            <artifactAliasesFile>var/config/artifact_aliases.properties</artifactAliasesFile>
-                        </serverInstance>
-                        <serverInstance>
-                            <name>jsr88</name>
-                            <configFile>var/config/jsr88-configurer-config.xml</configFile>
-                            <configSubstitutionsFile>var/config/config-substitutions.properties</configSubstitutionsFile>
-                            <configSubstitutionsPrefix>org.apache.geronimo.config.substitution.</configSubstitutionsPrefix>
-                            <artifactAliasesFile>var/config/artifact_aliases.properties</artifactAliasesFile>
-                        </serverInstance>
-                    </servers>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.geronimo.buildsupport</groupId>-->
+                <!--<artifactId>car-maven-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<osiApproved>true</osiApproved>-->
+                    <!--<servers>-->
+                        <!--<serverInstance>-->
+                            <!--<name>default</name>-->
+                            <!--<configFile>var/config/config.xml</configFile>-->
+                            <!--<configSubstitutionsFile>var/config/config-substitutions.properties</configSubstitutionsFile>-->
+                            <!--<configSubstitutionsPrefix>org.apache.geronimo.config.substitution.</configSubstitutionsPrefix>-->
+                            <!--<artifactAliasesFile>var/config/artifact_aliases.properties</artifactAliasesFile>-->
+                        <!--</serverInstance>-->
+                        <!--<serverInstance>-->
+                            <!--<name>client</name>-->
+                            <!--<attributeManagerFrom>default</attributeManagerFrom>-->
+                            <!--<artifactAliasesFile>var/config/client_artifact_aliases.properties</artifactAliasesFile>-->
+                        <!--</serverInstance>-->
+                        <!--<serverInstance>-->
+                            <!--<name>offline</name>-->
+                            <!--<configFile>var/config/offline-deployer-config.xml</configFile>-->
+                            <!--<configSubstitutionsFile>var/config/config-substitutions.properties</configSubstitutionsFile>-->
+                            <!--<configSubstitutionsPrefix>org.apache.geronimo.config.substitution.</configSubstitutionsPrefix>-->
+                            <!--<artifactAliasesFile>var/config/artifact_aliases.properties</artifactAliasesFile>-->
+                        <!--</serverInstance>-->
+                        <!--<serverInstance>-->
+                            <!--<name>jsr88</name>-->
+                            <!--<configFile>var/config/jsr88-configurer-config.xml</configFile>-->
+                            <!--<configSubstitutionsFile>var/config/config-substitutions.properties</configSubstitutionsFile>-->
+                            <!--<configSubstitutionsPrefix>org.apache.geronimo.config.substitution.</configSubstitutionsPrefix>-->
+                            <!--<artifactAliasesFile>var/config/artifact_aliases.properties</artifactAliasesFile>-->
+                        <!--</serverInstance>-->
+                    <!--</servers>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 

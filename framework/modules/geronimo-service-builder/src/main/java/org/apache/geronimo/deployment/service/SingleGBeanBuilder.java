@@ -163,11 +163,11 @@ public class SingleGBeanBuilder {
 
     public static AbstractNameQuery buildAbstractNameQuery(PatternType pattern, String nameTypeName, Set interfaceTypes) {
         String groupId = pattern.getGroupId();
-        String artifactid = pattern.getArtifactId().trim();
-        String version = pattern.getVersion().trim();
-        String module = pattern.getModule().trim();
-        String type = pattern.getType().trim();
-        String name = pattern.getName().trim();
+        String artifactid = pattern.getArtifactId();
+        String version = pattern.getVersion();
+        String module = pattern.getModule();
+        String type = pattern.getType();
+        String name = pattern.getName();
 
         Artifact artifact = artifactid != null? new Artifact(groupId, artifactid, version, "car"): null;
         //get the type from the gbean info if not supplied explicitly

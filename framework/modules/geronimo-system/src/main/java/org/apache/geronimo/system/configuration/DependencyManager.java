@@ -541,4 +541,3 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         }
     }
 }
-

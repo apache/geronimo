@@ -80,7 +80,7 @@ public class DeployerImpl implements Deployer {
     @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, referenceInterface = ConfigurationBuilder.class)
     private final Collection<ConfigurationBuilder> configurationBuilders = new ArrayList<ConfigurationBuilder>();
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, referenceInterface = ConfigurationStore.class)
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_MULTIPLE, referenceInterface = ConfigurationStore.class)
     private final Collection<ConfigurationStore> configurationStores = new ArrayList<ConfigurationStore>();
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, referenceInterface = DeploymentWatcher.class)
@@ -167,12 +167,12 @@ public class DeployerImpl implements Deployer {
     }
 
     @Override
-    public List deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException {
+    public List<String> deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException {
         return deploy(inPlace, moduleFile, planFile, null);
     }
 
     @Override
-    public List deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore) throws DeploymentException {
+    public List<String> deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore) throws DeploymentException {
         File originalModuleFile = moduleFile;
         File tmpDir = null;
         if (moduleFile != null && !moduleFile.isDirectory()) {
@@ -272,7 +272,7 @@ public class DeployerImpl implements Deployer {
     }
 
     @Override
-    public List deploy(boolean inPlace,
+    public List<String> deploy(boolean inPlace,
                        File moduleFile,
                        File planFile,
                        File targetFile,
@@ -399,7 +399,7 @@ public class DeployerImpl implements Deployer {
         return configID;
     }
 
-    private List install(File targetFile,
+    private List<String> install(File targetFile,
             boolean install,
             Manifest manifest,
             ConfigurationStore store,
@@ -454,7 +454,7 @@ public class DeployerImpl implements Deployer {
                 return deployedURIs;
             } else {
                 configsCleanupRequired = true;
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
         } catch (DeploymentException e) {
             configsCleanupRequired = true;

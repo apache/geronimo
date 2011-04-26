@@ -48,9 +48,6 @@ import org.sonatype.aether.util.artifact.DefaultArtifact;
 /**
  * Base for karaf-aware mojos
  *
- * @goal karaf-framework
- * @requiresDependencyResolution runtime
- *
  * @version $Rev$ $Date$
  */
 public class AbstractFrameworkMojo extends AbstractMojo {
@@ -84,20 +81,32 @@ public class AbstractFrameworkMojo extends AbstractMojo {
      */
     private String karafHome;
 
-    private Framework framework;
+    /**
+     * how long to wait for a service
+     *
+     * @parameter default-value="20000"
+     */
     private long timeout = 20000L;
+
+    private Framework framework;
     private List<ServiceReference> services = new ArrayList<ServiceReference>();
 
 
     @java.lang.Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         initializeFramework();
+        try {
+            doExecute();
+        } finally {
+            done();
+        }
+    }
+
+    protected void doExecute() throws MojoExecutionException {
         getService(FeaturesService.class);
         getService(Deployer.class);
         getService(ConfigurationBuilder.class);
-        listBundles();
-
-        done();
+//        listBundles();
     }
 
     protected void done() throws MojoExecutionException {
@@ -109,6 +118,11 @@ public class AbstractFrameworkMojo extends AbstractMojo {
         } catch (BundleException e) {
             throw new MojoExecutionException("Can't stop framework: ", e );
         }
+    }
+
+
+    public Framework getFramework() {
+        return framework;
     }
 
     protected <T> T getService(Class<T> clazz) throws MojoExecutionException {

@@ -356,7 +356,11 @@ public final class ConfigurationUtil {
             throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
         }
         AbstractName configurationManagerName = (AbstractName) names.iterator().next();
-        return kernel.getProxyManager().createProxy(configurationManagerName, EditableConfigurationManager.class);
+        try {
+            return (EditableConfigurationManager) kernel.getGBean(configurationManagerName);
+        } catch (GBeanNotFoundException e) {
+            return null;
+        }
     }
 
     public static void releaseConfigurationManager(Kernel kernel, ConfigurationManager configurationManager) {

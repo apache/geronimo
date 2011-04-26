@@ -100,7 +100,7 @@ public class FrameworkHelper {
     }
 
     public Framework start() throws Exception {
-        ThreadLocalProperties.install();
+//        ThreadLocalProperties.install();
         System.setProperty(PROP_KARAF_HOME, karafHomeString);
         System.setProperty(PROP_KARAF_BASE, karafHomeString);
         launch();
@@ -112,7 +112,7 @@ public class FrameworkHelper {
         try {
             destroy();
         } finally {
-            ThreadLocalProperties.uninstall();
+//            ThreadLocalProperties.uninstall();
         }
     }
 
@@ -527,9 +527,9 @@ public class FrameworkHelper {
             if (pid.indexOf('@') > 0) {
                 pid = pid.substring(0, pid.indexOf('@'));
             }
-
+            
             boolean isRoot = karafHome.equals(karafBase);
-
+            
             if (instanceName != null) {
                 String storage = System.getProperty("karaf.instances");
                 if (storage == null) {
@@ -557,7 +557,7 @@ public class FrameworkHelper {
                     fis.close();
                     if (!isRoot) {
                         throw new Exception("Instance " + instanceName + " not found");
-                    }
+                    } 
                 } else if (isRoot) {
                     if (!propertiesFile.getParentFile().exists()) {
                         try {
@@ -886,16 +886,13 @@ public class FrameworkHelper {
         Properties startupProps = loadPropertiesFile(startupPropURL, true);
 
         String defaultRepo = System.getProperty(DEFAULT_REPO, "system");
-
         if (karafBase.equals(karafHome)) {
             bundleDirs.add(new File(karafHome, defaultRepo));
         } else {
             bundleDirs.add(new File(karafBase, defaultRepo));
             bundleDirs.add(new File(karafHome, defaultRepo));
         }
-
         String locations = configProps.getProperty(BUNDLE_LOCATIONS);
-
         if (locations != null) {
             StringTokenizer st = new StringTokenizer(locations, "\" ", true);
             if (st.countTokens() > 0) {

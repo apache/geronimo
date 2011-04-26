@@ -77,7 +77,8 @@ import org.osgi.framework.BundleContext;
  */
 @Component
 @Service
-public class BasicKernel implements Kernel
+public class
+        BasicKernel implements Kernel
 {
     private static final Logger log = LoggerFactory.getLogger(BasicKernel.class);
 
@@ -129,7 +130,7 @@ public class BasicKernel implements Kernel
     /**
      * This factory gbean proxies, and tracks all proxies in the system
      */
-    private ProxyManager proxyManager = new BasicProxyManager(this);;
+//    private ProxyManager proxyManager = new BasicProxyManager(this);
 
     private static final Naming INSTANCE = new Jsr77Naming();
 
@@ -224,7 +225,7 @@ public class BasicKernel implements Kernel
      * @deprecated don't use this yet... it may change or go away
      */
     public ProxyManager getProxyManager() {
-        return proxyManager;
+        return null;
     }
 
     public Object getAttribute(ObjectName objectName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
@@ -621,19 +622,13 @@ public class BasicKernel implements Kernel
             return null;
         }
 
-        // check if service is a proxy
-        AbstractName name = proxyManager.getProxyTarget(service);
-        if (name != null) {
-            return name;
-        }
-
         // try the registry
         GBeanInstance gbeanInstance = registry.getGBeanInstanceByInstance(service);
         if (gbeanInstance != null) {
             return gbeanInstance.getAbstractName();
         }
 
-        // didn't fing the name
+        // didn't find the name
         return null;
     }
 

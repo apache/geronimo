@@ -1,1 +1,0 @@
-OSGi bundles put to current directory will be deployed to geronimo automatically. 

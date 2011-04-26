@@ -15,18 +15,18 @@
     limitations under the License.-->
 <module xmlns="http://geronimo.apache.org/xml/ns/deployment-1.2">
 
-    <gbean name="Deployer" class="org.apache.geronimo.deployment.DeployerImpl">
-        <attribute name="remoteDeployAddress">localhost:8080</attribute>
-        <reference name="Store">
-        </reference>
-        <reference name="Builders"></reference>
-        <reference name="Watchers"></reference>
-    </gbean>
+    <!--<gbean name="Deployer" class="org.apache.geronimo.deployment.DeployerImpl">-->
+        <!--<attribute name="remoteDeployAddress">localhost:8080</attribute>-->
+        <!--&lt;!&ndash;<reference name="Store">&ndash;&gt;-->
+        <!--&lt;!&ndash;</reference>&ndash;&gt;-->
+        <!--<reference name="Builders"></reference>-->
+        <!--<reference name="Watchers"></reference>-->
+    <!--</gbean>-->
 
     <!--Builder for handling plans defining Geronimo modules-->
     <gbean name="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
-        <reference name="Repository">
-        </reference>
+        <!--<reference name="Repository">-->
+        <!--</reference>-->
         <reference name="ServiceBuilders">
             <name>GBeanBuilder</name>
         </reference>
@@ -40,7 +40,7 @@
         </reference>
     </gbean>
 
-    <gbean name="JavaBeanXmlAttributeBuilder" class="org.apache.geronimo.deployment.service.JavaBeanXmlAttributeBuilder"/>
+    <!--<gbean name="JavaBeanXmlAttributeBuilder" class="org.apache.geronimo.deployment.service.JavaBeanXmlAttributeBuilder"/>-->
 
     <!-- environment builder is installed in code because it is needed to deploy this module. -->
     <!--<gbean name="EnvironmentBuilder" class="org.apache.geronimo.deployment.service.EnvironmentBuilder"/>-->

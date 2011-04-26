@@ -37,7 +37,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  * 
  */
-@XmlRootElement
+@XmlRootElement(name = "module")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "moduleType", propOrder = {
     "environment",

@@ -49,6 +49,11 @@
             <!--<artifactId>geronimo-schema-j2ee_1.4</artifactId>-->
         <!--</dependency>-->
 
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+        </dependency>
+
         <!-- g-kernel, g-common is coming from this via geronimo-system -->
         <dependency>
             <groupId>org.apache.geronimo.framework</groupId>

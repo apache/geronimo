@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <!-- Configuration Installer -->
+    <gbean name="PluginInstaller" class="org.apache.geronimo.system.plugin.PluginInstallerGBean">
+        <!-- TODO no artifactManager specified-->
+        <attribute name="installedPluginsList">var/config/installed-plugins.properties</attribute>
+        <reference name="Repository">
+            <name>Repository</name>
+        </reference>
+        <reference name="ConfigStore">
+            <name>Local</name>
+        </reference>
+        <reference name="ConfigManager">
+            <name>ConfigurationManager</name>
+        </reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <reference name="ThreadPool">
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="PluginRepositoryList">
+            <name>DownloadedPluginRepos</name>
+        </reference>
+        <references name="ServerInstances">
+            <pattern>
+                <name>DefaultServer</name>
+            </pattern>
+            <pattern>
+                <name>Offline</name>
+            </pattern>
+            <pattern>
+                <name>Client</name>
+            </pattern>
+            <pattern>
+                <name>Jsr88</name>
+            </pattern>
+        </references>
+        <references name="PersistentConfigurationLists">
+            <pattern>
+                <name>AttributeManager</name>
+            </pattern>
+        </references>
+    </gbean>
+
+    <gbean name="DefaultServer" class="org.apache.geronimo.system.plugin.ReferenceServerInstanceData">
+        <attribute name="name">default</attribute>
+        <reference name="AttributeStore">
+            <name>AttributeManager</name>
+        </reference>
+        <reference name="ArtifactResolver">
+            <name>ArtifactResolver</name>
+        </reference>
+    </gbean>
+
+    <gbean name="Offline" class="org.apache.geronimo.system.plugin.ServerInstanceData">
+        <attribute name="name">offline</attribute>
+        <attribute name="configFile">var/config/offline-deployer-config.xml</attribute>
+        <attribute name="configSubstitutionsFile">var/config/config-substitutions.properties</attribute>
+        <attribute name="configSubstitutionsPrefix">org.apache.geronimo.config.substitution.</attribute>
+        <attribute name="artifactAliasesFile">var/config/artifact_aliases.properties</attribute>
+    </gbean>
+
+    <gbean name="Client" class="org.apache.geronimo.system.plugin.ServerInstanceData">
+        <attribute name="name">client</attribute>
+        <attribute name="attributeManagerFrom">default</attribute>
+        <attribute name="artifactAliasesFile">var/config/client_artifact_aliases.properties</attribute>
+        <dependency><name>DefaultServer</name></dependency>
+    </gbean>
+
+    <gbean name="Jsr88" class="org.apache.geronimo.system.plugin.ServerInstanceData">
+        <attribute name="name">jsr88</attribute>
+        <attribute name="configFile">var/config/jsr88-configurer-config.xml</attribute>
+        <attribute name="configSubstitutionsFile">var/config/config-substitutions.properties</attribute>
+        <attribute name="configSubstitutionsPrefix">org.apache.geronimo.config.substitution.</attribute>
+        <attribute name="artifactAliasesFile">var/config/artifact_aliases.properties</attribute>
+    </gbean>
+
+    <gbean name="DownloadedPluginRepos" class="org.apache.geronimo.system.plugin.PluginRepositoryDownloader">
+        <attribute name="repositoryList">http://geronimo.apache.org/plugins/plugin-repository-list-2.2.txt</attribute>
+        <attribute name="userRepositoryList">var/config/plugin-repositories.properties</attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+
+    <gbean name="Archiver" class="org.apache.geronimo.system.plugin.ArchiverGBean">
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+
+    <gbean name="NewServerInstance" class="org.apache.geronimo.system.plugin.NewServerInstanceGBean">
+        <attribute name="defaultPlugins">org.apache.geronimo.framework.plugingroups/framework/${version}/car</attribute>
+        <reference name="PluginInstallerGBean">
+            <name>PluginInstaller</name>
+        </reference>
+        <reference name="ConfigManager">
+            <name>ConfigurationManager</name>
+        </reference>
+        <reference name="PersistentConfigurationList">
+            <type>AttributeStore</type>
+            <name>AttributeManager</name>
+        </reference>
+    </gbean>
+
+</module>

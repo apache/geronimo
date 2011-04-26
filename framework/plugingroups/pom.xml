@@ -30,7 +30,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>framework</module>
+        <!--<module>framework</module>-->
   </modules>
 
     <build>

@@ -886,7 +886,7 @@ public abstract class AbstractCarMojo
                         "org.apache.geronimo.transformer," +
                         "org.apache.geronimo.hook," +
                         "org.apache.geronimo.mavenplugins.car," +
-                        "org.apache.karaf.jaas.boot;version=\"2.2.1.SNAPSHOT\"," +
+                        "org.apache.karaf.jaas.boot;version=\"2.1.2\"," +
                         "org.apache.yoko," +
                         "org.apache.yoko.osgi," +
                         "org.apache.yoko.rmispec.util," +
@@ -1013,7 +1013,6 @@ public abstract class AbstractCarMojo
             systemProperties.put("openejb.log.factory", "org.apache.openejb.util.PaxLogStreamFactory");
         }
         systemProperties.put("karaf.startLocalConsole", "false");
-        systemProperties.put("openejb.geronimo", "true");
         setSystemProperties();
         return framework;
     }

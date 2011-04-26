@@ -42,6 +42,11 @@ public class DeploymentFactoryWithKernel extends BaseDeploymentFactory {
 
     private final Kernel kernel;
 
+    public DeploymentFactoryWithKernel() {
+        this.kernel = null;
+        DeploymentFactoryManager.getInstance().registerDeploymentFactory(this);
+    }
+
     public DeploymentFactoryWithKernel(@ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) {
         if (null == kernel) {
             throw new IllegalArgumentException("kernel is required");

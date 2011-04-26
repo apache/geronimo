@@ -80,6 +80,13 @@ public class JaxbUtil {
         return javabeanType;
     }
 
+    public static void marshalModule(ModuleType object, Writer out) throws JAXBException {
+        Marshaller marshaller = MODULE_CONTEXT.createMarshaller();
+
+        marshaller.setProperty("jaxb.formatted.output", true);
+
+        marshaller.marshal(object, out);
+    }
     public static <T> void marshal(Class<T> type, Object object, Writer out) throws JAXBException {
         JAXBContext ctx2 = JAXBContext.newInstance(type);
         Marshaller marshaller = ctx2.createMarshaller();
@@ -89,6 +96,30 @@ public class JaxbUtil {
         marshaller.marshal(object, out);
     }
 
+
+    public static ModuleType unmarshalModule2(InputStream in, boolean validate) throws ParserConfigurationException, SAXException, JAXBException {
+        InputSource inputSource = new InputSource(in);
+
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setValidating(validate);
+        SAXParser parser = factory.newSAXParser();
+
+        Unmarshaller unmarshaller = MODULE_CONTEXT.createUnmarshaller();
+        unmarshaller.setEventHandler(new ValidationEventHandler() {
+            public boolean handleEvent(ValidationEvent validationEvent) {
+                System.out.println(validationEvent);
+                return false;
+            }
+        });
+
+        XMLFilter xmlFilter = new NoSourceFilter(parser.getXMLReader());
+        xmlFilter.setContentHandler(unmarshaller.getUnmarshallerHandler());
+
+        SAXSource source = new SAXSource(xmlFilter, inputSource);
+
+        return ModuleType.class.cast(unmarshaller.unmarshal(source));
+    }
 
     /**
      * Read in a T from the input stream.
@@ -141,12 +172,12 @@ public class JaxbUtil {
 
         @Override
         public void startElement(String uri, String localName, String qname, Attributes atts) throws SAXException {
-            super.startElement("http://karaf.apache.org/xmlns/features/v1.0.0", localName, qname, atts);
+            super.startElement("http://geronimo.apache.org/xml/ns/deployment-1.2", localName, qname, atts);
         }
 
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            super.endElement("http://karaf.apache.org/xmlns/features/v1.0.0", localName, qName);
+            super.endElement("http://geronimo.apache.org/xml/ns/deployment-1.2", localName, qName);
         }
     }
 

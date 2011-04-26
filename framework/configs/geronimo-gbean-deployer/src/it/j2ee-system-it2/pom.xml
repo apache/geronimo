@@ -157,7 +157,7 @@
 
         <!-- build order hint -->
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
+            <groupId>org.apache.geronimo.framework.config</groupId>
             <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
             <version>${project.version}</version>
             <type>car</type>

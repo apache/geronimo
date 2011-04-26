@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.framework</groupId>
+        <groupId>org.apache.geronimo.framework.config</groupId>
         <artifactId>configs</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
@@ -35,16 +35,9 @@
     <description>Offline deployer</description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
+            <groupId>org.apache.geronimo.framework.config</groupId>
             <artifactId>online-deployer</artifactId>
             <version>${project.version}</version>
             <type>car</type>

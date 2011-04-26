@@ -27,49 +27,10 @@
             <version>DEV</version>
             <type>car</type>
         </moduleId>
-        <dependencies>
-            <dependency>
-                <groupId>geronimo</groupId>
-                <artifactId>foo3</artifactId>
-                <version>DEV</version>
-                <type>car</type>
-            </dependency>
-
-            <dependency>
-                <groupId>geronimo</groupId>
-                <artifactId>foo1</artifactId>
-                <version>DEV</version>
-            </dependency>
-
-            <dependency>
-                <groupId>
-                    geronimo
-                </groupId>
-                <artifactId>
-                    foo2
-                </artifactId>
-                <version>
-                    DEV
-                </version>
-            </dependency>
-
-        </dependencies>
     </environment>
     <gbean name="MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
         <attribute name="value">1234</attribute>
         <attribute name="intValue">1234</attribute>
-        <xml-attribute name="fooBarBean">
-            <ns:javabean xmlns:ns="http://geronimo.apache.org/xml/ns/deployment/javabean-1.0">
-                <ns:property name="Foo">foo</ns:property>
-                <ns:property name="Bar">10</ns:property>
-                <ns:bean-property name="Bean">
-                    <ns:javabean>
-                        <ns:property name="Foo">foo2</ns:property>
-                        <ns:property name="Bar">100</ns:property>
-                    </ns:javabean>
-                </ns:bean-property>
-            </ns:javabean>
-        </xml-attribute>
         <reference name="MockEndpoint">
             <name>MyMockGMBean</name>
         </reference>

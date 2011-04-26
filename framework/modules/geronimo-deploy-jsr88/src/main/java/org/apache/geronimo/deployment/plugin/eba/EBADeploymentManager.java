@@ -33,7 +33,7 @@ public interface EBADeploymentManager {
     
     public String getEBAContentBundleSymbolicName(AbstractName applicationGBeanName, long bundleId) throws GBeanNotFoundException, NoSuchOperationException, Exception;
     
-    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File bundleFile) throws GBeanNotFoundException, NoSuchOperationException, Exception;
+    public void updateEBAContent(AbstractName applicationGBeanName, long bundleId, File newfile) throws GBeanNotFoundException, NoSuchOperationException, Exception;
     
     public AbstractName getApplicationGBeanName(Artifact configurationId);
     

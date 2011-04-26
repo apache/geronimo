@@ -29,19 +29,22 @@ import org.apache.geronimo.common.DeploymentException;
  * @version $Rev:$ $Date:$
  */
 public interface Deployer {
-    List deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException;
+    List<String> deploy(boolean inPlace, File moduleFile, File planFile) throws DeploymentException;
 
-    List deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore) throws DeploymentException;
+    List<String> deploy(boolean inPlace, File moduleFile, File planFile, String targetConfigStore) throws DeploymentException;
 
     String getRemoteDeployUploadURL();
 
-    List deploy(boolean inPlace,
+    List<String> deploy(boolean inPlace,
                 File moduleFile,
                 File planFile,
                 File targetFile,
                 boolean install,
                 String mainClass,
-                String mainGBean, String mainMethod, String manifestConfigurations, String classPath,
+                String mainGBean,
+                String mainMethod,
+                String manifestConfigurations,
+                String classPath,
                 String endorsedDirs,
                 String extensionDirs,
                 String targetConfigurationStore) throws DeploymentException;

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<module xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
+
+    <!-- JMX Remoting -->
+    <gbean name="JMXSecureConnector" class="org.apache.geronimo.jmxremoting.JMXSecureConnector">
+        <attribute name="protocol">rmi</attribute>
+        <attribute name="host">${planServerHostname}</attribute>
+        <attribute name="port">${planJMXSecurePort}</attribute>
+        <attribute name="urlPath">/jndi/rmi://${planServerHostname}:${planNamingPort}/JMXSecureConnector</attribute>
+        <attribute name="applicationConfigName">geronimo-admin</attribute>
+        <reference name="MBeanServerReference">
+            <name>MBeanServerReference</name>
+        </reference>
+
+        <attribute name="algorithm">Default</attribute>
+        <attribute name="secureProtocol">TLS</attribute>
+        <attribute name="keyStore">geronimo-default</attribute>
+        <attribute name="keyAlias">geronimo</attribute>
+        <attribute name="trustStore">geronimo-default</attribute>
+        <attribute name="clientAuth">false</attribute>
+        <reference name="KeystoreManager">
+            <name>KeystoreManager</name>
+        </reference>
+    </gbean>
+
+</module>

@@ -48,7 +48,7 @@
                                 org.apache.geronimo.buildsupport:car-maven-plugin:prepare-plan
                             </compile>
                             <package>
-                                org.apache.geronimo.buildsupport:car-maven-plugin:karaf-framework,
+                                org.apache.geronimo.buildsupport:car-maven-plugin:compile-gbean-plan,
                                 org.apache.geronimo.buildsupport:car-maven-plugin:archive-car
                             </package>
                             <install>

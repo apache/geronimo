@@ -88,11 +88,12 @@ public class GBeanSingleReference extends AbstractGBeanReference
     }
 
     public synchronized void stop() {
-        Object proxy = getProxy();
-        if (proxy != null) {
-            getKernel().getProxyManager().destroyProxy(proxy);
-            setProxy(null);
-        }
+        setProxy(null);
+//        Object proxy = getProxy();
+//        if (proxy != null) {
+//            getKernel().getProxyManager().destroyProxy(proxy);
+//            setProxy(null);
+//        }
     }
 
 

@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.apache.geronimo.framework</groupId>
+        <groupId>org.apache.geronimo.framework.config</groupId>
         <artifactId>configs</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
@@ -35,16 +35,9 @@
     <description>Fundamental geronimo services including the plugin installer.</description>
 
     <dependencies>
+
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-gbean-deployer-bootstrap</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
+            <groupId>org.apache.geronimo.framework.config</groupId>
             <artifactId>j2ee-system</artifactId>
             <version>${project.version}</version>
             <type>car</type>
@@ -91,6 +84,15 @@
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-naming</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.aries.blueprint</groupId>
@@ -121,10 +123,6 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <deploymentConfigs>
-                        <deploymentConfig>${gbeanDeployerBootstrap}</deploymentConfig>
-                    </deploymentConfigs>
-                    <deployerName>org.apache.geronimo.framework/geronimo-gbean-deployer-bootstrap/${geronimoVersion}/car?j2eeType=Deployer,name=Deployer</deployerName>
                     <category>Geronimo Core</category>
                     <instance>
                         <plugin-artifact>
