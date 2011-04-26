@@ -59,10 +59,46 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xmlbeans-maven-plugin</artifactId>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>xmlbeans-maven-plugin</artifactId>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>jaxb2-maven-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>xjc</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+                <!--&lt;!&ndash;<configuration>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<schemaFiles>geronimo-credential-store-1.0.xsd</schemaFiles>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<packageName>org.apache.geronimo.security.deployment.model.credentialstore</packageName>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<extension>true</extension>&ndash;&gt;-->
+                <!--&lt;!&ndash;</configuration>&ndash;&gt;-->
+                <!--&lt;!&ndash;<configuration>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<schemaFiles>geronimo-jaspi.xsd</schemaFiles>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<packageName>org.apache.geronimo.security.deployment.model.jaspi</packageName>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<extension>true</extension>&ndash;&gt;-->
+                <!--&lt;!&ndash;</configuration>&ndash;&gt;-->
+                <!--&lt;!&ndash;<configuration>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<schemaFiles>geronimo-login-config-2.0.xsd</schemaFiles>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<packageName>org.apache.geronimo.security.deployment.model.loginconfig</packageName>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<extension>true</extension>&ndash;&gt;-->
+                <!--&lt;!&ndash;</configuration>&ndash;&gt;-->
+                <!--&lt;!&ndash;<configuration>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<schemaFiles>geronimo-security-2.0.xsd</schemaFiles>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<packageName>org.apache.geronimo.security.deployment.model.security</packageName>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<extension>true</extension>&ndash;&gt;-->
+                <!--&lt;!&ndash;</configuration>&ndash;&gt;-->
+                <!--<configuration>-->
+                    <!--<schemaFiles>geronimo-subject-info-1.0.xsd</schemaFiles>-->
+                    <!--<packageName>org.apache.geronimo.security.deployment.model.subjectinfo</packageName>-->
+                    <!--<extension>true</extension>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -73,30 +109,13 @@
                             org.apache.geronimo.security.deployment,
                             org.apache.geronimo.xml.ns.security12,
                             org.apache.geronimo.xml.ns.security12.impl,
-                            org.apache.geronimo.xbeans.geronimo.credentialstore,
-                            org.apache.geronimo.xbeans.geronimo.credentialstore.impl,
-                            org.apache.geronimo.xbeans.geronimo.jaspi,
-                            org.apache.geronimo.xbeans.geronimo.jaspi.impl,
-                            org.apache.geronimo.xbeans.geronimo.loginconfig,
-                            org.apache.geronimo.xbeans.geronimo.loginconfig.impl,
-                            org.apache.geronimo.xbeans.geronimo.security,
-                            org.apache.geronimo.xbeans.geronimo.security.impl,
-                            org.apache.geronimo.xbeans.geronimo.security.subjectinfo,
-                            org.apache.geronimo.xbeans.geronimo.security.subjectinfo.impl
                         </Export-Package>
                         <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
                         <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
                         <Import-Package>
-                            org.apache.geronimo.deployment.xbeans.impl,
-                            org.apache.geronimo.deployment.javabean.xbeans.impl,
-                            org.apache.geronimo.deployment.xbeans,
-                            org.apache.geronimo.deployment.javabean.xbeans,
                             org.apache.geronimo.deployment.dconfigbean,
                             org.apache.geronimo.deployment.service,
                             org.apache.geronimo.deployment.service.jsr88,
-                            org.apache.xmlbeans.impl.schema;version="2.4",
-                            org.apache.geronimo.xbeans.geronimo.j2ee,
-                            org.apache.geronimo.xbeans.geronimo.j2ee.impl,
                             org.apache.geronimo.j2ee.deployment,
                             org.apache.geronimo.j2ee.deployment.annotation,
                             org.apache.geronimo.j2ee.jsr88,

@@ -19,13 +19,22 @@
 <!-- $Rev$ $Date$ -->
 
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
-    xmlns:geronimo="http://geronimo.apache.org/xml/ns/loginconfig-2.0"
-    targetNamespace="http://geronimo.apache.org/xml/ns/loginconfig-2.0"
-    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
-    elementFormDefault="qualified" attributeFormDefault="unqualified"
-    version="2.0">
+            xmlns:geronimo="http://geronimo.apache.org/xml/ns/loginconfig-2.0"
+            xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+            targetNamespace="http://geronimo.apache.org/xml/ns/loginconfig-2.0"
+            elementFormDefault="qualified" attributeFormDefault="unqualified"
+            version="2.0"
+        jxb:version="2.0">
 
+    <xsd:annotation>
+       <xsd:appinfo>
+           <jxb:bindings schemaLocation="./geronimo-login-config-2.0.xsd" node="/xsd:schema">
+               <jxb:schemaBindings>
+                  <jxb:package name="org.apache.geronimo.security.deployment.model.loginconfig"/>
+               </jxb:schemaBindings>
+           </jxb:bindings>
+       </xsd:appinfo>
+    </xsd:annotation>
     <xsd:annotation>
         <xsd:documentation>
             This is an XML Schema Definition for login module configuration to
@@ -55,16 +64,6 @@
             ]]>
         </xsd:documentation>
     </xsd:annotation>
-    <xsd:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2"
-        schemaLocation="geronimo-module-1.2.xsd">
-        <xsd:annotation>
-            <xsd:documentation>
-                Import Geronimo Services deployment plans, the imported plan
-                includes complex types like moduleType, environmentType,
-                dependenciesType, etc. required by this plan schema.
-            </xsd:documentation>
-        </xsd:annotation>
-    </xsd:import>
 
     <xsd:element name="login-config" type="geronimo:login-configType">
         <xsd:annotation>
@@ -142,7 +141,7 @@
                     </xsd:documentation>
                 </xsd:annotation>
                 <xsd:sequence>
-                    <xsd:element name="pattern" type="sys:patternType">
+                    <xsd:element name="filter" type="xsd:string">
                         <xsd:annotation>
                             <xsd:documentation>
                                 The pattern element defines a components of the
@@ -240,7 +239,7 @@
                             </xsd:documentation>
                         </xsd:annotation>
                     </xsd:element>
-                    <xsd:element name="xml-option" type="sys:xml-attributeType" minOccurs="0" maxOccurs="unbounded"/>
+                    <!--<xsd:element name="xml-option" type="sys:xml-attributeType" minOccurs="0" maxOccurs="unbounded"/>-->
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>

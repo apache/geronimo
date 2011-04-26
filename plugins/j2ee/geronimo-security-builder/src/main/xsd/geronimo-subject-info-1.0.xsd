@@ -20,19 +20,29 @@
 <!-- $Rev$ $Date$ -->
 
 <xsd:schema
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
-    xmlns:geronimo="http://geronimo.apache.org/xml/ns/subject-info-1.0"
-    targetNamespace="http://geronimo.apache.org/xml/ns/subject-info-1.0"
-    xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
-    elementFormDefault="qualified"
-    attributeFormDefault="unqualified"
-    version="2.0">
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:geronimo="http://geronimo.apache.org/xml/ns/subject-info-1.0"
+        xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+        targetNamespace="http://geronimo.apache.org/xml/ns/subject-info-1.0"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        version="2.0"
+        jxb:version="2.0">
     
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
-    <xsd:import namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0" schemaLocation="geronimo-application-2.0.xsd"/>
+    <!--<xsd:import namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0" schemaLocation="geronimo-application-2.0.xsd"/>-->
 
-    <xsd:element name="security" type="geronimo:securityType"  substitutionGroup="app:security"/>
+    <xsd:annotation>
+       <xsd:appinfo>
+           <jxb:bindings schemaLocation="./geronimo-subject-info-1.0.xsd" node="/xsd:schema">
+               <jxb:schemaBindings>
+                  <jxb:package name="org.apache.geronimo.security.deployment.model.subjectinfo"/>
+               </jxb:schemaBindings>
+           </jxb:bindings>
+       </xsd:appinfo>
+    </xsd:annotation>
+
+    <xsd:element name="security" type="geronimo:securityType"/>
     <xsd:element name="default-subject" type="geronimo:default-subjectType"/>
 
     <xsd:complexType name="securityType">
@@ -44,8 +54,8 @@
                 appropriate access checks as outlined in the JACC spec.
             </xsd:documentation>
         </xsd:annotation>
-        <xsd:complexContent>
-            <xsd:extension base="app:abstract-securityType">
+        <!--<xsd:complexContent>-->
+            <!--<xsd:extension base="app:abstract-securityType">-->
 
         <xsd:sequence>
             <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
@@ -79,8 +89,8 @@
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
-            </xsd:extension>
-        </xsd:complexContent>
+            <!--</xsd:extension>-->
+        <!--</xsd:complexContent>-->
     </xsd:complexType>
 
     <xsd:complexType name="descriptionType">

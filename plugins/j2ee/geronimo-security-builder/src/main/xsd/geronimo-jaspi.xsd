@@ -29,9 +29,15 @@
 
     <xs:annotation>
         <xs:appinfo>
-            <jaxb:globalBindings>
-                <xjc:serializable uid="12343"/>
-            </jaxb:globalBindings>
+            <jaxb:bindings schemaLocation="./geronimo-jaspi.xsd" node="/xs:schema">
+                <jaxb:schemaBindings>
+                    <jaxb:package name="org.apache.geronimo.security.deployment.model.jaspi"/>
+                </jaxb:schemaBindings>
+                <jaxb:globalBindings>
+                    <xjc:serializable uid="12343"/>
+                </jaxb:globalBindings>
+            </jaxb:bindings>
+
         </xs:appinfo>
     </xs:annotation>
 

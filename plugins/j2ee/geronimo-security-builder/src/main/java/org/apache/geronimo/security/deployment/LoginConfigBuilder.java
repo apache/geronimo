@@ -18,6 +18,7 @@ package org.apache.geronimo.security.deployment;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,14 +26,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.service.SingleGBeanBuilder;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.deployment.service.XmlReferenceBuilder;
-import org.apache.geronimo.deployment.xbeans.PatternType;
-import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -45,27 +42,24 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.security.SecurityNames;
+import org.apache.geronimo.security.deployment.model.loginconfig.AbstractLoginModuleType;
+import org.apache.geronimo.security.deployment.model.loginconfig.LoginConfigType;
+import org.apache.geronimo.security.deployment.model.loginconfig.LoginModuleRefType;
+import org.apache.geronimo.security.deployment.model.loginconfig.LoginModuleType;
+import org.apache.geronimo.security.deployment.model.loginconfig.ObjectFactory;
+import org.apache.geronimo.security.deployment.model.loginconfig.OptionType;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlagEditor;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerAbstractLoginModuleType;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigDocument;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigType;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginModuleRefType;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginModuleType;
-import org.apache.geronimo.xbeans.geronimo.loginconfig.GerOptionType;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
 import org.osgi.framework.Bundle;
 
 
 /**
  * @version $Rev$ $Date$
  */
-public class LoginConfigBuilder implements XmlReferenceBuilder {
-    public static final String LOGIN_CONFIG_NAMESPACE = GerLoginConfigDocument.type.getDocumentElementName().getNamespaceURI();
+public class LoginConfigBuilder {
+    public static final String LOGIN_CONFIG_NAMESPACE = ObjectFactory._LoginConfig_QNAME.getNamespaceURI();
     private static final QName LOGIN_MODULE_QNAME = new QName(LOGIN_CONFIG_NAMESPACE, "login-module");
     private static final QName SERVER_SIDE_QNAME = new QName(null, "server-side");
 
@@ -95,42 +89,39 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
         return LOGIN_CONFIG_NAMESPACE;
     }
 
-    public ReferencePatterns getReferences(XmlObject xmlObject, DeploymentContext context, AbstractName parentName, Bundle bundle) throws DeploymentException {
+    public ReferencePatterns getReferences(Object xmlObject, DeploymentContext context, AbstractName parentName, Bundle bundle) throws DeploymentException {
         List<GBeanData> uses = new ArrayList<GBeanData>();
-        GerLoginConfigType loginConfig = (GerLoginConfigType) xmlObject.copy().changeType(GerLoginConfigType.type);
-        XmlCursor xmlCursor = loginConfig.newCursor();
-        xmlCursor.push();
+        LoginConfigType loginConfig = (LoginConfigType) xmlObject;
+//        XmlCursor xmlCursor = loginConfig.newCursor();
+//        xmlCursor.push();
         try {
             //munge xml
-            if (xmlCursor.toChild(LOGIN_MODULE_QNAME)) {
-                do {
-                    xmlCursor.removeAttribute(SERVER_SIDE_QNAME);
-                } while (xmlCursor.toNextSibling(LOGIN_MODULE_QNAME));
-            }
-            xmlCursor.pop();
+//            if (xmlCursor.toChild(LOGIN_MODULE_QNAME)) {
+//                do {
+//                    xmlCursor.removeAttribute(SERVER_SIDE_QNAME);
+//                } while (xmlCursor.toNextSibling(LOGIN_MODULE_QNAME));
+//            }
+//            xmlCursor.pop();
             //validate
-            XmlOptions xmlOptions = new XmlOptions();
-            xmlOptions.setLoadLineNumbers();
-            Collection errors = new ArrayList();
-            xmlOptions.setErrorListener(errors);
-            if (!loginConfig.validate(xmlOptions)) {
-                throw new DeploymentException("Invalid login configuration:\n" + errors + "\nDescriptor: " + loginConfig.toString());
-            }
+//            XmlOptions xmlOptions = new XmlOptions();
+//            xmlOptions.setLoadLineNumbers();
+//            Collection errors = new ArrayList();
+//            xmlOptions.setErrorListener(errors);
+//            if (!loginConfig.validate(xmlOptions)) {
+//                throw new DeploymentException("Invalid login configuration:\n" + errors + "\nDescriptor: " + loginConfig.toString());
+//            }
             //find the login modules
             Set<String> loginModuleNames = new HashSet<String>();
-            boolean atStart = true;
-            while ((atStart && xmlCursor.toFirstChild()) || (!atStart && xmlCursor.toNextSibling())) {
-                atStart = false;
-                XmlObject child = xmlCursor.getObject();
-                GerAbstractLoginModuleType abstractLoginModule = (GerAbstractLoginModuleType) child;
+            for (AbstractLoginModuleType abstractLoginModule: loginConfig.getLoginModuleRefOrLoginModule()) {
                 String controlFlag = abstractLoginModule.getControlFlag().toString();
-                boolean wrapPrincipals = (abstractLoginModule.isSetWrapPrincipals() && abstractLoginModule.getWrapPrincipals());
+                boolean wrapPrincipals = (abstractLoginModule.isWrapPrincipals() != null && abstractLoginModule.isWrapPrincipals());
                 ReferencePatterns loginModuleReferencePatterns;
                 String name;
-                if (abstractLoginModule instanceof GerLoginModuleRefType) {
-                    GerLoginModuleRefType loginModuleRef = (GerLoginModuleRefType) abstractLoginModule;
-                    PatternType patternType = loginModuleRef.getPattern();
-                    AbstractNameQuery loginModuleNameQuery = SingleGBeanBuilder.buildAbstractNameQuery(patternType, USE_REFERENCE_INFO);
+                if (abstractLoginModule instanceof LoginModuleRefType) {
+                    LoginModuleRefType loginModuleRef = (LoginModuleRefType) abstractLoginModule;
+                    String patternType = loginModuleRef.getFilter();
+                    //TODO osgi this is a filter
+                    AbstractNameQuery loginModuleNameQuery = new AbstractNameQuery(null, Collections.singletonMap("name", patternType), LoginModuleGBean.class.getName());
                     loginModuleReferencePatterns = new ReferencePatterns(loginModuleNameQuery);
                     name = (String) loginModuleNameQuery.getName().get("name");
                     if (name == null) {
@@ -153,40 +144,39 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
 //                    {
 //                        throw new DeploymentException("Unable to create reference to login module " + name, e);
 //                    }
-                } else if (abstractLoginModule instanceof GerLoginModuleType) {
+                } else if (abstractLoginModule instanceof LoginModuleType) {
                     //create the LoginModuleGBean also
                     AbstractName loginModuleName;
 
-                    GerLoginModuleType loginModule = (GerLoginModuleType) abstractLoginModule;
+                    LoginModuleType loginModule = (LoginModuleType) abstractLoginModule;
                     name = trim(loginModule.getLoginDomainName());
                     if (!loginModuleNames.add(name)) {
                         throw new DeploymentException("Security realm contains two login domains called '" + name + "'");
                     }
                     String className = trim(loginModule.getLoginModuleClass());
                     Map<String, Object> options = new HashMap<String, Object>();
-                    GerOptionType[] optionArray = loginModule.getOptionArray();
-                    for (GerOptionType gerOptionType : optionArray) {
+                    for (OptionType gerOptionType : loginModule.getOption()) {
                         String key = gerOptionType.getName();
-                        String value = trim(gerOptionType.getStringValue());
+                        String value = trim(gerOptionType.getValue());
                         options.put(key, value);
                     }
-                    XmlAttributeType[] xmlOptionArray = loginModule.getXmlOptionArray();
-                    if (xmlOptionArray != null) {
-                        for (XmlAttributeType xmlOptionType : xmlOptionArray) {
-                            String key = xmlOptionType.getName().trim();
-                            XmlObject[] anys = xmlOptionType.selectChildren(XmlAttributeType.type.qnameSetForWildcardElements());
-                            if (anys.length != 1) {
-                                throw new DeploymentException("Unexpected count of xs:any elements in xml-attribute " + anys.length + " qnameset: " + XmlAttributeType.type.qnameSetForWildcardElements());
-                            }
-                            String namespace = xmlObject.getDomNode().getNamespaceURI();
-                            XmlAttributeBuilder builder = (XmlAttributeBuilder) xmlAttributeBuilderMap.get(namespace);
-                            if (builder == null) {
-                                throw new DeploymentException("No attribute builder deployed for namespace: " + namespace);
-                            }
-                            Object value = builder.getValue(anys[0], xmlOptionType, null, bundle);
-                            options.put(key, value);
-                        }
-                    }
+//                    XmlAttributeType[] xmlOptionArray = loginModule.getXmlOptionArray();
+//                    if (xmlOptionArray != null) {
+//                        for (XmlAttributeType xmlOptionType : xmlOptionArray) {
+//                            String key = xmlOptionType.getName().trim();
+//                            XmlObject[] anys = xmlOptionType.selectChildren(XmlAttributeType.type.qnameSetForWildcardElements());
+//                            if (anys.length != 1) {
+//                                throw new DeploymentException("Unexpected count of xs:any elements in xml-attribute " + anys.length + " qnameset: " + XmlAttributeType.type.qnameSetForWildcardElements());
+//                            }
+//                            String namespace = xmlObject.getDomNode().getNamespaceURI();
+//                            XmlAttributeBuilder builder = (XmlAttributeBuilder) xmlAttributeBuilderMap.get(namespace);
+//                            if (builder == null) {
+//                                throw new DeploymentException("No attribute builder deployed for namespace: " + namespace);
+//                            }
+//                            Object value = builder.getValue(anys[0], xmlOptionType, null, bundle);
+//                            options.put(key, value);
+//                        }
+//                    }
                     loginModuleName = naming.createChildName(parentName, name, SecurityNames.LOGIN_MODULE);
                     loginModuleReferencePatterns = new ReferencePatterns(loginModuleName);
                     GBeanData loginModuleGBeanData = new GBeanData(loginModuleName, LoginModuleGBean.GBEAN_INFO);
@@ -215,8 +205,8 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
             }
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException(e);
-        } finally {
-            xmlCursor.dispose();
+//        } finally {
+//            xmlCursor.dispose();
         }
         return uses.size() == 0 ? null : new ReferencePatterns(uses.get(0).getAbstractName());
     }
