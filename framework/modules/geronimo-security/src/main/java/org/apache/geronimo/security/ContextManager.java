@@ -75,6 +75,11 @@ public class ContextManager {
     }
     public final static Subject EMPTY = new Subject();
     static {
+        EMPTY.getPrincipals().add(new Principal() {
+            public String getName() {
+                return "";
+            }
+        });
         EMPTY.setReadOnly();
         registerSubject(EMPTY);
     }
@@ -221,11 +226,7 @@ public class ContextManager {
         if (sm != null) sm.checkPermission(GET_CONTEXT);
 
         if (callerSubject == null) {
-            return new Principal() {
-                public String getName() {
-                    return "";
-                }
-            };
+            return EMPTY.getPrincipals().iterator().next();
         }
         Context context = subjectContexts.get(callerSubject);
 
@@ -341,6 +342,11 @@ public class ContextManager {
     }
 
     public static synchronized void unregisterSubject(Subject subject) {
+        
+        if (subject == EMPTY) {
+            return;
+        }
+        
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(SET_CONTEXT);
 
