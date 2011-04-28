@@ -22,6 +22,7 @@ package org.apache.geronimo.aries.shell;
 import java.io.File;
 import java.io.FileOutputStream;
 
+import org.apache.aries.application.filesystem.IDirectory;
 import org.apache.aries.application.management.AriesApplication;
 import org.apache.aries.application.management.AriesApplicationManager;
 import org.apache.aries.application.utils.filesystem.FileSystem;
@@ -37,10 +38,10 @@ import org.osgi.framework.ServiceReference;
 @Command(scope = "eba", name = "resolve", description = "Resolve Aries Application")
 public class ResolveApplication extends OsgiCommandSupport {
 
-    @Argument(required = true, description = "Aries Application location")
+    @Argument(required = true, description = "File name of an unresolved Aries Application")
     String applicationPath;
     
-    @Option(name = "-o", aliases = { "--out" }, description = "Location to output the resolved application")
+    @Option(name = "-o", aliases = { "--out" }, description = "File name to store the resolved application in")
     String resovledApplicationPath;
 
     protected AriesApplicationManager getAriesApplicationManager() {
@@ -52,8 +53,13 @@ public class ResolveApplication extends OsgiCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         File sourceApplication = new File(applicationPath);
+        IDirectory in = FileSystem.getFSRoot(sourceApplication);
+        if (in == null) {
+            System.err.println("File not found: " + applicationPath);
+            return in;
+        }
         AriesApplicationManager manager = getAriesApplicationManager();
-        AriesApplication application = manager.createApplication(FileSystem.getFSRoot(sourceApplication));  
+        AriesApplication application = manager.createApplication(in);
         
         if (application.isResolved()) {
             System.out.println("Application " + application.getApplicationMetadata().getApplicationSymbolicName() + " is already resolved.");
@@ -63,22 +69,28 @@ public class ResolveApplication extends OsgiCommandSupport {
             AriesApplication resolved = manager.resolve(application);
             File targetApplication = null;
             if (resovledApplicationPath == null) {
-                targetApplication = new File(applicationPath + ".tmp");
+                String baseName = null;
+                if (applicationPath.endsWith(".eba")) {
+                    baseName = applicationPath.substring(0, applicationPath.length() - 4);
+                } else {
+                    baseName = applicationPath;
+                }
+                targetApplication = new File(baseName + ".resolved.eba");
             } else {
                 targetApplication = new File(resovledApplicationPath);
             }
+
+            System.out.println("Application " + application.getApplicationMetadata().getApplicationSymbolicName() + " was successfully resolved.");
+            System.out.println("Writing the resolved application to " + targetApplication);
+
             FileOutputStream os = new FileOutputStream(targetApplication);
             try {
                 resolved.store(os);
             } finally {            
                 os.close();
             }
-            if (resovledApplicationPath == null) {
-                targetApplication.renameTo(sourceApplication);
-                targetApplication.delete();
-            }
-            
-            System.out.println("Application " + application.getApplicationMetadata().getApplicationSymbolicName() + " is now resolved.");
+
+            System.out.println("Done.");
         }
 
         return null;
