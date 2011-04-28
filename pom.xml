@@ -74,7 +74,7 @@
         <openwebbeansVersion>1.1.1-SNAPSHOT</openwebbeansVersion>
         <derbyVersion>10.6.1.0</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
-        <axis2Version>1.6.1</axis2Version>
+        <axis2Version>1.7.0</axis2Version>
         <axiomVersion>1.2.11</axiomVersion>
         <springVersion>2.5.6-SEC02</springVersion>
         <xbeanVersion>3.8-SNAPSHOT</xbeanVersion>
@@ -1433,7 +1433,7 @@
             <dependency>
                 <groupId>org.apache.neethi</groupId>
                 <artifactId>neethi</artifactId>
-                <version>2.0.5</version>
+                <version>3.0.0</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.ws.commons.axiom</groupId>
@@ -1444,8 +1444,8 @@
                         <artifactId>axiom-api</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
+                        <groupId>org.apache.ws.commons.axiom</groupId>
+                        <artifactId>axiom-dom</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>wsdl4j</groupId>
@@ -1453,19 +1453,7 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.codehaus.woodstox</groupId>
-                        <artifactId>wstx-asl</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>jline</groupId>
-                <artifactId>jline</artifactId>
-                <version>0.9.94</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
+                        <artifactId>woodstox-core-asl</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
