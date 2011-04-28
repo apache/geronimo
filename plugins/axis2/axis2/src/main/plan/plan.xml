@@ -28,4 +28,6 @@
             jaxws.runtime.usePostWebMethodRules=true
         </attribute>
     </gbean>
+    
+    <gbean name="NeethiAssertionBuilderRegistry" class="org.apache.geronimo.axis2.osgi.NeethiAssertionBuilderRegistry"/>
 </module>

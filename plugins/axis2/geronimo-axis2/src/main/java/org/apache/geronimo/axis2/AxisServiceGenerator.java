@@ -95,13 +95,13 @@ public class AxisServiceGenerator
         EndpointDescription[] edArray = serviceDescription.getEndpointDescriptions();
         AxisService service = edArray[0].getAxisService();
 
-        if (service.getNameSpacesMap() == null) {
+        if (service.getNamespaceMap() == null) {
             NamespaceMap map = new NamespaceMap();
             map.put(Java2WSDLConstants.AXIS2_NAMESPACE_PREFIX,
                     Java2WSDLConstants.AXIS2_XSD);
             map.put(Java2WSDLConstants.DEFAULT_SCHEMA_NAMESPACE_PREFIX,
                     Java2WSDLConstants.URI_2001_SCHEMA_XSD);
-            service.setNameSpacesMap(map);
+            service.setNamespaceMap(map);
         }
 
         String endpointClassName = endpointClass.getName();
