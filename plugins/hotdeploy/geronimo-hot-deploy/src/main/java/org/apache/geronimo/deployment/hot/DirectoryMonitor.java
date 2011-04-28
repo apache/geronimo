@@ -287,7 +287,7 @@ public class DirectoryMonitor implements Runnable {
         }
     }
 
-    public void initialize() {
+    private void initialize() {
         File parent = directory;
         File[] children = parent.listFiles();
         for (int i = 0; i < children.length; i++) {
@@ -302,11 +302,9 @@ public class DirectoryMonitor implements Runnable {
             now.setChanging(false);
             try {
                 now.setConfigId(calculateModuleId(child));
-                if (listener == null || listener.isFileDeployed(child, now.getConfigId())) {
-                    if (listener != null) {
-                        now.setModified(listener.getDeploymentTime(child, now.getConfigId()));
-                    }
-log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified()+" and file time "+new File(now.getPath()).lastModified());
+                if (listener.isFileDeployed(child, now.getConfigId())) {
+                    now.setModified(listener.getDeploymentTime(child, now.getConfigId()));
+                    log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified()+" and file time "+new File(now.getPath()).lastModified());
                     files.put(now.getPath(), now);
                 }
             } catch (Exception e) {
@@ -383,95 +381,91 @@ log.info("At startup, found "+now.getPath()+" with deploy time "+now.getModified
                     actions.add(new FileAction(FileAction.REMOVED_FILE, new File(name), info));
                 }
             }
-            if (listener != null) {
-                // First pass: validate all changed files, so any obvious errors come out first
-                for (Iterator<FileAction> it = actions.iterator(); it.hasNext();) {
-                    FileAction action = it.next();
-                    if (!listener.validateFile(action.child, action.info.getConfigId())) {
-                        resolveFile(action);
-                        it.remove();
-                    }
+            
+            // First pass: validate all changed files, so any obvious errors come out first
+            for (Iterator<FileAction> it = actions.iterator(); it.hasNext();) {
+                FileAction action = it.next();
+                if (!listener.validateFile(action.child, action.info.getConfigId())) {
+                    resolveFile(action);
+                    it.remove();
                 }
-                // Second pass: do what we're meant to do
-                for (Iterator<FileAction> it = actions.iterator(); it.hasNext();) {
-                    FileAction action = it.next();
-                    try {
-                        if (action.action == FileAction.REMOVED_FILE) {
-                            if (action.info.getConfigId() == null || listener.fileRemoved(action.child, action.info.getConfigId())) {
-                                files.remove(action.child.getPath());
-                                changeMade = true;
-                            }
-                        } else if (action.action == FileAction.NEW_FILE) {
-                            if (listener.isFileDeployed(action.child, calculateModuleId(action.child))) {
-                                String workingOnConfigId = calculateModuleId(action.child);
-                                String result = listener.fileUpdated(action.child, workingOnConfigId);
-                                if (result != null) {
-                                    if (!result.equals("")) {
-                                        action.info.setConfigId(result);
-                                    }
-                                    else {
-                                        action.info.setConfigId(calculateModuleId(action.child));
-                                    }
-                                }
-                                // remove the previous jar or directory if duplicate
-                                File[] childs = directory.listFiles();
-                                for (int i = 0; i < childs.length; i++) {
-                                    String path = childs[i].getAbsolutePath();
-                                    String configId = (files.get(path)).configId;
-                                    if (configId != null && configId.equals(workingOnConfigId) && !action.child.getAbsolutePath().equals(path)) {
-                                        File fd = new File(path);
-                                        if (fd.isDirectory()) {
-                                            log.info("Deleting the Directory: "+path);
-                                            if (FileUtils.recursiveDelete(fd))
-                                                log.debug("Successfully deleted the Directory: "+path);
-                                            else
-                                                log.error("Couldn't delete the hot deployed directory="+path);
-                                        }
-                                        else if (fd.isFile()) {
-                                            log.info("Deleting the File: "+path);
-                                            if (fd.delete()) {
-                                                log.debug("Successfully deleted the File: "+path);
-                                            }
-                                            else
-                                                log.error("Couldn't delete the hot deployed file="+path);
-                                        }
-                                        files.remove(path);
-                                        changeMade = true;
-                                    }
-                                }
-                                workingOnConfigId = null;
-                            }
-                            else {
-                                String result = listener.fileAdded(action.child);
-                                if (result != null) {
-                                    if (!result.equals("")) {
-                                        action.info.setConfigId(result);
-                                    }
-                                    else {
-                                        action.info.setConfigId(calculateModuleId(action.child));
-                                    }
-                                }
-                            }
-                            action.info.setNewFile(false);
+            }
+                
+            // Second pass: do what we're meant to do
+            for (Iterator<FileAction> it = actions.iterator(); it.hasNext();) {
+                FileAction action = it.next();
+                try {
+                    if (action.action == FileAction.REMOVED_FILE) {
+                        if (action.info.getConfigId() == null || listener.fileRemoved(action.child, action.info.getConfigId())) {
+                            files.remove(action.child.getPath());
                             changeMade = true;
-                        } else if (action.action == FileAction.UPDATED_FILE) {
-                            String result = listener.fileUpdated(action.child, action.info.getConfigId());
-                            FileInfo update = action.info;
+                        }
+                    } else if (action.action == FileAction.NEW_FILE) {
+                        if (listener.isFileDeployed(action.child, calculateModuleId(action.child))) {
+                            String workingOnConfigId = calculateModuleId(action.child);
+                            String result = listener.fileUpdated(action.child, workingOnConfigId);
                             if (result != null) {
                                 if (!result.equals("")) {
-                                    update.setConfigId(result);
+                                    action.info.setConfigId(result);
                                 } else {
-                                    update.setConfigId(calculateModuleId(action.child));
+                                    action.info.setConfigId(calculateModuleId(action.child));
+                                }
+                            }
+                            // remove the previous jar or directory if duplicate
+                            File[] childs = directory.listFiles();
+                            for (int i = 0; i < childs.length; i++) {
+                                String path = childs[i].getAbsolutePath();
+                                String configId = (files.get(path)).configId;
+                                if (configId != null && configId.equals(workingOnConfigId) && !action.child.getAbsolutePath().equals(path)) {
+                                    File fd = new File(path);
+                                    if (fd.isDirectory()) {
+                                        log.info("Deleting the Directory: " + path);
+                                        if (FileUtils.recursiveDelete(fd))
+                                            log.debug("Successfully deleted the Directory: " + path);
+                                        else
+                                            log.error("Couldn't delete the hot deployed directory=" + path);
+                                    } else if (fd.isFile()) {
+                                        log.info("Deleting the File: " + path);
+                                        if (fd.delete()) {
+                                            log.debug("Successfully deleted the File: " + path);
+                                        } else
+                                            log.error("Couldn't delete the hot deployed file=" + path);
+                                    }
+                                    files.remove(path);
+                                    changeMade = true;
+                                }
+                            }
+                            workingOnConfigId = null;
+                        } else {
+                            String result = listener.fileAdded(action.child);
+                            if (result != null) {
+                                if (!result.equals("")) {
+                                    action.info.setConfigId(result);
+                                } else {
+                                    action.info.setConfigId(calculateModuleId(action.child));
                                 }
                             }
                         }
-                    } catch (Exception e) {
-                        log.error("Unable to " + action.getActionName() + " file " + action.child.getAbsolutePath(), e);
-                    } finally {
-                        resolveFile(action);
+                        action.info.setNewFile(false);
+                        changeMade = true;
+                    } else if (action.action == FileAction.UPDATED_FILE) {
+                        String result = listener.fileUpdated(action.child, action.info.getConfigId());
+                        FileInfo update = action.info;
+                        if (result != null) {
+                            if (!result.equals("")) {
+                                update.setConfigId(result);
+                            } else {
+                                update.setConfigId(calculateModuleId(action.child));
+                            }
+                        }
                     }
+                } catch (Exception e) {
+                    log.error("Unable to " + action.getActionName() + " file " + action.child.getAbsolutePath(), e);
+                } finally {
+                    resolveFile(action);
                 }
             }
+
             if (changeMade) {
                 persistState();
             }
