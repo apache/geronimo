@@ -38,3 +38,6 @@
     color:#660000;
     font-family:Verdana,Helvetica,sans-serif;
 }
+pre {
+    white-space: pre-wrap;
+}
