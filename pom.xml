@@ -2207,6 +2207,24 @@ only found in cxf
             </plugins>
         </pluginManagement>
         <plugins>
+        
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}</directory>
+                            <includes>
+                                <include>*.log</include>
+                                <include>var/**</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
