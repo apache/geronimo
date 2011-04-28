@@ -31,7 +31,7 @@ public class LogManagerPortletTest
 {
     @Test
     public void testLogManagerLink() throws Exception {
-    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
+    	
         selenium.click("link=Server Logs");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
@@ -40,7 +40,7 @@ public class LogManagerPortletTest
         // Test help link
         selenium.click(getPortletHelpLocation());
         waitForPageLoad();
-        selenium.selectFrame("index=0");
+        //selenium.selectFrame("index=0");
         assertTrue(selenium.isTextPresent("This portlet allows the user to temporarily select a configuration file for logging"));
         selenium.selectWindow("null");
     }

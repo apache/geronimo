@@ -21,7 +21,9 @@ package org.apache.geronimo.testsupport;
 
 import com.thoughtworks.selenium.Selenium;
 import com.thoughtworks.selenium.DefaultSelenium;
+import com.thoughtworks.selenium.SeleniumException;
 
+import org.apache.geronimo.testsupport.console.ConsoleTestSupport;
 import org.openqa.selenium.server.SeleniumServer;
 
 /**
@@ -29,23 +31,44 @@ import org.openqa.selenium.server.SeleniumServer;
  *
  * @version $Rev$ $Date$
  */
-public class ExtendedSelenium
-    extends DefaultSelenium
+public class ExtendedSelenium extends DefaultSelenium
 {
-    public ExtendedSelenium(final String serverHost, final int serverPort, final String browserStartCommand, final String browserURL) {
-        super(serverHost, serverPort, browserStartCommand, browserURL);
-    }
-    
-    /**
-     * Remove a cookie from the browser.
-     *
-     * <p>
-     * This requires some custom hooks in <tt>user-extensions.js</tt>.  
-     * When using the <tt>selenium-maven-plugin</tt> the defaults should be merged
-     * into the <tt>user-extensions.js</tt> which is loaded by the server.
-     * </p>
-     */
-    public void removeCookie(final String name, final String path) {
-        this.getEval("selenium.removeCookie('" + name + "', '" + path + "')");
-    }
+	public ExtendedSelenium(final String serverHost, final int serverPort, final String browserStartCommand, final String browserURL) {
+	    	super(serverHost, serverPort, browserStartCommand, browserURL);
+	}
+	
+	/**
+	 * Remove a cookie from the browser.
+	 *
+	 * <p>
+	 * This requires some custom hooks in <tt>user-extensions.js</tt>.  
+	 * When using the <tt>selenium-maven-plugin</tt> the defaults should be merged
+	 * into the <tt>user-extensions.js</tt> which is loaded by the server.
+	 * </p>
+	 */
+	public void removeCookie(final String name, final String path) {
+	    this.getEval("selenium.removeCookie('" + name + "', '" + path + "')");
+	}
+	
+	// Override click method in order to add link converting logic according to static table in ConsoleTestsupport.java
+	@Override
+	public void click(String locator) {
+		try {
+			super.click(locator);
+		}
+		catch (SeleniumException se) {
+			if (se.getMessage().lastIndexOf("not found") > 0) {
+				String linkKey = locator;
+				if (ConsoleTestSupport.link2URL.containsKey(linkKey)) {
+					super.open(ConsoleTestSupport.link2URL.get(linkKey).toString());
+				}
+				else {
+					throw se;
+				}
+			}
+			else {
+				throw se;
+			}
+		}
+	}
 }

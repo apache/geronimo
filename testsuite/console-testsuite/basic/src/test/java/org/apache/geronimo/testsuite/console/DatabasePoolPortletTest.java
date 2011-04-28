@@ -31,11 +31,11 @@ public class DatabasePoolPortletTest
 {
      @Test
     public void testDatabasePoolLink() throws Exception {
-    	selenium.click(this.getNavigationTreeNodeLocation("Services"));
-        selenium.click("link=Database Pools");
+    	//selenium.click(this.getNavigationTreeNodeLocation("Services"));
+        selenium.click("link=Datasources");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Database Pools", 
-                     selenium.getText(getPortletTitleLocation()));
+        assertEquals("Database Pools", selenium.getText(getPortletTitleLocation()));
+        assertEquals("Run SQL", selenium.getText(getPortletTitleLocation(2)));
     }
 }

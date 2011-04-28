@@ -38,8 +38,7 @@ public class SimpleLoginTest
     public void testClickSomeLinks() throws Exception {
         try {
             login();
-            selenium.click(getNavigationTreeNodeLocation("Server"));
-            selenium.click("link=Information");
+            selenium.click("link=Server Information");
             waitForPageLoad();
             assertEquals("Geronimo Console", selenium.getTitle());
             
@@ -48,7 +47,7 @@ public class SimpleLoginTest
             waitForPageLoad();
             assertEquals("Geronimo Console", selenium.getTitle());
             selenium.open("/console");
-            selenium.click(getNavigationTreeNodeLocation("Embedded DB"));
+            
             selenium.click("link=DB Info");
             waitForPageLoad();
             assertEquals("Geronimo Console", selenium.getTitle());

@@ -26,20 +26,21 @@ import org.testng.annotations.Test;
  *
  * @version $Rev$ $Date$
  */
-public class DerbyLogViewerPortletTest
-    extends BasicConsoleTestSupport
+public class DerbyLogViewerPortletTest extends BasicConsoleTestSupport
 {
-    @Test
-    public void testDerbyLogViewerLink() throws Exception {
-    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
-        selenium.click("link=Server Logs");
-        waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Derby Log Viewer", 
-                     selenium.getText(getPortletTitleLocation(4)));
-        // Test help link
-        selenium.click(getPortletHelpLocation(4));
-        waitForPageLoad();
-        selenium.isTextPresent("This portlet views the log file for Geronimo's internal database, Derby.");
-    }
+	@Test
+	public void testDerbyLogViewerLink() throws Exception {
+		//selenium.click(this.getNavigationTreeNodeLocation("Server"));
+		//selenium.click("link=Server Logs");
+		selenium.click("link=Derby Logs");
+		waitForPageLoad();
+		assertEquals("Geronimo Console", selenium.getTitle());
+		assertEquals("Log Manager", selenium.getText(getPortletTitleLocation()));
+		assertEquals("Server Log Viewer", selenium.getText(getPortletTitleLocation(2)));
+		assertEquals("Web Access Log Viewer", selenium.getText(getPortletTitleLocation(3)));
+		// Test help link
+		selenium.click(getPortletHelpLocation());
+		waitForPageLoad();
+		selenium.isTextPresent("This portlet views the log file for Geronimo's internal database, Derby.");
+	}
 }

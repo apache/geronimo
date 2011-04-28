@@ -33,8 +33,7 @@ import org.testng.annotations.AfterSuite;
  *
  * @version $Rev$ $Date$
  */
-public class SeleniumTestSupport
-    extends TestSupport
+public class SeleniumTestSupport extends TestSupport
 {
     protected static ExtendedSelenium selenium;
     

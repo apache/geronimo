@@ -31,12 +31,16 @@ public class DBViewerPortletTest
 {
     @Test
     public void testDBViewerLink() throws Exception {
-        selenium.click(this.getNavigationTreeNodeLocation("Embedded DB"));
+        //selenium.click(this.getNavigationTreeNodeLocation("Embedded DB"));
+        //selenium.click("link=DB Info");
+        //waitForPageLoad();
+        //assertEquals("Geronimo Console", selenium.getTitle());
+        //assertEquals("DB Info", selenium.getText(getPortletTitleLocation()));
         selenium.click("link=DB Manager");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("DB Viewer", 
-                     selenium.getText(getPortletTitleLocation()));
+        assertEquals("DB Viewer", selenium.getText(getPortletTitleLocation()));
+        assertEquals("Run SQL", selenium.getText(getPortletTitleLocation(2)));
         // Test help link
         selenium.click(getPortletHelpLocation());
         waitForPageLoad();

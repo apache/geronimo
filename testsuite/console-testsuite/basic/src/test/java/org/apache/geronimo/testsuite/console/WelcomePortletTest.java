@@ -31,16 +31,16 @@ public class WelcomePortletTest
 {
     @Test
     public void testWelcomeLink() throws Exception {
-    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
-        selenium.click("link=Java System Info");
-        waitForPageLoad();
+    	
         selenium.click("link=Welcome");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Welcome", selenium.getText(getPortletTitleLocation()));
+        
         // Test help link
         selenium.click(getPortletHelpLocation());
         waitForPageLoad();
-        selenium.isTextPresent("This is the help for the Geronimo Administration Console Welcome.");
+        assertTrue(selenium.isTextPresent("Welcome to the Apache Geronimo"));
+        assertTrue(selenium.isTextPresent("The welcome portlet is the first page that users see when they log in"));
     }
 }

@@ -22,6 +22,12 @@ package org.apache.geronimo.testsupport.console;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.apache.geronimo.testsupport.SeleniumTestSupport;
 
 /**
@@ -29,58 +35,105 @@ import org.apache.geronimo.testsupport.SeleniumTestSupport;
  *
  * @version $Rev$ $Date$
  */
-public abstract class ConsoleTestSupport
-    extends SeleniumTestSupport
+public abstract class ConsoleTestSupport extends SeleniumTestSupport
 {
-    protected void login() throws Exception {
-        selenium.open("/");
-        waitForPageLoad();
-        
-        assertEquals("Apache Geronimo", selenium.getTitle());
-
-        selenium.deleteAllVisibleCookies();
-
-        selenium.click("link=Console");
-        waitForPageLoad();
-        
-        assertEquals("Geronimo Console Login", selenium.getTitle());
-        
-        selenium.type("j_username", "system");
-        selenium.type("j_password", "manager");
-        selenium.click("submit");
-        waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
-    }
-    
-    protected void logout() throws Exception {
-        selenium.click("//a[contains(@href, '/console/logout.jsp')]");
-        waitForPageLoad();
-        
-        assertEquals("Geronimo Console Login", selenium.getTitle());
-        
-        //selenium.removeCookie("JSESSIONID", "/");
-    }
-    protected String getNavigationTreeNodeLocation(String navigationTreeLabel){
-		//map label to id according to treeData
-		Map<String,Integer> navigationTreeLabel2Index=new HashMap<String,Integer>();
-		navigationTreeLabel2Index.put("Welcome",0);
-		navigationTreeLabel2Index.put("Server",1);
-		navigationTreeLabel2Index.put("Services",2);
-		navigationTreeLabel2Index.put("Applications",3);
-		navigationTreeLabel2Index.put("Security",4);
-	    navigationTreeLabel2Index.put("Debug Views",5);
-	    navigationTreeLabel2Index.put("Embedded DB",6);
-		//get tree node id dynamicly 
-		String script=" var navigationTree=this.browserbot.getCurrentWindow().dijit.byId('navigationTree');";
-	 	script=script+"var wrapperNode =navigationTree._itemNodesMap["+navigationTreeLabel2Index.get(navigationTreeLabel).intValue()+"];";
-	 	script+="wrapperNode[0].id;";
-	 	String navigationTreeNodeId=selenium.getEval(script);
-	 	
-	 	//collapse the tree node 
-	 	script=" var navigationTree=this.browserbot.getCurrentWindow().dijit.byId('navigationTree');";
-	 	script=script+"var wrapperNode =navigationTree._itemNodesMap["+navigationTreeLabel2Index.get(navigationTreeLabel).intValue()+"];";
-	 	script+="navigationTree._collapseNode(wrapperNode[0]);";
-		selenium.getEval(script);
-        return "xpath=//div[@id='"+navigationTreeNodeId+"']/div[1]/img";
+	// Setup a link map in order to get right url when the link is not found.
+	public static final Map<String,String> link2URL;
+	public static String fileName;
+	static {
+		link2URL = new HashMap<String,String>();
+		fileName = System.getProperty("linkPropertyFile");
+		try {
+			File file = new File(fileName);
+			FileReader f_reader;
+			try {
+				f_reader = new FileReader(file);
+			    BufferedReader reader = new BufferedReader(f_reader);
+				String str = reader.readLine();
+				while (str != null) {
+					if(!str.startsWith("#")) {
+						String[] lU = str.split(";");
+						if(lU.length!=2) {
+							throw new IOException("File 'link.properties' formats error.Length is:"+lU.length+lU[0]+"aaa");
+						}
+						link2URL.put(lU[0], lU[1]);
+					}
+					str = reader.readLine();
+				}
+		
+				/*
+				link2URL.put("link=Welcome", "/console/portal/0/Welcome");
+				// under Application Server
+				link2URL.put("link=Server Information", "/console/portal/1-1-1/Application Server/System Information/Server Information");
+				link2URL.put("link=Java System Info", "/console/portal/1-1-2/Application Server/System Information/Java System Info");
+				link2URL.put("link=Thread Pools", "/console/portal/1-1-4/Application Server/System Information/Thread Pools");
+				link2URL.put("link=Web Server", "/console/portal/1-2/Application Server/Web Server");
+				link2URL.put("link=EJB Server", "/console/portal/1-4/Application Server/EJB Server");
+				link2URL.put("link=Shutdown", "/console/portal/1-6/Application Server/Shutdown");
+				// under Applications
+				link2URL.put("link=Deployer", "/console/portal/2-1/Applications/Deployer");
+				link2URL.put("link=Web App WARs", "/console/portal/2-2-1/Applications/User Assets/Web App WARs");
+				link2URL.put("link=Application EARs", "/console/portal/2-2-2/Applications/User Assets/Application EARs");
+				link2URL.put("link=EJB JARs", "/console/portal/2-2-3/Applications/User Assets/EJB JARs");
+				link2URL.put("link=App Clients", "/console/portal/2-2-4/Applications/User Assets/App Clients");
+				link2URL.put("link=Application EBAs", "/console/portal/2-2-5/Applications/User Assets/Application EBAs");
+				// under Resources
+				link2URL.put("link=J2EE Connectors", "/console/portal/3-3/Resources/J2EE Connectors");
+				link2URL.put("link=JAR Aliases", "/console/portal/3-4/Resources/JAR Aliases");
+				link2URL.put("link=Repository", "/console/portal/3-5/Resources/Repository");
+				link2URL.put("link=Apache HTTP", "/console/portal/3-6/Resources/Apache HTTP");
+				link2URL.put("link=System Modules","/console/portal/3-7/Resources/System Modules");
+				link2URL.put("link=Plugins", "/console/portal/3-8/Resources/Plugins");
+				link2URL.put("link=OSGI Bundles", "/console/portal/3-10/Applications/OSGI Bundles");
+				// under Security
+				link2URL.put("link=Users and Groups", "/console/portal/4-1/Security/Users and Groups");
+				link2URL.put("link=Keystores", "/console/portal/4-2/Security/Keystores");
+				link2URL.put("link=Certificate Authority", "/console/portal/4-3/Security/Certificate Authority");
+				link2URL.put("link=Security Realms", "/console/portal/4-4/Security/Security Realms");
+				// under Monitoring and Troubleshooting
+				link2URL.put("link=Server Logs", "/console/portal/5-2-2/Monitoring and Troubleshooting/Logs/Server Logs");
+				*/
+			}
+			catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				System.out.println("!!!!!!!!!!!!!!!!!!!not find link.properties!");
+				e.printStackTrace();
+			}
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
+	
+    	protected void login() throws Exception {
+	        selenium.open("/");
+	        waitForPageLoad();
+	        
+	        assertEquals("Apache Geronimo", selenium.getTitle());
+	
+	        selenium.deleteAllVisibleCookies();
+	
+	        selenium.click("link=Console");
+	        waitForPageLoad();
+	        
+	        assertEquals("Geronimo Console Login", selenium.getTitle());
+	        
+	        selenium.type("j_username", "system");
+	        selenium.type("j_password", "manager");
+	        selenium.click("submit");
+	        waitForPageLoad();
+	        assertEquals("Geronimo Console", selenium.getTitle());
+    	}
+    
+    	protected void logout() throws Exception {
+		 selenium.open("/console");
+	        selenium.click("//a[contains(@href, '/console/logout.jsp')]");
+	        waitForPageLoad();
+	        
+	        assertEquals("Geronimo Console Login", selenium.getTitle());
+	        
+	        //selenium.removeCookie("JSESSIONID", "/");
+    	}
+
 }

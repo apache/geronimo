@@ -31,7 +31,7 @@ public class DeploymentPortletTest
 {
     @Test
     public void testDeploymentLink() throws Exception {
-    	selenium.click(this.getNavigationTreeNodeLocation("Applications"));
+    	
         selenium.click("link=Deployer");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());

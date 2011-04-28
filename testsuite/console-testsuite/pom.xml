@@ -56,12 +56,11 @@
                                 <suiteXmlFiles>
                                     <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
                                 </suiteXmlFiles>
-                                <systemProperties>
-                                    <property>
-                                        <name>geronimoVersion</name>
-                                        <value>${project.version}</value>
-                                    </property>
-                                </systemProperties>
+								<systemPropertyVariables>
+									<geronimoVersion>${project.version}</geronimoVersion>
+									<linkPropertyFile>${project.build.testOutputDirectory}/link.properties</linkPropertyFile>
+								</systemPropertyVariables>
+								<forkedProcessTimeoutInSeconds>0</forkedProcessTimeoutInSeconds>
                             </configuration>
                         </plugin>
                     </plugins>

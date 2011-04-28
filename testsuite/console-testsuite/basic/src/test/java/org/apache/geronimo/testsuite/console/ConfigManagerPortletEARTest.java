@@ -26,16 +26,13 @@ import org.testng.annotations.Test;
  *
  * @version $Rev$ $Date$
  */
-public class ConfigManagerPortletEARTest
-    extends BasicConsoleTestSupport
+public class ConfigManagerPortletEARTest extends BasicConsoleTestSupport
 {
-    @Test
-    public void testConfigManagerEARLink() throws Exception {
-    	selenium.click(this.getNavigationTreeNodeLocation("Applications"));
-        selenium.click("link=Application EARs");
-        waitForPageLoad();
-        assertEquals("Geronimo Console", selenium.getTitle());
-        assertEquals("Installed Application EARs", 
-                     selenium.getText(getPortletTitleLocation())); 
-    }
+	@Test
+	public void testConfigManagerEARLink() throws Exception {
+		selenium.click("link=Applications (EAR)");
+		waitForPageLoad();
+		assertEquals("Geronimo Console", selenium.getTitle());
+		assertEquals("Installed Application EARs", selenium.getText(getPortletTitleLocation())); 
+	}
 }

@@ -29,12 +29,12 @@ public class LinkCheckTest
 {
     @Test
     public void testServerInfoLink() throws Exception {
-    	selenium.click(this.getNavigationTreeNodeLocation("Server"));
-        selenium.click("link=Information");
+    	
+        selenium.click("link=Server Information");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         
-        selenium.selectFrame("index=0");
+        //selenium.selectFrame("index=0");
         assertTrue(selenium.isTextPresent("Version"));
         assertTrue(selenium.isTextPresent("Start Time"));
         assertTrue(selenium.isTextPresent("Up Time"));

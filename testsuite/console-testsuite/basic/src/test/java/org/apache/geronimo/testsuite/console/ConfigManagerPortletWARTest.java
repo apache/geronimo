@@ -31,8 +31,8 @@ public class ConfigManagerPortletWARTest
 {
     @Test
     public void testConfigManagerWARLink() throws Exception {
-    	selenium.click(this.getNavigationTreeNodeLocation("Applications"));
-        selenium.click("link=Web App WARs");
+    	
+        selenium.click("link=Web Apps (WAR)");
         waitForPageLoad();
         assertEquals("Geronimo Console", selenium.getTitle());
         assertEquals("Installed Web Applications",
