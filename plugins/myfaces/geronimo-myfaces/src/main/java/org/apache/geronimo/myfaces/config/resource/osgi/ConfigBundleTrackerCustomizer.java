@@ -55,8 +55,7 @@ public class ConfigBundleTrackerCustomizer implements BundleTrackerCustomizer {
         if (bundle.equals(registryBundle)) {
             return null;
         }
-        registry.addBundle(bundle);
-        return null;
+        return registry.addBundle(bundle) ? Boolean.TRUE : null;
     }
 
     @Override

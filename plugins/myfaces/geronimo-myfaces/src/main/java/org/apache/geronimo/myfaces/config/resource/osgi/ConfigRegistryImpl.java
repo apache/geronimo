@@ -58,24 +58,28 @@ public class ConfigRegistryImpl implements ConfigRegistry {
         this.activator = activator;
     }
 
-    public void addBundle(Bundle bundle) {
-        findFacesConfigs(bundle);
-        findFaceletsConfigResources(bundle);
+    public boolean addBundle(Bundle bundle) {
+        boolean facesConfigsFound = findFacesConfigs(bundle);
+        boolean faceletsConfigResourcesFound = findFaceletsConfigResources(bundle);
+        return facesConfigsFound || faceletsConfigResourcesFound;
     }
 
-    protected void findFaceletsConfigResources(Bundle bundle) {
+    protected boolean findFaceletsConfigResources(Bundle bundle) {
         Enumeration<URL> metaInfEn = bundle.findEntries("META-INF/", "*.taglib.xml", false);
-        if (metaInfEn != null) {
-            List<URL> faceletsConfigResources = new ArrayList<URL>();
-            while (metaInfEn.hasMoreElements()) {
-                faceletsConfigResources.add(metaInfEn.nextElement());
-            }
-            bundleIdFaceletsConfigResourcesMap.put(bundle.getBundleId(), faceletsConfigResources);
+        if (metaInfEn == null) {
+            return false;
         }
+        List<URL> faceletsConfigResources = new ArrayList<URL>();
+        while (metaInfEn.hasMoreElements()) {
+            faceletsConfigResources.add(metaInfEn.nextElement());
+        }
+        bundleIdFaceletsConfigResourcesMap.put(bundle.getBundleId(), faceletsConfigResources);
+        return true;
     }
 
-    protected void findFacesConfigs(Bundle bundle) {
+    protected boolean findFacesConfigs(Bundle bundle) {
         log(LogService.LOG_DEBUG, "examining bundle for META-INF/faces-config.xml " + bundle.getSymbolicName());
+        boolean facesConfigsFound = false;
         URL url = bundle.getEntry("META-INF/faces-config.xml");
         List<FacesConfig> facesConfigs = null;
         List<URL> facesConfigURLs = null;
@@ -101,10 +105,13 @@ public class ConfigRegistryImpl implements ConfigRegistry {
         }
         if (facesConfigs != null) {
             bundleIdFacesConfigsMap.put(bundle.getBundleId(), facesConfigs);
+            facesConfigsFound = true;
         }
         if (facesConfigURLs != null) {
             bundleIdFacesConfigURLsMap.put(bundle.getBundleId(), facesConfigURLs);
+            facesConfigsFound = true;
         }
+        return facesConfigsFound;
     }
 
     public void removeBundle(Bundle bundle, Object object) {
