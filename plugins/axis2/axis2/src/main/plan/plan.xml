@@ -26,6 +26,7 @@
     <gbean name="Axis2SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
         <attribute name="systemProperties">
             jaxws.runtime.usePostWebMethodRules=true
+            org.apache.geronimo.axis2.soap_1_1FaultDetailCompatibleWhenAddressingFaults=true
         </attribute>
     </gbean>
     
