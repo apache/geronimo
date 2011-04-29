@@ -247,7 +247,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         try {
             ref = bundle.getBundleContext().getServiceReference(ConfigRegistry.class.getName());
             ConfigRegistry configRegistry = (ConfigRegistry) bundle.getBundleContext().getService(ref);
-            classloaderFacesConfigs.addAll(configRegistry.getDependentFacesConfigs(bundle));
+            classloaderFacesConfigs.addAll(configRegistry.getDependentFacesConfigs(bundle.getBundleId()));
         } finally {
             if (ref != null) {
                 bundle.getBundleContext().ungetService(ref);
@@ -572,7 +572,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                 @Override
                 public boolean foundInJar(Bundle bundle, String zipFileName, ZipEntry zipEntry, InputStream in) throws Exception {
                     String zipEntryName = zipEntry.getName();
-                    if (zipEntryName.endsWith(".tag-lib.xml") && zipEntryName.indexOf('/', "META-INF/".length()) == -1) {
+                    if (zipEntryName.endsWith(".taglib.xml") && zipEntryName.indexOf('/', "META-INF/".length()) == -1) {
                         ConfigurationResource configurationResource = new ConfigurationResource(zipFileName, zipEntry.getName());
                         metaInfConfigurationResources.add(configurationResource);
                     }
@@ -580,14 +580,14 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
                 }
             });
         } catch (Exception e) {
-            throw new DeploymentException("Fail to scan tag-lib.xml configuration files", e);
+            throw new DeploymentException("Fail to scan .taglib.xml configuration files", e);
         } finally {
             if (reference != null) {
                 bundle.getBundleContext().ungetService(reference);
             }
         }
         //2 WEB-INF/classes/META-INF folder
-        Enumeration<URL> classesEn = bundle.findEntries(moduleNamePrefix + "WEB-INF/classes/META-INF/", "*.tag-lib.xml", false);
+        Enumeration<URL> classesEn = bundle.findEntries(moduleNamePrefix + "WEB-INF/classes/META-INF/", "*.taglib.xml", false);
         if (classesEn != null) {
             while (classesEn.hasMoreElements()) {
                 String filePath = classesEn.nextElement().getPath();
@@ -595,7 +595,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             }
         }
         //3  META-INF folder
-        Enumeration<URL> metaInfEn = bundle.findEntries(moduleNamePrefix + "META-INF/", "*.tag-lib.xml", false);
+        Enumeration<URL> metaInfEn = bundle.findEntries(moduleNamePrefix + "META-INF/", "*.taglib.xml", false);
         if (metaInfEn != null) {
             while (metaInfEn.hasMoreElements()) {
                 String filePath = metaInfEn.nextElement().getPath();

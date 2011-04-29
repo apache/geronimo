@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.geronimo.myfaces.config.resource.osgi;
 
 import org.osgi.framework.Bundle;
@@ -24,10 +25,13 @@ import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 
 public class ConfigBundleTrackerCustomizer implements BundleTrackerCustomizer {
+
     // our base Activator (used as a service source)
     private Activator activator;
+
     // the bundle hosting this registry
     private Bundle registryBundle;
+
     // the registry we interact with
     private ConfigRegistryImpl registry;
 
@@ -51,8 +55,8 @@ public class ConfigBundleTrackerCustomizer implements BundleTrackerCustomizer {
         if (bundle.equals(registryBundle)) {
             return null;
         }
-
-        return registry.addBundle(bundle);
+        registry.addBundle(bundle);
+        return null;
     }
 
     @Override

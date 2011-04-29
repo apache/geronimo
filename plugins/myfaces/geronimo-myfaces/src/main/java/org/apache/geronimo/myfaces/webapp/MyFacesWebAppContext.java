@@ -31,14 +31,20 @@ import org.apache.geronimo.gbean.annotation.ParamAttribute;
 import org.apache.geronimo.gbean.annotation.ParamSpecial;
 import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.myfaces.config.resource.ConfigurationResource;
+import org.apache.geronimo.myfaces.config.resource.osgi.api.ConfigRegistry;
 import org.apache.myfaces.config.element.FacesConfigData;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 @GBean(name = "MyFaces WebApplication Context", j2eeType = "MyFacesWebAppContext")
 public class MyFacesWebAppContext implements GBeanLifecycle {
+
+    private static final Logger logger = LoggerFactory.getLogger(MyFacesWebAppContext.class);
 
     private static final Map<Bundle, MyFacesWebAppContext> MYFACES_WEBAPP_CONTEXTS = new ConcurrentHashMap<Bundle, MyFacesWebAppContext>();
 
@@ -51,19 +57,34 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
     private List<URL> faceletConfigResources;
 
     public MyFacesWebAppContext(@ParamAttribute(name = "facesConfigData") FacesConfigData facesConfigData,
-                                                                @ParamAttribute(name = "faceletConfigResources") Set<ConfigurationResource> faceletConfigResources,
-                                                                @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
-                                                                @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) {
+            @ParamAttribute(name = "faceletConfigResources") Set<ConfigurationResource> faceletConfigResources, @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
+            @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) {
         this.bundle = bundle;
         this.facesConfigData = facesConfigData;
         this.classLoader = classLoader;
+        ServiceReference serviceReference = null;
         this.faceletConfigResources = new ArrayList<URL>(faceletConfigResources.size());
         try {
             for (ConfigurationResource faceletConfigResource : faceletConfigResources) {
                 this.faceletConfigResources.add(faceletConfigResource.getConfigurationResourceURL(bundle));
             }
+            serviceReference = bundle.getBundleContext().getServiceReference(ConfigRegistry.class.getName());
+            if (serviceReference != null) {
+                ConfigRegistry configRegistry = (ConfigRegistry) bundle.getBundleContext().getService(serviceReference);
+                List<URL> dependentFaceletsConfigResources = configRegistry.getDependentFaceletsConfigResources(bundle.getBundleId());
+                if (dependentFaceletsConfigResources != null) {
+                    this.faceletConfigResources.addAll(dependentFaceletsConfigResources);
+                }
+            } else {
+                logger.warn("Fail to find ConfigRegistry service, those *.taglib.xml from dependent bundles will not be registered in current web application " + bundle.getSymbolicName());
+            }
+
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(e);
+        } finally {
+            if (serviceReference != null) {
+                bundle.getBundleContext().ungetService(serviceReference);
+            }
         }
     }
 

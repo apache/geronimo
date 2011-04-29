@@ -17,7 +17,6 @@
  * under the License.
  */
 
-
 package org.apache.geronimo.myfaces.config.resource.osgi.api;
 
 import java.net.URL;
@@ -25,23 +24,56 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.myfaces.config.element.FacesConfig;
-import org.osgi.framework.Bundle;
 
 /**
- * @version $Rev:$ $Date:$
+ * @version $Rev$ $Date$
  */
 public interface ConfigRegistry {
 
     /**
-     * Get the URL list of founded faces-config.xml for all the started bundles
-     * @return
-     */
-    Set<URL> getRegisteredConfigUrls();
-
-    /**
-     * Get the parsed FacesConfig instances from the dependency tree of the specified bundle
+     * Get the parsed FacesConfig instances from the dependency tree of the specified bundle and its parents
      * @param bundle
      * @return
      */
-    List<FacesConfig> getDependentFacesConfigs(Bundle bundle);
+    List<FacesConfig> getDependentFacesConfigs(Long bundleId);
+
+    /**
+     * Get the list of tag-lib.xml URLs in the specified bundle and its parents
+     * @param bundleId
+     * @return
+     */
+    List<URL> getDependentFaceletsConfigResources(Long bundleId);
+
+    /**
+     * Get all the bundle Id which have shipped faces-config.xml files in their META-INF directories
+     * @return
+     */
+    Set<Long> getFacesConfigsBundleIds();
+
+    /**
+     * Get the list of parsed faces-config.xml in the specified bundle
+     * @param bundleId
+     * @return
+     */
+    List<FacesConfig> getFacesConfigs(Long bundleId);
+
+    /**
+     * Get the list of faces-config.xml URLs in the specified bundle
+     * @param bundleId
+     * @return
+     */
+    List<URL> getFacesConfigURLs(Long bundleId);
+
+    /**
+     * Get all the bundle Id which have shipped tag-lib.xml files in their META-INF directories
+     * @return
+     */
+    Set<Long> getFaceletsConfigResourcesBundleIds();
+
+    /**
+     * Get the list of tag-lib.xml files in the specified bundle
+     * @param bundleId
+     * @return
+     */
+    List<URL> getFaceletsConfigResources(Long bundleId);
 }
