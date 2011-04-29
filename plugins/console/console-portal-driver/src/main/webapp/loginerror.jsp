@@ -23,7 +23,7 @@
 <fmt:setLocale value="<%=request.getLocale()%>"/>
 <fmt:setBundle basename="portaldriver"/> 
 
-<html>
+<html lang="en">
 <head>
 <title><fmt:message key="console.common.ConsoleLogIn"/></title>
 <link href="<%=request.getContextPath()%>/main.css" rel="stylesheet" type="text/css">

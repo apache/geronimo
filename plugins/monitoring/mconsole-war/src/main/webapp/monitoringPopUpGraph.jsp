@@ -19,7 +19,7 @@
 <%@page import="org.apache.geronimo.monitoring.console.Constants"%>
 <%@page import="org.apache.geronimo.monitoring.console.StatsGraph"%>
 <portlet:defineObjects/>
-<html>
+<html lang="en">
 <head>
 <%
 StatsGraph graph = (StatsGraph) request.getAttribute("statsGraph");

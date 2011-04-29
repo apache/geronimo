@@ -19,7 +19,7 @@ limitations under the License.
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
 <%@ taglib uri="http://portals.apache.org/pluto" prefix="pluto" %>
 
-<html>
+<html lang="en">
 <head>
     <title>Pluto Portal</title>
     <style type="text/css" title="currentStyle" media="screen">

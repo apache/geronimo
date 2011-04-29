@@ -228,28 +228,28 @@ function refreshPrompt(target, bundleId, bundleName) {
                     <!-- Start/Stop -->
                     <c:if test="${bundleInfo.state.running}">
                         <span> 
-                            <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='stop'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_stop.png" title="stop"/></a>&nbsp;
+                            <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='stop'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_stop.png" alt="bundle_stop.png" title="stop"/></a>&nbsp;
                         </span>
                     </c:if>
                     <c:if test="${bundleInfo.state.stopped}">
                         <span>
-                            <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='start'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_start.png" title="start"/></a>&nbsp;
+                            <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='start'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_start.png" alt="bundle_start.png" title="start"/></a>&nbsp;
                         </span>
                     </c:if>
         
                     <!-- Update action -->
                     <span> 
-                        <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='update'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_update.png" title="update"/></a>&nbsp;
+                        <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='update'/></portlet:actionURL>"><img border="0" src="<%=request.getContextPath()%>/images/bundle_update.png" alt="bundle_update.png" title="update"/></a>&nbsp;
                     </span>
                 	
                 	<!-- Refresh action -->
                     <span> 
-                        <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='refresh'/></portlet:actionURL>" onClick="return refreshPrompt(this, '${bundleInfo.bundleId}','${bundleInfo.symbolicName}');"><img border="0" src="<%=request.getContextPath()%>/images/bundle_refresh.png" title="refresh"/></a>&nbsp;
+                        <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='refresh'/></portlet:actionURL>" onClick="return refreshPrompt(this, '${bundleInfo.bundleId}','${bundleInfo.symbolicName}');"><img border="0" src="<%=request.getContextPath()%>/images/bundle_refresh.png" alt="bundle_refresh.png" title="refresh"/></a>&nbsp;
                     </span>
                 
                     <!-- Uninstall action -->
                     <span> 
-                        <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt(this, '${bundleInfo.bundleId}','${bundleInfo.symbolicName}');"><img border="0" src="<%=request.getContextPath()%>/images/bundle_delete.png" title="uninstall"/></a>&nbsp;
+                        <a href="<portlet:actionURL><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/><portlet:param name='action' value='bundle'/><portlet:param name='operation' value='uninstall'/></portlet:actionURL>" onClick="return uninstallPrompt(this, '${bundleInfo.bundleId}','${bundleInfo.symbolicName}');"><img border="0" src="<%=request.getContextPath()%>/images/bundle_delete.png" alt="bundle_delete.png" title="uninstall"/></a>&nbsp;
                     </span>
                 </c:if>
             </td>
@@ -258,10 +258,10 @@ function refreshPrompt(target, bundleId, bundleName) {
         <!-- Util -->
         <td>
             &nbsp;
-            <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" title="View Manifest"/></a>&nbsp;
+            <a href="<portlet:renderURL><portlet:param name='page' value='view_manifest'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_mf.png" alt="icon_mf.png" title="View Manifest"/></a>&nbsp;
             <c:if test="${bundleInfo.state.running}" >
-                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" title="View Wired Bundles"/></a>&nbsp;
-                <a href="<portlet:renderURL><portlet:param name='page' value='view_services'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_serv.png" title="View Services"/></a>&nbsp;
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_wired_bundles'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_wb.png" alt="icon_wb.png" title="View Wired Bundles"/></a>&nbsp;
+                <a href="<portlet:renderURL><portlet:param name='page' value='view_services'/><portlet:param name='bundleId' value='${bundleInfo.bundleId}'/></portlet:renderURL>"><img border="0" src="<%=request.getContextPath()%>/images/icon_serv.png" alt="icon_serv.png" title="View Services"/></a>&nbsp;
             </c:if>
         </td>
 

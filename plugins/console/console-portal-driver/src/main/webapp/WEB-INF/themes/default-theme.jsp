@@ -27,6 +27,7 @@ limitations under the License.
 <fmt:setLocale value="<%=request.getLocale()%>"/>
 <fmt:setBundle basename="portaldriver"/>
 
+<html lang="en">
 <head>
     <title><fmt:message key="console.head.title"/></title>
     <link rel="stylesheet" href="/dojo/dijit/themes/tundra/tundra.css" type="text/css"/>
@@ -37,7 +38,6 @@ limitations under the License.
     <script language="Javascript" src="<%=request.getContextPath()%>/js/forms.js" type="text/javascript"></script>
     <script language="Javascript" src="<%=request.getContextPath()%>/CommonMsg.js" type="text/javascript"></script>
 </head>
-<html>
 <c:choose>
     <c:when test="${param.noxssShowTree!=null}">
          <jsp:include page="portlets-with-tree.jsp" />

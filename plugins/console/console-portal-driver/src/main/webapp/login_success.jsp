@@ -21,7 +21,7 @@
 
 <%-- $Rev$ $Date$ --%>
 
-<HTML>
+<HTML lang="en">
 <HEAD><TITLE><fmt:message key="console.login_success.loginSuccessful"/></TITLE></HEAD>
 <BODY>
 <fmt:message key="console.login_success.loginSuccessful"/>. <a href="<%=request.getContextPath()%>/portal/test"><fmt:message key="returnToPortalTests"/></A>
