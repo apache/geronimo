@@ -31,7 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.geronimo.deployment.cli.DeployUtils;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -123,7 +122,8 @@ public class DirectoryMonitor implements Runnable {
     private boolean done = false;
     private Listener listener; // a little cheesy, but do we really need multiple listeners?
     private final Map<String, FileInfo> files;
-    private final CopyOnWriteArrayList <Artifact> toRemove = new CopyOnWriteArrayList <Artifact>();
+    private volatile String workingOnConfigId;
+    private final ArrayList <Artifact> toRemove = new ArrayList <Artifact>();
     private File monitorFile;
 
     public DirectoryMonitor(File directory, Listener listener, int pollIntervalMillis) {
@@ -179,29 +179,49 @@ public class DirectoryMonitor implements Runnable {
         this.done = true;
     }
 
+    // The undeployed operation could occur in this hot-deploy thread or in console/cli.
+    // The id that go to "toRemove" should be the ones that not undeployed in this hot-deploy thread 
+    // BTW, now we support EBA deployment. And if an EBA includes a WAB, which also has a configuration id during EBA deployment, 
+    // this method also can be called with the WAB id. And the WAB' so id will also go into the "toRemove" list.
     public void removeModuleId(Artifact id) {
-        log.info("Hot deployer notified that an artifact was removed: "+id);
-        toRemove.add(id);
+        log.info("Hot deployer notified that an artifact was undeployed: "+id);
+        if(id.toString().equals(workingOnConfigId)) {
+            // don't react to undelpoy events we generated ourselves
+            // because the file update action(i.e. redeploy) will cause the old module to undeploy first
+            // we must handle this so that its config id won't go "toRemove" list to avoid the deletion of the new file.
+            return; 
+        }
+        synchronized (toRemove) {
+            toRemove.add(id);
+        }
     }
 
     private void doRemoves() {
-        synchronized (files) {
-            for (Artifact id : toRemove) {
-                for (Iterator<String> filesItr = files.keySet().iterator(); filesItr.hasNext();) {
-                    String path = filesItr.next();
-                    FileInfo info = files.get(path);
-                    Artifact target = Artifact.create(info.getConfigId());
-                    if (id.matches(target)) { // need to remove record & delete file
-                        File file = new File(path);
-                        if (file.exists()) { // if not, probably it's deletion kicked off this whole process
-                            log.info("Hot deployer deleting " + id);
-                            if (!FileUtils.recursiveDelete(file)) {
-                                log.error("Hot deployer unable to delete " + path);
+        synchronized (toRemove) {
+            synchronized (files) {
+                for (Iterator<Artifact> idItr = toRemove.iterator(); idItr.hasNext();) {
+                    Artifact id = idItr.next();
+                    for (Iterator<String> filesItr = files.keySet().iterator(); filesItr.hasNext();) {
+                        String path = filesItr.next();
+                        FileInfo info = files.get(path);
+                        if (info.getConfigId() == null){
+                            // the file is new added, have not deployed yet, so its config id is not set.
+                            continue;
+                        }
+                        Artifact target = Artifact.create(info.getConfigId());
+                        if (id.matches(target)) { // need to remove record & delete file
+                            File file = new File(path);
+                            if (file.exists()) {  // if not, probably it's deletion kicked off this whole process
+                                log.info("Hot deployer deleting " + id);
+                                if (!FileUtils.recursiveDelete(file)) {
+                                    log.error("Hot deployer unable to delete " + path);
+                                }
+                                filesItr.remove();
                             }
-                            filesItr.remove();
-                            toRemove.remove(id);
                         }
                     }
+                    // remove the id form the toRemove list no matter if we found it in the "files" list
+                    idItr.remove();
                 }
             }
         }
@@ -277,6 +297,7 @@ public class DirectoryMonitor implements Runnable {
                             initialize();
                             listener.started();
                         } else {
+                            doRemoves();
                             scanDirectory();
                         }
                     }
@@ -318,7 +339,6 @@ public class DirectoryMonitor implements Runnable {
      * Looks for changes to the immediate contents of the directory we're watching.
      */
     private void scanDirectory() {
-        doRemoves();
         File parent = directory;
         File[] children = parent.listFiles();
         if (!directory.exists() || children == null) {
@@ -339,42 +359,44 @@ public class DirectoryMonitor implements Runnable {
                     continue;
                 }
                 FileInfo now = child.isDirectory() ? getDirectoryInfo(child) : getFileInfo(child);
-                FileInfo then = files.get(now.getPath());
-                if (then == null) { // Brand new, wait a bit to make sure it's not still changing
+                FileInfo last = files.get(now.getPath());
+                if (last == null) { // Brand new, wait a bit to make sure it's not still changing
                     now.setNewFile(true);
                     files.put(now.getPath(), now);
                     changeMade = true;
                     log.debug("New File: " + now.getPath());
                 } else {
-                    oldList.remove(then.getPath());
-                    if (now.isSame(then)) { // File is the same as the last time we scanned it
-                        if (then.isChanging()) {
+                    oldList.remove(last.getPath());
+                    if (now.isSame(last)) { // File is the same as the last time we scanned it
+                        if (last.isChanging()) { // else it's just totally unchanged and we ignore it this pass
                             log.debug("File finished changing: " + now.getPath());
                             // Used to be changing, now in (hopefully) its final state
-                            if (then.isNewFile()) {
-                                actions.add(new FileAction(FileAction.NEW_FILE, child, then));
+                            if (last.isNewFile()) {
+                                actions.add(new FileAction(FileAction.NEW_FILE, child, last));
                             } else {
-                                actions.add(new FileAction(FileAction.UPDATED_FILE, child, then));
+                                actions.add(new FileAction(FileAction.UPDATED_FILE, child, last));
                             }
-                            then.setChanging(false);
-                        } // else it's just totally unchanged and we ignore it this pass
-                    } else if(then.isNewFile() || now.getModified() > then.getModified()) {
-                        // The two records are different -- record the latest as a file that's changing
-                        // and later when it stops changing we'll do the add or update as appropriate.
-                        now.setConfigId(then.getConfigId());
-                        now.setNewFile(then.isNewFile());
+                            last.setChanging(false);
+                        } 
+                    } else { // is changing, when finish will do the file action accordingly
+                        if (last.isNewFile()){ // is adding file
+                            now.setNewFile(last.isNewFile());
+                        } else { // is replacing file
+                            now.setConfigId(last.getConfigId());
+                        }
                         files.put(now.getPath(), now);
                         changeMade = true;
                         log.debug("File Changed: " + now.getPath());
                     }
                 }
             }
+            
             // Look for any files we used to know about but didn't find in this pass
             for (Iterator<String> it = oldList.iterator(); it.hasNext();) {
                 String name = it.next();
                 FileInfo info = files.get(name);
                 log.debug("File removed: " + name);
-                if (info.isNewFile()) { // Was never added, just whack it
+                if (info.isNewFile()) { // was never deployed, just drop it
                     files.remove(name);
                     changeMade = true;
                 } else {
@@ -396,13 +418,15 @@ public class DirectoryMonitor implements Runnable {
                 FileAction action = it.next();
                 try {
                     if (action.action == FileAction.REMOVED_FILE) {
+                        workingOnConfigId = action.info.getConfigId();
                         if (action.info.getConfigId() == null || listener.fileRemoved(action.child, action.info.getConfigId())) {
                             files.remove(action.child.getPath());
                             changeMade = true;
                         }
+                        workingOnConfigId = null;
                     } else if (action.action == FileAction.NEW_FILE) {
                         if (listener.isFileDeployed(action.child, calculateModuleId(action.child))) {
-                            String workingOnConfigId = calculateModuleId(action.child);
+                            workingOnConfigId = calculateModuleId(action.child);
                             String result = listener.fileUpdated(action.child, workingOnConfigId);
                             if (result != null) {
                                 if (!result.equals("")) {
@@ -414,8 +438,15 @@ public class DirectoryMonitor implements Runnable {
                             // remove the previous jar or directory if duplicate
                             File[] childs = directory.listFiles();
                             for (int i = 0; i < childs.length; i++) {
-                                String path = childs[i].getAbsolutePath();
-                                String configId = (files.get(path)).configId;
+                                File child = children[i];
+                                if (!child.canRead()) {
+                                    continue;
+                                }
+                                if (child.equals(monitorFile)) {
+                                    continue;
+                                }
+                                String path = child.getAbsolutePath();
+                                String configId = files.get(path).getConfigId();
                                 if (configId != null && configId.equals(workingOnConfigId) && !action.child.getAbsolutePath().equals(path)) {
                                     File fd = new File(path);
                                     if (fd.isDirectory()) {
@@ -449,6 +480,7 @@ public class DirectoryMonitor implements Runnable {
                         action.info.setNewFile(false);
                         changeMade = true;
                     } else if (action.action == FileAction.UPDATED_FILE) {
+                        workingOnConfigId = action.info.getConfigId();
                         String result = listener.fileUpdated(action.child, action.info.getConfigId());
                         FileInfo update = action.info;
                         if (result != null) {
@@ -458,6 +490,7 @@ public class DirectoryMonitor implements Runnable {
                                 update.setConfigId(calculateModuleId(action.child));
                             }
                         }
+                        workingOnConfigId = null;
                     }
                 } catch (Exception e) {
                     log.error("Unable to " + action.getActionName() + " file " + action.child.getAbsolutePath(), e);
