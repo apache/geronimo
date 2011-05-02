@@ -97,6 +97,7 @@ public final class XmlUtil {
             FileOutputStream out = null;
             try {
                 File tempFile = File.createTempFile("openejb-jar-", ".xml");
+                tempFile.deleteOnExit();
                 out = new FileOutputStream(tempFile);
                 out.write(xml.getBytes());
                 filePath = tempFile.getAbsolutePath();
