@@ -241,7 +241,7 @@ public class TomcatManagerImpl implements WebManager {
     /**
      * Removes a connector.  This shuts it down if necessary, and removes it from the server environment.  It must be a
      * connector that uses this network technology.
-     * @param connectorName
+     * @param connectorAbstractName
      */
     public void removeConnector(AbstractName connectorAbstractName) {
 
@@ -325,7 +325,7 @@ public class TomcatManagerImpl implements WebManager {
         gbeanData.setReferencePattern("ServerInfo", serverInfo);
 
         try {
-            kernel.loadGBean(gbeanData, container.getBundleContext());
+            kernel.loadGBean(gbeanData, container.getBundleContext().getBundle());
             kernel.startGBean(name);
         } catch (Exception e) {
             log.error("Error when adding new tomcat connector" + uniqueName, e);

@@ -20,18 +20,23 @@ import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
+import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
+import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
-import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.service.plan.ArtifactType;
+import org.apache.geronimo.deployment.service.plan.EnvironmentType;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
+import org.apache.geronimo.j2ee.deployment.NamingBuilder;
 import org.apache.geronimo.j2ee.deployment.NamingBuilderCollection;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.model.naming.ResourceRefType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Jsr77Naming;
 import org.apache.geronimo.kernel.Naming;
@@ -39,14 +44,13 @@ import org.apache.geronimo.kernel.osgi.MockBundleContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.security.deployment.GeronimoSecurityBuilderImpl;
+import org.apache.geronimo.tomcat.deployment.model.TomcatConfigType;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web.info.WebAppInfo;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
-import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.web25.deployment.model.ObjectFactory;
+import org.apache.geronimo.web25.deployment.model.WebAppType;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.packageadmin.RequiredBundle;
@@ -66,7 +70,7 @@ public class PlanParsingTest extends TestCase {
     private TomcatModuleBuilder builder;
 
     protected void setUp() throws Exception {
-        MockBundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
+        BundleContext bundleContext = new MockBundleContext(getClass().getClassLoader(), "", null, null);
         PackageAdmin packageAdmin = new PackageAdmin() {
 
                 @Override
@@ -124,12 +128,13 @@ public class PlanParsingTest extends TestCase {
                 }
             };
         bundleContext.registerService(PackageAdmin.class.getName(), packageAdmin, null);
-        builder = new TomcatModuleBuilder(defaultEnvironment,
+        builder = new TomcatModuleBuilder(
                 tomcatContainerObjectName,
                 new WebAppInfo(),
                 null,
                 Collections.singleton(webServiceBuilder),
-                Arrays.asList(new GBeanBuilder(null, null), new GeronimoSecurityBuilderImpl(null, null, null)),
+//                Arrays.<NamespaceDrivenBuilder>asList(new GBeanBuilder(null, null), new GeronimoSecurityBuilderImpl(null, null, null)),
+                Collections.<NamespaceDrivenBuilder>singletonList(new GeronimoSecurityBuilderImpl(null, null, null)),
                 new NamingBuilderCollection(null),
                 Collections.EMPTY_LIST,
                 null,
@@ -147,14 +152,14 @@ public class PlanParsingTest extends TestCase {
 
     public void testConvertPlan() throws Exception {
         URL srcXml = classLoader.getResource("plans/plan-convert.xml");
-        XmlObject rawPlan = XmlBeansUtil.parse(srcXml, getClass().getClassLoader());
-
-        XmlObject webPlan = new GenericToSpecificPlanConverter(
-                "http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0",
-                "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1",
-                "tomcat").convertToSpecificPlan(rawPlan);
-
-        XmlObject p = webPlan.changeType(TomcatWebAppType.type);
+//        XmlObject rawPlan = XmlBeansUtil.parse(srcXml, getClass().getClassLoader());
+//
+//        XmlObject webPlan = new GenericToSpecificPlanConverter(
+//                "http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0",
+//                "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1",
+//                "tomcat").convertToSpecificPlan(rawPlan);
+//
+//        XmlObject p = webPlan.changeType(TomcatWebAppType.type);
         //TODO WTF? no changes but it fails run from maven, not from idea.
 //        XmlBeansUtil.validateDD(p);
     }
@@ -163,30 +168,32 @@ public class PlanParsingTest extends TestCase {
         URL resourceURL = classLoader.getResource("plans/plan1.xml");
         File resourcePlan = new File(resourceURL.getFile());
         assertTrue(resourcePlan.exists());
-        TomcatWebAppType tomcatWebApp = builder.getTomcatWebApp(resourcePlan, null, true, null, null);
-        assertEquals(1, tomcatWebApp.getResourceRefArray().length);
+        WebAppType tomcatWebApp = builder.getTomcatWebApp(resourcePlan, null, true, null, null);
+        assertEquals(1, tomcatWebApp.getResourceRef().size());
     }
 
     public void testConstructPlan() throws Exception {
-        GerWebAppDocument tomcatWebAppDoc = GerWebAppDocument.Factory.newInstance();
-        GerWebAppType tomcatWebAppType = tomcatWebAppDoc.addNewWebApp();
-        EnvironmentType environmentType = tomcatWebAppType.addNewEnvironment();
-        ArtifactType artifactType = environmentType.addNewModuleId();
+        WebAppType tomcatWebAppType = new ObjectFactory().createWebAppType();
+        EnvironmentType environmentType = new EnvironmentType();
+        tomcatWebAppType.setEnvironment(environmentType);
+        ArtifactType artifactType = new ArtifactType();
         artifactType.setArtifactId("foo");
+        environmentType.setModuleId(artifactType);
 
-        GerResourceRefType ref = tomcatWebAppType.addNewResourceRef();
+        ResourceRefType ref = new ResourceRefType();
         ref.setRefName("ref");
         ref.setResourceLink("target");
+        tomcatWebAppType.getResourceRef().add(ref);
 
-        XmlBeansUtil.validateDD(tomcatWebAppType);
+//        XmlBeansUtil.validateDD(tomcatWebAppType);
     }
 
     public void testContextAttributes() throws Exception {
         URL resourceURL = classLoader.getResource("plans/plan-context.xml");
         File resourcePlan = new File(resourceURL.getFile());
         assertTrue(resourcePlan.exists());
-        TomcatWebAppType tomcatWebApp = builder.getTomcatWebApp(resourcePlan, null, true, null, null);
-        NamedNodeMap  namedNodeMap = tomcatWebApp.getContext().getDomNode().getAttributes();
-        assertEquals(2, namedNodeMap.getLength());
+        WebAppType tomcatWebApp = builder.getTomcatWebApp(resourcePlan, null, true, null, null);
+        Map<QName, String> other = ((TomcatConfigType)tomcatWebApp.getContainerConfig()).getContext().getOtherAttributes();
+        assertEquals(2, other.size());
     }
 }

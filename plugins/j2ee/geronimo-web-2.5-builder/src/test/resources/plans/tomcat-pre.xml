@@ -24,26 +24,20 @@
             <dep:artifactId>testclient</dep:artifactId>
             <dep:version>1</dep:version>
         </dep:moduleId>
-        <dep:dependencies>
-            <dep:dependency>
-                <dep:groupId>geronimo</dep:groupId>
-                <dep:artifactId>j2ee-system</dep:artifactId>
-            </dep:dependency>
-        </dep:dependencies>
     </dep:environment>
-    <context-priority-classloader>false</context-priority-classloader>
-    <container-config>
-        <tomcat xmlns="http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0">
-            <cross-context/>
-            <tomcat-realm>TomcatJAASRealm</tomcat-realm>
-        </tomcat>
-    </container-config>
+    <!--<context-priority-classloader>false</context-priority-classloader>-->
+    <!--<container-config>-->
+        <!--<tomcat xmlns="http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0">-->
+            <!--<cross-context/>-->
+            <!--<tomcat-realm>TomcatJAASRealm</tomcat-realm>-->
+        <!--</tomcat>-->
+    <!--</container-config>-->
     <resource-ref>
       <ref-name>jdbc/DB1</ref-name>
       <target-name>DefaultDatabase</target-name>
     </resource-ref>
     <security-realm-name>jetspeed-realm</security-realm-name>
-    <security>
+    <security xmlns="http://geronimo.apache.org/xml/ns/security-2.0">
         <default-subject>
             <realm>foo</realm>
             <id>guest</id>
@@ -54,21 +48,21 @@
             </role>
         </role-mappings>
     </security>
-    <gbean name="jetspeed-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm">
-        <attribute name="realmName">jetspeed-realm</attribute>
-        <xml-reference name="LoginModuleConfiguration">
-            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.0">
-                <lc:login-module control-flag="REQUIRED" server-side="true">
-                    <lc:login-domain-name>jetspeed-realm</lc:login-domain-name>
-                    <lc:login-module-class>org.apache.jetspeed.security.impl.DefaultLoginModule</lc:login-module-class>
-                </lc:login-module>
-            </lc:login-config>
-        </xml-reference>
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
-        </reference>
-        <reference name="LoginService">
-            <name>JaasLoginService</name>
-        </reference>
-    </gbean>
+    <!--<gbean name="jetspeed-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm">-->
+        <!--<attribute name="realmName">jetspeed-realm</attribute>-->
+        <!--<xml-reference name="LoginModuleConfiguration">-->
+            <!--<lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.0">-->
+                <!--<lc:login-module control-flag="REQUIRED" server-side="true">-->
+                    <!--<lc:login-domain-name>jetspeed-realm</lc:login-domain-name>-->
+                    <!--<lc:login-module-class>org.apache.jetspeed.security.impl.DefaultLoginModule</lc:login-module-class>-->
+                <!--</lc:login-module>-->
+            <!--</lc:login-config>-->
+        <!--</xml-reference>-->
+        <!--<reference name="ServerInfo">-->
+            <!--<name>ServerInfo</name>-->
+        <!--</reference>-->
+        <!--<reference name="LoginService">-->
+            <!--<name>JaasLoginService</name>-->
+        <!--</reference>-->
+    <!--</gbean>-->
 </web-app>

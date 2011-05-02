@@ -37,7 +37,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.tomcat.TomcatServerGBean;
-import org.osgi.framework.BundleContext;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,23 +53,23 @@ public class ConnectorWrapperGBeanStarter implements GBeanLifecycle {
     private static final Logger log = LoggerFactory.getLogger(ConnectorWrapperGBeanStarter.class);
     private final TomcatServerGBean server;
     private final TomcatContainer container;
-    private final BundleContext bundleContext;
+    private final Bundle bundle;
     private final Kernel kernel;
 
     public ConnectorWrapperGBeanStarter(
             @ParamReference(name = "Server") TomcatServerGBean server,
             @ParamReference(name = "TomcatContainer") TomcatContainer container,
-            @ParamSpecial(type = SpecialAttributeType.bundleContext) BundleContext bundleContext,
+            @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
             @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel) throws Exception {
 
         this.server = server;
         this.container = container;
-        this.bundleContext = bundleContext;
+        this.bundle = bundle;
         this.kernel = kernel;
 
     }
 
-    private void buildConnectorGBean(BundleContext context, Kernel kernel, Connector conn, TomcatContainer container) {
+    private void buildConnectorGBean(Bundle bundle, Kernel kernel, Connector conn, TomcatContainer container) {
 
         GBeanInfo gbeanInfo = this.getConnectorGBeanInfo(conn);
 
@@ -101,7 +101,7 @@ public class ConnectorWrapperGBeanStarter implements GBeanLifecycle {
         gbeanData.setReferencePattern("ServerInfo", set.iterator().next());
 
         try {
-            kernel.loadGBean(gbeanData, context);
+            kernel.loadGBean(gbeanData, bundle);
             kernel.startGBean(name);
         } catch (Exception e) {
             log.error("Error when building connectorGbean for connector: " + conn.getAttribute("address") + ":"
@@ -173,7 +173,7 @@ public class ConnectorWrapperGBeanStarter implements GBeanLifecycle {
 
         for (Connector conn : connectors) {
 
-            this.buildConnectorGBean(bundleContext, kernel, conn, container);
+            this.buildConnectorGBean(bundle, kernel, conn, container);
         }
     }
 

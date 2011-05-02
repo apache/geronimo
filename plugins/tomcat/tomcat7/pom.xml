@@ -36,14 +36,22 @@
     <description>Geronimo Tomcat web server integration.</description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-gbean-deployer</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>car</type>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
 
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-annotation_1.1_spec</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
             <artifactId>j2ee-server</artifactId>
@@ -52,7 +60,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
+            <groupId>org.apache.geronimo.framework.config</groupId>
             <artifactId>server-security-config</artifactId>
             <version>${project.version}</version>
             <type>car</type>
@@ -107,10 +115,10 @@
         </dependency>
 
         <!-- Check whether we really need this dependency-->  
-        <dependency>
-            <groupId>org.apache.geronimo.javamail</groupId>
-            <artifactId>geronimo-javamail_1.4_mail</artifactId>                
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.javamail</groupId>-->
+            <!--<artifactId>geronimo-javamail_1.4_mail</artifactId>                -->
+        <!--</dependency>-->
     </dependencies>
 
     <build>

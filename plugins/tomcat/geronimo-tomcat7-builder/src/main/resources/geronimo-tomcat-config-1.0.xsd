@@ -56,7 +56,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="cross-context" type="tomcat:emptyType"
+            <xs:element name="cross-context" type="tomcat:emptyType2"
                 minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
@@ -67,13 +67,22 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="disable-cookies" type="tomcat:emptyType"
+            <xs:element name="disable-cookies" type="tomcat:emptyType2"
                 minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
                         The presence of disable-cookies element indicates the
                         cookies will not be used by tomcat web application and
                         should be disabled.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="context" type="tomcat:contextType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The context element provides the same function as used in
+                        Tomcat, it supports context level attributes and context
+                        parameters.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -120,6 +129,19 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="emptyType" />
+    <xs:complexType name="contextType">
+        <xs:sequence>
+            <xs:element name="parameter" type="tomcat:parameterType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:anyAttribute processContents="skip"/>
+    </xs:complexType>
+
+    <xs:complexType name="parameterType">
+        <xs:attribute name="name" type="xs:string" />
+        <xs:attribute name="value" type="xs:string" />
+        <xs:attribute name="override" type="xs:boolean" default="false"/>
+    </xs:complexType>
+
+    <xs:complexType name="emptyType2" />
 
 </xs:schema>

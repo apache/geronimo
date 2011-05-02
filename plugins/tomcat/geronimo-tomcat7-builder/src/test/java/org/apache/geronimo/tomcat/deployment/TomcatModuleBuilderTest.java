@@ -42,15 +42,10 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.util.UnpackedJarFile;
@@ -76,7 +71,6 @@ public class TomcatModuleBuilderTest extends TestSupport {
     private TomcatModuleBuilder builder;
     private Artifact webModuleArtifact = new Artifact("foo", "bar", "1", "car");
     private Environment defaultEnvironment = new Environment();
-    private ConfigurationManager configurationManager;
     private ConfigurationStore configStore;
     private AbstractName baseRootName = naming.createRootName(baseId, "root", NameFactory.SERVICE_MODULE);
     private AbstractNameQuery credentialStoreName = new AbstractNameQuery(naming.createChildName(baseRootName, "CredentialStore", GBeanInfoBuilder.DEFAULT_J2EE_TYPE));
@@ -151,30 +145,26 @@ public class TomcatModuleBuilderTest extends TestSupport {
         earContext.close();
         module.close();
 
-        Artifact configurationId = configurationData.getId();
-        configurationManager.loadConfiguration(configurationData);
-        Configuration configuration = configurationManager.getConfiguration(configurationId);
-        configurationManager.startConfiguration(configurationId);
-
+//        Artifact configurationId = configurationData.getId();
+//        configurationManager.loadConfiguration(configurationData);
+//        Configuration configuration = configurationManager.getConfiguration(configurationId);
+//        configurationManager.startConfiguration(configurationId);
+        //TODO create it
+        Configuration configuration = null;
         return new WebModuleInfo(moduleName, configuration);
     }
 
     private void undeployWar(Configuration configuration) throws Exception {
-        configurationManager.stopConfiguration(configuration.getId());
-        configurationManager.unloadConfiguration(configuration.getId());
+//        configurationManager.stopConfiguration(configuration.getId());
+//        configurationManager.unloadConfiguration(configuration.getId());
     }
 
     private EARContext createEARContext(File outputPath, Environment environment, Repository repository, ConfigurationStore configStore, AbstractName moduleName) throws DeploymentException {
-        Set repositories = repository == null ? Collections.EMPTY_SET : Collections.singleton(repository);
-        Set configurationManagers = configurationManager == null ? Collections.EMPTY_SET : Collections.singleton(configurationManager);
-        ArtifactManager artifactManager = new DefaultArtifactManager();
-        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, repositories, null, configurationManagers);
         return new EARContext(outputPath,
                 null,
                 environment,
                 ConfigurationModuleType.WAR,
                 naming,
-                configurationManager,
                 bundle.getBundleContext(),
                 new AbstractNameQuery(serverName),
                 moduleName,

@@ -21,8 +21,8 @@
 <xs:schema xmlns:tomcat="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-2.0.1"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.2"
-    xmlns:app="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-2.0"
     xmlns:jaspi="http://geronimo.apache.org/xml/ns/geronimo-jaspi"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
     attributeFormDefault="unqualified" version="1.1">
@@ -44,8 +44,7 @@
         </xs:documentation>
     </xs:annotation>
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.2"
-        schemaLocation="geronimo-naming-1.2.xsd">
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.2">
         <xs:annotation>
             <xs:documentation>
                 Import partial schema containing common naming elements, the
@@ -55,19 +54,17 @@
             </xs:documentation>
         </xs:annotation>
     </xs:import>
-    <xs:import
-        namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
-        schemaLocation="geronimo-application-2.0.xsd">
-        <xs:annotation>
-            <xs:documentation>
-                Import Geronimo application deployment plans. The imported plan
-                includes abstract complex types security required by this plan
-                schema.
-            </xs:documentation>
-        </xs:annotation>
-    </xs:import>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2"
-        schemaLocation="geronimo-module-1.2.xsd">
+    <!--<xs:import-->
+        <!--namespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0">-->
+        <!--<xs:annotation>-->
+            <!--<xs:documentation>-->
+                <!--Import Geronimo application deployment plans. The imported plan-->
+                <!--includes abstract complex types security required by this plan-->
+                <!--schema.-->
+            <!--</xs:documentation>-->
+        <!--</xs:annotation>-->
+    <!--</xs:import>-->
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <xs:annotation>
             <xs:documentation>
                 Import Geronimo Services deployment plans. The imported plan
@@ -77,8 +74,13 @@
         </xs:annotation>
     </xs:import>
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/geronimo-jaspi" schemaLocation="geronimo-jaspi.xsd"/>
-  
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/geronimo-jaspi"/>
+    <!-- these might not be used -->
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/credentialstore-1.0"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/loginconfig-2.0"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security-2.0"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/subject-info-1.0"/>
+
     <xs:element name="web-app" type="tomcat:web-appType">
         <xs:annotation>
             <xs:documentation>
@@ -127,22 +129,22 @@
                 </xs:annotation>
             </xs:element>
 
-            <xs:element ref="app:clustering" minOccurs="0">
-                <xs:annotation>
-                    <xs:documentation>
-                        Reference to abstract clustering element defined in
-                        imported "geronimo-application-2.0.xsd"
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
+            <!--<xs:element ref="app:clustering" minOccurs="0">-->
+                <!--<xs:annotation>-->
+                    <!--<xs:documentation>-->
+                        <!--Reference to abstract clustering element defined in-->
+                        <!--imported "geronimo-application-2.0.xsd"-->
+                    <!--</xs:documentation>-->
+                <!--</xs:annotation>-->
+            <!--</xs:element>-->
 
             <!--<xs:element name="context-priority-classloader" type="xs:boolean" minOccurs="0"/>-->
 
-            <xs:element ref="naming:web-container" minOccurs="0">
+            <xs:element name="web-container" type="xs:string" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
-                        Reference to web-container element defined in imported
-                        "geronimo-naming-1.2.xsd"
+                        osgi filter to select the web container service to deploy to, should there be more than one.
+                        TODO may not be needed due to isolation?
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -265,27 +267,25 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element ref="app:security" minOccurs="0">
-                    <xs:annotation>
-                        <xs:documentation>
-                            Reference to security element defined in imported
-                            "geronimo-security-2.0.xsd"
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
+                <xs:choice minOccurs="0">
+                <xs:element ref="sec:security"/>
+                <xs:element ref="sec:security-ref"/>
+                </xs:choice>
             </xs:sequence>
 
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="sys:service">
-                    <xs:annotation>
-                        <xs:documentation>
-                            Reference to abstract service element defined in imported
-                            "geronimo-module-1.2.xsd"
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:any namespace="http://java.sun.com/xml/ns/persistence"/>
-            </xs:choice>
+            <xs:any namespace="http://java.sun.com/xml/ns/persistence" minOccurs="0" maxOccurs="unbounded"/>
+
+            <!--<xs:choice minOccurs="0" maxOccurs="unbounded">-->
+                <!--<xs:element ref="sys:service">-->
+                    <!--<xs:annotation>-->
+                        <!--<xs:documentation>-->
+                            <!--Reference to abstract service element defined in imported-->
+                            <!--"geronimo-module-1.2.xsd"-->
+                        <!--</xs:documentation>-->
+                    <!--</xs:annotation>-->
+                <!--</xs:element>-->
+                <!--<xs:any namespace="http://java.sun.com/xml/ns/persistence"/>-->
+            <!--</xs:choice>-->
         </xs:sequence>
     </xs:complexType>
 

@@ -1,0 +1,17 @@
+PUBLIC "http://geronimo.apache.org/xml/ns/deployment-1.2" "classpath:geronimo-module-1.2.xsd"
+
+PUBLIC "http://geronimo.apache.org/xml/ns/naming-1.2" "classpath:geronimo-naming-1.2.xsd"
+--
+PUBLIC "http://geronimo.apache.org/xml/ns/j2ee/application-2.0" "classpath:geronimo-application-2.0.xsd"
+--
+PUBLIC "http://geronimo.apache.org/xml/ns/geronimo-jaspi" "classpath:geronimo-jaspi.xsd"
+
+PUBLIC "http://geronimo.apache.org/xml/ns/credentialstore-1.0" "classpath:geronimo-credential-store-1.0.xsd"
+
+PUBLIC "http://geronimo.apache.org/xml/ns/loginconfig-2.0" "classpath:geronimo-login-config-2.0.xsd"
+
+PUBLIC "http://geronimo.apache.org/xml/ns/security-2.0" "classpath:geronimo-security-2.0.xsd"
+
+PUBLIC "http://geronimo.apache.org/xml/ns/subject-info-1.0" "classpath:geronimo-subject-info.1.0.xsd"
+
+

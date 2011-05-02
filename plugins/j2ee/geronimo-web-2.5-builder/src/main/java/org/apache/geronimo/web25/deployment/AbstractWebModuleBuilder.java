@@ -401,19 +401,19 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     }
 
-    protected abstract void preInitContext(EARContext earContext, WebModule module, Bundle bundle) throws DeploymentException;
+    protected abstract void preInitContext(EARContext earContext, WebModule<WebAppType> module, Bundle bundle) throws DeploymentException;
 
-    protected abstract void postInitContext(EARContext earContext, WebModule module, Bundle bundle) throws DeploymentException;
+    protected abstract void postInitContext(EARContext earContext, WebModule<WebAppType> module, Bundle bundle) throws DeploymentException;
 
     @Override
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
-        WebModule webModule = (WebModule)module;
+        WebModule<WebAppType> webModule = (WebModule<WebAppType>)module;
         preInitContext(earContext, webModule, bundle);
         basicInitContext(earContext, webModule, bundle, module.getVendorDD());
         postInitContext(earContext, webModule, bundle);
     }
 
-    protected void basicInitContext(EARContext earContext, WebModule webModule, Bundle bundle, Object gerWebApp) throws DeploymentException {
+    protected void basicInitContext(EARContext earContext, WebModule<WebAppType> webModule, Bundle bundle, Object gerWebApp) throws DeploymentException {
         //complete manifest classpath
         EARContext moduleContext = webModule.getEarContext();
         Collection<String> manifestcp = webModule.getClassPath();
@@ -422,7 +422,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         URI resolutionUri = invertURI(baseUri);
         earContext.getCompleteManifestClassPath(webModule.getDeployable(), baseUri, resolutionUri, manifestcp, moduleLocations);
         //Security Configuration Validation
-        WebApp webApp = (WebApp) webModule.getSpecDD();
+        WebApp webApp = webModule.getSpecDD();
         boolean hasSecurityRealmName = (Boolean) webModule.getEarContext().getGeneralData().get(WEB_MODULE_HAS_SECURITY_REALM);
         if ((!webApp.getSecurityConstraint().isEmpty() || !webApp.getSecurityRole().isEmpty())) {
             if (!hasSecurityRealmName) {
@@ -440,7 +440,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 //        }
 
         //Process Naming
-        getNamingBuilders().buildEnvironment(webApp, (JndiPlan)webModule.getVendorDD(), webModule.getEnvironment());
+        getNamingBuilders().buildEnvironment(webApp, webModule.getVendorDD(), webModule.getEnvironment());
         getNamingBuilders().initContext(webApp, (JndiPlan)gerWebApp, webModule);
 
         float originalSpecDDVersion;
