@@ -26,12 +26,11 @@ import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.jee.WebApp;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
  */
-public class WebModule extends Module<WebApp, XmlObject> {
+public class WebModule<U> extends Module<WebApp, U> {
     private final String contextRoot;
     public static final String WEB_APP_DATA = "WEB_APP_DATA";
     public static final String WEB_APP_INFO = "WEB_APP_INFO";
@@ -43,7 +42,7 @@ public class WebModule extends Module<WebApp, XmlObject> {
                      JarFile moduleFile,
                      String targetPath,
                      WebApp specDD,
-                     XmlObject vendorDD,
+                     U vendorDD,
                      String originalSpecDD,
                      String contextRoot,
                      String namespace,
@@ -60,7 +59,7 @@ public class WebModule extends Module<WebApp, XmlObject> {
                      Deployable deployable,
                      String targetPath,
                      WebApp specDD,
-                     XmlObject vendorDD,
+                     U vendorDD,
                      String originalSpecDD,
                      String contextRoot,
                      String namespace,

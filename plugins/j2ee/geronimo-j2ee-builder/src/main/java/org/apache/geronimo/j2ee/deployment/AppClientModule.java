@@ -24,14 +24,13 @@ import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.jee.ApplicationClient;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * TODO there is almost certainly a problem with the serverEnvironment when deploying a stand alone app client outside an ear.
  *
  * @version $Rev$ $Date$
  */
-public class AppClientModule extends Module<ApplicationClient, XmlObject> {
+public class AppClientModule<U> extends Module<ApplicationClient, U> {
     private final Environment serverEnvironment;
     private JarFile earFile;
     private final AbstractName appClientName;
@@ -47,7 +46,7 @@ public class AppClientModule extends Module<ApplicationClient, XmlObject> {
                            String targetPath, 
                            ApplicationClient specDD, 
                            String mainClassName, 
-                           XmlObject vendorDD, 
+                           U vendorDD,
                            String originalSpecDD,
                            Map<JndiKey, Map<String, Object>> jndiContext,
                            Module<?, ?> parentModule) {

@@ -32,7 +32,6 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
@@ -47,10 +46,6 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.schema.ElementConverter;
-import org.apache.geronimo.schema.NamespaceElementConverter;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.schema.SecurityElementConverter;
 import org.apache.geronimo.security.SecurityNames;
 import org.apache.geronimo.security.credentialstore.CredentialStore;
 import org.apache.geronimo.security.deploy.PrincipalInfo;
@@ -99,13 +94,13 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
         NAMESPACE_UPDATES.put("http://geronimo.apache.org/xml/ns/security-1.2", "http://geronimo.apache.org/xml/ns/security-2.0");
     }
 
-    private static final Map<String, ElementConverter> GERONIMO_SCHEMA_CONVERSIONS = new HashMap<String, ElementConverter>();
-
-    static {
-        GERONIMO_SCHEMA_CONVERSIONS.put("security", new SecurityElementConverter());
-        GERONIMO_SCHEMA_CONVERSIONS.put("security-ref", new NamespaceElementConverter(GERONIMO_SECURITY_NAMESPACE));
-        GERONIMO_SCHEMA_CONVERSIONS.put("default-subject", new NamespaceElementConverter(GERONIMO_SECURITY_NAMESPACE));
-    }
+//    private static final Map<String, ElementConverter> GERONIMO_SCHEMA_CONVERSIONS = new HashMap<String, ElementConverter>();
+//
+//    static {
+//        GERONIMO_SCHEMA_CONVERSIONS.put("security", new SecurityElementConverter());
+//        GERONIMO_SCHEMA_CONVERSIONS.put("security-ref", new NamespaceElementConverter(GERONIMO_SECURITY_NAMESPACE));
+//        GERONIMO_SCHEMA_CONVERSIONS.put("default-subject", new NamespaceElementConverter(GERONIMO_SECURITY_NAMESPACE));
+//    }
 
     private final AbstractNameQuery defaultCredentialStoreName;
     private final AbstractNameQuery defaultRoleMappingName;
@@ -120,13 +115,13 @@ public class GeronimoSecurityBuilderImpl implements NamespaceDrivenBuilder, Modu
     }
 
     public void doStart() {
-        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
-        SchemaConversionUtils.registerNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
+//        XmlBeansUtil.registerNamespaceUpdates(NAMESPACE_UPDATES);
+//        SchemaConversionUtils.registerNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
     }
 
     public void doStop() {
-        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
-        SchemaConversionUtils.unregisterNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
+//        XmlBeansUtil.unregisterNamespaceUpdates(NAMESPACE_UPDATES);
+//        SchemaConversionUtils.unregisterNamespaceConversions(GERONIMO_SCHEMA_CONVERSIONS);
     }
 
     public void doFail() {

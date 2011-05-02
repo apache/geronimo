@@ -42,7 +42,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.schema.NamespaceElementConverter;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
 import org.osgi.framework.Bundle;
@@ -58,8 +57,8 @@ public abstract class AbstractNamingBuilder implements NamingBuilder {
 //    protected static final QName BASE_NAMING_QNAME = GerAbstractNamingEntryType.type.getDocumentElementName();
     protected static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
     protected static final String JEE_NAMESPACE = "http://java.sun.com/xml/ns/javaee";
-    protected static final NamespaceElementConverter J2EE_CONVERTER = new NamespaceElementConverter(J2EE_NAMESPACE);
-    protected static final NamespaceElementConverter JEE_CONVERTER = new NamespaceElementConverter(JEE_NAMESPACE);
+//    protected static final NamespaceElementConverter J2EE_CONVERTER = new NamespaceElementConverter(J2EE_NAMESPACE);
+//    protected static final NamespaceElementConverter JEE_CONVERTER = new NamespaceElementConverter(JEE_NAMESPACE);
 //    protected static final NamespaceElementConverter NAMING_CONVERTER = new NamespaceElementConverter(GerAbstractNamingEntryDocument.type.getDocumentElementName().getNamespaceURI());
 
     private final Environment defaultEnvironment;

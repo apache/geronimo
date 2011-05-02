@@ -35,7 +35,6 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
@@ -223,29 +222,13 @@ public class LoginConfigBuilder {
 
     public static final GBeanInfo GBEAN_INFO;
 
-    private static final GReferenceInfo USE_REFERENCE_INFO;
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LoginConfigBuilder.class, "XmlReferenceBuilder");
         infoBuilder.addAttribute("kernel", Kernel.class, false, false);
         infoBuilder.addReference("xmlAttributeBuilders", XmlAttributeBuilder.class, "XmlAttributeBuilder");
         infoBuilder.setConstructor(new String[]{"kernel", "xmlAttributeBuilders"});
-        infoBuilder.addInterface(XmlReferenceBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
-
-        Set<GReferenceInfo> referenceInfos = JaasLoginModuleUse.GBEAN_INFO.getReferences();
-        GReferenceInfo found = null;
-        for (GReferenceInfo testReferenceInfo : referenceInfos) {
-            String testRefName = testReferenceInfo.getName();
-            if (testRefName.equals("LoginModule")) {
-                found = testReferenceInfo;
-                break;
-            }
-        }
-        if (found == null) {
-            throw new RuntimeException("Someone changed the gbeaninfo on JaasLoginModuleUse");
-        }
-        USE_REFERENCE_INFO = found;
 
     }
 

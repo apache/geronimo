@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.deployment.service;
 
-import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.common.DeploymentException;
 import org.osgi.framework.Bundle;
 

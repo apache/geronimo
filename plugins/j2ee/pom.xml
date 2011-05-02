@@ -39,17 +39,17 @@
         <module>geronimo-j2ee-builder</module>
         <module>javaee-builder-support</module>
         <module>j2ee-deployer</module>
-        <module>geronimo-j2ee-schema</module>
+        <!--<module>geronimo-j2ee-schema</module>-->
         <module>geronimo-naming-builder</module>
         <module>geronimo-security-builder</module>
-        <module>geronimo-test-ddbean</module>
+        <!--<module>geronimo-test-ddbean</module>-->
         <module>geronimo-web</module>
         <module>geronimo-web-2.5-builder</module>
         <module>j2ee-server</module>
-        <module>jsr88-ear-configurer</module>
-        <module>jsr88-jar-configurer</module>
-        <module>jsr88-rar-configurer</module>
-        <module>jsr88-war-configurer</module>
+        <!--<module>jsr88-ear-configurer</module>-->
+        <!--<module>jsr88-jar-configurer</module>-->
+        <!--<module>jsr88-rar-configurer</module>-->
+        <!--<module>jsr88-war-configurer</module>-->
     </modules>
         
 

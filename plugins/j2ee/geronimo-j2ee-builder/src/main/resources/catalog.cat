@@ -1,0 +1,3 @@
+PUBLIC "http://geronimo.apache.org/xml/ns/deployment-1.2" "classpath:geronimo-module-1.2.xsd"
+
+-- REWRITE_SYSTEM "geronimo-module-1.2.xsd" "classpath:geronimo-module-1.2.xsd"

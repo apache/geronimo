@@ -46,7 +46,6 @@ import org.apache.openejb.jee.EnvEntry;
 import org.apache.openejb.jee.InjectionTarget;
 import org.apache.openejb.jee.JndiConsumer;
 import org.apache.openejb.jee.Text;
-import org.apache.xmlbeans.QNameSet;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -214,9 +213,6 @@ public class EnvironmentEntryBuilder extends AbstractNamingBuilder {
 //        return envEntryQNameSet;
 //    }
 
-    public QNameSet getPlanQNameSet() {
-        return QNameSet.EMPTY;
-    }
 
     public static class EnvEntryRefProcessor extends ResourceAnnotationHelper.ResourceProcessor {
 

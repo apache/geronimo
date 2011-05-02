@@ -41,11 +41,9 @@ import javax.security.auth.message.module.ServerAuthModule;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.components.jaspi.model.AuthModuleType;
 import org.apache.geronimo.components.jaspi.model.ConfigProviderType;
@@ -55,13 +53,13 @@ import org.apache.geronimo.components.jaspi.model.ServerAuthContextType;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilder;
 import org.apache.geronimo.deployment.NamespaceDrivenBuilderCollection;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.annotation.Holder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.JndiPlan;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilderExtension;
@@ -81,7 +79,6 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.util.FileUtils;
 import org.apache.geronimo.naming.deployment.ResourceEnvironmentSetter;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -92,8 +89,8 @@ import org.apache.geronimo.security.jaspi.ServerAuthModuleGBean;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web.security.SpecSecurityBuilder;
 import org.apache.geronimo.web25.deployment.merge.MergeHelper;
-import org.apache.geronimo.web25.deployment.security.AuthenticationWrapper;
-import org.apache.geronimo.xbeans.geronimo.j2ee.GerSecurityDocument;
+import org.apache.geronimo.web25.deployment.model.AuthenticationType;
+import org.apache.geronimo.web25.deployment.model.WebAppType;
 import org.apache.openejb.jee.Filter;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.Listener;
@@ -102,16 +99,12 @@ import org.apache.openejb.jee.ServletMapping;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.AbstractFinder;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 /**
  * @version $Rev$ $Date$
@@ -211,8 +204,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected final NamingBuilder namingBuilders;
 
     protected final Collection<ModuleBuilderExtension> moduleBuilderExtensions;
-
-    private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
 
     private final PackageAdmin packageAdmin;
 
@@ -342,7 +333,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             Artifact earConfigId = earContext.getConfigID();
             Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
             environment.setConfigId(configId);
-            environment.addDependency(earConfigId, ImportType.ALL);
+//            environment.addDependency(earConfigId, ImportType.ALL);
             File configurationDir = new File(earContext.getBaseDir(), module.getTargetPath());
             configurationDir.mkdirs();
             // construct the web app deployment context... this is the same class used by the ear context
@@ -418,11 +409,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     public void initContext(EARContext earContext, Module module, Bundle bundle) throws DeploymentException {
         WebModule webModule = (WebModule)module;
         preInitContext(earContext, webModule, bundle);
-        basicInitContext(earContext, webModule, bundle, (XmlObject) module.getVendorDD());
+        basicInitContext(earContext, webModule, bundle, module.getVendorDD());
         postInitContext(earContext, webModule, bundle);
     }
 
-    protected void basicInitContext(EARContext earContext, WebModule webModule, Bundle bundle, XmlObject gerWebApp) throws DeploymentException {
+    protected void basicInitContext(EARContext earContext, WebModule webModule, Bundle bundle, Object gerWebApp) throws DeploymentException {
         //complete manifest classpath
         EARContext moduleContext = webModule.getEarContext();
         Collection<String> manifestcp = webModule.getClassPath();
@@ -431,7 +422,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         URI resolutionUri = invertURI(baseUri);
         earContext.getCompleteManifestClassPath(webModule.getDeployable(), baseUri, resolutionUri, manifestcp, moduleLocations);
         //Security Configuration Validation
-        WebApp webApp = webModule.getSpecDD();
+        WebApp webApp = (WebApp) webModule.getSpecDD();
         boolean hasSecurityRealmName = (Boolean) webModule.getEarContext().getGeneralData().get(WEB_MODULE_HAS_SECURITY_REALM);
         if ((!webApp.getSecurityConstraint().isEmpty() || !webApp.getSecurityRole().isEmpty())) {
             if (!hasSecurityRealmName) {
@@ -443,14 +434,14 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             earContext.setHasSecurity(true);
         }
         //TODO think about how to provide a default security realm name
-        XmlObject[] securityElements = XmlBeansUtil.selectSubstitutionGroupElements(SECURITY_QNAME, gerWebApp);
-        if (securityElements.length > 0 && !hasSecurityRealmName) {
-            throw new DeploymentException("You have supplied a security configuration for web app " + webModule.getName() + " but no security-realm-name to allow login");
-        }
+//         securityElements = XmlBeansUtil.selectSubstitutionGroupElements(SECURITY_QNAME, gerWebApp);
+//        if (securityElements.length > 0 && !hasSecurityRealmName) {
+//            throw new DeploymentException("You have supplied a security configuration for web app " + webModule.getName() + " but no security-realm-name to allow login");
+//        }
 
         //Process Naming
-        getNamingBuilders().buildEnvironment(webApp, webModule.getVendorDD(), webModule.getEnvironment());
-        getNamingBuilders().initContext(webApp, gerWebApp, webModule);
+        getNamingBuilders().buildEnvironment(webApp, (JndiPlan)webModule.getVendorDD(), webModule.getEnvironment());
+        getNamingBuilders().initContext(webApp, (JndiPlan)gerWebApp, webModule);
 
         float originalSpecDDVersion;
         String originalSpecDD = webModule.getOriginalSpecDD();
@@ -488,38 +479,39 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
      */
     private float identifySpecDDSchemaVersion(String originalSpecDD) {
         float schemaVersion = 0f;
-        XmlCursor cursor = null;
-        try {
-            cursor = XmlBeansUtil.parse(originalSpecDD).newCursor();
-            cursor.toStartDoc();
-            cursor.toFirstChild();
-            String nameSpaceURI = cursor.getName().getNamespaceURI();
-            if (nameSpaceURI != null && nameSpaceURI.length() > 0) {
-                String version = cursor.getAttributeText(new QName("", "version"));
-                if (version != null) {
-                    schemaVersion = Float.parseFloat(version);
-                }
-            } else {
-                XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
-                String publicId = xmlDocumentProperties.getDoctypePublicId();
-                if ("-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) {
-                    schemaVersion = 2.2f;
-                } else if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId)) {
-                    schemaVersion = 2.3f;
-                }
-            }
-        } catch (Exception e) {
-            log.error("Fail to identify web.xml schema version", e);
-            //Should never happen, as we have checked the deployment plan  in the previous code
-        } finally {
-            if (cursor != null) {
-                try {
-                    cursor.dispose();
-                } catch (Exception e) {
-                    //ignore
-                }
-            }
-        }
+        //TODO figure this out at a better time!!
+//        XmlCursor cursor = null;
+//        try {
+//            cursor = XmlBeansUtil.parse(originalSpecDD).newCursor();
+//            cursor.toStartDoc();
+//            cursor.toFirstChild();
+//            String nameSpaceURI = cursor.getName().getNamespaceURI();
+//            if (nameSpaceURI != null && nameSpaceURI.length() > 0) {
+//                String version = cursor.getAttributeText(new QName("", "version"));
+//                if (version != null) {
+//                    schemaVersion = Float.parseFloat(version);
+//                }
+//            } else {
+//                XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
+//                String publicId = xmlDocumentProperties.getDoctypePublicId();
+//                if ("-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) {
+//                    schemaVersion = 2.2f;
+//                } else if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId)) {
+//                    schemaVersion = 2.3f;
+//                }
+//            }
+//        } catch (Exception e) {
+//            log.error("Fail to identify web.xml schema version", e);
+//            //Should never happen, as we have checked the deployment plan  in the previous code
+//        } finally {
+//            if (cursor != null) {
+//                try {
+//                    cursor.dispose();
+//                } catch (Exception e) {
+//                    //ignore
+//                }
+//            }
+//        }
         return schemaVersion;
     }
 
@@ -528,54 +520,33 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return builder.buildSpecSecurityConfig();
     }
 
-    protected void configureLocalJaspicProvider(AuthenticationWrapper authType, String contextPath, Module module, GBeanData securityFactoryData) throws DeploymentException,
+    protected void configureLocalJaspicProvider(AuthenticationType authType, String contextPath, Module module, GBeanData securityFactoryData) throws DeploymentException,
             GBeanAlreadyExistsException {
         EARContext moduleContext = module.getEarContext();
         GBeanData authConfigProviderData = null;
         AbstractName providerName = moduleContext.getNaming().createChildName(module.getModuleName(), "authConfigProvider", GBeanInfoBuilder.DEFAULT_J2EE_TYPE);
         try {
-            if (authType.isSetConfigProvider()) {
+            if (authType.getConfigProvider() != null) {
                 authConfigProviderData = new GBeanData(providerName, AuthConfigProviderGBean.class);
-                final XmlCursor xmlCursor = authType.getConfigProvider().newCursor();
-                try {
-                    XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
-                    ConfigProviderType configProviderType = JaspiXmlUtil.loadConfigProvider(reader);
+                    ConfigProviderType configProviderType = authType.getConfigProvider();
                     StringWriter out = new StringWriter();
                     JaspiXmlUtil.writeConfigProvider(configProviderType, out);
                     authConfigProviderData.setAttribute("config", out.toString());
-                } finally {
-                    xmlCursor.dispose();
-                }
-            } else if (authType.isSetServerAuthConfig()) {
+            } else if (authType.getServerAuthConfig() != null) {
                 authConfigProviderData = new GBeanData(providerName, ServerAuthConfigGBean.class);
-                final XmlCursor xmlCursor = authType.getServerAuthConfig().newCursor();
-                try {
-                    XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
-                    ServerAuthConfigType serverAuthConfigType = JaspiXmlUtil.loadServerAuthConfig(reader);
+                    ServerAuthConfigType serverAuthConfigType = authType.getServerAuthConfig();
                     StringWriter out = new StringWriter();
                     JaspiXmlUtil.writeServerAuthConfig(serverAuthConfigType, out);
                     authConfigProviderData.setAttribute("config", out.toString());
-                } finally {
-                    xmlCursor.dispose();
-                }
-            } else if (authType.isSetServerAuthContext()) {
+            } else if (authType.getServerAuthContext() != null) {
                 authConfigProviderData = new GBeanData(providerName, ServerAuthContextGBean.class);
-                final XmlCursor xmlCursor = authType.getServerAuthContext().newCursor();
-                try {
-                    XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
-                    ServerAuthContextType serverAuthContextType = JaspiXmlUtil.loadServerAuthContext(reader);
+                    ServerAuthContextType serverAuthContextType = authType.getServerAuthContext();
                     StringWriter out = new StringWriter();
                     JaspiXmlUtil.writeServerAuthContext(serverAuthContextType, out);
                     authConfigProviderData.setAttribute("config", out.toString());
-                } finally {
-                    xmlCursor.dispose();
-                }
-            } else if (authType.isSetServerAuthModule()) {
+            } else if (authType.getServerAuthModule() != null) {
                 authConfigProviderData = new GBeanData(providerName, ServerAuthModuleGBean.class);
-                final XmlCursor xmlCursor = authType.getServerAuthModule().newCursor();
-                try {
-                    XMLStreamReader reader = new InternWrapper(xmlCursor.newXMLStreamReader());
-                    AuthModuleType<ServerAuthModule> authModuleType = JaspiXmlUtil.loadServerAuthModule(reader);
+                    AuthModuleType<ServerAuthModule> authModuleType = authType.getServerAuthModule();
                     StringWriter out = new StringWriter();
                     JaspiXmlUtil.writeServerAuthModule(authModuleType, out);
                     authConfigProviderData.setAttribute("config", out.toString());
@@ -583,16 +554,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                     authConfigProviderData.setAttribute("appContext", "server " + contextPath);
                     //TODO ??
                     authConfigProviderData.setAttribute("authenticationID", contextPath);
-                } finally {
-                    xmlCursor.dispose();
-                }
             }
-        } catch (ParserConfigurationException e) {
-            throw new DeploymentException("Could not read auth config", e);
-        } catch (IOException e) {
-            throw new DeploymentException("Could not read auth config", e);
-        } catch (SAXException e) {
-            throw new DeploymentException("Could not read auth config", e);
         } catch (JAXBException e) {
             throw new DeploymentException("Could not read auth config", e);
         } catch (XMLStreamException e) {
@@ -646,11 +608,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         }
     }
 
-    protected void configureBasicWebModuleAttributes(WebApp webApp, XmlObject vendorPlan, EARContext moduleContext, EARContext earContext, WebModule webModule, GBeanData webModuleData)
+    protected void configureBasicWebModuleAttributes(WebApp webApp, WebAppType vendorPlan, EARContext moduleContext, EARContext earContext, WebModule webModule, GBeanData webModuleData)
             throws DeploymentException {
         Map<EARContext.Key, Object> buildingContext = new HashMap<EARContext.Key, Object>();
         buildingContext.put(NamingBuilder.GBEAN_NAME_KEY, moduleContext.getModuleName());
-        webModule.getJndiContext().get(JndiScope.module).put("module/ModuleName", webModule.getName());
+        webModule.getJndiScope(JndiScope.module).put("module/ModuleName", webModule.getName());
         if (!webApp.isMetadataComplete()) {
             // Create a classfinder and populate it for the naming builder(s). The absence of a
             // classFinder in the module will convey whether metadata-complete is set (or not)

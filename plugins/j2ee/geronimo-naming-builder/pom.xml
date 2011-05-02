@@ -100,24 +100,12 @@
                     <instructions>
                         <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
                         <Import-Package>
-                            org.apache.geronimo.deployment.xbeans.impl,
-                            org.apache.geronimo.deployment.javabean.xbeans.impl,
-                            org.apache.geronimo.deployment.xbeans,
-                            org.apache.geronimo.deployment.javabean.xbeans,
-                            org.apache.geronimo.deployment.dconfigbean,
                             org.apache.geronimo.deployment.service,
-                            org.apache.geronimo.deployment.service.jsr88,
-                            org.apache.xmlbeans.impl.schema;version="2.4",
                             *
                         </Import-Package>
                         <Export-Package>
-                            org.apache.geronimo.xbeans.geronimo.naming,
-                            org.apache.geronimo.xbeans.geronimo.naming.impl,
                             org.apache.geronimo.naming.deployment,
-                            org.apache.geronimo.naming.deployment.jsr88,
                         </Export-Package>
-                        <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
-                        <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

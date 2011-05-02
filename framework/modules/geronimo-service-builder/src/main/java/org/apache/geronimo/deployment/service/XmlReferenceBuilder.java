@@ -20,7 +20,6 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 
 /**
@@ -30,6 +29,6 @@ public interface XmlReferenceBuilder {
 
     String getNamespace();
 
-    ReferencePatterns getReferences(XmlObject xmlObject, DeploymentContext context, AbstractName moduleAbstractName, Bundle bundle) throws DeploymentException;
+    ReferencePatterns getReferences(Object xmlObject, DeploymentContext context, AbstractName moduleAbstractName, Bundle bundle) throws DeploymentException;
 
 }

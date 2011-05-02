@@ -32,7 +32,7 @@ import javax.xml.namespace.QName;
 public class ObjectFactory {
 
     private final static QName _CredentialStore_QNAME = new QName("http://geronimo.apache.org/xml/ns/security-2.0", "credential-store");
-    private final static QName _Security_QNAME = new QName("http://geronimo.apache.org/xml/ns/security-2.0", "security");
+    public final static QName _Security_QNAME = new QName("http://geronimo.apache.org/xml/ns/security-2.0", "security");
     private final static QName _DefaultSubject_QNAME = new QName("http://geronimo.apache.org/xml/ns/security-2.0", "default-subject");
     private final static QName _SecurityRef_QNAME = new QName("http://geronimo.apache.org/xml/ns/security-2.0", "security-ref");
 

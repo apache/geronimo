@@ -26,9 +26,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventHandler;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.XmlAttributeBuilder;
 import org.apache.geronimo.gbean.annotation.GBean;
@@ -36,7 +34,6 @@ import org.apache.geronimo.web25.deployment.DefaultWebAppInfoFactory;
 import org.apache.geronimo.web25.deployment.WebAppInfoBuilder;
 import org.apache.openejb.jee.JAXBContextFactory;
 import org.apache.openejb.jee.WebApp;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 
 /**
@@ -52,18 +49,19 @@ public class WebAppXmlAttributeBuilder implements XmlAttributeBuilder {
     }
 
     @Override
-    public Object getValue(XmlObject xmlObject, XmlObject enclosing, String s, Bundle bundle) throws DeploymentException {
-        try {
-            XMLStreamReader reader = enclosing.newXMLStreamReader();
-            while (reader.hasNext() && reader.next() != 1);
-            if (s.endsWith("WebAppInfo")) {
-                WebApp webApp = (WebApp) unmarshalJavaee(WebApp.class, reader);
-                return new WebAppInfoBuilder(webApp, new DefaultWebAppInfoFactory()).build();
-            }
-            throw new DeploymentException("Unrecognized xml: " + enclosing.xmlText());
-        } catch (XMLStreamException e) {
-            throw new DeploymentException("xml problem", e);
-        }
+    public Object getValue(Object xmlObject, Object enclosing, String s, Bundle bundle) throws DeploymentException {
+        return new WebAppInfoBuilder((WebApp)xmlObject, new DefaultWebAppInfoFactory()).build();
+//        try {
+//            XMLStreamReader reader = enclosing.newXMLStreamReader();
+//            while (reader.hasNext() && reader.next() != 1);
+//            if (s.endsWith("WebAppInfo")) {
+//                WebApp webApp = (WebApp) unmarshalJavaee(WebApp.class, reader);
+//                return new WebAppInfoBuilder(webApp, new DefaultWebAppInfoFactory()).build();
+//            }
+//            throw new DeploymentException("Unrecognized xml: " + enclosing.xmlText());
+//        } catch (XMLStreamException e) {
+//            throw new DeploymentException("xml problem", e);
+//        }
     }
 
     public static <T>Object unmarshalJavaee(Class<T> type, XMLStreamReader in) throws DeploymentException {

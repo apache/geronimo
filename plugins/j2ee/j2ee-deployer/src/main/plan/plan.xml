@@ -32,14 +32,14 @@
         <reference name="WebConfigBuilder">
             <name>WebBuilder</name>
         </reference>
-        <references name="ServiceBuilders">
-            <pattern>
-                <name>GBeanBuilder</name>
-            </pattern>
-            <pattern>
-                <name>SecurityBuilder</name>
-            </pattern>
-        </references>
+        <!--<references name="ServiceBuilders">-->
+            <!--<pattern>-->
+                <!--<name>GBeanBuilder</name>-->
+            <!--</pattern>-->
+            <!--<pattern>-->
+                <!--<name>SecurityBuilder</name>-->
+            <!--</pattern>-->
+        <!--</references>-->
         <references name="BValModuleBuilders">
             <pattern>
                 <name>BValModuleBuilderExtension</name>
@@ -75,17 +75,17 @@
         <reference name="ArtifactResolvers">
             <name>ArtifactResolver</name>
         </reference>
-        <xml-attribute name="defaultEnvironment">
-            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">
-                <dependencies>
-                    <dependency>
-                        <groupId>${pom.groupId}</groupId>
-                        <artifactId>j2ee-server</artifactId>
-                        <type>car</type>
-                    </dependency>
-                </dependencies>
-            </environment>
-        </xml-attribute>
+        <!--<xml-attribute name="defaultEnvironment">-->
+            <!--<environment xmlns="http://geronimo.apache.org/xml/ns/deployment-${geronimoSchemaVersion}">-->
+                <!--<dependencies>-->
+                    <!--<dependency>-->
+                        <!--<groupId>${pom.groupId}</groupId>-->
+                        <!--<artifactId>j2ee-server</artifactId>-->
+                        <!--<type>car</type>-->
+                    <!--</dependency>-->
+                <!--</dependencies>-->
+            <!--</environment>-->
+        <!--</xml-attribute>-->
     </gbean>
 
     <!-- web switching builder -->

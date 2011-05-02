@@ -16,8 +16,15 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.File;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.jar.JarFile;
+
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.ModuleIDBuilder;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -25,22 +32,10 @@ import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.osgi.framework.Bundle;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.jar.JarFile;
 
 /**
  * @version $Rev:386276 $ $Date$
@@ -107,32 +102,34 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
     }
 
     private String getNamespaceFromPlan(Object plan) throws DeploymentException {
-        XmlObject xmlObject;
-        if (plan instanceof File) {
-            try {
-                xmlObject = XmlBeansUtil.parse(((File) plan).toURI().toURL(), getClass().getClassLoader());
-            } catch (IOException e) {
-                throw new DeploymentException("Could not read plan file", e);
-            } catch (XmlException e) {
-                throw new DeploymentException("Plan file does not contain well formed xml", e);
-            }
-        } else if (plan instanceof XmlObject) {
-            xmlObject = (XmlObject) plan;
-        } else {
-            return defaultNamespace;
-        }
-        XmlCursor cursor = xmlObject.newCursor();
-        try {
-            while (cursor.hasNextToken()){
-                if (cursor.isStart()) {
-                    return cursor.getName().getNamespaceURI();
-                }
-                cursor.toNextToken();
-            }
-        } finally {
-            cursor.dispose();
-        }
-        throw new DeploymentException("Cannot find namespace in xmlObject: " + xmlObject.xmlText());
+        //TODO implement without xmlbeans
+        return null;
+//        XmlObject xmlObject;
+//        if (plan instanceof File) {
+//            try {
+//                xmlObject = XmlBeansUtil.parse(((File) plan).toURI().toURL(), getClass().getClassLoader());
+//            } catch (IOException e) {
+//                throw new DeploymentException("Could not read plan file", e);
+//            } catch (XmlException e) {
+//                throw new DeploymentException("Plan file does not contain well formed xml", e);
+//            }
+//        } else if (plan instanceof XmlObject) {
+//            xmlObject = (XmlObject) plan;
+//        } else {
+//            return defaultNamespace;
+//        }
+//        XmlCursor cursor = xmlObject.newCursor();
+//        try {
+//            while (cursor.hasNextToken()){
+//                if (cursor.isStart()) {
+//                    return cursor.getName().getNamespaceURI();
+//                }
+//                cursor.toNextToken();
+//            }
+//        } finally {
+//            cursor.dispose();
+//        }
+//        throw new DeploymentException("Cannot find namespace in xmlObject: " + xmlObject.xmlText());
     }
 
     private ModuleBuilder getBuilderFromNamespace(String namespace) {

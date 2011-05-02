@@ -16,15 +16,7 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.testsupport.XmlBeansTestSupport;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
+import junit.framework.TestCase;
 
 /**
  * ejb 1.1 dtd appears to be a subset of ejb 2.0 dtd so the same xsl should
@@ -32,7 +24,7 @@ import org.apache.xmlbeans.XmlObject;
  *
  * @version $Rev$ $Date$
  */
-public class SchemaConversionTest extends XmlBeansTestSupport {
+public class SchemaConversionTest extends TestCase {
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
 

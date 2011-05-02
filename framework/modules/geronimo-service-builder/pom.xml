@@ -101,7 +101,7 @@
                         </Import-Package>
                         <Export-Package>
                             org.apache.geronimo.deployment.dconfigbean,
-                            org.apache.geronimo.deployment.service,
+                            org.apache.geronimo.deployment.service.*,
                         </Export-Package>
                     </instructions>
                 </configuration>
@@ -118,22 +118,37 @@
             <id>jaxb</id>
             <build>
                 <plugins>
+                    <!--<plugin>-->
+                        <!--<groupId>org.codehaus.mojo</groupId>-->
+                        <!--<artifactId>jaxb2-maven-plugin</artifactId>-->
+                        <!--&lt;!&ndash;<version>1.3</version>&ndash;&gt;-->
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<goals>-->
+                                    <!--<goal>xjc</goal>-->
+                                <!--</goals>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
+                        <!--<configuration>-->
+                            <!--<schemaDirectory>src/main/xsd</schemaDirectory>-->
+                            <!--<packageName>org.apache.geronimo.deployment.service.plan</packageName>-->
+                            <!--&lt;!&ndash;<schemaListFileName>src/main/xsdlist/xsdlist.txt</schemaListFileName>&ndash;&gt;-->
+                            <!--<extension>true</extension>-->
+                        <!--</configuration>-->
+                    <!--</plugin>-->
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>jaxb2-maven-plugin</artifactId>
-                        <!--<version>1.3</version>-->
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>xjc</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+                        <groupId>org.jvnet.jaxb2.maven2</groupId>
+                        <artifactId>maven-jaxb2-plugin</artifactId>
                         <configuration>
-                            <schemaDirectory>src/main/xsd</schemaDirectory>
-                            <packageName>org.apache.geronimo.deployment.service.plan</packageName>
-                            <!--<schemaListFileName>src/main/xsdlist/xsdlist.txt</schemaListFileName>-->
-                            <extension>true</extension>
+                            <generatePackage>org.apache.geronimo.deployment.service.plan</generatePackage>
+                            <!--<episodes>-->
+                                <!--<episode>-->
+                                    <!--<groupId>com.acme.foo</groupId>-->
+                                    <!--<artifactId>a-schema</artifactId>-->
+                                    <!--&lt;!&ndash; Version is not required if the artifact is-->
+                                        <!--configured as dependency &ndash;&gt;-->
+                                <!--</episode>-->
+                            <!--</episodes>-->
                         </configuration>
                     </plugin>
 

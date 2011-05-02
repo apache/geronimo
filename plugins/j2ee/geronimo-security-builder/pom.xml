@@ -103,29 +103,56 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
-                    <instructions>
-                        <!--packages containing "impl" or "internal" are excluded by default -->
-                        <Export-Package>
-                            org.apache.geronimo.security.deployment,
-                            org.apache.geronimo.xml.ns.security12,
-                            org.apache.geronimo.xml.ns.security12.impl,
-                        </Export-Package>
-                        <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
-                        <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
-                        <Import-Package>
-                            org.apache.geronimo.deployment.dconfigbean,
-                            org.apache.geronimo.deployment.service,
-                            org.apache.geronimo.deployment.service.jsr88,
-                            org.apache.geronimo.j2ee.deployment,
-                            org.apache.geronimo.j2ee.deployment.annotation,
-                            org.apache.geronimo.j2ee.jsr88,
-                            *
-                        </Import-Package>
-                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                    </instructions>
+                    <!--<instructions>-->
+                        <!--&lt;!&ndash;packages containing "impl" or "internal" are excluded by default &ndash;&gt;-->
+                        <!--<Export-Package>-->
+                            <!--org.apache.geronimo.security.deployment,-->
+                            <!--*-->
+                        <!--</Export-Package>-->
+                        <!--<Import-Package>-->
+                            <!--org.apache.geronimo.deployment.service,-->
+                            <!--org.apache.geronimo.j2ee.deployment,-->
+                            <!--org.apache.geronimo.j2ee.deployment.annotation,-->
+                            <!--*-->
+                        <!--</Import-Package>-->
+                        <!--&lt;!&ndash;<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>&ndash;&gt;-->
+                    <!--</instructions>-->
                 </configuration>
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>jaxb</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jvnet.jaxb2.maven2</groupId>
+                        <artifactId>maven-jaxb2-plugin</artifactId>
+                        <configuration>
+                            <debug>true</debug>
+                            <verbose>true</verbose>
+                            <!--<generatePackage>org.apache.geronimo.j2ee.deployment.model</generatePackage>-->
+                            <!--<catalog>src/main/resources/catalog.cat</catalog>-->
+                            <!--<catalogResolver>org.jvnet.jaxb2.maven2.resolver.tools.ClasspathCatalogResolver</catalogResolver>-->
+                            <!--<episodes>-->
+                                <!--<episode>-->
+                                    <!--<groupId>org.apache.geronimo.framework</groupId>-->
+                                    <!--<artifactId>geronimo-service-builder</artifactId>-->
+                                <!--</episode>-->
+                            <!--</episodes>-->
+                            <!--<plugins>-->
+                                <!--<plugin>-->
+                                    <!--<groupId>org.apache.geronimo.framework</groupId>-->
+                                    <!--<artifactId>geronimo-service-builder</artifactId>-->
+                                <!--</plugin>-->
+                            <!--</plugins>-->
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

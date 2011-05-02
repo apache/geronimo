@@ -24,7 +24,6 @@ import org.apache.geronimo.j2ee.jndi.JndiKey;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.openejb.jee.EjbJar;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$

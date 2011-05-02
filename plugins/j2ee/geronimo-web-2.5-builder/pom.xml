@@ -41,7 +41,16 @@
         </dependency>
 
         <dependency>
-            <!-- g-schema-jee_5 comes via g-j2ee-builder from this -->
+            <groupId>org.apache.geronimo.framework</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${project.version}</version>
@@ -89,57 +98,98 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xmlbeans-maven-plugin</artifactId>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>jaxb2-maven-plugin</artifactId>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>xjc</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+                <!--<configuration>-->
+                    <!--<packageName>org.apache.geronimo.web25.deployment.model</packageName>-->
+                    <!--<extension>true</extension>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
-                    <instructions>
-                        <!--packages containing "impl" or "internal" are excluded by default -->
-                        <Export-Package>
-                            org.apache.geronimo.web.deployment,
-                            org.apache.geronimo.web25.deployment,
-                            org.apache.geronimo.web25.deployment.security,
-                            org.apache.geronimo.xbeans.geronimo.web,
-                            org.apache.geronimo.xbeans.geronimo.web.impl,
-                            org.apache.geronimo.web25.deployment.merge,
-                            org.apache.geronimo.web25.deployment.merge.annotation,
-                            org.apache.geronimo.web25.deployment.merge.webfragment,
-                            org.apache.geronimo.web25.deployment.utils
-                        </Export-Package>
-                        <_exportcontents>schemaorg_apache_xmlbeans*</_exportcontents>
-                        <DynamicImport-Package>schemaorg_apache_xmlbeans.*</DynamicImport-Package>
-                        <Import-Package>
-                            org.apache.geronimo.deployment.xbeans.impl,
-                            org.apache.geronimo.deployment.javabean.xbeans.impl,
-                            org.apache.geronimo.deployment.xbeans,
-                            org.apache.geronimo.deployment.javabean.xbeans,
-                            org.apache.geronimo.deployment.dconfigbean,
-                            org.apache.geronimo.deployment.service,
-                            org.apache.geronimo.deployment.service.jsr88,
-                            org.apache.xmlbeans.impl.schema;version="2.4",
-                            org.apache.geronimo.xbeans.geronimo.j2ee,
-                            org.apache.geronimo.xbeans.geronimo.j2ee.impl,
-                            org.apache.geronimo.j2ee.deployment,
-                            org.apache.geronimo.j2ee.deployment.annotation,
-                            org.apache.geronimo.j2ee.jsr88,
-                            org.apache.geronimo.xbeans.geronimo.naming,
-                            org.apache.geronimo.xbeans.geronimo.naming.impl,
-                            org.apache.geronimo.naming.deployment,
-                            org.apache.geronimo.naming.deployment.jsr88,
-                            org.apache.geronimo.xbeans.geronimo.jaspi,
-                            org.apache.geronimo.xbeans.geronimo.jaspi.impl,
-                            *
-                        </Import-Package>
-                        <!--<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>-->
-                    </instructions>
+                    <!--<instructions>-->
+                        <!--&lt;!&ndash;packages containing "impl" or "internal" are excluded by default &ndash;&gt;-->
+                        <!--<Export-Package>-->
+                            <!--org.apache.geronimo.web.deployment,-->
+                            <!--org.apache.geronimo.web25.deployment,-->
+                            <!--org.apache.geronimo.web25.deployment.security,-->
+                            <!--org.apache.geronimo.web25.deployment.merge,-->
+                            <!--org.apache.geronimo.web25.deployment.merge.annotation,-->
+                            <!--org.apache.geronimo.web25.deployment.merge.webfragment,-->
+                            <!--org.apache.geronimo.web25.deployment.utils-->
+                        <!--</Export-Package>-->
+                        <!--<Import-Package>-->
+                            <!--org.apache.geronimo.deployment.service,-->
+                            <!--org.apache.geronimo.j2ee.deployment,-->
+                            <!--org.apache.geronimo.j2ee.deployment.annotation,-->
+                            <!--org.apache.geronimo.naming.deployment,-->
+                            <!--*-->
+                        <!--</Import-Package>-->
+                        <!--&lt;!&ndash;<_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>&ndash;&gt;-->
+                    <!--</instructions>-->
                 </configuration>
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>jaxb</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jvnet.jaxb2.maven2</groupId>
+                        <artifactId>maven-jaxb2-plugin</artifactId>
+                        <configuration>
+                            <debug>true</debug>
+                            <verbose>true</verbose>
+                            <generatePackage>org.apache.geronimo.web25.deployment.model</generatePackage>
+                            <catalog>src/main/resources/catalog.cat</catalog>
+                            <catalogResolver>org.jvnet.jaxb2.maven2.resolver.tools.ClasspathCatalogResolver</catalogResolver>
+                            <episodes>
+                                <episode>
+                                    <groupId>org.apache.geronimo.framework</groupId>
+                                    <artifactId>geronimo-service-builder</artifactId>
+                                </episode>
+                                <episode>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-j2ee-builder</artifactId>
+                                </episode>
+                                <episode>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-security-builder</artifactId>
+                                </episode>
+                            </episodes>
+                            <plugins>
+                                <plugin>
+                                    <groupId>org.apache.geronimo.framework</groupId>
+                                    <artifactId>geronimo-service-builder</artifactId>
+                                </plugin>
+                                <plugin>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-j2ee-builder</artifactId>
+                                </plugin>
+                                <plugin>
+                                    <groupId>org.apache.geronimo.modules</groupId>
+                                    <artifactId>geronimo-security-builder</artifactId>
+                                </plugin>
+                            </plugins>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
 

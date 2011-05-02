@@ -17,12 +17,22 @@
 -->
 
 <xs:schema
-    xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
-    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
-    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
-    attributeFormDefault="unqualified" version="1.0">
+        xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-2.0" xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+        targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-2.0"
+        xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.2"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+        attributeFormDefault="unqualified" version="1.0"
+        jxb:version="2.1">
 
+    <xs:annotation>
+       <xs:appinfo>
+           <jxb:bindings schemaLocation="geronimo-application-2.0.xsd" node="/xs:schema">
+               <jxb:schemaBindings>
+                  <jxb:package name="org.apache.geronimo.j2ee.deployment.model.app"/>
+               </jxb:schemaBindings>
+           </jxb:bindings>
+       </xs:appinfo>
+    </xs:annotation>
     <xs:annotation>
         <xs:documentation>
             This is an XML Schema Definition for Geronimo enterprise application
@@ -40,10 +50,10 @@
         </xs:documentation>
     </xs:annotation>
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2"
-        schemaLocation="geronimo-module-1.2.xsd">
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.2">
         <xs:annotation>
             <xs:documentation>
+        schemaLocation="geronimo-module-1.2.xsd"
                 Import Geronimo Services deployment plans. The imported plan
                 includes complex types like moduleType, environmentType,
                 dependenciesType, etc. required by this plan schema.

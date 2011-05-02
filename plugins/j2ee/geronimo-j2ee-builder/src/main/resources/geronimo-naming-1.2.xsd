@@ -17,10 +17,21 @@
 -->
 
 <xsd:schema targetNamespace="http://geronimo.apache.org/xml/ns/naming-1.2"
-    xmlns:gernaming="http://geronimo.apache.org/xml/ns/naming-1.2"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
-    attributeFormDefault="unqualified" version="1.0">
+            xmlns:gernaming="http://geronimo.apache.org/xml/ns/naming-1.2"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+            attributeFormDefault="unqualified" version="1.0"
+            xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+        jxb:version="2.1">
 
+    <xsd:annotation>
+       <xsd:appinfo>
+           <jxb:bindings schemaLocation="geronimo-naming-1.2.xsd" node="/xsd:schema">
+               <jxb:schemaBindings>
+                  <jxb:package name="org.apache.geronimo.j2ee.deployment.model.naming"/>
+               </jxb:schemaBindings>
+           </jxb:bindings>
+       </xsd:appinfo>
+    </xsd:annotation>
     <xsd:annotation>
         <xsd:documentation>
             This is a partial XML Schema Definition for common naming elements

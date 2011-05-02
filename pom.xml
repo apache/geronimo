@@ -1979,7 +1979,19 @@
                 </exclusions>
             </dependency>
             
-            
+            <dependency>
+                <groupId>org.apache.geronimo.bundles</groupId>
+                <artifactId>sxc-jaxb</artifactId>
+                <version>${sxcVersion}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.bundles</groupId>
+                <artifactId>sxc-runtime</artifactId>
+                <version>${sxcVersion}</version>
+            </dependency>
+
+
 
         </dependencies>
     </dependencyManagement>
@@ -2371,6 +2383,26 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                         <groupId>org.jvnet.jaxb2.maven2</groupId>
+                         <artifactId>maven-jaxb2-plugin</artifactId>
+                         <version>0.7.4</version>
+                         <executions>
+                             <execution>
+                                 <goals>
+                                     <goal>generate</goal>
+                                 </goals>
+                             </execution>
+                         </executions>
+                         <configuration>
+                             <specVersion>2.1</specVersion>
+                             <extension>true</extension>
+                             <episode>true</episode>
+                             <!--<schemaDirectory>src/main/xsd</schemaDirectory>-->
+                             <catalog>src/main/resources/catalog.cat</catalog>
+                             <catalogResolver>org.jvnet.jaxb2.maven2.resolver.tools.ClasspathCatalogResolver</catalogResolver>
+                         </configuration>
+                     </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
