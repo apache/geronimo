@@ -54,6 +54,8 @@ import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.tomcat.InstanceManager;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -275,13 +277,15 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             throw new IllegalArgumentException("Invalid virtual host '" + virtualServer + "'.  Do you have a matching Host entry in the plan?");
         }
         context.setParent(host);
+        
+        Bundle bundle = BundleUtils.unwrapBundle(contextInfo.getBundle());
         // set the bundle context attribute in the servlet context
         context.getServletContext().setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE,
-                                                 contextInfo.getBundle().getBundleContext());
+                                                 bundle.getBundleContext());
         context.getServletContext().setAttribute(WebAttributeName.WEB_APP_INFO.name(), contextInfo.getWebAppInfo());
 
         context.getServletContext().setAttribute("org.springframework.osgi.web." + BundleContext.class.getName(), 
-                                                 contextInfo.getBundle().getBundleContext());
+                                                 bundle.getBundleContext());
 
         // now set the module context ValidatorFactory in a context property.
         try {

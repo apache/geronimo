@@ -33,6 +33,7 @@ import org.apache.geronimo.gbean.annotation.SpecialAttributeType;
 import org.apache.geronimo.myfaces.config.resource.ConfigurationResource;
 import org.apache.geronimo.myfaces.config.resource.osgi.api.ConfigRegistry;
 import org.apache.myfaces.config.element.FacesConfigData;
+import org.apache.xbean.osgi.bundle.util.BundleUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class MyFacesWebAppContext implements GBeanLifecycle {
     public MyFacesWebAppContext(@ParamAttribute(name = "facesConfigData") FacesConfigData facesConfigData,
             @ParamAttribute(name = "faceletConfigResources") Set<ConfigurationResource> faceletConfigResources, @ParamSpecial(type = SpecialAttributeType.bundle) Bundle bundle,
             @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) {
-        this.bundle = bundle;
+        this.bundle = BundleUtils.unwrapBundle(bundle);
         this.facesConfigData = facesConfigData;
         this.classLoader = classLoader;
         ServiceReference serviceReference = null;

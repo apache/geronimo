@@ -98,13 +98,16 @@ public class GeronimoWebAppContext extends WebAppContext {
         this.integrationContext = integrationContext;
         setClassLoader(classLoader);
         this.classLoader = classLoader;
+        
+        Bundle bundle = BundleUtils.unwrapBundle(integrationContext.getBundle());
+        
         setAttribute(WebApplicationConstants.BUNDLE_CONTEXT_ATTRIBUTE, 
-                     integrationContext.getBundle().getBundleContext());
+                     bundle.getBundleContext());
 
         setAttribute(WebAttributeName.WEB_APP_INFO.name(), webAppInfo);
 
         setAttribute("org.springframework.osgi.web." + BundleContext.class.getName(), 
-                     integrationContext.getBundle().getBundleContext());
+                     bundle.getBundleContext());
 
         // now set the module context ValidatorFactory in a context property.
         try {
