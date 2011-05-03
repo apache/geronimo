@@ -23,22 +23,24 @@ package org.apache.geronimo.mavenplugins.car;
 import java.io.File;
 import java.lang.Override;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.Deployer;
 import org.apache.karaf.features.FeaturesService;
-import org.apache.maven.artifact.Artifact;
+import org.apache.karaf.tooling.features.DependencyHelper;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
+import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
@@ -144,12 +146,18 @@ public class AbstractFrameworkMojo extends AbstractMojo {
     }
 
     void initializeFramework() throws MojoFailureException {
-        FrameworkHelper helper = new FrameworkHelper(karafHome, new AetherResolver(), Collections.<Artifact>emptyList());
+        FrameworkHelper helper = new FrameworkHelper(karafHome, new AetherResolver());
         try {
             framework = helper.start();
         } catch (Exception e) {
             throw new MojoFailureException("Could not start karaf framework", e);
         }
+    }
+
+    protected Map<Artifact, String> getTransitiveDependencies(MavenProject project) throws MojoExecutionException {
+        DependencyHelper dependencyHelper = new DependencyHelper(remoteRepos, remoteRepos, repoSession, repoSystem);
+        dependencyHelper.getDependencies(project, true);
+        return dependencyHelper.getLocalDependencies();
     }
 
     protected void listBundles() {
@@ -158,6 +166,29 @@ public class AbstractFrameworkMojo extends AbstractMojo {
             b.append("\n   Id:").append(bundle.getBundleId()).append("  status:").append(bundle.getState()).append("  ").append(bundle.getLocation());
         }
         getLog().info(b.toString());
+    }
+
+    protected File resolve(Artifact artifact) {
+        ArtifactRequest request = new ArtifactRequest();
+        request.setArtifact(artifact);
+        request.setRepositories(remoteRepos);
+
+        getLog().debug("Resolving artifact " + artifact +
+                " from " + remoteRepos);
+
+        ArtifactResult result;
+        try {
+            result = repoSystem.resolveArtifact(repoSession, request);
+        } catch (ArtifactResolutionException e) {
+            getLog().warn("could not resolve " + artifact, e);
+            return null;
+        }
+
+        getLog().debug("Resolved artifact " + artifact + " to " +
+                result.getArtifact().getFile() + " from "
+                + result.getRepository());
+        return result.getArtifact().getFile();
+
     }
 
     class AetherResolver implements FrameworkHelper.Resolver {

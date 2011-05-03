@@ -20,14 +20,12 @@
 
 package org.apache.geronimo.mavenplugins.car;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.management.ManagementFactory;
@@ -87,9 +85,7 @@ public class FrameworkHelper {
 
     private Resolver resolver;
 
-    private List<Artifact> bundles;
-
-    public FrameworkHelper(String karafHome, Resolver resolver, List<Artifact> bundles) {
+    public FrameworkHelper(String karafHome, Resolver resolver) {
         this.karafHomeString = karafHome;
         File f = new File(karafHome);
         if (f.exists() && !f.isDirectory()) {
@@ -97,7 +93,6 @@ public class FrameworkHelper {
         }
         f.mkdirs();
         this.resolver = resolver;
-        this.bundles = bundles;
     }
 
     public Framework start() throws Exception {
@@ -111,7 +106,6 @@ public class FrameworkHelper {
         System.setProperty(PROP_KARAF_HOME, karafHomeString);
         System.setProperty(PROP_KARAF_BASE, karafHomeString);
         launch();
-        deployBundles(bundles);
         return getFramework();
     }
 

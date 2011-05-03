@@ -21,9 +21,7 @@
 package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
-import java.util.Collections;
 
-import org.apache.maven.artifact.Artifact;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.launch.Framework;
@@ -38,7 +36,7 @@ public class FrameworkHelperTest {
         String path = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
         File f = new File(new File(path).getParentFile(), "karaf");
         String karafHome = f.getAbsolutePath();
-        FrameworkHelper fh = new FrameworkHelper(karafHome, null, Collections.<Artifact>emptyList());
+        FrameworkHelper fh = new FrameworkHelper(karafHome, null);
         Framework framework = fh.start();
         BundleContext bc = framework.getBundleContext();
         fh.stop();
