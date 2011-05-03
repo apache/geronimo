@@ -195,9 +195,12 @@ public class ApplicationGBean implements GBeanLifecycle {
                 
         DeploymentMetadata meta = application.getDeploymentMetadata();
         
+        List<DeploymentContent> deploymentContentsBundles = meta.getApplicationDeploymentContents();
+        List<DeploymentContent> provisionBundles = meta.getApplicationProvisionBundles();
+        
         List<DeploymentContent> bundlesToInstall = new ArrayList<DeploymentContent>();
-        bundlesToInstall.addAll(meta.getApplicationDeploymentContents());
-        bundlesToInstall.addAll(meta.getApplicationProvisionBundles());
+        bundlesToInstall.addAll(deploymentContentsBundles);
+        bundlesToInstall.addAll(provisionBundles);
         
         applicationBundles = new HashSet<Bundle>();
         try {
@@ -209,24 +212,32 @@ public class ApplicationGBean implements GBeanLifecycle {
                 Version bundleVersion = content.getExactVersion();
 
                 // Step 1: See if bundle is already installed in the framework
-                if (findBundleInFramework(packageAdmin, bundleSymbolicName, bundleVersion) != null) {
-                    continue;
-                }
-                
-                // Step 2: See if the bundle is included in the application
-                BundleInfo bundleInfo = findBundleInfoInApplication(bundleSymbolicName, bundleVersion);
-                if (bundleInfo == null) {
-                    // Step 3: Lookup bundle location using the resolver
-                    bundleInfo = findBundleInfoUsingResolver(resolver, bundleSymbolicName, bundleVersion);
-                }
-                
-                if (bundleInfo == null) {
-                    throw new ManagementException("Cound not find bundles: " + bundleSymbolicName + "_" + bundleVersion);
-                }
+                Bundle contentBundle = findBundleInFramework(packageAdmin, bundleSymbolicName, bundleVersion);
+                if (contentBundle != null) {
+                    // If the contentBundle has been already installed, and the contentBundle is deployment content bundle, it will be added to our application Bundles.
+                    // That is, an installed provision bundle is not considered as an application bundle.
+                    for (DeploymentContent deploymentContent : deploymentContentsBundles) {
+                        if (deploymentContent.getContentName().equals(bundleSymbolicName) && deploymentContent.getExactVersion().equals(bundleVersion)){
+                            applicationBundles.add(contentBundle);
+                        }
+                    }
                     
-                Bundle bundle = bundleContext.installBundle(bundleInfo.getLocation());
+                } else {
+                    // Step 2: See if the bundle is included in the application
+                    BundleInfo bundleInfo = findBundleInfoInApplication(bundleSymbolicName, bundleVersion);
+                    if (bundleInfo == null) {
+                        // Step 3: Lookup bundle location using the resolver
+                        bundleInfo = findBundleInfoUsingResolver(resolver, bundleSymbolicName, bundleVersion);
+                    }
+                    
+                    if (bundleInfo == null) {
+                        throw new ManagementException("Cound not find bundles: " + bundleSymbolicName + "_" + bundleVersion);
+                    }
+                        
+                    contentBundle = bundleContext.installBundle(bundleInfo.getLocation());
+                    applicationBundles.add(contentBundle);
 
-                applicationBundles.add(bundle);
+                }
             }
         } catch (BundleException be) {
             for (Bundle bundle : applicationBundles) {
