@@ -60,10 +60,17 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.framework.config</groupId>
+            <groupId>org.apache.geronimo.framework.feature</groupId>
+            <artifactId>j2ee-system</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.framework.feature</groupId>
             <artifactId>server-security-config</artifactId>
             <version>${project.version}</version>
-            <type>car</type>
+            <type>kar</type>
         </dependency>
 
         <dependency>
@@ -127,6 +134,10 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
+                    <features>
+                        <feature>j2ee-system</feature>
+                        <feature>server-security-config</feature>
+                    </features>
                     <category>Tomcat</category>
                     <instance>
                         <plugin-artifact>

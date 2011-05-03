@@ -36,6 +36,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
 import org.sonatype.aether.RepositorySystem;
@@ -127,10 +128,27 @@ public class AbstractFrameworkMojo extends AbstractMojo {
         return framework;
     }
 
-    protected <T> T getService(Class<T> clazz) throws MojoExecutionException {
+    protected <T> T getService(Class<T> clazz, String componentName) throws MojoExecutionException {
+        String filter = null;
+        if (componentName != null) {
+            filter = "(osgi.service.blueprint.compname=" + componentName + ")";
+        }
         long timeout = this.timeout;
         while (timeout > 0) {
-            ServiceReference sr = framework.getBundleContext().getServiceReference(clazz.getName());
+            ServiceReference sr = null;
+            if (filter == null) {
+                sr = framework.getBundleContext().getServiceReference(clazz.getName());
+            } else {
+                ServiceReference[] refs = new ServiceReference[0];
+                try {
+                    refs = framework.getBundleContext().getServiceReferences(clazz.getName(), filter);
+                } catch (InvalidSyntaxException e) {
+                    throw new MojoExecutionException("filter syntax problem", e);
+                }
+                if (refs != null && refs.length == 1) {
+                    sr = refs[0];
+                }
+            }
             if (sr != null) {
                 services.add(sr);
                 return (T)framework.getBundleContext().getService(sr);
@@ -143,6 +161,10 @@ public class AbstractFrameworkMojo extends AbstractMojo {
             timeout = timeout - 100;
         }
         throw new MojoExecutionException("Could not get service " + clazz.getName() + " in " + this.timeout/1000 + " seconds");
+    }
+
+    protected <T> T getService(Class<T> clazz) throws MojoExecutionException {
+        return getService(clazz, null);
     }
 
     void initializeFramework() throws MojoFailureException {

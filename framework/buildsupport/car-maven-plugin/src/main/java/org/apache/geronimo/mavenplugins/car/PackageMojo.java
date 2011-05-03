@@ -21,12 +21,16 @@ package org.apache.geronimo.mavenplugins.car;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.felix.fileinstall.ArtifactInstaller;
 import org.apache.geronimo.deployment.Deployer;
+import org.apache.karaf.features.FeaturesService;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.osgi.framework.Bundle;
@@ -130,6 +134,13 @@ public class PackageMojo extends AbstractFrameworkMojo {
      * @readonly
      */
     protected MavenProject project;
+
+    /**
+     * features to start
+     *
+     * @parameter
+     */
+    protected List<String> features;
     //
     // Mojo
     //
@@ -145,10 +156,38 @@ public class PackageMojo extends AbstractFrameworkMojo {
                 if (!planFile.exists()) {
                     return;
                 }
+                Object featuresService = getService(FeaturesService.class);
+                Object karService = getService(ArtifactInstaller.class, "karArtifactInstaller");
+                Method karInstallMethod;
+                Method featuresAddRepoMethod;
+                Method featuresInstallFeatureMethod;
+
+                try {
+                    karInstallMethod = karService.getClass().getMethod("install", new Class[]{File.class});
+                    featuresAddRepoMethod = featuresService.getClass().getMethod("addRepository", new Class[]{URI.class});
+                    featuresInstallFeatureMethod = featuresService.getClass().getMethod("installFeature", new Class[]{String.class});
+                } catch (NoSuchMethodException e) {
+                    throw new MojoFailureException("What class??", e);
+                }
+
                 List<Long> ids = new ArrayList<Long>();
                 Map<org.sonatype.aether.artifact.Artifact, String> artifacts = getTransitiveDependencies(project);
                 for (org.sonatype.aether.artifact.Artifact dependency : artifacts.keySet()) {
-                    if ("jar".equals(dependency.getExtension()) || "car".equals(dependency.getExtension())) {
+                    if ("kar".equals(dependency.getExtension())) {
+                        try {
+                            File file = resolve(dependency);
+                            karInstallMethod.invoke(karService, file);
+                        } catch (Exception e) {
+                            throw new MojoExecutionException("Cannot install kar " + dependency, e);
+                        }
+                    } else if ("xml".equals(dependency.getExtension()) && "features".equals(dependency.getClassifier())) {
+                        try {
+                            File file = resolve(dependency);
+                            featuresAddRepoMethod.invoke(featuresService, file.toURI());
+                        } catch (Exception e) {
+                            throw new MojoExecutionException("Could not install feature " + dependency, e);
+                        }
+                    } else if ("jar".equals(dependency.getExtension()) || "car".equals(dependency.getExtension())) {
                         getLog().info("starting dependency: " + dependency);
                         File file = resolve(dependency);
                         try {
@@ -158,7 +197,12 @@ public class PackageMojo extends AbstractFrameworkMojo {
                         }
                     }
                 }
-                for (Long id: ids) {
+                if (features != null) {
+                    for (String featureName: features) {
+                        featuresInstallFeatureMethod.invoke(featuresService, featureName);
+                    }
+                }
+                for (Long id : ids) {
                     try {
                         getFramework().getBundleContext().getBundle(id).start();
                     } catch (BundleException e) {
@@ -171,7 +215,7 @@ public class PackageMojo extends AbstractFrameworkMojo {
             } catch (Exception e) {
                 getLog().info("Exception, use console to investigate ", e);
                 listBundles();
-                for (Bundle b: getFramework().getBundleContext().getBundles()) {
+                for (Bundle b : getFramework().getBundleContext().getBundles()) {
                     if (b.getState() != 32) {
                         try {
                             b.start();
