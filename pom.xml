@@ -75,7 +75,7 @@
         <derbyVersion>10.6.1.0</derbyVersion>
         <cxfVersion>2.1.10</cxfVersion>
         <axis2Version>1.7.0</axis2Version>
-        <axiomVersion>1.2.11</axiomVersion>
+        <axiomVersion>1.2.12</axiomVersion>
         <springVersion>2.5.6-SEC02</springVersion>
         <xbeanVersion>3.8-SNAPSHOT</xbeanVersion>
         <jetty>jetty8</jetty>
