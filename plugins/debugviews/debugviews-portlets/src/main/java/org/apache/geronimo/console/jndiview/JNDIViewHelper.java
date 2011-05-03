@@ -62,7 +62,7 @@ public class JNDIViewHelper {
         query.put("j2eeType", "EJBModule");
         Set setEnt = kernel.listGBeans(new org.apache.geronimo.gbean.AbstractNameQuery(null, query));
         Iterator iterator = setEnt.iterator();
-
+        
         while (iterator.hasNext()) {
             AbstractName gb = (AbstractName) iterator.next();
             TreeEntry ejbModule = new TreeEntry(gb.getNameProperty("name"), NORMAL_TYPE);
@@ -75,60 +75,56 @@ public class JNDIViewHelper {
                 treeEnt = treeEnt.findEntry("EJBModule");
                 treeEnt.addChild(ejbModule);
             }
-            Map queryEnt = new HashMap();
+            
+            // Entity bean
             TreeEntry entityBean = new TreeEntry("EntityBeans", NOT_LEAF_TYPE);
             ejbModule.addChild(entityBean);
+            
+            Map queryEnt = new HashMap();
             queryEnt.put("j2eeType", "EntityBean");
             queryEnt.put("EJBModule", gb.getNameProperty("name"));
             queryEnt.put("J2EEApplication", gb.getNameProperty("J2EEApplication"));
-            Set setEntBean = kernel.listGBeans(new org.apache.geronimo.gbean.AbstractNameQuery(null, queryEnt));
-
-            Iterator iterEntBean = setEntBean.iterator();
-
-            while (iterEntBean.hasNext()) {
-                AbstractName gbEntBean = (AbstractName) iterEntBean.next();
-                TreeEntry beanNode = new TreeEntry(gbEntBean.getNameProperty("name"), NORMAL_TYPE);
-                entityBean.addChild(beanNode);
-                Context jndi = (Context) kernel.getAttribute(gbEntBean, "componentContext");
-                buildContext(beanNode, jndi, "java:comp");
-            }
-
-            queryEnt = new HashMap();
+            
+            buildEJBModuleContext(kernel, queryEnt, entityBean);
+            
+            // Session bean
             TreeEntry sessionBean = new TreeEntry("SessionBeans", NOT_LEAF_TYPE);
             ejbModule.addChild(sessionBean);
+            
+            // Stateless session bean
+            queryEnt = new HashMap();
             queryEnt.put("j2eeType", "StatelessSessionBean");
             queryEnt.put("EJBModule", gb.getNameProperty("name"));
             queryEnt.put("J2EEApplication", gb.getNameProperty("J2EEApplication"));
-            Set setSessionBean = kernel.listGBeans(new org.apache.geronimo.gbean.AbstractNameQuery(null, queryEnt));
-
-            Iterator iterSessionBean = setSessionBean.iterator();
-
-            while (iterSessionBean.hasNext()) {
-                AbstractName gbSessionBean = (AbstractName) iterSessionBean.next();
-                TreeEntry beanNode = new TreeEntry(gbSessionBean.getNameProperty("name"), NORMAL_TYPE);
-                sessionBean.addChild(beanNode);
-                Context jndi = (Context) kernel.getAttribute(gbSessionBean, "componentContext");
-                buildContext(beanNode, jndi, "java:comp");
-            }
-
+            
+            buildEJBModuleContext(kernel, queryEnt, sessionBean);
+            
+            // Statefull session bean
             queryEnt = new HashMap();
             queryEnt.put("j2eeType", "StatefullSessionBean");
             queryEnt.put("EJBModule", gb.getNameProperty("name"));
             queryEnt.put("J2EEApplication", gb.getNameProperty("J2EEApplication"));
-            setSessionBean = kernel.listGBeans(new org.apache.geronimo.gbean.AbstractNameQuery(null, queryEnt));
-
-            iterSessionBean = setSessionBean.iterator();
-
-            while (iterSessionBean.hasNext()) {
-                AbstractName gbSessionBean = (AbstractName) iterSessionBean.next();
-                TreeEntry beanNode = new TreeEntry(gbSessionBean.getNameProperty("name"),NORMAL_TYPE);
-                sessionBean.addChild(beanNode);
-                Context jndi = (Context) kernel.getAttribute(gbSessionBean, "componentContext");
-                buildContext(beanNode, jndi, "java:comp");
+            
+            buildEJBModuleContext(kernel, queryEnt, sessionBean);
+            
+        }
+    }
+    
+    private void buildEJBModuleContext(Kernel kernel, Map query, TreeEntry node) throws Exception {
+        Set beanSet = kernel.listGBeans(new org.apache.geronimo.gbean.AbstractNameQuery(null, query));
+        for (Object object : beanSet) {
+            AbstractName bean = (AbstractName) object;
+            
+            TreeEntry beanNode = new TreeEntry(bean.getNameProperty("name"), NORMAL_TYPE);
+            node.addChild(beanNode);
+            
+            Map contextMap = (Map) kernel.getAttribute(bean, "componentContextMap");
+            for (Object key : contextMap.keySet()) {
+                beanNode.addChild(new TreeEntry("java:" + (String)key, NORMAL_TYPE));
             }
         }
     }
-
+    
     private void buildWebModule(Kernel kernel, List arryList, Hashtable entApp) throws Exception {
         Map query = new HashMap();
         query.put("j2eeType", "WebModule");
