@@ -48,8 +48,8 @@
           <tr class="${backgroundClass}">
             <td>${info.connectorURI}</td>
             <td>${info.brokerName}</td>
-            <td>${info.connector.protocol}</td>
-            <td>${info.connector.port}</td>
+            <td>${info.protocol}</td>
+            <td>${info.port}</td>
             <%--<td class="${backgroundClass}">--%>
              <%--<c:choose>--%>
                <%--<c:when test="${info.connector.stateInstance.name eq 'running'}">--%>

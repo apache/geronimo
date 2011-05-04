@@ -18,14 +18,16 @@ package org.apache.geronimo.console.jmsmanager.server;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 
-import org.apache.geronimo.management.activemq.ActiveMQBroker;
-import org.apache.geronimo.management.activemq.ActiveMQManager;
+import org.apache.activemq.broker.BrokerService;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
@@ -36,8 +38,13 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.management.activemq.ActiveMQBroker;
+import org.apache.geronimo.management.activemq.ActiveMQManager;
 import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.management.geronimo.JMSManager;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.blueprint.container.BlueprintContainer;
 
 /**
  * Common methods for JMS portlets
@@ -45,7 +52,8 @@ import org.apache.geronimo.management.geronimo.JMSManager;
  * @version $Rev$ $Date$
  */
 public class BaseJMSPortlet extends BasePortlet {
-
+    
+    /*
     protected List<BrokerWrapper> getBrokerList(PortletRequest renderRequest, JMSManager manager) throws PortletException {
         List<BrokerWrapper> beans = new ArrayList<BrokerWrapper>();
         //For we need list all the brokers including running and stop on the page,
@@ -72,7 +80,39 @@ public class BaseJMSPortlet extends BasePortlet {
         }
         return beans;
     }
-
+    */
+    
+    protected Map<String, BrokerServiceWrapper> getBrokerServices() {
+        Map<String, BrokerServiceWrapper> brokerServices = new HashMap<String, BrokerServiceWrapper>();
+        try {
+            Kernel kernel = PortletManager.getKernel();
+            BundleContext context = kernel.getBundleFor(kernel.getKernelName()).getBundleContext();
+            String clazz = "org.osgi.service.blueprint.container.BlueprintContainer";
+            String filter = "(&(osgi.blueprint.container.symbolicname=org.apache.geronimo.configs.activemq-broker-blueprint)(osgi.blueprint.container.version=3.0.0.SNAPSHOT))";
+            ServiceReference[] references = context.getServiceReferences(clazz, filter);
+            for (ServiceReference reference: references) {
+                BlueprintContainer container = (BlueprintContainer) context.getService(reference);
+                @SuppressWarnings("unchecked")
+                Set<String> ids = (Set<String>) container.getComponentIds();
+                for (Object id: ids) {
+                    Object object = container.getComponentInstance((String)id);
+                    if (object instanceof BrokerService) {
+                        BrokerService brokerService = (BrokerService) object;
+                        String brokerName = brokerService.getBrokerName();
+                        String brokerURI = brokerService.getMasterConnectorURI();
+                        State state = brokerService.isStarted() ? State.RUNNING : State.STOPPED;
+                        BrokerServiceWrapper wrapper = new BrokerServiceWrapper(brokerName, brokerURI, brokerService, state);
+                        brokerServices.put(brokerName, wrapper);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return brokerServices;
+    }
+    
+    /*
     protected BrokerWrapper getBrokerWrapper(PortletRequest portletRequest, AbstractName brokerAbstractName) throws PortletException {
         JMSBroker jmsBroker = PortletManager.getJMSBroker(portletRequest, brokerAbstractName);
         if (jmsBroker == null)
@@ -85,7 +125,9 @@ public class BaseJMSPortlet extends BasePortlet {
             throw new PortletException(e);
         }
     }
-
+    */
+    
+    /*
     protected JMSManager getActiveMQManager(PortletRequest portletRequest) {
         for (JMSManager jmsManager : PortletManager.getCurrentServer(portletRequest).getJMSManagers()) {
             if (jmsManager instanceof ActiveMQManager)
@@ -93,17 +135,18 @@ public class BaseJMSPortlet extends BasePortlet {
         }
         return null;
     }
-
-    public static class BrokerWrapper {
+    */
+    
+    public static class BrokerServiceWrapper {
         private String brokerName;
         private String brokerURI;
-        private JMSBroker broker;
+        private BrokerService brokerService;
         private State state;
 
-        public BrokerWrapper(String brokerName, String brokerURI, JMSBroker broker, State state) {
+        public BrokerServiceWrapper(String brokerName, String brokerURI, BrokerService brokerService, State state) {
             this.brokerName = brokerName;
             this.brokerURI = brokerURI;
-            this.broker = broker;
+            this.brokerService = brokerService;
             this.state = state;
         }
 
@@ -111,8 +154,8 @@ public class BaseJMSPortlet extends BasePortlet {
             return brokerName;
         }
 
-        public JMSBroker getBroker() {
-            return broker;
+        public BrokerService getBrokerService() {
+            return brokerService;
         }
 
         public String getBrokerURI() {

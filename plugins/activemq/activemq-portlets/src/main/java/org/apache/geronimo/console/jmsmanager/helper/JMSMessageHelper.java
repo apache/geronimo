@@ -141,7 +141,9 @@ public abstract class JMSMessageHelper {
             JCAAdminObject[] jcaAdminObjects = PortletManager.getAdminObjectsForRA(portletRequest, resourceAdapterModule, new String[] { destinationInfo.getType().getDestinationInterface() });
             String targetPhysicalName = destinationInfo.getPhysicalName() == null ? "" : destinationInfo.getPhysicalName();
             for (JCAAdminObject jcaAdminObject : jcaAdminObjects) {
-                GeronimoManagedBean bean = (GeronimoManagedBean) jcaAdminObject;
+                Kernel kernel = PortletManager.getKernel();
+                AbstractName abstractName = kernel.getAbstractNameFor(jcaAdminObject);
+                GeronimoManagedBean bean = PortletManager.getManagedBean(portletRequest, abstractName);
                 ObjectName name = ObjectName.getInstance(bean.getObjectName());
                 String queueName = name.getKeyProperty(NameFactory.J2EE_NAME);
                 String currentPhysicalName = null;

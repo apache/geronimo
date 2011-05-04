@@ -30,7 +30,7 @@
         <tr>
             <th scope="col" class="DarkBackground"><fmt:message key="jmsmanager.common.name"/></th>
             <th scope="col" class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.state"/></th>
-            <th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.actions"/></th>
+            <%--<th class="DarkBackground" align="center"><fmt:message key="jmsmanager.common.actions"/></th>--%>
           </tr>
           <c:forEach var="entry" items="${brokers}" varStatus="status">
           <c:choose>
@@ -44,6 +44,7 @@
           <tr class="${backgroundClass}">
             <td>${entry.brokerName}</td>
             <td>${entry.state.name}</td>
+            <%--
             <td>
              <c:choose>
                <c:when test="${entry.state.name eq 'running'}">
@@ -71,11 +72,14 @@
                    <fmt:message key="jmsmanager.common.delete"/>
                </a>
              </td>
+             --%>
           </tr>
 </c:forEach>
 </table>
 
+<%--
 <br />
 <a href="<portlet:renderURL portletMode="view">
            <portlet:param name="mode" value="create" />
          </portlet:renderURL>"><fmt:message key="jmsmanager.server.normal.addJMSBroker"/></a>
+--%>

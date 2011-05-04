@@ -24,7 +24,7 @@ limitations under the License.
         <description>Automated generated Portlet Wrapper</description>
         <display-name>Pluto Wrapper for JMS Wizard Portlet</display-name>
         <servlet-name>JMSWizard</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>JMSWizard</param-value>
@@ -36,7 +36,7 @@ limitations under the License.
         <description>Automated generated Portlet Wrapper</description>
         <display-name>Pluto Wrapper for JMS Portlet</display-name>
         <servlet-name>JMSServerManager</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>JMSServerManager</param-value>
@@ -48,7 +48,7 @@ limitations under the License.
         <description>Automated generated Portlet Wrapper</description>
         <display-name>Pluto Wrapper for JMS Portlet</display-name>
         <servlet-name>JMSConnectorManager</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-name</param-name>
             <param-value>JMSConnectorManager</param-value>

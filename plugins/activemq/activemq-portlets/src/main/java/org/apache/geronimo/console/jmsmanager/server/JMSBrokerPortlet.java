@@ -40,6 +40,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
+import org.apache.activemq.broker.BrokerService;
 import org.apache.geronimo.activemq.BrokerServiceGBeanImpl;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.gbean.AbstractName;
@@ -107,15 +108,16 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
 
     protected void doList(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException,
             PortletException {
-        List<BrokerWrapper> beans = getBrokerList(renderRequest, this.getActiveMQManager(renderRequest));
-        renderRequest.setAttribute("brokers", beans);
+        Map<String, BrokerServiceWrapper> brokerServices = getBrokerServices();
+        renderRequest.setAttribute("brokers", brokerServices.values());
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);
         } else {
             maximizedView.include(renderRequest, renderResponse);
         }
     }
-
+    
+    /*
     protected void doUpdate(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException,
             PortletException {
         String sBrokerURI = renderRequest.getParameter("brokerURI");
@@ -139,7 +141,8 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
                 .create(sBrokerURI))));
         editView.include(renderRequest, renderResponse);
     }
-
+    */
+    
     protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException,
             PortletException {
         try {
@@ -151,9 +154,9 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
                 mode = "list";
             renderRequest.setAttribute("mode", mode);
             if (mode.equals("create")) {
-                doCreate(renderRequest, renderResponse);
+                //doCreate(renderRequest, renderResponse);
             } else if (mode.equals("update")) {
-                doUpdate(renderRequest, renderResponse);
+                //doUpdate(renderRequest, renderResponse);
             } else {
                 doList(renderRequest, renderResponse);
             }
@@ -205,9 +208,9 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
             } else if (mode.equals("stop")) {
                 processStopAction(actionRequest, actionResponse);
             } else if (mode.equals("delete")) {
-                processDeleteAction(actionRequest, actionResponse);
+                //processDeleteAction(actionRequest, actionResponse);
             } else if (mode.equals("create")) {
-                processCreateAction(actionRequest, actionResponse);
+                //processCreateAction(actionRequest, actionResponse);
             } else if (mode.equals("update")) {
                 processUpdateAction(actionRequest, actionResponse);
             } else
@@ -226,6 +229,7 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
      * @throws PortletException
      * @throws IOException
      */
+    /*
     protected void processCreateAction(ActionRequest actionRequest, ActionResponse actionResponse)
             throws PortletException, IOException {
         String sConfigurationXML = actionRequest.getParameter("configXML");
@@ -260,7 +264,8 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
         }
         actionResponse.setRenderParameter("mode", "list");
     }
-
+    */
+    
     /**
      * 1. Remove the configuration XML file
      * 2. Remove the broker GBean
@@ -269,6 +274,7 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
      * @throws PortletException
      * @throws IOException
      */
+    /*
     protected void processDeleteAction(ActionRequest actionRequest, ActionResponse actionResponse)
             throws PortletException, IOException {
         String sBrokerName = actionRequest.getParameter("brokerName");
@@ -317,19 +323,21 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
         }
         actionResponse.setRenderParameter("mode", "list");
     }
-
+    */
+    
     protected void processStartAction(ActionRequest actionRequest, ActionResponse actionResponse)
             throws PortletException, IOException {
-        String sBrokerURI = actionRequest.getParameter("brokerURI");
+        //String sBrokerURI = actionRequest.getParameter("brokerURI");
         String sBrokerName = actionRequest.getParameter("brokerName");
         try {
-            AbstractName abstractName = new AbstractName(URI.create(sBrokerURI));
-            Kernel kernel = PortletManager.getKernel();
-            if (kernel.isRunning(abstractName))
+            Map<String, BrokerServiceWrapper> brokerServices = getBrokerServices();
+            BrokerService brokerService = brokerServices.get(sBrokerName).getBrokerService();
+            if (brokerService.isStarted()) {
                 return;
-            kernel.startRecursiveGBean(abstractName);
-            //TODO While the broker gbean does not start correctly, sometimes no exception is threw ?
-            if (!kernel.isRunning(abstractName)) {
+            }
+            brokerService.start(true);
+            brokerService.waitUntilStarted();
+            if (!brokerService.isStarted()) {
                 throw new PortletException(getLocalizedString(actionRequest,
                         "jmsmanager.broker.failStartBrokerNoReason", sBrokerName));
             }
@@ -346,15 +354,17 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
 
     protected void processStopAction(ActionRequest actionRequest, ActionResponse actionResponse)
             throws PortletException, IOException {
-        String sBrokerURI = actionRequest.getParameter("brokerURI");
+        //String sBrokerURI = actionRequest.getParameter("brokerURI");
         String sBrokerName = actionRequest.getParameter("brokerName");
         try {
-            AbstractName abstractName = new AbstractName(URI.create(sBrokerURI));
-            Kernel kernel = PortletManager.getKernel();
-            if (!kernel.isRunning(abstractName))
+            Map<String, BrokerServiceWrapper> brokerServices = getBrokerServices();
+            BrokerService brokerService = brokerServices.get(sBrokerName).getBrokerService();
+            if (!brokerService.isStarted()) {
                 return;
-            kernel.stopGBean(abstractName);
-            if (kernel.isRunning(abstractName)) {
+            }
+            brokerService.stop();
+            brokerService.waitUntilStopped();
+            if (brokerService.isStarted()) {
                 throw new PortletException(getLocalizedString(actionRequest,
                         "jmsmanager.broker.failStopBrokerNoReason", sBrokerName));
             }
