@@ -37,25 +37,38 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>javaee-builder-support</artifactId>
+            <groupId>org.apache.geronimo.feature</groupId>
+            <artifactId>org.apache.geronimo.javaee-specs</artifactId>
             <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
+            <groupId>org.apache.geronimo.framework.feature</groupId>
+            <artifactId>j2ee-system</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework.feature</groupId>-->
+            <!--<artifactId>server-security-config</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>kar</type>-->
+        <!--</dependency>-->
+
+        <dependency>
             <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-deployer</artifactId>
+            <artifactId>j2ee-server</artifactId>
             <version>${project.version}</version>
             <type>car</type>
         </dependency>
 
         <!--ResourceEnvironmentSetter-->
         <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>connector-deployer-1_6</artifactId>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-connector-builder-1_6</artifactId>
             <version>${project.version}</version>
-            <type>car</type>
         </dependency>
 
         <!-- import classes -->
@@ -114,24 +127,19 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
-                    <deploymentConfigs>
-                        <deploymentConfig>${gbeanDeployer}</deploymentConfig>
-                        <deploymentConfig>org.apache.geronimo.configs/javaee-builder-support/${project.version}/car</deploymentConfig>
-                    </deploymentConfigs>
+                    <features>
+                        <feature>declarative-services</feature>
+                        <feature>org.apache.geronimo.jaxb-support</feature>
+                        <feature>org.apache.geronimo.javaee-specs</feature>
+                        <feature>j2ee-system</feature>
+                        <!--<feature>server-security-config</feature>-->
+                    </features>
                     <category>Tomcat</category>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.geronimo.configs</groupId>
-                            <artifactId>tomcat7</artifactId>
-                            <type>car</type>
-                            <import>classes</import>
-                        </dependency>
-                    </dependencies>
                     <instance>
                         <plugin-artifact>
                             <config-xml-content server="default" />
                             <config-xml-content server="offline" />
-                            <copy-file dest-dir="schema">schema/schemaorg_apache_xmlbeans/src/</copy-file>
+                            <!--<copy-file dest-dir="schema">schema/schemaorg_apache_xmlbeans/src/</copy-file>-->
                         </plugin-artifact>
                     </instance>
                 </configuration>

@@ -150,43 +150,43 @@
     </build>
 
     <modules>
+        <module>tomcat</module>
         <!-- MNG-4052 modules used as import-scope need to be before anything that uses them -->
-        <module>pluto</module>
+        <!--<module>pluto</module>-->
         <module>system-database</module>
-        <module>activemq</module>
-        <module>aspectj</module>
-        <module>axis</module>
-        <module>axis2</module>
-        <module>client</module>
-        <module>clustering</module>
+        <!--<module>activemq</module>-->
+        <!--<module>aspectj</module>-->
+        <!--<module>axis</module>-->
+        <!--<module>axis2</module>-->
+        <!--<module>client</module>-->
+        <!--<module>clustering</module>-->
         <!--<module>connector-1_6</module>-->
-        <module>console</module>
-        <module>corba</module>
-        <module>cxf</module>
-        <module>dojo</module>
-        <module>debugviews</module>
-        <module>hotdeploy</module>
+        <!--<module>console</module>-->
+        <!--<module>corba</module>-->
+        <!--<module>cxf</module>-->
+        <!--<module>dojo</module>-->
+        <!--<module>debugviews</module>-->
+        <!--<module>hotdeploy</module>-->
         <module>j2ee</module>
         <module>jasper</module>
         <module>javamail</module>
-        <module>jaxws</module>
+        <!--<module>jaxws</module>-->
         <module>myfaces</module>
         <module>openejb</module>
         <module>openjpa2</module>
         <module>openwebbeans</module>
-        <module>wink</module>
+        <!--<module>wink</module>-->
         <module>plancreator</module>
-        <module>webservices</module>
+        <!--<module>webservices</module>-->
         <!--<module>ca-helper</module>-->
-        <module>uddi</module>
+        <!--<module>uddi</module>-->
         <module>mejb</module>
         <!--<module>monitoring</module>-->
-        <module>remote-deploy</module>
+        <!--<module>remote-deploy</module>-->
         <!--<module>sharedlib</module>-->
-        <module>welcome</module>
+        <!--<module>welcome</module>-->
         <module>procrun</module>
-        <module>jetty8</module>
-        <module>tomcat</module>
+        <!--<module>jetty8</module>-->
         <module>aries</module>
         <module>wab</module>
         <module>bval</module>

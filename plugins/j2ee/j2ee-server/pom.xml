@@ -178,6 +178,13 @@
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
                     <category>JavaEE</category>
+                    <!--<features>-->
+                        <!--<feature>declarative-services</feature>-->
+                        <!--<feature>org.apache.geronimo.jaxb-support</feature>-->
+                        <!--<feature>org.apache.geronimo.javaee-specs</feature>-->
+                        <!--<feature>j2ee-system</feature>-->
+                        <!--<feature>server-security-config</feature>-->
+                    <!--</features>-->
                 </configuration>
             </plugin>
         </plugins>

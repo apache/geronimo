@@ -223,11 +223,15 @@
                 <artifactId>karaf-maven-plugin</artifactId>
                 <configuration>
                     <startLevel>50</startLevel>
+                    <features>
+                        <feature>declarative-services</feature>
+                    </features>
+                    <aggregateFeatures>true</aggregateFeatures>
+
                     <checkDependencyChange>true</checkDependencyChange>
                     <warnOnDependencyChange>true</warnOnDependencyChange>
                     <logDependencyChanges>true</logDependencyChanges>
                     <!--<overwriteChangedDependencies>true</overwriteChangedDependencies>-->
-                    <aggregateFeatures>true</aggregateFeatures>
                 </configuration>
             </plugin>
         </plugins>
