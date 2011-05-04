@@ -162,11 +162,17 @@ public class PackageMojo extends AbstractFrameworkMojo {
                 Method karInstallMethod;
                 Method featuresAddRepoMethod;
                 Method featuresInstallFeatureMethod;
-
+                EnumSet options;
                 try {
                     karInstallMethod = karService.getClass().getMethod("install", new Class[]{File.class});
                     featuresAddRepoMethod = featuresService.getClass().getMethod("addRepository", new Class[]{URI.class});
                     featuresInstallFeatureMethod = featuresService.getClass().getMethod("installFeature", new Class[]{String.class, String.class, EnumSet.class});
+                    ClassLoader cl = featuresService.getClass().getClassLoader();
+                    Class optionClass = cl.loadClass(FeaturesService.Option.class.getName());
+                    Method valueOf = optionClass.getMethod("valueOf", new Class[]{String.class});
+                    Enum NoCleanOnFailure = (Enum) valueOf.invoke(null, FeaturesService.Option.NoCleanIfFailure.toString());
+                    Enum ContinueBatchOnFailure = (Enum) valueOf.invoke(null, FeaturesService.Option.ContinueBatchOnFailure.toString());
+                    options = EnumSet.of(NoCleanOnFailure, ContinueBatchOnFailure);
                 } catch (NoSuchMethodException e) {
                     throw new MojoFailureException("What class??", e);
                 }
@@ -200,7 +206,7 @@ public class PackageMojo extends AbstractFrameworkMojo {
                 }
                 if (features != null) {
                     for (String featureName: features) {
-                        featuresInstallFeatureMethod.invoke(featuresService, featureName, org.apache.karaf.features.internal.model.Feature.DEFAULT_VERSION, EnumSet.of(FeaturesService.Option.NoCleanIfFailure, FeaturesService.Option.ContinueBatchOnFailure));
+                        featuresInstallFeatureMethod.invoke(featuresService, featureName, org.apache.karaf.features.internal.model.Feature.DEFAULT_VERSION, options);
                     }
                 }
                 for (Long id : ids) {
