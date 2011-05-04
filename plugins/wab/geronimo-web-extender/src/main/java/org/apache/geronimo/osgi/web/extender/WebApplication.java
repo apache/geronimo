@@ -44,6 +44,10 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.LifecycleException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -198,12 +202,12 @@ public class WebApplication implements Runnable {
                         bundle);
                 webModule.setEarContext(deploymentContext);
                 webModule.setRootEarContext(deploymentContext);
-                
+
                 deploymentContext.flush();
                 deploymentContext.initializeConfiguration();
 
                 webModule.getJndiScope(JndiScope.app).put("app/AppName", webModule.getName());
-                
+
                 webModuleBuilder.initContext(deploymentContext, webModule, bundle);
 
                 AbstractName appJndiName = naming.createChildName(deploymentContext.getModuleName(), "ApplicationJndi", "ApplicationJndi");
@@ -218,17 +222,28 @@ public class WebApplication implements Runnable {
                 deploymentContext.addGBean(appContexts);
 
                 configurationData = deploymentContext.getConfigurationData();
-                FileOutputStream out = new FileOutputStream(configSer);
+                FileOutputStream configSerOut =  null;
                 try {
-                    ConfigurationUtil.writeConfigurationData(configurationData, out);
+                    configSerOut = new FileOutputStream(configSer);
+                    ConfigurationUtil.writeConfigurationData(configurationData, configSerOut);
                 } finally {
-                    out.close();
+                    IOUtils.close(configSerOut);
                 }
-
-                deploymentContext.close();
 
                 // set config.ser last modified time to be of the bundle
                 configSer.setLastModified(bundle.getLastModified());
+
+                File geronimoPlugin = bundle.getBundleContext().getDataFile("geronimo-plugin.xml");
+                FileOutputStream geronimoPluginOut = null;
+                try {
+                    geronimoPluginOut = new FileOutputStream(geronimoPlugin);
+                    PluginType pluginMetadata = deploymentContext.getPluginMetadata();
+                    PluginXmlUtil.writePluginMetadata(pluginMetadata, geronimoPluginOut);
+                    DependencyManager.updatePluginMetadata(bundle.getBundleContext(), bundle);
+                } finally {
+                    IOUtils.close(geronimoPluginOut);
+                }
+                deploymentContext.close();
             }
 
             configurationData.setUseEnvironment(true);

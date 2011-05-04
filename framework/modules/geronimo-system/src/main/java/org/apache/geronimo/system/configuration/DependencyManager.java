@@ -20,6 +20,7 @@
 package org.apache.geronimo.system.configuration;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -229,6 +230,57 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         return null;
     }
 
+    public void updatePluginMetadata(Bundle bundle) {
+        Long bundleId = bundle.getBundleId();
+        dependentBundleIdsMap.remove(bundleId);
+        fullDependentBundleIdsMap.remove(bundleId);
+        pluginMap.remove(bundleId);
+        PluginArtifactType pluginArtifactType = getCachedPluginMetadata(bundle);
+        if (pluginArtifactType != null) {
+            List<DependencyType> dependencies = pluginArtifactType.getDependency();
+            Set<Long> dependentBundleIds = new HashSet<Long>();
+            Set<Long> fullDependentBundleIds = new HashSet<Long>();
+            try {
+                for (DependencyType dependencyType : dependencies) {
+                    Artifact artifact = dependencyType.toArtifact();
+                    Bundle dependentBundle = getBundle(artifact);
+                    if(dependentBundle == null) {
+                        log.warn("Dependent artifact " + artifact + " could not be resolved, it will be ignored");
+                        continue;
+                    }
+                    Long dependentBundleId = dependentBundle.getBundleId();
+                    dependentBundleIds.add(dependentBundleId);
+                    if (fullDependentBundleIds.add(dependentBundleId)) {
+                        Set<Long> parentDependentBundleIds = fullDependentBundleIdsMap.get(dependentBundleId);
+                        if (parentDependentBundleIds != null) {
+                            fullDependentBundleIds.addAll(parentDependentBundleIds);
+                        }
+                    }
+                }
+                fullDependentBundleIdsMap.put(bundle.getBundleId(), fullDependentBundleIds);
+                dependentBundleIdsMap.put(bundle.getBundleId(), dependentBundleIds);
+            } catch (Exception e) {
+                log.error("Could not update bundle dependecy", e);
+            }
+        }
+    }
+
+    public static void updatePluginMetadata(BundleContext bundleContext, Bundle bundle) {
+        ServiceReference serviceReference = null;
+        try {
+            serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
+            DependencyManager dependencyManager = null;
+            if (serviceReference != null) {
+                dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
+                dependencyManager.updatePluginMetadata(bundle);
+            }
+        } finally {
+            if (serviceReference != null) {
+                bundleContext.ungetService(serviceReference);
+            }
+        }
+    }
+
     private void addArtifactBundleEntry(Bundle bundle) {
         Artifact artifact = toArtifact(bundle.getLocation());
         if (artifact != null) {
@@ -278,25 +330,32 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
 
     private PluginArtifactType getPluginMetadata(Bundle bundle) {
         PluginArtifactType pluginArtifactType = null;
-        URL info = bundle.getEntry("META-INF/geronimo-plugin.xml");
-        if (info != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("found geronimo-plugin.xml for bundle " + bundle);
-            }
-            InputStream in = null;
-            try {
+        InputStream in = null;
+        try {
+            URL info = bundle.getEntry("META-INF/geronimo-plugin.xml");
+            if (info != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("found geronimo-plugin.xml for bundle " + bundle);
+                }
                 in = info.openStream();
+            } else if (bundle.getBundleContext() != null) {
+                File pluginMetadataFile = bundle.getBundleContext().getDataFile("geronimo-plugin.xml");
+                if (pluginMetadataFile.exists()) {
+                    in = new FileInputStream(pluginMetadataFile);
+                }
+            }
+            if (in != null) {
                 PluginType pluginType = PluginXmlUtil.loadPluginMetadata(in);
                 pluginArtifactType = pluginType.getPluginArtifact().get(0);
-            } catch (Throwable e) {
-                log.warn("Could not read geronimo metadata for bundle: " + bundle, e);
-            } finally {
-                IOUtils.close(in);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("did not find geronimo-plugin.xml for bundle " + bundle);
+                }
             }
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("did not find geronimo-plugin.xml for bundle " + bundle);
-            }
+        } catch (Throwable e) {
+            log.warn("Could not read geronimo metadata for bundle: " + bundle, e);
+        } finally {
+            IOUtils.close(in);
         }
         return pluginArtifactType;
     }
@@ -389,6 +448,13 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
         if (pluginArtifactType != null) {
             List<Bundle> bundles = new ArrayList<Bundle>();
             List<DependencyType> dependencies = pluginArtifactType.getDependency();
+            boolean dependencyHierarchyBuildingRequired = !dependentBundleIdsMap.containsKey(bundle.getBundleId());
+            Set<Long> dependentBundleIds = null;
+            Set<Long> fullDependentBundleIds = null;
+            if (dependencyHierarchyBuildingRequired) {
+                dependentBundleIds = new HashSet<Long>();
+                fullDependentBundleIds = new HashSet<Long>();
+            }
             try {
                 for (DependencyType dependencyType : dependencies) {
                     if (log.isDebugEnabled()) {
@@ -400,6 +466,16 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                     }
                     String location = locateBundle(artifact);
                     Bundle b = bundleContext.installBundle(location);
+                    if (dependencyHierarchyBuildingRequired) {
+                        long startingBundleId = b.getBundleId();
+                        dependentBundleIds.add(startingBundleId);
+                        if (fullDependentBundleIds.add(startingBundleId)) {
+                            Set<Long> parentDependentBundleIds = fullDependentBundleIdsMap.get(startingBundleId);
+                            if (parentDependentBundleIds != null) {
+                                fullDependentBundleIds.addAll(parentDependentBundleIds);
+                            }
+                        }
+                    }
                     if (b.getState() != Bundle.ACTIVE ) {
                         bundles.add(b);
                     }
@@ -413,6 +489,11 @@ public class DependencyManager implements SynchronousBundleListener, GBeanLifecy
                             log.warn("Could not start bundle: " + b, e);
                         }
                     }
+                }
+
+                if (dependencyHierarchyBuildingRequired) {
+                    fullDependentBundleIdsMap.put(bundle.getBundleId(), fullDependentBundleIds);
+                    dependentBundleIdsMap.put(bundle.getBundleId(), dependentBundleIds);
                 }
             } catch (Exception e) {
                 log.error("Could not install bundle dependecy", e);

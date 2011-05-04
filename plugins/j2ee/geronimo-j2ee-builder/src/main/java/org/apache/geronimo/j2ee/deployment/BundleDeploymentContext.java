@@ -16,9 +16,15 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.BundleResourceContext;
@@ -30,16 +36,21 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.util.IOUtils;
+import org.apache.geronimo.system.configuration.DependencyManager;
+import org.apache.geronimo.system.plugin.model.PluginType;
+import org.apache.geronimo.system.plugin.model.PluginXmlUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * @version $Rev:386276 $ $Date$
  */
 public class BundleDeploymentContext extends EARContext {
-      
+
     private Bundle bundle;
-    
+
     public BundleDeploymentContext(Environment environment,
                                    ConfigurationModuleType moduleType,
                                    Naming naming,
@@ -52,31 +63,44 @@ public class BundleDeploymentContext extends EARContext {
                                    AbstractNameQuery corbaGBeanObjectName,
                                    Map messageDestinations,
                                    Bundle bundle) throws DeploymentException {
-        super(null, null, 
+        super(null, null,
               environment, moduleType, naming, configurationManager, new BundleResourceContext(bundle), bundleContext,
-              serverName, baseName, transactionManagerObjectName, connectionTrackerObjectName, 
+              serverName, baseName, transactionManagerObjectName, connectionTrackerObjectName,
               corbaGBeanObjectName, messageDestinations);
         this.bundle = bundle;
     }
-   
+
     @Override
     public void initializeConfiguration() throws DeploymentException {
         try {
             ConfigurationData configurationData = new ConfigurationData(moduleType, null, childConfigurationDatas, environment, baseDir, inPlaceConfigurationDir, naming);
             configurationData.setBundleContext(bundle.getBundleContext());
+            createTempPluginMetadata(bundle);
+            DependencyManager.updatePluginMetadata(bundle.getBundleContext(), bundle);
             configurationManager.loadConfiguration(configurationData);
             this.configuration = configurationManager.getConfiguration(environment.getConfigId());
         } catch (Exception e) {
             throw new DeploymentException("Unable to create configuration for deployment", e);
         }
     }
-    
+
     @Override
-    public void getCompleteManifestClassPath(Deployable deployable, 
-                                             URI moduleBaseUri, 
-                                             URI resolutionUri, 
-                                             Collection<String> classpath, 
+    public void getCompleteManifestClassPath(Deployable deployable,
+                                             URI moduleBaseUri,
+                                             URI resolutionUri,
+                                             Collection<String> classpath,
                                              Collection<String> exclusions) throws DeploymentException {
     }
-    
+
+    private void createTempPluginMetadata(Bundle bundle) throws FileNotFoundException, XMLStreamException, JAXBException {
+        File geronimoPlugin = bundle.getBundleContext().getDataFile("geronimo-plugin.xml");
+        FileOutputStream geronimoPluginOut = null;
+        try {
+            geronimoPluginOut = new FileOutputStream(geronimoPlugin);
+            PluginType pluginMetadata = getPluginMetadata();
+            PluginXmlUtil.writePluginMetadata(pluginMetadata, geronimoPluginOut);
+        } finally {
+            IOUtils.close(geronimoPluginOut);
+        }
+    }
 }

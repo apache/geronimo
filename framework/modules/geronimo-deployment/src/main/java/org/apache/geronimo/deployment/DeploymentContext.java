@@ -214,6 +214,18 @@ public class DeploymentContext {
     }
 
     private void createPluginMetadata() throws IOException, JAXBException, XMLStreamException {
+        PluginType pluginType = getPluginMetadata();
+        File metaInf = new File(getConfigurationDir(), "META-INF");
+        metaInf.mkdirs();
+        OutputStream out = new FileOutputStream(new File(metaInf, "geronimo-plugin.xml"));
+        try {
+            PluginXmlUtil.writePluginMetadata(pluginType, out);
+        } finally {
+            out.close();
+        }
+    }
+
+    public PluginType getPluginMetadata() {
         PluginType pluginType = new PluginType();
         pluginType.setName("Temporary Plugin metadata for deployment");
         PluginArtifactType instance = new PluginArtifactType();
@@ -223,14 +235,7 @@ public class DeploymentContext {
             dependenciees.add(DependencyType.newDependencyType(dependency));
         }
         pluginType.getPluginArtifact().add(instance);
-        File metaInf = new File(getConfigurationDir(), "META-INF");
-        metaInf.mkdirs();
-        OutputStream out = new FileOutputStream(new File(metaInf, "geronimo-plugin.xml"));
-        try {
-            PluginXmlUtil.writePluginMetadata(pluginType, out);
-        } finally {
-            out.close();
-        }
+        return pluginType;
     }
 
     private void createTempManifest() throws DeploymentException, IOException {
