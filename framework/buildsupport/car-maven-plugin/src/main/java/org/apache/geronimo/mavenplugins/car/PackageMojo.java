@@ -23,6 +23,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -165,7 +166,7 @@ public class PackageMojo extends AbstractFrameworkMojo {
                 try {
                     karInstallMethod = karService.getClass().getMethod("install", new Class[]{File.class});
                     featuresAddRepoMethod = featuresService.getClass().getMethod("addRepository", new Class[]{URI.class});
-                    featuresInstallFeatureMethod = featuresService.getClass().getMethod("installFeature", new Class[]{String.class});
+                    featuresInstallFeatureMethod = featuresService.getClass().getMethod("installFeature", new Class[]{String.class, String.class, EnumSet.class});
                 } catch (NoSuchMethodException e) {
                     throw new MojoFailureException("What class??", e);
                 }
@@ -199,7 +200,7 @@ public class PackageMojo extends AbstractFrameworkMojo {
                 }
                 if (features != null) {
                     for (String featureName: features) {
-                        featuresInstallFeatureMethod.invoke(featuresService, featureName);
+                        featuresInstallFeatureMethod.invoke(featuresService, featureName, org.apache.karaf.features.internal.model.Feature.DEFAULT_VERSION, EnumSet.of(FeaturesService.Option.NoCleanIfFailure, FeaturesService.Option.ContinueBatchOnFailure));
                     }
                 }
                 for (Long id : ids) {
