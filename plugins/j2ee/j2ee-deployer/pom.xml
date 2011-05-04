@@ -38,102 +38,122 @@
     </description>
 
     <dependencies>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-activation_1.1_spec</artifactId>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_3.0_spec</artifactId>
-        </dependency>
+             <groupId>org.apache.geronimo.framework.feature</groupId>
+             <artifactId>j2ee-system</artifactId>
+             <version>${project.version}</version>
+             <type>xml</type>
+             <classifier>features</classifier>
+         </dependency>
+         <dependency>
+             <groupId>org.apache.geronimo.framework.feature</groupId>
+             <artifactId>server-security-config</artifactId>
+             <version>${project.version}</version>
+             <type>kar</type>
+         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.components</groupId>
-            <artifactId>geronimo-jaspi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jacc_1.4_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaspic_1.0_spec</artifactId>
-        </dependency>
-        <dependency>
-           <groupId>org.apache.geronimo.bundles</groupId>
-           <artifactId>sxc-jaxb</artifactId>
-        </dependency>
-        <dependency>
-           <groupId>org.apache.geronimo.bundles</groupId>
-           <artifactId>sxc-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jta_1.1_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-connector_1.6_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-annotation_1.1_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jcdi_1.0_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-interceptor_1.1_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-atinject_1.0_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-el_2.2_spec</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-validation_1.0_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_3.1_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-saaj_1.3_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.1_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jpa_2.0_spec</artifactId>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-naming</artifactId>
+            <groupId>org.apache.geronimo.feature</groupId>
+            <artifactId>org.apache.geronimo.javaee-specs</artifactId>
             <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-servlet_3.0_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.components</groupId>-->
+            <!--<artifactId>geronimo-jaspi</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-jacc_1.4_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-jaspic_1.0_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+           <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+           <!--<artifactId>sxc-jaxb</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+           <!--<groupId>org.apache.geronimo.bundles</groupId>-->
+           <!--<artifactId>sxc-runtime</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-j2ee-management_1.1_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-jta_1.1_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-j2ee-connector_1.6_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-annotation_1.1_spec</artifactId>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-jcdi_1.0_spec</artifactId>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-interceptor_1.1_spec</artifactId>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-atinject_1.0_spec</artifactId>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-el_2.2_spec</artifactId>-->
+        <!--</dependency>-->
+
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-validation_1.0_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-ejb_3.1_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-jaxrpc_1.1_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-saaj_1.3_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-javaee-deployment_1.1MR3_spec</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.specs</groupId>-->
+            <!--<artifactId>geronimo-jpa_2.0_spec</artifactId>-->
+        <!--</dependency>-->
+
+
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-naming</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-naming</artifactId>
@@ -196,11 +216,11 @@
             <artifactId>geronimo-service-builder</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-security</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-security</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-security-builder</artifactId>
@@ -210,33 +230,25 @@
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-finder</artifactId>
         </dependency>
-        <dependency>
-           <groupId>org.apache.geronimo.bundles</groupId>
-           <artifactId>sxc-jaxb</artifactId>
-        </dependency>
-        <dependency>
-           <groupId>org.apache.geronimo.bundles</groupId>
-           <artifactId>sxc-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-naming</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-naming</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-naming</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-management</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.xbean</groupId>-->
+            <!--<artifactId>xbean-naming</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>geronimo-management</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.geronimo.components</groupId>
             <artifactId>geronimo-transaction</artifactId>
@@ -269,10 +281,6 @@
         <dependency>
             <groupId>org.apache.openejb</groupId>
             <artifactId>openejb-jee</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-finder</artifactId>
         </dependency>
 
     </dependencies>
@@ -316,6 +324,12 @@
                 <groupId>org.apache.geronimo.buildsupport</groupId>
                 <artifactId>car-maven-plugin</artifactId>
                 <configuration>
+                    <features>
+                        <feature>org.apache.geronimo.jaxb-support</feature>
+                        <feature>org.apache.geronimo.javaee-specs</feature>
+                        <feature>j2ee-system</feature>
+                        <feature>server-security-config</feature>
+                    </features>
                     <category>JavaEE deployment</category>
                     <!--<dependencies>-->
                         <!--<dependency>-->
