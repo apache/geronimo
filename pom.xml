@@ -1123,6 +1123,14 @@
                         <groupId>org.apache.openwebbeans</groupId>
                         <artifactId>openwebbeans-ee-common</artifactId>
                     </exclusion>
+                    <exclusion>
+                      <groupId>org.apache.bval</groupId>
+                      <artifactId>bval-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>org.apache.bval</groupId>
+                      <artifactId>bval-jsr303</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 

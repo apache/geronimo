@@ -149,7 +149,13 @@
             <groupId>org.apache.geronimo.bundles</groupId>
             <artifactId>scannotation</artifactId>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-bval</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+                
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-persistence-jpa20</artifactId>
