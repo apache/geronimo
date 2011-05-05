@@ -326,6 +326,26 @@ public class EjbModuleBuilder implements ModuleBuilder, GBeanLifecycle, ModuleBu
 
             descriptors = finder.getResourcesMap(ddDir);
 
+            // The ResourceFinder.getResourcesMap() method does not work if the jar in question
+            // does not properly have "directories" and only has file entries.  So we as a backup
+            // measure will explicitly look for specific known descriptor files and add them if
+            // the getResourcesMap() method was unable to find them.  In this "bad jar" scenario
+            // some extra features such as the openejb.altdd.prefix functionality will not work.
+            
+            String[] doubleCheck = {"ejb-jar.xml", "geronimo-openejb.xml", "openejb-jar.xml", "beans.xml", "env-entries.properties", "web.xml"};
+
+            for (String entry : doubleCheck) {
+                try {
+                    final URL url = finder.find(ddDir + entry);
+                    if (url == null) continue;
+                    if (descriptors.containsKey(entry)) continue;
+                    descriptors.put(entry, url);
+                } catch (IOException descriptorNotFound) {
+                    // ignore
+                }
+            }
+
+
             if (!isEjbModule(baseUrl, classLoader, descriptors)) {
                 releaseTempClassLoader(classLoader);
                 return null;
