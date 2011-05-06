@@ -51,7 +51,7 @@ import org.apache.geronimo.management.stats.JVMStatsImpl;
  * @version $Rev$ $Date$
  */
 
-@GBean
+@GBean(j2eeType = "JVM")
 public class JVMImpl implements JVM, StatisticsProvider {
     public static final String JAVA_VERSION = System.getProperty("java.version");
     public static final String JAVA_VENDOR = System.getProperty("java.vendor");
