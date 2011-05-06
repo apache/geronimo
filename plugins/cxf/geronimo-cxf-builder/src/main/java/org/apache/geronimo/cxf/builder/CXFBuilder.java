@@ -52,6 +52,7 @@ import org.apache.geronimo.jaxws.builder.JAXWSServiceBuilder;
 import org.apache.geronimo.jaxws.builder.WARWebServiceFinder;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGenerator;
 import org.apache.geronimo.jaxws.builder.wsdl.WsdlGeneratorOptions;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -59,6 +60,8 @@ import org.slf4j.LoggerFactory;
 
 public class CXFBuilder extends JAXWSServiceBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(CXFBuilder.class);
+
+    private static final boolean ignoreEmptyWebServiceProviderWSDL = Boolean.getBoolean("org.apache.geronimo.webservice.provider.wsdl.ignore");
 
     /**
      * This property if enabled will cause the Sun wsgen tool to be used to
@@ -88,10 +91,12 @@ public class CXFBuilder extends JAXWSServiceBuilder {
                                                               URL wsDDUrl,
                                                               Deployable deployable,
                                                               boolean isEJB,
-                                                              Map correctedPortLocations)
+                                                              Map<String, String> correctedPortLocations)
             throws DeploymentException {
 
-        LOG.debug("Parsing descriptor " + wsDDUrl);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Parsing descriptor " + wsDDUrl);
+        }
 
         Map<String, PortInfo> map = null;
 
@@ -156,7 +161,7 @@ public class CXFBuilder extends JAXWSServiceBuilder {
                         portInfo.setWsdlService(port.getWsdlService().getValue());
                     }
 
-                    String location = (String) correctedPortLocations.get(serviceLink);
+                    String location = correctedPortLocations.get(serviceLink);
                     portInfo.setLocation(location);
 
                     if (map == null) {
@@ -194,6 +199,21 @@ public class CXFBuilder extends JAXWSServiceBuilder {
         return in;
     }
 
+    private boolean isURL(String name) {
+        try {
+            new URL(name);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean isWSDLNormalizedRequired(Module module, String wsdlLocation) {
+        return (module.getType().equals(ConfigurationModuleType.WAR) || (module.getType().equals(ConfigurationModuleType.EJB) && module.getParentModule() != null && module.getParentModule().getType()
+                .equals(ConfigurationModuleType.WAR)))
+                && !isURL(wsdlLocation);
+    }
+
     @Override
     protected void initialize(GBeanData targetGBean, Class serviceClass, PortInfo portInfo, Module module, Bundle bundle) throws DeploymentException {
         if (Boolean.getBoolean(USE_WSGEN_PROPERTY)) {
@@ -212,21 +232,37 @@ public class CXFBuilder extends JAXWSServiceBuilder {
     private void generateWSDL(Class serviceClass, PortInfo portInfo, Module module, Bundle bundle)
         throws DeploymentException {
         String serviceName = (portInfo.getServiceName() == null ? serviceClass.getName() : portInfo.getServiceName());
+        String wsdlFile = portInfo.getWsdlFile();
         if (isWsdlSet(portInfo, serviceClass, bundle)) {
-            LOG.debug("Service " + serviceName + " has WSDL.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Service " + serviceName + " has WSDL.");
+            }
+            if (isWSDLNormalizedRequired(module, wsdlFile)) {
+                portInfo.setWsdlFile(module.getTargetPathURI().resolve(wsdlFile).toString());
+            }
             return;
         }
 
         if (isHTTPBinding(portInfo, serviceClass)) {
-            LOG.debug("Service " + serviceName + " has HTTPBinding.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Service " + serviceName + " has HTTPBinding.");
+            }
             return;
         }
 
         if (JAXWSUtils.isWebServiceProvider(serviceClass)) {
-            throw new DeploymentException("WSDL must be specified for @WebServiceProvider service " + serviceName);
+            if (ignoreEmptyWebServiceProviderWSDL) {
+                LOG.warn("WSDL is not specified for @WebServiceProvider service " + serviceName);
+                //TODO Generate a dummy WSDL for it ?
+                return;
+            } else {
+                throw new DeploymentException("WSDL must be specified for @WebServiceProvider service " + serviceName);
+            }
         }
 
-        LOG.debug("Service " + serviceName + " does not have WSDL. Generating WSDL...");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Service " + serviceName + " does not have WSDL. Generating WSDL...");
+        }
 
         WsdlGenerator wsdlGenerator = getWsdlGenerator();
 
@@ -247,10 +283,11 @@ public class CXFBuilder extends JAXWSServiceBuilder {
             options.setWsdlPort(portInfo.getWsdlPort());
         }
 
-        String wsdlFile = wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
+        wsdlFile = wsdlGenerator.generateWsdl(module, serviceClass.getName(), module.getEarContext(), options);
         portInfo.setWsdlFile(wsdlFile);
-
-        LOG.debug("Generated " + wsdlFile + " for service " + serviceName);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Generated " + wsdlFile + " for service " + serviceName);
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;

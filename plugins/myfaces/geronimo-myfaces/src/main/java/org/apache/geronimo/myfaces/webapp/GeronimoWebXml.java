@@ -42,7 +42,7 @@ public class GeronimoWebXml extends WebXml {
     private List<FilterMapping> facesExtensionsFilterMapppings;
 
     private boolean errorPagePresent;
-    
+
     //TODO remove once upgrade to MyFaces 2.0.3
     private String delegateFacesServlet;
 
@@ -50,13 +50,14 @@ public class GeronimoWebXml extends WebXml {
         errorPagePresent = webAppInfo.errorPages != null && webAppInfo.errorPages.size() > 0;
         this.delegateFacesServlet = delegateFacesServlet;
         facesServletMappings = new ArrayList<ServletMapping>();
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         for (ServletInfo servletInfo : webAppInfo.servlets) {
             if (servletInfo.servletClass == null) {
                 continue;
             }
             Class<?> servletClass;
             try {
-                servletClass = bundle.loadClass(servletInfo.servletClass);
+                servletClass = contextClassLoader.loadClass(servletInfo.servletClass);
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException("Could not load the servlet class " + servletInfo.servletClass, e);
             }
@@ -69,7 +70,7 @@ public class GeronimoWebXml extends WebXml {
         for (FilterInfo filterInfo : webAppInfo.filters) {
             Class<?> filterClass;
             try {
-                filterClass = bundle.loadClass(filterInfo.filterClass);
+                filterClass = contextClassLoader.loadClass(filterInfo.filterClass);
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException("Could not load the filter class " + filterInfo.filterClass, e);
             }
@@ -97,8 +98,8 @@ public class GeronimoWebXml extends WebXml {
     @Override
     public boolean isErrorPagePresent() {
         return errorPagePresent;
-    }    
-    
+    }
+
     //TODO remove once upgrade to MyFaces 2.0.3
     protected boolean isFacesServlet(Class<?> servletClass) {
         return FacesServlet.class.isAssignableFrom(servletClass) || DelegatedFacesServlet.class.isAssignableFrom(servletClass) || servletClass.getName().equals(delegateFacesServlet);
