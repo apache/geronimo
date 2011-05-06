@@ -131,6 +131,12 @@
             <artifactId>activemq-core</artifactId>
         </dependency>
 
+        <!-- See GERONIMO-5950 -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-ra</artifactId>
+        </dependency>
+
         <!-- See GERONIMO-4266 -->
         <dependency>
             <groupId>org.directwebremoting</groupId>
