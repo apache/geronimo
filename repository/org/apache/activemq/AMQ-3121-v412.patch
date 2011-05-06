@@ -1,0 +1,108 @@
+Index: activemq-ra/src/main/java/org/apache/activemq/ra/ActiveMQResourceAdapter.java
+===================================================================
+--- activemq-ra/src/main/java/org/apache/activemq/ra/ActiveMQResourceAdapter.java	(revision 1100085)
++++ activemq-ra/src/main/java/org/apache/activemq/ra/ActiveMQResourceAdapter.java	(working copy)
+@@ -19,6 +19,7 @@
+ 
+ import org.apache.activemq.ActiveMQConnection;
+ import org.apache.activemq.ActiveMQConnectionFactory;
++import org.apache.activemq.ActiveMQXAConnectionFactory;
+ import org.apache.activemq.RedeliveryPolicy;
+ import org.apache.activemq.broker.BrokerFactory;
+ import org.apache.activemq.broker.BrokerService;
+@@ -26,7 +27,6 @@
+ import org.apache.commons.logging.Log;
+ import org.apache.commons.logging.LogFactory;
+ 
+-import javax.jms.Connection;
+ import javax.jms.JMSException;
+ import javax.jms.XAConnection;
+ import javax.jms.XASession;
+@@ -66,6 +66,7 @@
+     private String brokerXmlConfig;
+     private BrokerService broker;
+     private ActiveMQConnectionFactory connectionFactory;
++    private XAConnection cachedConnection;
+ 
+     public ActiveMQResourceAdapter() {
+     }
+@@ -172,6 +173,15 @@
+             ActiveMQEndpointActivationKey key = (ActiveMQEndpointActivationKey) endpointWorkers.keySet().iterator().next();
+             endpointDeactivation(key.getMessageEndpointFactory(), key.getActivationSpec());
+         }
++        if(cachedConnection != null) {
++        	try {
++        		log.debug("Closing cachedConnection... "+cachedConnection);
++        		cachedConnection.close();
++        		log.debug("Closed cachedConnection "+cachedConnection);
++        	} catch(Throwable ignored) {
++        	}
++        	cachedConnection = null;
++        }
+         if (broker != null) {
+             ServiceSupport.dispose(broker);
+             broker = null;
+@@ -255,23 +265,49 @@
+      * @see javax.resource.spi.ResourceAdapter#getXAResources(javax.resource.spi.ActivationSpec[])
+      */
+     public XAResource[] getXAResources(ActivationSpec[] activationSpecs) throws ResourceException {
+-        Connection connection = null;
+         try {
+-            connection = makeConnection();
+-            if (connection instanceof XAConnection) {
+-                XASession session = ((XAConnection) connection).createXASession();
+-                XAResource xaResource = session.getXAResource();
+-                return new XAResource[] { xaResource };
+-            } else {
+-                return new XAResource[] {};
++            ActiveMQConnectionFactory cf = connectionFactory == null ? createConnectionFactory(getInfo()) : connectionFactory;
++            if (!(cf instanceof ActiveMQXAConnectionFactory)) {
++                 return new XAResource[] {};
+             }
+-        } catch (JMSException e) {
+-            throw new ResourceException(e);
+-        } finally {
+-            try {
+-                connection.close();
+-            } catch (Throwable ignore) {
++            if(cachedConnection != null) {
++            	try { 
++            	    XAResource res = cachedConnection.createXASession().getXAResource();
++            	    log.debug("Created XA resource from cached connection "+cachedConnection);
++                    return new XAResource[] {res};
++                } catch(Throwable t) {
++                	log.debug("Failed to create XA resource from cached connection "+cachedConnection, t);
++                	try {
++                		log.debug("Closing cachedConnection... "+cachedConnection);
++                		cachedConnection.close();
++                		log.debug("Closed cachedConnection "+cachedConnection);
++                	} catch(Throwable ignored) {
++                	}
++                	cachedConnection = null;
++                }
+             }
++            // Cached connection could not be used. Create a new connection, cache it and serve the request.
++        	try {
++        	    cachedConnection = (XAConnection) makeConnection(getInfo(), cf);
++        	    XAResource res = cachedConnection.createXASession().getXAResource();
++        	    log.debug("Created XA resource from new connection "+cachedConnection);
++                return new XAResource[] {res};
++            } catch(Throwable t) {
++            	log.debug("Failed to create XA resource from new connection "+cachedConnection, t);
++            	if(cachedConnection != null) {
++                    XAConnection temp = cachedConnection;
++            		cachedConnection = null;
++                	try {
++                		log.debug("Closing new connection... "+temp);
++                		temp.close();
++                		log.debug("Closed new connection "+temp);
++                	} catch(Throwable ignored) {
++                	}
++            	}
++            	throw new ResourceException(t);
++            }
++         } catch (JMSException e) {
++             throw new ResourceException(e);
+         }
+     }
+ 

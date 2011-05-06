@@ -1,6 +1,6 @@
 Private Build of ActiveMQ for Geronimo.   
 
-How to build ActiveMQ 4.1.2-G20090207:
+How to build ActiveMQ 4.1.2-G20110506:
 --------------------------------------
 Checkout the ActiveMQ 4.1.2 tag
   svn co https://svn.apache.org/repos/asf/activemq/tags/activemq-4.1.2 activemq-4.1.2
@@ -26,6 +26,7 @@ patch -p0 -u < AMQ-2094.patch
 patch -p0 -u < build.patch
 patch -p0 -u < AMQ-2346.patch
 patch -p0 -u < unitcasesfix.patch
+patch -p0 -u < AMQ-3121-v412.patch
 Answer 'y' to any prompts of "Reversed (or previously applied) patch detected!  Assume -R? [n]"
 
 
@@ -34,20 +35,28 @@ Build ActiveMQ
   cd activemq-4.1.2
   mvn install
 Notes:
-  - we only need to build the activemq-core directory
-  - I used Sun 1.5.0_13 and Maven 2.0.9 on MacOSX to build the jar
+  - we only need to build the activemq-core and activemq-ra directories
+  - I used Sun 1.5.0_17 and Maven 2.0.11 on Windows XP to build the jar
 
   
 Copy patched activemq-core jar to appropriate filename
 ------------------------------------------------------
   cd activemq-4.1.2
-  cp activemq-core/target/activemq-core-4.1.2.jar <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G20100308/activemq-core-4.1.2-G20100308.jar
+  cp activemq-core/target/activemq-core-4.1.2.jar <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G20110506/activemq-core-4.1.2-G20110506.jar
+
+Copy patched activemq-ra jar to appropriate filename
+------------------------------------------------------
+  cd activemq-4.1.2
+  cp activemq-ra/target/activemq-ra-4.1.2.jar <geronimo-root>/repository/org/apache/activemq/activemq-ra/4.1.2-G20110506/activemq-ra-4.1.2-G20110506.jar
 
 Optional steps:
 ---------------
-  cd <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G20100308
-  md5sum activemq-core-4.1.2-G20100308.jar > activemq-core-4.1.2-G20100308.jar.md5
-  sha1sum activemq-core-4.1.2-G20100308.jar > activemq-core-4.1.2-G20100308.jar.sha1
+  cd <geronimo-root>/repository/org/apache/activemq/activemq-core/4.1.2-G20110506
+  md5sum activemq-core-4.1.2-G20110506.jar > activemq-core-4.1.2-G20110506.jar.md5
+  sha1sum activemq-core-4.1.2-G20110506.jar > activemq-core-4.1.2-G20110506.jar.sha1
+  cd <geronimo-root>/repository/org/apache/activemq/activemq-ra/4.1.2-G20110506
+  md5sum activemq-ra-4.1.2-G20110506.jar > activemq-ra-4.1.2-G20110506.jar.md5
+  sha1sum activemq-ra-4.1.2-G20110506.jar > activemq-ra-4.1.2-G20110506.jar.sha1
 
 
 How the patch (AMQ1272-stomp-auth-v412.patch) was created:
