@@ -63,6 +63,7 @@ import org.apache.geronimo.web.info.ServletInfo;
 import org.apache.geronimo.web.info.WebAppInfo;
 import org.apache.geronimo.web25.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web25.deployment.WebAppInfoBuilder;
+import org.apache.geronimo.web25.deployment.model.WebAppType;
 import org.apache.openejb.jee.JaxbJavaee;
 import org.apache.openejb.jee.JspConfig;
 import org.apache.openejb.jee.JspPropertyGroup;
@@ -72,7 +73,6 @@ import org.apache.openejb.jee.Taglib;
 import org.apache.openejb.jee.TldTaglib;
 import org.apache.openejb.jee.WebApp;
 import org.apache.xbean.finder.ClassFinder;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -133,7 +133,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         //TODO Only merge if we detect jsps???
         EnvironmentBuilder.mergeEnvironments(module.getEnvironment(), defaultEnvironment);
 
-        WebModule webModule = (WebModule) module;
+        WebModule<WebAppType> webModule = (WebModule<WebAppType>) module;
         WebApp webApp = webModule.getSpecDD();
 
         EARContext moduleContext = module.getEarContext();
@@ -150,7 +150,7 @@ public class JspModuleBuilderExtension implements ModuleBuilderExtension {
         Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
         buildingContext.put(NamingBuilder.INJECTION_KEY, holder);
 
-        XmlObject jettyWebApp = webModule.getVendorDD();
+        WebAppType jettyWebApp = webModule.getVendorDD();
 
         Set<String> listenerNames = new HashSet<String>();
 

@@ -103,11 +103,6 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
     public KeystoreManager getKeystoreManager();
 
     /**
-     * Gets the ConfigurationManager associated with this J2EEServer.
-     */
-    public ConfigurationManager getConfigurationManager();
-
-    /**
      * Gets the applications currently running in this J2EEServer.
      */
     J2EEApplication[] getApplications();

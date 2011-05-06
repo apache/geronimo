@@ -36,34 +36,27 @@
     <description>Geronimo Jasper jsp integration including injection support.</description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-            <scope>provided</scope>
-        </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>j2ee-server</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>j2ee-server</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>server-security-config</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.framework</groupId>-->
+            <!--<artifactId>server-security-config</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.geronimo.configs</groupId>
-            <artifactId>transaction-1_6</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.geronimo.configs</groupId>-->
+            <!--<artifactId>transaction-1_6</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--<type>car</type>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>

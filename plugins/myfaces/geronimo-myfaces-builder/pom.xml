@@ -41,6 +41,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.modules</groupId>
+            <artifactId>geronimo-web-2.5-builder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.modules</groupId>
             <artifactId>geronimo-web</artifactId>
             <version>${project.version}</version>
         </dependency>

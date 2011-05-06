@@ -31,7 +31,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.openejb.loader.SystemInstance;
 import org.apache.openejb.server.ServerService;
 import org.apache.openejb.server.ServiceManager;
-import org.osgi.framework.BundleContext;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -48,8 +48,7 @@ public class EjbDaemonGBean implements GBeanLifecycle {
 
     private final Kernel kernel;
     private final AbstractName name;
-    private final BundleContext bundleContext;
-    private final ClassLoader classLoader;
+    private final Bundle bundle;
     private ServiceTracker tracker;
     private ServiceManager serviceManager;
 
@@ -63,20 +62,19 @@ public class EjbDaemonGBean implements GBeanLifecycle {
 
                           @ParamSpecial(type = SpecialAttributeType.kernel) Kernel kernel,
                           @ParamSpecial(type = SpecialAttributeType.abstractName) AbstractName name,
-                          @ParamSpecial(type = SpecialAttributeType.bundleContext) final BundleContext bundleContext,
+                          @ParamSpecial(type = SpecialAttributeType.bundle) final Bundle bundle,
                           @ParamSpecial(type = SpecialAttributeType.classLoader) ClassLoader classLoader) throws Exception {
         System.setProperty("openejb.nobanner", "true");
         this.kernel = kernel;
         this.name = name;
-        this.bundleContext = bundleContext;
-        this.classLoader = classLoader;
+        this.bundle = bundle;
 
         serviceManager = ServiceManager.getManager();
 
-        tracker = new ServiceTracker(bundleContext, ServerService.class.getName(), new ServiceTrackerCustomizer() {
+        tracker = new ServiceTracker(bundle.getBundleContext(), ServerService.class.getName(), new ServiceTrackerCustomizer() {
 
             public Object addingService(ServiceReference reference) {
-                ServerService service = (ServerService) bundleContext.getService(reference);
+                ServerService service = (ServerService) bundle.getBundleContext().getService(reference);
                 return addServerService(service);
             }
 
@@ -136,7 +134,7 @@ public class EjbDaemonGBean implements GBeanLifecycle {
         GBeanData connectorData = new GBeanData(beanName, ServerServiceGBean.getGBeanInfo());
 
         try {
-            kernel.loadGBean(connectorData, bundleContext);
+            kernel.loadGBean(connectorData, bundle);
             kernel.startRecursiveGBean(beanName);
 
             ServerServiceGBean connectorGBean = (ServerServiceGBean) kernel.getGBean(beanName);

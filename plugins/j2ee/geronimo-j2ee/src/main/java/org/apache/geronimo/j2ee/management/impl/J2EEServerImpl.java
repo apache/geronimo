@@ -26,7 +26,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ObjectNameUtil;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.management.AppClientModule;
@@ -68,7 +67,6 @@ public class J2EEServerImpl implements J2EEServer {
     private final Collection writableRepos;
     private final Collection securityRealms;
     private final Collection keystoreManagers;
-    private final ConfigurationManager configurationManager;
 
     public J2EEServerImpl(String objectName,
                           ServerInfo serverInfo,
@@ -86,8 +84,7 @@ public class J2EEServerImpl implements J2EEServer {
                           Collection repositories,
                           Collection writableRepos,
                           Collection securityRealms,
-                          Collection keystoreManagers,
-                          ConfigurationManager configurationManager) {
+                          Collection keystoreManagers) {
 
         this.objectName = objectName;
         ObjectName myObjectName = ObjectNameUtil.getObjectName(this.objectName);
@@ -112,7 +109,6 @@ public class J2EEServerImpl implements J2EEServer {
         this.writableRepos = writableRepos;
         this.securityRealms = securityRealms;
         this.keystoreManagers = keystoreManagers;
-        this.configurationManager = configurationManager;
     }
 
     public String getObjectName() {
@@ -267,9 +263,6 @@ public class J2EEServerImpl implements J2EEServer {
         return (KeystoreManager) keystoreManagers.iterator().next();
     }
 
-    public ConfigurationManager getConfigurationManager() {
-        return configurationManager;
-    }
 
     public String getServerVendor() {
         return SERVER_VENDOR;
@@ -300,7 +293,6 @@ public class J2EEServerImpl implements J2EEServer {
         infoFactory.addReference("WritableRepos", WritableListableRepository.class);
         infoFactory.addReference("SecurityRealms", SecurityRealm.class);
         infoFactory.addReference("KeystoreManagers", KeystoreManager.class);
-        infoFactory.addReference("ConfigurationManager", ConfigurationManager.class);
 
         infoFactory.setConstructor(new String[]{
                 "objectName",
@@ -320,7 +312,6 @@ public class J2EEServerImpl implements J2EEServer {
                 "WritableRepos",
                 "SecurityRealms",
                 "KeystoreManagers",
-                "ConfigurationManager",
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

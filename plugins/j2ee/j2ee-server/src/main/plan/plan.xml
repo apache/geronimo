@@ -69,9 +69,9 @@
         <reference name="WritableRepos"/>
         <reference name="SecurityRealms"/>
         <reference name="KeystoreManagers"/>
-        <reference name="ConfigurationManager">
-            <name>ConfigurationManager</name>
-        </reference>
+        <!--<reference name="ConfigurationManager">-->
+            <!--<name>ConfigurationManager</name>-->
+        <!--</reference>-->
     </gbean>
 
     <gbean name="JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl">

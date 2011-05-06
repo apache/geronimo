@@ -36,12 +36,6 @@
     <description>Geronimo MyFaces jsf integration</description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.geronimo.framework</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${project.version}</version>
-            <type>car</type>
-        </dependency>
 
         <!-- parent -->
         <dependency>

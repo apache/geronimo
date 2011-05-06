@@ -73,6 +73,7 @@ import org.apache.geronimo.myfaces.info.GeronimoFacesConfigData;
 import org.apache.geronimo.myfaces.webapp.GeronimoStartupServletContextListener;
 import org.apache.geronimo.myfaces.webapp.MyFacesWebAppContext;
 import org.apache.geronimo.web.info.WebAppInfo;
+import org.apache.geronimo.web25.deployment.model.WebAppType;
 import org.apache.myfaces.config.annotation.AnnotationConfigurator;
 import org.apache.myfaces.config.element.FacesConfig;
 import org.apache.myfaces.config.element.ManagedBean;
@@ -89,7 +90,6 @@ import org.apache.xbean.osgi.bundle.util.BundleResourceFinder;
 import org.apache.xbean.osgi.bundle.util.BundleResourceFinder.ResourceFinderCallback;
 import org.apache.xbean.osgi.bundle.util.DiscoveryRange;
 import org.apache.xbean.osgi.bundle.util.ResourceDiscoveryFilter;
-import org.apache.xmlbeans.XmlObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -159,7 +159,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             //not a web module, nothing to do
             return;
         }
-        WebModule webModule = (WebModule) module;
+        WebModule<WebAppType> webModule = (WebModule<WebAppType>) module;
         WebApp webApp = webModule.getSpecDD();
         if (!hasFacesServlet(webApp)) {
             return;
@@ -184,7 +184,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
             //not a web module, nothing to do
             return;
         }
-        WebModule webModule = (WebModule) module;
+        WebModule<WebAppType> webModule = (WebModule<WebAppType>) module;
         WebApp webApp = webModule.getSpecDD();
         if (!hasFacesServlet(webApp)) {
             return;
@@ -213,7 +213,7 @@ public class MyFacesModuleBuilderExtension implements ModuleBuilderExtension {
         Holder holder = NamingBuilder.INJECTION_KEY.get(sharedContext);
         buildingContext.put(NamingBuilder.INJECTION_KEY, holder);
 
-        XmlObject jettyWebApp = webModule.getVendorDD();
+        WebAppType jettyWebApp = webModule.getVendorDD();
 
         //Parse default web application faces configuration file WEB-INF/faces-config.xml
         FacesConfig webAppFacesConfig = getWebAppFacesConfig(webModule);
