@@ -95,20 +95,23 @@ public class ConfigRegistryImpl implements ConfigRegistry {
         BundleContext bundleContext = activator.getBundleContext();
         ServiceReference serviceReference = null;
         try {
-            serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
-            if (serviceReference == null) {
-                return Collections.<FacesConfig> emptyList();
-            }
-            DependencyManager dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
-            List<Bundle> dependentBundles = dependencyManager.getFullDependentBundles(bundle);
-            List<FacesConfig> dependentFacesConfigs = new ArrayList<FacesConfig>();
-            for (Bundle dependentBundle : dependentBundles) {
-                FacesConfig facesConfig = bundleIdFacesConfigMap.get(dependentBundle.getBundleId());
-                if (facesConfig != null) {
-                    dependentFacesConfigs.add(facesConfig);
-                }
-            }
-            return dependentFacesConfigs;
+            //TODO - fix dependencymanager lookup
+            assert false;
+            return null;
+//             serviceReference = bundleContext.getServiceReference(DependencyManager.class.getName());
+//             if (serviceReference == null) {
+//                 return Collections.<FacesConfig> emptyList();
+//             }
+//             DependencyManager dependencyManager = (DependencyManager) bundleContext.getService(serviceReference);
+//             List<Bundle> dependentBundles = dependencyManager.getFullDependentBundles(bundle);
+//             List<FacesConfig> dependentFacesConfigs = new ArrayList<FacesConfig>();
+//             for (Bundle dependentBundle : dependentBundles) {
+//                 FacesConfig facesConfig = bundleIdFacesConfigMap.get(dependentBundle.getBundleId());
+//                 if (facesConfig != null) {
+//                     dependentFacesConfigs.add(facesConfig);
+//                 }
+//             }
+//             return dependentFacesConfigs;
         } finally {
             if (serviceReference != null) {
                 bundleContext.ungetService(serviceReference);
